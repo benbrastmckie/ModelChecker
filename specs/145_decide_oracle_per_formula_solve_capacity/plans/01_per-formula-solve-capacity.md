@@ -455,7 +455,7 @@ derivation budget, with the trade-off recorded and the new constant pinned so it
 
 ---
 
-### Phase 7: Full-gate confirmation run [NOT STARTED]
+### Phase 7: Full-gate confirmation run [IN PROGRESS]
 
 **Goal**: The task's terminal deliverable — a full `verify-refactor.sh` run (no
 `--skip-oracle`) inside `nix develop` ending in "[verify-refactor] All checks passed" with

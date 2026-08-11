@@ -1,0 +1,26 @@
+{
+  "runs": [
+    {
+      "formula": "bm_cm_1",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 930150200,
+      "wall_seconds": 600.681,
+      "sub_results": [
+        {
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 930150200,
+          "wall_seconds": 600.681,
+          "reported_runtime": 600.0033,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   1330.74\n :memory       692.02\n :num-allocs   354388597392545.00\n :rlimit-count 930150200)",
+          "seed": 2,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:50:10Z"
+    }
+  ]
+}

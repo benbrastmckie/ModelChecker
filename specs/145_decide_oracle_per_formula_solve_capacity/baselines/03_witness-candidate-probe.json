@@ -461,6 +461,160 @@
         }
       ],
       "timestamp": "2026-08-11T14:53:05Z"
+    },
+    {
+      "formula": "bm_cm_1",
+      "seed": 1,
+      "repeat_index": 0,
+      "rlimit": 5056481,
+      "wall_seconds": 1.7239,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 5056481,
+          "wall_seconds": 1.7239,
+          "reported_runtime": 1.6523,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   53.11\n :memory       30.86\n :num-allocs   1370093537\n :rlimit-count 5056481)",
+          "seed": 1,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:37:13Z"
+    },
+    {
+      "formula": "bm_cm_1",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 203130883,
+      "wall_seconds": 120.321,
+      "sub_results": [
+        {
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 203130883,
+          "wall_seconds": 120.321,
+          "reported_runtime": 120.0021,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   631.91\n :memory       336.02\n :num-allocs   15412823289594.00\n :rlimit-count 203130883)",
+          "seed": 2,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:39:13Z"
+    },
+    {
+      "formula": "bm_cm_1",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 7398857,
+      "wall_seconds": 3.442,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 7398857,
+          "wall_seconds": 3.442,
+          "reported_runtime": 3.2899,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   631.91\n :memory       49.53\n :num-allocs   15731422701190.00\n :rlimit-count 7398857)",
+          "seed": 3,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:39:17Z"
+    },
+    {
+      "formula": "bm_cm_1",
+      "seed": 4,
+      "repeat_index": 0,
+      "rlimit": 24126440,
+      "wall_seconds": 9.9497,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 24126440,
+          "wall_seconds": 9.9497,
+          "reported_runtime": 9.8417,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   631.91\n :memory       55.04\n :num-allocs   16323544920273.00\n :rlimit-count 24126440)",
+          "seed": 4,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:39:27Z"
+    },
+    {
+      "formula": "bm_cm_1",
+      "seed": 5,
+      "repeat_index": 0,
+      "rlimit": 14642280,
+      "wall_seconds": 7.1672,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 14642280,
+          "wall_seconds": 7.1672,
+          "reported_runtime": 7.07,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   631.91\n :memory       53.95\n :num-allocs   16979181309355.00\n :rlimit-count 14642280)",
+          "seed": 5,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:39:34Z"
+    },
+    {
+      "formula": "bm_cm_1",
+      "seed": 6,
+      "repeat_index": 0,
+      "rlimit": 22220097,
+      "wall_seconds": 7.3036,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 22220097,
+          "wall_seconds": 7.3036,
+          "reported_runtime": 7.2119,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   631.91\n :memory       53.64\n :num-allocs   17540013090511.00\n :rlimit-count 22220097)",
+          "seed": 6,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:39:41Z"
+    },
+    {
+      "formula": "bm_cm_1",
+      "seed": 7,
+      "repeat_index": 0,
+      "rlimit": 4839810,
+      "wall_seconds": 1.4353,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 4839810,
+          "wall_seconds": 1.4353,
+          "reported_runtime": 1.37,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   631.91\n :memory       30.84\n :num-allocs   17754172556163.00\n :rlimit-count 4839810)",
+          "seed": 7,
+          "sub_name": "bm_cm_1"
+        }
+      ],
+      "timestamp": "2026-08-11T16:39:43Z"
     }
   ]
 }

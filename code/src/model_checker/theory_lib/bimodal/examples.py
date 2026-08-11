@@ -321,7 +321,28 @@ BM_CM_1_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 15,  # ~8s with isolated Z3 context; extra headroom for CI variance
+    'max_time' : 60,  # Recalibrated 15 -> 60 (2026-08-11); the prior "~8s" basis was
+                      # stale. Measured genuine cost: isolated unseeded runs decide at
+                      # ~13.1-15.1s (straddling the old 15s budget -- observed failing
+                      # ~coin-flip in isolation and reproducibly in
+                      # compare_bimodal_baseline.sh's test_bimodal.py sequence, at
+                      # commits both with and without the neighbouring BM_CM_4
+                      # recalibration, so this is genuine cost growth, not an induced
+                      # regression). A 7-seed pinned probe (smt/sat.random_seed,
+                      # 2026-08-11) measured median ~7.2s with decided draws up to
+                      # ~10s, plus ONE divergent draw undecided at 600s (rlimit 930M =
+                      # ~64x median) -- same divergent-tail class documented for the
+                      # ternary next_A leg in
+                      # oracle/bimodal_logic/tests/test_oracle_interface.py. 60s = ~4x
+                      # the operative ~15s worst decided draw; chosen above the strict
+                      # ~2x convention because the thin decided sample demonstrably
+                      # under-represents the mid-tail. The divergent-draw residual is
+                      # accepted and recorded: no budget closes it, and the
+                      # countermodel is genuinely found on every decided draw. \Future
+                      # is in the all_future operator family whose cost grew with the
+                      # quantifier bound-variable-aliasing fix (see operators.py's
+                      # _fresh_bound_int docstring). Monotone-safe for a countermodel
+                      # expectation; not a soundness change.
     'expectation' : True,
 }
 BM_CM_1_example = [

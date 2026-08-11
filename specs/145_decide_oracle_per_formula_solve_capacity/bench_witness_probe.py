@@ -109,6 +109,19 @@ PC_TARGETS = {
             "solver": "z3",
         },
     },
+    "bm_cm_1": {
+        "premises": ["\\Future A"],
+        "conclusions": ["\\Box A"],
+        "settings": {
+            "N": 2,
+            "M": 2,
+            "contingent": True,
+            "disjoint": False,
+            "max_time": 600.0,
+            "expectation": True,
+            "solver": "z3",
+        },
+    },
 }
 
 ALL_TARGETS = sorted(JSON_TARGETS) + sorted(PC_TARGETS)

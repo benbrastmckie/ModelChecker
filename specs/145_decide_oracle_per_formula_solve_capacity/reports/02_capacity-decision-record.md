@@ -124,4 +124,139 @@ nothing. `ORACLE_PASS2_TIMEOUT` is therefore calibrated, not implicated, and sta
 
 ## 7. Gate outcome appendix
 
-(To be appended after the Phase 7 full `verify-refactor.sh` run.)
+### 7.1 Full-gate runs 1 and 2 (2026-08-11): red on non-remedied mechanisms
+
+Two full `verify-refactor.sh` runs (transcripts: `baselines/04_full-gate-transcript.txt`,
+`baselines/05_full-gate-transcript-run2.txt`):
+
+| | Run 1 | Run 2 |
+|---|---|---|
+| Wall | 31m18s | 35m37s |
+| Steps 1-5 | ALL GREEN (new pins 627/609/16/2 and 5-constant set verified) | ALL GREEN |
+| Pass 1 | PASSED (602 passed, 3 skipped, 4 xfailed, 562.7 s) | PASSED (602/3/4, 555.1 s) |
+| Pass 2 | 1 failed / 15 passed, 1066.98 s | 1 failed / 15 passed, 1321.31 s |
+| Pass 2 failure | `test_temporal_propositional_interleaving` (some_future(p) draw blew its 5000 ms provider default on 1 of 50 iterations) | `TestGatingConclusiveScan`: 98/103 conclusive vs floor 100 (5 re-check timeouts; disagreements = 0) |
+| Step 7 | FAIL: BM_CM_1 (42/43) | FAIL: BM_CM_1 (42/43) |
+| disagreements | 0 throughout | 0 throughout |
+
+**Every remedied mechanism was green in both runs**: and_box_next, BM_CM_4 (all sites),
+the relocated ternary test (next_A leg decided), the relocated all_future_neg, and the
+gating re-check's soundness tooth. Pass-2 wall stayed inside the recomputed arithmetic
+band both times.
+
+### 7.2 BM_CM_1 diagnosis (Step 7, failed both runs): PRE-EXISTING, not change-induced
+
+Hypothesis tested (cheaply, without full gate runs): that the Phase 3 edit to BM_CM_4's
+`max_time` in the same examples.py induced the adjacent BM_CM_1 failure. REFUTED by direct
+isolated measurement of `test_example_cases[BM_CM_1-example_case7]` (the exact Step 7
+selection, `--timeout=120`, one test alone per process):
+
+| Commit | Isolated runs | Walls |
+|---|---|---|
+| HEAD (all task changes) | PASS, FAIL, PASS | 15.12 s / 15.20 s / 13.09 s |
+| Pre-task commit `8bcff93d` (no task changes) | PASS, PASS, FAIL, FAIL | 14.23 s / 13.71 s / 15.32 s / 15.25 s |
+
+BM_CM_1 straddles its own `max_time: 15` boundary in ISOLATION at BOTH commits — the
+failure reproduces with no task changes present and cannot be an induced regression. Its
+recorded basis ("~8s with isolated Z3 context") is stale: genuine isolated cost now
+measures ~13.7-15.3+ s, i.e. the budget sits at ~1.0x the real cost. This is the same
+never-recalibrated-boundary family as the mechanisms this record remedies (`\Future A`
+involves the all_future operator family whose cost grew with the 2026-08-07
+bound-variable-aliasing fix). Seeded 7-seed probe (120 s budget): median 7.17 s walls,
+but seed 2 CENSORED at 120.3 s (rlimit 203.1M = ~14x median). A 600 s uncensored
+re-probe of seed 2 (`baselines/06_bm-cm-1-tail-probe.json`) is UNDECIDED at 600.7 s,
+rlimit 930.2M = ~64x median — BM_CM_1's tail is DIVERGENT (same class as next_A), so no
+budget fully closes it; the operative in-suite failure mode, however, is the BOUNDED
+unseeded ~13-15 s draw against the 15 s budget, which a measured recalibration does fix.
+
+**Remedy applied (recorded deviation from this plan's original non-goals, on measured
+grounds after both gate runs failed Step 7 on it)**: `max_time` 15 → 60 at its single
+definition site, = ~4x the measured operative worst decided draw (~15.1 s), chosen above
+strict 2x because the thin decided sample (7 seeded + 7 isolated draws) demonstrably
+under-represents the mid-tail (the same lesson BM_CM_4's fresh probe taught about its
+"15-24 s" record), with the divergent seeded residual explicitly accepted and recorded —
+exactly the next_A treatment. Verified post-change in section 7.6.
+
+It is unknown whether the three pre-task red full-gate runs also failed Step 7 (their
+recorded triage focused on pass-2 per-formula timeouts); what is established is that the
+failure exists at the pre-task commit under isolated re-measurement today.
+
+### 7.3 Load-independence reconciliation (correcting an earlier over-claim)
+
+An earlier interim status grouped all run-1/run-2 failures as "contention-class". That
+grouping is WRONG and is corrected here, reconciled against this task's own
+load-independence finding (quiet-machine run at load 1.57 failed MORE tests than the
+contended 5.4-7.5 run; and_box_next blew budget on isolated contention-free seeds):
+
+- **BM_CM_1**: NOT contention. Deterministic-ish boundary-straddling at ~1.0x budget,
+  reproduced in isolation on a quiet machine at both commits (section 7.2).
+- **Interleaving some_future flake (run 1)**: NOT primarily contention. The 7-seed
+  some_future probe shows genuine heavy-tail draws (85.7 s; one censored at 180 s) — 50
+  sequential draws at a 5000 ms budget sample that tail. Load-independent mechanism;
+  pre-existing exposure outside this task's remedied set.
+- **Gating floor 98/103 (run 2)**: the ONE leg plausibly contention-driven — it matches
+  the recorded "concurrent operator-launched run caused the one non-gate 99/103 incident"
+  signature, and run 2 executed while a separate repository's lean/lake build held
+  ~6.5 cores (25% RAM); run 2's pass 2 also ran 24% slower than run 1's. This attribution
+  is one-leg-specific and does NOT generalize; the load-independence finding for the
+  per-formula mechanisms stands unmodified.
+
+### 7.4 Enriched-pair [next] coverage erosion (recorded; Phase 4 fallback reassessed)
+
+Both runs' pass 1 timeout-skip inventory flags
+`[NEW] test_enriched_vs_primitive_sat_agreement[next]`: at least one side did not decide
+within 180000 ms (skip-on-timeout mechanism, pre-dating this task). The Phase 4
+adjudication's point 3 cited that test as retaining bare next(A) solve coverage
+"elsewhere, hard-asserting" — a premise that supported SUBSTITUTION. That premise is now
+eroded: the divergent next-class tail also surfaces there, where it produces a skip, not
+an assert.
+
+Reassessment: this erosion REINFORCES rather than undermines the fallback actually taken.
+The fallback kept `_next(A)` in the ternary test, hard-asserting at 480000 ms — currently
+the strongest bare-next(A) solve gate in the suite (substitution would have removed it
+while the "retained elsewhere" coverage was itself timeout-skipping). The [NEW] inventory
+line's own demand (adjudicate the enriched pair's expected_sat against ground truth)
+belongs to the timeout-skip inventory process, outside this task's mandate; recorded here
+so it is not lost.
+
+### 7.5 Remaining exposures for a green gate
+
+1. ~~BM_CM_1 `max_time` at ~1.0x measured genuine cost~~ — REMEDIED (sections 7.2, 7.6):
+   measured recalibration 15 → 60 with recorded basis and accepted divergent residual.
+2. The interleaving test's 50-draw some_future exposure at 5000 ms fails a run with
+   nontrivial per-run probability (observed 1 of 2 runs). Pre-existing; outside mandate;
+   NOT remedied by this task.
+3. A contention-free window is needed for the gating re-check floor (98/103 under heavy
+   external load; 103/103 in run 1 and in the Phase 6 targeted run).
+
+### 7.6 BM_CM_1 post-recalibration verification
+
+At `max_time: 60`, `test_example_cases[BM_CM_1-example_case7]` in the exact Step 7
+invocation, isolated, 3 consecutive runs on a quiet machine: PASS 9.65 s, PASS 10.65 s,
+PASS 11.13 s — the operative draw sits at ~6x headroom against the new budget. Full-gate
+confirmation is the Phase 7 run-3 transcript (below), not these isolated runs.
+
+### 7.7 The divergent-tail pattern: what this task does NOT resolve
+
+Stated plainly, so it cannot be papered over: this task's remedy is **capacity
+recalibration for BOUNDED tails** (and scheduling for contention victims). It does not —
+and cannot — resolve **divergent tails**, of which there are now THREE measured or
+surfaced instances in the same encoding family:
+
+1. The ternary test's `next_A` leg: undecided at 601.0 s, rlimit 1.026B = 7.5x good draw
+   (`baselines/02_next-a-divergence-probe.json`). Residual ~1-in-7 accepted at 480000 ms.
+2. BM_CM_1's seed-2 draw: undecided at 600.7 s, rlimit 930.2M = ~64x median
+   (`baselines/06_bm-cm-1-tail-probe.json`). Residual accepted at 60 s.
+3. `test_enriched_vs_primitive_sat_agreement[next]`: [NEW] timeout-skip at 180000 ms in
+   both gate runs' pass 1 — the same next-class divergence surfacing through the
+   skip-on-timeout mechanism.
+
+Three instances is a pattern, not three coincidences: the post-soundness-fix encoding has
+a population of formula/draw combinations that Z3 does not decide at ANY practical budget
+(consistent with the known 60-65% inconclusive-at-any-budget scan population). Budget
+recalibration converts bounded-tail failures into reliable passes; it converts divergent
+tails only into bounded, recorded residual risk. Resolving the divergent class would
+require encoding-level work, which is explicitly out of scope here (nine-plus recorded
+dead ends; constraint 7) and remains an open, honestly-scoped limitation. Any future
+recurrence of a divergent draw in a gate is a manifestation of this recorded residual —
+triage it against this section before treating it as a new regression.
