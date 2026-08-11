@@ -1342,20 +1342,50 @@ class TestTernarySerializationAll:
     def setup_method(self):
         self.provider = Z3OracleProvider()
 
+    @pytest.mark.xdist_serial
     def test_all_sat_task_relation_ternary(self):
         """Every task_relation entry is a dict with {source, duration, target} keys
         and integer values.
+
+        xdist_serial + per-leg budget override for next_A (2026-08-11): the
+        next_A leg's solve-cost distribution has a genuinely DIVERGENT tail
+        -- a pinned-seed probe measured one draw UNDECIDED at 601.0s against
+        a 600s budget, rlimit 1.026B = 7.5x a good draw, consistent with the
+        encoding's known 60-65% inconclusive-at-any-budget population. No
+        budget fixes a divergent draw. Substituting a different
+        temporal-depth-1 witness was adjudicated as semantically acceptable
+        (this test asserts the ternary serialization SHAPE via existential
+        witnesses, not bare next(A) itself) but is NOT taken, because both
+        probed candidates measured unreliable across 7 pinned seeds:
+        and(neg(A), next(B)) decided all 7 but with max wall 107.4s (>60s
+        reliability criterion, rlimit outlier 4.4x its median), and
+        some_future(A) was undecided at 180s on one seed. Keeping next(A)
+        preserves coverage exactly; the recorded remedy is scheduling plus
+        budget: this test runs in the gating suite's contention-free serial
+        pass, and the next_A leg gets 480000ms (covers every measured
+        DECIDED draw with wide margin) with an explicitly accepted residual
+        ~1-in-7 chance across the seeded draw distribution that a divergent
+        draw exhausts the budget and hard-fails this test. That residual
+        failure is a real signal (a bad draw occurred), never to be resolved
+        by xfail/skip -- all five legs stay hard-asserting.
         """
         sat_formulas = [
-            ("atom_A", A),
-            ("imp_A_B", _imp(A, B)),
-            ("and_A_B", _and(A, B)),
-            ("diamond_A", _diamond(A)),
-            ("next_A", _next(A)),
+            ("atom_A", A, None),
+            ("imp_A_B", _imp(A, B), None),
+            ("and_A_B", _and(A, B), None),
+            ("diamond_A", _diamond(A), None),
+            # Per-leg override, NOT a change to TEMPORAL_SOLVE_TIMEOUT_MS
+            # (other users of that constant pass with margin or expect
+            # timeout): 480000ms for the divergent-tailed next_A solve --
+            # see the docstring above for the measured basis and the
+            # accepted residual.
+            ("next_A", _next(A), 480000),
         ]
-        for name, formula in sat_formulas:
+        for name, formula, timeout_override in sat_formulas:
             depth = temporal_depth(formula)
             timeout = TEMPORAL_SOLVE_TIMEOUT_MS if depth > 0 else ATEMPORAL_SOLVE_TIMEOUT_MS
+            if timeout_override is not None:
+                timeout = timeout_override
             result = self.provider.find_countermodel(formula, timeout_ms=timeout)
             assert result is not None, f"Expected SAT for {name}"
             task_rel = result["task_relation"]

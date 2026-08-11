@@ -352,22 +352,22 @@ measurement basis inline at the constant.
 
 ---
 
-### Phase 4: Ternary witness substitution [NOT STARTED]
+### Phase 4: Ternary witness substitution [COMPLETED]
 
 **Goal**: Replace the divergent `_next(A)` leg with the Phase-1-confirmed witness, with the
 adjudication recorded inline in the test source.
 
-**Tasks**:
-- [ ] `oracle/bimodal_logic/tests/test_oracle_interface.py:1343` region: in
-      `test_all_sat_task_relation_ternary`'s `sat_formulas`, replace the `_next(A)` entry with
-      the Phase-1-confirmed witness (primary: `_and(_neg(A), _next(B))`).
-- [ ] Record inline at the list entry (condensed from the Adjudication section): the test
-      asserts ternary serialization shape via an existential witness of the temporal-depth>0 /
-      M=3 path, not bare `next(A)` itself; bare `next(A)`'s divergent bad tail measured
-      undecided at 601 s / rlimit 7.5x good-draw (2026-08-11 probe); substitute measured
-      reliable across 7 pinned seeds (cite Phase 1 figures); bare `next(A)` solve coverage
-      retained in `test_enriched_vs_primitive_sat_agreement[next]`.
-- [ ] Confirm all five legs remain hard-asserting; no xfail/skip/marker changes to this test.
+**Tasks** (EXECUTED AS THE RECORDED FALLBACK — no substitution; both candidates failed the
+Phase 1 confirmation probe, see Phase 1 gate outcome):
+- [x] Keep `_next(A)`; add `@pytest.mark.xdist_serial` to the ternary test and a per-leg
+      480000 ms override for the `next_A` entry (`sat_formulas` entries now carry an optional
+      timeout override; `TEMPORAL_SOLVE_TIMEOUT_MS` itself untouched at 180000).
+- [x] Record inline (docstring + list-entry comment): divergence measurement (undecided at
+      601.0 s, rlimit 1.026B = 7.5x good draw), the adjudication outcome, BOTH failed
+      candidate probes (primary max 107.4 s / 4.4x-median outlier; secondary undecided at
+      180 s on one seed), and the explicitly accepted ~1-in-7 residual.
+- [x] Confirm all five legs remain hard-asserting; no xfail/skip added (the xdist_serial
+      marker is a scheduling routing, not a disable).
 
 **Timing**: 30 minutes
 
