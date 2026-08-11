@@ -20,7 +20,7 @@ next_project_number: 152
 
 ### Documentation
 
-147 [RESEARCHED] — Correct the release and environment documentation, which has drif
+147 [PLANNING] — Correct the release and environment documentation, which has drif
 
 ### Packaging
 
@@ -29,7 +29,7 @@ next_project_number: 152
 
 ### Architecture
 
-146 [RESEARCHING] — Fix the user-visible CLI defects surfaced by the 2026-08-11 relea
+146 [RESEARCHED] — Fix the user-visible CLI defects surfaced by the 2026-08-11 relea
 150 [NOT STARTED] — Add continuous integration for the main test suites. Surfaced by 
 
 ### Testing
@@ -151,7 +151,7 @@ BASELINE: the full suite is currently 2193/2193 green (283 top-level + 1910 in-p
 ---
 
 ### 147. Correct stale release and environment docs
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: markdown
 - **Topic**: documentation
 - **Dependencies**: None
@@ -179,10 +179,11 @@ SCOPE NOTE: documentation only. Do not modify release.yml or flake.nix here; if 
 ---
 
 ### 146. Fix cli defects found in release review
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: None
+- **Research**: [146_fix_cli_defects_found_in_release_review/reports/01_cli-defect-fixes.md]
 
 **Description**: Fix the user-visible CLI defects surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 8, 9, 11, 12, 13, 15). These are small, independent, and should land in the published artifact rather than as a post-release follow-up. All line references are against code/src/model_checker/__main__.py unless noted.
 
