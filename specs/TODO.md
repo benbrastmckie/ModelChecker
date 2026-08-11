@@ -13,23 +13,23 @@ next_project_number: 152
 |------|-------|------------|--------|
 | 1 | 146,147,149 | -- | documentation, packaging, architecture |
 | 2 | 148 | 146 | testing |
-| 3 | 150 | 148,149 | architecture |
-| 4 | 151 | 147,150 | packaging |
+| 3 | 150 | 147,148,149 | architecture |
+| 4 | 151 | 150 | packaging |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-147 [NOT STARTED] — Correct the release and environment documentation, which has drif
+147 [RESEARCHED] — Correct the release and environment documentation, which has drif
 
 ### Packaging
 
-149 [NOT STARTED] — Add executable tests for the packaging contract. Surfaced by the 
+149 [RESEARCHING] — Add executable tests for the packaging contract. Surfaced by the 
 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 
 ### Architecture
 
-146 [NOT STARTED] — Fix the user-visible CLI defects surfaced by the 2026-08-11 relea
+146 [RESEARCHING] — Fix the user-visible CLI defects surfaced by the 2026-08-11 relea
 150 [NOT STARTED] — Add continuous integration for the main test suites. Surfaced by 
 
 ### Testing
@@ -42,7 +42,7 @@ next_project_number: 152
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: packaging
-- **Dependencies**: Task 147, Task 150
+- **Dependencies**: Task 147, Task 149, Task 150
 
 **Description**: Re-run the release rehearsal against the post-refactor tree and take the release to PyPI. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 1, 3, 17). This is the terminal task of the release sequence and should run only after the CLI defects, the documentation corrections, the CLI test suite, and the packaging-contract tests are done.
 
@@ -73,7 +73,7 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md and the archived checklist
 - **Status**: [NOT STARTED]
 - **Task Type**: general
 - **Topic**: architecture
-- **Dependencies**: Task 148, Task 149
+- **Dependencies**: Task 147, Task 148, Task 149
 
 **Description**: Add continuous integration for the main test suites. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issue 7) and already an open Phase 1 item in specs/ROADMAP.md ("Add `nix flake check` as a CI gate job").
 
@@ -96,7 +96,7 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, do not push branches or o
 ---
 
 ### 149. Wheel and sdist packaging contract tests
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
@@ -151,10 +151,11 @@ BASELINE: the full suite is currently 2193/2193 green (283 top-level + 1910 in-p
 ---
 
 ### 147. Correct stale release and environment docs
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: markdown
 - **Topic**: documentation
 - **Dependencies**: None
+- **Research**: [147_correct_stale_release_and_environment_docs/reports/01_release-env-docs-drift.md]
 
 **Description**: Correct the release and environment documentation, which has drifted badly from the shipped pipeline. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 2, 14, 16). Issue 2 is rated CRITICAL because this is the documentation someone reads while performing the release; following it leads to a failed or wrongly-credentialed publish.
 
@@ -178,7 +179,7 @@ SCOPE NOTE: documentation only. Do not modify release.yml or flake.nix here; if 
 ---
 
 ### 146. Fix cli defects found in release review
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: None
