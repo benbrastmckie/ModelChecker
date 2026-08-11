@@ -63,8 +63,8 @@ BASELINE_FULL_COUNT=2100
 #   pytest oracle --collect-only -q -m "xdist_serial and not slow"
 #   pytest oracle --collect-only -q -m slow
 BASELINE_ORACLE_COUNT=627
-BASELINE_ORACLE_PARALLEL_COUNT=611
-BASELINE_ORACLE_SERIAL_COUNT=14
+BASELINE_ORACLE_PARALLEL_COUNT=609
+BASELINE_ORACLE_SERIAL_COUNT=16
 BASELINE_ORACLE_SLOW_COUNT=2
 
 # Re-pin provenance (see specs/143_decide_oracle_serial_pass_timeout_capacity/
@@ -79,6 +79,16 @@ BASELINE_ORACLE_SLOW_COUNT=2
 # unit tests, plus TestCatalogLabelAdjudication's 6 parametrized cases in
 # test_oracle_interface.py), raising both the parallel sub-count and the total.
 # The partition invariant (parallel + serial + slow == total) held at every step.
+#
+# Re-pin 2026-08-11 (611/14 -> 609/16, total unchanged): two more genuinely slow
+# solves were deliberately relocated parallel -> serial via @pytest.mark.xdist_serial
+# after the per-formula solve-capacity recalibration --
+# TestMixedFormulas::test_mixed_and_all_future_neg (a pure -n 6 CPU-contention victim;
+# 0/14 isolated seeded draws over its unchanged 60000ms budget) and
+# TestTernarySerializationAll::test_all_sat_task_relation_ternary (its next_A leg has a
+# measured divergent solve-cost tail and now carries a widened per-leg budget that is
+# only viable contention-free). Both markers carry their measurement bases inline in
+# test_oracle_interface.py. The partition invariant continues to hold.
 
 # Step 5 targets. Matched by content, never by line number — line-number pinning is exactly
 # what went stale here before.

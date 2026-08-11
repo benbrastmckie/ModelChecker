@@ -383,22 +383,24 @@ Phase 1 confirmation probe, see Phase 1 gate outcome):
 
 ---
 
-### Phase 5: Relocate the contention victim + Step 3 re-pin [NOT STARTED]
+### Phase 5: Relocate the contention victim + Step 3 re-pin [COMPLETED]
 
 **Goal**: Land the narrow option (a): move `test_mixed_and_all_future_neg` to the serial pass
 (budget untouched at 60000 — 2.4x isolated headroom is within convention) and re-pin the
 verify-refactor Step 3 collection counts by their documented procedure.
 
 **Tasks**:
-- [ ] Add `@pytest.mark.xdist_serial` to
-      `TestMixedFormulas::test_mixed_and_all_future_neg` (`test_oracle_interface.py:~1000`)
-      with a one-line basis comment (0/14 isolated draws over budget; sole failure occurred
-      under `-n 6` parallel contention -> scheduling fix, not budget).
-- [ ] Re-pin verify-refactor Step 3 counts all-four-together per the documented procedure
-      (`code/scripts/verify-refactor.sh:57-81`): total 627 (unchanged), parallel 611 -> 610,
-      serial 14 -> 15, slow 2 (unchanged), with a provenance comment naming the relocation.
-- [ ] Confirm the ternary test is NOT relocated (with the Phase 4 substitute's 7x+ headroom it
-      tolerates `-n 6` comfortably — research 7.2b).
+- [x] Add `@pytest.mark.xdist_serial` to
+      `TestMixedFormulas::test_mixed_and_all_future_neg` with a basis comment (0/14 isolated
+      draws over budget; sole failure occurred under `-n 6` parallel contention -> scheduling
+      fix, not budget) plus the Phase-1 heavier-tail watch item recorded inline.
+- [x] Re-pin verify-refactor Step 3 counts all-four-together per the documented procedure:
+      DEVIATION per Phase 1 fallback branch — total 627 (unchanged), parallel 611 -> 609,
+      serial 14 -> 16, slow 2 (unchanged), with a provenance comment naming BOTH relocations
+      (all_future_neg + the ternary test).
+- [x] Ternary test IS relocated on this branch (fallback; the substitute's assumed 7x+
+      headroom did not survive the Phase 1 probe) — plan text inverted by the Phase 1 gate.
+      Verified by `--collect-only`: 627 / 609 / 16 / 2 exactly.
 
 **Timing**: 30 minutes
 
