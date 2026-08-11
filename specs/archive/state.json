@@ -4950,6 +4950,234 @@
       "next_artifact_number": 1,
       "completion_summary": "Fixed the Z3 quantifier variable aliasing defect in bimodal temporal operators: replaced fixed-name bound variables with counter-suffixed z3.Int (_fresh_bound_int) at all 14 sites, after z3.FreshInt was found to cause a severe MBQI performance regression. Rewrote the tests that asserted the bug as expected behavior, added a permanent anti-collapse structural regression guard, and rebuilt the complexity<=5 conclusive manifest from a full 274-formula re-derivation (0 disagreements). Key findings: the task's throughput hypothesis was falsified (37.6% conclusive post-fix vs 38.7% pre-fix - the fix is justified on soundness grounds, not speed), and a genuine new soundness result surfaced (p Until q -> q Until p, previously reported VALID, now yields a countermodel - sibling-operator aliasing outside the original census pattern). Bimodal suite 298/298 green.",
       "archived": "2026-08-10T06:08:52Z"
+    },
+    {
+      "project_number": 140,
+      "project_name": "fix_bimodal_order_dependence_and_oracle_timeouts",
+      "status": "completed",
+      "task_type": "python",
+      "topic": "bimodal/oracle residual defects",
+      "description": "Diagnose and fix the residual RED that plan v2 of the refactor-verification gate (`code/scripts/verify-refactor.sh`) correctly and honestly reports at Steps 4, 6, and 7 -- pre-existing product defects the refactor did not introduce and whose diagnosis was an explicit non-goal of both the refactor task and the oracle-suite rebaseline task. This task owns that residual RED and carries forward all five of the following items, none of which may be dropped or merged away: 1) `code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7]` fails on both attempts inside `nix develop`, and is the same example case as the oracle-side `test_regression_all_active_examples[BM_CM_1-example_case7]`. 2) The bidirectional order-dependence / cross-test state leakage finding: the bimodal example-case tests are order-dependent in both directions, independent of environment. `BM_CM_1-example_case7` passes alone in 8.36s but fails inside the full `bimodal/tests/` run under `nix develop`; conversely `BM_CM_2-example_case8` and `BM_CM_4-example_case9` pass inside the full run but fail reproducibly (\"2 failed, 41 passed\", twice) when `test_bimodal.py` is run alone -- which is exactly how `compare_bimodal_baseline.sh` invokes it. This is the sharpest handle on the defect: deterministic, fast, and environment-reproducible. Start here. 3) `code/scripts/compare_bimodal_baseline.sh`'s masking defect: it runs its pytest pipeline under `set -euo pipefail` (line 7), pytest exits 1, and the script aborts after printing only \"Running bimodal test suite...\" -- so the verification gate's message \"compare_bimodal_baseline.sh reported regressions\" is misleading because nothing was ever compared. Fixing the masking does not make the step green: the recorded baseline is 43 passing and the current isolated run yields 41, which trips the script's own \"REGRESSIONS DETECTED: 2 fewer passing tests\" branch (line 66) regardless. 4) The two pass-1 oracle `OracleTimeoutError` failures, `test_mixed_and_box_next` and `test_mixed_and_all_future_neg`, plus the 900s non-termination of `test_temporal_propositional_interleaving` in pass 2, all recorded across two independent quiet-machine runs of the gating oracle suite (`oracle/run-oracle-suite.sh`). 5) The environment warning: adjudicate all of the above only inside `nix develop`. On bare-PATH python (3.13.13), Step 4 of the verification gate passes 298/298 and looks fixed; inside `nix develop` (python 3.12.13, same z3 4.16.0, xdist 3.8.0), it reliably fails. Any \"it is fixed now\" claim originating from a bare-PATH run is an artifact and must be rejected. Hard constraints inherited verbatim: this task may fix the underlying defects, but it may not weaken, widen, delete, or relax any pin, timeout budget, conclusive floor, xfail marker, assertion, `strict=True` requirement, or guard anywhere in the repository to reach a green result -- including in `code/scripts/verify-refactor.sh`, `oracle/bimodal_logic/tests/test_oracle_interface.py`, or `code/scripts/compare_bimodal_baseline.sh`. The gating oracle suite must continue to be described as RED until Step 6 is genuinely green end to end.",
+      "dependencies": [],
+      "file_scope": [
+        "code/src/model_checker/theory_lib/bimodal/",
+        "code/scripts/compare_bimodal_baseline.sh",
+        "oracle/bimodal_logic/"
+      ],
+      "artifacts": [],
+      "created": "2026-08-10T04:33:29Z",
+      "last_updated": "2026-08-10T18:57:12Z",
+      "session_id": "sess_1786336303_0284a5",
+      "next_artifact_number": 1,
+      "blockers": "",
+      "completion_summary": "Root-caused and fixed cross-example order dependence in the bimodal theory: operators.py's process-global _bound_var_counter was never reset across examples despite isolated_z3_context() giving each example a fresh Z3 Context, so the numeric suffix baked into bound-variable names depended on how many prior examples had run, perturbing Z3's MBQI quantifier instantiation and flipping BM_CM_4 between pass and fail. Proven by seed bisection (counter=17 fails deterministically; 0/5/10/13/15/16/18/20/25/30 all pass) and fixed via reset_bound_var_counter() from BimodalSemantics._reset_global_state(), with regression coverage in test_bound_var_counter_isolation.py. Separately diagnosed a second, distinct defect class -- -n6 CPU contention on genuinely slow solves -- proven not to be a regression by an A/B showing all three BM_CM_4 oracle tests passing serially at both HEAD and pre-fix 29e1fdec, and fixed by scheduling (per-parameter xdist_serial marks) rather than by widening any budget. Repaired compare_bimodal_baseline.sh's exit-code masking, stale default baseline path, and duplicate-capture EXTRA-tests mislabelling, and added pytest-timeout to flake.nix (its absence from the devShell, not a test failure, was the true cause of the original Step 7 red). The gating oracle suite (Step 6) is now green across both passes for the first time, verified by an end-to-end verify-refactor.sh run. No pin, timeout budget, conclusive floor, xfail marker, assertion, strict=True requirement, or guard was weakened anywhere to reach this. Two residual items were spun out rather than dropped: the serial pass now runs at 96.6% of its 900s budget and the gate's four BASELINE_ORACLE_* collection pins need re-baselining once that distribution settles.",
+      "roadmap_items": [
+        "Bimodal example evaluation is now independent of test execution order",
+        "Gating oracle suite green end to end for the first time"
+      ],
+      "archived": "2026-08-11T22:12:01Z"
+    },
+    {
+      "project_number": 141,
+      "project_name": "triage_stale_local_branches_and_salvage_value",
+      "title": "Triage the 9 stale local-only branches, salvage anything of value, then retire them",
+      "status": "completed",
+      "task_type": "general",
+      "topic": "architecture",
+      "dependencies": [],
+      "file_scope": [
+        "code/src/model_checker/theory_lib/bimodal/",
+        "code/src/model_checker/theory_lib/exclusion/",
+        "docs/"
+      ],
+      "description": "Nine local branches predate the repository restoration and have never been merged or pushed. Decide what in them is still worth keeping, extract exactly that, and only then retire them. Do NOT open by deleting branches.\n\nWHY THIS IS NOT A CLEANUP CHORE: every one of these branches is local-only. A check against the remote confirms none of them exists on origin -- origin carries a different, older set (exclusion_attempt_9, false_premise, finean_exclusion, iterate, new_defined_operator, old_jupy, pre-full-skolem, reduced_exclusion, refactor_exclusion_single_strategy). So for these nine, the local clone is the ONLY copy in existence. `git branch -D` on any of them puts its history beyond reach once gc runs.\n\nTHE BRANCHES (last commit date; commits not reachable from current HEAD):\n  bimodal_refactor                   2025-10-02   2046\n  feature/bimodal-cvc5-pilot         2025-11-05   2066\n  feature/bimodal_witness            2025-09-24   1992\n  feature/bimodal_witness_backup     2025-09-23   1978\n  feature/cvc5-feasibility-test      2025-10-02   2050\n  feature/quantifier-free-witnesses  2025-10-02   2051\n  feature/witness-falsity-attempt    2025-10-02   2047\n  new_claude                         2026-01-10   2108\n  refactor/exclusion                 2025-10-01   2049\n\nREAD THE COUNTS CORRECTLY -- they are the single easiest thing to get wrong here. The ~2000-commit\nfigures are NOT two thousand commits of unique work. They are inflated by an old divergence point:\nmain-line development was rebuilt during the restoration effort, so almost the entire shared\nhistory now reads as \"not reachable from HEAD\". The genuinely distinct content on each branch is\nvery likely a small fraction of that. Establish the real delta per branch (diff against the merge\nbase, not the commit count) BEFORE judging any branch's worth. A triage that treats 2046 as\n\"2046 commits of lost work\" will reach the wrong conclusion on every branch.\n\nTHEMATIC GROUPING, for cheaper triage -- five of the nine concern one line of inquiry (bimodal\nwitness predicates and quantifier-free encodings: bimodal_refactor, feature/bimodal_witness,\nfeature/bimodal_witness_backup, feature/quantifier-free-witnesses, feature/witness-falsity-attempt),\ntwo concern a cvc5 solver evaluation (feature/bimodal-cvc5-pilot, feature/cvc5-feasibility-test),\none is an exclusion-theory refactor (refactor/exclusion), and one is a docs/tooling branch\n(new_claude, and the most recent of the set at 2026-01-10). Triage by theme rather than\nbranch-by-branch; within a theme the later branch usually supersedes the earlier.\n\nSPECIFIC THING TO LOOK FOR: the cvc5 branches represent an alternative-solver investigation that\nhas no counterpart in the current tree. Whether or not the code is reusable, the FINDING (does\ncvc5 handle the countermodel examples Z3 struggles with, and at what cost) may be worth preserving\nas a short written record even if every line of code is discarded. The same applies to\nfeature/witness-falsity-attempt, whose name suggests a recorded negative result. A negative result\nthat is cheap to write down and expensive to rediscover is exactly the kind of thing that should\nsurvive a branch deletion.\n\nWORK:\n  1. For each branch, compute the real delta against its merge base with master, not the raw\n     commit count. Classify each as: (a) superseded by the restoration, (b) contains reusable\n     code, (c) contains a finding worth recording even though the code is dead, or (d) unclear.\n  2. For (b), port the specific change onto a working branch off current master, with tests, as\n     ordinary work -- do not merge the stale branch wholesale. These branches diverge from before\n     the restoration and a wholesale merge would reintroduce superseded structure.\n  3. For (c), write the finding into the appropriate place under docs/ or as a short design note.\n     Cite what the branch demonstrated and why the code was not kept.\n  4. For (d), say so explicitly and keep the branch. \"Unclear\" is a legitimate terminal state\n     here; it is strictly better than a guess that destroys the only copy.\n  5. ONLY after 1-4 are recorded, retire the branches judged (a) or fully salvaged under (b)/(c).\n     Before deleting any branch, write it to a git bundle outside the repo and verify the bundle\n     restores (`git bundle verify`), so retirement stays reversible even after gc.\n\nHARD CONSTRAINTS:\n  - Do not delete any branch before its triage verdict is recorded in this task's artifacts.\n  - Do not push or delete anything on origin. Remote branches are out of scope for this task.\n  - Do not merge a stale branch directly into master.\n\nVERIFICATION BAR:\n  - Every one of the nine branches has a recorded verdict with its measured real delta.\n  - Any branch deleted has a verified bundle, and the bundle's location is recorded here.\n  - Anything classified (c) has its finding written down somewhere a future reader will find it\n    without knowing the branch ever existed.\n",
+      "created": "2026-08-10T06:45:00Z",
+      "last_updated": "2026-08-10T19:29:11Z",
+      "artifacts": [
+        {
+          "path": "specs/141_triage_stale_local_branches_and_salvage_value/reports/01_stale-branch-triage.md",
+          "type": "report",
+          "summary": "Stale local-only branch triage: real deltas, thematic supersession, cvc5 and negative-result findings"
+        },
+        {
+          "path": "specs/141_triage_stale_local_branches_and_salvage_value/plans/01_stale-branch-retirement.md",
+          "type": "plan",
+          "summary": "Five-phase stale-branch retirement: findings docs, bundles, gated deletion"
+        },
+        {
+          "path": "specs/141_triage_stale_local_branches_and_salvage_value/summaries/01_stale-branch-retirement-summary.md",
+          "type": "summary",
+          "summary": "Verdict table for nine branches, bundle archive location, and verification evidence"
+        }
+      ],
+      "session_id": "sess_1786388400_2fe3d3",
+      "completion_summary": "Triaged nine stale local-only branches: 5 superseded, 4 with findings now recorded in bimodal/docs/ARCHITECTURE.md and solver/README.md. All nine bundled to /home/benjamin/branch-archive/ModelChecker/ (each verified self-contained in an empty repo) and then deleted locally. No remote refs touched.",
+      "archived": "2026-08-11T22:12:01Z"
+    },
+    {
+      "project_number": 142,
+      "project_name": "surface_oracle_timeout_skips_and_run_exhaustive_scan",
+      "status": "completed",
+      "task_type": "python",
+      "topic": "oracle verification coverage",
+      "description": "Two categories of oracle verification currently produce no signal in the gating suite, and both hide real information about where the bimodal Z3 encoding is too slow to decide. (1) TIMEOUT-CONDITIONAL SKIPS: oracle/bimodal_logic/tests/test_oracle_interface.py converts an OracleTimeoutError into pytest.skip() at two sites (around lines 635 and 779) rather than failing. The rationale is correct -- a timeout is a budget/performance outcome, not a semantic regression -- but the consequence is that formulas the oracle cannot decide within budget disappear silently inside a green run. Worse, the first site's own skip message states that the affected example's ACTIVE_EXAMPLES expected_sat 'may itself have been measured under the old timeout-conflated contract', i.e. a recorded expectation may be wrong and nothing will ever report it. Make these skips visible and actionable: enumerate which formulas actually skip on a quiet machine, and for each, determine whether its recorded expected_sat is trustworthy or was measured under the old contract. Produce a prioritized worklist of formulas whose encoding needs performance work. Do NOT convert the skips into failures as a way of 'surfacing' them, and do NOT widen any timeout to make them decide -- the point is to measure and record, not to move budgets. (2) EXHAUSTIVE SCAN NEVER RUNS: oracle/run-oracle-suite.sh deselects '@pytest.mark.slow' from BOTH of its passes, so the exhaustive complexity<=5 self-consistency scan (oracle/run-oracle-exhaustive-scan.sh) runs only when invoked by hand, which nothing automated does. Run it on a quiet machine, record its result and runtime, and recommend whether it should be gated, scheduled periodically, or left manual -- with the cost in wall-clock time stated. Also worth checking while in this area: bimodal.get_theory(config) accepts a config argument and ignores it entirely (its own docstring says 'currently unused'), so a caller passing ['extensional'] silently receives the full bimodal theory including all temporal and modal operators. That makes a nominally trivial extensional example solve over a world-history x time search space. Assess whether any caller relies on the restriction that does not happen, and either implement the restriction or make the argument fail loudly. Adjudicate everything inside 'nix develop' only -- bare-PATH python gives false greens on this repo, including from missing test plugins, not just interpreter version differences.",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/bimodal_logic/tests/test_oracle_interface.py",
+        "oracle/run-oracle-exhaustive-scan.sh",
+        "code/src/model_checker/theory_lib/bimodal/__init__.py"
+      ],
+      "artifacts": [
+        {
+          "path": "specs/142_surface_oracle_timeout_skips_and_run_exhaustive_scan/reports/01_oracle-timeout-skips-scan.md",
+          "type": "report",
+          "summary": "Full findings: skip-site enumeration with ground-truth-verified mislabeling of TN_TH_2 (and the already-excluded TN_CM_1/BM_TH_1 duplicates), exhaustive-scan result/runtime with gating-vs-scheduled recommendation, and get_theory config-ignored assessment with fail-loudly recommendation."
+        },
+        {
+          "path": "specs/142_surface_oracle_timeout_skips_and_run_exhaustive_scan/plans/01_surface-oracle-timeout-skips.md",
+          "type": "plan",
+          "summary": "7-phase plan with dependency waves [[1,3,5,6],[2,4],[7]] covering label adjudication, timeout-skip surfacing, scan cadence, and get_theory documentation, plus an explicit this-task-vs-follow-up scope boundary table"
+        },
+        {
+          "path": "specs/142_surface_oracle_timeout_skips_and_run_exhaustive_scan/summaries/01_surface-oracle-timeout-skips-summary.md",
+          "type": "summary",
+          "summary": "Full implementation summary: what changed per phase, decisions, plan deviations (none beyond two documented consolidations), impacts, and the seven scoped follow-up recommendations in research priority order."
+        }
+      ],
+      "created": "2026-08-10T18:25:27Z",
+      "last_updated": "2026-08-10T22:27:51Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1786394927_a65984_142",
+      "completion_summary": "Surfaced oracle timeout skips: corrected TN_TH_2/TN_CM_1/BM_TH_1 expected_sat labels, added timeout-skip inventory hook (KNOWN/NEW/RESOLVED) to oracle/conftest.py with -rs wired into run-oracle-suite.sh, recorded exhaustive-scan cadence decision (scheduled non-gating) in TESTING_GUIDE.md 8.8 with check-scan-freshness.sh, documented get_theory(config) ignored-argument contract in bimodal/imposition/exclusion. Full gating suite green in nix develop; 7/7 phases.",
+      "archived": "2026-08-11T22:12:01Z"
+    },
+    {
+      "project_number": 143,
+      "project_name": "decide_oracle_serial_pass_timeout_capacity",
+      "status": "completed",
+      "task_type": "python",
+      "topic": "oracle suite capacity",
+      "description": "The gating oracle suite's serial pass (pass 2 of oracle/run-oracle-suite.sh, ORACLE_PASS2_TIMEOUT default 900s) now runs at 96.6% of its budget: a measured '14 passed, 592 deselected in 869.58s' leaves only 30.4 seconds of slack. This is expected to flake on a loaded machine, and that measurement was itself taken under rising system load (6.48 -> 11.19). For calibration the same pass took 795.70s with 10 tests and 770.48s with 11 tests; it now carries 14. The cause is legitimate rather than accidental: four genuinely slow solves were deliberately routed into the contention-free serial pass via @pytest.mark.xdist_serial to fix real -n 6 CPU-contention failures -- test_mixed_and_box_next (~44-45s) and three BM_CM_4 cases (~15-24s each). Scheduling was the correct fix and nothing was weakened to obtain the current green. But the serial pass now carries more work than when its 900s budget was set, and that budget was never revisited. Decide the capacity question deliberately and record the reasoning. Options, from the originating diagnosis report: (a) raise ORACLE_PASS2_TIMEOUT as an honest capacity adjustment; (b) attack the cause by making those four solves faster, which is semantic work on the encoding rather than a budget change; (c) accept and monitor, treating a pass-2 timeout as a capacity signal rather than a correctness regression. Option (a) is the lowest-effort durable fix and was recommended, PROVIDED it is done as a deliberate decision with the reasoning recorded -- not as an incidental fix during unrelated work. Before deciding, re-measure pass 2 on a genuinely quiet machine, since the 869.58s figure is contaminated by concurrent load and likely overstates the steady-state cost. Adjudicate inside 'nix develop' only. ALSO OWNS RE-PINNING THE GATE'S COLLECTION COUNTS. The end-to-end run of code/scripts/verify-refactor.sh is now green on Steps 1, 2, 4, 5, 6 and 7 but reports 2 FAILED checks at Step 3: 'oracle gating-parallel collection count is 590, expected exactly 594' and 'oracle xdist_serial collection count is 14, expected exactly 10'. These are not regressions. They are the pins correctly detecting the deliberate relocation of four genuinely slow solves out of the parallel pass and into the serial pass. The suite total is unchanged at 606 and the partition invariant still holds (590 + 14 + 2 = 606). The gate's own failure message prescribes the remedy: 're-pin all four BASELINE_ORACLE_* values together'. This was deliberately NOT done when the markers landed, to avoid pinning twice: if this task's capacity decision raises ORACLE_PASS2_TIMEOUT, or moves tests back out of the serial pass, or makes those solves fast enough to return to the parallel pass, the distribution changes again. Re-pin ONCE, after the capacity decision is settled and the final distribution is known, updating all four BASELINE_ORACLE_* values together and re-running the full gate to confirm 'All checks passed'. Note that re-pinning to match an intentional redistribution is not a weakening: the pins remain exactly as strict and will still fail on any future unintended change. Do not, however, relax the partition check or the total.",
+      "dependencies": [
+        144
+      ],
+      "file_scope": [
+        "code/scripts/verify-refactor.sh",
+        "oracle/bimodal_logic/tests/test_oracle_interface.py",
+        "oracle/run-oracle-suite.sh"
+      ],
+      "artifacts": [
+        {
+          "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/reports/01_serial-pass-capacity.md",
+          "type": "report",
+          "summary": "Full capacity analysis, three-option evaluation, re-pin provenance, and honest verification-status accounting"
+        },
+        {
+          "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/plans/01_formalize-capacity-decision.md",
+          "type": "plan",
+          "summary": "Five-phase plan: validate existing working-tree edits, re-confirm with --skip-oracle, run the full gate end-to-end to close the Step 6 gap, contingency triage, task-scoped commit. Effort 4 hours (3 nominal + 1 contingency)."
+        },
+        {
+          "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/summaries/01_phase4-triage-record.md",
+          "type": "summary",
+          "summary": "Phase 4 triage record: branch (iii) genuine-failure classification, capacity decision confirmed twice, weakenings refused."
+        },
+        {
+          "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/plans/02_close-capacity-decision.md",
+          "type": "plan",
+          "summary": "Closeout plan: ingest the already-in-flight full-gate confirmation run, write the missing capacity-decision summary, commit."
+        },
+        {
+          "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/summaries/02_capacity-decision-summary.md",
+          "type": "summary",
+          "summary": "Capacity-decision closeout record: option (a) decision and reasoning, option (b)/(c) disposition, re-pin provenance and supersession by task 145, current headroom (73.1%/63.3%), honest verification status, and refusals ledger."
+        }
+      ],
+      "created": "2026-08-10T18:25:27Z",
+      "last_updated": "2026-08-11T22:02:01Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1786483388_83cf84",
+      "blockers": [],
+      "completion_summary": "Closeout of an already-substantively-complete task. Decision: option (a) taken -- ORACLE_PASS2_TIMEOUT raised 900 -> 1800s (oracle/run-oracle-suite.sh:136, reasoning recorded inline), committed in e3b09d4e along with the four-value BASELINE_ORACLE_* re-pin. Option (b) (encoding-level solve speedup) was ruled out on effort grounds and subsequently exhausted empirically by task 144 (objective not achieved). Option (c) (accept-and-monitor) was not viable at the originating 96.6%/30.4s-slack condition. The blocking Step 6 gap was closed by task 145's composite per-solve remedy, which also superseded task 143's re-pin values (611/14 -> 609/16; current pins 627/609/16/2, verified). Current headroom (superseding the stale 840-950s claim): task 145's green run measured 1315.36s/1800s = 73.1% (485s slack); this task's own task-143-owned full-gate confirmation run (baselines/01_full-gate-confirmation.txt, GATE_EXIT=0, [verify-refactor] All checks passed, wall 32m51s) measured pass 2 at 1140.24s/1800s = 63.3% (659.76s slack). Green is contention/seed-sensitive, not guaranteed per run (task 145 records a residual ~1-in-7 ternary next_A tail and a BM_CM_1 seed-2 residual); this run happened to avoid both. No budget was widened, no floor lowered, no test xfailed/skipped/disabled, and no partition/total check relaxed beyond the one deliberate 900->1800 capacity decision itself. Full record in summaries/02_capacity-decision-summary.md.",
+      "archived": "2026-08-11T22:12:01Z"
+    },
+    {
+      "project_number": 144,
+      "project_name": "fix_oracle_per_formula_solve_timeouts",
+      "status": "completed",
+      "task_type": "python",
+      "topic": "oracle suite capacity",
+      "description": "The gating oracle suite cannot reach a green Step 6 in code/scripts/verify-refactor.sh because a varying set of per-formula Z3 solves fails to decide within its budget. This is NOT machine contention and NOT a correctness regression: two full end-to-end gate runs, at load average 5.4-7.5 and at load average 1.57, both failed at Step 6, and the QUIETER run failed MORE (pass 1 failed on the quiet machine after passing under contention). Every failure is an OracleTimeoutError or its downstream conclusive-floor consequence, with disagreements=0 in both runs -- no semantic disagreement anywhere. Observed failures. Quiet run (load 1.57): pass 1 -- TestMixedFormulas::test_mixed_and_all_future_neg (OracleTimeoutError at 60000 ms) and TestTernarySerializationAll::test_all_sat_task_relation_ternary (OracleTimeoutError at 180000 ms); pass 2 -- TestMixedFormulas::test_mixed_and_box_next (OracleTimeoutError at 60000 ms). Contended run (load 5.4-7.5): pass 2 -- test_mixed_and_box_next plus test_cross_oracle_differential.py:656 conclusive floor miss (99 of 103 conclusive against floor 100, timeout_count=4). An earlier research-phase pass-2 remeasure showed the same 99-of-103 floor miss alone. test_mixed_and_box_next is the only signature common to both full-gate runs; it is marked @pytest.mark.xdist_serial and was historically characterized at ~44-45s, so it now sits at or over its 60s budget even on an idle machine -- the strongest single lead. Full evidence is preserved in specs/143_decide_oracle_serial_pass_timeout_capacity/baselines/oracle-suite-step6-quiet-attempt.txt and oracle-suite-step6-contended-attempt.txt, with the classification argument in that task summaries/01_phase4-triage-record.md. This is option (b) from the originating capacity diagnosis: attack the cause by making the slow solves faster. It is semantic/encoding work on the Z3 formulation, not a budget change. HARD CONSTRAINT: this must NOT be resolved by widening any budget or lowering any floor. Do not raise SELF_SCAN_SOLVE_TIMEOUT_MS or the 60000/180000 ms per-solve budgets, do not lower MIN_CONCLUSIVE_GATING_FORMULAS or MIN_CONCLUSIVE_SCAN_FORMULAS, and do not xfail or skip the failing tests. A timeout is a budget/performance outcome that is never cleared by widening a solve budget (code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8); a floor miss is a signal to investigate, never a license to lower the floor. Establish first whether these solves have regressed in cost or were always marginal, then reduce their cost at the encoding level. Adjudicate inside nix develop only. Note that the pass-level ORACLE_PASS2_TIMEOUT budget is NOT implicated: pass 2 measured 958.58s and 847.38s against its 1800s budget in these same runs.",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/bimodal_logic/tests/test_oracle_interface.py",
+        "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+        "oracle/bimodal_logic/provider.py"
+      ],
+      "artifacts": [
+        {
+          "path": "specs/144_fix_oracle_per_formula_solve_timeouts/reports/01_oracle-solve-cost-reduction.md",
+          "type": "report",
+          "summary": "Root-cause chain, fresh nix-develop timings, and ranked encoding-level cost-reduction candidates"
+        },
+        {
+          "path": "specs/144_fix_oracle_per_formula_solve_timeouts/plans/01_oracle-solve-cost-reduction.md",
+          "type": "plan",
+          "summary": "5-phase, fully sequential plan with binding measurement methodology, per-phase semantics-preservation gate, and revert-on-neutral policy"
+        },
+        {
+          "path": "specs/144_fix_oracle_per_formula_solve_timeouts/summaries/01_oracle-solve-cost-reduction-summary.md",
+          "type": "summary",
+          "summary": "Measured, no lever found: all three encoding candidates rejected on measurement; gate still contention-sensitive"
+        }
+      ],
+      "blockers": null,
+      "created": "2026-08-11T06:23:24Z",
+      "last_updated": "2026-08-11T09:39:03Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1786429800_cbb24d",
+      "completion_summary": "Plan executed in full (5/5 phases); OBJECTIVE NOT ACHIEVED. All three encoding-level cost-reduction candidates were implemented, measured paired-by-seed on Z3 rlimit, and rejected: E-matching triggers (neutral, and regressive on \\Future p outside the benchmark), shift-dimension grounding (regressive), ForAllTime body-derived trigger (illegal Z3 pattern). Final encoding is semantically identical to baseline (exact rlimit reproduction). Step 6 gate re-run: green under low load, red under higher load with disagreements=0 -- confirming and_box_next and the ternary next_A leg sit at ~1.0x headroom, so gate outcome remains contention-sensitive. No budget widened, no floor lowered, no test disabled. Terminus is the plan-anticipated \"measured, no lever found\": the encoding-level lever (option b) is now empirically exhausted and a follow-up decision is needed.",
+      "archived": "2026-08-11T22:12:01Z"
+    },
+    {
+      "project_number": 145,
+      "project_name": "decide_oracle_per_formula_solve_capacity",
+      "status": "completed",
+      "task_type": "python",
+      "topic": "oracle suite capacity",
+      "description": "Step 6 of code/scripts/verify-refactor.sh remains contention-sensitive red at the PER-FORMULA layer, and the encoding route to fixing it is now empirically exhausted. This task decides and implements the capacity route one layer down from the pass-level decision already taken.\n\nLAYER CLARIFICATION (important -- do not conflate): task 143's option (a) was the PASS-level ORACLE_PASS2_TIMEOUT, raised 900s -> 1800s in commit e3b09d4e with a recorded measurement basis. That decision is implemented and carries roughly 840-950s of headroom over every measurement ever taken; pass 2 measured 958.58s and 847.38s against 1800s. It is NOT implicated here and must not be revisited. The unresolved layer is the PER-SOLVE budgets (60000 ms / 180000 ms) governing individual formula solves, for which no option-space evaluation has ever been done. This task is the per-formula analogue of the capacity decision task 143 performed at the pass level.\n\nCURRENT EVIDENCE: task 144 attacked the cause at the encoding level and produced a rigorous negative result. It built a seeded measurement harness using Z3 rlimit as a load-independent primary metric, established a 21-run paired baseline, then implemented, measured paired-by-seed, and rejected all three candidates: E-matching trigger patterns (neutral on the benchmark, and regressive outside it -- it pushed \\Future p from ~3s to a 5000 ms timeout), shift-dimension grounding of the abundance axiom (regressive on 2 of 3 targets), and a body-derived ForAllTime trigger (Z3 rejected the term as an invalid pattern). All were reverted; the final encoding is semantically identical to baseline, confirmed by exact rlimit reproduction. Task 144's phase 5 ran the gate twice: green under low load, red under higher load with 3 of 14 pass-2 failures -- including TestMixedFormulas::test_mixed_and_box_next and TestGatingConclusiveScan at 99 of 103 against a floor of 100 -- with disagreements=0 both times. The diagnosis is that test_mixed_and_box_next and the ternary test's next_A leg sit at approximately 1.0x headroom against their per-solve budgets, so gate outcome is decided by machine contention and by Z3's documented run-to-run variance (up to ~20x per code/docs/core/TESTING_GUIDE.md section 8.6) rather than by correctness.\n\nTHIS IS A DECISION TASK. Produce a recorded decision with a measurement basis, in the same discipline task 143 applied at the pass level, then implement it. Evaluate at minimum:\n\n(a) CONTENTION CAPACITY -- give the marginal solves more machine rather than more time. Verify whether pass 2 genuinely runs contention-free in practice; examine xdist worker counts, CPU pinning/affinity, and serial-pass membership; consider relocating additional marginal formulas into the contention-free serial pass, which is the mechanism already used to house the four known-slow solves. This is the option that most directly matches the measured failure mode (quiet run vs loaded run) and should be evaluated first.\n\n(b) PER-SOLVE BUDGET RECALIBRATION with a recorded measurement basis, applying oracle/run-oracle-suite.sh's documented ~2x-of-measured-on-idle convention one layer down. TENSION THAT MUST BE ADJUDICATED EXPLICITLY, NOT ASSUMED: code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8 hold that a timeout is a budget/performance outcome never cleared by widening a solve budget, and task 144 was explicitly forbidden from this route. Option (b) may be selected ONLY with an explicit recorded argument distinguishing \"these per-solve budgets were never calibrated against measured cost, and the workload legitimately grew\" from \"papering over contention\" -- the same standard task 143 met before raising the pass budget. Do not fall back to (b) merely because (a) is more work. If (b) is selected, the reasoning must be recorded inline at the constant, not just the value changed.\n\n(c) ACCEPT AND MONITOR / quarantine. Evaluate honestly; if rejected, record why.\n\nHARD CONSTRAINTS (stand regardless of which option is selected):\n- Do NOT lower MIN_CONCLUSIVE_GATING_FORMULAS or MIN_CONCLUSIVE_SCAN_FORMULAS. A floor miss is a signal to investigate, never a license to lower the floor.\n- Do NOT xfail, skip, or otherwise disable any failing test.\n- Do NOT revisit ORACLE_PASS2_TIMEOUT; it is calibrated and not implicated.\n- disagreements must remain 0 throughout -- the oracle is a differential correctness reference.\n- Adjudicate inside `nix develop` only.\n\nDO NOT RE-ATTEMPT ENCODING-LEVEL SPEEDUPS. Task 144 measured and rejected three candidates on top of six previously documented dead ends; the full dead-end record is in specs/144_fix_oracle_per_formula_solve_timeouts/summaries/01_oracle-solve-cost-reduction-summary.md and reports/01_oracle-solve-cost-reduction.md. Reusable assets: specs/144_fix_oracle_per_formula_solve_timeouts/bench_solve_cost.py (seeded harness, Z3 rlimit metric) and baselines/01_solve-cost-baseline.json (21-run paired baseline). Reuse the rlimit-based paired-by-seed methodology for any measurement here -- wall-clock alone is not decisive under variable load.\n\nDELIVERABLE: a recorded, implemented decision plus a full verify-refactor.sh run confirming \"[verify-refactor] All checks passed\". Completing this unblocks task 143, which is currently blocked pending a green Step 6.",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/run-oracle-suite.sh",
+        "oracle/bimodal_logic/tests/test_oracle_interface.py",
+        "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+        "code/scripts/verify-refactor.sh",
+        "code/docs/core/TESTING_GUIDE.md"
+      ],
+      "artifacts": [
+        {
+          "path": "specs/145_decide_oracle_per_formula_solve_capacity/reports/01_per-formula-solve-capacity.md",
+          "type": "report",
+          "summary": "Per-formula solve capacity decision research"
+        },
+        {
+          "path": "specs/145_decide_oracle_per_formula_solve_capacity/plans/01_per-formula-solve-capacity.md",
+          "type": "plan",
+          "summary": "7-phase per-formula solve capacity implementation plan"
+        },
+        {
+          "path": "specs/145_decide_oracle_per_formula_solve_capacity/summaries/01_per-formula-solve-capacity-summary.md",
+          "type": "summary",
+          "summary": "Per-formula solve capacity decision: implemented and gate-verified"
+        }
+      ],
+      "blockers": null,
+      "created": "2026-08-11T13:54:37Z",
+      "last_updated": "2026-08-11T21:16:48Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1786456768_0d5e0f",
+      "completion_summary": "Per-formula solve capacity decided and implemented: composite remedy (bounded-tail budget recalibration with inline measurement bases, xdist_serial relocation, gating re-check budget decoupling). Full verify-refactor.sh green (GATE_EXIT=0, All checks passed, disagreements=0, pass 2 1315s < 1800s). Divergent tails recorded as unresolved and unresolvable by budget.",
+      "archived": "2026-08-11T22:12:01Z"
     }
   ]
 }

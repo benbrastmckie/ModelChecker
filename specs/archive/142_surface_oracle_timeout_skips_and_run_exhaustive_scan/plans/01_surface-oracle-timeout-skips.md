@@ -1,7 +1,7 @@
 # Implementation Plan: Surface Oracle Timeout Skips and Record Scan Cadence
 
 - **Task**: 142 - Surface the two timeout-conditional pytest.skip sites, adjudicate wrong expected_sat labels, record exhaustive-scan cadence, address get_theory(config)
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 5.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/142_surface_oracle_timeout_skips_and_run_exhaustive_scan/reports/01_oracle-timeout-skips-scan.md
