@@ -88,7 +88,7 @@
     {
       "project_number": 149,
       "project_name": "wheel_and_sdist_packaging_contract_tests",
-      "status": "researching",
+      "status": "researched",
       "task_type": "python",
       "topic": "packaging",
       "priority": "medium",
@@ -99,10 +99,16 @@
         "code/MANIFEST.in",
         "code/tests/packaging/"
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "path": "specs/149_wheel_and_sdist_packaging_contract_tests/reports/01_packaging-contract-tests.md",
+          "type": "report",
+          "summary": "Maps the current wheel (pyproject.toml package-data) and sdist (MANIFEST.in) allowlists in full, the theory registry (model_checker.theory_lib.AVAILABLE_THEORIES / model_checker.registry.get_registered()) to drive the theory list from per test_theory_conformance.py precedent, a candidate concrete drift (MANIFEST.in has no docs/*.md rule mirroring pyproject.toml's package-data entry, to be resolved by building and inspecting rather than assumed), the finding that NO CI workflow currently runs the general test suite at all (only release.yml, tag-triggered, and differential-tests.yml, path-triggered on oracle/bimodal) which bears directly on the task's CI-wiring requirement, the isolated-venv-inside-nix-develop + PIP_USER=0 + single-invocation technique established by task 125's release rehearsal for running build/twine/check-wheel-contents on this NixOS host, existing test-suite conventions (markers, test_layering.py placement precedent, test_theory_conformance.py parametrization pattern, conftest.py autouse fixture), entry-point assertion scope, and five open questions for the plan phase (test file location, CI-gap remediation scope, the docs/*.md sdist question, exact-set vs minimum-set docs assertions, and toolchain provisioning strategy)."
+        }
+      ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-11T23:04:23Z",
+      "last_updated": "2026-08-11T23:08:54Z",
       "next_artifact_number": 1,
       "session_id": "sess_1786489030_3e5392_149"
     },

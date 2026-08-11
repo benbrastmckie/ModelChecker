@@ -24,7 +24,7 @@ next_project_number: 152
 
 ### Packaging
 
-149 [RESEARCHING] — Add executable tests for the packaging contract. Surfaced by the 
+149 [RESEARCHED] — Add executable tests for the packaging contract. Surfaced by the 
 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 
 ### Architecture
@@ -96,10 +96,11 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, do not push branches or o
 ---
 
 ### 149. Wheel and sdist packaging contract tests
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
+- **Research**: [149_wheel_and_sdist_packaging_contract_tests/reports/01_packaging-contract-tests.md]
 
 **Description**: Add executable tests for the packaging contract. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issue 10).
 
