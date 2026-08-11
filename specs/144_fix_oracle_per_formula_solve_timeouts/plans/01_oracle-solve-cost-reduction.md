@@ -505,49 +505,92 @@ failure mode this plan exists to avoid.
 
 ---
 
-### Phase 5: Gate re-run, headroom report, and dead-end record [NOT STARTED]
+### Phase 5: Gate re-run, headroom report, and dead-end record [COMPLETED]
 
 - **Goal:** Re-run the Step 6 gating oracle path end to end and report measured per-formula headroom
   against budgets and floors that were never touched.
+- **Outcome: gate is genuinely inconsistent (green once, red once) under real measured contention,
+  confirming the research report's noise diagnosis; no encoding lever survived Phases 2-4, so
+  headroom is materially unchanged from the Phase 1 baseline. Escalated with full data per the
+  plan's contingency -- no budget/floor touched.**
 - **Tasks:**
-  - [ ] Run a final confirmation measurement round on all three target formulas against the accepted
-        final encoding; write `baselines/05_final-solve-cost.json`.
-  - [ ] Run the Step 6 path inside `nix develop`:
-        `nix develop --command bash oracle/run-oracle-suite.sh` (both passes: parallel `-n 6` and
-        `xdist_serial`), capturing full output. Confirm exit 0 and inspect the
-        `== ORACLE TIMEOUT-SKIP INVENTORY ==` section for `[NEW]` entries.
-  - [ ] Run the full gate: `nix develop --command bash code/scripts/verify-refactor.sh`, confirming
-        Step 6 reports "gating oracle suite green across both passes".
-  - [ ] Confirm `TestGatingConclusiveScan` reaches or exceeds the **unchanged**
-        `MIN_CONCLUSIVE_GATING_FORMULAS = 100` (the prior miss was 99/103), and that
-        `timeout_count` dropped.
-  - [ ] Verify with `git diff` that none of the read-only constants listed under Hard Constraints
-        were modified, that no test is xfailed or skipped, and that `ORACLE_PASS2_TIMEOUT` is
-        untouched.
-  - [ ] Produce a headroom table in the implementation summary: per formula, `median(wall)`,
-        `max(wall)`, budget, and `budget / max(wall)` headroom ratio, before and after — using the
-        Phase 1 baseline as "before".
-  - [ ] Record every rejected candidate as a new numbered dead end, in the codebase's own
-        established style: an inline comment at the relevant constraint in `core.py`/`operators.py`
-        (matching how the existing six dead ends are recorded), plus a section in the implementation
-        summary. Include the measured numbers that justified rejection.
-  - [ ] Save the gate transcripts under
-        `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/`.
-- **Timing:** ~1.5 hours agent time, plus the gate's own run time (pass 1 ~650s, pass 2 ~850-960s,
-  plus the remaining verify-refactor steps).
+  - [x] Ran a final confirmation measurement round on all three target formulas against the final
+        (== Phase 1 baseline) encoding; wrote `baselines/05_final-solve-cost.json`. Median `rlimit`
+        for all three formulas matched the Phase 1 baseline EXACTLY (130,120,807 / 61,308,987 /
+        239,039,225), confirming byte-identical solve cost -- no encoding drift across the phases.
+  - [x] Ran the Step 6 path inside `nix develop`: `bash oracle/run-oracle-suite.sh`, captured to
+        `baselines/05_oracle-suite-run.txt`. Result: **exit 0, both passes PASSED** (605 passed/2
+        skipped/4 xfailed pass 1; 14 passed pass 2), no `[NEW]` timeout-skip entries (both skips were
+        `[KNOWN]`). Load average at the start of this run was 2.62/2.36/2.39 (relatively idle).
+  - [x] Ran the full gate: `bash code/scripts/verify-refactor.sh`, captured to
+        `baselines/05_verify-refactor-run.txt`. Result: **Steps 1-5 and 7 all green**, but **Step 6
+        FAILED** this time (runner exit 1) -- 3 of 14 pass-2 tests failed:
+        `TestMixedFormulas::test_mixed_and_box_next` (our own Phase 1 target, `OracleTimeoutError` at
+        the unchanged 60000ms budget), `TestBoundaryDocumentation::test_countermodel_bm_cm4_at_example_settings`
+        (a different depth-1 formula, also documented as affected by the same task 139
+        term-aliasing-fix cost increase), and `TestGatingConclusiveScan` at **99/103 conclusive**
+        against the unchanged floor of 100 -- `disagreements=0` in that report (soundness fully
+        intact; purely a performance/budget floor miss). This is the *exact same* 99/103 figure the
+        research report and this plan document as the historical pre-task-144 miss. Load average at
+        the start of this run was 3.95/3.14/2.80 (visibly more contended than the passing run).
+        DEVIATION from the plan's expectation of a single confirmatory run: the gate was run twice
+        (once standalone, once via the full script) and produced **both outcomes** -- this is itself
+        the most important empirical finding of Phase 5, not a procedural miss: it directly confirms
+        the research report's root-cause diagnosis (marginal margins + Z3 run-to-run variance +
+        contention sensitivity) using this task's own measurement, rather than only citing the prior
+        task's evidence.
+  - [x] `TestGatingConclusiveScan`: 99/103 conclusive against floor 100 in the failing run (floor
+        NOT met this run); `timeout_count` did not drop (still 4, matching the pre-task-144 baseline
+        described in the research report). No accepted candidate changed this number, consistent with
+        Phases 2-4 all being rejected.
+  - [x] Verified with `git diff` (against the pre-task-144 commit `d379dbb6`) that none of the
+        read-only constants were modified: `SELF_SCAN_SOLVE_TIMEOUT_MS=10000`,
+        `MIN_CONCLUSIVE_SCAN_FORMULAS=90`, `MIN_CONCLUSIVE_GATING_FORMULAS=100` (all still pinned at
+        their original values in `test_cross_oracle_differential.py`), `pass2_timeout` still reads
+        `${ORACLE_PASS2_TIMEOUT:-1800}` in `run-oracle-suite.sh` (untouched), and `git diff` for
+        `oracle/` is empty (zero test files touched by this task). No test is xfailed or skipped by
+        this task.
+  - [x] Produced the headroom table below (before/after are identical since no candidate survived).
+  - [x] Recorded dead ends 7-11 (Phases 2-4) as inline comments (already committed) plus the "New
+        Dead Ends" section in the implementation summary.
+  - [x] Saved gate transcripts: `baselines/05_oracle-suite-run.txt` (standalone runner, green) and
+        `baselines/05_verify-refactor-run.txt` (full gate, Step 6 red) plus
+        `/tmp/verify-refactor-oracle.txt`'s failure detail summarized above.
+- **Timing:** ~1.5 hours agent time, plus the gate's own run time (pass 1 ~650-1030s, pass 2
+  ~800-1030s, plus the remaining verify-refactor steps).
 - **Depends on:** 4
 - **Files to modify:**
   - `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/05_final-solve-cost.json` - new
-  - `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/` - gate transcripts
+  - `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/05_oracle-suite-run.txt` - new (green)
+  - `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/05_verify-refactor-run.txt` - new (Step
+    6 red, all other steps green)
   - `code/src/model_checker/theory_lib/bimodal/semantic/core.py` and/or `operators.py` - dead-end
-    comments only
+    comments only (already committed in Phases 2-4)
   - `specs/144_fix_oracle_per_formula_solve_timeouts/summaries/01_oracle-solve-cost-reduction-summary.md` - new
 - **Verification:**
-  - `verify-refactor.sh` Step 6 green; runner exit 0 on both passes.
-  - `git diff` confirms no budget widened, no floor lowered, no test disabled.
-  - Headroom table present with before/after numbers drawn from measurement rounds, not single runs.
-  - If the gate is still not green, the outcome is escalated **with the measured data** — never by
-    touching a budget or a floor.
+  - [x] `verify-refactor.sh` Step 6 was run to completion; NOT green on this run (see Outcome). A
+        separate standalone `run-oracle-suite.sh` invocation minutes earlier under lower load WAS
+        green. Both transcripts are preserved as evidence.
+  - [x] `git diff` confirms no budget widened, no floor lowered, no test disabled.
+  - [x] Headroom table present with before/after numbers drawn from full 7-run-per-formula
+        measurement rounds (Phase 1 and Phase 5's final round), not single runs.
+  - [x] The gate is not reliably green; the outcome is escalated **with the measured data** (this
+        section, the headroom table, and both gate transcripts) — no budget or floor was touched.
+
+#### Headroom Table (Phase 1 baseline vs. Phase 5 final -- identical, since no candidate survived)
+
+| Formula | Budget | median(wall) before | median(wall) after | max(wall) before | max(wall) after | headroom (budget / max(wall)) |
+|---|---|---|---|---|---|---|
+| `and_box_next` | 60s | 46.54s | 49.89s | 60.37s | 60.39s | ~1.0x (essentially none) |
+| `and_all_future_neg` | 60s | 18.61s | 20.13s | 23.59s | 25.17s | ~2.4x |
+| `all_sat_task_relation_ternary` (`next_A` leg) | 180s | 94.63s | 89.91s | 180.70s | 180.62s | ~1.0x (essentially none) |
+
+`and_box_next` and the ternary test's `next_A` leg both sit at approximately 1.0x headroom in
+isolated, repeated measurement — i.e., their worst observed draws land essentially AT their budgets,
+which is exactly why the gate is flaky rather than reliably green or reliably red: whether a given
+run's random draw (and ambient machine contention) pushes a given formula's solve over or under its
+budget determines the gate's pass/fail outcome for that run. This matches the research report's
+diagnosis precisely and is not something Phases 2-4's investigated levers were able to move.
 
 ---
 

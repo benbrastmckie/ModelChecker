@@ -1,0 +1,802 @@
+{
+  "runs": [
+    {
+      "formula": "and_box_next",
+      "seed": 0,
+      "repeat_index": 0,
+      "rlimit": 130120807,
+      "wall_seconds": 49.8854,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 130120807,
+          "wall_seconds": 49.8854,
+          "reported_runtime": 49.6801,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   518.40\n :memory       333.97\n :num-allocs   2634375220501.00\n :rlimit-count 130120807)",
+          "sub_name": "and_box_next"
+        }
+      ],
+      "timestamp": "2026-08-11T08:17:56Z"
+    },
+    {
+      "formula": "and_box_next",
+      "seed": 1,
+      "repeat_index": 0,
+      "rlimit": 140126983,
+      "wall_seconds": 60.2477,
+      "sub_results": [
+        {
+          "seed": 1,
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 140126983,
+          "wall_seconds": 60.2477,
+          "reported_runtime": 60.0173,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   989.50\n :memory       597.35\n :num-allocs   14971907217441.00\n :rlimit-count 140126983)",
+          "sub_name": "and_box_next"
+        }
+      ],
+      "timestamp": "2026-08-11T08:18:56Z"
+    },
+    {
+      "formula": "and_box_next",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 163472720,
+      "wall_seconds": 60.3903,
+      "sub_results": [
+        {
+          "seed": 2,
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 163472720,
+          "wall_seconds": 60.3903,
+          "reported_runtime": 60.0011,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1022.87\n :memory       626.70\n :num-allocs   89575874360683.00\n :rlimit-count 163472720)",
+          "sub_name": "and_box_next"
+        }
+      ],
+      "timestamp": "2026-08-11T08:19:56Z"
+    },
+    {
+      "formula": "and_box_next",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 205866101,
+      "wall_seconds": 60.3605,
+      "sub_results": [
+        {
+          "seed": 3,
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 205866101,
+          "wall_seconds": 60.3605,
+          "reported_runtime": 60.0003,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       619.86\n :num-allocs   108410465252350.00\n :rlimit-count 205866101)",
+          "sub_name": "and_box_next"
+        }
+      ],
+      "timestamp": "2026-08-11T08:20:57Z"
+    },
+    {
+      "formula": "and_box_next",
+      "seed": 4,
+      "repeat_index": 0,
+      "rlimit": 80033620,
+      "wall_seconds": 23.1089,
+      "sub_results": [
+        {
+          "seed": 4,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 80033620,
+          "wall_seconds": 23.1089,
+          "reported_runtime": 22.8376,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       313.64\n :num-allocs   116293810763560.00\n :rlimit-count 80033620)",
+          "sub_name": "and_box_next"
+        }
+      ],
+      "timestamp": "2026-08-11T08:21:20Z"
+    },
+    {
+      "formula": "and_box_next",
+      "seed": 0,
+      "repeat_index": 1,
+      "rlimit": 130120807,
+      "wall_seconds": 47.6097,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 130120807,
+          "wall_seconds": 47.6097,
+          "reported_runtime": 47.3317,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       333.97\n :num-allocs   137820678118987.00\n :rlimit-count 130120807)",
+          "sub_name": "and_box_next"
+        }
+      ],
+      "timestamp": "2026-08-11T08:22:07Z"
+    },
+    {
+      "formula": "and_box_next",
+      "seed": 0,
+      "repeat_index": 2,
+      "rlimit": 130120807,
+      "wall_seconds": 47.5888,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 130120807,
+          "wall_seconds": 47.5888,
+          "reported_runtime": 47.3316,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       333.97\n :num-allocs   163298507358818.00\n :rlimit-count 130120807)",
+          "sub_name": "and_box_next"
+        }
+      ],
+      "timestamp": "2026-08-11T08:22:55Z"
+    },
+    {
+      "formula": "and_all_future_neg",
+      "seed": 0,
+      "repeat_index": 0,
+      "rlimit": 88904114,
+      "wall_seconds": 25.1661,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 88904114,
+          "wall_seconds": 25.1661,
+          "reported_runtime": 24.9382,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       323.15\n :num-allocs   177004385413905.00\n :rlimit-count 88904114)",
+          "sub_name": "and_all_future_neg"
+        }
+      ],
+      "timestamp": "2026-08-11T08:23:20Z"
+    },
+    {
+      "formula": "and_all_future_neg",
+      "seed": 1,
+      "repeat_index": 0,
+      "rlimit": 61308987,
+      "wall_seconds": 20.1251,
+      "sub_results": [
+        {
+          "seed": 1,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 61308987,
+          "wall_seconds": 20.1251,
+          "reported_runtime": 19.9312,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       174.24\n :num-allocs   182097444982159.00\n :rlimit-count 61308987)",
+          "sub_name": "and_all_future_neg"
+        }
+      ],
+      "timestamp": "2026-08-11T08:23:40Z"
+    },
+    {
+      "formula": "and_all_future_neg",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 17652637,
+      "wall_seconds": 5.4393,
+      "sub_results": [
+        {
+          "seed": 2,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 17652637,
+          "wall_seconds": 5.4393,
+          "reported_runtime": 5.3223,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       155.63\n :num-allocs   184062039811799.00\n :rlimit-count 17652637)",
+          "sub_name": "and_all_future_neg"
+        }
+      ],
+      "timestamp": "2026-08-11T08:23:46Z"
+    },
+    {
+      "formula": "and_all_future_neg",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 13115273,
+      "wall_seconds": 3.787,
+      "sub_results": [
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 13115273,
+          "wall_seconds": 3.787,
+          "reported_runtime": 3.6825,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       86.59\n :num-allocs   185131182429445.00\n :rlimit-count 13115273)",
+          "sub_name": "and_all_future_neg"
+        }
+      ],
+      "timestamp": "2026-08-11T08:23:50Z"
+    },
+    {
+      "formula": "and_all_future_neg",
+      "seed": 4,
+      "repeat_index": 0,
+      "rlimit": 54614963,
+      "wall_seconds": 14.876,
+      "sub_results": [
+        {
+          "seed": 4,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 54614963,
+          "wall_seconds": 14.876,
+          "reported_runtime": 14.7482,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       303.91\n :num-allocs   188775257339454.00\n :rlimit-count 54614963)",
+          "sub_name": "and_all_future_neg"
+        }
+      ],
+      "timestamp": "2026-08-11T08:24:04Z"
+    },
+    {
+      "formula": "and_all_future_neg",
+      "seed": 0,
+      "repeat_index": 1,
+      "rlimit": 88904114,
+      "wall_seconds": 25.0074,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 88904114,
+          "wall_seconds": 25.0074,
+          "reported_runtime": 24.7912,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       323.15\n :num-allocs   205467150993820.00\n :rlimit-count 88904114)",
+          "sub_name": "and_all_future_neg"
+        }
+      ],
+      "timestamp": "2026-08-11T08:24:29Z"
+    },
+    {
+      "formula": "and_all_future_neg",
+      "seed": 0,
+      "repeat_index": 2,
+      "rlimit": 88904114,
+      "wall_seconds": 25.1645,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 88904114,
+          "wall_seconds": 25.1645,
+          "reported_runtime": 24.9447,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       323.15\n :num-allocs   223298613671904.00\n :rlimit-count 88904114)",
+          "sub_name": "and_all_future_neg"
+        }
+      ],
+      "timestamp": "2026-08-11T08:24:55Z"
+    },
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 0,
+      "repeat_index": 0,
+      "rlimit": 239039225,
+      "wall_seconds": 98.9273,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 67204,
+          "wall_seconds": 0.1182,
+          "reported_runtime": 0.0139,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       17.61\n :num-allocs   223606334095967.00\n :rlimit-count 67204)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 66893,
+          "wall_seconds": 0.0512,
+          "reported_runtime": 0.0138,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       17.62\n :num-allocs   223631979623741.00\n :rlimit-count 66893)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 68292,
+          "wall_seconds": 0.0512,
+          "reported_runtime": 0.0137,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       17.62\n :num-allocs   223658766604537.00\n :rlimit-count 68292)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 79397,
+          "wall_seconds": 0.0551,
+          "reported_runtime": 0.0161,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   1036.19\n :memory       17.64\n :num-allocs   223685555266934.00\n :rlimit-count 79397)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 238757439,
+          "wall_seconds": 98.6516,
+          "reported_runtime": 98.3384,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       1171.18\n :num-allocs   683841859460489.00\n :rlimit-count 238757439)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T08:26:34Z"
+    },
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 1,
+      "repeat_index": 0,
+      "rlimit": 26076019,
+      "wall_seconds": 9.7117,
+      "sub_results": [
+        {
+          "seed": 1,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 59434,
+          "wall_seconds": 0.269,
+          "reported_runtime": 0.0111,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.59\n :num-allocs   684619339887245.00\n :rlimit-count 59434)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 1,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 66733,
+          "wall_seconds": 0.0476,
+          "reported_runtime": 0.0122,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.62\n :num-allocs   684649659721167.00\n :rlimit-count 66733)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 1,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 60320,
+          "wall_seconds": 0.0446,
+          "reported_runtime": 0.0109,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.59\n :num-allocs   684678633473332.00\n :rlimit-count 60320)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 1,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 80832,
+          "wall_seconds": 0.0482,
+          "reported_runtime": 0.014,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.63\n :num-allocs   684710978061774.00\n :rlimit-count 80832)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 1,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 25808700,
+          "wall_seconds": 9.3023,
+          "reported_runtime": 9.2169,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       160.69\n :num-allocs   690129812569515.00\n :rlimit-count 25808700)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T08:26:43Z"
+    },
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 35345636,
+      "wall_seconds": 10.0341,
+      "sub_results": [
+        {
+          "seed": 2,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 63895,
+          "wall_seconds": 0.0788,
+          "reported_runtime": 0.0119,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.61\n :num-allocs   690293413917585.00\n :rlimit-count 63895)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 2,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 59444,
+          "wall_seconds": 0.0581,
+          "reported_runtime": 0.0109,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.60\n :num-allocs   690323098917401.00\n :rlimit-count 59444)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 2,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 63622,
+          "wall_seconds": 0.0466,
+          "reported_runtime": 0.0119,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.60\n :num-allocs   690354166195198.00\n :rlimit-count 63622)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 2,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 82383,
+          "wall_seconds": 0.0505,
+          "reported_runtime": 0.0142,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.67\n :num-allocs   690387996828524.00\n :rlimit-count 82383)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 2,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 35076292,
+          "wall_seconds": 9.8001,
+          "reported_runtime": 9.7138,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       162.53\n :num-allocs   695202964086356.00\n :rlimit-count 35076292)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T08:26:53Z"
+    },
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 421231144,
+      "wall_seconds": 180.619,
+      "sub_results": [
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 83540,
+          "wall_seconds": 0.0872,
+          "reported_runtime": 0.016,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.65\n :num-allocs   695385147386514.00\n :rlimit-count 83540)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 63869,
+          "wall_seconds": 0.052,
+          "reported_runtime": 0.012,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.60\n :num-allocs   695416926015375.00\n :rlimit-count 63869)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 63348,
+          "wall_seconds": 0.0454,
+          "reported_runtime": 0.0115,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.60\n :num-allocs   695448706280910.00\n :rlimit-count 63348)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 72691,
+          "wall_seconds": 0.0472,
+          "reported_runtime": 0.0132,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.62\n :num-allocs   695479781949802.00\n :rlimit-count 72691)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 3,
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 420947696,
+          "wall_seconds": 180.3872,
+          "reported_runtime": 180.0012,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       1200.62\n :num-allocs   1096441593304237.00\n :rlimit-count 420947696)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T08:29:54Z"
+    },
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 4,
+      "repeat_index": 0,
+      "rlimit": 29189732,
+      "wall_seconds": 7.8964,
+      "sub_results": [
+        {
+          "seed": 4,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 82625,
+          "wall_seconds": 0.2662,
+          "reported_runtime": 0.0148,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.64\n :num-allocs   1097760163998785.00\n :rlimit-count 82625)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 4,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 66834,
+          "wall_seconds": 0.0437,
+          "reported_runtime": 0.0118,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.62\n :num-allocs   1097801172662129.00\n :rlimit-count 66834)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 4,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 83900,
+          "wall_seconds": 0.0474,
+          "reported_runtime": 0.0147,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.67\n :num-allocs   1097844005711825.00\n :rlimit-count 83900)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 4,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 79678,
+          "wall_seconds": 0.0488,
+          "reported_runtime": 0.0137,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.64\n :num-allocs   1097887752020646.00\n :rlimit-count 79678)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 4,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 28876695,
+          "wall_seconds": 7.4903,
+          "reported_runtime": 7.4,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       164.69\n :num-allocs   1102550864848600.00\n :rlimit-count 28876695)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T08:30:02Z"
+    },
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 0,
+      "repeat_index": 1,
+      "rlimit": 239039225,
+      "wall_seconds": 89.9108,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 67204,
+          "wall_seconds": 0.0775,
+          "reported_runtime": 0.0116,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.62\n :num-allocs   1102807964405133.00\n :rlimit-count 67204)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 66893,
+          "wall_seconds": 0.0519,
+          "reported_runtime": 0.0123,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.63\n :num-allocs   1102849583342037.00\n :rlimit-count 66893)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 68292,
+          "wall_seconds": 0.0455,
+          "reported_runtime": 0.0116,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.63\n :num-allocs   1102893053661341.00\n :rlimit-count 68292)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 79397,
+          "wall_seconds": 0.0491,
+          "reported_runtime": 0.0148,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.08\n :memory       17.65\n :num-allocs   1102936525663163.00\n :rlimit-count 79397)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 238757439,
+          "wall_seconds": 89.6868,
+          "reported_runtime": 89.3766,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.09\n :memory       1171.19\n :num-allocs   1818039948958814.00\n :rlimit-count 238757439)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T08:31:32Z"
+    },
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 0,
+      "repeat_index": 2,
+      "rlimit": 239039225,
+      "wall_seconds": 100.4828,
+      "sub_results": [
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 67204,
+          "wall_seconds": 0.2692,
+          "reported_runtime": 0.0122,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.09\n :memory       17.62\n :num-allocs   1819231221584804.00\n :rlimit-count 67204)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 66893,
+          "wall_seconds": 0.0489,
+          "reported_runtime": 0.0115,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.09\n :memory       17.63\n :num-allocs   1819277516756004.00\n :rlimit-count 66893)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 68292,
+          "wall_seconds": 0.0517,
+          "reported_runtime": 0.0119,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.09\n :memory       17.63\n :num-allocs   1819323813482058.00\n :rlimit-count 68292)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 79397,
+          "wall_seconds": 0.047,
+          "reported_runtime": 0.0141,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.09\n :memory       17.65\n :num-allocs   1819372169549933.00\n :rlimit-count 79397)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 0,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 238757439,
+          "wall_seconds": 100.066,
+          "reported_runtime": 99.7634,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   2002.09\n :memory       1171.19\n :num-allocs   2609048461941244.00\n :rlimit-count 238757439)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T08:33:12Z"
+    }
+  ]
+}

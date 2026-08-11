@@ -1,0 +1,58 @@
+warning: Git tree '/home/benjamin/Projects/ModelChecker' is dirty
+[devShell] BimodalHarness: ../BimodalHarness/src
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: timeout-2.4.0, xdist-3.8.0
+created: 6/6 workers
+6 workers [611 items]
+
+........................................................................ [ 11%]
+........................................................................ [ 23%]
+........................................................................ [ 35%]
+........................................................................ [ 47%]
+........................................................................ [ 58%]
+..............................................s.................xxxx.... [ 70%]
+........................................................................ [ 82%]
+........................................................................ [ 94%]
+.................................s.                                      [100%]
+
+== ORACLE TIMEOUT-SKIP INVENTORY ==
+[KNOWN] oracle/bimodal_logic/tests/test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[all_future]: primitive untl-based expansion does not decide; the enriched form decides in under 2s -- a performance gap, not a disagreement
+[KNOWN] oracle/bimodal_logic/tests/test_oracle_interface.py::TestOracleExampleRegressionViaAPI::test_oracle_regression[TN_TH_2]: label corrected to SAT from the ground-truth evaluator; the solver still does not decide it at 2x budget
+-- a skip here is a budget/performance outcome, never cleared by widening a solve budget; see code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8.
+=========================== short test summary info ============================
+SKIPPED [1] oracle/bimodal_logic/tests/test_oracle_interface.py:649: 'TN_TH_2': did not decide within 30000 ms (budget/performance outcome, not a semantic regression -- its ACTIVE_EXAMPLES expected_sat may itself have been measured under the old timeout-conflated contract)
+SKIPPED [1] oracle/bimodal_logic/tests/test_oracle_interface.py:859: 'all_future': at least one side did not decide within 180000 ms (budget/performance, not a semantic disagreement)
+============ 605 passed, 2 skipped, 4 xfailed in 798.43s (0:13:18) =============
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: timeout-2.4.0, xdist-3.8.0
+collected 627 items / 613 deselected / 14 selected
+
+oracle/bimodal_logic/tests/test_boundary_regression.py ...               [ 21%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py .           [ 28%]
+oracle/bimodal_logic/tests/test_oracle_interface.py ....                 [ 57%]
+oracle/bimodal_logic/tests/test_oracle_provider.py .                     [ 64%]
+oracle/bimodal_logic/tests/test_soundness_regression.py .....            [100%]
+
+
+== ORACLE TIMEOUT-SKIP INVENTORY ==
+no timeout skips in this session
+-- a skip here is a budget/performance outcome, never cleared by widening a solve budget; see code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8.
+================ 14 passed, 613 deselected in 800.85s (0:13:20) ================
+
+== oracle suite summary (gating: slow deselected on both passes) ==
+pass 1 (parallel, -n 6, not xdist_serial and not slow, budget 1300s): PASSED
+pass 2 (serial, xdist_serial and not slow, budget 1800s):             PASSED
+
+Each pass above printed its own '== ORACLE TIMEOUT-SKIP INVENTORY ==' section
+(from oracle/conftest.py, see code/docs/core/TESTING_GUIDE.md section 8.8).
+[NEW] and [RESOLVED] lines there are the actionable ones -- [KNOWN] lines are
+already-adjudicated. A skip is always a budget/performance outcome, never
+cleared by widening a solve budget.
+
+Exhaustive complexity<=5 self-consistency scan (the 'slow'-marked tests
+deselected above) is not part of this gating run. Run it explicitly via:
+  nix develop --command bash oracle/run-oracle-exhaustive-scan.sh
