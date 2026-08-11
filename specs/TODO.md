@@ -13,7 +13,8 @@ next_project_number: 152
 |------|-------|------------|--------|
 | 1 | 146,147,149 | -- | documentation, packaging, architecture |
 | 2 | 148 | 146 | testing |
-| 3 | 150,151 | 147,148,149 | packaging, architecture |
+| 3 | 150 | 148,149 | architecture |
+| 4 | 151 | 147,150 | packaging |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -24,7 +25,7 @@ next_project_number: 152
 ### Packaging
 
 149 [NOT STARTED] — Add executable tests for the packaging contract. Surfaced by the 
-  └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
+151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 
 ### Architecture
 
@@ -41,7 +42,7 @@ next_project_number: 152
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: packaging
-- **Dependencies**: Task 147, Task 148, Task 149
+- **Dependencies**: Task 147, Task 150
 
 **Description**: Re-run the release rehearsal against the post-refactor tree and take the release to PyPI. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 1, 3, 17). This is the terminal task of the release sequence and should run only after the CLI defects, the documentation corrections, the CLI test suite, and the packaging-contract tests are done.
 
@@ -72,7 +73,7 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md and the archived checklist
 - **Status**: [NOT STARTED]
 - **Task Type**: general
 - **Topic**: architecture
-- **Dependencies**: Task 148
+- **Dependencies**: Task 148, Task 149
 
 **Description**: Add continuous integration for the main test suites. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issue 7) and already an open Phase 1 item in specs/ROADMAP.md ("Add `nix flake check` as a CI gate job").
 
