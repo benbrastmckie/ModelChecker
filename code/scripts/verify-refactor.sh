@@ -62,10 +62,23 @@ BASELINE_FULL_COUNT=2100
 #   pytest oracle --collect-only -q -m "not xdist_serial and not slow"
 #   pytest oracle --collect-only -q -m "xdist_serial and not slow"
 #   pytest oracle --collect-only -q -m slow
-BASELINE_ORACLE_COUNT=606
-BASELINE_ORACLE_PARALLEL_COUNT=594
-BASELINE_ORACLE_SERIAL_COUNT=10
+BASELINE_ORACLE_COUNT=627
+BASELINE_ORACLE_PARALLEL_COUNT=611
+BASELINE_ORACLE_SERIAL_COUNT=14
 BASELINE_ORACLE_SLOW_COUNT=2
+
+# Re-pin provenance (see specs/143_decide_oracle_serial_pass_timeout_capacity/
+# reports/01_serial-pass-capacity.md): the total and gating-parallel/xdist_serial
+# split moved together from a prior 606/594/10/2 baseline. Two independent causes,
+# both legitimate: (1) four genuinely slow solves (test_mixed_and_box_next plus
+# three BM_CM_4 parametrizations) were deliberately relocated parallel -> serial
+# via @pytest.mark.xdist_serial to fix real -n 6 CPU-contention failures, moving
+# 4 tests between the two sub-counts with the total unchanged; (2) 21 new fast
+# unit/adjudication tests were added to the parallel population afterward
+# (oracle/bimodal_logic/tests/test_timeout_skip_inventory.py's 15 conftest-hook
+# unit tests, plus TestCatalogLabelAdjudication's 6 parametrized cases in
+# test_oracle_interface.py), raising both the parallel sub-count and the total.
+# The partition invariant (parallel + serial + slow == total) held at every step.
 
 # Step 5 targets. Matched by content, never by line number — line-number pinning is exactly
 # what went stale here before.
