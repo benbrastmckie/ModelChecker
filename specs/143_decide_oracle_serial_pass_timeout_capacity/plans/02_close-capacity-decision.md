@@ -360,7 +360,16 @@ exempt, so citing tasks 144 and 145 is correct.
 
 ---
 
-### Phase 9: Commit and Complete [NOT STARTED]
+### Phase 9: Commit and Complete [COMPLETED]
+
+**Outcome**: `git status --short` confirmed zero modifications to any file under `oracle/` or
+`code/` before staging. Staged exactly the task directory (`specs/143_.../`) plus `specs/state.json`
+and `specs/TODO.md`; `git diff --staged --name-only` was reviewed and contained no unrelated file.
+Committed as `a55c50e3` ("task 143: complete implementation", session
+`sess_1786483388_83cf84`). Task status set to `completed` via `update-task-status.sh` (blockers
+cleared, `completion_summary` recorded). No push, no PR. The pre-existing unrelated
+concurrent-session modifications (`specs/142_.../plans/01_*.md`, `specs/events.jsonl`,
+`specs/.orchestrator-multi-state.json`) remain uncommitted in the working tree, as required.
 
 **Goal**: Land the closeout artifacts as a properly scoped commit and mark the task complete.
 
