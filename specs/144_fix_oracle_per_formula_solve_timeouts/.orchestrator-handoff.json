@@ -1,0 +1,62 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "All 5 plan phases complete. Built a seeded measurement harness and baseline (Phase 1), then implemented, rigorously measured, and honestly rejected three encoding-level candidates: E-matching trigger patterns (Phase 2, neutral/regressive outside the 3-formula benchmark), shift-dimension grounding (Phase 3, regressive), and a ForAllTime body-derived trigger (Phase 4, illegal Z3 pattern). Encoding is byte-identical to the Phase 1 baseline throughout (verified by exact rlimit reproduction). Phase 5 ran the Step 6 gate twice: standalone run green (low load), full verify-refactor.sh run red at Step 6 (higher load) -- disagreements=0 both times, confirming the research report's diagnosis that and_box_next and the ternary test's next_A leg sit at ~1.0x headroom, so gate outcome is contention-sensitive. No budget widened, no floor lowered, no test disabled. Outcome is the plan's own anticipated 'measured, no lever found' terminus.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/144_fix_oracle_per_formula_solve_timeouts/plans/01_oracle-solve-cost-reduction.md",
+      "summary": "5-phase plan, all phases marked [COMPLETED] with measured outcomes recorded"
+    },
+    {
+      "type": "summary",
+      "path": "specs/144_fix_oracle_per_formula_solve_timeouts/summaries/01_oracle-solve-cost-reduction-summary.md",
+      "summary": "Full write-up: what was tried/rejected, headroom table, 5 new dead ends (7-11), gate transcripts, recommendation for future smt.qi.profile follow-up"
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "none",
+  "files_modified": [
+    "specs/144_fix_oracle_per_formula_solve_timeouts/bench_solve_cost.py",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/01_solve-cost-baseline.json",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/01_solve-cost-baseline.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/02_phase2-patterns.json",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/02_phase2-patterns.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/03_phase3-shift-grounding.json",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/03_phase3-shift-grounding.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/05_final-solve-cost.json",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/05_final-solve-cost.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/05_oracle-suite-run.txt",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/baselines/05_verify-refactor-run.txt",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/handoffs/phase-1-handoff-20260811T000900Z.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/handoffs/phase-2-handoff-20260811T010000Z.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/handoffs/phase-3-handoff-20260811T020000Z.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/handoffs/phase-4-handoff-20260811T023000Z.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/handoffs/phase-5-handoff-20260811T034000Z.md",
+    "specs/144_fix_oracle_per_formula_solve_timeouts/summaries/01_oracle-solve-cost-reduction-summary.md",
+    "code/src/model_checker/theory_lib/bimodal/operators.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+    ".gitignore"
+  ],
+  "decisions_made": [
+    "rlimit count is the primary cost metric; wall-clock is secondary and must agree in direction (per plan's binding methodology)",
+    "Neutral candidates (|median rlimit delta| < 10%) are reverted, not kept -- applied to the NecessityOperator pattern",
+    "Regressive candidates (median cost up, or max(rlimit) up) are reverted immediately -- applied to shift-dimension grounding",
+    "A candidate that Z3 rejects outright (invalid pattern) is a stronger negative than a legal-but-harmful one and is recorded as such -- applied to the ForAllTime body-derived trigger",
+    "Gate flakiness under contention is the honest, data-backed conclusion, not something to paper over by re-running until green or touching a budget/floor",
+    "depth_bounded_skolem_abundance_constraint's return type was left as a single-element list (harmless, verified-equivalent) even after Phase 3's revert, since build_frame_constraints' caller already tolerated a list"
+  ],
+  "dead_ends": [
+    "Dead end 7: patterns=[Select(source_array, time)] on matching_states_when_shifted_var -- regressed F(p) from ~3s to a 5000ms timeout",
+    "Dead end 8: patterns=[shift_of_bounded(...)] on depth_bounded_skolem_abundance_constraint -- same F(p) regression",
+    "Dead end 9: patterns=[is_world(other_world)] on NecessityOperator.true_at -- measured neutral (~0.00% median rlimit delta)",
+    "Dead end 10: unrolling depth_bounded_skolem_abundance_constraint's shift_amount dimension into 2*max_shift ForAlls -- measured regressive on 2/3 targets, rule-B-violating on the third",
+    "Dead end 11: body-derived trigger for ForAllTime inside \\next's Until/bot translation -- Z3 rejected with 'invalid pattern' outright"
+  ],
+  "continuation_context": {
+    "phases_completed": 5,
+    "phases_total": 5
+  },
+  "plan_markers_verified": true
+}

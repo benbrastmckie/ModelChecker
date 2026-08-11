@@ -1,7 +1,7 @@
 # Implementation Plan: Reduce Oracle Per-Formula Z3 Solve Cost
 
 - **Task**: 144 - fix_oracle_per_formula_solve_timeouts
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 8 hours (excluding unattended measurement wall-clock; see "Measurement Wall-Clock Budget")
 - **Dependencies**: None
 - **Research Inputs**: `specs/144_fix_oracle_per_formula_solve_timeouts/reports/01_oracle-solve-cost-reduction.md`
