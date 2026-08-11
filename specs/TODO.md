@@ -1,5 +1,5 @@
 ---
-next_project_number: 144
+next_project_number: 145
 ---
 
 # TODO
@@ -11,21 +11,33 @@ next_project_number: 144
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 143 | -- | oracle suite capacity |
+| 1 | 144 | -- | oracle suite capacity |
+| 2 | 143 | 144 | oracle suite capacity |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Oracle Suite Capacity
 
-143 [BLOCKED] — The gating oracle suite's serial pass (pass 2 of oracle/run-oracl
+144 [NOT STARTED] — The gating oracle suite cannot reach a green Step 6 in code/scrip
+  └─ 143 [BLOCKED] — The gating oracle suite's serial pass (pass 2 of oracle/run-oracl
 
 ## Tasks
+
+### 144. Fix oracle per formula solve timeouts
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: oracle suite capacity
+- **Dependencies**: None
+
+**Description**: The gating oracle suite cannot reach a green Step 6 in code/scripts/verify-refactor.sh because a varying set of per-formula Z3 solves fails to decide within its budget. This is NOT machine contention and NOT a correctness regression: two full end-to-end gate runs, at load average 5.4-7.5 and at load average 1.57, both failed at Step 6, and the QUIETER run failed MORE (pass 1 failed on the quiet machine after passing under contention). Every failure is an OracleTimeoutError or its downstream conclusive-floor consequence, with disagreements=0 in both runs -- no semantic disagreement anywhere. Observed failures. Quiet run (load 1.57): pass 1 -- TestMixedFormulas::test_mixed_and_all_future_neg (OracleTimeoutError at 60000 ms) and TestTernarySerializationAll::test_all_sat_task_relation_ternary (OracleTimeoutError at 180000 ms); pass 2 -- TestMixedFormulas::test_mixed_and_box_next (OracleTimeoutError at 60000 ms). Contended run (load 5.4-7.5): pass 2 -- test_mixed_and_box_next plus test_cross_oracle_differential.py:656 conclusive floor miss (99 of 103 conclusive against floor 100, timeout_count=4). An earlier research-phase pass-2 remeasure showed the same 99-of-103 floor miss alone. test_mixed_and_box_next is the only signature common to both full-gate runs; it is marked @pytest.mark.xdist_serial and was historically characterized at ~44-45s, so it now sits at or over its 60s budget even on an idle machine -- the strongest single lead. Full evidence is preserved in specs/143_decide_oracle_serial_pass_timeout_capacity/baselines/oracle-suite-step6-quiet-attempt.txt and oracle-suite-step6-contended-attempt.txt, with the classification argument in that task summaries/01_phase4-triage-record.md. This is option (b) from the originating capacity diagnosis: attack the cause by making the slow solves faster. It is semantic/encoding work on the Z3 formulation, not a budget change. HARD CONSTRAINT: this must NOT be resolved by widening any budget or lowering any floor. Do not raise SELF_SCAN_SOLVE_TIMEOUT_MS or the 60000/180000 ms per-solve budgets, do not lower MIN_CONCLUSIVE_GATING_FORMULAS or MIN_CONCLUSIVE_SCAN_FORMULAS, and do not xfail or skip the failing tests. A timeout is a budget/performance outcome that is never cleared by widening a solve budget (code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8); a floor miss is a signal to investigate, never a license to lower the floor. Establish first whether these solves have regressed in cost or were always marginal, then reduce their cost at the encoding level. Adjudicate inside nix develop only. Note that the pass-level ORACLE_PASS2_TIMEOUT budget is NOT implicated: pass 2 measured 958.58s and 847.38s against its 1800s budget in these same runs.
+
+---
 
 ### 143. Decide oracle serial pass timeout capacity
 - **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: oracle suite capacity
-- **Dependencies**: None
+- **Dependencies**: Task 144
 - **Research**: [143_decide_oracle_serial_pass_timeout_capacity/reports/01_serial-pass-capacity.md]
 - **Plan**: [143_decide_oracle_serial_pass_timeout_capacity/plans/01_formalize-capacity-decision.md]
 - **Summary**: [143_decide_oracle_serial_pass_timeout_capacity/summaries/01_phase4-triage-record.md]

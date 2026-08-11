@@ -1,5 +1,5 @@
 {
-  "next_project_number": 144,
+  "next_project_number": 145,
   "active_projects": [
     {
       "project_number": 140,
@@ -105,7 +105,9 @@
       "task_type": "python",
       "topic": "oracle suite capacity",
       "description": "The gating oracle suite's serial pass (pass 2 of oracle/run-oracle-suite.sh, ORACLE_PASS2_TIMEOUT default 900s) now runs at 96.6% of its budget: a measured '14 passed, 592 deselected in 869.58s' leaves only 30.4 seconds of slack. This is expected to flake on a loaded machine, and that measurement was itself taken under rising system load (6.48 -> 11.19). For calibration the same pass took 795.70s with 10 tests and 770.48s with 11 tests; it now carries 14. The cause is legitimate rather than accidental: four genuinely slow solves were deliberately routed into the contention-free serial pass via @pytest.mark.xdist_serial to fix real -n 6 CPU-contention failures -- test_mixed_and_box_next (~44-45s) and three BM_CM_4 cases (~15-24s each). Scheduling was the correct fix and nothing was weakened to obtain the current green. But the serial pass now carries more work than when its 900s budget was set, and that budget was never revisited. Decide the capacity question deliberately and record the reasoning. Options, from the originating diagnosis report: (a) raise ORACLE_PASS2_TIMEOUT as an honest capacity adjustment; (b) attack the cause by making those four solves faster, which is semantic work on the encoding rather than a budget change; (c) accept and monitor, treating a pass-2 timeout as a capacity signal rather than a correctness regression. Option (a) is the lowest-effort durable fix and was recommended, PROVIDED it is done as a deliberate decision with the reasoning recorded -- not as an incidental fix during unrelated work. Before deciding, re-measure pass 2 on a genuinely quiet machine, since the 869.58s figure is contaminated by concurrent load and likely overstates the steady-state cost. Adjudicate inside 'nix develop' only. ALSO OWNS RE-PINNING THE GATE'S COLLECTION COUNTS. The end-to-end run of code/scripts/verify-refactor.sh is now green on Steps 1, 2, 4, 5, 6 and 7 but reports 2 FAILED checks at Step 3: 'oracle gating-parallel collection count is 590, expected exactly 594' and 'oracle xdist_serial collection count is 14, expected exactly 10'. These are not regressions. They are the pins correctly detecting the deliberate relocation of four genuinely slow solves out of the parallel pass and into the serial pass. The suite total is unchanged at 606 and the partition invariant still holds (590 + 14 + 2 = 606). The gate's own failure message prescribes the remedy: 're-pin all four BASELINE_ORACLE_* values together'. This was deliberately NOT done when the markers landed, to avoid pinning twice: if this task's capacity decision raises ORACLE_PASS2_TIMEOUT, or moves tests back out of the serial pass, or makes those solves fast enough to return to the parallel pass, the distribution changes again. Re-pin ONCE, after the capacity decision is settled and the final distribution is known, updating all four BASELINE_ORACLE_* values together and re-running the full gate to confirm 'All checks passed'. Note that re-pinning to match an intentional redistribution is not a weakening: the pins remain exactly as strict and will still fail on any future unintended change. Do not, however, relax the partition check or the total.",
-      "dependencies": [],
+      "dependencies": [
+        144
+      ],
       "file_scope": [
         "code/scripts/verify-refactor.sh",
         "oracle/bimodal_logic/tests/test_oracle_interface.py",
@@ -129,13 +131,33 @@
         }
       ],
       "created": "2026-08-10T18:25:27Z",
-      "last_updated": "2026-08-11T06:19:56Z",
+      "last_updated": "2026-08-11T06:23:34Z",
       "next_artifact_number": 1,
       "session_id": "sess_1786427090_297889",
       "blockers": [
-        "Step 6 cannot reach green: the gating oracle suite has nondeterministic per-formula Z3 solve timeouts that persist on a quiet machine. Quiet run (load 1.57): pass 1 failed on test_mixed_and_all_future_neg (60000ms) and test_all_sat_task_relation_ternary (180000ms); pass 2 failed on test_mixed_and_box_next (60000ms). Contended run (load 5.4-7.5): pass 2 failed on test_mixed_and_box_next plus a cross-oracle conclusive floor miss (99 of 103, floor 100). test_mixed_and_box_next is the only common signature. This is pre-existing and outside this task stated scope -- it is option (b) from the originating diagnosis (semantic work on the encoding), not the capacity/re-pin decision this task owns.",
-        "SCOPE DECISION FOR THE USER, not auto-resolvable: the two working-tree edits are independently verified twice and strictly improve the gate (HEAD is red at BOTH Step 3 and Step 6; with the edits it is red at Step 6 only). Committing them as a strict improvement plus opening a separate task for the solve timeouts is defensible, but the plan conditions Phase 5 on Step 6 green, so it was not done unilaterally."
+        "Blocked on task 144: Step 6 of verify-refactor.sh cannot reach green until the oracle per-formula Z3 solve timeouts are fixed at the encoding level. This is pre-existing and outside this task scope (capacity decision + collection re-pin), both of which are complete and verified twice.",
+        "Remaining work once 144 lands: re-run the full gate to confirm [verify-refactor] All checks passed, then mark complete. The two script edits were committed (e3b09d4e) as a strict gate improvement -- before them the gate was red at BOTH Step 3 and Step 6; it is now red at Step 6 only."
       ]
+    },
+    {
+      "project_number": 144,
+      "project_name": "fix_oracle_per_formula_solve_timeouts",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "oracle suite capacity",
+      "description": "The gating oracle suite cannot reach a green Step 6 in code/scripts/verify-refactor.sh because a varying set of per-formula Z3 solves fails to decide within its budget. This is NOT machine contention and NOT a correctness regression: two full end-to-end gate runs, at load average 5.4-7.5 and at load average 1.57, both failed at Step 6, and the QUIETER run failed MORE (pass 1 failed on the quiet machine after passing under contention). Every failure is an OracleTimeoutError or its downstream conclusive-floor consequence, with disagreements=0 in both runs -- no semantic disagreement anywhere. Observed failures. Quiet run (load 1.57): pass 1 -- TestMixedFormulas::test_mixed_and_all_future_neg (OracleTimeoutError at 60000 ms) and TestTernarySerializationAll::test_all_sat_task_relation_ternary (OracleTimeoutError at 180000 ms); pass 2 -- TestMixedFormulas::test_mixed_and_box_next (OracleTimeoutError at 60000 ms). Contended run (load 5.4-7.5): pass 2 -- test_mixed_and_box_next plus test_cross_oracle_differential.py:656 conclusive floor miss (99 of 103 conclusive against floor 100, timeout_count=4). An earlier research-phase pass-2 remeasure showed the same 99-of-103 floor miss alone. test_mixed_and_box_next is the only signature common to both full-gate runs; it is marked @pytest.mark.xdist_serial and was historically characterized at ~44-45s, so it now sits at or over its 60s budget even on an idle machine -- the strongest single lead. Full evidence is preserved in specs/143_decide_oracle_serial_pass_timeout_capacity/baselines/oracle-suite-step6-quiet-attempt.txt and oracle-suite-step6-contended-attempt.txt, with the classification argument in that task summaries/01_phase4-triage-record.md. This is option (b) from the originating capacity diagnosis: attack the cause by making the slow solves faster. It is semantic/encoding work on the Z3 formulation, not a budget change. HARD CONSTRAINT: this must NOT be resolved by widening any budget or lowering any floor. Do not raise SELF_SCAN_SOLVE_TIMEOUT_MS or the 60000/180000 ms per-solve budgets, do not lower MIN_CONCLUSIVE_GATING_FORMULAS or MIN_CONCLUSIVE_SCAN_FORMULAS, and do not xfail or skip the failing tests. A timeout is a budget/performance outcome that is never cleared by widening a solve budget (code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8); a floor miss is a signal to investigate, never a license to lower the floor. Establish first whether these solves have regressed in cost or were always marginal, then reduce their cost at the encoding level. Adjudicate inside nix develop only. Note that the pass-level ORACLE_PASS2_TIMEOUT budget is NOT implicated: pass 2 measured 958.58s and 847.38s against its 1800s budget in these same runs.",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/bimodal_logic/tests/test_oracle_interface.py",
+        "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+        "oracle/bimodal_logic/provider.py"
+      ],
+      "artifacts": [],
+      "blockers": null,
+      "created": "2026-08-11T06:23:24Z",
+      "last_updated": "2026-08-11T06:23:24Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1786427090_297889"
     }
   ],
   "repository_health": {
