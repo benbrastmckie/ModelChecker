@@ -33,7 +33,7 @@
     {
       "project_number": 147,
       "project_name": "correct_stale_release_and_environment_docs",
-      "status": "planning",
+      "status": "planned",
       "task_type": "markdown",
       "topic": "documentation",
       "priority": "high",
@@ -50,11 +50,16 @@
           "path": "specs/147_correct_stale_release_and_environment_docs/reports/01_release-env-docs-drift.md",
           "type": "report",
           "summary": "Verifies all four documentation-drift claims against the live tree; recommends deleting workflows/README.md rather than rewriting it."
+        },
+        {
+          "path": "specs/147_correct_stale_release_and_environment_docs/plans/01_release-env-docs-corrections.md",
+          "type": "plan",
+          "summary": "Five-phase documentation-correction plan covering the workflows README pointer stub, three RELEASE_SETUP.md fixes, the ENVIRONMENT_SETUP.md Python/casing/Nix corrections, the BASIC_INSTALLATION.md NixOS verification recipe, and a cross-file verification phase recording the out-of-scope run_update.py drift."
         }
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-11T23:04:25Z",
+      "last_updated": "2026-08-11T23:09:15Z",
       "next_artifact_number": 1,
       "session_id": "sess_1786489030_3e5392_147"
     },

@@ -20,7 +20,7 @@ next_project_number: 152
 
 ### Documentation
 
-147 [PLANNING] — Correct the release and environment documentation, which has drif
+147 [PLANNED] — Correct the release and environment documentation, which has drif
 
 ### Packaging
 
@@ -152,11 +152,12 @@ BASELINE: the full suite is currently 2193/2193 green (283 top-level + 1910 in-p
 ---
 
 ### 147. Correct stale release and environment docs
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: markdown
 - **Topic**: documentation
 - **Dependencies**: None
 - **Research**: [147_correct_stale_release_and_environment_docs/reports/01_release-env-docs-drift.md]
+- **Plan**: [147_correct_stale_release_and_environment_docs/plans/01_release-env-docs-corrections.md]
 
 **Description**: Correct the release and environment documentation, which has drifted badly from the shipped pipeline. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 2, 14, 16). Issue 2 is rated CRITICAL because this is the documentation someone reads while performing the release; following it leads to a failed or wrongly-credentialed publish.
 
