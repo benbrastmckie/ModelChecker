@@ -51,8 +51,8 @@ workflow's OIDC identity, not a stored credential.
 There is a single workflow, `.github/workflows/release.yml`, triggered on push of a version tag
 (`v[0-9]+.[0-9]+.[0-9]+`, e.g. `v1.3.0`). It runs five jobs in this order:
 
-1. **`test-and-release`** — cross-platform test matrix (Ubuntu/macOS/Windows, Python 3.8 and
-   3.12): builds the package, installs the wheel, verifies the import and CLI work, and confirms
+1. **`test-and-release`** — cross-platform test matrix (Ubuntu/macOS/Windows, Python 3.10, 3.11,
+   and 3.12): builds the package, installs the wheel, verifies the import and CLI work, and confirms
    the installed version matches the pushed tag.
 2. **`build`** (needs `test-and-release`) — builds the wheel and sdist once on Ubuntu
    (`python -m build` in `code/`), runs `twine check --strict dist/*`, and uploads the `dist/`
@@ -74,7 +74,7 @@ permission it needs (`id-token: write` for the two publish jobs, `contents: writ
 ## Release Process
 
 Releasing is a **user-only** sequence — see
-`specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md` for the full step-by-step
+`specs/archive/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md` for the full step-by-step
 checklist. In outline:
 
 1. Confirm `code/pyproject.toml`'s `version` and the latest `code/CHANGELOG.md` entry agree on the
@@ -143,7 +143,7 @@ PyPI/TestPyPI project **Settings → Publishing** pages, and on GitHub under
 
 The build/check portion of the pipeline can be rehearsed locally without any credentials or
 network publish calls — see
-`specs/125_release_engineering_and_pypi_rehearsal/rehearsal/` for a worked example
+`specs/archive/125_release_engineering_and_pypi_rehearsal/rehearsal/` for a worked example
 (`python -m build`, `check-wheel-contents`, `twine check --strict`, and a parity diff against the
 previously published `model-checker==1.2.12`).
 
