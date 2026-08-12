@@ -427,32 +427,32 @@ finished contract, and the end-to-end run exercises everything.
 
 ---
 
-### Phase 5: End-to-end run and evidence report [NOT STARTED]
+### Phase 5: End-to-end run and evidence report [COMPLETED]
 
 - **Goal**: Actually execute `code/scripts/release-verify.sh` end to end on the current tree,
   archive the evidence, and report the produced paths and each step's outcome. A script that has
   never been run is not a verified deliverable.
 
 - **Tasks**:
-  - [ ] Record `git status --porcelain` before the run as a baseline.
-  - [ ] Run the full command with evidence archived into the task directory:
+  - [x] Record `git status --porcelain` before the run as a baseline.
+  - [x] Run the full command with evidence archived into the task directory:
         `bash code/scripts/release-verify.sh --out specs/156_portable_pinned_release_verification_runner/rehearsal/`
         (task-artifact space, mirroring the archived task 125 `rehearsal/` precedent; this is
         artifact output, not a deliverable-file-scope change). Use the default `--ref 1.2.12`.
-  - [ ] Capture the runner's own terminal summary and its exit code verbatim.
-  - [ ] Verify all 12 files exist in the output directory and none is empty.
-  - [ ] Read each evidence file and record its per-step outcome: build success and artifact names,
+  - [x] Capture the runner's own terminal summary and its exit code verbatim.
+  - [x] Verify all 12 files exist in the output directory and none is empty.
+  - [x] Read each evidence file and record its per-step outcome: build success and artifact names,
         `twine check --strict` PASSED/FAILED per artifact, the bare `check-wheel-contents` exit code
         and finding, the `--ignore W002` exit code, the reference download result, the two diffs'
         shape, and the three sha256 values.
-  - [ ] Confirm the record-and-continue contract held in practice: the bare `check-wheel-contents`
+  - [x] Confirm the record-and-continue contract held in practice: the bare `check-wheel-contents`
         step's nonzero exit is present in `summary.txt` AND every subsequent step ran.
-  - [ ] Confirm `git status --porcelain` after the run shows no change under `code/` beyond the
+  - [x] Confirm `git status --porcelain` after the run shows no change under `code/` beyond the
         gitignored `code/dist/`, and no change to `flake.nix` or any `.github/workflows/` file.
-  - [ ] Exercise the `--ref` override once against a different published version to prove the
+  - [x] Exercise the `--ref` override once against a different published version to prove the
         default is overridable and the reference-named files rename accordingly (a short
         confirmation run; full evidence need not be archived for this variant).
-  - [ ] If the run reveals any inaccuracy in the Phase 4 prose (a filename, an exit code, a
+  - [x] If the run reveals any inaccuracy in the Phase 4 prose (a filename, an exit code, a
         described behavior), correct the prose — the documentation must describe what the runner
         actually did, not what it was planned to do. Scope any such correction to the same two
         documentation files.

@@ -1,0 +1,19 @@
+--- /tmp/nix-shell.AQMUvW/release-verify-ref-dirs.txt	2026-08-12 10:04:27.913344610 -0700
++++ /tmp/nix-shell.AQMUvW/release-verify-new-dirs.txt	2026-08-12 10:04:27.915344601 -0700
+@@ -1,13 +1,14 @@
+ .
+ ./model_checker
+-./model_checker-1.2.12.dist-info
+-./model_checker-1.2.12.dist-info/licenses
++./model_checker-1.3.0.dist-info
++./model_checker-1.3.0.dist-info/licenses
+ ./model_checker/builder
+ ./model_checker/iterate
+ ./model_checker/jupyter
+ ./model_checker/models
+ ./model_checker/output
+ ./model_checker/settings
++./model_checker/solver
+ ./model_checker/syntactic
+ ./model_checker/theory_lib
+ ./model_checker/utils

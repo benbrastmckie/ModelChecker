@@ -1,0 +1,12 @@
+/home/benjamin/Projects/ModelChecker/code/dist/model_checker-1.3.0-py3-none-any.whl: W002: Wheel contains duplicate files:
+  model_checker/theory_lib/bimodal/VERSION
+  model_checker/theory_lib/exclusion/VERSION
+  model_checker/theory_lib/imposition/VERSION
+  model_checker/theory_lib/logos/VERSION
+
+--- release-verify.sh note ---
+A nonzero exit here is EXPECTED today: W002 (duplicate files) fires for the
+four identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files.
+That deduplication is tracked as a separate task. This step is classified
+informational and never gates the run. See wheel-contents-ignore-w002.txt for
+the hard-gated "is there anything NEW beyond W002?" signal.
