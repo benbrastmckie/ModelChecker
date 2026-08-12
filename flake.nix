@@ -76,6 +76,15 @@
           # a divergence that made the baseline comparison unrunnable under `nix develop` only.
           # The flag is a timeout budget and must not be dropped to work around the gap.
           pytest-timeout
+          # code/src/model_checker/jupyter/tests/integration/test_widget_interaction.py uses
+          # unittest.mock.patch('model_checker.jupyter.interactive.widgets', ...), and mock.patch
+          # requires the target attribute to already exist on the module before it can be patched.
+          # Without ipywidgets actually importable, that attribute is absent and patch() raises a
+          # hard AttributeError -- not a graceful skip -- so these tests cannot even collect
+          # cleanly without the dependency present. matplotlib is required alongside it for the
+          # same jupyter integration surface.
+          ipywidgets
+          matplotlib
         ]);
       in
       {
