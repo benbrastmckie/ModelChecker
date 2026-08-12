@@ -232,7 +232,16 @@ if the grep returns a third file, widen this phase rather than deferring it.
 
 ---
 
-### Phase 3: Fold post-refactor work into the 1.3.0 CHANGELOG entry [NOT STARTED]
+### Phase 3: Fold post-refactor work into the 1.3.0 CHANGELOG entry [COMPLETED]
+
+**Confirmed at implementation time**: version literals agree at `1.3.0` across
+`code/pyproject.toml:9`, `flake.nix:25`, `flake.nix:137`, and `code/CHANGELOG.md`'s heading; no
+`v1.3.0` git tag exists. The CHANGELOG-adding commit is `42185381` ("task 124 phase 5: add
+CHANGELOG release entry and seed ROADMAP"); `git log --oneline 42185381..HEAD -- code/src`
+returns 64 commits, matching the research report's count and per-contributor breakdown exactly.
+The `## [1.3.0]` entry's date line was changed to note the entry was expanded 2026-08-12 with the
+actual publish date deferred to the `v1.3.0` tag push (Option B — a discrete second version bump
+— was not taken, per the plan's Non-Goals).
 
 **Goal**: `code/CHANGELOG.md`'s `## [1.3.0]` entry accurately describes everything being
 published, with no version bump and all version literals left in agreement.
