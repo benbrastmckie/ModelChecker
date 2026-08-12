@@ -1,0 +1,122 @@
+{
+  "session_id": "sess_1786489030_3e5392",
+  "task_numbers": [
+    146,
+    147,
+    148,
+    149,
+    150,
+    151
+  ],
+  "waves": [
+    [
+      146,
+      147,
+      149
+    ],
+    [
+      148
+    ],
+    [
+      150
+    ],
+    [
+      151
+    ]
+  ],
+  "dependency_graph": {
+    "146": [],
+    "147": [],
+    "148": [
+      146
+    ],
+    "149": [],
+    "150": [
+      147,
+      148,
+      149
+    ],
+    "151": [
+      147,
+      149,
+      150
+    ]
+  },
+  "max_cycles": 25,
+  "cycle_count": 2,
+  "failed_tasks": [],
+  "completed_tasks": [],
+  "current_statuses": {
+    "146": "researched",
+    "147": "planned",
+    "148": "not_started",
+    "149": "researched",
+    "150": "not_started",
+    "151": "not_started"
+  },
+  "task_dirs": {
+    "146": "specs/146_fix_cli_defects_found_in_release_review",
+    "147": "specs/147_correct_stale_release_and_environment_docs",
+    "148": "specs/148_cli_end_to_end_verification_suite",
+    "149": "specs/149_wheel_and_sdist_packaging_contract_tests",
+    "150": "specs/150_add_general_ci_workflow_and_flake_check_gate",
+    "151": "specs/151_rerun_release_rehearsal_and_publish_to_pypi"
+  },
+  "research_agents": {
+    "146": "python-research-agent",
+    "147": "general-research-agent",
+    "148": "python-research-agent",
+    "149": "python-research-agent",
+    "150": "general-research-agent",
+    "151": "python-research-agent"
+  },
+  "implement_agents": {
+    "146": "python-implementation-agent",
+    "147": "general-implementation-agent",
+    "148": "python-implementation-agent",
+    "149": "python-implementation-agent",
+    "150": "general-implementation-agent",
+    "151": "python-implementation-agent"
+  },
+  "infra_failures": {},
+  "dispatch_start_ts": {
+    "146": 1786489461,
+    "147": 1786489461,
+    "149": 1786489461
+  },
+  "deferred_self_modifying": [],
+  "deferred_deploy_checkpoint": [],
+  "deployed_critical_paths": [],
+  "consecutive_no_dispatch_cycles": 0,
+  "verify_deploy_baseline_notices": [],
+  "defer_ledger": [],
+  "detected_defects": [
+    {
+      "task": 146,
+      "defect_class": "META_MISSING_AFTER_NARRATION",
+      "attributed_source_path": "agent-system/extensions/core/agents/python-research-agent.md",
+      "detecting_site": "skill-orchestrate/SKILL.md:stage-mt4-missing-handoff",
+      "cycle": 0,
+      "detail": "research dispatch returned substantive findings but wrote neither a report artifact nor .return-meta.json",
+      "record_result": "evt_1786489415282_iYuu0T"
+    },
+    {
+      "task": 149,
+      "defect_class": "META_MISSING_AFTER_NARRATION",
+      "attributed_source_path": "agent-system/extensions/core/agents/python-research-agent.md",
+      "detecting_site": "skill-orchestrate/SKILL.md:stage-mt4-missing-handoff",
+      "cycle": 0,
+      "detail": "research dispatch returned substantive findings but wrote neither a report artifact nor .return-meta.json",
+      "record_result": "evt_1786489415609_mIcmi4"
+    }
+  ],
+  "forward_progress_violated": false,
+  "task_types": {
+    "146": "python",
+    "147": "markdown",
+    "148": "python",
+    "149": "python",
+    "150": "general",
+    "151": "python"
+  }
+}

@@ -1,0 +1,10 @@
+# Protected files - not overwritten during sync
+# Add relative paths (one per line) to protect local customizations
+# Paths are relative to the base directory (e.g., rules/my-rule.md)
+#
+# Note: this file lives at project root, outside the sync base directory,
+# so it is inherently safe from sync operations.
+
+# Repository-specific context (regenerated per repo via /project-overview; must never be
+# overwritten by the generic source-store template)
+context/repo/project-overview.md

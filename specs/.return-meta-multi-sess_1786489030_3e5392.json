@@ -1,0 +1,36 @@
+{
+  "status": "partial",
+  "session_id": "sess_1786489030_3e5392",
+  "metadata": {
+    "tasks_completed": [],
+    "tasks_failed": [],
+    "tasks_deferred_self_modifying": [],
+    "tasks_deferred_deploy_checkpoint": [],
+    "forward_progress_violated": false,
+    "defer_ledger": [],
+    "detected_defects": [
+      {
+        "task": 146,
+        "defect_class": "META_MISSING_AFTER_NARRATION",
+        "attributed_source_path": "agent-system/extensions/core/agents/python-research-agent.md",
+        "detecting_site": "skill-orchestrate/SKILL.md:stage-mt4-missing-handoff",
+        "cycle": 0,
+        "detail": "research dispatch returned substantive findings but wrote neither a report artifact nor .return-meta.json",
+        "record_result": "evt_1786489415282_iYuu0T"
+      },
+      {
+        "task": 149,
+        "defect_class": "META_MISSING_AFTER_NARRATION",
+        "attributed_source_path": "agent-system/extensions/core/agents/python-research-agent.md",
+        "detecting_site": "skill-orchestrate/SKILL.md:stage-mt4-missing-handoff",
+        "cycle": 0,
+        "detail": "research dispatch returned substantive findings but wrote neither a report artifact nor .return-meta.json",
+        "record_result": "evt_1786489415609_mIcmi4"
+      }
+    ],
+    "verify_deploy_baseline_notices": [],
+    "cycles_used": 2,
+    "multi_task_mode": true,
+    "paused_by_user": true
+  }
+}

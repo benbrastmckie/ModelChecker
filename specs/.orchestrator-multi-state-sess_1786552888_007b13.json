@@ -1,0 +1,73 @@
+{
+  "session_id": "sess_1786552888_007b13",
+  "task_numbers": [
+    156,
+    151,
+    157
+  ],
+  "waves": [
+    [
+      156,
+      157
+    ],
+    [
+      151
+    ]
+  ],
+  "dependency_graph": {
+    "156": [],
+    "151": [
+      156
+    ],
+    "157": []
+  },
+  "max_cycles": 15,
+  "cycle_count": 7,
+  "failed_tasks": [],
+  "completed_tasks": [
+    156,
+    157
+  ],
+  "current_statuses": {
+    "156": "completed",
+    "157": "completed",
+    "151": "researched"
+  },
+  "task_dirs": {
+    "156": "specs/156_portable_pinned_release_verification_runner",
+    "151": "specs/151_rerun_release_rehearsal_and_publish_to_pypi",
+    "157": "specs/157_dedupe_theory_lib_version_files_w002"
+  },
+  "research_agents": {
+    "156": "python-research-agent",
+    "151": "python-research-agent",
+    "157": "python-research-agent"
+  },
+  "implement_agents": {
+    "156": "python-implementation-agent",
+    "151": "python-implementation-agent",
+    "157": "python-implementation-agent"
+  },
+  "infra_failures": {},
+  "dispatch_start_ts": {
+    "156": 1786553574,
+    "157": 1786554037,
+    "151": 1786555022
+  },
+  "deferred_self_modifying": [],
+  "deferred_deploy_checkpoint": [],
+  "deployed_critical_paths": [],
+  "consecutive_no_dispatch_cycles": 0,
+  "verify_deploy_baseline_notices": [],
+  "defer_ledger": [
+    {
+      "task": 157,
+      "defer_reason": "file_scope_collision",
+      "collision_scope": "in_batch",
+      "cycle": 0,
+      "detail": "colliding task #151 (in task_numbers, later wave) at code/pyproject.toml; verdict labelled cross_batch because only eligible_tasks are passed to batch-admit"
+    }
+  ],
+  "detected_defects": [],
+  "forward_progress_violated": false
+}
