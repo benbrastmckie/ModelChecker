@@ -153,7 +153,7 @@
     {
       "project_number": 148,
       "project_name": "cli_end_to_end_verification_suite",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "topic": "testing",
       "priority": "high",
@@ -176,11 +176,16 @@
           "path": "specs/148_cli_end_to_end_verification_suite/reports/01_cli-e2e-verification-research.md",
           "type": "report",
           "summary": "Verified the task's gap inventory against current source; mapped exact line-level fix targets."
+        },
+        {
+          "path": "specs/148_cli_end_to_end_verification_suite/plans/01_cli-e2e-verification-plan.md",
+          "type": "plan",
+          "summary": "8-phase, 5-wave plan building CLI end-to-end verification."
         }
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-12T03:43:37Z",
+      "last_updated": "2026-08-12T03:49:28Z",
       "next_artifact_number": 1,
       "session_id": "sess_1786505927_3bc048"
     },
