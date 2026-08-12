@@ -1,0 +1,31 @@
+# Pinned Python packaging tools for code/scripts/release-verify.sh.
+#
+# Why exact pins, not ranges or "latest":
+#   The evidence release-verify.sh produces (build.log, twine-check.txt,
+#   wheel-contents.txt, parity-diff.md, etc.) is meant to be COMPARED ACROSS
+#   RELEASES over time. Floating versions would let the toolchain itself drift
+#   between runs, contaminating any observed difference in the evidence with
+#   "did the tool change?" noise on top of "did the package change?" noise.
+#   Exact pins keep the toolchain fixed so the evidence isolates the latter.
+#
+# Why these pins are NOT added to flake.nix's devShell:
+#   check-wheel-contents is not resolvable from nixpkgs at all -- confirmed via
+#   `nix eval --raw nixpkgs#check-wheel-contents.name`, which fails with
+#   "does not provide attribute ... check-wheel-contents". Widening the
+#   devShell for the other two tools (build, twine) while still needing a
+#   separate provisioning path for check-wheel-contents would split the
+#   toolchain across two mechanisms for no benefit. release-verify.sh instead
+#   provisions all three into a venv created INSIDE a single `nix develop`
+#   invocation, deliberately keeping flake.nix untouched.
+#
+# How to re-pin:
+#   1. Query current PyPI info.version for each of the three packages below
+#      (e.g. https://pypi.org/pypi/build/json -> .info.version).
+#   2. Update all three versions together in this file, even if only one
+#      actually changed upstream -- keeps the "pinned as a set" invariant.
+#   3. Re-run code/scripts/release-verify.sh end to end and confirm the
+#      evidence set still generates cleanly with the new pins.
+
+build==1.5.0
+twine==7.0.0
+check-wheel-contents==0.6.3

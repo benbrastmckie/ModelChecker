@@ -1,7 +1,7 @@
 # Implementation Plan: Portable, Pinned Release-Verification Runner
 
 - **Task**: 156 - portable_pinned_release_verification_runner
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 5.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/156_portable_pinned_release_verification_runner/reports/01_portable-release-verification.md`
@@ -140,7 +140,7 @@ finished contract, and the end-to-end run exercises everything.
 
 ---
 
-### Phase 1: Pinned tool manifest and runner scaffold [NOT STARTED]
+### Phase 1: Pinned tool manifest and runner scaffold [COMPLETED]
 
 - **Goal**: Land `code/scripts/release-tools-requirements.txt` with exact pins, and the runner's
   skeleton — shebang, header contract, argument parsing, single-invocation re-exec guard, evidence
@@ -148,49 +148,49 @@ finished contract, and the end-to-end run exercises everything.
   not-yet-implemented stub. Nothing here needs the network.
 
 - **Tasks**:
-  - [ ] Create `code/scripts/release-tools-requirements.txt` with exactly three `==` pins:
+  - [x] Create `code/scripts/release-tools-requirements.txt` with exactly three `==` pins:
         `build==1.5.0`, `twine==7.0.0`, `check-wheel-contents==0.6.3` (versions confirmed against
         PyPI in the research report).
-  - [ ] Add a header comment block to that manifest recording (a) why exact pins: evidence is meant
+  - [x] Add a header comment block to that manifest recording (a) why exact pins: evidence is meant
         to be COMPARED ACROSS RELEASES and floating versions defeat that; (b) why the pins are not
         in `flake.nix`: `check-wheel-contents` is not resolvable from nixpkgs
         (`nix eval --raw nixpkgs#check-wheel-contents.name` fails), and the venv-inside-`nix develop`
         approach deliberately avoids widening the devShell; (c) how to re-pin (query PyPI
         `info.version`, update all three together, re-run the runner).
-  - [ ] Create `code/scripts/release-verify.sh` with `#!/usr/bin/env bash` and `set -uo pipefail`
+  - [x] Create `code/scripts/release-verify.sh` with `#!/usr/bin/env bash` and `set -uo pipefail`
         (**not** `-e` — the sequence must always run to completion and report a consolidated
         result, matching `verify-refactor.sh`'s established posture).
-  - [ ] Write the header comment block in `verify-refactor.sh`'s style: purpose, the numbered step
+  - [x] Write the header comment block in `verify-refactor.sh`'s style: purpose, the numbered step
         sequence (a)-(f), a `Usage:` line, the evidence-file table, and the exit-code contract
         (0 = all hard gates green; 1 = a hard gate failed; 2 = a required step could not run,
         e.g. provisioning or reference fetch).
-  - [ ] Add `SCRIPT_DIR`/`REPO_ROOT` resolution and `cd "$REPO_ROOT"`, copying the
+  - [x] Add `SCRIPT_DIR`/`REPO_ROOT` resolution and `cd "$REPO_ROOT"`, copying the
         `verify-refactor.sh` three-line idiom verbatim.
-  - [ ] Implement argument parsing in the plain `while`/`case` style (no `getopts`, no external
+  - [x] Implement argument parsing in the plain `while`/`case` style (no `getopts`, no external
         arg library): `--ref VERSION` (default `1.2.12`, overridable — must not be hardcoded at any
         call site), `--out DIR`, `--help`. Accept a bare positional `<REF>` as an alias for
         `--ref` only if it does not complicate the parser; otherwise document `--ref` as the sole
         form.
-  - [ ] Default `--out` to a timestamped directory under `/tmp` (e.g.
+  - [x] Default `--out` to a timestamped directory under `/tmp` (e.g.
         `/tmp/release-verify-<UTC-timestamp>/`), consistent with `verify-refactor.sh`'s `/tmp`
         precedent. **It must never default to `$TMPDIR`**, which `nix develop` recreates per
         invocation. Resolve `--out` to an absolute path and `mkdir -p` it before any step runs.
-  - [ ] Implement the single-invocation guard: if `RELEASE_VERIFY_IN_SHELL` is unset, export it and
+  - [x] Implement the single-invocation guard: if `RELEASE_VERIFY_IN_SHELL` is unset, export it and
         `exec nix develop --command bash "$0" "$@"` exactly once from `$REPO_ROOT`, forwarding the
         already-absolutized `--out` and the resolved `--ref`; if it is set, proceed. Verify the
         guard cannot recurse.
-  - [ ] Implement `note()` / `fail()` / a `FAILURES` counter following `verify-refactor.sh`, plus a
+  - [x] Implement `note()` / `fail()` / a `FAILURES` counter following `verify-refactor.sh`, plus a
         `setup_fail()` path that exits 2 with a named message, and a `record_step <name> <exit>
         <gate|info>` helper that appends to a per-step status ledger.
-  - [ ] Write the status ledger to `<out>/summary.txt` (name it explicitly in the header; it is a
+  - [x] Write the status ledger to `<out>/summary.txt` (name it explicitly in the header; it is a
         12th file beyond the archived 10 + the W002 variant) containing one line per step with step
         name, classification (hard gate / informational), exit code, and evidence filename — written
         incrementally so a crashed or network-failed run still leaves a ledger showing which steps
         never ran.
-  - [ ] Stub each of steps (a)-(f) as a named function that currently only calls `note()` and
+  - [x] Stub each of steps (a)-(f) as a named function that currently only calls `note()` and
         `record_step`, so the scaffold is runnable and the step order is reviewable before any
         heavy logic lands.
-  - [ ] Add `PIP_USER=0` export and `--no-user` intent to the header/comments now, so it cannot be
+  - [x] Add `PIP_USER=0` export and `--no-user` intent to the header/comments now, so it cannot be
         forgotten in Phase 2.
 
 - **Timing**: 1 hour
