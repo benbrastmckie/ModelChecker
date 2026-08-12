@@ -27,7 +27,7 @@ next_project_number: 155
 
 ### Testing
 
-148 [NOT STARTED] — Build real end-to-end verification for the CLI. This is the large
+148 [RESEARCHED] — Build real end-to-end verification for the CLI. This is the large
 
 ### Semantics
 
@@ -209,10 +209,11 @@ IMPLEMENTATION NOTES:
 ---
 
 ### 148. Cli end to end verification suite
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 146
+- **Research**: [148_cli_end_to_end_verification_suite/reports/01_cli-e2e-verification-research.md]
 
 **Description**: Build real end-to-end verification for the CLI. This is the largest coverage gap found by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 4, 5, 6) and the main reason the CLI defects tracked separately went unnoticed.
 
