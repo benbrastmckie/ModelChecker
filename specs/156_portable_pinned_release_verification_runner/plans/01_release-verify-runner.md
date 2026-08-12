@@ -224,42 +224,42 @@ finished contract, and the end-to-end run exercises everything.
 
 ---
 
-### Phase 2: Provisioning, build, and the two check tools (steps a-d) [NOT STARTED]
+### Phase 2: Provisioning, build, and the two check tools (steps a-d) [COMPLETED]
 
 - **Goal**: Implement the venv provisioning, the fresh build, `twine check --strict`, and both
   `check-wheel-contents` runs, each writing its named evidence file and recording its
   gate/informational classification.
 
 - **Tasks**:
-  - [ ] **Step (a) — provisioning**: `export PIP_USER=0`; `python -m venv "$TMPDIR/release-verify-venv"`;
+  - [x] **Step (a) — provisioning**: `export PIP_USER=0`; `python -m venv "$TMPDIR/release-verify-venv"`;
         `"$VENV/bin/pip" install --no-user --disable-pip-version-check -r
         code/scripts/release-tools-requirements.txt`. On any failure call `setup_fail` with a named
         `SETUP FAILED: could not provision pinned release tools (network required)` message and
         exit 2 — never continue into steps that would emit partial, success-looking evidence.
-  - [ ] Record the resolved tool versions (`pip freeze` filtered to the three tools) into
+  - [x] Record the resolved tool versions (`pip freeze` filtered to the three tools) into
         `summary.txt` so the evidence self-identifies which pins produced it.
-  - [ ] **Step (b) — build**: remove/ignore any stale `code/dist/` contents so the run is fresh, then
+  - [x] **Step (b) — build**: remove/ignore any stale `code/dist/` contents so the run is fresh, then
         run `python -m build` from `code/` using the venv's interpreter, capturing combined
         stdout/stderr to `<out>/build.log`, and append a `dist/` directory listing to that same log
         (matching the archived `build.log`, whose trailing listing was appended by the rehearsal's
         own capture logic, not by `build`). Classify as a **hard gate**.
-  - [ ] Assert `code/dist/` now contains exactly one `*.whl` and one `*.tar.gz`, and capture their
+  - [x] Assert `code/dist/` now contains exactly one `*.whl` and one `*.tar.gz`, and capture their
         paths into shell variables used by every later step. A wrong count is a hard-gate failure
         with a named message.
-  - [ ] **Step (c) — twine**: `"$VENV/bin/twine" check --strict code/dist/*` to
+  - [x] **Step (c) — twine**: `"$VENV/bin/twine" check --strict code/dist/*` to
         `<out>/twine-check.txt`. Classify as a **hard gate** — this is the one step whose failure
         must block a release.
-  - [ ] **Step (d1) — bare check-wheel-contents**: `"$VENV/bin/check-wheel-contents" <wheel>` to
+  - [x] **Step (d1) — bare check-wheel-contents**: `"$VENV/bin/check-wheel-contents" <wheel>` to
         `<out>/wheel-contents.txt`. **Capture the exit code and continue.** A nonzero exit here is
         expected today (W002, four identical `theory_lib/*/VERSION` files) and MUST NOT abort the
         run or increment `FAILURES`. Classify as **informational**; record the exit code in
         `summary.txt` and append an explanatory trailer line to `wheel-contents.txt` naming W002 as
         the expected finding and pointing at the `--ignore W002` companion file.
-  - [ ] **Step (d2) — W002-ignored run**: `"$VENV/bin/check-wheel-contents" --ignore W002 <wheel>`
+  - [x] **Step (d2) — W002-ignored run**: `"$VENV/bin/check-wheel-contents" --ignore W002 <wheel>`
         to `<out>/wheel-contents-ignore-w002.txt`. This is the "is there anything NEW?" signal:
         classify it as a **hard gate** (a nonzero exit here means a finding beyond the known,
         separately-tracked W002 duplication).
-  - [ ] Ensure `set -uo pipefail` plus the accumulate-don't-abort posture actually holds for each
+  - [x] Ensure `set -uo pipefail` plus the accumulate-don't-abort posture actually holds for each
         captured command (use explicit `|| true` / `rc=$?` capture around each so a nonzero exit is
         recorded rather than swallowed or fatal).
 

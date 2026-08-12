@@ -193,34 +193,148 @@ NEW_WHEEL=""
 NEW_SDIST=""
 REF_WHEEL=""
 
-# --- Step (a): provisioning [STUB -- implemented in a later phase] ----------
+# --- Step (a): provisioning ---------------------------------------------------
+# python -m venv created INSIDE this single nix develop invocation; PIP_USER=0
+# (exported above) plus --no-user because ~/.config/pip/pip.conf sets
+# install.user=true globally on this NixOS host, which a venv install rejects
+# otherwise. On any failure, setup_fail() aborts with exit 2 -- never continue
+# into steps that would emit partial, success-looking evidence.
 step_a_provision() {
-  note "Step (a): provision pinned release tools [STUB]"
-  record_step "a-provision" 0 gate "(stub)"
+  note "Step (a): provision pinned release tools"
+  local provision_scratch="${TMPDIR:-/tmp}/release-verify-provision.log"
+  VENV_DIR="${TMPDIR:-/tmp}/release-verify-venv"
+  rm -rf "$VENV_DIR"
+  : > "$provision_scratch"
+
+  if ! python3 -m venv "$VENV_DIR" >>"$provision_scratch" 2>&1; then
+    cat "$provision_scratch" >&2 || true
+    setup_fail "could not provision pinned release tools: python -m venv failed"
+  fi
+
+  if ! "${VENV_DIR}/bin/pip" install --no-user --disable-pip-version-check \
+        -r "${REPO_ROOT}/code/scripts/release-tools-requirements.txt" \
+        >>"$provision_scratch" 2>&1; then
+    cat "$provision_scratch" >&2 || true
+    setup_fail "could not provision pinned release tools: pip install failed (network required)"
+  fi
+
+  local resolved_versions
+  resolved_versions=$("${VENV_DIR}/bin/pip" freeze 2>/dev/null | grep -E '^(build|twine|check-wheel-contents)==' || true)
+  {
+    echo "Resolved pinned tool versions (from pip freeze):"
+    echo "${resolved_versions:-<none found>}"
+    echo
+  } >> "${OUT_DIR}/summary.txt"
+
+  note "OK: provisioned pinned tools into ${VENV_DIR}"
+  record_step "a-provision" 0 gate "(versions recorded in summary.txt)"
 }
 
-# --- Step (b): build [STUB] ---------------------------------------------------
+# --- Step (b): build -----------------------------------------------------------
+# Fresh code/dist/ (gitignored, .gitignore:13) via the venv's interpreter.
+# Classified as a hard gate.
 step_b_build() {
-  note "Step (b): python -m build [STUB]"
+  note "Step (b): python -m build"
+  local build_log="${OUT_DIR}/build.log"
+  rm -rf "${REPO_ROOT}/code/dist"
+
+  (cd "${REPO_ROOT}/code" && "${VENV_DIR}/bin/python" -m build) > "$build_log" 2>&1
+  local rc=$?
+  {
+    echo
+    echo "--- code/dist/ directory listing ---"
+    ls -la "${REPO_ROOT}/code/dist" 2>&1
+  } >> "$build_log"
+
+  if [ "$rc" -ne 0 ]; then
+    fail "python -m build failed (exit ${rc}); see ${build_log}"
+    record_step "b-build" "$rc" gate "build.log"
+    return
+  fi
+
+  local whl_count sdist_count
+  whl_count=$(find "${REPO_ROOT}/code/dist" -maxdepth 1 -name '*.whl' 2>/dev/null | wc -l | tr -d ' ')
+  sdist_count=$(find "${REPO_ROOT}/code/dist" -maxdepth 1 -name '*.tar.gz' 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$whl_count" -ne 1 ] || [ "$sdist_count" -ne 1 ]; then
+    fail "expected exactly one *.whl and one *.tar.gz in code/dist/, found ${whl_count} wheel(s) and ${sdist_count} sdist(s)"
+    record_step "b-build" 1 gate "build.log"
+    return
+  fi
+
+  NEW_WHEEL="$(find "${REPO_ROOT}/code/dist" -maxdepth 1 -name '*.whl')"
+  NEW_SDIST="$(find "${REPO_ROOT}/code/dist" -maxdepth 1 -name '*.tar.gz')"
+  note "OK: built $(basename "$NEW_WHEEL") and $(basename "$NEW_SDIST")"
   record_step "b-build" 0 gate "build.log"
 }
 
-# --- Step (c): twine check --strict [STUB] -----------------------------------
+# --- Step (c): twine check --strict --------------------------------------------
+# The one step whose failure must block a release. Classified as a hard gate.
 step_c_twine() {
-  note "Step (c): twine check --strict [STUB]"
-  record_step "c-twine" 0 gate "twine-check.txt"
+  note "Step (c): twine check --strict"
+  if [ -z "$NEW_WHEEL" ] || [ -z "$NEW_SDIST" ]; then
+    echo "SKIPPED: no build artifacts available (step b failed)" > "${OUT_DIR}/twine-check.txt"
+    fail "twine check --strict skipped: no build artifacts (step b failed)"
+    record_step "c-twine" 1 gate "twine-check.txt"
+    return
+  fi
+
+  "${VENV_DIR}/bin/twine" check --strict "${REPO_ROOT}/code/dist/"* > "${OUT_DIR}/twine-check.txt" 2>&1
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    fail "twine check --strict failed (exit ${rc}); see ${OUT_DIR}/twine-check.txt"
+  else
+    note "OK: twine check --strict passed"
+  fi
+  record_step "c-twine" "$rc" gate "twine-check.txt"
 }
 
-# --- Step (d1): check-wheel-contents (bare) [STUB] ---------------------------
+# --- Step (d1): check-wheel-contents (bare) -------------------------------------
+# Classified as informational: capture the exit code and CONTINUE. A nonzero
+# exit here is expected today (W002, four identical theory_lib/*/VERSION
+# files) and must not abort the run or increment FAILURES.
 step_d1_wheel_contents_bare() {
-  note "Step (d1): check-wheel-contents (bare) [STUB]"
-  record_step "d1-wheel-contents" 0 info "wheel-contents.txt"
+  note "Step (d1): check-wheel-contents (bare, informational)"
+  if [ -z "$NEW_WHEEL" ]; then
+    echo "SKIPPED: no wheel built (step b failed)" > "${OUT_DIR}/wheel-contents.txt"
+    record_step "d1-wheel-contents" 1 info "wheel-contents.txt"
+    return
+  fi
+
+  "${VENV_DIR}/bin/check-wheel-contents" "$NEW_WHEEL" > "${OUT_DIR}/wheel-contents.txt" 2>&1
+  local rc=$?
+  {
+    echo
+    echo "--- release-verify.sh note ---"
+    echo "A nonzero exit here is EXPECTED today: W002 (duplicate files) fires for the"
+    echo "four identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files."
+    echo "That deduplication is tracked as a separate task. This step is classified"
+    echo "informational and never gates the run. See wheel-contents-ignore-w002.txt for"
+    echo "the hard-gated \"is there anything NEW beyond W002?\" signal."
+  } >> "${OUT_DIR}/wheel-contents.txt"
+  note "check-wheel-contents (bare) exited ${rc} -- informational, recorded, run continues"
+  record_step "d1-wheel-contents" "$rc" info "wheel-contents.txt"
 }
 
-# --- Step (d2): check-wheel-contents --ignore W002 [STUB] --------------------
+# --- Step (d2): check-wheel-contents --ignore W002 -------------------------------
+# The "is there anything NEW?" signal. Classified as a hard gate: a nonzero
+# exit here means a finding beyond the known, separately-tracked W002.
 step_d2_wheel_contents_ignore_w002() {
-  note "Step (d2): check-wheel-contents --ignore W002 [STUB]"
-  record_step "d2-wheel-contents-w002" 0 gate "wheel-contents-ignore-w002.txt"
+  note "Step (d2): check-wheel-contents --ignore W002 (hard gate)"
+  if [ -z "$NEW_WHEEL" ]; then
+    echo "SKIPPED: no wheel built (step b failed)" > "${OUT_DIR}/wheel-contents-ignore-w002.txt"
+    fail "check-wheel-contents --ignore W002 skipped: no wheel built"
+    record_step "d2-wheel-contents-w002" 1 gate "wheel-contents-ignore-w002.txt"
+    return
+  fi
+
+  "${VENV_DIR}/bin/check-wheel-contents" --ignore W002 "$NEW_WHEEL" > "${OUT_DIR}/wheel-contents-ignore-w002.txt" 2>&1
+  local rc=$?
+  if [ "$rc" -ne 0 ]; then
+    fail "check-wheel-contents --ignore W002 reported findings beyond the known W002 (exit ${rc}); see ${OUT_DIR}/wheel-contents-ignore-w002.txt"
+  else
+    note "OK: check-wheel-contents --ignore W002 clean (no findings beyond the known W002)"
+  fi
+  record_step "d2-wheel-contents-w002" "$rc" gate "wheel-contents-ignore-w002.txt"
 }
 
 # --- Step (e1): reference fetch [STUB] ---------------------------------------
