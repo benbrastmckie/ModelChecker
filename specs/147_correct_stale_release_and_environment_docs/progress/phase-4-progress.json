@@ -1,0 +1,21 @@
+{
+  "phase": 4,
+  "phase_name": "Add the NixOS post-publish verification recipe to BASIC_INSTALLATION.md",
+  "started_at": "2026-08-11T00:25:00Z",
+  "last_updated": "2026-08-11T00:35:00Z",
+  "objectives": [
+    {"id": 1, "description": "Insert new Verifying a Published Release on NixOS subsection with the verbatim recipe and PIP_USER/LD_LIBRARY_PATH explanations", "status": "done", "files_touched": ["docs/installation/BASIC_INSTALLATION.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "4.wording",
+      "description": "Word the PIP_USER=0 and stdenv.cc.cc.lib explanatory prose to avoid repeating the exact literal strings",
+      "type": "altered",
+      "reason": "The phase's own verification criteria require 'PIP_USER=0' and 'stdenv.cc.cc.lib' to each match exactly once in the file. A natural prose explanation would otherwise repeat the code-block token literally, producing two matches. Reworded the explanatory headings/prose to reference the concepts without repeating the exact substrings, while keeping the code block itself verbatim as specified.",
+      "annotation": "*(deviation: altered — reworded explanatory prose to avoid double-matching the verification grep, code recipe kept verbatim)*"
+    }
+  ]
+}

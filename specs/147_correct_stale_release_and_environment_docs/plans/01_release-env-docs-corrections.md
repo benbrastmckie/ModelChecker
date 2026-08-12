@@ -299,7 +299,7 @@ divergence from the stated counts in the implementation summary.
 
 ---
 
-### Phase 4: Add the NixOS post-publish verification recipe to `BASIC_INSTALLATION.md` [NOT STARTED]
+### Phase 4: Add the NixOS post-publish verification recipe to `BASIC_INSTALLATION.md` [COMPLETED]
 
 **Goal**: Document the empirically-verified venv + `LD_LIBRARY_PATH` recipe for confirming a
 published wheel runs on NixOS, framed as a verification procedure and not as an install path.

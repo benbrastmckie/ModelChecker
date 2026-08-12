@@ -181,6 +181,32 @@ The `flake.nix` provides everything you need:
 
 For more details on NixOS development, see [Developer Setup](DEVELOPER_SETUP.md#nixos-development).
 
+### Verifying a Published Release on NixOS
+
+This is a **verification procedure** for confirming a published `model-checker` wheel installs
+and runs correctly on NixOS — it is not a recommended install path. For ordinary NixOS use, the
+`nix develop` workflow above remains the right approach.
+
+```bash
+python3 -m venv testvenv
+PIP_USER=0 ./testvenv/bin/pip install model-checker
+LD_LIBRARY_PATH=$(nix eval --raw nixpkgs#stdenv.cc.cc.lib)/lib \
+  ./testvenv/bin/model-checker <project>/examples.py
+```
+
+**Why set `PIP_USER` to 0**: some systems set `install.user = true` globally in
+`~/.config/pip/pip.conf`. A virtual environment install rejects a user-site install, so this
+override forces a normal venv install for this command. Check whether your own `pip.conf` sets
+this before assuming it is needed.
+
+**Why `LD_LIBRARY_PATH`**: the published `z3-solver` wheel bundles a prebuilt `libz3.so` that
+cannot resolve `libstdc++.so.6` on NixOS, since NixOS does not keep shared libraries in the
+standard FHS locations the wheel expects. Pointing `LD_LIBRARY_PATH` at the nixpkgs C++ standard
+library output above resolves that one missing library. This is the sole NixOS-specific blocker
+for the published wheel — nothing else about the package needs special handling on NixOS.
+
+Remove `testvenv/` when finished with the check.
+
 ## Optional: Nix on Other Platforms
 
 While NixOS users must use `nix develop`, the Nix package manager is also available on macOS, Linux, and Windows (WSL2) for those who prefer reproducible environments. However, given ModelChecker's minimal dependencies, standard pip installation works perfectly for most users.
