@@ -341,22 +341,22 @@ this phase, not as a workflow-authoring detail to be resolved later in CI.
 
 ---
 
-### Phase 4: Document the new workflow and its scoping decisions [NOT STARTED]
+### Phase 4: Document the new workflow and its scoping decisions [COMPLETED]
 
 **Goal**: Add `tests.yml` to `.github/workflows/README.md` alongside the three existing workflows,
 recording the *why* of each scoping decision so the next editor does not re-derive it.
 
 **Tasks**:
-- [ ] Add a `tests.yml` bullet to the `## Workflows` list, describing its trigger, selection, matrix,
-      and the `nix flake check` job.
-- [ ] Add a short "Scoping rationale" subsection covering: why packaging tests run serially and only
+- [x] Add a `tests.yml` bullet to the `## Workflows` list, describing its trigger, selection, matrix,
+      and the `nix flake check` job. *(completed)*
+- [x] Add a short "Scoping rationale" subsection covering: why packaging tests run serially and only
       in their own workflow; why the general gate excludes the `packaging` marker; why the general
       gate uses a narrower matrix than the release pipeline; why `-n 6` and never `-n auto`; and why
       bimodal is covered by both the plain-Python job and the flake check (cross-toolchain, not
-      redundant).
-- [ ] Mention that `checks.default` in `flake.nix` is no longer bimodal-scoped (consistent with
-      Phase 2's outcome), keeping the README and the flake in agreement.
-- [ ] No task-number citations.
+      redundant). *(completed)*
+- [x] Mention that `checks.default` in `flake.nix` is no longer bimodal-scoped (consistent with
+      Phase 2's outcome), keeping the README and the flake in agreement. *(completed)*
+- [x] No task-number citations. *(completed)*
 
 **Timing**: 0.5 hours
 
@@ -366,11 +366,13 @@ recording the *why* of each scoping decision so the next editor does not re-deri
 
 **Verification**:
 - Diff read-through confirming every changed hunk lies inside markdown prose in
-  `.github/workflows/README.md` and no other file was touched.
+  `.github/workflows/README.md` and no other file was touched. *(passed — 44 insertions, 0
+  deletions, single file)*
 - Every workflow filename mentioned exists: `ls .github/workflows/` cross-checked against the
   README's bullet list (4 workflows: `release.yml`, `packaging.yml`, `differential-tests.yml`,
-  `tests.yml`).
+  `tests.yml`). *(passed — all four present on disk and named in the README)*
 - `grep -niE "task[ -]?[0-9]+" .github/workflows/README.md` returns nothing newly added.
+  *(passed — no matches at all)*
 
 **Files to modify**:
 - `.github/workflows/README.md` — new `tests.yml` entry and scoping-rationale subsection.
