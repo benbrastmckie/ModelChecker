@@ -45,7 +45,8 @@
           ];
 
           # No test collection during the package build itself; the reproducibility gate is the
-          # separate `checks.default` output below (scoped to the known-green bimodal suite).
+          # separate `checks.default` output below, which covers the full in-package suite plus
+          # `code/tests/` (minus the `packaging` marker) rather than the bimodal suite alone.
           doCheck = false;
 
           pythonImportsCheck = [ "model_checker" "z3" ];
@@ -85,6 +86,15 @@
           # same jupyter integration surface.
           ipywidgets
           matplotlib
+          # code/src/model_checker/theory_lib/logos/protocols.py imports
+          # `from typing_extensions import runtime_checkable` at module level, but
+          # `typing_extensions` is not declared anywhere in code/pyproject.toml's dependencies --
+          # a pre-existing undeclared-dependency gap in the package itself (out of scope to fix
+          # here). It happens to be present transitively in a pip/venv install via another
+          # package's dependency chain, but the Nix closure has no such transitive pull, so it
+          # must be listed explicitly or every test that imports the logos subtheory (directly or
+          # via collection) fails with a hard ModuleNotFoundError rather than a skip.
+          typing-extensions
         ]);
       in
       {
@@ -106,13 +116,22 @@
           '';
         };
 
-        # Scoped to the in-package `theory_lib/bimodal` suite, the reliably-green subset
-        # documented in specs/122's RELEASE-BASELINE.md (286/286 passed at `-n 6`, 43.4s
-        # wall-clock; `-n auto` is avoided due to a documented CPU-contention flake). The
-        # top-level `oracle/` tree is a separate, unpackaged suite (task-118) and the
-        # everything-else suite carries 28 documented pre-existing failures unrelated to this
-        # flake -- neither belongs in a hermetic hyperintensional reproducibility gate. All
-        # Python deps come from nixpkgs; there is no PyPI/network fetch inside the sandbox.
+        # Covers the full in-package suite (`src/model_checker`, bimodal included) plus the
+        # top-level `tests` tree, minus tests marked `packaging`. The bimodal-only scope this
+        # check previously used was justified by a claim of a couple dozen pre-existing failures
+        # in the rest of the suite; a measured re-run of that exact selection (`code/tests`
+        # `code/src/model_checker` minus `bimodal/tests` minus the `packaging` marker, `-n 6`)
+        # produced 1700 passed, 254 skipped, 0 failed, 0 errors in 74.10s -- the claim does not
+        # reproduce, so the narrower scope is no longer justified and this check now runs
+        # everything that selection covers. `packaging`-marked tests are excluded: they build
+        # wheels/sdists via `code/tests/packaging/conftest.py`'s session-scoped fixture, which is
+        # not safe under xdist parallelism (a `-n 6` run including them reproduced 86 spurious
+        # build-race errors); they are already covered serially by
+        # `.github/workflows/packaging.yml` and by `release.yml`'s build job, so re-running them
+        # here would be both unsafe and redundant. `-n 6` is used deliberately, not `-n auto`: the
+        # bimodal suite has a documented CPU-contention flake under `-n auto`, corroborated by a
+        # measured ~1.8x slowdown under concurrent load. All Python deps come from nixpkgs; there
+        # is no PyPI/network fetch inside the sandbox.
         checks.default = pkgs.stdenv.mkDerivation {
           pname = "model-checker-checks";
           version = "1.3.0";
@@ -125,7 +144,7 @@
             runHook preCheck
             export PYTHONPATH="$PWD/src"
             export HOME="$TMPDIR"
-            pytest src/model_checker/theory_lib/bimodal/tests -n 6 -q
+            pytest src/model_checker tests -m "not packaging" -n 6 -q
             runHook postCheck
           '';
 
@@ -133,7 +152,7 @@
 
           installPhase = ''
             mkdir -p $out
-            echo "model-checker bimodal suite: green" > $out/result
+            echo "model-checker suite (src/model_checker + tests, minus packaging): green" > $out/result
           '';
         };
       });

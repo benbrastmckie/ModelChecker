@@ -180,38 +180,51 @@ prerequisite *before* any broadening of `checks.default`.
 
 ---
 
-### Phase 2: Broaden checks.default and correct its false justification [NOT STARTED]
+### Phase 2: Broaden checks.default and correct its false justification [COMPLETED]
 
 **Goal**: Replace `checks.default`'s bimodal-only `checkPhase` with one covering the full
 in-package suite (and `code/tests/`, if the sandbox permits), and rewrite the now-false comment at
 `flake.nix:100-106` to state the measured truth.
 
 **Tasks**:
-- [ ] Rewrite the `checkPhase` to run the broadened selection. Target form, given the derivation's
+- [x] Rewrite the `checkPhase` to run the broadened selection. Target form, given the derivation's
       `src = ./code` root (so `tests` inside the derivation is the repo's `code/tests`):
-      `pytest src/model_checker tests -m "not packaging" -n 6 -q`
-- [ ] Keep `-n 6`. Do not use `-n auto` — the CPU-contention flake this guards against is documented
-      and was corroborated by a measured 1.8x bimodal slowdown under concurrent load.
-- [ ] Keep the `-m "not packaging"` filter: the packaging suite builds wheels/sdists and is unsafe
+      `pytest src/model_checker tests -m "not packaging" -n 6 -q` *(completed)*
+- [x] Keep `-n 6`. Do not use `-n auto` — the CPU-contention flake this guards against is documented
+      and was corroborated by a measured 1.8x bimodal slowdown under concurrent load. *(completed)*
+- [x] Keep the `-m "not packaging"` filter: the packaging suite builds wheels/sdists and is unsafe
       under xdist parallelism (86 spurious build-race errors reproduced), and is already covered
-      serially elsewhere.
-- [ ] Replace the comment block at `flake.nix:100-106` entirely. The new comment must state: (a) the
+      serially elsewhere. *(completed)*
+- [x] Replace the comment block at `flake.nix:100-106` entirely. The new comment must state: (a) the
       check now covers the in-package suite (plus `code/tests/`, if included) rather than bimodal
       alone; (b) the previously-cited "28 documented pre-existing failures" no longer reproduce — a
       measured re-run of that selection produced 1700 passed / 254 skipped / 0 failed / 0 errors at
       `-n 6`; (c) why `packaging`-marked tests are excluded (xdist build race, covered serially by
       the dedicated packaging workflow); (d) why `-n 6` and not `-n auto`. **No task-number
       citations** — reference `code/tests/packaging/`, the `packaging` marker, and
-      `.github/workflows/packaging.yml` by name instead.
-- [ ] Update the `installPhase`'s `echo "model-checker bimodal suite: green"` message to match the
-      new, broader scope.
-- [ ] Update the `doCheck = false` comment at `flake.nix:47-49`, which currently says the gate is
-      "scoped to the known-green bimodal suite", so it does not contradict the new scope.
-- [ ] If `code/tests/` proves unrunnable inside the Nix sandbox, fall back to
+      `.github/workflows/packaging.yml` by name instead. *(completed: the literal string "28
+      documented" was paraphrased away per Phase 2's own verification grep)*
+- [x] Update the `installPhase`'s `echo "model-checker bimodal suite: green"` message to match the
+      new, broader scope. *(completed)*
+- [x] Update the `doCheck = false` comment at `flake.nix:47-49`, which currently says the gate is
+      "scoped to the known-green bimodal suite", so it does not contradict the new scope. *(completed)*
+- [x] If `code/tests/` proves unrunnable inside the Nix sandbox, fall back to
       `pytest src/model_checker -m "not packaging" -n 6 -q`, close the phase as
       `[COMPLETED WITH EXCLUSIONS]`, and record a `#### Reasoned Exclusions` table whose Evidence
       column carries the actual failing output. Do not weaken assertions or add `--ignore` flags
-      merely to reach green without recording why.
+      merely to reach green without recording why. *(not needed — broadened check reached green
+      inside the sandbox; see Deviation note below for one additional devPython dependency
+      required to get there)*
+
+**Deviation (not a fallback, an additive fix)**: the first `nix flake check` run inside this
+sandbox failed with `ModuleNotFoundError: No module named 'typing_extensions'`
+(`code/src/model_checker/theory_lib/logos/protocols.py` imports it at module level, but it is not
+declared in `code/pyproject.toml`'s dependencies — a pre-existing undeclared-dependency gap in the
+package, left unfixed as out of scope for this task). Added `typing-extensions` to `devPython`
+alongside `ipywidgets`/`matplotlib` (same class of fix as Phase 1, not a weakening of any
+assertion or selector). After that addition, `nix flake check` reported "all checks passed!" with
+**2002 passed, 254 skipped, 0 failed, 0 errors in 149.55s** — exactly 1700 (non-bimodal) + 302
+(bimodal) = 2002, consistent with the Scope Hypothesis's reference numbers.
 
 **Timing**: 1 hour
 
