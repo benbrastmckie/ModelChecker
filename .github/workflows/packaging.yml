@@ -1,0 +1,33 @@
+name: Packaging Contract Tests
+
+# Push/PR-triggered, narrowly scoped to code/tests/packaging/ (the wheel/sdist packaging
+# contract suite). This is deliberately not a general full-suite CI workflow -- see
+# code/tests/packaging/README (via specs/149_wheel_and_sdist_packaging_contract_tests) for the
+# non-goal this respects.
+on:
+  push:
+  pull_request:
+
+jobs:
+  packaging-tests:
+    name: Wheel/Sdist Packaging Contract
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install packaging test dependencies
+        run: pip install pytest build
+
+      - name: Run packaging contract tests
+        run: cd code && python -m pytest tests/packaging/ -v -m packaging
+        # GitHub Actions runners already export CI=true, which the packaging_toolchain and
+        # installed_venv fixtures rely on to fail (rather than skip) on toolchain-provisioning
+        # failure -- no explicit env: block needed here.

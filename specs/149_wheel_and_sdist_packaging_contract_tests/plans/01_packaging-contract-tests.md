@@ -1,7 +1,7 @@
 # Implementation Plan: Wheel and Sdist Packaging Contract Tests
 
 - **Task**: 149 - wheel_and_sdist_packaging_contract_tests
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/149_wheel_and_sdist_packaging_contract_tests/reports/01_packaging-contract-tests.md
@@ -371,23 +371,26 @@ assertion.
 
 ---
 
-### Phase 6: CI Wiring [NOT STARTED]
+### Phase 6: CI Wiring [COMPLETED]
 
 **Goal**: A CI job actually runs the packaging tests on every push and pull request, and
 release-time builds are contents-checked rather than only metadata-checked.
 
 **Tasks**:
-- [ ] Create `.github/workflows/packaging.yml`: triggered on `push` and `pull_request`, checks
+- [x] Create `.github/workflows/packaging.yml`: triggered on `push` and `pull_request`, checks
       out, sets up a supported Python (match the version already used in `release.yml`), installs
       the package's test dependencies plus `build`, and runs
       `cd code && python -m pytest tests/packaging/ -v -m packaging`.
-- [ ] Scope the workflow narrowly — packaging tests only. Do not add a general full-suite job.
-- [ ] Add one additive step to `release.yml`'s existing `build` job that runs the packaging tests
+- [x] Scope the workflow narrowly — packaging tests only. Do not add a general full-suite job.
+- [x] Add one additive step to `release.yml`'s existing `build` job that runs the packaging tests
       against the artifacts it already builds. Do not change triggers, the matrix, or any publish
-      step.
-- [ ] Confirm the new workflow's YAML parses and its job/step names are distinct from existing
+      step. (The suite always rebuilds fresh into a pytest temp dir by design -- see Phase 1's
+      "never read code/dist/" invariant -- so this step validates an equivalent fresh build of
+      the same commit rather than re-inspecting the job's own `dist/` output; it runs before the
+      artifact upload so a packaging-contract regression blocks the release.)
+- [x] Confirm the new workflow's YAML parses and its job/step names are distinct from existing
       workflows.
-- [ ] Update `.github/workflows/README.md` to describe the new workflow alongside the existing
+- [x] Update `.github/workflows/README.md` to describe the new workflow alongside the existing
       two.
 
 **Timing**: 0.75 hours

@@ -105,6 +105,15 @@ jobs:
         cd code
         twine check --strict dist/*
 
+    - name: Run packaging contract tests
+      # Additive, non-publish-affecting check: contents-verifies this same revision's wheel/sdist
+      # (rebuilt fresh into a pytest temp dir by the suite itself -- it never reads code/dist/)
+      # before the artifact below is uploaded and eventually published.
+      run: |
+        cd code
+        pip install pytest
+        python -m pytest tests/packaging/ -v -m packaging
+
     - name: Upload distribution artifact
       uses: actions/upload-artifact@v4
       with:
