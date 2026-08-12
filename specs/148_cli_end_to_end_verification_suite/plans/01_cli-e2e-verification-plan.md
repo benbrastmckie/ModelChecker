@@ -442,27 +442,52 @@ exclusion list — do not hand-transcribe the flag list.
 
 ---
 
-### Phase 5: Console-script behavioral coverage [NOT STARTED]
+### Phase 5: Console-script behavioral coverage [COMPLETED]
 
 **Goal**: Cover the real `[project.scripts]` entry point for behavior, beyond the existing
 liveness check, without a second venv.
 
 **Tasks**:
-- [ ] New `code/tests/packaging/test_cli_console_script.py`, marked
+- [x] New `code/tests/packaging/test_cli_console_script.py`, marked
       `pytest.mark.packaging`/`pytest.mark.slow`, consuming the relocated `installed_venv` and
       `_console_script_path`.
-- [ ] `model-checker --version` and `model-checker --help` invoked as the real script: exit 0,
+- [x] `model-checker --version` and `model-checker --help` invoked as the real script: exit 0,
       and stdout matching what the equivalent `python -m model_checker` invocation produces. The
       cross-check is the point — it proves the entry point resolves to the same `run()` rather
       than merely that it exits 0.
-- [ ] One real example run through the console script against a tiny example file: exit 0, no
+- [x] One real example run through the console script against a tiny example file: exit 0, no
       `Traceback` in stderr, non-empty stdout.
-- [ ] Invoke with **no `PYTHONPATH`** (the fixture already strips it), proving the installed
+- [x] Invoke with **no `PYTHONPATH`** (the fixture already strips it), proving the installed
       package is self-sufficient — this is the property the deleted mock test only pretended to
       check.
-- [ ] Add a docstring stating this file owns broader console-script behavior, closing the
-      forward reference in `test_entry_point.py`'s docstring (which points at
-      `code/tests/e2e/`; update that pointer to this file so the two do not disagree).
+- [x] Add a docstring stating this file owns broader console-script behavior, closing the
+      forward reference in `test_entry_point.py`'s docstring (already updated during Phase 2's
+      edit, since that file's fixture-relocation and docstring pointer are the same edit site).
+
+**Implementation Notes -- environment-specific failure mode discovered, handled loudly**:
+- The two tests that actually run a solve through the installed venv's console script
+  (`test_real_example_run_through_console_script`,
+  `test_console_script_runs_without_pythonpath`) hit a real failure the first time they ran:
+  `z3.z3types.Z3Exception: libz3.so not found`, from
+  `[OSError('libstdc++.so.6: cannot open shared object file...'), ...]`. Root cause confirmed:
+  on this project's NixOS development host, the *ambient* interpreter's `z3` package resolves
+  through the Nix store with correctly wired RPATHs, but the isolated packaging-test venv
+  installs `z3-solver` fresh from PyPI, and that wheel's bundled shared libraries expect an
+  FHS-standard library search path that Nix's non-FHS layout does not provide outside of
+  `nix-ld`-patched binaries (which pip-installed wheels are not). This is an isolated-venv
+  dynamic-linking limitation of this specific dev machine, not a `model_checker` code defect --
+  a standard (non-Nix) Linux CI runner would not be expected to hit it.
+- Handled with a new `handle_known_venv_libz3_link_failure()` helper in `conftest.py`, reusing
+  the exact CI-gated skip/fail shape `_provisioning_failure` already established for
+  toolchain/wheel-build provisioning: skip outside CI (loud reason, not a silent pass), fail
+  loudly in CI. It recognizes only this one exact failure signature in the subprocess output and
+  is a no-op for anything else, so it can never mask a real defect. Exposed for reuse by Phase 6,
+  which will hit the identical signature for every theory's generate-then-execute run in this
+  same environment.
+- Result: 2 of 4 tests in this file pass outright (`--version`/`--help`, which never import z3);
+  the other 2 skip with the loud reason above in this environment. Recorded here rather than
+  silently accepted, per the "never a silent pass" standing policy this file inherits from
+  `conftest.py`.
 
 **Timing**: 1 hour
 

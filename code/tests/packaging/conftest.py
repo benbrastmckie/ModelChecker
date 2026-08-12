@@ -66,6 +66,38 @@ def _provisioning_failure(reason: str) -> None:
         pytest.skip(reason)
 
 
+def handle_known_venv_libz3_link_failure(result: subprocess.CompletedProcess) -> None:
+    """Apply the same CI-gated skip/fail policy as `_provisioning_failure`, but only for one
+    specific, identified failure signature: the isolated packaging-test venv's pip-installed
+    `z3-solver` wheel failing to locate its own bundled `libz3.so`/`libstdc++.so.6` at runtime.
+
+    Observed directly on this project's NixOS development environment: `z3-solver` installs
+    successfully via pip into the venv (no install-time error), but any subprocess invocation
+    that actually imports `z3` fails with `Z3Exception("libz3.%s not found." % _ext)`, because
+    the wheel's bundled shared libraries expect an FHS-standard library search path that Nix's
+    non-FHS layout does not provide outside of `nix-ld`-patched binaries (which pip-installed
+    wheels are not). The *ambient*, non-isolated interpreter has no such problem, because its
+    `z3` package resolves through the Nix store with correctly wired RPATHs -- this is
+    exclusively an isolated-venv dynamic-linking limitation of the current host, not a
+    model_checker code defect, so it is handled with the same provisioning-failure policy
+    `packaging_toolchain`/`built_artifacts` already use: skip outside CI (a dev-machine
+    limitation), fail loudly in CI (where a standard Linux runner should not hit this).
+
+    Any other failure is left completely untouched -- this function only recognizes this one
+    exact signature and returns silently (no skip, no fail) for everything else, so real defects
+    are never masked by it.
+    """
+    combined = (result.stdout or "") + (result.stderr or "")
+    if "libz3.so not found" in combined or "libz3.so: cannot open shared object file" in combined:
+        _provisioning_failure(
+            "Isolated packaging-test venv's pip-installed z3-solver cannot locate its bundled "
+            "libz3.so/libstdc++.so.6 in this environment (observed on NixOS, where pip-installed "
+            "binary wheels expect FHS-standard library paths that only nix-ld-patched binaries "
+            "get) -- a dev-machine dynamic-linking limitation of the isolated venv, not a "
+            "model_checker defect. The identical z3 package works via the ambient interpreter."
+        )
+
+
 @pytest.fixture(scope="session")
 def packaging_toolchain(tmp_path_factory: pytest.TempPathFactory) -> str:
     """Return the path to a Python interpreter with `build` importable.
