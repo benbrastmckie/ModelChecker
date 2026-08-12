@@ -68,13 +68,19 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
         )
 
         # Theory selection group
+        # Registry import is lazy (not module-scope) to avoid a circular import: registry
+        # population is complete by the time _create_parser() runs, but importing it at
+        # module scope would run before that is guaranteed.
+        from model_checker import registry
+        theories = registry.get_registered()
         theory_group = parser.add_argument_group('theory selection', 'Choose semantic frameworks')
         theory_group.add_argument(
             '--load_theory',
             '-l',
             type=str,
             metavar='THEORY',
-            help='Load semantic theory: bimodal.'
+            choices=theories,
+            help=f"Load semantic theory: {', '.join(theories)}."
         )
 
         # Model constraints group

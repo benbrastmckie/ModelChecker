@@ -91,3 +91,46 @@ def test_print_constraints_short_and_long_equivalent(tmp_path, monkeypatch):
     long_settings = _apply(['--print_constraints', str(example_file)])
 
     assert short_settings['print_constraints'] == long_settings['print_constraints'] is True
+
+
+def test_load_theory_accepts_every_registered_theory(monkeypatch, tmp_path):
+    """--load_theory succeeds for every name registry.get_registered() reports.
+
+    Asserted against the live registry rather than a literal list so this test cannot
+    itself reintroduce the hardcoded-theory-name drift the fix removes.
+    """
+    from model_checker import registry
+
+    example_file = tmp_path / "example.py"
+    example_file.write_text("semantic_theories = {}\nexample_range = {}\n")
+
+    for theory_name in registry.get_registered():
+        monkeypatch.setattr(
+            sys, 'argv', ['model-checker', '--load_theory', theory_name, str(example_file)]
+        )
+        flags = ParseFileFlags()
+        module_flags, _ = flags.parse()
+        assert module_flags.load_theory == theory_name
+
+
+def test_load_theory_rejects_unregistered_name(monkeypatch, tmp_path):
+    """--load_theory with a name absent from the registry fails fast at argparse time."""
+    example_file = tmp_path / "example.py"
+    example_file.write_text("semantic_theories = {}\nexample_range = {}\n")
+
+    monkeypatch.setattr(
+        sys, 'argv', ['model-checker', '--load_theory', 'nonsense', str(example_file)]
+    )
+    flags = ParseFileFlags()
+    with pytest.raises(SystemExit):
+        flags.parse()
+
+
+def test_help_lists_every_registered_theory(capsys):
+    """--help output names every theory registry.get_registered() reports."""
+    from model_checker import registry
+
+    flags = ParseFileFlags()
+    help_text = flags.parser.format_help()
+    for theory_name in registry.get_registered():
+        assert theory_name in help_text
