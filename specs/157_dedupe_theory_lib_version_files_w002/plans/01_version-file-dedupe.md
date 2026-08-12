@@ -401,7 +401,7 @@ confirms empirically on the rebuilt wheel rather than relying on that.
 
 ---
 
-### Phase 6: Full packaging contract suite, including the generate-then-execute journey [NOT STARTED]
+### Phase 6: Full packaging contract suite, including the generate-then-execute journey [COMPLETED]
 
 **Goal**: Check the change in what ships against the whole packaging contract, and confirm
 end-to-end scaffolding from a real installed wheel still works.
