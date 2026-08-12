@@ -141,11 +141,69 @@ PyPI/TestPyPI project **Settings → Publishing** pages, and on GitHub under
 
 ### Local Rehearsal (No Publish)
 
-The build/check portion of the pipeline can be rehearsed locally without any credentials or
-network publish calls — see
-`specs/archive/125_release_engineering_and_pypi_rehearsal/rehearsal/` for a worked example
-(`python -m build`, `check-wheel-contents`, `twine check --strict`, and a parity diff against the
-previously published `model-checker==1.2.12`).
+The build/check portion of the pipeline can be rehearsed locally, without any credentials or
+network publish calls, using the checked-in runner:
+
+```bash
+bash code/scripts/release-verify.sh [--ref VERSION] [--out DIR]
+```
+
+The runner re-enters `nix develop` itself in a single guarded invocation (so `flake.nix` is never
+touched), provisions a pinned toolchain (`code/scripts/release-tools-requirements.txt`) into a
+venv, and needs network access twice: once to install that toolchain, once to `pip download` the
+reference release it diffs against (`--ref`, default `1.2.12`, the last version published to
+PyPI). Evidence is written to `--out DIR` (default `/tmp/release-verify-<UTC-timestamp>/`).
+
+**Why the tools are pinned and not in `flake.nix`**: `check-wheel-contents` is not resolvable
+from nixpkgs at all, and pinning with exact `==` versions keeps the evidence comparable across
+releases instead of drifting with whatever happens to be latest on a given day. See the header of
+`code/scripts/release-tools-requirements.txt` for the full rationale and re-pinning procedure.
+
+**Evidence files** (12 total, written to `--out DIR`):
+
+| File | Contents |
+|------|----------|
+| `build.log` | `python -m build` stdout/stderr plus a `code/dist/` directory listing |
+| `twine-check.txt` | `twine check --strict code/dist/*` output |
+| `wheel-contents.txt` | bare `check-wheel-contents` output (W002 expected — see below) |
+| `wheel-contents-ignore-w002.txt` | `check-wheel-contents --ignore W002` output |
+| `pip-download-<REF>.log` | `pip download --no-deps model-checker==<REF>` output |
+| `new-wheel-files.txt` | sorted full file listing of the freshly built wheel |
+| `ref-<REF>-wheel-files.txt` | sorted full file listing of the reference wheel |
+| `wheel-files-diff.txt` | unified diff of the two file listings |
+| `top-level-dir-diff.txt` | unified diff of the two maxdepth-2 directory listings |
+| `sha256sums.txt` | SHA256 of the new wheel, new sdist, and reference wheel (3 lines) |
+| `parity-diff.md` | generated evidentiary report; classification is a human step, never a gate |
+| `summary.txt` | per-step status ledger: name, gate/informational classification, exit code |
+
+**Reading guide — hard gates vs. informational steps**: provisioning, `python -m build`,
+`twine check --strict`, and `check-wheel-contents --ignore W002` are **hard gates** — any one
+failing is a real problem. The bare `check-wheel-contents` run and the parity diff are
+**informational** — a nonzero exit or a nonempty diff there does not, by itself, mean anything is
+wrong; a human reads them for context. The parity diff in particular is evidentiary only: it is
+never read as a pass/fail gate, and byte-identity against the prior release is not expected or
+required.
+
+**Exit-code contract**:
+
+| Exit | Meaning |
+|------|---------|
+| `0` | all hard gates green (informational steps may still be nonzero) |
+| `1` | a hard gate failed |
+| `2` | a required step (provisioning or the reference download) could not run at all — the evidence set is **incomplete** and must not be read as a pass |
+
+**Reading a nonzero bare `check-wheel-contents` exit**: this is **expected** on the current tree.
+It reports `W002: Wheel contains duplicate files` for the four identical
+`theory_lib/{bimodal,exclusion,imposition,logos}/VERSION` files. Deduplicating those files is
+tracked as a separate, later change; a nonzero exit here does **not** mean the toolchain is
+broken. Read `wheel-contents-ignore-w002.txt` (the hard-gated companion run) to see whether
+anything **new**, beyond the known W002, has appeared.
+
+**Historical context only**: `specs/archive/125_release_engineering_and_pypi_rehearsal/rehearsal/`
+holds the evidence from the one-off manual rehearsal that this runner automates. Its
+`check-wheel-contents` result and sha256sums no longer reproduce against the current tree (the
+tree has since grown the W002-triggering duplicate `VERSION` files and been rebuilt many times
+over) — treat it as a historical worked example, never as current, reviewable evidence.
 
 ### Test Release Workflow (Dry Run on GitHub)
 

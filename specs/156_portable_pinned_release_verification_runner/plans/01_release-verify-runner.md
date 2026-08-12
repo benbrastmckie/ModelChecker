@@ -360,43 +360,43 @@ finished contract, and the end-to-end run exercises everything.
 
 ---
 
-### Phase 4: Checklist prose, reading guide, and scripts README entry [NOT STARTED]
+### Phase 4: Checklist prose, reading guide, and scripts README entry [COMPLETED]
 
 - **Goal**: Rewrite `.github/RELEASE_SETUP.md`'s "Local Rehearsal (No Publish)" section to drive off
   the runner, document the exit-code / reading contract, and add a `code/scripts/README.md` entry.
   Prose and markdown only — no script logic changes.
 
 - **Tasks**:
-  - [ ] Replace the body of `.github/RELEASE_SETUP.md`'s `### Local Rehearsal (No Publish)` section
+  - [x] Replace the body of `.github/RELEASE_SETUP.md`'s `### Local Rehearsal (No Publish)` section
         (currently at line 142, body lines 144-148) with runner-driven content: the exact invocation
         (`bash code/scripts/release-verify.sh [--ref VERSION] [--out DIR]`), the note that it
         re-enters `nix develop` itself and needs network for provisioning and the reference fetch,
         and a table of the 11 evidence files with one line each on what the file contains.
-  - [ ] Add the **reading guide** to that section: which steps are **hard gates** —
+  - [x] Add the **reading guide** to that section: which steps are **hard gates** —
         provisioning, `python -m build`, `twine check --strict`, and the `--ignore W002`
         `check-wheel-contents` run — versus **informational** — the bare `check-wheel-contents`
         run and the parity diff, which is classified by a human and must not gate the release on
         byte-identity against a prior release.
-  - [ ] Document the exit-code contract explicitly: `0` = all hard gates green; `1` = a hard gate
+  - [x] Document the exit-code contract explicitly: `0` = all hard gates green; `1` = a hard gate
         failed; `2` = a required step could not run (provisioning or reference fetch), so the
         evidence set is incomplete and must not be read as a pass.
-  - [ ] Document **how to read a nonzero `check-wheel-contents` exit**: it is expected on the
+  - [x] Document **how to read a nonzero `check-wheel-contents` exit**: it is expected on the
         current tree, it reports `W002: Wheel contains duplicate files` for the four identical
         `theory_lib/{bimodal,exclusion,imposition,logos}/VERSION` files, deduplication is tracked
         separately, and the `--ignore W002` companion file is the signal that answers "is there
         anything NEW?". State plainly that a nonzero exit here does not mean the toolchain is broken.
-  - [ ] Add a short pointer to `code/scripts/release-tools-requirements.txt` explaining that the
+  - [x] Add a short pointer to `code/scripts/release-tools-requirements.txt` explaining that the
         tools are pinned so evidence is comparable across releases, and that they are deliberately
         not in `flake.nix`.
-  - [ ] Demote the archived rehearsal: keep at most one sentence pointing at
+  - [x] Demote the archived rehearsal: keep at most one sentence pointing at
         `specs/archive/125_release_engineering_and_pypi_rehearsal/rehearsal/` as **historical
         context**, explicitly noting its `check-wheel-contents` result and sha256sums no longer
         reproduce against the current tree. Never present it as current evidence.
-  - [ ] Leave the `### Test Release Workflow (Dry Run on GitHub)` section and the
+  - [x] Leave the `### Test Release Workflow (Dry Run on GitHub)` section and the
         `PUBLISH-CHECKLIST.md` cross-reference in "Ordered Release Steps" untouched.
-  - [ ] Append a `## release-verify.sh` section to `code/scripts/README.md` following that file's
+  - [x] Append a `## release-verify.sh` section to `code/scripts/README.md` following that file's
         existing `## <script>` + `### Usage` + `### Flags` + `### Output Files` convention.
-  - [ ] Verify every path referenced by the new prose exists on disk (the `prose` tier's named
+  - [x] Verify every path referenced by the new prose exists on disk (the `prose` tier's named
         blind spot is broken cross-references — check them, do not assume).
 
 - **Timing**: 1 hour

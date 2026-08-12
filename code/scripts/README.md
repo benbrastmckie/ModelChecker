@@ -93,3 +93,36 @@ CVC5 vs Z3 performance stability benchmark. Runs curated examples multiple times
 cd code && PYTHONPATH=src python scripts/test_cvc5_stability.py
 ```
 
+## release-verify.sh
+
+Portable, pinned local rehearsal of the PyPI release pipeline's build/check steps, without any
+credentials or network publish calls. Provisions a pinned toolchain (`build`, `twine`,
+`check-wheel-contents`, via `release-tools-requirements.txt`) into a venv created inside a single
+`nix develop` invocation, so `flake.nix` is never touched. Runs `python -m build`,
+`twine check --strict`, `check-wheel-contents` (bare and with `--ignore W002`), a `pip download`
+of the last published release, wheel-content parity diffs, sha256 hashes, and a generated
+`parity-diff.md` report. See `.github/RELEASE_SETUP.md`'s "Local Rehearsal (No Publish)" section
+for the full evidence-file table, the exit-code contract, and the W002 reading guide.
+
+### Usage
+
+```bash
+bash code/scripts/release-verify.sh [--ref VERSION] [--out DIR] [--help]
+```
+
+### Flags
+
+| Flag | Description |
+|------|--------------|
+| `--ref VERSION` | Published `model-checker` version to diff the fresh build against. Default: `1.2.12` (the last version published to PyPI). |
+| `--out DIR` | Directory to write the evidence set into. Default: `/tmp/release-verify-<UTC-timestamp>/`. |
+| `--help` | Print usage, the evidence-file table, and the exit-code contract; exits `0` without entering `nix develop`. |
+
+### Output Files
+
+12 files written to `--out DIR`: `build.log`, `twine-check.txt`, `wheel-contents.txt`,
+`wheel-contents-ignore-w002.txt`, `pip-download-<REF>.log`, `new-wheel-files.txt`,
+`ref-<REF>-wheel-files.txt`, `wheel-files-diff.txt`, `top-level-dir-diff.txt`,
+`sha256sums.txt`, `parity-diff.md`, and `summary.txt` (a per-step status ledger). See
+`.github/RELEASE_SETUP.md` for what each file contains and how to read it.
+
