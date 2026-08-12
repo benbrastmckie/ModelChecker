@@ -11,16 +11,16 @@ next_project_number: 158
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 151,152,156,157 | -- | packaging, semantics |
-| 2 | 153 | 152 | semantics |
+| 1 | 152,156,157 | -- | packaging, semantics |
+| 2 | 151,153 | 152,156 | packaging, semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Packaging
 
-151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
-156 [NOT STARTED] — Document a portable check-wheel-contents recipe in .github/RELEAS
+156 [RESEARCHED] — Turn the release verification named in .github/RELEASE_SETUP.md i
+  └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 157 [NOT STARTED] — Deduplicate the four identical theory_lib VERSION files to clear 
 
 ### Semantics
@@ -49,23 +49,48 @@ VERIFY BY REBUILDING. The evidence is a fresh `python -m build` plus check-wheel
 
 ---
 
-### 156. Document portable check wheel contents recipe
-- **Status**: [NOT STARTED]
+### 156. Portable pinned release verification runner
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
+- **Research**: [156_portable_pinned_release_verification_runner/reports/01_portable-release-verification.md]
 
-**Description**: Document a portable check-wheel-contents recipe in .github/RELEASE_SETUP.md. RELEASE_SETUP.md:147 names `python -m build`, `check-wheel-contents`, and `twine check --strict` as part of the release verification, but the repo provides no reproducible way to obtain them. flake.nix's devShells.default declares `packages = [ devPython ]`, and devPython carries only pytest, pytest-xdist, and pytest-timeout -- no build, no twine, no check-wheel-contents. Nothing in .github/ invokes the tool; the only reference is that prose line. Today the tool is only available because it happens to sit in one developer's nix profile (verified: /home/benjamin/.nix-profile/bin/check-wheel-contents, 0.6.3), and it is NOT resolvable from the flake-registry nixpkgs -- nixpkgs#check-wheel-contents, #checkWheelContents, #python3Packages.check-wheel-contents, and #python3Packages.checkWheelContents all fail to evaluate. That makes the documented release verification non-reproducible for anyone else, and unpinned (0.6.3 today, silent drift later) for evidence that is meant to be compared across releases.
+**Description**: Turn the release verification named in .github/RELEASE_SETUP.md into a repeatable, pinned, portable runner -- and document it. THIS IS DELIBERATELY NOT A DOCUMENTATION-ONLY TASK. The deliverable is an executable script plus a pinned tool manifest plus the checklist prose that drives them. Prose alone would not close the actual defect, which is that the documented verification sequence is reproducible today only on one developer's machine.
 
-REUSE THE ESTABLISHED TECHNIQUE, do not invent one. The archived release rehearsal under specs/archive/125_release_engineering_and_pypi_rehearsal/ already solved this: create an isolated venv INSIDE `nix develop` and pip install the tools there, never modifying flake.nix. Its plan records the two constraints that make this non-obvious -- installing the tools system-wide fails on NixOS, and each `nix develop` invocation gets a fresh non-persisting TMPDIR, so the whole build-and-inspect sequence must run in a SINGLE invocation. Both belong in the documented recipe.
+THE DEFECT. RELEASE_SETUP.md:147 names `python -m build`, `check-wheel-contents`, and `twine check --strict` as part of release verification, but the repo provides no reproducible way to obtain them. flake.nix's devShells.default declares `packages = [ devPython ]`, and devPython carries only pytest, pytest-xdist, and pytest-timeout -- no build, no twine, no check-wheel-contents. Nothing in .github/ invokes the tool; the only reference is that prose line. Today the tool is available only because it happens to sit in one developer's nix profile (verified: /home/benjamin/.nix-profile/bin/check-wheel-contents, 0.6.3), and it is NOT resolvable from the flake-registry nixpkgs -- nixpkgs#check-wheel-contents, #checkWheelContents, #python3Packages.check-wheel-contents, and #python3Packages.checkWheelContents all fail to evaluate. That makes the documented verification non-reproducible for anyone else, and unpinned (0.6.3 today, silent drift later) for evidence that is meant to be COMPARED ACROSS RELEASES.
 
-PIN THE VERSIONS. The point of this task is comparable evidence across releases, so the recipe should pin check-wheel-contents (and build/twine) rather than floating.
+WHY THIS IS RELEASE ENGINEERING, NOT DOCUMENTATION. The release-rehearsal re-run task plans exactly this sequence -- fresh `python -m build`, `twine check --strict dist/*`, `check-wheel-contents dist/*.whl`, a wheel/sdist parity diff against the last published release, and re-recorded sha256sums -- driven off a checklist, and it will be run more than once, possibly by someone without that nix profile. Build the runner here so that work executes a checked-in procedure instead of reconstructing one from an archived narrative each time. This is precisely where clarity, consistency, and portability pay for themselves.
 
-SCOPE: documentation only. Do NOT add these tools to flake.nix's devShell -- the venv-inside-nix-develop approach exists precisely to avoid that, and widening the devShell is a separate decision with its own cost. Do NOT change any workflow to run check-wheel-contents in CI; that is also a separate decision.
+DELIVERABLE 1 -- THE RUNNER. A checked-in script (preferred path `code/scripts/release-verify.sh`, alongside the existing `verify-refactor.sh` precedent; deviate only with a stated reason) that performs the WHOLE sequence in a SINGLE `nix develop` invocation:
+  (a) create an isolated venv and install the pinned tools into it (see Deliverable 2);
+  (b) fresh `python -m build` in code/, capturing the log and the resulting dist/ listing;
+  (c) `twine check --strict dist/*`;
+  (d) `check-wheel-contents dist/*.whl`, plus a second run with `--ignore W002` (see below);
+  (e) `pip download --no-deps model-checker==<REF> -d <tmp>` for the last published release, then diff the wheel RECORD/file listings and top-level directory sets new-vs-reference;
+  (f) `sha256sum` of every produced artifact.
+Requirements on the script: `<REF>` is a parameter with a sensible default (1.2.12 is the last published release today; the default must be overridable, not hardcoded at a call site); an `--out DIR` parameter selects where evidence is written; every step writes a NAMED evidence file rather than only streaming to the terminal, and the file names MIRROR the archived rehearsal's set (build.log, twine-check.txt, wheel-contents.txt, new-wheel-files.txt, ref-<version>-wheel-files.txt, wheel-files-diff.txt, top-level-dir-diff.txt, pip-download-<version>.log, sha256sums.txt, parity-diff.md) so a new run is diffable against an old one; the script writes nothing under code/ except code/dist/ (gitignored, .gitignore:13 `**/dist`) and nothing to flake.nix; steps (a) and (e) need network, so failing them must produce a clear, named error rather than a partial evidence set that reads as success.
 
-EXPECT W002 TO FIRE. Running check-wheel-contents on the current tree exits 1 with `W002: Wheel contains duplicate files` for the four identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files (independently verified twice; `--ignore W002` returns OK, exit 0). Do not fix that here -- it has its own task. The recipe should state the expected exit-1 and name --ignore W002 as the "is there anything new?" signal, so a future reader is not misled into thinking the toolchain is broken.
+DELIVERABLE 2 -- PIN THE TOOLS. A pinned manifest (preferred: `code/scripts/release-tools-requirements.txt`) giving exact `==` versions for build, twine, and check-wheel-contents, consumed by the runner's venv install. Comparable evidence across releases is the entire point; floating versions defeat it. Record in a comment why the pins are not in flake.nix.
 
-CORRECT A STALE CLAIM: the archived rehearsal recorded check-wheel-contents as clean/OK, which no longer reproduces. specs/TODO.md:161 already notes that rehearsal's evidence is stale; the recipe should not cite it as current evidence.
+DELIVERABLE 3 -- THE CHECKLIST PROSE. Rewrite RELEASE_SETUP.md's "Local Rehearsal (No Publish)" section so it drives off the runner: how to invoke it, what each evidence file contains, and what a reviewer should look at before tagging. That section currently points at `specs/archive/125_release_engineering_and_pypi_rehearsal/rehearsal/` as a worked example -- keep it only as historical context, never as current evidence.
+
+DELIVERABLE 4 -- THE READING GUIDE. Document the exit-code contract so a future reader is not misled into thinking the toolchain is broken. Specifically: which steps are hard gates (twine check --strict) versus informational (the parity diff, which is classified by a human and must not gate the release on byte-identity), and how to read a nonzero check-wheel-contents exit.
+
+DELIVERABLE 5 -- RUN IT, DO NOT JUST WRITE IT. Execute the runner end to end on the current tree and report the produced evidence paths and each step's outcome. A script that has never been run is not a verified deliverable. Local builds do not perturb the working tree (code/dist is gitignored).
+
+REUSE THE ESTABLISHED TECHNIQUE, DO NOT INVENT ONE. The archived release rehearsal under specs/archive/125_release_engineering_and_pypi_rehearsal/ already solved provisioning: an isolated venv created INSIDE `nix develop`, tools pip-installed there, flake.nix never modified. Its plan records the three constraints that make this non-obvious and that the runner must encode:
+  - installing the tools system-wide fails on NixOS;
+  - `PIP_USER=0` (or `--no-user`) is required because ~/.config/pip/pip.conf sets install.user=true globally on this host;
+  - each `nix develop` invocation gets a fresh, non-persisting TMPDIR, so venv + build + check + diff MUST run in one invocation.
+
+SCOPE BOUNDARIES. Do NOT add these tools to flake.nix's devShell -- the venv-inside-nix-develop approach exists precisely to avoid that, and widening the devShell is a separate decision with its own cost. Do NOT wire the runner into any CI workflow; whether check-wheel-contents becomes a CI gate is a separate decision. The runner is a local, on-demand release-verification tool.
+
+EXPECT W002 TO FIRE, DO NOT FIX IT HERE. Running check-wheel-contents on the current tree exits 1 with `W002: Wheel contains duplicate files` for the four identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files (independently verified twice; `--ignore W002` returns OK, exit 0). Deduplicating them has its own task. The runner must therefore treat a bare nonzero exit here as expected-and-recorded rather than aborting the remaining steps, and must run the `--ignore W002` variant as the "is there anything NEW?" signal. Both outcomes go in the evidence.
+
+CORRECT A STALE CLAIM. The archived rehearsal recorded check-wheel-contents as clean/OK, which no longer reproduces; its recorded sha256sums are also invalid against the post-refactor tree. Neither RELEASE_SETUP.md nor the new prose may cite that evidence as current.
+
+SEQUENCING. The release-rehearsal re-run task now depends on this one, and should consume the runner rather than open-coding the sequence.
 
 ---
 
@@ -191,7 +216,7 @@ NON-GOALS. No change to `core.py`, `operators.py`, or `examples.py`. This task e
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: packaging
-- **Dependencies**: Task 147, Task 149, Task 150
+- **Dependencies**: Task 147, Task 149, Task 150, Task 156
 
 **Description**: Re-run the release rehearsal against the post-refactor tree and take the release to PyPI. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 1, 3, 17). This is the terminal task of the release sequence and should run only after the CLI defects, the documentation corrections, the CLI test suite, and the packaging-contract tests are done.
 
