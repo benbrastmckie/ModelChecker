@@ -1,5 +1,5 @@
 ---
-next_project_number: 160
+next_project_number: 161
 ---
 
 # TODO
@@ -12,7 +12,7 @@ next_project_number: 160
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 152,158,159 | -- | semantics, release-engineering |
-| 2 | 153 | 152 | semantics |
+| 2 | 153,160 | 152,159 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -26,12 +26,95 @@ next_project_number: 160
 ### Release Engineering
 
 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
-159 [PLANNED] — Fix the bimodal solver-timing flakes, and introduce an 'unstable'
+159 [IMPLEMENTING] — Fix the bimodal solver-timing flakes, and introduce an 'unstable'
+  └─ 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 
 ## Tasks
 
+### 160. Verify bimodal oracle budget and watch unstable marker
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: release-engineering
+- **Dependencies**: Task 159
+
+**Description**: Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). That task's repair-first
+attempts did not fully close either defect: BM_CM_1 was quarantined (no available encoding fix),
+and the oracle floor's budget widening landed but is NOT YET VERIFIED on real CI (agents cannot
+push or trigger workflow_dispatch). This task starts from that frontier -- it must NOT repeat
+work already ruled out.
+
+(1) WHICH TESTS ARE MARKED unstable AND WHY.
+`test_bimodal.py::test_example_cases[BM_CM_1-example_case7]` is marked `pytest.mark.unstable`
+(see `UNSTABLE_EXAMPLES` in
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py). Its written exit
+criterion, quoted verbatim from the marker site: "the marker comes off when EITHER 20 consecutive
+unstable-watch runs record zero failures (nightly cadence, ~3 weeks), OR a genuine encoding fix
+collapses the tail across a >= 20-seed sweep with no undecided draw at max_time = 60. A single
+green CI run never qualifies." This task's job regarding BM_CM_1 is to watch for that exit
+criterion being met (via unstable-watch.yml's automated READY TO PROMOTE surfacing) and, if met,
+carry out the mechanical promotion steps in TESTING_GUIDE.md section 8.9 -- NOT to re-attempt a
+fix from scratch without first reading item (5) below.
+
+(2) STANDING VERDICT ON BM_CM_1 -- DO NOT RE-TUNE max_time.
+BM_CM_1_settings' comment in examples.py records the standing, twice-affirmed verdict: no budget
+closes the divergent-draw tail. A third recalibration would re-learn what is already documented.
+Any future work on BM_CM_1 must target a genuine encoding or algorithmic change, evaluated across
+a real seed sweep, never a bigger max_time number.
+
+(3) ORACLE FLOOR MEASUREMENTS AND THE DO-NOT-LOWER-THE-FLOOR INSTRUCTION.
+`TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` in
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py failed on real CI at 96/103 (run
+31628414697, 7 timeouts) and 95/103 (run 31628228088, 8 timeouts), both against floor=100, both
+with 0 disagreements. The identical test passed 103/103 locally, twice, both unrestricted on 24
+cores (194.64s) and CPU-restricted to 2 cores via `taskset -c 0,1` (176.06s, no degradation).
+`GATING_RECHECK_SOLVE_TIMEOUT_MS` was widened 20000 -> 40000ms in response (see that constant's
+full justification comment), and `differential-tests.yml`'s `--timeout` was raised 900 -> 1500 in
+the same commit. `MIN_CONCLUSIVE_GATING_FORMULAS` was deliberately NOT lowered (stays 100) -- it
+encodes a real quality property. This instruction carries forward unchanged: do not lower the
+floor to reach green; investigate and re-measure instead.
+
+(4) OUTSTANDING CI VERIFICATION OBLIGATION (this task's primary job).
+The widened GATING_RECHECK_SOLVE_TIMEOUT_MS=40000ms has NOT been verified on real CI. This
+requires a human to push and dispatch `.github/workflows/differential-tests.yml` via
+`workflow_dispatch` 2-3 times (agents cannot push or trigger workflow_dispatch per
+.claude/rules/pr-prohibition.md) and observe the results. Success looks like >= 100 of 103
+conclusive on every dispatched run, with 0 disagreements. If it still falls short after a
+genuinely widened and CI-verified budget: do NOT lower the floor a second time. The documented
+fallback, only then, is marking
+`TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` `unstable` under the
+same four entry criteria used for BM_CM_1 (see TESTING_GUIDE.md section 8.9 and
+test_bimodal.py's UNSTABLE_EXAMPLES block for the pattern to follow).
+
+(5) WHAT IS ALREADY RULED OUT -- START FROM THIS FRONTIER.
+For BM_CM_1 / the Future-operator quantifier family: z3.FreshInt substitution (regresses even
+non-aliased single-instance formulas -- deterministic, not seed noise); explicit
+ForAllTime/ExistsTime pattern/trigger hints (Z3 rejects the only syntactically-discoverable
+candidate at construction; ExistsTime's candidate is provably inert post-Skolemization); finite
+unrolling of ForAllTime/ExistsTime over the statically-known time domain (helps 5 of 7 seeds,
+regresses 2 of 7 from deciding to undecided -- inconclusive-to-negative on net; see operators.py's
+`_fresh_bound_int` docstring for the full measurement table). For the oracle floor: 2-core local
+CPU restriction via `taskset` does NOT reproduce the CI shortfall (103/103 conclusive either way)
+-- ruling out genuine harness cost growth as the explanation and pointing at CI
+hardware/contention (GitHub's 4 vCPU/16GB standard runners vs. the 24-core/30GB derivation host)
+as the live hypothesis the widened budget targets.
+
+(6) THE unstable-watch.yml PROMOTION PATH AND THE 20-RUN THRESHOLD.
+`.github/workflows/unstable-watch.yml` runs nightly (`0 5 * * *`) plus `workflow_dispatch`,
+selects `-m unstable` across both the code/ and oracle/ trees, classifies each failure as TIMING
+(the documented signature -- duration >= 0.8x max_time and the expected assertion message) or NEW
+(anything else, which fails the job loudly), and emits a `READY TO PROMOTE` notice once the
+consecutive-green streak reaches 20 (queried via `gh run list`, no committed state). This task
+should monitor that surfacing rather than manually counting runs, and follow TESTING_GUIDE.md
+section 8.9's mechanical promotion steps once triggered.
+
+task_type: python. file_scope: the bimodal theory package
+(code/src/model_checker/theory_lib/bimodal/), its tests, and the oracle bimodal tree
+(oracle/bimodal_logic/).
+
+---
+
 ### 159. Fix bimodal flake and unstable category
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None

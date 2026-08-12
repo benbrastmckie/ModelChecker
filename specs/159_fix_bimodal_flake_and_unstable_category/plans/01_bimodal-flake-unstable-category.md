@@ -598,7 +598,7 @@ anything is quarantined (Phase 4).
 
 ---
 
-### Phase 8: Terminal deliverable -- outcome assessment and conditional follow-up [NOT STARTED]
+### Phase 8: Terminal deliverable -- outcome assessment and conditional follow-up [COMPLETED]
 
 - **Goal:** Assess whether deliverables (1) and (2) fully closed both defects; record that
   outcome; and create the follow-up task carrying the frontier forward if anything remains
