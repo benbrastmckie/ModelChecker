@@ -176,22 +176,22 @@ the addition rather than silently absorbing it.
 
 ---
 
-### Phase 2: Exclusion Assertions [NOT STARTED]
+### Phase 2: Exclusion Assertions [COMPLETED]
 
 **Goal**: Both artifacts are proven free of every excluded path class named in the task
 description.
 
 **Tasks**:
-- [ ] Create `code/tests/packaging/test_exclusions.py`.
-- [ ] Define the exclusion predicates as a module-level table so each class is a separately
+- [x] Create `code/tests/packaging/test_exclusions.py`.
+- [x] Define the exclusion predicates as a module-level table so each class is a separately
       named, separately failing test: `oracle/` (any path component), `TODO.md` (any location),
       `theory_lib/*/history/`, `theory_lib/*/reports/`, `theory_lib/*/examples_refactored/`,
       `__pycache__/` and `*.pyc`.
-- [ ] Parametrize each exclusion over both artifacts (wheel and normalized sdist) so a failure
+- [x] Parametrize each exclusion over both artifacts (wheel and normalized sdist) so a failure
       names both the class and the artifact.
-- [ ] On failure, include the offending member paths in the assertion message (not just a
+- [x] On failure, include the offending member paths in the assertion message (not just a
       boolean) so drift is diagnosable from CI logs alone.
-- [ ] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
+- [x] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
 
 **Timing**: 1 hour
 
