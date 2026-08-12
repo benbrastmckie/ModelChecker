@@ -1,7 +1,7 @@
 # Implementation Plan: Re-run the release rehearsal and prepare the PyPI publish
 
 - **Task**: 151 - rerun_release_rehearsal_and_publish_to_pypi
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: 147, 149, 150, 155, 156, 157 (all `[COMPLETED]`)
 - **Research Inputs**: `specs/151_rerun_release_rehearsal_and_publish_to_pypi/reports/01_release-rehearsal-rerun.md`
@@ -483,19 +483,26 @@ known two.
 
 ---
 
-### Phase 6: Author the publish checklist and the release-readiness report [NOT STARTED]
+### Phase 6: Author the publish checklist and the release-readiness report [COMPLETED]
+
+**Verification**: `PUBLISH-CHECKLIST.md`'s Section 0 is the PyPI trusted-publisher confirmation,
+positioned before every ordered step. Every pre-flight box in Section 1 reflects an
+actually-observed state from Phases 3-5 (version literals, fresh sha256sums, `nix flake check`
+verdict) with no box checked on a prior task's evidence alone. The recorded sha256sums match
+`rehearsal/sha256sums.txt` exactly. All content is markdown prose. No `git push`, `git tag`,
+`twine upload`, or `/tag` was executed at any point across this plan's six phases.
 
 **Goal**: The user has a single, current, task-scoped document containing the blocking
 trusted-publisher gate, the ordered user-only publish steps, and a copy-paste post-publish
 verification runbook — plus a readiness report stating exactly what was verified and what was not.
 
 **Tasks**:
-- [ ] Create `specs/151_rerun_release_rehearsal_and_publish_to_pypi/PUBLISH-CHECKLIST.md` using
+- [x] Create `specs/151_rerun_release_rehearsal_and_publish_to_pypi/PUBLISH-CHECKLIST.md` using
       `specs/archive/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md` as the
       structural template (its section shape: Version Confirmation / Pre-Flight Checks /
       One-Time OIDC Setup / Ordered Release Steps / What the Agent Never Does / References).
       Reuse the structure; replace all of its data.
-- [ ] **Gate item 0, first and blocking, USER-ONLY**: confirm on pypi.org (Settings → Publishing)
+- [x] **Gate item 0, first and blocking, USER-ONLY**: confirm on pypi.org (Settings → Publishing)
       that a trusted publisher exists with exactly Owner `benbrastmckie`, Repository
       `ModelChecker`, Workflow `release.yml`, Environment `pypi`; optionally the TestPyPI
       equivalent with Environment `testpypi`. State plainly that GitHub Environments are already
@@ -504,29 +511,29 @@ verification runbook — plus a readiness report stating exactly what was verifi
       `test-and-release` and `build`, `publish-testpypi` fails softly under
       `continue-on-error: true`, and `publish-pypi` fails at the OIDC exchange after CI time is
       already spent.
-- [ ] Pre-flight section: record the Phase 4 evidence path and the fresh sha256sums; record the
+- [x] Pre-flight section: record the Phase 4 evidence path and the fresh sha256sums; record the
       Phase 5 `nix flake check` verdict verbatim; record the version-literal agreement from
       Phase 3. Mark each with its actual observed state, never a pre-checked box.
-- [ ] Add an explicit instruction to re-run
+- [x] Add an explicit instruction to re-run
       `bash code/scripts/release-verify.sh --ref 1.2.12` immediately before tagging if any commit
       has touched `code/src` since Phase 4 — the evidence set is not one-and-done.
-- [ ] Ordered release steps section, all marked USER-ONLY: create the annotated `v1.3.0` tag, push
+- [x] Ordered release steps section, all marked USER-ONLY: create the annotated `v1.3.0` tag, push
       it, watch the `release.yml` run, confirm `publish-pypi` succeeded. Do not invoke `/tag`.
-- [ ] Post-publish verification runbook, copy-paste runnable:
+- [x] Post-publish verification runbook, copy-paste runnable:
       `pip index versions model-checker` shows `1.3.0`; then
       `python3 -m venv testvenv`, `PIP_USER=0 ./testvenv/bin/pip install model-checker`,
       `LD_LIBRARY_PATH=$(nix eval --raw nixpkgs#stdenv.cc.cc.lib)/lib
       ./testvenv/bin/model-checker <project>/examples.py`; generate and execute a project for each
       of `logos`, `exclusion`, `imposition`, `bimodal`, expecting 4/4 exit 0. Note that this
       installs FROM PyPI, never from local `dist/`.
-- [ ] Add the incidental `z3-solver` note: pip is expected to resolve 5.0.0.0, well beyond the
+- [x] Add the incidental `z3-solver` note: pip is expected to resolve 5.0.0.0, well beyond the
       `>=4.8.0` floor; confirm all four theories still run clean under it and add an upper pin
       ONLY if something actually breaks.
-- [ ] Carry over a "What the agent never does" section: no `git push`, no `git tag`, no
+- [x] Carry over a "What the agent never does" section: no `git push`, no `git tag`, no
       `twine upload`, no `gh pr create`, no `/merge`, no `/tag`.
-- [ ] Write the implementation summary as the release-readiness report: what was fixed, what was
+- [x] Write the implementation summary as the release-readiness report: what was fixed, what was
       rehearsed, the fresh hashes, the flake-check verdict, and the one gate that remains open.
-- [ ] Confirm the checklist references durable anchors (file paths, workflow names, environment
+- [x] Confirm the checklist references durable anchors (file paths, workflow names, environment
       names) — task numbers are permitted here since it lives under `specs/**`, but prefer
       durable anchors anyway for the user-facing steps.
 
@@ -553,19 +560,19 @@ verification runbook — plus a readiness report stating exactly what was verifi
 
 ## Testing & Validation
 
-- [ ] `bash -n code/scripts/release-verify.sh` exits 0
-- [ ] `bash code/scripts/release-verify.sh --help` exits 0 with no stale W002 text
-- [ ] `bash code/scripts/release-verify.sh --ref 1.2.12 --out specs/151_.../rehearsal/` exits 0
+- [x] `bash -n code/scripts/release-verify.sh` exits 0
+- [x] `bash code/scripts/release-verify.sh --help` exits 0 with no stale W002 text
+- [x] `bash code/scripts/release-verify.sh --ref 1.2.12 --out specs/151_.../rehearsal/` exits 0
       with every `gate`-class step at `exit=0`
-- [ ] `twine check --strict` PASSED for both wheel and sdist
-- [ ] Bare `check-wheel-contents` on the fresh wheel exits 0 with no `--ignore`
-- [ ] `nix flake check` verdict recorded with host-contention evidence (PASS / FLAKE /
-      REGRESSION / INCONCLUSIVE)
-- [ ] `grep -rn 'W002' --include='*.md' .` outside `specs/` returns only deliberate, correctly
+- [x] `twine check --strict` PASSED for both wheel and sdist
+- [x] Bare `check-wheel-contents` on the fresh wheel exits 0 with no `--ignore`
+- [x] `nix flake check` verdict recorded with host-contention evidence (PASS / FLAKE /
+      REGRESSION / INCONCLUSIVE) — verdict: **PASS**
+- [x] `grep -rn 'W002' --include='*.md' .` outside `specs/` returns only deliberate, correctly
       worded historical references
-- [ ] Version literals agree at `1.3.0` across `code/pyproject.toml`, `flake.nix` (both sites),
+- [x] Version literals agree at `1.3.0` across `code/pyproject.toml`, `flake.nix` (both sites),
       and `code/CHANGELOG.md`
-- [ ] `git status --short` shows no `code/dist/` content staged at any point
+- [x] `git status --short` shows no `code/dist/` content staged at any point
 
 ## Artifacts & Outputs
 
