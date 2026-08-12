@@ -1,7 +1,7 @@
 # Implementation Plan: Task #146
 
 - **Task**: 146 - fix_cli_defects_found_in_release_review
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 5.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/146_fix_cli_defects_found_in_release_review/reports/01_cli-defect-fixes.md
@@ -101,21 +101,21 @@ one file are not safe. Phase 7 is the only genuinely parallel branch (it touches
 
 ---
 
-### Phase 1: Establish CLI unit-test module and regression baseline [NOT STARTED]
+### Phase 1: Establish CLI unit-test module and regression baseline [COMPLETED]
 
 **Goal**: Create the test module every subsequent phase asserts into, and record the pre-change
 suite baseline so regressions are attributable.
 
 **Tasks**:
-- [ ] Record the pre-change baseline: run `PYTHONPATH=code/src pytest code/tests/ -q` and
+- [x] Record the pre-change baseline: run `PYTHONPATH=code/src pytest code/tests/ -q` and
       `PYTHONPATH=code/src pytest code/src/model_checker/ -q`, saving both pass/fail counts into
       `specs/146_fix_cli_defects_found_in_release_review/baselines/` (create the directory only
       when writing to it).
-- [ ] Create `code/tests/unit/test_main_cli.py` importing `ParseFileFlags` from
+- [x] Create `code/tests/unit/test_main_cli.py` importing `ParseFileFlags` from
       `model_checker.__main__`.
-- [ ] Add one smoke test: `ParseFileFlags()` constructs and its `.parser` is an
+- [x] Add one smoke test: `ParseFileFlags()` constructs and its `.parser` is an
       `argparse.ArgumentParser`.
-- [ ] Confirm the new file is collected: `PYTHONPATH=code/src pytest code/tests/unit/test_main_cli.py -v`.
+- [x] Confirm the new file is collected: `PYTHONPATH=code/src pytest code/tests/unit/test_main_cli.py -v`.
 
 **Timing**: 0.5 hours
 
@@ -138,18 +138,18 @@ actual number and use that as the comparison point for Phase 8.
 
 ---
 
-### Phase 2: Delete the dead `-j`/`--jupyter` pre-check (issue 13) [NOT STARTED]
+### Phase 2: Delete the dead `-j`/`--jupyter` pre-check (issue 13) [COMPLETED]
 
 **Goal**: Remove the orphaned Jupyter dependency pre-check at the top of `main()`, which can
 never fulfill its purpose because argparse rejects `-j`/`--jupyter` immediately afterward.
 
 **Tasks**:
-- [ ] Delete the `jupyter_flags` / `needs_jupyter` block at the top of `main()` in
+- [x] Delete the `jupyter_flags` / `needs_jupyter` block at the top of `main()` in
       `code/src/model_checker/__main__.py` (currently the first statement in `main()`, ahead of
       the `len(sys.argv) < 2` check).
-- [ ] Confirm no other reference survives:
+- [x] Confirm no other reference survives:
       `grep -n "jupyter_flags\|needs_jupyter" code/src/model_checker/__main__.py` returns nothing.
-- [ ] Add a test to `code/tests/unit/test_main_cli.py` asserting `-j` and `--jupyter` are not
+- [x] Add a test to `code/tests/unit/test_main_cli.py` asserting `-j` and `--jupyter` are not
       registered options (e.g. absent from `parser._option_string_actions`), documenting that the
       deletion changes nothing observable.
 
@@ -171,20 +171,20 @@ never fulfill its purpose because argparse rejects `-j`/`--jupyter` immediately 
 
 ---
 
-### Phase 3: Fix `-p` short-flag mapping and add coverage test (issue 8) [NOT STARTED]
+### Phase 3: Fix `-p` short-flag mapping and add coverage test (issue 8) [COMPLETED]
 
 **Goal**: Make `-p` behave identically to `--print_constraints`, and make the missing-mapping bug
 class immediately test-caught.
 
 **Tasks**:
-- [ ] Add `'p': 'print_constraints'` to `ParseFileFlags._short_to_long` in
+- [x] Add `'p': 'print_constraints'` to `ParseFileFlags._short_to_long` in
       `code/src/model_checker/__main__.py`.
-- [ ] Add a coverage test to `code/tests/unit/test_main_cli.py`: walk `parser._actions`, collect
+- [x] Add a coverage test to `code/tests/unit/test_main_cli.py`: walk `parser._actions`, collect
       every single-character short option string, and assert each has a matching entry in
       `_short_to_long`.
-- [ ] Add an equivalence test: `-p file.py` and `--print_constraints file.py` produce the same
+- [x] Add an equivalence test: `-p file.py` and `--print_constraints file.py` produce the same
       resulting `print_constraints` setting after `SettingsManager` override application.
-- [ ] Document the clustered-short-flag gap: add a comment on
+- [x] Document the clustered-short-flag gap: add a comment on
       `SettingsManager._extract_user_provided_flags` in
       `code/src/model_checker/settings/settings.py` noting that only `len(arg) == 2` short tokens
       are recognized, so clustered forms like `-cn` are parsed correctly by argparse but are not
@@ -218,24 +218,24 @@ the assertion, which the test should encode as a named allowlist rather than a s
 
 ---
 
-### Phase 4: Derive `--load_theory` help and choices from the registry (issue 9) [NOT STARTED]
+### Phase 4: Derive `--load_theory` help and choices from the registry (issue 9) [COMPLETED]
 
 **Goal**: Stop advertising only `bimodal`, and make an invalid theory name fail fast at argparse
 time instead of surfacing later as a `FileNotFoundError`.
 
 **Tasks**:
-- [ ] Inside `_create_parser()` in `code/src/model_checker/__main__.py`, lazily
+- [x] Inside `_create_parser()` in `code/src/model_checker/__main__.py`, lazily
       `from model_checker import registry` and read `theories = registry.get_registered()`.
       Do NOT add the import at module scope.
-- [ ] Pass `choices=theories` and `help=f"Load semantic theory: {', '.join(theories)}."` to the
+- [x] Pass `choices=theories` and `help=f"Load semantic theory: {', '.join(theories)}."` to the
       `--load_theory`/`-l` argument.
-- [ ] Add a test: `parse_args(['--load_theory', 'logos', 'f.py'])` succeeds; and every name in
+- [x] Add a test: `parse_args(['--load_theory', 'logos', 'f.py'])` succeeds; and every name in
       `registry.get_registered()` is accepted.
-- [ ] Add a test: `parse_args(['--load_theory', 'nonsense', 'f.py'])` raises `SystemExit`.
-- [ ] Re-run the pre-existing integration test
+- [x] Add a test: `parse_args(['--load_theory', 'nonsense', 'f.py'])` raises `SystemExit`.
+- [x] Re-run the pre-existing integration test
       `code/tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_theory_name`
       unmodified and confirm it still passes via the new argparse path.
-- [ ] Confirm `model-checker --help` lists all registered theory names.
+- [x] Confirm `model-checker --help` lists all registered theory names.
 
 **Timing**: 0.75 hours
 
@@ -264,20 +264,20 @@ drift this phase removes.
 
 ---
 
-### Phase 5: Remove the unsupported `jupyter` save format and correct help wording (issue 11) [NOT STARTED]
+### Phase 5: Remove the unsupported `jupyter` save format and correct help wording (issue 11) [COMPLETED]
 
 **Goal**: Stop accepting a `--save` value that produces no output and no error, and make the help
 text match actual behavior.
 
 **Tasks**:
-- [ ] Remove `'jupyter'` from the `--save` `choices=` list in
+- [x] Remove `'jupyter'` from the `--save` `choices=` list in
       `code/src/model_checker/__main__.py`.
-- [ ] Update the `--save` help string: drop "jupyter" and replace "No args = all formats" with
+- [x] Update the `--save` help string: drop "jupyter" and replace "No args = all formats" with
       wording matching actual behavior (bare `--save` yields markdown + json only).
-- [ ] Add a test asserting `parse_args(['--save', 'jupyter', 'f.py'])` raises `SystemExit`.
-- [ ] Add a test asserting bare `--save` still yields `formats == ['markdown', 'json']` from
+- [x] Add a test asserting `parse_args(['--save', 'jupyter', 'f.py'])` raises `SystemExit`.
+- [x] Add a test asserting bare `--save` still yields `formats == ['markdown', 'json']` from
       `create_output_config`, unchanged.
-- [ ] Leave `code/src/model_checker/output/config.py` behavior unchanged; optionally add a brief
+- [x] Leave `code/src/model_checker/output/config.py` behavior unchanged; optionally add a brief
       comment there noting that the supported format set is markdown + json and is mirrored in the
       parser's `choices=`.
 
@@ -304,22 +304,22 @@ escalate, because the adopted decision (remove rather than implement) rests on i
 
 ---
 
-### Phase 6: Convert the `--sequential` traceback into a clean CLI error (issue 12) [NOT STARTED]
+### Phase 6: Convert the `--sequential` traceback into a clean CLI error (issue 12) [COMPLETED]
 
 **Goal**: A user typing `--sequential`/`-q` gets a one-line error and a non-zero exit, not a
 Python traceback. The flag stays registered.
 
 **Tasks**:
-- [ ] Wrap the `module = BuildModule(module_flags)` construction in `main()`
+- [x] Wrap the `module = BuildModule(module_flags)` construction in `main()`
       (`code/src/model_checker/__main__.py`) in
       `try: ... except NotImplementedError as e: print(f"Error: {e}"); sys.exit(1)`.
-- [ ] Verify the existing `NotImplementedError` message raised by
+- [x] Verify the existing `NotImplementedError` message raised by
       `builder/module.py::_initialize_output_management` is already user-appropriate (it is: it
       explains the removal and points at `--save` batch mode). Do not reword it.
-- [ ] Add a test asserting `-q examples.py` exits non-zero and its stderr/stdout contains no
+- [x] Add a test asserting `-q examples.py` exits non-zero and its stderr/stdout contains no
       `"Traceback"` substring, using the existing `run_cli_command` helper in
       `code/tests/utils/helpers.py`.
-- [ ] Do NOT remove or hide the flag, and do NOT touch `_short_to_long['q']` or the
+- [x] Do NOT remove or hide the flag, and do NOT touch `_short_to_long['q']` or the
       `sequential` settings default.
 
 **Timing**: 0.75 hours
@@ -345,21 +345,21 @@ divergence in the implementation summary.
 
 ---
 
-### Phase 7: Suppress `__pycache__` / `*.pyc` in the manifest-filter loop (issue 15) [NOT STARTED]
+### Phase 7: Suppress `__pycache__` / `*.pyc` in the manifest-filter loop (issue 15) [COMPLETED]
 
 **Goal**: Stop printing `Warning: Skipped non-manifest item: __pycache__` on every project
 generation, without weakening the warning for genuinely unexpected items.
 
 **Tasks**:
-- [ ] In `code/src/model_checker/builder/project.py`, filter `available` immediately after the
+- [x] In `code/src/model_checker/builder/project.py`, filter `available` immediately after the
       `os.listdir(self.source_dir)` call: exclude any entry in the existing
       `COPY_IGNORE_PATTERNS` constant and any entry ending in `.pyc`.
-- [ ] Do NOT modify `REQUIRED_COPY_ITEMS` or `OPTIONAL_COPY_ITEMS` -- those are contract lists
+- [x] Do NOT modify `REQUIRED_COPY_ITEMS` or `OPTIONAL_COPY_ITEMS` -- those are contract lists
       referenced by `docs/THEORY_ARCHITECTURE.md`.
-- [ ] Add a test to `code/src/model_checker/builder/tests/unit/test_project.py`: build a synthetic
+- [x] Add a test to `code/src/model_checker/builder/tests/unit/test_project.py`: build a synthetic
       source tree under `tmp_path` containing `__pycache__/` and assert no
       `"Skipped non-manifest item: __pycache__"` entry appears in `log_messages` or stdout.
-- [ ] Add the negative-direction test: a stray unknown item (e.g. `stray_file.tmp`) in the same
+- [x] Add the negative-direction test: a stray unknown item (e.g. `stray_file.tmp`) in the same
       synthetic tree still produces the WARNING.
 
 **Timing**: 0.75 hours
@@ -387,22 +387,22 @@ cover it in this phase rather than deferring.
 
 ---
 
-### Phase 8: Full-suite regression and implementation summary [NOT STARTED]
+### Phase 8: Full-suite regression and implementation summary [COMPLETED]
 
 **Goal**: Confirm no regression against the Phase 1 baseline and record the changes, including
 the two argparse-surface changes that a reader might mistake for scope creep.
 
 **Tasks**:
-- [ ] Run `PYTHONPATH=code/src pytest code/tests/ -q` and compare against the Phase 1 baseline.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/ -q` and compare against the Phase 1
+- [x] Run `PYTHONPATH=code/src pytest code/tests/ -q` and compare against the Phase 1 baseline.
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/ -q` and compare against the Phase 1
       baseline.
-- [ ] Run `model-checker --help` and confirm: all registered theories listed, no "jupyter" under
+- [x] Run `model-checker --help` and confirm: all registered theories listed, no "jupyter" under
       `--save`, accurate "No args" wording.
-- [ ] Write `specs/146_fix_cli_defects_found_in_release_review/summaries/01_fix-cli-defects-summary.md`.
-- [ ] In the summary, explicitly flag the two argparse-acceptance changes (`--load_theory`
+- [x] Write `specs/146_fix_cli_defects_found_in_release_review/summaries/01_fix-cli-defects-summary.md`.
+- [x] In the summary, explicitly flag the two argparse-acceptance changes (`--load_theory`
       `choices=`, `--save` losing `jupyter`) as called for by issues 9 and 11 themselves, not as
       scope creep beyond the CONSTRAINTS line. Also flag the Phase 6 `sys.exit(1)` divergence.
-- [ ] In the summary, record the clustered-short-flag (`-cn`) gap as knowingly documented rather
+- [x] In the summary, record the clustered-short-flag (`-cn`) gap as knowingly documented rather
       than fixed, so it is discoverable by the follow-on CLI end-to-end suite work.
 
 **Timing**: 0.75 hours
@@ -426,20 +426,22 @@ against the 2193 figure quoted in the review -- Phase 1's actual measurement is 
 
 ## Testing & Validation
 
-- [ ] `-p` and `--print_constraints` produce identical settings.
-- [ ] Every registered single-character short option has a `_short_to_long` entry (or a named
+- [x] `-p` and `--print_constraints` produce identical settings.
+- [x] Every registered single-character short option has a `_short_to_long` entry (or a named
       allowlist exclusion).
-- [ ] `--help` lists every name in `registry.get_registered()` for `--load_theory`.
-- [ ] An unregistered theory name raises `SystemExit` at argparse time.
-- [ ] `code/tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_theory_name`
+- [x] `--help` lists every name in `registry.get_registered()` for `--load_theory`.
+- [x] An unregistered theory name raises `SystemExit` at argparse time.
+- [x] `code/tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_theory_name`
       passes unmodified.
-- [ ] `--save jupyter` is rejected; bare `--save` still yields `['markdown', 'json']`.
-- [ ] `--save` help text no longer says "all formats" or mentions jupyter.
-- [ ] `--sequential` exits non-zero with a one-line error and no traceback.
-- [ ] `-j`/`--jupyter` are unregistered; no `jupyter_flags`/`needs_jupyter` references remain.
-- [ ] Project generation emits no `__pycache__` warning; a stray unknown item still warns.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -q` green, at or above baseline.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/ -q` green, at or above baseline.
+- [x] `--save jupyter` is rejected; bare `--save` still yields `['markdown', 'json']`.
+- [x] `--save` help text no longer says "all formats" or mentions jupyter.
+- [x] `--sequential` exits non-zero with a one-line error and no traceback.
+- [x] `-j`/`--jupyter` are unregistered; no `jupyter_flags`/`needs_jupyter` references remain.
+- [x] Project generation emits no `__pycache__` warning; a stray unknown item still warns.
+- [x] `PYTHONPATH=code/src pytest code/tests/ -q` green, at or above baseline (397 passed, 4
+      skipped, vs. 283-passed baseline).
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/ -q` green, at or above baseline (1912
+      passed vs. 1910-passed baseline).
 
 ## Artifacts & Outputs
 
