@@ -343,6 +343,32 @@ BM_CM_1_settings = {
                       # quantifier bound-variable-aliasing fix (see operators.py's
                       # _fresh_bound_int docstring). Monotone-safe for a countermodel
                       # expectation; not a soundness change.
+                      #
+                      # Two further empirical anchors (2026-08-12), gathered while
+                      # investigating this as a CI flake rather than re-tuning max_time:
+                      # (1) the actual GitHub Actions failure for this case landed at
+                      # 60.94s call time -- just past the 60s budget above, nowhere
+                      # near the documented 600s divergent-draw extreme, i.e. exactly
+                      # "a near-budget draw tipped over", not a new failure mode.
+                      # (2) An independent 7-seed pinned probe (smt/sat.random_seed in
+                      # {1..7}, 90s probe ceiling) measured 4.76s / 47.78s / 1.99s /
+                      # 7.96s / 11.18s / 6.75s / 16.52s -- 7/7 decided, genuine
+                      # countermodel found on every draw, median ~8s, consistent in
+                      # shape (not exact numbers -- see TESTING_GUIDE.md 8.6 on
+                      # timing variance even under a pinned seed) with the settings
+                      # comment's own 7-seed probe above. A third encoding avenue
+                      # (finite unrolling of ForAllTime/ExistsTime over the
+                      # statically-known time domain) was tried against this same
+                      # sweep and closed as inconclusive-to-negative -- see
+                      # operators.py's _fresh_bound_int docstring for the full
+                      # measurement table. STANDING VERDICT, RE-AFFIRMED NOT
+                      # RE-LITIGATED: no budget closes the divergent-draw tail.
+                      # max_time is NOT to be re-tuned again on the strength of this
+                      # data -- a second recalibration would re-learn what is already
+                      # recorded here. This case is marked `unstable` (see
+                      # test_bimodal.py's UNSTABLE_EXAMPLES entry-criteria block and
+                      # TESTING_GUIDE.md section 8.9) rather than given a new
+                      # max_time.
     'expectation' : True,
 }
 BM_CM_1_example = [

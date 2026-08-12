@@ -117,6 +117,36 @@ def _fresh_bound_int(prefix: str):
     because it is an ordinary named constant as far as Z3's internals are
     concerned, not a `FreshInt`-created one.
 
+    Third closed avenue -- finite unrolling of `ForAllTime`/`ExistsTime`
+    (investigated 2026-08-12; distinct from the two avenues above, which
+    were investigated and closed in an earlier round of work): the time
+    domain `D = (-M, M)` is always finite and statically known (M is a
+    plain Python int at `BimodalSemantics` construction), so it is
+    tempting to replace the genuine `z3.ForAll`/`z3.Exists` quantifier over
+    time with an explicit ground conjunction/disjunction --
+    `z3.substitute(body, (time_var, z3.IntVal(t)))` for each valid `t` in
+    `D` -- removing MBQI-driven instantiation from the time dimension
+    entirely (the world dimension is left genuinely quantified; only time
+    is unrolled). A 7-seed sweep of BM_CM_1 (`smt`/`sat.random_seed` in
+    {1..7}, 90s probe ceiling, quantified baseline vs. unrolled) found this
+    is NOT a reliable fix: seeds 2, 3, 4, 6, 7 decided, several
+    substantially faster (seed 6: 7.16s -> 0.23s, ~30x; seed 2: 45.14s ->
+    5.88s, ~8x; seed 7: 16.14s -> 4.04s, ~4x), but seeds 1 and 5 -- both of
+    which decided comfortably under the quantified baseline -- did not
+    decide at all within the same 90s probe under the unrolled encoding, a
+    regression rather than an improvement for those draws. Verdict: not
+    adopted. `ForAllTime`/`ExistsTime` back every temporal operator in this
+    module, not just the Future operator's all_future leg, so adopting a change that
+    helps some draws and regresses others would require a full soundness
+    and regression pass across the whole bimodal suite for an approach not
+    demonstrated to help on net -- out of proportion to what this
+    investigation was scoped to do. See `examples.py`'s `BM_CM_1_settings`
+    comment for the corresponding real-CI and seed-sweep data this avenue
+    was tested against, and this repository's
+    `01_bimodal-flake-and-unstable-category.md` research report ("New
+    experiment: finite unrolling of `ForAllTime`/`ExistsTime`") for the
+    full measurement table.
+
     Args:
         prefix: A human-readable name fragment, kept as a prefix purely for
             readability in solver output/models -- it plays no role in
