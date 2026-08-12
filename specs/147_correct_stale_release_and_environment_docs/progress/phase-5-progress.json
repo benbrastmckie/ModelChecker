@@ -1,0 +1,22 @@
+{
+  "phase": 5,
+  "phase_name": "Cross-file verification and out-of-scope finding record",
+  "started_at": "2026-08-11T00:35:00Z",
+  "last_updated": "2026-08-11T00:50:00Z",
+  "objectives": [
+    {"id": 1, "description": "Repo-wide sweep confirming corrected claims gone, release.yml/flake.nix unmodified, no new task-reference lint findings", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Write implementation summary recording decisions, deviations, and the corrected out-of-scope run_update.py file count", "status": "done", "files_touched": ["specs/147_correct_stale_release_and_environment_docs/summaries/01_release-env-docs-summary.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "5.5",
+      "description": "Record the out-of-scope run_update.py drift file count",
+      "type": "altered",
+      "reason": "Plan hypothesized seven files; re-grepping at implementation time found six. code/docs/development/PYPI_RELEASE_GUIDE.md does not reference run_update.py or test_update.py at all.",
+      "annotation": "*(deviation: altered — true count is six files, not seven)*"
+    }
+  ]
+}
