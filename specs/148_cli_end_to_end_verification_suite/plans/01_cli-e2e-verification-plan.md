@@ -233,23 +233,23 @@ so Phases 3 and 4 have somewhere to write and something to write with.
 
 ---
 
-### Phase 2: Relocate `installed_venv` into the packaging conftest [NOT STARTED]
+### Phase 2: Relocate `installed_venv` into the packaging conftest [COMPLETED]
 
 **Goal**: Make the real-console-script fixture shareable without building a second venv.
 
 **Tasks**:
-- [ ] Move `installed_venv` (session-scoped) from `code/tests/packaging/test_entry_point.py` into
+- [x] Move `installed_venv` (session-scoped) from `code/tests/packaging/test_entry_point.py` into
       `code/tests/packaging/conftest.py`, alongside the existing `packaging_toolchain` and
       `built_artifacts`.
-- [ ] Move the supporting helpers `_venv_bin_dir` and `_console_script_path` into the conftest
+- [x] Move the supporting helpers `_venv_bin_dir` and `_console_script_path` into the conftest
       too; `_provisioning_failure` already exists in the conftest — reuse that copy and delete
       the duplicate in `test_entry_point.py` rather than keeping two.
-- [ ] Preserve the `PYTHONPATH`-stripping behavior verbatim, including its explanatory comment.
+- [x] Preserve the `PYTHONPATH`-stripping behavior verbatim, including its explanatory comment.
       That comment documents a real, already-hit failure mode: an inherited `PYTHONPATH=src`
       makes pip see `model_checker` as satisfied and skip installing the wheel, silently leaving
       the console script uninstalled.
-- [ ] Expose `_console_script_path` as a usable fixture or importable helper for Phases 5 and 6.
-- [ ] Leave the three existing tests in `test_entry_point.py` semantically unchanged.
+- [x] Expose `_console_script_path` as a usable fixture or importable helper for Phases 5 and 6.
+- [x] Leave the three existing tests in `test_entry_point.py` semantically unchanged.
 
 **Timing**: 0.5 hours
 

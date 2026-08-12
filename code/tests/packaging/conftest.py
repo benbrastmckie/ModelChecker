@@ -180,3 +180,74 @@ def sdist_member_set(built_artifacts: Dict[str, Path]) -> frozenset:
     """Session-scoped, normalized (leading `{name}-{version}/` stripped) member-path listing
     of the built sdist."""
     return normalize_sdist(sdist_members(built_artifacts["sdist"]))
+
+
+# --- Real console-script harness --------------------------------------------------------------
+#
+# Relocated from test_entry_point.py so it is shareable across the whole packaging test
+# directory -- pytest fixture visibility is directory-scoped, and a fixture defined inside a
+# single test module cannot be consumed by a sibling module. Moving it here, alongside
+# packaging_toolchain/built_artifacts, avoids building a second venv harness for the same
+# purpose (see the CLI end-to-end verification suite's research report and plan for why that is
+# required).
+
+
+def _venv_bin_dir(venv_dir: Path) -> Path:
+    bin_dir = venv_dir / "bin"
+    if not bin_dir.is_dir():
+        bin_dir = venv_dir / "Scripts"  # pragma: no cover -- Windows path
+    return bin_dir
+
+
+@pytest.fixture(scope="session")
+def installed_venv(built_artifacts: Dict[str, Path], tmp_path_factory: pytest.TempPathFactory) -> Dict[str, object]:
+    """Create a fresh venv under a pytest temp dir and install the built wheel into it.
+
+    Session-scoped: the venv is built exactly once per test session and shared by every test
+    in `tests/packaging/` that requests it (directly or transitively).
+    """
+    import venv
+
+    venv_dir = tmp_path_factory.mktemp("pkgentryvenv")
+    try:
+        venv.EnvBuilder(with_pip=True).create(venv_dir)
+    except Exception as exc:  # pragma: no cover -- environment-dependent failure path
+        _provisioning_failure(f"Failed to create entry-point venv at {venv_dir}: {exc}")
+        raise RuntimeError("unreachable")  # pragma: no cover
+
+    bin_dir = _venv_bin_dir(venv_dir)
+    interp = bin_dir / ("python.exe" if os.name == "nt" else "python")
+
+    # Strip PYTHONPATH: the outer test invocation typically runs with PYTHONPATH=src (per
+    # project convention) so that the source tree resolves on sys.path -- inherited verbatim
+    # into this subprocess, that would make pip's "already satisfied" check see model_checker
+    # as already importable via the source tree and skip (re)installing the wheel, silently
+    # leaving the console script uninstalled. This venv must resolve model_checker from its own
+    # site-packages only.
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    env["PIP_USER"] = "0"
+    result = subprocess.run(
+        [str(interp), "-m", "pip", "install", "--no-user", str(built_artifacts["wheel"])],
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        _provisioning_failure(
+            f"Failed to install built wheel into venv (exit {result.returncode}):\n"
+            f"{result.stderr[-2000:]}"
+        )
+        raise RuntimeError("unreachable")  # pragma: no cover
+
+    return {"venv_dir": venv_dir, "bin_dir": bin_dir, "python": interp, "env": env}
+
+
+def _console_script_path(installed_venv: Dict[str, object]) -> Path:
+    """Return the path to the installed `model-checker` console script.
+
+    Importable helper (not itself a fixture) so callers can compose it with `installed_venv`
+    directly, per this phase's requirement that it be usable from later console-script and
+    generate-then-execute test files.
+    """
+    script_name = "model-checker.exe" if os.name == "nt" else "model-checker"
+    return installed_venv["bin_dir"] / script_name
