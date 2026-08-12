@@ -38,7 +38,7 @@
         {
           "path": "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md",
           "type": "summary",
-          "summary": "Implementation summary covering all 8 plan phases: BM_CM_1 repair-frontier recording, the oracle budget widening, unstable marker registration/marking/wiring, unstable-watch.yml, TESTING_GUIDE.md 8.9, and the conditional follow-up task."
+          "summary": "Implementation summary covering all 8 plan phases."
         }
       ],
       "completion_summary": "Recorded BM_CM_1's full repair frontier (a third closed encoding avenue) and marked it unstable with all four entry criteria in-line since no fix exists. Landed a measurement-justified widening of the oracle gating re-check budget (20000->40000ms), verified locally at 103/103 conclusive but not yet on real CI. Registered and wired the unstable marker's deselection across tests.yml, differential-tests.yml, release.yml, and flake.nix; added the non-gating unstable-watch.yml observation workflow; documented the full policy in TESTING_GUIDE.md 8.9; and created follow-up task 160 since neither defect fully closed within this round.",
