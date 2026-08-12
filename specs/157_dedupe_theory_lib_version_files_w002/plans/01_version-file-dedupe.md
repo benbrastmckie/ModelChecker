@@ -1,7 +1,7 @@
 # Implementation Plan: Task #157
 
 - **Task**: 157 - Deduplicate the four theory_lib VERSION files to clear check-wheel-contents W002
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4 hours
 - **Dependencies**: 155 (completed)
 - **Research Inputs**: `specs/157_dedupe_theory_lib_version_files_w002/reports/01_version-file-dedupe.md`
@@ -435,7 +435,7 @@ end-to-end scaffolding from a real installed wheel still works.
 
 ---
 
-### Phase 7: Regression sweep, downstream handoff, and wrap-up [NOT STARTED]
+### Phase 7: Regression sweep, downstream handoff, and wrap-up [COMPLETED]
 
 **Goal**: Confirm nothing else regressed, and hand the now-stale W002 posture to task 156/151
 without editing their files.
