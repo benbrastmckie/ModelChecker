@@ -11,6 +11,7 @@ import sys
 import pytest
 
 from model_checker.__main__ import ParseFileFlags
+from tests.utils.helpers import run_cli_command
 
 # Registered short options that are not settings keys and are legitimately excluded
 # from the _short_to_long coverage requirement:
@@ -162,3 +163,20 @@ def test_bare_save_yields_markdown_and_json(monkeypatch, tmp_path):
 
     config = create_output_config(module_flags)
     assert config.formats == ['markdown', 'json']
+
+
+def test_sequential_flag_exits_cleanly_without_traceback(tmp_path):
+    """--sequential exits non-zero with a one-line error, no Python traceback.
+
+    NotImplementedError raised by builder/module.py's
+    _initialize_output_management is caught at the BuildModule(...) call site in
+    main() and converted into a clean "Error: ..." message plus sys.exit(1).
+    """
+    example_file = tmp_path / "example.py"
+    example_file.write_text("semantic_theories = {}\nexample_range = {}\n")
+
+    result = run_cli_command(['--sequential', str(example_file)], check=False)
+
+    assert result.returncode != 0
+    combined_output = (result.stdout or '') + (result.stderr or '')
+    assert 'Traceback' not in combined_output

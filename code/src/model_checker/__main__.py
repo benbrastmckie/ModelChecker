@@ -291,7 +291,11 @@ def main():
         builder.ask_generate()
         return
     
-    module = BuildModule(module_flags)
+    try:
+        module = BuildModule(module_flags)
+    except NotImplementedError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
     # TODO: create print/save class
     if module.general_settings["maximize"]:
