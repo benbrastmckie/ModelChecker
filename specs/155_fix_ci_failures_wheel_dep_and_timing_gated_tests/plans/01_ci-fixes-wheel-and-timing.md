@@ -1,7 +1,7 @@
 # Implementation Plan: Fix CI failures (wheel dep and timing-gated tests)
 
 - **Task**: 155 - fix_ci_failures_wheel_dep_and_timing_gated_tests
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2.75 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/reports/01_ci-failures-wheel-and-timing.md
@@ -142,18 +142,18 @@ done first even though the wave permits reordering.
 
 ---
 
-### Phase 1: Add `wheel` to the two deficient install lines [NOT STARTED]
+### Phase 1: Add `wheel` to the two deficient install lines [COMPLETED]
 
 **Goal**: Make `wheel` importable in every ambient environment where `python -m build` runs, so
 the packaging contract suite and the release `build` job stop dying with
 `ERROR Missing dependencies: wheel`.
 
 **Tasks**:
-- [ ] `.github/workflows/packaging.yml` line 27: `pip install pytest build` ->
+- [x] `.github/workflows/packaging.yml` line 27: `pip install pytest build` ->
       `pip install pytest build wheel`
-- [ ] `.github/workflows/release.yml` line 99 (inside the `build` job, under
+- [x] `.github/workflows/release.yml` line 99 (inside the `build` job, under
       `- name: Build package`): `pip install build twine` -> `pip install build twine wheel`
-- [ ] Confirm `.github/workflows/release.yml` line 51 (`test-and-release` job,
+- [x] Confirm `.github/workflows/release.yml` line 51 (`test-and-release` job,
       `pip install build wheel setuptools`) is UNCHANGED
 
 **Timing**: 15 minutes

@@ -96,7 +96,7 @@ jobs:
       run: |
         cd code
         python -m pip install --upgrade pip
-        pip install build twine
+        pip install build twine wheel
         python -m build
         ls -la dist/
 

@@ -24,7 +24,7 @@ jobs:
           cache: 'pip'
 
       - name: Install packaging test dependencies
-        run: pip install pytest build
+        run: pip install pytest build wheel
 
       - name: Run packaging contract tests
         run: cd code && python -m pytest tests/packaging/ -v -m packaging
