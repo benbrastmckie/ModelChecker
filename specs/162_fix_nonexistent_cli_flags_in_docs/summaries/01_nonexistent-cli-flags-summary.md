@@ -3,6 +3,10 @@
 - **Task**: 162 - Audit and fix nonexistent CLI flags documented across user-facing docs
 - **Plan**: `specs/162_fix_nonexistent_cli_flags_in_docs/plans/01_nonexistent-cli-flags-fix.md`
 - **Status**: Implementation complete, all 8 phases COMPLETED
+- **Started**: TBD
+- **Completed**: TBD
+- **Artifacts**: TBD
+- **Standards**: TBD
 
 ## What was done
 

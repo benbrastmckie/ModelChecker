@@ -1,6 +1,13 @@
 # Research Report: Nonexistent CLI Flags in User-Facing Docs
 
 **Task**: 162 — Audit and fix nonexistent CLI flags documented across user-facing docs.
+- **Started**: TBD
+- **Completed**: TBD
+- **Effort**: TBD
+- **Dependencies**: TBD
+- **Sources/Inputs**: TBD
+- **Artifacts**: TBD
+- **Standards**: TBD
 
 ## Verified Ground Truth
 

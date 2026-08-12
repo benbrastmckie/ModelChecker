@@ -1,18 +1,28 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 2,
-  "summary": "8-phase TDD plan created. Guard-first: build a doc-flag lint deriving allowed tokens from parser._actions (Phase 1), demonstrate RED under strict xfail with a violation inventory (Phase 2), fix docs in five file-owned parallel phases (3-7, wave 3) covering ~47 fabricated flag tokens across 10 files plus the live --output-dir suggestion string in output/errors.py, then remove the xfail and run the full gate (Phase 8). Plan-time verification amended two research conclusions: --iso-debug IS real (a dev_cli.py wrapper flag consumed pre-argparse, must be allowlisted not 'fixed'), and six further fabricated flags were found beyond the report's four findings (--benchmark, --test-all-settings, --profile, --generate-license family, -t).",
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 3,
+  "summary": "All 8 plan phases completed. Built a doc-flag regression guard (code/tests/cli/test_docs_flag_matrix.py) that derives its allowed-token set from ParseFileFlags().parser._actions plus a small dev_cli.py wrapper-flag allowlist (--iso-debug, --load, -load), then used it to drive fixes across 10 documentation files and one live source string (output/errors.py's OutputDirectoryError permission suggestion). Phase 2 demonstrated RED under a strict xfail against 204 scanned markdown files (11 violating files, 46 violating tokens); Phases 3-7 fixed the inventory in file-owned parallel phases (subtheory prose rewrite to the real logos.get_theory(subtheories=[...]) API, output/tools docs, architecture docs, settings/README.md whole-file pass, and a residual sweep plus the errors.py fix). Phase 7's own fixes cleared the last violations, which mechanically forced the strict-xfail's removal one phase early (documented as a deviation); Phase 8 confirmed zero violations across all 204 files, recorded final before/after counts, and ran the full test suite: 474 passed, 4 skipped (pre-existing, unrelated), 0 failures.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/plans/01_nonexistent-cli-flags-fix.md",
-      "summary": "8-phase TDD plan for the doc-flag regression guard and the documentation/source fixes it gates."
+      "type": "implementation",
+      "path": "code/tests/cli/test_docs_flag_matrix.py",
+      "summary": "Doc-flag regression guard: derives allowed CLI flags from the parser, scans documented shell invocations, and hard-fails on any unregistered/fabricated flag token."
+    },
+    {
+      "type": "report",
+      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/reports/02_violation-inventory.md",
+      "summary": "RED violation inventory (46 tokens/11 files) with final per-phase before/after counts down to zero."
+    },
+    {
+      "type": "summary",
+      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/summaries/01_nonexistent-cli-flags-summary.md",
+      "summary": "Implementation summary covering all 8 phases, verification results, and plan deviations."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 8,
   "phases_total": 8,
   "blockers": [],
   "continuation_path": null,
-  "next_action_hint": "Run /implement 162 to execute the plan. Phases 3-7 own disjoint file sets and may be dispatched in parallel once Phase 2 lands."
+  "next_action_hint": "Implementation complete and verified green. Ready for postflight to mark task 162 [COMPLETED]."
 }
