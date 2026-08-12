@@ -1,0 +1,15 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "summary": "Created a six-phase implementation plan for the wheel/sdist packaging contract tests, resolving all five open questions from the research report (test location, CI-gap scope, the docs/*.md sdist question, minimum-set docs assertions, and toolchain provisioning).",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/149_wheel_and_sdist_packaging_contract_tests/plans/01_packaging-contract-tests.md",
+      "summary": "Six-phase plan: build fixture and marker, exclusions, registry-driven inclusions, parity plus conditional MANIFEST.in remediation, entry point, CI wiring."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "blockers": []
+}
