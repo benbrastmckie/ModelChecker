@@ -466,7 +466,7 @@ anything is quarantined (Phase 4).
 
 ---
 
-### Phase 6: Add the non-gating `unstable-watch.yml` observation workflow [NOT STARTED]
+### Phase 6: Add the non-gating `unstable-watch.yml` observation workflow [COMPLETED]
 
 - **Goal:** A scheduled, non-gating workflow that runs ONLY `-m unstable` across both trees,
   makes the pass/fail trend legible over time, surfaces READY TO PROMOTE when the exit threshold
