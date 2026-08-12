@@ -11,18 +11,16 @@ next_project_number: 158
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,156,157 | -- | packaging, semantics |
-| 2 | 151,153 | 152,156,157 | packaging, semantics |
+| 1 | 152,157 | -- | packaging, semantics |
+| 2 | 151,153 | 152,157 | packaging, semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Packaging
 
-156 [IMPLEMENTING] — Turn the release verification named in .github/RELEASE_SETUP.md i
-  └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 157 [IMPLEMENTING] — Deduplicate the four identical theory_lib VERSION files to clear 
-  └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t (see above)
+  └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 
 ### Semantics
 
@@ -53,12 +51,13 @@ VERIFY BY REBUILDING. The evidence is a fresh `python -m build` plus check-wheel
 ---
 
 ### 156. Portable pinned release verification runner
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
 - **Research**: [156_portable_pinned_release_verification_runner/reports/01_portable-release-verification.md]
 - **Plan**: [156_portable_pinned_release_verification_runner/plans/01_release-verify-runner.md]
+- **Summary**: [156_portable_pinned_release_verification_runner/summaries/01_release-verify-runner-summary.md]
 
 **Description**: Turn the release verification named in .github/RELEASE_SETUP.md into a repeatable, pinned, portable runner -- and document it. THIS IS DELIBERATELY NOT A DOCUMENTATION-ONLY TASK. The deliverable is an executable script plus a pinned tool manifest plus the checklist prose that drives them. Prose alone would not close the actual defect, which is that the documented verification sequence is reproducible today only on one developer's machine.
 

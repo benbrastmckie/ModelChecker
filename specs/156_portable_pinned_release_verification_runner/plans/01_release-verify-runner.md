@@ -1,7 +1,7 @@
 # Implementation Plan: Portable, Pinned Release-Verification Runner
 
 - **Task**: 156 - portable_pinned_release_verification_runner
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 5.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/156_portable_pinned_release_verification_runner/reports/01_portable-release-verification.md`
