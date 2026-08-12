@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Nonexistent CLI Flags in Docs
 
 - **Task**: 162 - Audit and fix nonexistent CLI flags documented across user-facing docs
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 7 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/162_fix_nonexistent_cli_flags_in_docs/reports/01_nonexistent-cli-flags-audit.md
@@ -451,20 +451,20 @@ the new unit test.
 
 ---
 
-### Phase 8: Flip the guard to green and run the full gate [NOT STARTED]
+### Phase 8: Flip the guard to green and run the full gate [COMPLETED]
 
 **Goal**: Remove the strict xfail so the guard fails hard on future drift, and confirm the whole
 change set is green.
 
 **Tasks**:
-- [ ] Remove the `@pytest.mark.xfail(strict=True, ...)` decorator from
+- [x] Remove the `@pytest.mark.xfail(strict=True, ...)` decorator from
       `test_documented_flags_are_registered`.
-- [ ] Run the doc lint across the full declared glob set and confirm zero violations.
-- [ ] Update `02_violation-inventory.md` with the final before/after counts.
-- [ ] Add a short note to `code/tests/cli/` (module docstring or `code/docs/core/TESTING_GUIDE.md`,
+- [x] Run the doc lint across the full declared glob set and confirm zero violations.
+- [x] Update `02_violation-inventory.md` with the final before/after counts.
+- [x] Add a short note to `code/tests/cli/` (module docstring or `code/docs/core/TESTING_GUIDE.md`,
       whichever matches existing convention) describing the guard, its allowlist derivation, and
       its declared prose blind spot.
-- [ ] Run the full test suite.
+- [x] Run the full test suite.
 
 **Timing**: 45 minutes
 
@@ -491,15 +491,15 @@ reopened rather than allowlisted.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/tests/cli/test_docs_flag_matrix.py -v` passes with no
+- [x] `PYTHONPATH=code/src pytest code/tests/cli/test_docs_flag_matrix.py -v` passes with no
       xfail/xpass.
-- [ ] `PYTHONPATH=code/src pytest code/tests/cli/test_flag_matrix.py -v` still passes (no
+- [x] `PYTHONPATH=code/src pytest code/tests/cli/test_flag_matrix.py -v` still passes (no
       regression to the existing complementary guard).
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -q` passes.
-- [ ] The extractor's negative unit tests demonstrably reject `pip install --user model-checker`,
+- [x] `PYTHONPATH=code/src pytest code/tests/ -q` passes. (474 passed, 4 skipped pre-existing/unrelated, 0 failures)
+- [x] The extractor's negative unit tests demonstrably reject `pip install --user model-checker`,
       `ls -la`, `./dev_cli.py ... | grep -E "..."`, and `python -m cProfile -o ... dev_cli.py ...`.
-- [ ] `--iso-debug`, `--load`, `-load` remain documented and remain accepted by the guard.
-- [ ] Spot-run one rewritten command from each of Phases 3-7 and confirm it does not produce
+- [x] `--iso-debug`, `--load`, `-load` remain documented and remain accepted by the guard.
+- [x] Spot-run one rewritten command from each of Phases 3-7 and confirm it does not produce
       `unrecognized arguments`.
 
 ## Artifacts & Outputs

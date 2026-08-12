@@ -116,5 +116,17 @@ directly — verified separately by a dedicated unit test.
 
 ## Final counts (after Phases 3-8)
 
-To be updated by Phase 8 once the guard's `xfail` marker is removed and the full scan is
-confirmed at zero violations.
+| Stage | Files scanned | Violating files | Violating tokens |
+|-------|---------------|------------------|-------------------|
+| Before (Phase 2, RED) | 204 | 11 | 46 |
+| After Phase 3 (subtheory rewrite) | 204 | 8 | 31 |
+| After Phase 4 (output/tools docs) | 204 | 6 | 21 |
+| After Phase 5 (architecture docs) | 204 | 5 | 18 |
+| After Phase 6 (settings/README.md) | 204 | 3 | 6 |
+| After Phase 7 (residual sweep) | 204 | 0 | 0 |
+
+`test_documented_flags_are_registered` no longer carries an `xfail` marker as of Phase 7/8 (see
+the Phase 7 handoff for why the removal landed one phase early): `PYTHONPATH=code/src pytest
+code/tests/cli/ -v` reports 74 passed, 0 xfailed, 0 xpassed. The guard is now a hard-failing
+regression test: any future documentation change that names a flag the parser (or the
+`dev_cli.py` wrapper) doesn't accept will fail CI directly, with no `xfail` escape hatch.

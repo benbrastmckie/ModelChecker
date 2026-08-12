@@ -14,6 +14,10 @@ Declared blind spot: this guard only scans shell invocation lines inside fenced 
 ASCII diagram boxes that merely *mention* a flag (e.g. a comment, a "Debug messages (with
 --verbose)" aside, a diagram bullet) are not invocation lines and are not scanned -- those sites
 must be caught by hand during doc review, not by this test.
+
+Status: `test_documented_flags_are_registered` carries no `xfail` marker -- it is a hard-failing
+regression test. A future documentation change that names a flag the parser (or the
+`code/dev_cli.py` wrapper) does not accept will fail this test directly.
 """
 
 from __future__ import annotations
