@@ -90,6 +90,7 @@ markers = [
     "performance: Tests that verify performance characteristics",
     "differential: Tests that compare MC oracle against reference oracles",
     "slow: Genuinely expensive tests (large allocations or long solves). These run in the default suite; deselect them with `-m \"not slow\"` for a faster local iteration loop",
+    "packaging: Tests that build and inspect wheel/sdist artifacts -- slower than unit tests, requires a build toolchain",
 ]
 filterwarnings = [
     # Ignore deprecation warning from z3's use of pkg_resources

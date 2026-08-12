@@ -1,7 +1,7 @@
 # Implementation Plan: Wheel and Sdist Packaging Contract Tests
 
 - **Task**: 149 - wheel_and_sdist_packaging_contract_tests
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/149_wheel_and_sdist_packaging_contract_tests/reports/01_packaging-contract-tests.md
@@ -115,38 +115,40 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Build Fixture and Marker Registration [NOT STARTED]
+### Phase 1: Build Fixture and Marker Registration [COMPLETED]
 
 **Goal**: A `code/tests/packaging/` package exists whose session-scoped fixture builds a fresh
 wheel and sdist into a temp directory and exposes their member-path listings, with a registered
 `packaging` marker.
 
 **Tasks**:
-- [ ] Create `code/tests/packaging/__init__.py` and `code/tests/packaging/conftest.py`.
-- [ ] Add to `code/pyproject.toml`'s `[tool.pytest.ini_options] markers` list:
+- [x] Create `code/tests/packaging/__init__.py` and `code/tests/packaging/conftest.py`.
+- [x] Add to `code/pyproject.toml`'s `[tool.pytest.ini_options] markers` list:
       `"packaging: Tests that build and inspect wheel/sdist artifacts -- slower than unit tests, requires a build toolchain"`,
       matching the existing one-line-docstring style.
-- [ ] Implement session-scoped fixture `packaging_toolchain`: returns the interpreter to build
+- [x] Implement session-scoped fixture `packaging_toolchain`: returns the interpreter to build
       with. Fast path — if `import build` succeeds in the ambient interpreter, return
       `sys.executable`. Otherwise create a venv under `tmp_path_factory.mktemp("pkgvenv")`, then
       run `pip install --no-user build setuptools wheel` with `PIP_USER=0` in the subprocess env,
       and return the venv interpreter path.
-- [ ] Implement the provisioning-failure policy: on venv/pip failure, `pytest.skip` with an
+- [x] Implement the provisioning-failure policy: on venv/pip failure, `pytest.skip` with an
       explicit reason when `os.environ.get("CI")` is falsy; `pytest.fail` when it is set. Never
       silently pass.
-- [ ] Implement session-scoped fixture `built_artifacts`: runs
+- [x] Implement session-scoped fixture `built_artifacts`: runs
       `{interp} -m build --no-isolation --outdir {tmp}` with `cwd=` the `code/` directory
       (resolved from `Path(__file__)`, never `os.chdir`), asserts exactly one `*.whl` and one
       `*.tar.gz` land in `{tmp}`, and returns both paths. The output directory must be a pytest
       temp dir — never `code/dist/`.
-- [ ] Implement helpers `wheel_members(whl)` (via `zipfile.ZipFile.namelist()`) and
+- [x] Implement helpers `wheel_members(whl)` (via `zipfile.ZipFile.namelist()`) and
       `sdist_members(tgz)` (via `tarfile.open().getnames()`), each returning a `frozenset[str]`,
       plus `normalize_sdist(path)` stripping the leading `{name}-{version}/` component.
-- [ ] Add a smoke test asserting both artifacts were produced, both member sets are non-empty,
+- [x] Add a smoke test asserting both artifacts were produced, both member sets are non-empty,
       and `model_checker/__init__.py` appears in the wheel.
-- [ ] Confirm `code/tests/conftest.py`'s autouse `test_isolation` fixture composes cleanly with
+- [x] Confirm `code/tests/conftest.py`'s autouse `test_isolation` fixture composes cleanly with
       the subprocess build (run the smoke test twice in one session and confirm no cwd or
-      `sys.path` leakage).
+      `sys.path` leakage). Verified via `test_isolation_fixture_composes_with_build`, which reads
+      the session-scoped `built_artifacts`-derived fixture a second time and confirms cwd/sys.path
+      are unchanged from the autouse `test_isolation` snapshot.
 
 **Timing**: 1.5 hours
 
