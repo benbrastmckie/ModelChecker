@@ -664,24 +664,36 @@ than leaving it silently uncovered.
 
 ---
 
-### Phase 8: Full-suite regression and runtime budget [NOT STARTED]
+### Phase 8: Full-suite regression and runtime budget [COMPLETED]
 
 **Goal**: Prove nothing regressed against the 2193/2193 baseline and that the added coverage did
 not make the suite unaffordable.
 
 **Tasks**:
-- [ ] Run the full suite: `PYTHONPATH=code/src pytest code/tests/ -v` and the in-package tree.
+- [x] Run the full suite: `PYTHONPATH=code/src pytest code/tests/ -v` and the in-package tree.
       Baseline is 283 top-level + 1910 in-package = 2193 green. Account for every delta — added
       tests, and the tests deliberately deleted in Phase 7 — so the new total is explained
-      exactly, not merely "still green".
-- [ ] Any red is genuinely new. Diagnose it; do not silence it.
-- [ ] Capture `--durations=0` and record the runtime cost of each new file. State the resulting
+      exactly, not merely "still green". **Deviation**: the plan-stated baseline (283+1910=2193)
+      does not match the actual pre-task-148 commit (`55ea4e8f`, verified directly by checking out
+      that commit into a worktree and running both suites): the real baseline is 401 top-level
+      (397 passed + 4 skipped) + 1912 in-package = 2313. Used the verified `55ea4e8f` numbers as
+      the reconciliation baseline instead of the plan's stale figure — see implementation summary
+      for the full per-file delta table, which reconciles exactly (top-level +71, in-package -10).
+- [x] Any red is genuinely new. Diagnose it; do not silence it. Zero failures in either suite.
+- [x] Capture `--durations=0` and record the runtime cost of each new file. State the resulting
       total suite delta explicitly. If the delta is disproportionate, adjust markers (not
-      assertions) and record the reasoning.
-- [ ] **Re-read every assertion added in Phases 3-7** specifically for weakening: no bare
+      assertions) and record the reasoning. Top-level: 69.29s (was 32.19s at baseline, +37.1s).
+      In-package: 389.99s (was 368.03s at baseline, +21.96s). Judged acceptable — see summary.
+- [x] **Re-read every assertion added in Phases 3-7** specifically for weakening: no bare
       `assert result.returncode == 0` standing alone where a behavioral assertion was specified,
-      no `xfail` without a reason string, no silently skipped parametrization case.
-- [ ] Confirm each of the five requirement letters (a)-(e) has a named covering test, and record
+      no `xfail` without a reason string, no silently skipped parametrization case. Confirmed: zero
+      `xfail` markers in any Phase 3-7 file; every `returncode == 0` assertion in
+      `code/tests/cli/test_flag_matrix.py` is paired with additional behavioral assertions
+      (output content, file existence, Traceback absence); the one remaining
+      `patch('subprocess.run')` site (`test_upgrade_constructs_expected_pip_command_without_executing`)
+      asserts real constructed-argv content, matching the plan's sanctioned `--upgrade` exception,
+      not the prohibited assert-on-own-mock pattern.
+- [x] Confirm each of the five requirement letters (a)-(e) has a named covering test, and record
       that mapping in the implementation summary.
 
 **Timing**: 1 hour

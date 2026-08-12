@@ -27,7 +27,7 @@ next_project_number: 155
 
 ### Testing
 
-148 [PLANNED] — Build real end-to-end verification for the CLI. This is the large
+148 [IMPLEMENTING] — Build real end-to-end verification for the CLI. This is the large
 
 ### Semantics
 
@@ -209,7 +209,7 @@ IMPLEMENTATION NOTES:
 ---
 
 ### 148. Cli end to end verification suite
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 146
