@@ -97,6 +97,42 @@ def test_help_lists_every_registered_long_flag(flag):
         assert long_flag in result.stdout, f"{long_flag} missing from --help output"
 
 
+def _help_for(dest):
+    """The registered help string for an argparse `dest`."""
+    parser = ParseFileFlags().parser
+    for action in parser._actions:
+        if action.dest == dest:
+            return action.help
+    raise AssertionError(f"no action registered for dest {dest!r}")
+
+
+def test_non_null_help_describes_the_null_state_constraint():
+    """`non_null` emits `Not(verify(0, letter))` / `Not(falsify(0, letter))` -- it bars the null
+    state from verifying or falsifying (logos `semantic/proposition.py`
+    `get_non_null_constraints`; exclusion `semantic/core.py` `atom_constraints`). Its help text
+    must describe that, not the existential `non_empty` constraint."""
+    help_text = _help_for('non_null').lower()
+    assert 'null state' in help_text, (
+        f"--non_null help must mention the null state, got: {help_text!r}"
+    )
+    assert 'non-empty' not in help_text, (
+        f"--non_null help must not describe the non_empty constraint, got: {help_text!r}"
+    )
+
+
+def test_non_empty_help_describes_the_existential_constraint():
+    """`non_empty` emits `Exists(x, y) verify(x) & falsify(y)` -- at least one verifier and (in
+    bilateral theories) one falsifier. Its help text must describe that, not subject matter,
+    which belongs to `--disjoint`."""
+    help_text = _help_for('non_empty').lower()
+    assert 'verifier' in help_text, (
+        f"--non_empty help must mention verifiers, got: {help_text!r}"
+    )
+    assert 'subject matter' not in help_text, (
+        f"--non_empty help must not describe subject matter, got: {help_text!r}"
+    )
+
+
 # ---------------------------------------------------------------------------------------------
 # Boolean flags: both spellings against the tiny example, exit 0, no Traceback.
 # For -p/-z/-i, output must differ from the no-flag baseline.

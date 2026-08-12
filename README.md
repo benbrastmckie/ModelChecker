@@ -16,6 +16,8 @@ This [talk](https://www.youtube.com/watch?v=ZqTpdJKHT_4) at the [Topos Institute
 pip install model-checker
 ```
 
+Requires Python 3.10 or later.
+
 ### With Jupyter Support
 
 ```bash
@@ -24,13 +26,23 @@ pip install model-checker[jupyter]
 
 For Jupyter notebook features and interactive exploration, see the [Jupyter Integration Guide](code/src/model_checker/jupyter/README.md).
 
+### With the cvc5 Solver Backend
+
+Z3 is the default solver. The optional cvc5 backend is a separate package:
+
+```bash
+pip install cvc5
+```
+
+Select a backend at run time with `--z3` (default) or `--cvc5`.
+
 ### Development Installation
 
 ```bash
 git clone https://github.com/benbrastmckie/ModelChecker
 cd ModelChecker/code
 # Use the development CLI to run locally without installation:
-./dev_cli.py examples/my_example.py
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 ```
 
 For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Developer Setup Guide](docs/installation/DEVELOPER_SETUP.md). NixOS users can use the provided `flake.nix` configuration (`nix develop` at the repository root) for automatic environment setup.
@@ -58,12 +70,17 @@ model-checker -l logos        # Hyperintensional semantics with all subtheories
 model-checker -l exclusion    # Unilateral exclusion semantics
 model-checker -l imposition   # Fine's counterfactual semantics
 model-checker -l bimodal      # Bimodal logic for tense and circumstantial modalities
-
-# Load specific logos subtheories
-model-checker -l logos --subtheory counterfactual  # Just counterfactual + dependencies
 ```
 
-This creates a project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files.
+This creates a project directory with `examples.py`, a `semantic/` package, `operators.py`,
+`iterate.py`, `subtheories/`, tests, and docs. To load only some of the logos subtheories, pass
+them to `get_theory` in your `examples.py`:
+
+```python
+from model_checker.theory_lib import logos
+
+theory = logos.get_theory(subtheories=['extensional', 'counterfactual'])
+```
 
 ### 2. Run Examples
 
@@ -75,7 +92,7 @@ model-checker examples.py
 model-checker examples.py --maximize
 
 # Save results in various formats
-model-checker examples.py --save           # All formats
+model-checker examples.py --save           # Both formats (markdown and json)
 model-checker examples.py --save json      # JSON only
 ```
 
@@ -98,13 +115,13 @@ Start by creating a new project or loading an existing theory:
 model-checker                                        # Creates a logos semantics by default with all subtheories
 
 # Load an existing theory as starting point
-model-checker -l logos --subtheory counterfactual    # Just counterfactual + dependencies
+model-checker -l logos                               # Hyperintensional truthmaker semantics
 model-checker -l exclusion                           # Unilateral exclusion semantics
 model-checker -l imposition                          # Fine's counterfactual semantics
 model-checker -l bimodal                             # Bimodal logic for tense and circumstantial modalities
 ```
 
-This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. See [Project Creation Guide](docs/usage/PROJECT.md) for detailed instructions.
+This creates a complete project directory with `examples.py`, a `semantic/` package, `operators.py`, `iterate.py`, and supporting files. See [Project Creation Guide](docs/usage/PROJECT.md) for detailed instructions.
 
 ### 2. Develop Examples
 
@@ -119,14 +136,14 @@ Define a range of examples in order to evaluate their behavior in your theory. S
 
 ### 3. Adapt Semantic Framework
 
-Modify `semantic.py` to implement your specific semantic theory. Add new constraints, modify existing ones, or create entirely new semantic frameworks to capture the logical principles that distinguish your theory. See the [Semantics Guide](docs/usage/SEMANTICS.md).
+Modify the `semantic/` package to implement your specific semantic theory. Add new constraints, modify existing ones, or create entirely new semantic frameworks to capture the logical principles that distinguish your theory. See the [Semantics Guide](docs/usage/SEMANTICS.md).
 
 ### 4. Define Custom Operators
 
 Extend your theory's expressive power with new operators:
 
 - **Defined operators** in `operators.py` - shortcuts for combinations of existing operators
-- **Primitive operators** requiring semantic interpretation in `semantic.py`
+- **Primitive operators** requiring semantic interpretation in the `semantic/` package
 
 See the [Operators Guide](docs/usage/OPERATORS.md) for implementation patterns.
 
@@ -140,6 +157,9 @@ model-checker examples.py
 
 # Compare multiple theories
 model-checker examples.py --maximize
+
+# Run the same examples against the cvc5 backend instead of Z3
+model-checker examples.py --cvc5
 ```
 
 See the [Tools Guide](docs/usage/TOOLS.md) for model iteration and theory comparison.
@@ -149,7 +169,7 @@ See the [Tools Guide](docs/usage/TOOLS.md) for model iteration and theory compar
 Export your findings in formats suitable for analysis or publication:
 
 ```bash
-model-checker examples.py --save           # All formats (json, markdown, jupyter)
+model-checker examples.py --save           # Both formats (markdown and json)
 model-checker examples.py --save json      # Machine-readable JSON
 model-checker examples.py --save markdown  # Human-readable markdown
 ```
@@ -174,7 +194,7 @@ For the complete step-by-step methodology with detailed examples and advanced te
 ```
 ModelChecker/
 ├── code/                           # Main implementation directory
-│   ├── src/                        # Source code
+│   ├── src/                        # Source code (the `model_checker` package)
 │   ├── docs/                       # Technical documentation
 │   ├── scripts/                    # Development and maintenance scripts
 │   └── tests/                      # Test suites
@@ -190,9 +210,12 @@ ModelChecker/
 │   │   ├── OUTPUT.md               # Saving results
 │   │   └── WORKFLOW.md             # Complete methodology
 │   ├── architecture/               # System architecture
-│   ├── maintenance/                # Development standards
 │   └── theory/                     # Theoretical background
+├── oracle/                         # Standalone differential-oracle tree (not shipped in the wheel)
+├── latex/                          # Paper sources
+├── talks/                          # Slides and talk materials
 ├── images/                         # Screenshots and diagrams
+├── flake.nix                       # Nix development environment
 └── README.md                       # This file
 ```
 
@@ -201,6 +224,8 @@ ModelChecker/
 **[code/](code/)** - Main implementation directory containing the ModelChecker package source code, development tools, and technical documentation. Includes the core framework, theory library implementations, builder system, iteration engine, and comprehensive test suites. This is where developers work on extending the framework and contributing new theories. See [code/README.md](code/README.md) for package documentation.
 
 **[docs/](docs/)** - Project-level documentation for understanding the ModelChecker's theoretical foundations, development architecture, and advanced usage. Contains guides for installation, development workflows, research architecture, and detailed explanations of the Z3-based implementation approach. Essential reading for researchers and contributors. See [docs/README.md](docs/README.md) for documentation navigation.
+
+**[oracle/](oracle/)** - Standalone differential-oracle tree used to cross-check the semantics against independently written reference implementations. It is excluded from the published wheel and is not needed to use the package.
 
 **[images/](images/)** - Visual documentation including architecture diagrams, countermodel visualizations, and screenshots demonstrating the framework in action. Helps illustrate complex semantic concepts and usage patterns that are difficult to convey through text alone.
 
@@ -229,16 +254,17 @@ ModelChecker/
 
 ### 1. Modular Semantic Theories
 
-- **Hyperintensional Bilateral Semantics** (Logos): 18 operators across 5 subtheories
-- **Unilateral Exclusion Semantics**: Solving the False Premise Problem
-- **Fine's Counterfactual Semantics**: Imposition semantics for counterfactuals
-- **Bimodal Logic**: Intensional semantics for reasoning with both tense and modal operators
+- **Hyperintensional Bilateral Semantics** (Logos): 18 operators across 4 subtheories
+- **Unilateral Exclusion Semantics** (4 operators): Solving the False Premise Problem
+- **Fine's Counterfactual Semantics** (13 operators): Imposition semantics for counterfactuals
+- **Bimodal Logic** (17 operators): Intensional semantics for reasoning with both tense and modal operators
 
 ### 2. Computational Tools
 
 - **Z3 SMT Integration**: Automated model finding and constraint solving
+- **Dual Solver Backends**: Z3 by default, with optional cvc5
 - **Countermodel Visualization**: Understand why formulas fail
-- **Model Iteration**: Find multiple distinct models satisfying constraints
+- **Model Iteration**: Find multiple non-isomorphic models satisfying constraints
 - **Semantic Comparison**: Run multiple semantic theories on the same examples
 
 ### 3. Development Framework
@@ -252,7 +278,7 @@ ModelChecker/
 
 ### Logos: Hyperintensional Truthmaker Semantics
 
-- 18 operators across 5 modular subtheories
+- 18 operators across 4 modular subtheories (extensional, modal, constitutive, counterfactual)
 - Sensitive to differences in subject-matter via verifier/falsifier sets
 - Distinguishes necessarily equivalent propositions
 - Supports modal, counterfactual, constitutive, and relevance reasoning
@@ -280,15 +306,21 @@ We welcome contributions! Please:
 
 1. Follow the [Development Guide](code/docs/development/README.md) for workflow
 2. Use the standard `examples.py` structure for examples
-3. Ensure all tests pass before submitting PRs
+3. Ensure all tests pass before submitting PRs — run `./run_tests.py` from `code/`, or
+   `PYTHONPATH=src pytest tests/ -v` for pytest directly
 4. Include documentation for new features
 5. Read [code/docs/core/CODE_STANDARDS.md](code/docs/core/CODE_STANDARDS.md) for standards
 
 ## Academic References
 
+### Citing the Software
+
+> Brast-McKie, B. (2025). _Model-Checker: A Programmatic Semantics Framework._
+> https://github.com/benbrastmckie/ModelChecker
+
 ### Primary Sources
 
-- Brast-McKie, B. (forthcoming). ["The Construction of Possible Worlds"](http://www.benbrastmckie.com/wp-content/uploads/2025/11/possible_worlds.pdf). _Journal of Philosophical Logic_. 
+- Brast-McKie, B. (draft). ["The Construction of Possible Worlds"](http://www.benbrastmckie.com/wp-content/uploads/2025/11/possible_worlds.pdf).
 - Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). _Journal of Philosophical Logic_.
 - Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). _Journal of Philosophical Logic_, 50, 1471-1503.
 - Fine, K. (2012). ["Counterfactuals without Possible Worlds"](https://doi.org/10.1111/j.1467-9213.2012.00001.x). _Journal of Philosophy_, 109(3), 221-246.

@@ -113,7 +113,17 @@ State Space:
   #b0001 = a
   #b0010 = b
   #b0011 = a.b (world)
-  ...
+  #b0100 = c
+  #b0101 = a.c (world)
+  #b0110 = b.c (impossible)
+  #b0111 = a.b.c (impossible)
+  #b1000 = d
+  #b1001 = a.d (impossible)
+  #b1010 = b.d (world)
+  #b1011 = a.b.d (impossible)
+  #b1100 = c.d (world)
+  #b1101 = a.c.d (impossible)
+  #b1110 = b.c.d (impossible)
   #b1111 = a.b.c.d (impossible)
 
 The evaluation world is: b.d

@@ -475,8 +475,8 @@ def coproduct(set1, set2):
 
 **Unclear which constraint fails**:
 - Test constraints individually first
-- Use `--print-constraints` to see generated formulas
-- Check `--print-z3` for raw solver output
+- Use `--print_constraints` to see generated formulas
+- Check `--print_z3` for raw solver output
 
 **Settings not recognized**:
 - Ensure setting is in `DEFAULT_GENERAL_SETTINGS`
@@ -496,13 +496,13 @@ TEST_settings = {
 
 ```bash
 # See what constraints are generated
-model-checker test.py --print-constraints
+model-checker test.py --print_constraints
 
 # Get detailed Z3 output
-model-checker test.py --print-z3
+model-checker test.py --print_z3
 
 # Both debug flags together
-model-checker test.py --print-constraints --print-z3
+model-checker test.py --print_constraints --print_z3
 ```
 
 ## References

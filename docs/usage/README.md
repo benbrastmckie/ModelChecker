@@ -78,13 +78,13 @@ example_range = {"INFERENCE": INFERENCE_example}
 
 ```bash
 # Show generated constraints
-model-checker examples/test.py --print-constraints
+model-checker examples/test.py --print_constraints
 
 # Show Z3 model details
-model-checker examples/test.py --print-z3
+model-checker examples/test.py --print_z3
 
 # Include impossible states in output
-model-checker examples/test.py --print-impossible
+model-checker examples/test.py --print_impossible
 ```
 
 For complete workflow patterns, see [WORKFLOW.md](WORKFLOW.md).

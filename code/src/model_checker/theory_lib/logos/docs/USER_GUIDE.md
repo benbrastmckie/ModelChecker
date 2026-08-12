@@ -425,7 +425,7 @@ Some formulas have multiple distinct models:
 
 ```bash
 # Run examples with constraints enabled
-model-checker subtheories/modal/examples.py --contingent --non-empty
+model-checker subtheories/modal/examples.py --contingent --non_empty
 
 # This explores different ways modal formulas can be satisfied
 ```

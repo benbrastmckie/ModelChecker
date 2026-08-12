@@ -95,13 +95,13 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
             '--non_null',
             '-n',
             action='store_true',
-            help='Require all propositions to have non-empty verifier sets'
+            help='Exclude the null state from verifying or falsifying any proposition'
         )
         model_group.add_argument(
             '--non_empty',
             '-e',
             action='store_true',
-            help='Require all propositions to have non-empty subject matter'
+            help='Require all propositions to have non-empty verifier and falsifier sets'
         )
         model_group.add_argument(
             '--disjoint',

@@ -141,7 +141,8 @@ For testing semantic constraints:
 | `test_<constraint>` | bool | Test specific constraint | False |
 | `derive_<property>` | bool | Derive property | False |
 | `contingent` | bool | Allow contingent propositions | True |
-| `non_empty` | bool | Require non-empty models | True |
+| `non_empty` | bool | Require non-empty verifier and falsifier sets | True |
+| `non_null` | bool | Exclude the null state from verifying or falsifying | True |
 
 ```python
 # Constraint testing configuration
@@ -150,7 +151,8 @@ CONSTRAINT_settings = {
     'test_frame_definability': True,
     'derive_imposition': True,
     'contingent': False,  # Only necessary propositions
-    'non_empty': True     # No empty models
+    'non_empty': True,    # Every proposition has a verifier and a falsifier
+    'non_null': True      # The null state neither verifies nor falsifies
 }
 ```
 
@@ -158,25 +160,32 @@ CONSTRAINT_settings = {
 
 Available command-line flags override settings in example files:
 
+Long flag names use underscores, not hyphens (`--non_empty`, not `--non-empty`); hyphenated
+spellings are rejected as unrecognized arguments.
+
 ```bash
 # Boolean constraint flags
 model-checker example.py --contingent    # -c: Make propositions contingent
 model-checker example.py --disjoint      # -d: Disjoint verifier/falsifier sets
-model-checker example.py --non-empty     # -e: Non-empty verifier/falsifier sets
-model-checker example.py --non-null      # -n: Exclude null state from models
+model-checker example.py --non_empty     # -e: Non-empty verifier/falsifier sets
+model-checker example.py --non_null      # -n: Exclude the null state from verifying or falsifying
 
 # Debug and output flags
-model-checker example.py --print-constraints  # -p: Show Z3 constraints
-model-checker example.py --print-z3          # -z: Show Z3 model details
-model-checker example.py --print-impossible  # -i: Show impossible states
+model-checker example.py --print_constraints  # -p: Show Z3 constraints
+model-checker example.py --print_z3          # -z: Show Z3 model details
+model-checker example.py --print_impossible  # -i: Show impossible states
 
 # Theory and comparison flags
 model-checker example.py --maximize          # -m: Compare theories with increasing N
-model-checker example.py --load-theory logos # -l: Load specific theory
+model-checker example.py --load_theory logos # -l: Load specific theory
+
+# Solver backend
+model-checker example.py --z3                # Use Z3 (default)
+model-checker example.py --cvc5              # Use cvc5 (requires pip install cvc5)
 
 # Output formatting
 model-checker example.py --save json         # -s: Save output format
-model-checker example.py --align-vertically  # -a: Vertical display format
+model-checker example.py --align_vertically  # -a: Vertical display format
 model-checker example.py --sequential        # -q: Sequential model saving
 ```
 
@@ -316,7 +325,7 @@ settings = {
 2. **Increase gradually**: Add complexity incrementally
 3. **Check theory docs**: Not all settings work with all theories
 4. **Use verbose mode**: Add `'verbose': True` for debugging
-5. **Test settings**: Run with `--print-constraints` to verify
+5. **Test settings**: Run with `--print_constraints` to verify
 
 ## See Also
 
