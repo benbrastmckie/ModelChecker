@@ -120,27 +120,13 @@ The inference is valid. No countermodel exists.
 
 ### Jupyter Notebook Format
 
-Interactive notebook for exploration and teaching:
-
-```bash
-# Generate Jupyter notebook
-model-checker examples/test.py --save notebook
-```
-
-**Notebook Features**:
-- Re-runnable code cells
+Notebook export is not currently reachable from the `model-checker` CLI: `--save`'s accepted
+values are `markdown` and `json` only (`ParseFileFlags._create_parser()`'s `--save` `choices`).
+The output package retains internal `notebook`-format plumbing (`output/constants.py`'s
+`FORMAT_NOTEBOOK`), but no CLI flag wires it up, so there is no `--save notebook` invocation to
+document here.
 
 **Architecture Reference**: For the complete Jupyter integration design, see [Jupyter Architecture](../architecture/JUPYTER.md).
-- Inline explanations and markdown
-- Interactive model exploration
-- Visualization capabilities
-
-**Generated Notebook Structure**:
-1. Setup and imports
-2. Theory configuration
-3. Example definitions
-4. Execution and results
-5. Analysis and exploration cells
 
 ## Saving Output
 
@@ -148,11 +134,9 @@ model-checker examples/test.py --save notebook
 
 ```bash
 # Core save options
---save                    # Interactive mode - prompts for format
 --save json              # Save as JSON
 --save markdown          # Save as Markdown
---save notebook          # Generate Jupyter notebook
---save                   # Save in all formats
+--save                   # Save in all formats (markdown and json)
 
 # Additional options available through example file settings
 # See SETTINGS.md for configuration options
@@ -251,8 +235,6 @@ output/                           # Default output directory
 │   │   ├── MODEL_2.json        # Second model
 │   │   └── countermodel.json   # Countermodel (if invalid)
 │   └── README.md                # Summary of all examples
-├── notebooks/                   # Generated notebooks
-│   └── [module]_notebook.ipynb # Interactive notebook
 └── reports/                     # Custom reports
     └── comparison_report.md    # Theory comparison results
 ```
@@ -282,7 +264,6 @@ Choose the appropriate format based on your use case:
 | Quick validation check | Terminal | `model-checker file.py` |
 | Automated testing | JSON | `--save json` |
 | Documentation | Markdown | `--save markdown` |
-| Interactive exploration | Notebook | `--save notebook` |
 | Complete archive | All | `--save` |
 | CI/CD pipeline | JSON | `--save json` |
 | Academic paper | Markdown + JSON | `--save markdown json` |
@@ -348,13 +329,11 @@ Key output components for counterfactual logic:
 
 ```bash
 # Generate comprehensive documentation
-model-checker theory_lib/logos/examples.py \
-    --save markdown \
-    --verbose \
-    --output-dir docs/validation/
+model-checker theory_lib/logos/examples.py --save markdown
 
-# Results in:
-# docs/validation/logos_examples/
+# Results in an auto-generated output_<timestamp>/ directory in the current
+# working directory -- there is no CLI flag to choose a different location:
+# output_20260101_120000/
 #   ├── EXT_TH_1/summary.md
 #   ├── MODAL_TH_1/summary.md
 #   └── README.md
@@ -369,28 +348,23 @@ model-checker theory_lib/logos/examples.py \
 OUTPUT_DIR="test_results/$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUTPUT_DIR"
 
-# Run tests and save JSON results
+# Run tests and save JSON results -- each run creates its own auto-generated
+# output_<timestamp>/ directory; move it into the collection directory afterward
+# since there is no CLI flag to choose the output location directly.
 for theory in logos exclusion imposition; do
-    model-checker "theory_lib/$theory/examples.py" \
-        --save json \
-        --output-dir "$OUTPUT_DIR/$theory" \
-        # No quiet flag needed
+    model-checker "theory_lib/$theory/examples.py" --save json
+    mv output_*/ "$OUTPUT_DIR/$theory"
 done
 
 # Generate summary report
 python analyze_results.py "$OUTPUT_DIR" > "$OUTPUT_DIR/summary.md"
 ```
 
-### Example 3: Interactive Workshop Materials
+### Example 3: Workshop Materials
 
 ```bash
-# Generate notebook for teaching
-model-checker examples/logic_basics.py \
-    --save notebook \
-    --output-dir workshop_materials/
-
-# Launch Jupyter
-jupyter notebook workshop_materials/notebooks/logic_basics_notebook.ipynb
+# Generate markdown handouts for teaching
+model-checker examples/logic_basics.py --save markdown
 ```
 
 ### Example 4: Debugging with Multiple Outputs
@@ -413,10 +387,10 @@ cat output/problematic_example/combined_output.md
 
 **Issue**: Output directory permission denied
 ```bash
-# Solution: Use a different directory or fix permissions
-model-checker file.py --save json --output-dir ~/Documents/results/
-# OR
-sudo chmod 755 output/
+# Solution: fix permissions on the current working directory, or run from a
+# writable directory -- there is no CLI flag to choose a different output
+# location.
+sudo chmod 755 .
 ```
 
 **Issue**: Large output files
@@ -434,19 +408,11 @@ model-checker file.py --save
 # OR use different example names to avoid conflicts
 ```
 
-**Issue**: Notebook generation fails
-```bash
-# Solution: Ensure Jupyter is installed
-pip install jupyter ipywidgets
-model-checker file.py --save notebook
-```
-
 ### Performance Tips
 
 1. **Use JSON for large datasets** - Most efficient format
 2. **Batch similar operations** - Process multiple files together
-3. **Disable terminal output when saving** - Use `--no-terminal`
-4. **Compress archived results** - Use `gzip` or `zip` for storage
+3. **Compress archived results** - Use `gzip` or `zip` for storage
 
 ## See Also
 

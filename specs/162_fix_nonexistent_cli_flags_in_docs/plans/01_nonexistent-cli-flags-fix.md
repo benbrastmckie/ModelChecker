@@ -258,28 +258,28 @@ observing zero remaining tokens for them.
 
 ---
 
-### Phase 4: Fix output and tools usage docs [NOT STARTED]
+### Phase 4: Fix output and tools usage docs [COMPLETED]
 
 **Goal**: Correct every fabricated flag and every fabricated `--save` value in the two owned
 usage docs, including the prose-only claims the guard cannot see.
 
 **Tasks**:
-- [ ] `docs/usage/OUTPUT.md`: remove `--output-dir` from every example; state instead that the
+- [x] `docs/usage/OUTPUT.md`: remove `--output-dir` from every example; state instead that the
       output directory is always the auto-generated `output_<timestamp>/`
       (`OutputManager.create_output_directory()` is called with no argument from
       `builder/module.py`, so no CLI-level override exists).
-- [ ] `docs/usage/OUTPUT.md`: remove `--verbose` from example command lines.
-- [ ] `docs/usage/OUTPUT.md`: remove `notebook` as a documented `--save` value throughout —
+- [x] `docs/usage/OUTPUT.md`: remove `--verbose` from example command lines.
+- [x] `docs/usage/OUTPUT.md`: remove `notebook` as a documented `--save` value throughout —
       `--save`'s `choices` are `['markdown', 'json']` only; note in a sentence that notebook
       export is not currently reachable from the CLI.
-- [ ] `docs/usage/OUTPUT.md`: resolve the bare-`--save` self-contradiction — delete the
+- [x] `docs/usage/OUTPUT.md`: resolve the bare-`--save` self-contradiction — delete the
       "Interactive mode - prompts for format" description (bare `--save` writes both formats, per
       `test_save_bare_produces_markdown_and_json`) and keep the accurate "Save in all formats".
-- [ ] `docs/usage/OUTPUT.md`: delete the `--no-terminal` bullet (prose-only; the guard will not
+- [x] `docs/usage/OUTPUT.md`: delete the `--no-terminal` bullet (prose-only; the guard will not
       catch it).
-- [ ] `docs/usage/TOOLS.md`: apply the Phase 3 subtheory rewrite to its `--subtheory`/`-st`
+- [x] `docs/usage/TOOLS.md`: apply the Phase 3 subtheory rewrite to its `--subtheory`/`-st`
       passage (this file is owned here, not by Phase 3).
-- [ ] `docs/usage/TOOLS.md`: remove `--verbose`; replace `--save all --output-dir comparisons/`
+- [x] `docs/usage/TOOLS.md`: remove `--verbose`; replace `--save all --output-dir comparisons/`
       with a valid invocation.
 
 **Timing**: 1 hour

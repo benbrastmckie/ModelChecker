@@ -194,28 +194,30 @@ LogosSemantics (Brast-McKie): TIMED OUT
 
 ### Project Creation with Subtheories
 
-For the logos theory, you can select specific subtheories when creating projects:
+`model-checker -l logos` always scaffolds the complete logos project (every subtheory's
+operators are copied in) -- there is no CLI flag that filters subtheories. To select specific
+subtheories in a Python session, use the `logos` API instead:
 
-```bash
-# Create project with specific subtheories (default loads all)
-model-checker -l logos --subtheory modal         # Modal logic only (+ dependencies)
-model-checker -l logos --subtheory counterfactual constitutive  # Multiple
-model-checker -l logos -st extensional           # Just extensional operators
+```python
+from model_checker.theory_lib import logos
+theory = logos.get_theory(subtheories=['modal'])                       # Modal logic only (+ dependencies)
+theory = logos.get_theory(subtheories=['counterfactual', 'constitutive'])  # Multiple
+theory = logos.get_theory(subtheories=['extensional'])                 # Just extensional operators
 ```
 
 ### Essential Debugging Flags
 
 ```bash
 # Show generated constraints
-model-checker examples.py --print-constraints
+model-checker examples.py --print_constraints
 model-checker examples.py -p  # Short form
 
 # Show Z3 solver details
-model-checker examples.py --print-z3
+model-checker examples.py --print_z3
 model-checker examples.py -z  # Short form
 
 # Show impossible states
-model-checker examples.py --print-impossible
+model-checker examples.py --print_impossible
 model-checker examples.py -i  # Short form
 
 # Combine all debug output
@@ -431,13 +433,10 @@ When comparing theories, save outputs for analysis:
 model-checker comparison_examples.py --save markdown
 
 # Save detailed JSON for programmatic analysis
-model-checker comparison_examples.py --save json --verbose
+model-checker comparison_examples.py --save json
 
-# Generate notebook for interactive exploration
-model-checker comparison_examples.py --save notebook
-
-# Save all formats for comprehensive documentation
-model-checker comparison_examples.py --save all --output-dir comparisons/
+# Save all formats for comprehensive documentation (markdown and json)
+model-checker comparison_examples.py --save
 ```
 
 The output will organize results by theory, making it easy to compare:
