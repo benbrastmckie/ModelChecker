@@ -352,27 +352,27 @@ lint on all three paths and grepping them for `verbose` and `--format`.
 
 ---
 
-### Phase 6: Rewrite settings/README.md flag documentation [NOT STARTED]
+### Phase 6: Rewrite settings/README.md flag documentation [COMPLETED]
 
 **Goal**: Bring `code/src/model_checker/settings/README.md` fully in line with the real parser —
 this file needs a whole-file pass, not just the named "Theory-Specific Flags" subsection.
 
 **Tasks**:
-- [ ] Delete or rewrite the "Theory-Specific Flags" subsection: `--coherence-check`,
+- [x] Delete or rewrite the "Theory-Specific Flags" subsection: `--coherence-check`,
       `--witness-optimization`, `--imposition-depth`, `--state-modification`, `--save-output`, and
       `-M`/`--M` were never real (verified by `git log --all -S` returning zero hits repo-wide).
-- [ ] Where the underlying setting genuinely exists, document it correctly as a settings-dict key
+- [x] Where the underlying setting genuinely exists, document it correctly as a settings-dict key
       rather than a CLI flag — `M` (bimodal `DEFAULT_EXAMPLE_SETTINGS`), `save_output`
       (`SemanticDefaults.DEFAULT_GENERAL_SETTINGS`), `derive_imposition` (imposition
       `ADDITIONAL_GENERAL_SETTINGS`) — matching the file's own already-correct "Theory-Specific
       Configuration" section.
-- [ ] Fix every hyphenated long-flag spelling in this file: `--print-z3`, `--print-constraints`,
+- [x] Fix every hyphenated long-flag spelling in this file: `--print-z3`, `--print-constraints`,
       `--print-impossible`, `--non-empty`, `--non-null`, `--align-vertically` become their
       underscore forms.
-- [ ] Remove `-N` from the `./dev_cli.py -N 4 ...` example — `N` is a settings-dict key with no
+- [x] Remove `-N` from the `./dev_cli.py -N 4 ...` example — `N` is a settings-dict key with no
       CLI equivalent at any spelling.
-- [ ] Remove `--max-time=10000` from the debug example — `max_time` is likewise settings-dict only.
-- [ ] Leave the "Implementing New Settings" Python illustrations (`--your-setting`,
+- [x] Remove `--max-time=10000` from the debug example — `max_time` is likewise settings-dict only.
+- [x] Leave the "Implementing New Settings" Python illustrations (`--your-setting`,
       `--complexity-level`) untouched; they are inside ` ```python ` blocks and are correctly
       framed as instructional, and Phase 1's block-language filter already excludes them.
 

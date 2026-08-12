@@ -28,7 +28,7 @@ Settings flow through a structured priority system:
 
 ```python
 # Priority order (highest to lowest)
-1. Command-line flags          # --print-z3, --contingent, etc.
+1. Command-line flags          # --print_z3, --contingent, etc.
 2. Example-specific settings   # settings={'N': 3, 'iterate': 2} in BuildExample
 3. User general preferences    # general_settings in configuration
 4. Theory-specific defaults    # DEFAULT_EXAMPLE_SETTINGS per theory
@@ -192,11 +192,11 @@ result = model.check_validity()
 
 ```bash
 # Flag overrides take highest priority
-./dev_cli.py -N 4 --contingent --print-z3 examples/modal.py
+./dev_cli.py --contingent --print_z3 examples/modal.py
 
 # Settings in example files are merged with flag overrides
 # Example file: settings = {'N': 3, 'max_time': 2000}
-# Final result: N=4 (from flag), max_time=2000 (from file), print_z3=True (from flag)
+# Final result: N=3 (from file, no CLI override exists), print_z3=True (from flag)
 ```
 
 ### Available Command-Line Flags
@@ -212,35 +212,39 @@ These settings must be configured in example files, not as CLI flags:
 **Semantic Constraints:**
 - `--contingent` - Make atomic propositions contingent
 - `--disjoint` - Require disjoint subject-matters
-- `--non-empty` - Require non-empty verifier/falsifier sets
-- `--non-null` - Prevent null states as verifiers/falsifiers
+- `--non_empty` - Require non-empty verifier/falsifier sets
+- `--non_null` - Prevent null states as verifiers/falsifiers
 
 **Model Iteration:**
 This setting must be configured in example files, not as CLI flags:
 - `iterate` (int) - Number of distinct models to find
 
-#### Theory-Specific Flags
+#### Theory-Specific Settings
+
+These theory-specific keys are settings-dict-only -- there is no CLI flag for them. Set them via
+`settings={...}` in your example file (or the `BuildExample` constructor):
 
 **Bimodal Theory:**
-- `-M <int>` or `--M <int>` - Number of time points for temporal dimension
-- `--align-vertically` - Display world histories vertically
-
-**Exclusion Theory:**
-- `--coherence-check` - Enable exclusion coherence validation
-- `--witness-optimization` - Optimize witness structure generation
+- `M` (int) - Number of time points for temporal dimension (`BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS`)
 
 **Imposition Theory:**
-- `--imposition-depth <int>` - Maximum depth for imposition operations
-- `--state-modification` - Allow state modification patterns
+- `derive_imposition` (bool) - Automatically derive imposition constraints
+  (`ImpositionSemantics.ADDITIONAL_GENERAL_SETTINGS`)
+
+One theory-specific setting does have a real CLI flag:
+- `--align_vertically` or `-a` - Display world histories vertically (bimodal's
+  `ADDITIONAL_GENERAL_SETTINGS['align_vertically']`, exposed as a genuine argparse flag)
 
 #### Output and Debugging Flags
 
-- `--print-impossible` - Show impossible states in output
-- `--print-constraints` or `-p` - Display Z3 constraints when no model found
-- `--print-z3` or `-z` - Show raw Z3 model or unsat core
-- `--save [formats]` - Save output to files (markdown, json, notebook)
-- `--save-output` - Save output to file
+- `--print_impossible` - Show impossible states in output
+- `--print_constraints` or `-p` - Display Z3 constraints when no model found
+- `--print_z3` or `-z` - Show raw Z3 model or unsat core
+- `--save [formats]` - Save output to files (markdown, json)
 - `--maximize` - Compare theories by maximizing model size
+
+`save_output` (`SemanticDefaults.DEFAULT_GENERAL_SETTINGS`) is settings-dict-only, not a CLI
+flag; use `--save` to save non-interactively from the command line instead.
 
 #### Solver Backend Selection
 
@@ -255,17 +259,17 @@ For detailed information about solver backends, capabilities, and configuration,
 
 ```bash
 # Basic constraint configuration
-model-checker --contingent --non-null examples/test.py
+model-checker --contingent --non_null examples/test.py
 
 # Multiple flags with short and long forms
-model-checker -p -z --contingent --non-empty examples/complex.py
+model-checker -p -z --contingent --non_empty examples/complex.py
 
-# Theory-specific configuration
-model-checker --M 4 --align-vertically examples/bimodal_test.py
-model-checker --coherence-check --witness-optimization examples/exclusion_test.py
+# Theory-specific configuration -- --align_vertically is a real CLI flag; M is
+# settings-dict only (settings={'M': 4} in your example file, no CLI equivalent)
+model-checker --align_vertically examples/bimodal_test.py
 
-# Full debugging output
-model-checker --print-z3 --print-constraints --print-impossible --max-time=10000 examples/debug.py
+# Full debugging output -- max_time is settings-dict only, no CLI equivalent
+model-checker --print_z3 --print_constraints --print_impossible examples/debug.py
 ```
 
 ### Multi-Theory Comparison
@@ -360,16 +364,13 @@ Available to theories that support them:
 ### Theory-Specific Settings
 
 **Bimodal Theory**:
-- `M` (integer): Number of time points for temporal dimension
-- `align_vertically` (boolean): Display world histories vertically
-
-**Exclusion Theory**:
-- `coherence_check` (boolean): Enable exclusion coherence validation
-- `witness_optimization` (boolean): Optimize witness structure generation
+- `M` (integer): Number of time points for temporal dimension -- settings-dict only, no CLI flag
+- `align_vertically` (boolean): Display world histories vertically -- also a real CLI flag,
+  `--align_vertically`/`-a`
 
 **Imposition Theory**:
-- `imposition_depth` (integer): Maximum depth for imposition operations
-- `state_modification` (boolean): Allow state modification patterns
+- `derive_imposition` (boolean): Automatically derive imposition constraints -- settings-dict
+  only, no CLI flag
 
 ### General Settings (Output and Debugging)
 
