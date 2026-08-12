@@ -1,0 +1,44 @@
+{
+  "phase": 3,
+  "phase_name": "Author the general CI workflow",
+  "started_at": "2026-08-12T09:07:00Z",
+  "last_updated": "2026-08-12T09:35:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Create .github/workflows/tests.yml with general-tests and flake-check jobs plus rationale comments",
+      "status": "done",
+      "files_touched": [".github/workflows/tests.yml"]
+    },
+    {
+      "id": 2,
+      "description": "Add typing-extensions to workflow pip install list to fix same undeclared dependency found in Phase 2",
+      "status": "done",
+      "files_touched": [".github/workflows/tests.yml"]
+    },
+    {
+      "id": 3,
+      "description": "Verify YAML validity, actionlint availability, exact selector equivalence, no -n auto, no push",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": 3,
+  "approaches_tried": [
+    {
+      "approach": "Run exact selectors against a fresh venv matching the workflow's original pip install list",
+      "result": "failed",
+      "reason": "ModuleNotFoundError: typing_extensions -- same undeclared dependency discovered in Phase 2"
+    }
+  ],
+  "deviations": [
+    {
+      "task_id": "3.additive",
+      "description": "Add typing-extensions to the workflow's pip install step (not in original plan task list)",
+      "type": "altered",
+      "reason": "Selector verification against a venv matching the exact planned pip install list reproduced the same ModuleNotFoundError found in Phase 2; fixing the workflow's own dependency list mirrors the flake.nix fix, not a weakening of any assertion.",
+      "annotation": "*(deviation: altered — added typing-extensions to the workflow pip install list)*"
+    }
+  ],
+  "handoff_count": 0
+}

@@ -1,0 +1,91 @@
+name: Tests
+
+# Push/PR-triggered general regression gate. Runs code/tests/ and the in-package
+# code/src/model_checker suite (PyPI z3-solver toolchain), plus a companion `nix flake check`
+# job (nixpkgs-native z3 toolchain). This workflow is deliberately narrower in scope than
+# code/tests/packaging/ (see .github/workflows/packaging.yml, which already covers that suite
+# serially on every push/PR) and narrower in matrix than release.yml (see rationale below).
+on:
+  push:
+  pull_request:
+
+jobs:
+  general-tests:
+    name: General Suite / Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install test dependencies
+        run: |
+          # typing-extensions: code/src/model_checker/theory_lib/logos/protocols.py imports
+          # `from typing_extensions import runtime_checkable` at module level, but
+          # typing_extensions is not declared in code/pyproject.toml's dependencies -- a
+          # pre-existing undeclared-dependency gap in the package itself, out of scope to fix
+          # here. Without it explicitly installed, test collection fails with a hard
+          # ModuleNotFoundError rather than a skip (same class of gap as flake.nix's devPython
+          # needing it, see flake.nix's own comment for that entry).
+          pip install z3-solver networkx pytest pytest-xdist pytest-timeout ipywidgets matplotlib typing-extensions
+
+      - name: Run general test suite
+        working-directory: code
+        env:
+          PYTHONPATH: src
+        run: |
+          # -m "not packaging": code/tests/packaging/ builds a fresh wheel+sdist per session via
+          # a session-scoped fixture in code/tests/packaging/conftest.py. Running it under xdist
+          # parallelism is unsafe -- reproduced 86 spurious build-race errors (AssertionError:
+          # build failed, "Backend subprocess exited when trying to invoke build_sdist") when
+          # multiple workers built against the same source tree concurrently. That suite is
+          # already covered serially, on every push/PR, by .github/workflows/packaging.yml and by
+          # release.yml's build job -- do not remove this filter to "widen coverage"; it would
+          # duplicate existing coverage and reintroduce the build race.
+          #
+          # -n 6, never xdist's auto worker-count mode: the theory_lib/bimodal suite has a
+          # documented CPU-contention flake under that mode
+          # (test_bimodal.py::test_example_cases[BM_CM_1-example_case7]).
+          # -n 6 is the value flake.nix's checks.default also uses, and this job deliberately does
+          # NOT exclude bimodal even though `nix flake check` (see the flake-check job below) also
+          # covers it: this job exercises the PyPI z3-solver wheel users actually install, while
+          # the flake check exercises the nixpkgs-packaged Z3/Python toolchain -- deliberate
+          # cross-toolchain coverage of the same tests, not redundant duplication.
+          pytest tests/ src/model_checker -m "not packaging" -n 6 -q
+
+  flake-check:
+    name: nix flake check
+    runs-on: ubuntu-latest
+    # Estimate only, not yet observed on a cold GitHub Actions runner: a warm-cache local run of
+    # `nix flake check` on this repo takes ~2.5 min (measured, see
+    # specs/150_add_general_ci_workflow_and_flake_check_gate/reports/01_ci-workflow-and-flake-gate.md).
+    # A cold runner additionally pays for fetching/building the nixpkgs python312 + z3-solver +
+    # networkx + pytest closures, which is unbounded until observed -- hence the generous timeout.
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Cache Nix store
+        uses: DeterminateSystems/magic-nix-cache-action@v7
+
+      - name: Run nix flake check
+        run: nix flake check

@@ -256,23 +256,25 @@ passed / 254 skipped (plus bimodal's ~302), report the delta rather than roundin
 
 ---
 
-### Phase 3: Author the general CI workflow [NOT STARTED]
+### Phase 3: Author the general CI workflow [COMPLETED]
 
 **Goal**: Create `.github/workflows/tests.yml` with a push/PR-triggered general test job and a
 `nix flake check` job, and verify locally that its exact selectors are green and its YAML is valid.
 
 **Tasks**:
-- [ ] Create `.github/workflows/tests.yml` with `on: [push, pull_request]` (unfiltered, matching
-      `packaging.yml`'s trigger shape).
-- [ ] Job A (`general-tests`): `runs-on: ubuntu-latest`, `strategy.matrix.python-version:
+- [x] Create `.github/workflows/tests.yml` with `on: [push, pull_request]` (unfiltered, matching
+      `packaging.yml`'s trigger shape). *(completed)*
+- [x] Job A (`general-tests`): `runs-on: ubuntu-latest`, `strategy.matrix.python-version:
       ['3.10', '3.11', '3.12']`, `fail-fast: false`. Steps: checkout, `actions/setup-python@v5`
       with `cache: 'pip'`, install deps (`z3-solver networkx pytest pytest-xdist pytest-timeout
       ipywidgets matplotlib`), then run the suite from `code/` with `-m "not packaging" -n 6`.
-      Set a generous `timeout-minutes` (15-20).
-- [ ] Job B (`flake-check`): `runs-on: ubuntu-latest`, no matrix (the flake pins its own Python).
+      Set a generous `timeout-minutes` (15-20). *(completed: 20; also added `typing-extensions`
+      to the install list, see Deviation note below)*
+- [x] Job B (`flake-check`): `runs-on: ubuntu-latest`, no matrix (the flake pins its own Python).
       Steps: checkout, a Nix installer action, a Nix store cache action, then `nix flake check`.
-      `timeout-minutes: 30`.
-- [ ] Write the rationale comments in the file itself:
+      `timeout-minutes: 30`. *(completed: `cachix/install-nix-action@v27` +
+      `DeterminateSystems/magic-nix-cache-action@v7`)*
+- [x] Write the rationale comments in the file itself:
       - Why `-m "not packaging"`: those tests build wheels/sdists and race under xdist (86 spurious
         errors reproduced); they are already covered serially by `.github/workflows/packaging.yml`
         and by the release pipeline's build job. Do not remove this filter.
@@ -286,9 +288,16 @@ passed / 254 skipped (plus bimodal's ~302), report the delta rather than roundin
         not duplication.
       - That the Nix job's timeout is an estimate from a 2m32s warm-cache local run and has not been
         observed on a cold runner.
-- [ ] **No task-number citations anywhere in this file** — cite paths, marker names, and workflow
-      filenames.
-- [ ] **Do not push a branch and do not open a PR.** Commit locally only.
+      *(completed — all five points present in the file's own comments)*
+- [x] **No task-number citations anywhere in this file** — cite paths, marker names, and workflow
+      filenames. *(completed)*
+- [x] **Do not push a branch and do not open a PR.** Commit locally only. *(completed)*
+
+**Deviation (not a fallback, an additive fix)**: the initial selector run against a freshly
+provisioned venv matching the workflow's exact `pip install` list reproduced the identical
+`ModuleNotFoundError: No module named 'typing_extensions'` discovered in Phase 2. Added
+`typing-extensions` to the workflow's `pip install` step (same undeclared-dependency root cause,
+same fix class — not a weakened assertion or narrowed selector).
 
 **Timing**: 1.25 hours
 
@@ -303,18 +312,29 @@ retyping — and report the observed counts. Treat any nonzero failure count as 
 this phase, not as a workflow-authoring detail to be resolved later in CI.
 
 **Verification**:
-- YAML parses: `python -c "import yaml; yaml.safe_load(open('.github/workflows/tests.yml')); print('ok')"`.
+- YAML parses: `python -c "import yaml; yaml.safe_load(open('.github/workflows/tests.yml')); print('ok')"`
+  — `ok`. *(passed)*
 - Lint if available: `command -v actionlint && actionlint .github/workflows/tests.yml`; if
   `actionlint` is absent, state that explicitly in the phase notes rather than omitting the step.
-- Selector equivalence, run from the repo root with `PYTHONPATH=code/src` (add
-  `LD_LIBRARY_PATH="$(nix eval --raw nixpkgs#stdenv.cc.cc.lib)/lib"` on this NixOS host if a
-  pip-installed `z3-solver` cannot resolve `libstdc++.so.6`):
-  - `pytest code/tests/ -m "not packaging" -n 6 -q` — expect ~468-4 skipped, 0 failed.
-  - `pytest code/src/model_checker -m "not packaging" -n 6 -q` — expect ~1900+ passed, 0 failed
-    (bimodal included; several minutes).
+  **`actionlint` is not present on PATH on this host — stated explicitly, step skipped rather than
+  silently omitted**, per the local-only verification contract.
+- Selector equivalence, run from `code/` with `PYTHONPATH=src` and
+  `LD_LIBRARY_PATH="$(nix eval --raw nixpkgs#stdenv.cc.cc.lib)/lib"` (needed on this NixOS host for
+  a pip-installed `z3-solver` to resolve `libstdc++.so.6`), against a venv provisioned with the
+  workflow's *exact* `pip install` line:
+  - `pytest tests/ -m "not packaging" -n 6 -q` — **354 passed, 0 failed, 0 errors, 16.6s**. (The
+    plan's "~468-4 skipped" estimate was for the *unfiltered* `code/tests/` tree, which includes
+    the ~108+ packaging-marked tests this selector excludes entirely; 354 is consistent with that
+    delta, not a regression — reported per the Scope Hypothesis's "report the delta" instruction.)
+  - `pytest src/model_checker -m "not packaging" -n 6 -q` — **1648 passed, 254 skipped, 0 failed, 0
+    errors, 102.5s** (bimodal included). 1648 + 354 = 2002, exactly matching Phase 2's `nix flake
+    check` total (`src/model_checker tests -m "not packaging" -n 6` inside the sandbox), a strong
+    cross-check that both selectors are internally consistent.
 - No `-n auto` anywhere in the file: `grep -n "n auto" .github/workflows/tests.yml` returns nothing.
-- No push occurred: `git log origin/master..HEAD --oneline` shows the new commits are local only,
-  and `git reflog | grep -i push` shows no push from this session.
+  *(passed, after rewording one comment that originally contained the literal substring)*
+- No push occurred: `git log origin/master..HEAD --oneline` shows the new commits are local only
+  (a long pre-existing list of unpushed local commits, unrelated to this task), and
+  `git reflog | grep -i push` shows no push from this session. *(passed)*
 
 **Files to modify**:
 - `.github/workflows/tests.yml` — new file.
