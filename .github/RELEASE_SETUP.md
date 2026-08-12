@@ -159,14 +159,13 @@ from nixpkgs at all, and pinning with exact `==` versions keeps the evidence com
 releases instead of drifting with whatever happens to be latest on a given day. See the header of
 `code/scripts/release-tools-requirements.txt` for the full rationale and re-pinning procedure.
 
-**Evidence files** (12 total, written to `--out DIR`):
+**Evidence files** (11 total, written to `--out DIR`):
 
 | File | Contents |
 |------|----------|
 | `build.log` | `python -m build` stdout/stderr plus a `code/dist/` directory listing |
 | `twine-check.txt` | `twine check --strict code/dist/*` output |
-| `wheel-contents.txt` | bare `check-wheel-contents` output (W002 expected — see below) |
-| `wheel-contents-ignore-w002.txt` | `check-wheel-contents --ignore W002` output |
+| `wheel-contents.txt` | bare `check-wheel-contents` output (hard gate — see below) |
 | `pip-download-<REF>.log` | `pip download --no-deps model-checker==<REF>` output |
 | `new-wheel-files.txt` | sorted full file listing of the freshly built wheel |
 | `ref-<REF>-wheel-files.txt` | sorted full file listing of the reference wheel |
@@ -177,12 +176,11 @@ releases instead of drifting with whatever happens to be latest on a given day. 
 | `summary.txt` | per-step status ledger: name, gate/informational classification, exit code |
 
 **Reading guide — hard gates vs. informational steps**: provisioning, `python -m build`,
-`twine check --strict`, and `check-wheel-contents --ignore W002` are **hard gates** — any one
-failing is a real problem. The bare `check-wheel-contents` run and the parity diff are
-**informational** — a nonzero exit or a nonempty diff there does not, by itself, mean anything is
-wrong; a human reads them for context. The parity diff in particular is evidentiary only: it is
-never read as a pass/fail gate, and byte-identity against the prior release is not expected or
-required.
+`twine check --strict`, and bare `check-wheel-contents` are **hard gates** — any one failing is a
+real problem. The parity diff is **informational** — a nonempty diff there does not, by itself,
+mean anything is wrong; a human reads it for context. The parity diff in particular is
+evidentiary only: it is never read as a pass/fail gate, and byte-identity against the prior
+release is not expected or required.
 
 **Exit-code contract**:
 
@@ -192,18 +190,19 @@ required.
 | `1` | a hard gate failed |
 | `2` | a required step (provisioning or the reference download) could not run at all — the evidence set is **incomplete** and must not be read as a pass |
 
-**Reading a nonzero bare `check-wheel-contents` exit**: this is **expected** on the current tree.
-It reports `W002: Wheel contains duplicate files` for the four identical
-`theory_lib/{bimodal,exclusion,imposition,logos}/VERSION` files. Deduplicating those files is
-tracked as a separate, later change; a nonzero exit here does **not** mean the toolchain is
-broken. Read `wheel-contents-ignore-w002.txt` (the hard-gated companion run) to see whether
-anything **new**, beyond the known W002, has appeared.
+**Reading a nonzero bare `check-wheel-contents` exit**: this is **not expected** on the current
+tree. The four identical `theory_lib/{bimodal,exclusion,imposition,logos}/VERSION` files that
+previously triggered `W002: Wheel contains duplicate files` have been removed — each theory's
+version now derives solely from its `__init__.py`'s `__version__`. A nonzero exit here means the
+hard gate failed and should be investigated like any other gate failure; there is no longer a
+known, expected finding to filter out.
 
 **Historical context only**: `specs/archive/125_release_engineering_and_pypi_rehearsal/rehearsal/`
 holds the evidence from the one-off manual rehearsal that this runner automates. Its
 `check-wheel-contents` result and sha256sums no longer reproduce against the current tree (the
-tree has since grown the W002-triggering duplicate `VERSION` files and been rebuilt many times
-over) — treat it as a historical worked example, never as current, reviewable evidence.
+tree has since lost the `VERSION`-file duplication that once triggered `W002`, and been rebuilt
+many times over since) — treat it as a historical worked example, never as current, reviewable
+evidence.
 
 ### Test Release Workflow (Dry Run on GitHub)
 

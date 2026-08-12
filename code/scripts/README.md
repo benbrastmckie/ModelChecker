@@ -99,10 +99,10 @@ Portable, pinned local rehearsal of the PyPI release pipeline's build/check step
 credentials or network publish calls. Provisions a pinned toolchain (`build`, `twine`,
 `check-wheel-contents`, via `release-tools-requirements.txt`) into a venv created inside a single
 `nix develop` invocation, so `flake.nix` is never touched. Runs `python -m build`,
-`twine check --strict`, `check-wheel-contents` (bare and with `--ignore W002`), a `pip download`
-of the last published release, wheel-content parity diffs, sha256 hashes, and a generated
-`parity-diff.md` report. See `.github/RELEASE_SETUP.md`'s "Local Rehearsal (No Publish)" section
-for the full evidence-file table, the exit-code contract, and the W002 reading guide.
+`twine check --strict`, bare `check-wheel-contents`, a `pip download` of the last published
+release, wheel-content parity diffs, sha256 hashes, and a generated `parity-diff.md` report. See
+`.github/RELEASE_SETUP.md`'s "Local Rehearsal (No Publish)" section for the full evidence-file
+table and the exit-code contract.
 
 ### Usage
 
@@ -120,9 +120,9 @@ bash code/scripts/release-verify.sh [--ref VERSION] [--out DIR] [--help]
 
 ### Output Files
 
-12 files written to `--out DIR`: `build.log`, `twine-check.txt`, `wheel-contents.txt`,
-`wheel-contents-ignore-w002.txt`, `pip-download-<REF>.log`, `new-wheel-files.txt`,
-`ref-<REF>-wheel-files.txt`, `wheel-files-diff.txt`, `top-level-dir-diff.txt`,
-`sha256sums.txt`, `parity-diff.md`, and `summary.txt` (a per-step status ledger). See
-`.github/RELEASE_SETUP.md` for what each file contains and how to read it.
+11 files written to `--out DIR`: `build.log`, `twine-check.txt`, `wheel-contents.txt`,
+`pip-download-<REF>.log`, `new-wheel-files.txt`, `ref-<REF>-wheel-files.txt`,
+`wheel-files-diff.txt`, `top-level-dir-diff.txt`, `sha256sums.txt`, `parity-diff.md`, and
+`summary.txt` (a per-step status ledger). See `.github/RELEASE_SETUP.md` for what each file
+contains and how to read it.
 

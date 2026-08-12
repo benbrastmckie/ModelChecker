@@ -184,7 +184,17 @@ comment, the `print_help` evidence list, and `generate_parity_diff`'s Evidence F
 
 ---
 
-### Phase 2: Correct the release documentation to match the new gate contract [NOT STARTED]
+### Phase 2: Correct the release documentation to match the new gate contract [COMPLETED]
+
+**Scope confirmation**: `grep -rn 'W002' --include='*.md' . | grep -v '^./specs/'` found exactly
+two live files carrying stale framing (`.github/RELEASE_SETUP.md`, `code/scripts/README.md`),
+matching the Scope Hypothesis exactly; no third file was found. `code/scripts/README.md` was
+deliberately corrected even though it sits outside this task's recorded `file_scope`, because it
+carried the same stale "bare and with `--ignore W002`" framing and would otherwise immediately
+contradict the runner Phase 1 corrected. After the edits, the same grep returns exactly three
+hits, all deliberate historical references: two in `.github/RELEASE_SETUP.md`'s "Reading a
+nonzero..." and "Historical context only" paragraphs, and one in `code/CHANGELOG.md`'s new
+Packaging section (Phase 3).
 
 **Goal**: Every document describing the rehearsal states the current contract — bare
 `check-wheel-contents` is the hard gate, the duplicate `VERSION` files are gone — with the
