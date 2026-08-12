@@ -1,0 +1,6 @@
+dist/model_checker-1.3.0-py3-none-any.whl: W002: Wheel contains duplicate files:
+  model_checker/theory_lib/bimodal/VERSION
+  model_checker/theory_lib/exclusion/VERSION
+  model_checker/theory_lib/imposition/VERSION
+  model_checker/theory_lib/logos/VERSION
+exit_code=1

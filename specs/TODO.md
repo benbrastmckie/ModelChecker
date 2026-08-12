@@ -21,7 +21,7 @@ next_project_number: 158
 
 156 [IMPLEMENTING] — Turn the release verification named in .github/RELEASE_SETUP.md i
   └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
-157 [PLANNED] — Deduplicate the four identical theory_lib VERSION files to clear 
+157 [IMPLEMENTING] — Deduplicate the four identical theory_lib VERSION files to clear 
   └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t (see above)
 
 ### Semantics
@@ -33,7 +33,7 @@ next_project_number: 158
 ## Tasks
 
 ### 157. Dedupe theory lib version files w002
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 155

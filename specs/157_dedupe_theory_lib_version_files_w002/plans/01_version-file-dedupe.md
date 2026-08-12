@@ -1,7 +1,7 @@
 # Implementation Plan: Task #157
 
 - **Task**: 157 - Deduplicate the four theory_lib VERSION files to clear check-wheel-contents W002
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 4 hours
 - **Dependencies**: 155 (completed)
 - **Research Inputs**: `specs/157_dedupe_theory_lib_version_files_w002/reports/01_version-file-dedupe.md`
@@ -183,7 +183,7 @@ remedy (b).
 
 ---
 
-### Phase 1: Record baseline and widen file_scope [NOT STARTED]
+### Phase 1: Record baseline and widen file_scope [COMPLETED]
 
 **Goal**: Capture the pre-change evidence and legitimize the out-of-scope edits before making any.
 
