@@ -150,6 +150,19 @@ wheel and sdist into a temp directory and exposes their member-path listings, wi
       the session-scoped `built_artifacts`-derived fixture a second time and confirms cwd/sys.path
       are unchanged from the autouse `test_isolation` snapshot.
 
+**Post-hoc defect found and fixed** (surfaced by the Testing & Validation deliberate-drift smoke
+check, after Phase 6): `python -m build --no-isolation` invokes setuptools' legacy `setup.py`
+commands *in place* against `code/`, and `build_py`/`egg_info` are incremental by default --
+`--outdir` only redirects the final artifact location, not the intermediate `code/build/` and
+`src/model_checker.egg-info/` caches. A pre-existing stale `code/build/` (dated months prior, from
+an earlier manual build) caused the "fresh" build to silently ship already-copied `docs/*.md`
+files even after they were removed from `pyproject.toml`'s package-data list in the smoke check --
+a false pass, exactly the failure mode Risks & Mitigations names for the parity assertion.
+`built_artifacts` now clears `code/build/` and `src/model_checker.egg-info/` (never `code/dist/`)
+immediately before and after every session build. Re-running the deliberate-drift smoke check
+with the fix in place correctly turned 40 assertions red on the same edit, confirming the suite
+now genuinely detects drift; the edit was then reverted and the full suite re-confirmed green.
+
 **Timing**: 1.5 hours
 
 **Depends on**: none
@@ -427,19 +440,33 @@ held to the minimum that satisfies it.
 
 ## Testing & Validation
 
-- [ ] `cd code && PYTHONPATH=src pytest tests/packaging/ -v -m packaging` — full packaging suite
-      green.
-- [ ] `cd code && PYTHONPATH=src pytest tests/ -m "not packaging" -q` — existing top-level suite
-      unaffected by the marker addition, and the packaging tests are genuinely deselectable.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` — full top-level suite green.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/ -q` — in-package suite green.
-- [ ] Confirm no test reads `code/dist/` or `code/build/`:
-      `grep -rn "dist/\|build/" code/tests/packaging/` returns only `--outdir` temp-dir usage.
-- [ ] Confirm the working tree is clean of build byproducts after a full run
-      (`git status --short` shows no new untracked artifacts inside the repo).
-- [ ] Deliberate-drift smoke check: temporarily remove one `docs/*.md` entry from
+- [x] `cd code && PYTHONPATH=src pytest tests/packaging/ -v -m packaging` — full packaging suite
+      green (104 passed, 4 conditional notebook skips for bimodal/logos, which have no on-disk
+      `notebooks/` directory).
+- [x] `cd code && PYTHONPATH=src pytest tests/ -m "not packaging" -q` — existing top-level suite
+      unaffected by the marker addition, and the packaging tests are genuinely deselectable
+      (293 passed, 108 deselected).
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` — full top-level suite green **except one
+      pre-existing, unrelated failure**: `code/tests/unit/test_main_cli.py::test_sequential_flag_exits_cleanly_without_traceback`.
+      That file and `code/src/model_checker/__main__.py` are concurrently modified, uncommitted
+      work from another in-flight task (outside this task's `file_scope`, which is
+      `code/pyproject.toml`/`code/MANIFEST.in`/`code/tests/packaging/`) — not introduced by
+      this plan.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/ -q` — in-package suite green (1912
+      passed).
+- [x] Confirm no test reads `code/dist/` or `code/build/`:
+      `grep -rn "dist/\|build/" code/tests/packaging/` returns only doc-comment mentions plus
+      `--outdir` temp-dir usage (no read of either path).
+- [x] Confirm the working tree is clean of build byproducts after a full run
+      (`git status --short` shows no new untracked artifacts inside the repo; `code/build/` and
+      `src/model_checker.egg-info/` are actively cleared by the fixture, see Phase 1's post-hoc
+      defect note).
+- [x] Deliberate-drift smoke check: temporarily remove one `docs/*.md` entry from
       `pyproject.toml`'s package-data list, rebuild, confirm Phase 3 or Phase 4 goes red, then
-      revert. This proves the suite actually detects drift rather than trivially passing.
+      revert. **First attempt false-passed** due to the stale-build-cache defect described in
+      Phase 1; after fixing `built_artifacts` to clear `code/build/`/`egg-info` before building,
+      the same edit correctly turned 40 `test_inclusions.py` assertions red, proving the suite
+      genuinely detects drift. Reverted and reconfirmed green (104 passed, 4 skipped).
 
 ## Artifacts & Outputs
 
