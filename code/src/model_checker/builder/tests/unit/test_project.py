@@ -365,5 +365,80 @@ class TestBuildProjectEdgeCases(unittest.TestCase):
                           "All projects should still exist after creating others")
 
 
+class TestBuildProjectManifestFilterPycache(unittest.TestCase):
+    """Test that __pycache__/*.pyc are silently excluded from the manifest-filter
+    warning loop, while genuinely unexpected items still warn."""
+
+    def setUp(self):
+        """Set up a synthetic, contract-conforming theory source tree under tmp_path-style
+        tempfile, plus a real BuildProject instance pointed at it."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.addCleanup(lambda: self._cleanup_temp_dir())
+
+        from model_checker.builder.project import (
+            REQUIRED_COPY_ITEMS, SEMANTIC_ALTERNATIVES,
+        )
+
+        self.source_dir = os.path.join(self.temp_dir, 'synthetic_theory')
+        os.makedirs(self.source_dir)
+
+        # Populate every required item plus one semantic alternative, minimally.
+        for item in REQUIRED_COPY_ITEMS:
+            item_path = os.path.join(self.source_dir, item)
+            if item in ('tests', 'docs'):
+                os.makedirs(item_path, exist_ok=True)
+            else:
+                with open(item_path, 'w') as f:
+                    f.write("# synthetic\n")
+        semantic_dir = os.path.join(self.source_dir, SEMANTIC_ALTERNATIVES[0])
+        os.makedirs(semantic_dir, exist_ok=True)
+
+        self.builder = BuildProject('logos')
+        self.builder.source_dir = self.source_dir
+
+        self.dest_dir = os.path.join(self.temp_dir, 'dest_project')
+        os.makedirs(self.dest_dir)
+
+    def _cleanup_temp_dir(self):
+        """Clean up temporary directory with proper permissions."""
+        if os.path.exists(self.temp_dir):
+            for root, dirs, files in os.walk(self.temp_dir):
+                for d in dirs:
+                    os.chmod(os.path.join(root, d), stat.S_IRWXU)
+                for f in files:
+                    os.chmod(os.path.join(root, f), stat.S_IRUSR | stat.S_IWUSR)
+            shutil.rmtree(self.temp_dir)
+
+    def test_pycache_produces_no_warning(self):
+        """A __pycache__ directory alongside manifest items produces no
+        'Skipped non-manifest item' warning."""
+        pycache_dir = os.path.join(self.source_dir, '__pycache__')
+        os.makedirs(pycache_dir, exist_ok=True)
+        with open(os.path.join(pycache_dir, 'module.cpython-313.pyc'), 'w') as f:
+            f.write("")
+
+        self.builder._copy_files(self.dest_dir)
+
+        pycache_warnings = [
+            msg for msg in self.builder.log_messages
+            if 'Skipped non-manifest item: __pycache__' in msg
+        ]
+        self.assertEqual(pycache_warnings, [])
+
+    def test_stray_unknown_item_still_warns(self):
+        """A stray item not on the copy manifest still produces a WARNING."""
+        with open(os.path.join(self.source_dir, 'stray_file.tmp'), 'w') as f:
+            f.write("")
+
+        self.builder._copy_files(self.dest_dir)
+
+        stray_warnings = [
+            msg for msg in self.builder.log_messages
+            if 'Skipped non-manifest item: stray_file.tmp' in msg
+        ]
+        self.assertEqual(len(stray_warnings), 1)
+        self.assertIn('WARNING', stray_warnings[0])
+
+
 if __name__ == "__main__":
     unittest.main()

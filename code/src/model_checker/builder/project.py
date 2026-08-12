@@ -241,7 +241,14 @@ class BuildProject:
                 f"Source theory directory not found: {self.source_dir}"
             )
 
-        available = set(os.listdir(self.source_dir))
+        # Filter out build/cache artifacts (__pycache__, .ipynb_checkpoints, *.pyc) immediately
+        # so every downstream consumer of `available` -- not just the manifest-filter warning
+        # loop below -- is covered. These are never meaningful theory content, so they should
+        # never surface as "Skipped non-manifest item" warnings.
+        available = {
+            item for item in os.listdir(self.source_dir)
+            if item not in COPY_IGNORE_PATTERNS and not item.endswith('.pyc')
+        }
 
         # Resolve which semantic implementation form(s) are present. At least one is required;
         # both `semantic.py` and `semantic/` may legitimately coexist (see SEMANTIC_ALTERNATIVES
