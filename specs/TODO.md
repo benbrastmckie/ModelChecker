@@ -12,16 +12,17 @@ next_project_number: 158
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 152,156,157 | -- | packaging, semantics |
-| 2 | 151,153 | 152,156 | packaging, semantics |
+| 2 | 151,153 | 152,156,157 | packaging, semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Packaging
 
-156 [RESEARCHED] — Turn the release verification named in .github/RELEASE_SETUP.md i
+156 [PLANNED] — Turn the release verification named in .github/RELEASE_SETUP.md i
   └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
-157 [NOT STARTED] — Deduplicate the four identical theory_lib VERSION files to clear 
+157 [RESEARCHING] — Deduplicate the four identical theory_lib VERSION files to clear 
+  └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t (see above)
 
 ### Semantics
 
@@ -32,7 +33,7 @@ next_project_number: 158
 ## Tasks
 
 ### 157. Dedupe theory lib version files w002
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 155
@@ -50,11 +51,12 @@ VERIFY BY REBUILDING. The evidence is a fresh `python -m build` plus check-wheel
 ---
 
 ### 156. Portable pinned release verification runner
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
 - **Research**: [156_portable_pinned_release_verification_runner/reports/01_portable-release-verification.md]
+- **Plan**: [156_portable_pinned_release_verification_runner/plans/01_release-verify-runner.md]
 
 **Description**: Turn the release verification named in .github/RELEASE_SETUP.md into a repeatable, pinned, portable runner -- and document it. THIS IS DELIBERATELY NOT A DOCUMENTATION-ONLY TASK. The deliverable is an executable script plus a pinned tool manifest plus the checklist prose that drives them. Prose alone would not close the actual defect, which is that the documented verification sequence is reproducible today only on one developer's machine.
 
@@ -216,7 +218,7 @@ NON-GOALS. No change to `core.py`, `operators.py`, or `examples.py`. This task e
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: packaging
-- **Dependencies**: Task 147, Task 149, Task 150, Task 156
+- **Dependencies**: Task 147, Task 149, Task 150, Task 156, Task 157
 
 **Description**: Re-run the release rehearsal against the post-refactor tree and take the release to PyPI. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 1, 3, 17). This is the terminal task of the release sequence and should run only after the CLI defects, the documentation corrections, the CLI test suite, and the packaging-contract tests are done.
 

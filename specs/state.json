@@ -4,7 +4,7 @@
     {
       "project_number": 156,
       "project_name": "portable_pinned_release_verification_runner",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "topic": "packaging",
       "description": "Turn the release verification named in .github/RELEASE_SETUP.md into a repeatable, pinned, portable runner -- and document it. THIS IS DELIBERATELY NOT A DOCUMENTATION-ONLY TASK. The deliverable is an executable script plus a pinned tool manifest plus the checklist prose that drives them. Prose alone would not close the actual defect, which is that the documented verification sequence is reproducible today only on one developer's machine.\n\nTHE DEFECT. RELEASE_SETUP.md:147 names `python -m build`, `check-wheel-contents`, and `twine check --strict` as part of release verification, but the repo provides no reproducible way to obtain them. flake.nix's devShells.default declares `packages = [ devPython ]`, and devPython carries only pytest, pytest-xdist, and pytest-timeout -- no build, no twine, no check-wheel-contents. Nothing in .github/ invokes the tool; the only reference is that prose line. Today the tool is available only because it happens to sit in one developer's nix profile (verified: /home/benjamin/.nix-profile/bin/check-wheel-contents, 0.6.3), and it is NOT resolvable from the flake-registry nixpkgs -- nixpkgs#check-wheel-contents, #checkWheelContents, #python3Packages.check-wheel-contents, and #python3Packages.checkWheelContents all fail to evaluate. That makes the documented verification non-reproducible for anyone else, and unpinned (0.6.3 today, silent drift later) for evidence that is meant to be COMPARED ACROSS RELEASES.\n\nWHY THIS IS RELEASE ENGINEERING, NOT DOCUMENTATION. The release-rehearsal re-run task plans exactly this sequence -- fresh `python -m build`, `twine check --strict dist/*`, `check-wheel-contents dist/*.whl`, a wheel/sdist parity diff against the last published release, and re-recorded sha256sums -- driven off a checklist, and it will be run more than once, possibly by someone without that nix profile. Build the runner here so that work executes a checked-in procedure instead of reconstructing one from an archived narrative each time. This is precisely where clarity, consistency, and portability pay for themselves.\n\nDELIVERABLE 1 -- THE RUNNER. A checked-in script (preferred path `code/scripts/release-verify.sh`, alongside the existing `verify-refactor.sh` precedent; deviate only with a stated reason) that performs the WHOLE sequence in a SINGLE `nix develop` invocation:\n  (a) create an isolated venv and install the pinned tools into it (see Deliverable 2);\n  (b) fresh `python -m build` in code/, capturing the log and the resulting dist/ listing;\n  (c) `twine check --strict dist/*`;\n  (d) `check-wheel-contents dist/*.whl`, plus a second run with `--ignore W002` (see below);\n  (e) `pip download --no-deps model-checker==<REF> -d <tmp>` for the last published release, then diff the wheel RECORD/file listings and top-level directory sets new-vs-reference;\n  (f) `sha256sum` of every produced artifact.\nRequirements on the script: `<REF>` is a parameter with a sensible default (1.2.12 is the last published release today; the default must be overridable, not hardcoded at a call site); an `--out DIR` parameter selects where evidence is written; every step writes a NAMED evidence file rather than only streaming to the terminal, and the file names MIRROR the archived rehearsal's set (build.log, twine-check.txt, wheel-contents.txt, new-wheel-files.txt, ref-<version>-wheel-files.txt, wheel-files-diff.txt, top-level-dir-diff.txt, pip-download-<version>.log, sha256sums.txt, parity-diff.md) so a new run is diffable against an old one; the script writes nothing under code/ except code/dist/ (gitignored, .gitignore:13 `**/dist`) and nothing to flake.nix; steps (a) and (e) need network, so failing them must produce a clear, named error rather than a partial evidence set that reads as success.\n\nDELIVERABLE 2 -- PIN THE TOOLS. A pinned manifest (preferred: `code/scripts/release-tools-requirements.txt`) giving exact `==` versions for build, twine, and check-wheel-contents, consumed by the runner's venv install. Comparable evidence across releases is the entire point; floating versions defeat it. Record in a comment why the pins are not in flake.nix.\n\nDELIVERABLE 3 -- THE CHECKLIST PROSE. Rewrite RELEASE_SETUP.md's \"Local Rehearsal (No Publish)\" section so it drives off the runner: how to invoke it, what each evidence file contains, and what a reviewer should look at before tagging. That section currently points at `specs/archive/125_release_engineering_and_pypi_rehearsal/rehearsal/` as a worked example -- keep it only as historical context, never as current evidence.\n\nDELIVERABLE 4 -- THE READING GUIDE. Document the exit-code contract so a future reader is not misled into thinking the toolchain is broken. Specifically: which steps are hard gates (twine check --strict) versus informational (the parity diff, which is classified by a human and must not gate the release on byte-identity), and how to read a nonzero check-wheel-contents exit.\n\nDELIVERABLE 5 -- RUN IT, DO NOT JUST WRITE IT. Execute the runner end to end on the current tree and report the produced evidence paths and each step's outcome. A script that has never been run is not a verified deliverable. Local builds do not perturb the working tree (code/dist is gitignored).\n\nREUSE THE ESTABLISHED TECHNIQUE, DO NOT INVENT ONE. The archived release rehearsal under specs/archive/125_release_engineering_and_pypi_rehearsal/ already solved provisioning: an isolated venv created INSIDE `nix develop`, tools pip-installed there, flake.nix never modified. Its plan records the three constraints that make this non-obvious and that the runner must encode:\n  - installing the tools system-wide fails on NixOS;\n  - `PIP_USER=0` (or `--no-user`) is required because ~/.config/pip/pip.conf sets install.user=true globally on this host;\n  - each `nix develop` invocation gets a fresh, non-persisting TMPDIR, so venv + build + check + diff MUST run in one invocation.\n\nSCOPE BOUNDARIES. Do NOT add these tools to flake.nix's devShell -- the venv-inside-nix-develop approach exists precisely to avoid that, and widening the devShell is a separate decision with its own cost. Do NOT wire the runner into any CI workflow; whether check-wheel-contents becomes a CI gate is a separate decision. The runner is a local, on-demand release-verification tool.\n\nEXPECT W002 TO FIRE, DO NOT FIX IT HERE. Running check-wheel-contents on the current tree exits 1 with `W002: Wheel contains duplicate files` for the four identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files (independently verified twice; `--ignore W002` returns OK, exit 0). Deduplicating them has its own task. The runner must therefore treat a bare nonzero exit here as expected-and-recorded rather than aborting the remaining steps, and must run the `--ignore W002` variant as the \"is there anything NEW?\" signal. Both outcomes go in the evidence.\n\nCORRECT A STALE CLAIM. The archived rehearsal recorded check-wheel-contents as clean/OK, which no longer reproduces; its recorded sha256sums are also invalid against the post-refactor tree. Neither RELEASE_SETUP.md nor the new prose may cite that evidence as current.\n\nSEQUENCING. The release-rehearsal re-run task now depends on this one, and should consume the runner rather than open-coding the sequence.",
@@ -16,20 +16,25 @@
         "code/scripts/README.md"
       ],
       "created": "2026-08-12T16:04:19Z",
-      "last_updated": "2026-08-12T16:47:15Z",
+      "last_updated": "2026-08-12T16:52:45Z",
       "session_id": "sess_1786552888_007b13_156",
       "artifacts": [
         {
           "path": "specs/156_portable_pinned_release_verification_runner/reports/01_portable-release-verification.md",
           "type": "report",
           "summary": "Portable pinned release-verification research"
+        },
+        {
+          "path": "specs/156_portable_pinned_release_verification_runner/plans/01_release-verify-runner.md",
+          "type": "plan",
+          "summary": "Release-verify runner implementation plan"
         }
       ]
     },
     {
       "project_number": 157,
       "project_name": "dedupe_theory_lib_version_files_w002",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "python",
       "topic": "packaging",
       "description": "Deduplicate the four identical theory_lib VERSION files to clear check-wheel-contents W002. code/src/model_checker/theory_lib/{bimodal,exclusion,imposition,logos}/VERSION are four byte-identical files each containing `1.0.0`. check-wheel-contents flags them as `W002: Wheel contains duplicate files` and exits 1 on the built wheel; `--ignore W002` returns OK with exit 0. Independently verified twice against code/dist/model_checker-1.3.0-py3-none-any.whl. The finding is structural (four identical files), not an artifact of a stale build, so it reproduces on a fresh build.\n\nTHIS IS PRE-EXISTING, NOT A REGRESSION. It is out of scope for the CI-failure fix work that surfaced it, which deliberately reports W002 without remediating it and explicitly forbids touching the VERSION files to silence the lint. Do not treat this as urgent or release-blocking: `--ignore W002` is a legitimate signal for release verification in the meantime.\n\nA STALE CLAIM NEEDS CORRECTING TOO: the archived rehearsal under specs/archive/125_release_engineering_and_pypi_rehearsal/ recorded check-wheel-contents as clean/OK. That no longer reproduces, consistent with specs/TODO.md:161's note that the rehearsal evidence is stale.\n\nDECIDE THE REMEDY DELIBERATELY, do not assume deletion is correct. Research first: establish what reads these per-theory VERSION files at runtime, whether the value is load-bearing anywhere (packaging metadata, theory-version reporting, tests), and whether per-theory versioning is an intended convention that simply is not yet exercised (all four sitting at 1.0.0 is consistent with BOTH \"vestigial\" and \"intended but never bumped\"). Only then choose among: remove them in favour of a single source of truth; keep them but exclude them from the wheel; or keep them and accept W002 permanently via a pinned --ignore. Any option that changes what ships in the wheel must be checked against the packaging contract suite under code/tests/packaging/.\n\nVERIFY BY REBUILDING. The evidence is a fresh `python -m build` plus check-wheel-contents on the resulting wheel -- a plain run should reach exit 0 without needing --ignore W002 if the remedy was deduplication. Note code/dist is gitignored (.gitignore:13, **/dist), so a local build does not perturb the working tree.",
@@ -46,7 +51,8 @@
         "code/pyproject.toml"
       ],
       "created": "2026-08-12T16:04:19Z",
-      "last_updated": "2026-08-12T16:41:22Z"
+      "last_updated": "2026-08-12T16:47:56Z",
+      "session_id": "sess_1786552888_007b13_157"
     },
     {
       "project_number": 155,
@@ -373,7 +379,8 @@
         147,
         149,
         150,
-        156
+        156,
+        157
       ],
       "file_scope": [
         "code/pyproject.toml",
@@ -384,7 +391,7 @@
       "artifacts": [],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-12T16:19:01Z",
+      "last_updated": "2026-08-12T16:47:47Z",
       "next_artifact_number": 1
     }
   ],
