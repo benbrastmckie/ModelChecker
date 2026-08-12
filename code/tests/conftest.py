@@ -166,26 +166,46 @@ general_settings = {
 @pytest.fixture
 def cli_runner():
     """Provide CLI runner for testing command-line interface.
-    
+
     Returns:
         callable: Function to run CLI commands with captured output
     """
     import subprocess
-    
-    def run_cli(*args, capture_output=True, check=False):
-        """Run ModelChecker CLI command and return result."""
+
+    def run_cli(*args, capture_output=True, check=False, timeout=30, cwd=None, input=None):
+        """Run ModelChecker CLI command and return result.
+
+        Defaults cwd to the project root (code/, this file's parent's parent) and
+        always injects an *absolute* `src/` PYTHONPATH entry rather than relying on
+        an inherited (possibly relative) PYTHONPATH env var. A relative PYTHONPATH
+        like "code/src" resolves against the *subprocess's* cwd at import time, not
+        the invoking shell's cwd -- when this fixture's default cwd differs from the
+        shell that set PYTHONPATH, a relative value silently points at a
+        nonexistent directory and the subprocess fails with
+        "No module named model_checker". This was confirmed directly: before this
+        fix, no consumer of this fixture had ever executed it, so the bug went
+        undetected.
+        """
+        code_root = Path(__file__).parent.parent
+        src_dir = code_root / 'src'
+        env = os.environ.copy()
+        env['PYTHONPATH'] = str(src_dir) + os.pathsep + env.get('PYTHONPATH', '')
+
         cmd = [sys.executable, '-m', 'model_checker'] + list(args)
-        
+
         result = subprocess.run(
             cmd,
             capture_output=capture_output,
             text=True,
             check=check,
-            cwd=Path(__file__).parent.parent
+            timeout=timeout,
+            cwd=cwd if cwd is not None else code_root,
+            env=env,
+            input=input,
         )
-        
+
         return result
-    
+
     return run_cli
 
 

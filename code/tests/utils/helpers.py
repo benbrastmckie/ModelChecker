@@ -11,16 +11,25 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 
-def run_cli_command(args: List[str], capture_output: bool = True, 
-                   check: bool = False, timeout: Optional[int] = None):
+def run_cli_command(args: List[str], capture_output: bool = True,
+                   check: bool = False, timeout: Optional[int] = 30,
+                   cwd: Optional[Path] = None, input: Optional[str] = None):
     """Run ModelChecker CLI command and return result.
-    
+
     Args:
         args: List of command-line arguments
         capture_output: Whether to capture stdout/stderr
         check: Whether to raise exception on non-zero exit
-        timeout: Command timeout in seconds
-        
+        timeout: Command timeout in seconds. Defaults to 30 so a hung
+            subprocess (e.g. a flag that unexpectedly blocks on stdin)
+            fails the test instead of hanging the suite; pass timeout=None
+            explicitly to disable.
+        cwd: Working directory for the subprocess. Defaults to the project
+            root (directory containing pyproject.toml) when not given --
+            callers that need file-relative behavior (e.g. --save writing
+            into the current directory) should pass an explicit tmp_path.
+        input: Optional text piped to the subprocess's stdin.
+
     Returns:
         subprocess.CompletedProcess: Result of command execution
     """
@@ -28,24 +37,25 @@ def run_cli_command(args: List[str], capture_output: bool = True,
     current_dir = Path(__file__).parent
     while not (current_dir / 'pyproject.toml').exists() and current_dir.parent != current_dir:
         current_dir = current_dir.parent
-    
+
     # Add src to Python path
     src_dir = current_dir / 'src'
     env = os.environ.copy()
     env['PYTHONPATH'] = str(src_dir) + os.pathsep + env.get('PYTHONPATH', '')
-    
+
     cmd = [sys.executable, '-m', 'model_checker'] + args
-    
+
     result = subprocess.run(
         cmd,
         capture_output=capture_output,
         text=True,
         check=check,
         timeout=timeout,
-        cwd=current_dir,
-        env=env
+        cwd=cwd if cwd is not None else current_dir,
+        env=env,
+        input=input,
     )
-    
+
     return result
 
 
@@ -134,54 +144,62 @@ def capture_model_output(example_data: List, theory_name: str = 'bimodal',
     return output_buffer.getvalue()
 
 
-def assert_cli_success(args: List[str], expected_output: Optional[str] = None) -> subprocess.CompletedProcess:
+def assert_cli_success(args: List[str], expected_output: Optional[str] = None,
+                      **run_kwargs: Any) -> subprocess.CompletedProcess:
     """Assert CLI command succeeds with optional output validation.
-    
+
     Args:
         args: Command-line arguments
         expected_output: Optional expected output substring
-        
+        **run_kwargs: Additional keyword arguments forwarded to run_cli_command
+            (e.g. cwd, timeout, input) -- required so BaseCLITest.assert_cli_success
+            in tests/utils/base.py, which already forwards **kwargs here, does not
+            raise TypeError the first time a caller passes one.
+
     Returns:
         subprocess.CompletedProcess: Command result
-        
+
     Raises:
         AssertionError: If command fails or output doesn't match
     """
-    result = run_cli_command(args)
-    
+    result = run_cli_command(args, **run_kwargs)
+
     assert result.returncode == 0, \
         f"CLI command failed with code {result.returncode}: {result.stderr}"
-    
+
     if expected_output:
         assert expected_output in result.stdout, \
             f"Expected output '{expected_output}' not found in stdout"
-    
+
     return result
 
 
-def assert_cli_failure(args: List[str], expected_error: Optional[str] = None) -> subprocess.CompletedProcess:
+def assert_cli_failure(args: List[str], expected_error: Optional[str] = None,
+                      **run_kwargs: Any) -> subprocess.CompletedProcess:
     """Assert CLI command fails with optional error validation.
-    
+
     Args:
         args: Command-line arguments
         expected_error: Optional expected error substring
-        
+        **run_kwargs: Additional keyword arguments forwarded to run_cli_command
+            (e.g. cwd, timeout, input) -- same rationale as assert_cli_success.
+
     Returns:
         subprocess.CompletedProcess: Command result
-        
+
     Raises:
         AssertionError: If command succeeds or error doesn't match
     """
-    result = run_cli_command(args)
-    
+    result = run_cli_command(args, **run_kwargs)
+
     assert result.returncode != 0, \
         f"CLI command succeeded when failure was expected"
-    
+
     if expected_error:
         error_output = result.stderr or result.stdout
         assert expected_error.lower() in error_output.lower(), \
             f"Expected error '{expected_error}' not found in output"
-    
+
     return result
 
 

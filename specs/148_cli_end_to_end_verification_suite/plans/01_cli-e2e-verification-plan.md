@@ -1,7 +1,7 @@
 # Implementation Plan: CLI End-to-End Verification Suite
 
 - **Task**: 148 - cli_end_to_end_verification_suite
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 10 hours
 - **Dependencies**: 146 (CLI defects — COMPLETED, landed at `55ea4e8f`)
 - **Research Inputs**: `specs/148_cli_end_to_end_verification_suite/reports/01_cli-e2e-verification-research.md`
@@ -166,24 +166,24 @@ Phase 5 is blocked by Phase 2 only.
 
 ---
 
-### Phase 1: CLI test package scaffolding and harness adoption [NOT STARTED]
+### Phase 1: CLI test package scaffolding and harness adoption [COMPLETED]
 
 **Goal**: Create `code/tests/cli/` and make the existing-but-unused CLI harness actually usable,
 so Phases 3 and 4 have somewhere to write and something to write with.
 
 **Tasks**:
-- [ ] Create `code/tests/cli/__init__.py` and `code/tests/cli/conftest.py`.
-- [ ] Read `code/tests/utils/helpers.py` (`run_cli_command` at :14, `assert_cli_success` at :138,
+- [x] Create `code/tests/cli/__init__.py` and `code/tests/cli/conftest.py`.
+- [x] Read `code/tests/utils/helpers.py` (`run_cli_command` at :14, `assert_cli_success` at :138,
       `assert_cli_failure` at :162) and `code/tests/conftest.py`'s `cli_runner` fixture at :166.
       Confirm each works as written by exercising it once; fix any defect found (these have never
       been executed by `assert_cli_success`/`assert_cli_failure`/`cli_runner` consumers).
-- [ ] Add a `timeout` default and an explicit `cwd`/`tmp_path` story to the harness if the
+- [x] Add a `timeout` default and an explicit `cwd`/`tmp_path` story to the harness if the
       existing signature cannot support running against a file in a temp dir — `run_cli_command`
       currently hardcodes `cwd=<project root>`, which the `--save` test in Phase 4 needs to vary.
-- [ ] Add a minimal shared fixture producing a tiny valid example module (single example,
+- [x] Add a minimal shared fixture producing a tiny valid example module (single example,
       `semantic_theories` + `example_range`, `{"N": 2}`) in a `tmp_path`, modeled on the module
       format in `code/tests/e2e/test_batch_output_real.py`.
-- [ ] Confirm `code/tests/cli/` is collected: `testpaths` already includes `tests`, so no
+- [x] Confirm `code/tests/cli/` is collected: `testpaths` already includes `tests`, so no
       `pyproject.toml` change should be needed. Verify rather than assume.
 
 **Timing**: 0.75 hours
@@ -203,6 +203,33 @@ so Phases 3 and 4 have somewhere to write and something to write with.
   phase; a collection error is not).
 - `PYTHONPATH=code/src pytest code/tests/ -v` still green — the helper edits must not disturb
   `test_error_handling.py`, the one current `run_cli_command` consumer.
+
+**Implementation Notes**:
+- `run_cli_command` already has more live consumers than the plan assumed:
+  `tests/integration/test_error_handling.py`, `tests/integration/test_timeout_resources.py`,
+  `tests/unit/test_main_cli.py`, `tests/e2e/test_project_creation.py`, and
+  `tests/utils/base.py::BaseCLITest`. Extended its signature (`timeout` now defaults to 30,
+  added `cwd`/`input`) without breaking any of them — reran all five files green.
+- Genuine defect found and fixed per the TDD Direction: `cli_runner` (`tests/conftest.py`) had
+  never been exercised by a consumer and was broken -- it changes `cwd` to the project root but
+  relies on an inherited, possibly-*relative* `PYTHONPATH` env var (the project's own
+  `PYTHONPATH=code/src pytest ...` convention), which Python resolves against the *subprocess's*
+  cwd at import time, not the invoking shell's cwd. Confirmed directly: with `cwd` changed and
+  `PYTHONPATH=code/src` inherited unmodified, the subprocess raised
+  `No module named model_checker`. Fixed by injecting an absolute `src/` path into `PYTHONPATH`
+  explicitly, matching `run_cli_command`'s existing approach, plus adding `timeout`/`cwd`/`input`
+  parameters for parity.
+- `assert_cli_success`/`assert_cli_failure` (module-level, `tests/utils/helpers.py`) did not
+  accept `**kwargs`, while `BaseCLITest.assert_cli_success`/`assert_cli_failure`
+  (`tests/utils/base.py`, currently unused outside `tests/README.md`'s example) already forward
+  `**kwargs` to them — a latent `TypeError` waiting for the first caller to pass e.g. `cwd`. Fixed
+  by accepting and forwarding `**run_kwargs`.
+- `code/tests/unit/test_main_cli.py` (added by task 146, landed at `694d7411`) already imports
+  `ParseFileFlags` and covers short/long equivalence for `-p` alone, `--sequential`'s clean-exit
+  path, `--load_theory` registry-derived choices, and the `_short_to_long` completeness check
+  against registered short options. This corrects the research/plan's "never imported" premise;
+  noted here so Phase 3 builds complementary (all-14-flags sweep, argparse structure, standard_args,
+  clustered-flag gap, the `test_conflicting_flags` stub) coverage rather than duplicating it.
 
 ---
 
