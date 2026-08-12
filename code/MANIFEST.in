@@ -14,7 +14,6 @@ recursive-include src *.py
 recursive-include src README.md
 recursive-include src CITATION.md
 recursive-include src LICENSE.md
-recursive-include src VERSION
 recursive-include src *.ipynb
 
 # Specifically include theory README files

@@ -68,12 +68,11 @@ where = ["src"]
 # that happens to sit in a package directory (TODO.md, history/*.md, reports/*.md), regardless
 # of whether it is an intentional, contract-conforming doc. See
 # theory_lib/docs/THEORY_ARCHITECTURE.md's Theory Contract for the doc file set this mirrors:
-# root-level README.md/CITATION.md/LICENSE.md/VERSION, the six-file docs/ set, and notebooks/.
+# root-level README.md/CITATION.md/LICENSE.md, the six-file docs/ set, and notebooks/.
 "*" = [
     "README.md",
     "CITATION.md",
     "LICENSE.md",
-    "VERSION",
     "docs/*.md",
     "notebooks/*.ipynb",
 ]

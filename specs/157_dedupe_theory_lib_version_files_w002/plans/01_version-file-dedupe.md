@@ -323,7 +323,7 @@ comparing collected test counts before/after.
 
 ---
 
-### Phase 4: Stop shipping and delete the four VERSION files [NOT STARTED]
+### Phase 4: Stop shipping and delete the four VERSION files [COMPLETED]
 
 **Goal**: Remove the duplication at its source. Safe only now that nothing requires or asserts it.
 
