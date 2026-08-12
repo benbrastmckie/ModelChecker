@@ -208,16 +208,20 @@ Available theories:
 - `imposition` - Fine's counterfactual semantics
 - `bimodal` - Temporal-modal logic
 
-**Selecting Logos Subtheories**:
+**Working with Logos Subtheories**:
 
-For the logos theory, you can specify which subtheories to include:
+`model-checker -l logos` always scaffolds the complete logos project (every subtheory's
+operators are copied in) -- there is no CLI flag that filters subtheories. To work with only a
+subset of subtheories in a Python session, select them via the `logos` API instead:
 
-```bash
-# Load specific subtheories (default loads all)
-model-checker -l logos --subtheory modal         # Modal logic only (+ dependencies)
-model-checker -l logos --subtheory counterfactual constitutive  # Multiple
-model-checker -l logos -st extensional           # Just extensional (short form)
+```python
+from model_checker.theory_lib import logos
+theory = logos.get_theory(subtheories=['modal'])                       # Modal logic only (+ dependencies)
+theory = logos.get_theory(subtheories=['counterfactual', 'constitutive'])  # Multiple
+theory = logos.get_theory(subtheories=['extensional'])                 # Just extensional
 ```
+
+`get_theory(subtheories=[...])` resolves and recursively loads each declared dependency for you.
 
 **Example**:
 

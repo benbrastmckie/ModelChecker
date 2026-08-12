@@ -16,10 +16,8 @@ model-checker -l exclusion  # Copy exclusion theory
 model-checker -l imposition  # Copy imposition theory
 model-checker -l bimodal     # Copy bimodal theory
 
-# Create logos project with specific subtheories (default loads all)
-model-checker -l logos --subtheory modal       # Just modal + dependencies
-model-checker -l logos --subtheory counterfactual constitutive  # Multiple
-model-checker -l logos -st extensional         # Just extensional
+# model-checker -l logos always scaffolds the complete logos project (all subtheories).
+# Subtheory selection is a Python-API concern -- see "Working with Logos Subtheories" below.
 ```
 
 You now have a complete project with:
@@ -108,16 +106,24 @@ model-checker -l imposition   # Imposition semantics
 model-checker -l bimodal      # Two modal operators
 ```
 
-#### Selecting Logos Subtheories
+#### Working with Logos Subtheories
 
-For the logos theory, you can specify which subtheories to include:
+`model-checker -l logos` always scaffolds the complete logos project -- every subtheory's
+operators are copied into `operators.py`. There is no CLI flag that filters which subtheories a
+generated project contains. To work with only a subset of subtheories in a Python session
+(for example, when writing your own script instead of the generated `examples.py`), select them
+via the `logos` API:
 
-```bash
-# Load specific subtheories (default loads all)
-model-checker -l logos --subtheory modal            # Modal logic operators
-model-checker -l logos --subtheory counterfactual   # Counterfactual conditionals
-model-checker -l logos -st constitutive relevance   # Multiple subtheories
+```python
+from model_checker.theory_lib import logos
+theory = logos.get_theory(subtheories=['modal'])              # Modal logic operators
+theory = logos.get_theory(subtheories=['counterfactual'])     # Counterfactual conditionals
+theory = logos.get_theory(subtheories=['constitutive', 'relevance'])  # Multiple subtheories
 ```
+
+`get_theory(subtheories=[...])` resolves and recursively loads each subtheory's declared
+dependencies for you (`LogosOperatorRegistry.load_subtheory`) -- this affects which operators are
+available in that Python session, not which files are generated on disk.
 
 Each theory provides different features:
 - **logos**: Standard hyperintensional logic with modular subtheories
@@ -456,12 +462,13 @@ Test integration with ModelChecker framework:
 # Run integration tests
 ./run_tests.py project_my_theory
 
-# Test with different configurations
-model-checker examples.py --test-all-settings
-
-# Benchmark performance
-model-checker examples.py --benchmark
+# Compare theories against each other (times each and reports results)
+model-checker examples.py --maximize
 ```
+
+There is no built-in flag for sweeping settings combinations or for benchmarking a single run;
+vary `example_range`'s settings dict (e.g. `N`, `max_time`) directly in your examples file and
+re-run to compare.
 
 ## Project Management
 
@@ -656,7 +663,7 @@ print(self.settings)  # Debug settings in semantic.py
 
 1. **Start Simple**: Begin with basic operators, add complexity gradually
 2. **Test Often**: Run examples after each change
-3. **Use Debug Output**: `--print-constraints` and `--verbose` are your friends
+3. **Use Debug Output**: `--print_constraints` and `--verbose` are your friends
 4. **Check Existing Theories**: Look at theory_lib for implementation patterns
 5. **Document as You Go**: Update docs/ while features are fresh
 

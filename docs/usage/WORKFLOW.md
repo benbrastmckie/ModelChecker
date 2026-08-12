@@ -26,10 +26,8 @@ model-checker -l exclusion              # Unilateral exclusion semantics
 model-checker -l imposition             # Fine's counterfactual semantics
 model-checker -l bimodal                # Bimodal logic for tense and circumstantial modalities
 
-# Load specific logos subtheories (default loads all)
-model-checker -l logos --subtheory counterfactual       # Just counterfactual + dependencies
-model-checker -l logos --subtheory modal constitutive   # Multiple subtheories
-model-checker -l logos -st extensional                  # Short form (-st)
+# model-checker -l logos always scaffolds the complete logos project (all subtheories);
+# subtheory selection is a Python-API concern, not a CLI flag -- see below.
 ```
 
 **Available Logos Subtheories:**
@@ -40,7 +38,16 @@ When using `model-checker -l logos`, all available subtheories are loaded by def
 - **counterfactual**: Counterfactual conditionals (□→, ◇→) - requires extensional
 - **relevance**: Content-sensitive relevance logic - requires constitutive
 
-**Note on Dependencies:** When you specify a subtheory, its dependencies are automatically loaded. For example, `--subtheory modal` will also load extensional and counterfactual.
+**Selecting subtheories in code:** `model-checker -l logos` always scaffolds the complete logos
+project, with every subtheory's operators available. To work with only a subset of subtheories
+in a Python session, select them via the `logos` API instead of a CLI flag:
+
+```python
+from model_checker.theory_lib import logos
+theory = logos.get_theory(subtheories=['modal'])
+```
+
+**Note on Dependencies:** When you call `get_theory(subtheories=[...])`, `LogosOperatorRegistry.load_subtheory` resolves and recursively loads each declared dependency for you. For example, `subtheories=['modal']` will also load `extensional` and `counterfactual`. This affects which operators are loaded in that Python session -- it does not change which files `model-checker -l logos` generates on disk.
 
 This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. You now have a working semantic theory that you can run, test, and modify.
 
@@ -407,7 +414,7 @@ Results are saved in the `output/` directory with countermodels, model compariso
 # Project Setup
 model-checker                              # Create new logos project
 model-checker -l <theory_name>             # Load existing theory
-model-checker -l logos --subtheory modal   # Load logos with specific subtheories
+# Subtheory selection is a Python-API concern: logos.get_theory(subtheories=['modal'])
 
 # Run Examples
 model-checker examples.py                  # Basic execution

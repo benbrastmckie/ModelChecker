@@ -212,26 +212,26 @@ ownership below before proceeding to Wave 3 and note the discrepancy in the inve
 
 ---
 
-### Phase 3: Rewrite subtheory prose in WORKFLOW.md, PROJECT.md, GETTING_STARTED.md [NOT STARTED]
+### Phase 3: Rewrite subtheory prose in WORKFLOW.md, PROJECT.md, GETTING_STARTED.md [COMPLETED]
 
 **Goal**: Replace the `--subtheory`/`-st` project-scaffolding fiction with the real Python-API
 mechanism, and clear the remaining fabricated flags in these three owned files.
 
 **Tasks**:
-- [ ] `docs/usage/WORKFLOW.md`: rewrite the `--subtheory`/`-st` passages to state that
+- [x] `docs/usage/WORKFLOW.md`: rewrite the `--subtheory`/`-st` passages to state that
       `model-checker -l logos` scaffolds the complete logos project (all subtheories), and that
       subtheory selection happens in code via
       `from model_checker.theory_lib import logos; theory = logos.get_theory(subtheories=['modal'])`.
-- [ ] Relocate the "automatic dependency loading" claim to where it is true:
+- [x] Relocate the "automatic dependency loading" claim to where it is true:
       `LogosOperatorRegistry.load_subtheory` resolves and recursively loads declared dependencies
       when `get_theory(subtheories=[...])` is called — it affects which operators are loaded in
       that Python session, not which files are generated.
-- [ ] `docs/usage/PROJECT.md`: apply the same rewrite to its two `--subtheory` passages.
-- [ ] `docs/usage/PROJECT.md`: remove or replace the fabricated `model-checker examples.py
+- [x] `docs/usage/PROJECT.md`: apply the same rewrite to its two `--subtheory` passages.
+- [x] `docs/usage/PROJECT.md`: remove or replace the fabricated `model-checker examples.py
       --test-all-settings` and `model-checker examples.py --benchmark` examples (neither flag nor
       any equivalent exists).
-- [ ] `docs/installation/GETTING_STARTED.md`: apply the same `--subtheory` rewrite.
-- [ ] Re-grep all three files for `subtheory`, `-st`, `--benchmark`, `--test-all-settings` and
+- [x] `docs/installation/GETTING_STARTED.md`: apply the same `--subtheory` rewrite.
+- [x] Re-grep all three files for `subtheory`, `-st`, `--benchmark`, `--test-all-settings` and
       confirm no remaining claim presents them as CLI flags.
 
 **Timing**: 1 hour
