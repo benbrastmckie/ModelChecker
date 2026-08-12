@@ -1,7 +1,7 @@
 # Implementation Plan: Task #150
 
 - **Task**: 150 - add_general_ci_workflow_and_flake_check_gate
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4 hours
 - **Dependencies**: None (tasks 148 and 149 are COMPLETED)
 - **Research Inputs**: `specs/150_add_general_ci_workflow_and_flake_check_gate/reports/01_ci-workflow-and-flake-gate.md`
@@ -435,15 +435,16 @@ recording the *why* of each scoping decision so the next editor does not re-deri
 
 ## Testing & Validation
 
-- [ ] `nix develop --command python -c "import ipywidgets, matplotlib"` succeeds (Phase 1).
-- [ ] `nix flake check` reports "all checks passed!" against the broadened `checks.default` (Phase 2).
-- [ ] `pytest code/tests/ -m "not packaging" -n 6 -q` — 0 failed (Phase 3).
-- [ ] `pytest code/src/model_checker -m "not packaging" -n 6 -q` — 0 failed, bimodal included (Phase 3).
-- [ ] `.github/workflows/tests.yml` parses as YAML; `actionlint` clean if available (Phase 3).
-- [ ] `grep -n "n auto" .github/workflows/tests.yml` returns nothing.
-- [ ] `grep -n "28 documented" flake.nix` returns nothing.
-- [ ] No new task-number citations in `.github/**` or `flake.nix`.
-- [ ] No `git push`, no `gh pr create`, no `glab mr create` in the session history.
+- [x] `nix develop --command python -c "import ipywidgets, matplotlib"` succeeds (Phase 1).
+- [x] `nix flake check` reports "all checks passed!" against the broadened `checks.default` (Phase 2).
+- [x] `pytest code/tests/ -m "not packaging" -n 6 -q` — 0 failed (Phase 3).
+- [x] `pytest code/src/model_checker -m "not packaging" -n 6 -q` — 0 failed, bimodal included (Phase 3).
+- [x] `.github/workflows/tests.yml` parses as YAML; `actionlint` clean if available (Phase 3;
+      `actionlint` absent on this host, stated explicitly and skipped).
+- [x] `grep -n "n auto" .github/workflows/tests.yml` returns nothing.
+- [x] `grep -n "28 documented" flake.nix` returns nothing.
+- [x] No new task-number citations in `.github/**` or `flake.nix`.
+- [x] No `git push`, no `gh pr create`, no `glab mr create` in the session history.
 
 ## Artifacts & Outputs
 
