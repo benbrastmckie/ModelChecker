@@ -330,7 +330,7 @@ anything is quarantined (Phase 4).
 
 ---
 
-### Phase 4: Mark BM_CM_1 `unstable` with the four entry criteria in-line [NOT STARTED]
+### Phase 4: Mark BM_CM_1 `unstable` with the four entry criteria in-line [COMPLETED]
 
 - **Goal:** Quarantine exactly one test -- `test_example_cases[BM_CM_1-example_case7]` -- with
   all four strict entry criteria and an explicit written EXIT criterion recorded in-line at the

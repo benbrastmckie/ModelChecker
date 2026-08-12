@@ -54,10 +54,62 @@ KNOWN_TIMEOUT_EXAMPLES = {
     # NOTE: BM_CM_1, BM_CM_2, BM_CM_4 now reliably find countermodels with corrected semantics
     # (Box scope fix + capped_skolem_abundance_constraint). They are included in the test suite.
 }
+
+# `unstable`-marked examples, kept collected and observable rather than removed from
+# collection (KNOWN_TIMEOUT_EXAMPLES's job). See code/pyproject.toml's `unstable`
+# marker registration and TESTING_GUIDE.md section 8.9 for the full policy. Each
+# entry here must satisfy all four strict entry criteria, recorded explicitly below:
+#
+# BM_CM_1 (test_example_cases[BM_CM_1-example_case7]):
+#
+# (1) WHAT FAILS AND WHY -- a heavy-tailed Z3 solve distribution on the Future/
+#     all_future quantifier family. Median ~7-8s, decided draws measured up to
+#     47.78s, one documented draw undecided at 600s (see BM_CM_1_settings' comment
+#     in examples.py), and the real CI failure landed at 60.94s against the 60s
+#     max_time budget -- a near-budget draw tipping over, not a new failure mode.
+#
+# (2) DEMONSTRABLY NOT SEMANTIC -- the genuine countermodel is found on every
+#     decided draw: 7/7 in this round's independent seed sweep, corroborated by
+#     the settings comment's own prior 7-seed history. The failure mode is always
+#     a budget overrun reported as `model_found == False` (this test's assertion
+#     below), never a changed semantic conclusion.
+#
+# (3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED -- three closed encoding
+#     avenues, cross-referenced at operators.py's `_fresh_bound_int` docstring:
+#     z3.FreshInt substitution (regresses even non-aliased single-instance
+#     formulas), explicit ForAllTime/ExistsTime pattern/trigger hints (rejected
+#     by Z3 at construction or provably inert), and finite unrolling of
+#     ForAllTime/ExistsTime over the statically-known time domain (helps 5 of 7
+#     seeds, but 2 of 7 regress from deciding to undecided -- inconclusive-to-
+#     negative on net). `max_time` re-tuning is explicitly ruled out by
+#     BM_CM_1_settings' own standing verdict: no budget closes this tail.
+#
+# (4) EXIT CRITERION -- verbatim and unambiguous: the marker comes off when
+#     EITHER 20 consecutive unstable-watch runs record zero failures (nightly
+#     cadence, ~3 weeks), OR a genuine encoding fix collapses the tail across a
+#     >= 20-seed sweep with no undecided draw at max_time = 60. A single green
+#     CI run never qualifies.
+#
+# See TESTING_GUIDE.md section 8.9 for the general policy (entry/exit criteria,
+# review cadence, promotion path, escalation rule) this marking follows.
+UNSTABLE_EXAMPLES = {"BM_CM_1"}
+
 test_examples = {k: v for k, v in {**countermodel_examples, **theorem_examples}.items()
                  if k not in KNOWN_TIMEOUT_EXAMPLES}
 
-@pytest.mark.parametrize("example_name, example_case", test_examples.items())
+# pytest.param with the same (name, case) positional values reproduces the
+# auto-generated ids a bare `.items()` view would have produced -- no explicit
+# `ids=` is passed, so node IDs are unchanged from before this restructuring
+# (verified by a --collect-only diff; see the implementation summary).
+test_example_params = [
+    pytest.param(
+        name, case,
+        marks=[pytest.mark.unstable] if name in UNSTABLE_EXAMPLES else [],
+    )
+    for name, case in test_examples.items()
+]
+
+@pytest.mark.parametrize("example_name, example_case", test_example_params)
 def test_example_cases(example_name, example_case):
     """Test each example case from test_example_range."""
     with isolated_z3_context():
