@@ -23,7 +23,7 @@ next_project_number: 156
 
 ### Testing
 
-155 [NOT STARTED] — Fix the CI failures surfaced by the first live workflow run on 20
+155 [PLANNED] — Fix the CI failures surfaced by the first live workflow run on 20
 
 ### Semantics
 
@@ -34,10 +34,12 @@ next_project_number: 156
 ## Tasks
 
 ### 155. Fix ci failures wheel dep and timing gated tests
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [155_fix_ci_failures_wheel_dep_and_timing_gated_tests/reports/01_ci-failures-wheel-and-timing.md]
+- **Plan**: [155_fix_ci_failures_wheel_dep_and_timing_gated_tests/plans/01_ci-fixes-wheel-and-timing.md]
 
 **Description**: Fix the CI failures surfaced by the first live workflow run on 2026-08-12 (runs 31609253772, 31609253774, 31609253618). Every failure falls into one of two classes; NEITHER is a semantic defect. The substance is green: 2000-2002 passed on every job, matching the 2002 measured locally during the CI-gate work.
 
