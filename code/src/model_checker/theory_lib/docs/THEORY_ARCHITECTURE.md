@@ -41,8 +41,10 @@ provide:
 - **`tests/`** — `__init__.py`, `conftest.py`, `unit/`, `integration/`, `README.md`.
 - **`docs/`** — the six-file set: `README.md`, `API_REFERENCE.md`, `ARCHITECTURE.md`,
   `ITERATE.md`, `SETTINGS.md`, `USER_GUIDE.md`.
-- **`README.md`**, **`CITATION.md`**, **`LICENSE.md`**, **`VERSION`** — theory-level metadata,
-  documentation entry point, and citation/licensing files.
+- **`README.md`**, **`CITATION.md`**, **`LICENSE.md`** — theory-level documentation entry point
+  and citation/licensing files. Per-theory version is carried by `__init__.py`'s `__version__`
+  (the single source of truth read by `get_theory_version()`, `check_theory_compatibility()`,
+  and `update_all_theory_versions()`); there is no separate on-disk `VERSION` file.
 
 ## Required `examples.py` Attributes
 

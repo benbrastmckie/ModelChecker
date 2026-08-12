@@ -41,7 +41,6 @@ REQUIRED_ROOT_ITEMS = [
     'README.md',
     'CITATION.md',
     'LICENSE.md',
-    'VERSION',
 ]
 
 REQUIRED_DOCS_FILES = [

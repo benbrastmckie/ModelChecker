@@ -238,7 +238,7 @@ shell-variable uses in `.github/workflows/release.yml` must be reported before p
 
 ---
 
-### Phase 2: Relax the on-disk contract requirements [NOT STARTED]
+### Phase 2: Relax the on-disk contract requirements [COMPLETED]
 
 **Goal**: Stop requiring a `VERSION` file, while the files are still present and still shipped —
 so the tree stays green throughout.

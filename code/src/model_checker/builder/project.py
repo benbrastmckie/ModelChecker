@@ -49,7 +49,6 @@ REQUIRED_COPY_ITEMS = [
     'README.md',
     'CITATION.md',
     'LICENSE.md',
-    'VERSION',
 ]
 
 # At least one must be present (see comment above); both may be present together.
@@ -57,6 +56,13 @@ SEMANTIC_ALTERNATIVES = ['semantic', 'semantic.py']
 
 # Present in some theories, valid, but not required by every theory.
 OPTIONAL_COPY_ITEMS = [
+    # `VERSION` is no longer a required per-theory file: per-theory versioning is carried by
+    # `__init__.py`'s `__version__` (the single source of truth read by
+    # `get_theory_version()`/`check_theory_compatibility()`/`update_all_theory_versions()`), and
+    # no in-tree theory ships a `VERSION` file. It remains here, tolerated-if-present, only so a
+    # third-party or hand-authored theory that still carries the file is copied rather than
+    # skipped with a warning.
+    'VERSION',
     # `iterate.py` is REQUIRED by THEORY_ARCHITECTURE.md's Theory Contract -- every theory's
     # DEFAULT_EXAMPLE_SETTINGS declares an `iterate` setting, so a theory lacking it has a live,
     # reachable ImportError under `iterate: 2`. It is listed here rather than in
