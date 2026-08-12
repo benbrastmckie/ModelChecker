@@ -306,6 +306,7 @@ class ModelRunner:
         """
         import logging
         from model_checker import z3_shim as z3
+        from model_checker.solver import get_active_backend
 
         # Disable all debug logs for cleaner output
         logging.getLogger().setLevel(logging.ERROR)
@@ -313,9 +314,14 @@ class ModelRunner:
         for logger_name in ["model_checker", "model_checker.builder", "model_checker.iterate"]:
             logging.getLogger(logger_name).setLevel(logging.ERROR)
 
-        # Reset Z3 solver params to ensure clean state for each example
-        z3.reset_params()
-        z3.set_param(verbose=0)
+        # Reset Z3 solver params to ensure clean state for each example. reset_params()/
+        # set_param() are z3-specific globals -- cvc5.pythonic (the --cvc5 backend module)
+        # defines neither, so calling these unconditionally crashes every --cvc5 run with an
+        # uncaught AttributeError before any solving happens. Only reset them when z3 is
+        # actually the active backend.
+        if get_active_backend() == "z3":
+            z3.reset_params()
+            z3.set_param(verbose=0)
     
     def _prepare_example_case(
         self,
