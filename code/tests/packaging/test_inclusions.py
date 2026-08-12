@@ -22,7 +22,7 @@ AVAILABLE_THEORIES = registry.get_registered()
 CODE_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Sourced from theory_lib/docs/THEORY_ARCHITECTURE.md's Theory Contract.
-REQUIRED_ROOT_FILES = ["README.md", "CITATION.md", "LICENSE.md", "VERSION"]
+REQUIRED_ROOT_FILES = ["README.md", "CITATION.md", "LICENSE.md"]
 REQUIRED_DOCS_FILES = [
     "README.md",
     "API_REFERENCE.md",

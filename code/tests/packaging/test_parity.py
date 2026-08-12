@@ -21,8 +21,8 @@ invariant executable.
      start with `model_checker/` in the restricted view.
 2. Within that restricted view, two sub-classes are compared for **set equality**:
    - **`.py` module paths**: every member ending in `.py`.
-   - **Packaged data paths**: members named `README.md`, `CITATION.md`, `LICENSE.md`, or
-     `VERSION` (anywhere in the tree), plus `docs/*.md` and `notebooks/*.ipynb` members.
+   - **Packaged data paths**: members named `README.md`, `CITATION.md`, or `LICENSE.md`
+     (anywhere in the tree), plus `docs/*.md` and `notebooks/*.ipynb` members.
 
 Everything else in the restricted view (e.g. other markdown files that happen to be swept in by
 `include-package-data`) is out of scope for this parity assertion, even if it happens to also
@@ -63,7 +63,7 @@ def _is_py_module(path: str) -> bool:
 def _is_data_path(path: str) -> bool:
     name = PurePosixPath(path).name
     parent_name = PurePosixPath(path).parent.name
-    if name in {"README.md", "CITATION.md", "LICENSE.md", "VERSION"}:
+    if name in {"README.md", "CITATION.md", "LICENSE.md"}:
         return True
     if name.endswith(".md") and parent_name == "docs":
         return True

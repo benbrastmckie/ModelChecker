@@ -283,7 +283,7 @@ still carries one. This is not a backwards-compatibility shim — nothing reads 
 
 ---
 
-### Phase 3: Relax the packaging contract assertions [NOT STARTED]
+### Phase 3: Relax the packaging contract assertions [COMPLETED]
 
 **Goal**: Stop asserting `VERSION` ships, while it still does — again keeping the tree green.
 
