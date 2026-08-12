@@ -13,13 +13,6 @@ This directory contains integration tests for the builder package, validating in
 **Dependencies**: `pytest`, `builder`, theory modules
 **Used By**: Theory integration validation
 
-### test_cli_interactive_integration.py
-**Purpose**: Tests CLI and interactive mode integration
-**Key Classes**: Tests for command-line interface with user interaction
-**Key Functions**: Tests prompt handling, interactive project creation, user input
-**Dependencies**: `pytest`, `builder.cli`, `output.prompts`
-**Used By**: CLI interaction validation
-
 ### test_component_integration.py
 **Purpose**: Tests integration between builder package components
 **Key Classes**: Tests for component interactions

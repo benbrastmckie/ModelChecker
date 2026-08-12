@@ -29,9 +29,8 @@ tests/
 │   ├── test_validation.py                  # Input validation logic (5 tests)
 │   └── test_z3_isolation.py                # Z3 context isolation (3 tests)
 │
-├── integration/                            # Component interaction tests (96 tests)
+├── integration/                            # Component interaction tests (86 tests)
 │   ├── test_build_module_theories.py       # Theory loading integration (15 tests)
-│   ├── test_cli_interactive_integration.py # CLI interactive mode (10 tests)
 │   ├── test_component_integration.py       # Cross-component workflows (20 tests)
 │   ├── test_error_propagation.py           # Error handling flow (15 tests)
 │   ├── test_generated_projects.py          # Generated project structure (8 tests)
@@ -97,7 +96,12 @@ class TestModuleLoader(unittest.TestCase):
 **Coverage Goal**: All user interaction paths  
 **Key Files**:
 - `test_build_module_interactive.py` - Interactive prompts and flows
-- `test_cli_interactive_integration.py` - Command-line integration
+- CLI-flag-level (non-interactive) coverage lives in `code/tests/cli/` and
+  `code/tests/packaging/` -- `test_cli_interactive_integration.py` (retired) drove `BuildModule`
+  with a hand-built `interactive` flag the real CLI can never produce (`interactive` is a
+  recognized-but-inert `standard_args` entry; the real flag is `--sequential`/`-q`, whose
+  fail-fast contract `code/tests/cli/test_flag_matrix.py` now covers end-to-end through the
+  actual flag surface).
 
 ### 4. Manual Testing
 **Purpose**: Catch integration issues mocks miss  

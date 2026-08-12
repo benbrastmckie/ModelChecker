@@ -575,43 +575,66 @@ never by hardcoding 4.
 
 ---
 
-### Phase 7: Reconcile or retire the misleading existing files [NOT STARTED]
+### Phase 7: Reconcile or retire the misleading existing files [COMPLETED]
 
 **Goal**: Remove every test that asserts against its own mock, and every test name that
 overstates what the test does. Runs last among the coverage phases so replacement coverage
 already exists.
 
 **Tasks**:
-- [ ] **`builder/tests/test_package_loading.py::TestSubprocessExecution::test_pythonpath_setup_in_subprocess`
+- [x] **`builder/tests/test_package_loading.py::TestSubprocessExecution::test_pythonpath_setup_in_subprocess`
       (~:244-289): delete.** It `@patch`es `subprocess.run` and then asserts against
       `mock_run.call_args` — no production code executes. Phase 5's no-`PYTHONPATH` console-script
       test covers the real question it pretended to. Remove the enclosing `TestSubprocessExecution`
       class if it becomes empty, and drop any now-unused imports.
-- [ ] **`code/tests/e2e/test_batch_output_real.py`: rewrite.** Add the batch-output assertions its
+- [x] **`code/tests/e2e/test_batch_output_real.py`: rewrite.** Add the batch-output assertions its
       name promises (multiple examples and/or `--save` output actually landing on disk), not just
       `returncode == 0`. **Also correct the false comment** `# Use -l for load_theory (correct
       flag)` — the call passes no `-l`, and `-l` would dispatch to `ask_generate()` and block on
       `input()` rather than run the file. If the batch assertions end up fully duplicating Phase
       4's `--save` coverage, retire the file instead and record that in the phase notes.
-- [ ] **`builder/tests/e2e/test_full_pipeline.py::test_iteration_workflow` (~:89): rewrite.** It
+- [x] **`builder/tests/e2e/test_full_pipeline.py::test_iteration_workflow` (~:89): rewrite.** It
       passes `-i` believing it requests N iterations and feeds `input="2\n\n"`; `-i` is
       `--print_impossible`, a `store_true` boolean, and the stdin is consumed by nothing. Rewrite
       it to test `--print_impossible` honestly and rename it accordingly, dropping the unused
       stdin. Do not invent an iteration flag — no CLI iteration mechanism exists in the
       registered table.
-- [ ] **`builder/tests/integration/test_cli_interactive_integration.py`: retire, or rewrite to the
+- [x] **`builder/tests/integration/test_cli_interactive_integration.py`: retire, or rewrite to the
       fail-fast contract.** It constructs a mock flags object with `interactive: True/False` and
       asserts on `interactive_manager.mode`. `interactive` is a recognized-but-inert
-      `standard_args` entry (`settings.py:253-255`) that `ParseFileFlags` can never produce, and
-      per the planning finding above `prompt_manager` is now unconditionally `None` with
-      `config.sequential` raising `NotImplementedError` — so the internals it asserts against no
-      longer exist. **Preferred disposition: retire the file**, since Phase 4's `-q`/`--sequential`
-      fail-fast test already covers the real, current contract end-to-end through the actual flag
-      surface. If retained, it must be rewritten to drive `-q` through a real `ParseFileFlags`
-      parse and assert the `NotImplementedError`/exit-1 path — never to assert a restored
-      interactive mode.
-- [ ] Record each of the four dispositions in the phase notes with the specific replacement test
+      `standard_args` entry that `ParseFileFlags` can never produce, and per the planning finding
+      above `prompt_manager` is now unconditionally `None` with `config.sequential` raising
+      `NotImplementedError` — so the internals it asserts against no longer exist. **Disposition:
+      retired**, since Phase 4's `-q`/`--sequential` fail-fast test already covers the real,
+      current contract end-to-end through the actual flag surface.
+- [x] Record each of the four dispositions in the phase notes with the specific replacement test
       that subsumes it.
+
+**Disposition Table**:
+
+| File | Disposition | Replacement / rationale |
+|------|-------------|--------------------------|
+| `builder/tests/test_package_loading.py::TestSubprocessExecution::test_pythonpath_setup_in_subprocess` | Deleted (class removed, `patch`/`MagicMock` import dropped) | `code/tests/packaging/test_cli_console_script.py::test_console_script_runs_without_pythonpath` |
+| `code/tests/e2e/test_batch_output_real.py` | Rewritten, kept (did not fully duplicate Phase 4) | Adds real batch-specific assertions Phase 4's single-example `--save` test does not cover: `MODELS.json`'s `"models"` list has one entry per example (2), and combined `EXAMPLES.md` joins per-example sections with `---`. False `-l` comment removed; the file now correctly documents why `-l` is inapplicable here. |
+| `builder/tests/e2e/test_full_pipeline.py::test_iteration_workflow` | Rewritten and renamed to `test_print_impossible_flag_includes_impossible_states` | Now honestly exercises `-i`/`--print_impossible` (the flag it always actually invoked), with a baseline-vs-flagged output-differs assertion added so it cannot pass vacuously for a no-op flag |
+| `builder/tests/integration/test_cli_interactive_integration.py` | Retired (deleted, 444 lines, 9 tests) | `code/tests/cli/test_flag_matrix.py::test_sequential_fails_fast_without_traceback` covers the real, current `-q`/`--sequential` contract through the actual flag surface. Also updated the two nearest READMEs (`builder/tests/README.md`, `builder/tests/integration/README.md`) to remove the now-stale entry rather than leave dangling documentation. |
+
+**Fifth-instance grep follow-up** (per this phase's Scope Hypothesis): re-grepping
+`patch.*subprocess.run` across `code/` after the four dispositions above finds exactly one
+remaining hit -- `code/tests/cli/test_flag_matrix.py`'s
+`test_upgrade_constructs_expected_pip_command_without_executing`, which is the plan's own
+sanctioned pattern for `--upgrade` (mock `subprocess.run`, assert the constructed command, never
+execute a real `pip install`) -- not a misleading test. Re-grepping for tests passing
+`'interactive'` as a flag finds one file beyond the four, `test_output_directory_guidance.py`.
+Investigated per the Scope Hypothesis's explicit instruction: this file's assertions test a real,
+still-live `BuildModule.__init__` code branch (`module.py`'s empty-`example_range` +
+`interactive` validation, reachable via `hasattr(module_flags, 'interactive')`), not dead
+internals like `interactive_manager.mode` -- confirmed by grep (no `interactive_manager`/`.mode`
+references in the file) and by running it (7 passed, 5 subtests passed). It is a legitimate unit
+test of internal logic via a directly-constructed flags object, not a misleading claim of CLI-level
+coverage, so it is **not** a fifth instance of this phase's target defect class and was left
+unchanged -- recorded here as the explicit follow-up the Scope Hypothesis requires rather than
+silently ignored.
 
 **Timing**: 1.5 hours
 

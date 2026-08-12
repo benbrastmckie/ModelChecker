@@ -86,11 +86,18 @@ general_settings = {}
         finally:
             os.unlink(test_file)
     
-    def test_iteration_workflow(self):
-        """Test iteration with discover_theory_module calls.
-        
-        This specifically tests the code path that had the method
-        signature issue.
+    def test_print_impossible_flag_includes_impossible_states(self):
+        """Test -i/--print_impossible with discover_theory_module calls.
+
+        Renamed from the misnamed `test_iteration_workflow`: that test believed `-i` requested
+        N model iterations and fed `input="2\\n\\n"` to satisfy a prompt it assumed existed.
+        `-i` is actually `--print_impossible`, a `store_true` boolean flag
+        (`__main__.py`'s debug_group) with no prompt and nothing that consumes stdin -- the
+        `input=` kwarg was silently discarded. There is no CLI iteration mechanism in the
+        registered flag table (`ParseFileFlags._create_parser()`), so this test now honestly
+        covers `--print_impossible`'s actual, documented effect: including impossible states in
+        the model display, exercising the same `discover_theory_module` code path the original
+        test intended to stress.
         """
         # Create a simple test module
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
@@ -105,28 +112,33 @@ example_range = {
 general_settings = {}
 ''')
             test_file = f.name
-        
+
         try:
-            # Run with iteration - send input directly to avoid prompts
-            result = subprocess.run(
-                [sys.executable, str(self.dev_cli), '-i', test_file],
-                input="2\n\n",  # Request 2 iterations then continue
+            baseline = subprocess.run(
+                [sys.executable, str(self.dev_cli), test_file],
                 capture_output=True,
                 text=True,
                 timeout=10
             )
-            
-            # Should complete successfully
-            self.assertEqual(result.returncode, 0, 
-                           f"Iteration failed: {result.stderr}")
-            
-            # Should show some indication of running iterations
-            # Check for multiple examples or iteration-related output
-            self.assertTrue(
-                "EXAMPLE" in result.stdout,
-                f"Expected example output not found in: {result.stdout}"
+            self.assertEqual(baseline.returncode, 0, f"Baseline run failed: {baseline.stderr}")
+
+            result = subprocess.run(
+                [sys.executable, str(self.dev_cli), '-i', test_file],
+                capture_output=True,
+                text=True,
+                timeout=10
             )
-            
+
+            self.assertEqual(result.returncode, 0, f"-i run failed: {result.stderr}")
+            self.assertIn("EXAMPLE", result.stdout)
+            self.assertNotIn("Traceback", result.stderr)
+            # -i must actually change output relative to the no-flag baseline, or this test
+            # would pass vacuously for a no-op flag.
+            self.assertNotEqual(
+                result.stdout, baseline.stdout,
+                "-i/--print_impossible produced identical output to the no-flag baseline"
+            )
+
         finally:
             os.unlink(test_file)
     

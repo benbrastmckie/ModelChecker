@@ -8,7 +8,6 @@ import os
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
 from pathlib import Path
 
 # Add parent directories to path for imports
@@ -241,55 +240,13 @@ class TestPackageLoading(unittest.TestCase):
             sys.path = original_path
 
 
-class TestSubprocessExecution(unittest.TestCase):
-    """Test subprocess execution with PYTHONPATH setup."""
-    
-    def setUp(self):
-        """Set up test environment."""
-        self.temp_dir = tempfile.mkdtemp()
-        
-    def tearDown(self):
-        """Clean up."""
-        import shutil
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
-            
-    @patch('subprocess.run')
-    def test_pythonpath_setup_in_subprocess(self, mock_run):
-        """Test that PYTHONPATH is correctly set when running via subprocess."""
-        # Generate a project
-        builder = BuildProject()
-        project_name = "subprocess_test"
-        project_path = builder.generate(project_name, self.temp_dir)
-        
-        # Mock the subprocess call to check environment
-        mock_run.return_value = MagicMock(returncode=0)
-        
-        # Simulate what _handle_example_script does
-        parent_dir = os.path.dirname(project_path)
-        env = os.environ.copy()
-        env['PYTHONPATH'] = parent_dir
-        
-        examples_path = os.path.join(project_path, "examples.py")
-        
-        # Call with environment
-        import subprocess
-        subprocess.run(
-            ["model-checker", examples_path],
-            env=env,
-            check=True,
-            timeout=30
-        )
-        
-        # Check that run was called with correct environment
-        mock_run.assert_called_once()
-        call_args = mock_run.call_args
-        
-        # Check environment was passed
-        self.assertIn('env', call_args[1])
-        passed_env = call_args[1]['env']
-        self.assertIn('PYTHONPATH', passed_env)
-        self.assertIn(parent_dir, passed_env['PYTHONPATH'])
+# A TestSubprocessExecution class used to live here
+# (test_pythonpath_setup_in_subprocess). It @patch'ed subprocess.run and then
+# asserted against mock_run.call_args -- no production code ever executed, so
+# it was deleted rather than left claiming coverage of real subprocess/console-
+# script behavior it did not provide. Real no-PYTHONPATH console-script
+# coverage lives in
+# code/tests/packaging/test_cli_console_script.py::test_console_script_runs_without_pythonpath.
 
 
 if __name__ == '__main__':
