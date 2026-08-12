@@ -1,7 +1,7 @@
 # Implementation Plan: Re-run the release rehearsal and prepare the PyPI publish
 
 - **Task**: 151 - rerun_release_rehearsal_and_publish_to_pypi
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6 hours
 - **Dependencies**: 147, 149, 150, 155, 156, 157 (all `[COMPLETED]`)
 - **Research Inputs**: `specs/151_rerun_release_rehearsal_and_publish_to_pypi/reports/01_release-rehearsal-rerun.md`
@@ -114,7 +114,11 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Correct the release-verify.sh W002 gate contract [NOT STARTED]
+### Phase 1: Correct the release-verify.sh W002 gate contract [COMPLETED]
+
+**Premise re-confirmed at implementation time** (2026-08-12): fresh `cd code && rm -rf dist &&
+python -m build --no-isolation` (exit 0) followed by `check-wheel-contents dist/*.whl` on the
+resulting `model_checker-1.3.0-py3-none-any.whl` reports `OK`, exit 0, with no `--ignore` flag.
 
 **Goal**: `code/scripts/release-verify.sh` treats bare `check-wheel-contents` as the hard gate,
 with every trace of the "W002 expected, run with `--ignore`" contract removed from both its
@@ -158,8 +162,16 @@ content, never by line number alone.
 
 **Commit Mode**: atomic-batch
 
+**d2 disposition decision**: removed `step_d2_wheel_contents_ignore_w002()` entirely, along with
+its `wheel-contents-ignore-w002.txt` evidence file and its call site in `main()`. Rationale: with
+W002 no longer firing, `check-wheel-contents --ignore W002` and bare `check-wheel-contents` are
+functionally identical against the current wheel -- retaining d2 would mean carrying a
+permanently-redundant second invocation of the same tool rather than a genuine
+historical-comparison signal. Evidence set reduced from 12 files to 11, reflected in the header
+comment, the `print_help` evidence list, and `generate_parity_diff`'s Evidence Files section.
+
 **Files to modify**:
-- `code/scripts/release-verify.sh` - flip d1 to hard gate, resolve d2, correct all header
+- `code/scripts/release-verify.sh` - flip d1 to hard gate, remove d2, correct all header
   comments and the evidence manifest
 
 **Verification**:

@@ -12,8 +12,7 @@
 #                        code/scripts/release-tools-requirements.txt
 #   (b)  build       -- python -m build (fresh code/dist/)               [hard gate]
 #   (c)  twine       -- twine check --strict code/dist/*                 [hard gate]
-#   (d1) check-wheel-contents (bare)      -- expected nonzero (W002)     [informational]
-#   (d2) check-wheel-contents --ignore W002 -- "anything NEW?" signal    [hard gate]
+#   (d1) check-wheel-contents (bare)                                     [hard gate]
 #   (e1) reference fetch -- pip download --no-deps model-checker==<REF>
 #   (e2) file listings   -- sorted file listing of new wheel and reference wheel
 #   (e3) diffs           -- full-listing diff + maxdepth-2 top-level-dir diff  [informational]
@@ -29,11 +28,10 @@
 #                    `nix develop` recreates fresh on every invocation).
 #   --help          Print this usage block and exit 0 without entering `nix develop`.
 #
-# Evidence files written to <out>/ (12 total):
+# Evidence files written to <out>/ (11 total):
 #   build.log                     -- python -m build stdout/stderr + dist/ listing
 #   twine-check.txt                -- twine check --strict output
-#   wheel-contents.txt             -- bare check-wheel-contents output (W002 expected)
-#   wheel-contents-ignore-w002.txt -- check-wheel-contents --ignore W002 output
+#   wheel-contents.txt             -- bare check-wheel-contents output (hard gate)
 #   new-wheel-files.txt            -- sorted file listing of the freshly built wheel
 #   ref-<REF>-wheel-files.txt      -- sorted file listing of the reference wheel
 #   wheel-files-diff.txt           -- unified diff of the two file listings
@@ -48,13 +46,6 @@
 #   1 -- a hard gate failed
 #   2 -- a required step (provisioning or reference fetch) could not run at all;
 #        the evidence set is INCOMPLETE and must not be read as a pass
-#
-# Reading a nonzero check-wheel-contents (bare) exit: this is EXPECTED on the
-# current tree. It reports W002 (duplicate files) for the four identical
-# theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files. That
-# deduplication is tracked as a separate, later task. A nonzero exit here does
-# NOT mean the toolchain is broken -- read wheel-contents-ignore-w002.txt (the
-# hard-gated companion run) to see whether anything NEW appeared.
 #
 # The script accumulates failures rather than aborting on the first one (posture
 # matches code/scripts/verify-refactor.sh: set -uo pipefail, not -e), so the
@@ -80,9 +71,8 @@ Usage: bash code/scripts/release-verify.sh [--ref VERSION] [--out DIR] [--help]
                    /tmp/release-verify-<UTC-timestamp>/
   --help          Print this usage block and exit 0.
 
-Evidence files written to <out>/ (12 total):
-  build.log, twine-check.txt, wheel-contents.txt,
-  wheel-contents-ignore-w002.txt, new-wheel-files.txt,
+Evidence files written to <out>/ (11 total):
+  build.log, twine-check.txt, wheel-contents.txt, new-wheel-files.txt,
   ref-<REF>-wheel-files.txt, wheel-files-diff.txt, top-level-dir-diff.txt,
   pip-download-<REF>.log, sha256sums.txt, parity-diff.md, summary.txt
 
@@ -294,52 +284,26 @@ step_c_twine() {
 }
 
 # --- Step (d1): check-wheel-contents (bare) -------------------------------------
-# Classified as informational: capture the exit code and CONTINUE. A nonzero
-# exit here is expected today (W002, four identical theory_lib/*/VERSION
-# files) and must not abort the run or increment FAILURES.
+# Classified as a hard gate. The duplicate theory_lib/*/VERSION files that
+# previously triggered W002 were deduped upstream, so bare check-wheel-contents
+# is now the direct, unqualified signal -- no --ignore flag is needed or run.
 step_d1_wheel_contents_bare() {
-  note "Step (d1): check-wheel-contents (bare, informational)"
+  note "Step (d1): check-wheel-contents (bare, hard gate)"
   if [ -z "$NEW_WHEEL" ]; then
     echo "SKIPPED: no wheel built (step b failed)" > "${OUT_DIR}/wheel-contents.txt"
-    record_step "d1-wheel-contents" 1 info "wheel-contents.txt"
+    fail "check-wheel-contents skipped: no wheel built (step b failed)"
+    record_step "d1-wheel-contents" 1 gate "wheel-contents.txt"
     return
   fi
 
   "${VENV_DIR}/bin/check-wheel-contents" "$NEW_WHEEL" > "${OUT_DIR}/wheel-contents.txt" 2>&1
   local rc=$?
-  {
-    echo
-    echo "--- release-verify.sh note ---"
-    echo "A nonzero exit here is EXPECTED today: W002 (duplicate files) fires for the"
-    echo "four identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files."
-    echo "That deduplication is tracked as a separate task. This step is classified"
-    echo "informational and never gates the run. See wheel-contents-ignore-w002.txt for"
-    echo "the hard-gated \"is there anything NEW beyond W002?\" signal."
-  } >> "${OUT_DIR}/wheel-contents.txt"
-  note "check-wheel-contents (bare) exited ${rc} -- informational, recorded, run continues"
-  record_step "d1-wheel-contents" "$rc" info "wheel-contents.txt"
-}
-
-# --- Step (d2): check-wheel-contents --ignore W002 -------------------------------
-# The "is there anything NEW?" signal. Classified as a hard gate: a nonzero
-# exit here means a finding beyond the known, separately-tracked W002.
-step_d2_wheel_contents_ignore_w002() {
-  note "Step (d2): check-wheel-contents --ignore W002 (hard gate)"
-  if [ -z "$NEW_WHEEL" ]; then
-    echo "SKIPPED: no wheel built (step b failed)" > "${OUT_DIR}/wheel-contents-ignore-w002.txt"
-    fail "check-wheel-contents --ignore W002 skipped: no wheel built"
-    record_step "d2-wheel-contents-w002" 1 gate "wheel-contents-ignore-w002.txt"
-    return
-  fi
-
-  "${VENV_DIR}/bin/check-wheel-contents" --ignore W002 "$NEW_WHEEL" > "${OUT_DIR}/wheel-contents-ignore-w002.txt" 2>&1
-  local rc=$?
   if [ "$rc" -ne 0 ]; then
-    fail "check-wheel-contents --ignore W002 reported findings beyond the known W002 (exit ${rc}); see ${OUT_DIR}/wheel-contents-ignore-w002.txt"
+    fail "check-wheel-contents reported findings (exit ${rc}); see ${OUT_DIR}/wheel-contents.txt"
   else
-    note "OK: check-wheel-contents --ignore W002 clean (no findings beyond the known W002)"
+    note "OK: check-wheel-contents clean"
   fi
-  record_step "d2-wheel-contents-w002" "$rc" gate "wheel-contents-ignore-w002.txt"
+  record_step "d1-wheel-contents" "$rc" gate "wheel-contents.txt"
 }
 
 # --- Step (e1): reference fetch -------------------------------------------------
@@ -518,15 +482,14 @@ generate_parity_diff() {
     echo
     echo "This diff is **evidentiary, not a release gate**. Byte-identity against a prior"
     echo "published release is never a pass condition -- \`twine check --strict\` (see"
-    echo "\`twine-check.txt\`) and \`check-wheel-contents --ignore W002\` (see"
-    echo "\`wheel-contents-ignore-w002.txt\`) are this run's actual hard gates."
+    echo "\`twine-check.txt\`) and bare \`check-wheel-contents\` (see \`wheel-contents.txt\`)"
+    echo "are this run's actual hard gates."
     echo
     echo "## Evidence Files (this directory)"
     echo
     echo "- \`build.log\` -- full \`python -m build\` output plus \`code/dist/\` listing."
     echo "- \`twine-check.txt\` -- \`twine check --strict code/dist/*\` output."
-    echo "- \`wheel-contents.txt\` -- bare \`check-wheel-contents\` output (W002 expected)."
-    echo "- \`wheel-contents-ignore-w002.txt\` -- \`check-wheel-contents --ignore W002\` output."
+    echo "- \`wheel-contents.txt\` -- bare \`check-wheel-contents\` output (hard gate)."
     echo "- \`pip-download-${REF}.log\` -- \`pip download --no-deps model-checker==${REF}\` output."
     echo "- \`sha256sums.txt\` -- SHA256 of the new wheel, new sdist, and reference wheel."
     echo "- \`new-wheel-files.txt\` / \`ref-${REF}-wheel-files.txt\` -- sorted full file listings."
@@ -544,7 +507,6 @@ main() {
   step_b_build
   step_c_twine
   step_d1_wheel_contents_bare
-  step_d2_wheel_contents_ignore_w002
   step_e1_reference_fetch
   step_e2_file_listings
   step_e3_diffs
