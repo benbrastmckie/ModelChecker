@@ -12,6 +12,14 @@
         pkgs = nixpkgs.legacyPackages.${system};
         python = pkgs.python312;
 
+        # Single source of truth for the version: read it out of the same `code/pyproject.toml`
+        # that setuptools builds the wheel from, rather than restating it here. Two hardcoded
+        # copies previously drifted from pyproject.toml (they sat at 1.3.0 across the 1.3.1
+        # release), which `release.yml`'s tag-vs-installed version gate does not catch because it
+        # compares the tag against the *built wheel's* metadata and never inspects this file.
+        # Deriving it makes that drift unrepresentable instead of merely detectable.
+        version = (builtins.fromTOML (builtins.readFile ./code/pyproject.toml)).project.version;
+
         # nixpkgs builds its Python Z3 bindings from the Z3Prover/z3 source tree under the
         # `z3-solver` attribute name (renamed from the older `z3` attribute) -- this is NOT the
         # PyPI `z3-solver` wheel `code/pyproject.toml` declares as a dependency, it is the
@@ -22,7 +30,7 @@
 
         modelChecker = python.pkgs.buildPythonPackage {
           pname = "model-checker";
-          version = "1.3.0";
+          inherit version;
           pyproject = true;
           src = ./code;
 
@@ -143,7 +151,7 @@
         # re-expose the same documented CI flake under the nix toolchain alone.
         checks.default = pkgs.stdenv.mkDerivation {
           pname = "model-checker-checks";
-          version = "1.3.0";
+          inherit version;
           src = ./code;
 
           nativeBuildInputs = [ devPython ];
