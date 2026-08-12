@@ -36,6 +36,10 @@ so the suite actually runs.
 - `.github/workflows/README.md` — added a `## Workflows` section (appended onto the pointer-stub
   content another concurrent task had already rewritten this file to) describing all three
   workflows in the directory: `release.yml`, `packaging.yml`, `differential-tests.yml`.
+- `code/tests/packaging/conftest.py` — post-hoc fix (found by the plan's own deliberate-drift
+  smoke check, run after all 6 phases were first marked complete): `built_artifacts` now clears
+  `code/build/` and `src/model_checker.egg-info/` immediately before and after every session
+  build. See "Decisions" below for why this was necessary.
 
 ## Decisions
 
@@ -50,10 +54,24 @@ so the suite actually runs.
 - The release.yml packaging-test step reinstalls `pytest` inline (`pip install pytest`) rather
   than depending on any prior job's environment, since the `build` job is a fresh
   `ubuntu-latest` runner with no pytest installed yet at that point.
+- The Testing & Validation checklist's deliberate-drift smoke check (temporarily remove
+  `docs/*.md` from `pyproject.toml`'s package-data, rebuild, confirm red, revert) initially
+  false-passed: `python -m build --no-isolation` runs setuptools' legacy commands in place
+  against `code/`, and `build_py`/`egg_info` are incremental by default, so a pre-existing stale
+  `code/build/` (from an old manual build) let the "fresh" build silently ship already-copied
+  `docs/*.md` files even after the config change. `--outdir` only redirects the final artifact
+  location, never the intermediate caches. Fixed by clearing `code/build/` and
+  `src/model_checker.egg-info/` (never `code/dist/`) before and after every session build;
+  re-running the smoke check then correctly turned 40 assertions red, and green again on revert.
 
 ## Plan Deviations
 
-- None (implementation followed plan; all 6 phases closed as originally planned).
+- None from the plan's phase structure or scope (all 6 phases closed as originally planned). One
+  post-hoc correction was made after all phases first reached green: `built_artifacts` in
+  `code/tests/packaging/conftest.py` was fixed to clear setuptools' incremental build caches
+  before/after each build, per the stale-build-cache defect recorded above and in the plan's
+  Phase 1 section and Testing & Validation checklist. This is a bugfix within Phase 1's existing
+  scope, not a scope change.
 
 ## Impacts
 

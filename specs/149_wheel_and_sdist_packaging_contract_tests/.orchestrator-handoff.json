@@ -1,6 +1,6 @@
 {
   "status": "implemented",
-  "summary": "Phase 6 (CI wiring) verified and committed: packaging.yml created (push/PR-triggered, -m packaging), release.yml build job gets one additive packaging-test step, README.md documents all three workflows. 108 packaging tests pass under -m packaging exactly as CI invokes them. All 6 plan phases now closed.",
+  "summary": "Phase 6 (CI wiring) verified and committed: packaging.yml created (push/PR-triggered, -m packaging), release.yml build job gets one additive packaging-test step, README.md documents all three workflows. 108 packaging tests pass under -m packaging exactly as CI invokes them. All 6 plan phases closed. Post-hoc: the Testing & Validation deliberate-drift smoke check surfaced and this fixed a stale-build-cache defect in the Phase 1 build fixture (python -m build --no-isolation was reusing code/build/ and src/model_checker.egg-info/ incrementally, producing a false pass); the smoke check now correctly detects drift and the full suite is re-confirmed green.",
   "artifacts": [
     {
       "type": "summary",
