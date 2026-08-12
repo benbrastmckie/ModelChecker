@@ -325,23 +325,31 @@ not be made pre-emptively.
 
 ---
 
-### Phase 5: Console-Script Entry-Point Assertion [NOT STARTED]
+### Phase 5: Console-Script Entry-Point Assertion [COMPLETED]
 
 **Goal**: The `model-checker` console script is proven to install from the built wheel and run.
 
 **Tasks**:
-- [ ] Create `code/tests/packaging/test_entry_point.py`.
-- [ ] Add a session-scoped fixture that creates a fresh venv under a pytest temp dir and installs
+- [x] Create `code/tests/packaging/test_entry_point.py`.
+- [x] Add a session-scoped fixture that creates a fresh venv under a pytest temp dir and installs
       the built wheel into it with `PIP_USER=0` in the subprocess env and `--no-user` on the pip
-      invocation.
-- [ ] Assert the `model-checker` script exists at the venv's `bin/` (POSIX) or `Scripts/`
+      invocation. **Defect found and fixed during implementation**: the fixture's subprocess env
+      must also strip `PYTHONPATH` (inherited from the outer `PYTHONPATH=src` test invocation) --
+      left in place, pip's "already satisfied" resolver sees `model_checker` importable via the
+      source tree on `sys.path` and silently skips (re)installing the wheel, leaving the console
+      script absent from the venv's `bin/` with no error. All three subprocess calls in this
+      module (pip install, the console-script invocation, and the entry-point import check) use
+      the stripped env for consistency.
+- [x] Assert the `model-checker` script exists at the venv's `bin/` (POSIX) or `Scripts/`
       (Windows) path and is executable.
-- [ ] Run `model-checker --version` (falling back to `--help` if `--version` is not a supported
+- [x] Run `model-checker --version` (falling back to `--help` if `--version` is not a supported
       flag — confirm which at implementation time) via subprocess and assert exit code 0.
-- [ ] Assert the declared entry point resolves: `model_checker.__main__:run` is importable in the
+      Confirmed `--version` is supported (`argparse` `action='version'` in `__main__.py`); no
+      `--help` fallback needed.
+- [x] Assert the declared entry point resolves: `model_checker.__main__:run` is importable in the
       installed venv.
-- [ ] Keep the scope minimal — no assertions about CLI output content beyond a non-empty stdout.
-- [ ] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
+- [x] Keep the scope minimal — no assertions about CLI output content beyond a non-empty stdout.
+- [x] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
 
 **Timing**: 0.75 hours
 
