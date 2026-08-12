@@ -2,13 +2,15 @@
 
 - **Task**: 155 - fix_ci_failures_wheel_dep_and_timing_gated_tests
 - **Status**: [NOT STARTED]
-- **Effort**: 2.5 hours
+- **Effort**: 2.75 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/reports/01_ci-failures-wheel-and-timing.md
 - **Artifacts**: plans/01_ci-fixes-wheel-and-timing.md (this file)
 - **Standards**: plan-format.md, status-markers.md, artifact-management.md, tasks.md
 - **Type**: python
 - **Lean Intent**: false
+- **Revision**: r1 -- Phase 6 amended to add a local `python -m build --no-isolation` +
+  `check-wheel-contents` observation of the Class 1 fix. Phases 1-5 unchanged.
 
 ## Overview
 
@@ -42,9 +44,51 @@ Findings that shaped the phase structure:
   selectors and must gain `and not performance` together, or the PyPI-toolchain gate and the
   nixpkgs-toolchain gate will diverge on which tests are CI-appropriate.
 
+#### Revision r1: `check-wheel-contents` now available
+
+`check-wheel-contents` was NOT installed when this plan was first written (zero occurrences in
+the plan and zero in the research report). It has since been installed and was re-verified
+directly at revision time:
+
+| Probe | Result |
+|-------|--------|
+| `command -v check-wheel-contents` | `/home/benjamin/.nix-profile/bin/check-wheel-contents` |
+| `check-wheel-contents --version` | `check-wheel-contents 0.6.3` |
+| `import check_wheel_contents` | resolves inside the nix python3.13 env |
+| `python -c "import build"` / `import wheel` / `import setuptools` | `1.4.4` / `0.46.1` / `80.10.1` |
+| `code/pyproject.toml` `build-system.requires` | `["setuptools>=42", "wheel"]` |
+
+Four facts established at revision time shape how Phase 6 consumes the tool:
+
+1. **It resolves via the user's nix *profile*, not the flake devShell.** `nixpkgs#check-wheel-contents`
+   and its three plausible attribute spellings all still fail to evaluate, and `flake.nix`'s
+   `devShells.default` is `packages = [ devPython ]` only. `specs/TODO.md:235` independently
+   records that the devShell has no `build`, `twine`, or `check-wheel-contents`. Phase 6
+   therefore runs this step from the **ambient shell**, never inside `nix develop`.
+2. **`build-system.requires` genuinely lists `wheel`.** This is why `--no-isolation` -- which
+   deliberately does NOT provision build-system requires -- is the faithful local reproduction of
+   the CI failure mode `ERROR Missing dependencies: wheel`, and thus a real observation of the
+   Class 1 fix rather than a formality.
+3. **The tool exits 1 on the current tree, on a pre-existing finding.** Run against the existing
+   `code/dist/model_checker-1.3.0-py3-none-any.whl` it reports `W002: Wheel contains duplicate
+   files` for the four identical `theory_lib/{bimodal,exclusion,imposition,logos}/VERSION` files
+   (each containing `1.0.0`), and **exits 1**. `--ignore W002` returns `OK` and exits 0. This
+   finding predates task 155 and is unrelated to the `wheel` install-list fix.
+4. **This corrects a stale historical claim.** The archived rehearsal
+   (`specs/archive/125_release_engineering_and_pypi_rehearsal/`) recorded `check-wheel-contents
+   dist/*.whl` -> `OK` (clean). That is no longer reproducible on the current tree, consistent
+   with `specs/TODO.md:161`'s note that the archived rehearsal's artifact evidence is stale.
+   Recording the W002 finding is in scope; fixing it is not.
+
+The plan-level consequence is that `check-wheel-contents` is wired in as a **non-blocking
+observation**, with its expected exit-1 stated up front so an implementer does not mistake a
+known pre-existing finding for a Phase 6 failure. See Phase 6's "Non-blocking contract".
+
 ### Prior Plan Reference
 
-No prior plan.
+No prior plan. This file is revision r1 of the original plan; the revision is confined to
+Phase 6 plus its bookkeeping. Phases 1-5 are byte-unchanged -- their edit sites, budgets, and
+commit modes were re-verified against the tree during planning and remain correct.
 
 ### Roadmap Alignment
 
@@ -324,9 +368,38 @@ which workflow runs the user must observe -- without claiming CI-green.
       `cd code && PYTHONPATH=src python -m pytest -m performance src/model_checker tests -v`
 - [ ] Run `git diff --stat` and confirm the changed-file set is exactly the nine files this plan
       names, with no production/library code among them
+- [ ] Clear stale build output so the wheel glob is unambiguous: `rm -rf code/dist` (this is
+      gitignored, regenerable build output -- `.gitignore:13` is `**/dist`; the currently-present
+      1.3.0 artifacts date from a prior build and their hashes are already recorded under
+      `specs/archive/125_release_engineering_and_pypi_rehearsal/`)
+- [ ] Build the wheel locally the way Class 1's failure mode actually surfaces:
+      `cd code && python -m build --no-isolation`. Run this from the **ambient shell, NOT inside
+      `nix develop`** -- the flake devShell has no `build`/`wheel`/`check-wheel-contents`.
+      `--no-isolation` is required, not incidental: it deliberately does not provision
+      `build-system.requires` (`["setuptools>=42", "wheel"]`), so it reproduces the exact
+      `ERROR Missing dependencies: wheel` condition that Phase 1 fixes. A zero exit here is the
+      direct local observation that the Class 1 remedy works
+- [ ] Lint the wheel that build just produced: `check-wheel-contents code/dist/*.whl`.
+      **Expect exit 1** with the pre-existing `W002: Wheel contains duplicate files` naming the
+      four identical `theory_lib/{bimodal,exclusion,imposition,logos}/VERSION` files. Per the
+      Non-blocking contract below this is NOT a phase failure
+- [ ] Re-run as `check-wheel-contents --ignore W002 code/dist/*.whl` to isolate the "is there
+      anything NEW?" signal. Expect `OK` and exit 0. If this second run reports anything beyond
+      `OK`, that IS a new finding worth surfacing prominently in the readiness report (still as
+      information, not as a phase failure)
+- [ ] Record both `check-wheel-contents` invocations verbatim -- command, exit code, and full
+      output -- in the summary artifact. Do NOT fix the W002 duplicate `VERSION` files under this
+      task; see the Non-blocking contract
+- [ ] Confirm `git status --porcelain` still shows no `code/dist` entry after building, proving
+      the build did not perturb the nine-path change set
 - [ ] Write the summary artifact stating: (i) what changed per class, (ii) that local green is
       NECESSARY BUT NOT SUFFICIENT evidence here -- this task exists precisely because local green
-      did not predict CI green, (iii) the explicit statement that CI-green is NOT being claimed
+      did not predict CI green, (iii) the explicit statement that CI-green is NOT being claimed,
+      (iv) the local `python -m build --no-isolation` result and both `check-wheel-contents`
+      runs, with the W002 finding reported as pre-existing and explicitly OUT OF SCOPE for this
+      task. Note that (iv) STRENGTHENS but does not upgrade (ii): a locally-built, locally-linted
+      wheel is still local evidence, and says nothing about whether the CI runner's install step
+      now provisions `wheel` correctly
 - [ ] Name the workflow runs the user should check after they push:
       `.github/workflows/packaging.yml` (Class 1), `.github/workflows/tests.yml` -- BOTH the
       `general-tests` matrix and the `flake-check` job (Classes 1-interaction and 2a), and
@@ -336,9 +409,33 @@ which workflow runs the user must observe -- without claiming CI-green.
       `pip install ... build` + `python -m build` shape to `packaging.yml`) plus the fact that a
       green `packaging.yml` run exercises the same failure mode
 - [ ] MUST NOT: push a branch, open a PR, invoke `/merge`, or tag. MUST NOT claim any CI run
-      passed
+      passed. MUST NOT commit anything under `code/dist/`
 
-**Timing**: 30 minutes
+#### Non-blocking contract for `check-wheel-contents`
+
+`check-wheel-contents` is a **strengthening of local verification, not a gate**. It is wired in
+because Phase 1 adds `wheel` to the install lists precisely so `python -m build --no-isolation`
+succeeds; linting the wheel that build then produces is a stronger observation of the Class 1 fix
+actually working than merely observing a zero exit code from build. That is the whole of its job
+here.
+
+Binding rules:
+
+- A non-zero exit from `check-wheel-contents` **MUST NOT** fail Phase 6, and MUST NOT be
+  described as a regression. Its exit 1 on the current tree is *expected* and was measured at
+  revision time.
+- Task 155's Class 1 remedy is the `wheel` install-list fix, **not** wheel-content cleanliness.
+  Pre-existing wheel-content findings are **reported, not fixed**, under this task.
+- Specifically: do NOT deduplicate, consolidate, symlink, or otherwise touch the four
+  `theory_lib/*/VERSION` files to silence W002. Those files are per-theory version markers whose
+  contents legitimately coincide (all `1.0.0`); changing them is production-tree surgery, is
+  outside this task's non-goal of "changing any production/library code", and would need its own
+  task with its own reasoning about per-theory versioning.
+- The only outcome that changes Phase 6's *reporting* (never its pass/fail) is the
+  `--ignore W002` run returning something other than `OK` -- that would indicate a finding not
+  accounted for at revision time and must be surfaced prominently.
+
+**Timing**: 45 minutes
 
 **Depends on**: 1, 2, 3, 4, 5
 
@@ -354,6 +451,12 @@ which workflow runs the user must observe -- without claiming CI-green.
 production/library code. Confirm with `git diff --name-only` and reconcile against this list; any
 extra path is a deviation to explain, any missing path is an incomplete phase.
 
+The nine-path invariant is unaffected by this phase's local build. `python -m build` writes only
+to `code/dist/`, which `.gitignore:13` (`**/dist`) excludes, so it cannot appear in
+`git diff --name-only`. Verified at revision time. If `code/dist` ever DOES show up in
+`git status --porcelain`, treat that as a `.gitignore` regression to report -- not as a path to
+stage.
+
 **Files to modify**:
 - `specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/summaries/01_ci-fixes-summary.md` - implementation summary and readiness report
 
@@ -361,6 +464,16 @@ extra path is a deviation to explain, any missing path is an incomplete phase.
 - The full-selector local run completes with 0 failures
 - The passed-count delta versus baseline is exactly -2 and is attributed to the two named tests
 - `git diff --name-only` matches the nine-path list above with no production/library code
+- `cd code && python -m build --no-isolation` exits 0 and produces both a `.whl` and a `.tar.gz`
+  under `code/dist/`, run from the ambient shell (not `nix develop`)
+- `check-wheel-contents code/dist/*.whl` has been run and its command, exit code, and full output
+  recorded in the summary -- with exit 1 on the known W002 accepted as expected, not a failure
+- `check-wheel-contents --ignore W002 code/dist/*.whl` returns `OK` (exit 0), confirming no
+  wheel-content finding beyond the one known at revision time
+- The summary reports the W002 duplicate-`VERSION` finding as pre-existing and out of scope, and
+  the four `theory_lib/*/VERSION` files are unmodified (`git diff --name-only` shows none of them)
+- `git status --porcelain` shows no `code/dist` entry, and nothing under `code/dist/` is staged
+  or committed
 - The summary contains an explicit "CI-green is not claimed" statement and the named workflow list
 - `git log` for this task contains no push, no PR, and no tag operation
 
@@ -378,6 +491,11 @@ extra path is a deviation to explain, any missing path is an incomplete phase.
 - [ ] `test_theory_library_execution` passes; its stdout contains `World Histories` and not `TIMEOUT: Model search exceeded`
 - [ ] The full CI selector run is green locally and the count delta versus baseline is exactly -2
 - [ ] `differential-tests.yml`'s broad step reads `--timeout=900` and its explicit-class step still reads `--timeout=300`
+- [ ] `cd code && python -m build --no-isolation` exits 0 from the ambient shell, producing a wheel and an sdist
+- [ ] `check-wheel-contents code/dist/*.whl` was run and fully recorded; its expected exit 1 on the pre-existing W002 is not treated as a phase failure
+- [ ] `check-wheel-contents --ignore W002 code/dist/*.whl` returns `OK`, showing no finding beyond the one known at revision time
+- [ ] The four `theory_lib/*/VERSION` files are unmodified -- W002 is reported, not fixed
+- [ ] Nothing under `code/dist/` is staged or committed
 - [ ] No production or library code appears in `git diff --name-only`
 
 ## Artifacts & Outputs
@@ -386,6 +504,9 @@ extra path is a deviation to explain, any missing path is an incomplete phase.
 - `specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/summaries/01_ci-fixes-summary.md` (Phase 6)
 - Modified: `.github/workflows/packaging.yml`, `.github/workflows/release.yml`, `.github/workflows/tests.yml`, `.github/workflows/differential-tests.yml`, `flake.nix`
 - Modified: `code/src/model_checker/builder/tests/test_refactoring_target_behavior.py`, `code/tests/integration/test_performance.py`, `code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py`, `code/src/model_checker/builder/tests/e2e/test_full_pipeline.py`
+- Transient, NOT committed: `code/dist/*.whl` and `code/dist/*.tar.gz` rebuilt in Phase 6 as
+  local evidence for the Class 1 fix. Gitignored via `.gitignore:13` (`**/dist`); the evidence
+  that persists is the recorded command output in the summary, not the binaries.
 
 ## Rollback/Contingency
 
@@ -403,3 +524,9 @@ extra path is a deviation to explain, any missing path is an incomplete phase.
   `TestFullScanReport` / `TestBimodalHarnessIntegration` precedent.
 - Phase 1 is the release-blocking fix; if any later phase must be abandoned, Phase 1 must still
   land.
+- Phase 6's build-and-lint step has no rollback surface: it writes only to gitignored
+  `code/dist/` and modifies no tracked file. If `check-wheel-contents` turns out to be
+  unavailable at implementation time (e.g. the nix profile changed), drop the two lint bullets
+  and record their absence in the summary -- the `python -m build --no-isolation` observation
+  alone still verifies the Class 1 fix, which is what the original plan relied on. The lint is
+  additive evidence, so losing it degrades the readiness report rather than blocking the phase.
