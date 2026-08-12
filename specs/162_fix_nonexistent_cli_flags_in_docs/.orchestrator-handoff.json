@@ -1,18 +1,18 @@
 {
-  "status": "researched",
-  "phase": "research",
-  "dispatch_seq": 1,
-  "summary": "Audited all four named nonexistent-flag families plus adjacent occurrences. Confirmed the real argparse flag set from __main__.py, determined settings/README.md's Theory-Specific Flags were never real (verified via full git history search), and found additional in-scope issues (broader settings/README.md hyphenation bugs, --save notebook/all, --no-terminal, --iso-debug, and a live --output-dir bug in output/errors.py). Report written; ready for planning.",
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 2,
+  "summary": "8-phase TDD plan created. Guard-first: build a doc-flag lint deriving allowed tokens from parser._actions (Phase 1), demonstrate RED under strict xfail with a violation inventory (Phase 2), fix docs in five file-owned parallel phases (3-7, wave 3) covering ~47 fabricated flag tokens across 10 files plus the live --output-dir suggestion string in output/errors.py, then remove the xfail and run the full gate (Phase 8). Plan-time verification amended two research conclusions: --iso-debug IS real (a dev_cli.py wrapper flag consumed pre-argparse, must be allowlisted not 'fixed'), and six further fabricated flags were found beyond the report's four findings (--benchmark, --test-all-settings, --profile, --generate-license family, -t).",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/reports/01_nonexistent-cli-flags-audit.md",
-      "summary": "Full audit of nonexistent CLI flags across user-facing docs with root causes, fix recommendations, and a regression-guard design."
+      "type": "plan",
+      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/plans/01_nonexistent-cli-flags-fix.md",
+      "summary": "8-phase TDD plan for the doc-flag regression guard and the documentation/source fixes it gates."
     }
   ],
   "phases_completed": 0,
-  "phases_total": 0,
+  "phases_total": 8,
   "blockers": [],
   "continuation_path": null,
-  "next_action_hint": "Run /plan 162 to create an implementation plan from the research report."
+  "next_action_hint": "Run /implement 162 to execute the plan. Phases 3-7 own disjoint file sets and may be dispatched in parallel once Phase 2 lands."
 }
