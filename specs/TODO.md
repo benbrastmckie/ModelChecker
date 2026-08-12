@@ -1,5 +1,5 @@
 ---
-next_project_number: 155
+next_project_number: 156
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 155
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 151,152 | -- | packaging, semantics |
+| 1 | 151,152,155 | -- | packaging, testing, semantics |
 | 2 | 153 | 152 | semantics |
 | 3 | 154 | 153 | semantics |
 
@@ -21,6 +21,10 @@ next_project_number: 155
 
 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 
+### Testing
+
+155 [NOT STARTED] — Fix the CI failures surfaced by the first live workflow run on 20
+
 ### Semantics
 
 152 [NOT STARTED] — AUDIT ONLY -- no semantics change, no constraint change, no examp
@@ -28,6 +32,36 @@ next_project_number: 155
     └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ## Tasks
+
+### 155. Fix ci failures wheel dep and timing gated tests
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Fix the CI failures surfaced by the first live workflow run on 2026-08-12 (runs 31609253772, 31609253774, 31609253618). Every failure falls into one of two classes; NEITHER is a semantic defect. The substance is green: 2000-2002 passed on every job, matching the 2002 measured locally during the CI-gate work.
+
+RELEASE-BLOCKING, FIX FIRST -- missing `wheel` breaks the publish pipeline. `.github/workflows/packaging.yml:27` installs `pytest build` and `.github/workflows/release.yml`'s `build` job installs `build twine`; neither installs `wheel`. The packaging contract suite invokes `python -m build --no-isolation`, which requires `wheel` importable in the ambient env, so it dies with `ERROR Missing dependencies: wheel` (observed: 2 passed, 116 errors, exit 1). packaging.yml already fails this way on every push. release.yml has NOT yet been exercised because 1.3.0 was never tagged, but its build job runs the same step and `publish-pypi` declares `needs: [build, publish-testpypi]` -- so tagging today burns the tag and never publishes. This step postdates v1.2.12, which is why the last release succeeded. Fix: add `wheel` to both install lists. Deterministic, not flaky; verify by re-running both workflows, not by reasoning about them.
+
+CLASS 2 -- wall-clock assertions cannot survive contended CI runners. A DIFFERENT test failed on each Python version and 3.12 was spotless, which is the signature of contention rather than a version-specific defect:
+  - 3.10: `bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_two_produces_distinct_models` (Z3 returned unsat first model under load) and `tests/integration/test_performance.py::TestExecutionPerformance::test_complex_model_performance` (`Failed: Timeout (>30.0s) from pytest-timeout`)
+  - 3.11: `src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_performance_improvement` -- asserts initialization `< 0.01s`, measured `0.011432s`
+  - 3.12: clean, 2002 passed
+  - `nix flake check` on CI: same `test_performance_improvement` plus `builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution` (`AssertionError: 'World Histories' not found in 'TIMEOUT: Model search exc...'`), 2 failed / 2000 passed
+
+SPLIT THE REMEDY BY KIND -- do not apply one blanket fix:
+  (a) Tests asserting SPEED (`test_performance_improvement`, `test_complex_model_performance`) assert something a shared 2-core runner cannot fairly measure. A 10ms assertion is not meaningful there. Mark them `@pytest.mark.performance` -- the marker is ALREADY registered at code/pyproject.toml:90 -- and deselect in CI with `-m "not packaging and not performance"`. Apply the SAME selector to BOTH `.github/workflows/tests.yml` AND `flake.nix`'s `checks.default`, or the two gates will disagree. Note `test_complex_model_performance`'s own docstring calls its 20s/30s budgets "hang guards, not performance budgets" with "3.3x headroom" -- CI contention ate the headroom; consider whether it belongs in (a) or (b).
+  (b) Tests that merely RAN OUT OF TIME doing real work (`test_iterate_two_produces_distinct_models`, `test_theory_library_execution`) are correctness tests, not speed tests. RAISE the pytest-timeout budget for CI rather than deselecting them -- deselecting would silently drop genuine coverage. Prefer generous budgets over tight ones.
+
+CLASS 3, PRE-EXISTING, LOWEST PRIORITY -- `.github/workflows/differential-tests.yml`: `oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` hits `Failed: Timeout (>300.0s) from pytest-timeout` (1 failed / 62 passed in 620s). This is NOT a regression from the CI-gate work -- the same workflow already failed on 2026-08-10 and 2026-07-18. Either raise its 300s budget or make that scan manual-only, consistent with how the exhaustive complexity-5 scan and TestBimodalHarnessIntegration are already deliberately manual-only. Do not let this block the release.
+
+CONTEXT WORTH KNOWING: broadening `flake.nix`'s `checks.default` beyond bimodal is what pulled the class-2 tests into the flake gate. It passed locally on a quiet host (2002 passed / 0 failed) and could only fail where local verification structurally could not observe it -- CI. That is the gap being closed here, not a mistake in the broadening itself, which remains correct.
+
+VERIFICATION MUST BE OBSERVED, NOT ASSERTED. The whole point of this task is that local green did not predict CI green. Local runs are necessary but NOT sufficient evidence here. The push that proves these fixes is user-only per .claude/rules/pr-prohibition.md, so implementation ends by reporting the fixes ready and naming exactly which workflow runs the user should check. Do not claim CI-green.
+
+AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, do not push branches, do not open PRs, do not tag.
+
+---
 
 ### 154. Extension certified search over small bimodal models
 - **Status**: [NOT STARTED]
