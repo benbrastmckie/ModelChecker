@@ -269,34 +269,35 @@ time. The test itself must assert nothing about the theory count.
 
 ---
 
-### Phase 4: Wheel/Sdist Parity and MANIFEST.in Remediation [NOT STARTED]
+### Phase 4: Wheel/Sdist Parity and MANIFEST.in Remediation [COMPLETED]
 
 **Goal**: The parity invariant both allowlists' comments assert is executable, and the
 `docs/*.md` sdist question is settled empirically — with `MANIFEST.in` fixed if it is real drift.
 
 **Tasks**:
-- [ ] Create `code/tests/packaging/test_parity.py`.
-- [ ] Define the comparison set precisely before asserting. Normalize the sdist by stripping the
+- [x] Create `code/tests/packaging/test_parity.py`.
+- [x] Define the comparison set precisely before asserting. Normalize the sdist by stripping the
       `{name}-{version}/src/` prefix; restrict both sides to members under `model_checker/`;
       exclude `*.dist-info/*`, `*.egg-info/*`, and sdist-only root metadata
       (`PKG-INFO`, `setup.py`, `pyproject.toml`, `MANIFEST.in`, `README.md`, `LICENSE`).
       Record this definition as a module docstring so a future reader can see what parity means
       here rather than re-deriving it.
-- [ ] Assert set equality of the `.py` module paths under `model_checker/` between the two
+- [x] Assert set equality of the `.py` module paths under `model_checker/` between the two
       artifacts.
-- [ ] Assert set equality of the packaged **data** paths (the `README.md`/`CITATION.md`/
+- [x] Assert set equality of the packaged **data** paths (the `README.md`/`CITATION.md`/
       `LICENSE.md`/`VERSION`/`docs/*.md`/`notebooks/*.ipynb` classes) under `model_checker/`.
       Report symmetric difference in the failure message, split into wheel-only and sdist-only.
-- [ ] Run the parity test and record the concrete outcome for `docs/*.md`: present in both,
-      wheel-only, or sdist-only.
-- [ ] If (and only if) `docs/*.md` is confirmed wheel-only, add the mirroring rule to
-      `code/MANIFEST.in` (a `recursive-include src/model_checker/theory_lib */docs/*.md`-shaped
-      rule consistent with the file's existing style), rebuild, and re-run Phases 2-4 to confirm
-      the fix introduces no new exclusion violation.
-- [ ] If `docs/*.md` is already present in both, leave `MANIFEST.in` unchanged and record in the
-      test docstring that setuptools' `include-package-data` auto-fold is what makes it hold —
-      so a future reader does not "fix" a non-bug.
-- [ ] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
+- [x] Run the parity test and record the concrete outcome for `docs/*.md`: present in both,
+      wheel-only, or sdist-only. **Outcome: present in both** — `test_data_path_parity` passed
+      on first run with an empty symmetric difference; independently confirmed by direct member
+      inspection during Phase 3 (see that phase's recorded outcome).
+- [ ] ~~If (and only if) `docs/*.md` is confirmed wheel-only, add the mirroring rule to
+      `code/MANIFEST.in`...~~ — not applicable; `docs/*.md` is present in both artifacts, so this
+      conditional branch does not fire.
+- [x] `docs/*.md` is already present in both — `MANIFEST.in` left unchanged; the auto-fold
+      explanation is recorded in `test_parity.py`'s module docstring so a future reader does not
+      "fix" a non-bug.
+- [x] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
 
 **Timing**: 1.25 hours
 
