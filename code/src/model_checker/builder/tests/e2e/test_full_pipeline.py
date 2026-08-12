@@ -41,7 +41,11 @@ class TestFullPipeline(unittest.TestCase):
             cmd,
             capture_output=True,
             text=True,
-            timeout=15  # Prevent hanging - reduced timeout for faster tests
+            # Outer guard must stay comfortably ahead of the largest inner
+            # max_time among run_dev_cli callers, plus interpreter
+            # startup/import overhead, or a raised max_time silently becomes
+            # a new subprocess-timeout failure instead of a real result.
+            timeout=30
         )
         
         if check and result.returncode != 0:
@@ -64,12 +68,12 @@ from model_checker.theory_lib.bimodal import get_theory
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
 example_range = {
-    "TEST": [[], ["A"], {"N": 2}]
+    "TEST": [[], ["A"], {"N": 2, "max_time": 10}]
 }
 general_settings = {}
 ''')
             test_file = f.name
-        
+
         try:
             result = self.run_dev_cli([test_file])
             

@@ -231,7 +231,10 @@ class TestBimodalIteratorReal:
             # under full-suite load, so a tight budget here silently
             # inverts the "First model was not satisfiable" assertion below
             # into a false negative on a timeout rather than a real result.
-            {'N': 2, 'M': 2, 'max_time': 30, 'contingent': True, 'iterate': iterate},
+            # Raised 30 -> 60: CI contention caused Z3 to hit the 30s cap and
+            # return an unsatisfiable first model, inverting the
+            # z3_model_status assertion into a false negative.
+            {'N': 2, 'M': 2, 'max_time': 60, 'contingent': True, 'iterate': iterate},
         ]
 
         return BuildExample(mock_module, theory, example_case)

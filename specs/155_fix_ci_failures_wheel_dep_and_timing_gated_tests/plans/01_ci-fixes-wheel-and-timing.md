@@ -263,31 +263,31 @@ the edit and zero bare (un-extended) hits after.
 
 ---
 
-### Phase 4: Raise the two application-level budgets for the correctness tests [NOT STARTED]
+### Phase 4: Raise the two application-level budgets for the correctness tests [COMPLETED]
 
 **Goal**: Give the two tests that ran out of time doing real work enough headroom to finish on a
 contended runner, WITHOUT deselecting them. Both knobs here are application-level (`max_time`,
 `subprocess.run(timeout=...)`); neither test has a `@pytest.mark.timeout` marker.
 
 **Tasks**:
-- [ ] `code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py` line ~234
+- [x] `code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py` line ~234
       (inside `_build_example`'s `example_case` settings dict): raise `'max_time': 30` to
       `'max_time': 60`. Update the adjacent explanatory comment to record the new value and that
       it was raised because CI contention caused Z3 to hit the cap and return an unsatisfiable
       first model, inverting the `z3_model_status` assertion into a false negative
-- [ ] `code/src/model_checker/builder/tests/e2e/test_full_pipeline.py`: in
+- [x] `code/src/model_checker/builder/tests/e2e/test_full_pipeline.py`: in
       `test_theory_library_execution`'s generated temp module, add an explicit `"max_time": 10` to
       the per-example settings dict inside `example_range` -- i.e. `{"N": 2}` becomes
       `{"N": 2, "max_time": 10}`. Note this goes in the example settings dict, NOT the empty
       `general_settings = {}`. Without it, bimodal's 1-second default applies and the theory
       prints `TIMEOUT: Model search exceeded maximum time of {max_time} seconds` instead of the
       expected `World Histories` table
-- [ ] `code/src/model_checker/builder/tests/e2e/test_full_pipeline.py` line ~44: raise
+- [x] `code/src/model_checker/builder/tests/e2e/test_full_pipeline.py` line ~44: raise
       `run_dev_cli`'s `subprocess.run(..., timeout=15)` to `timeout=30`, and update the trailing
       comment (currently "Prevent hanging - reduced timeout for faster tests") to record that the
       outer guard must stay comfortably ahead of the inner `max_time` plus interpreter
       startup/import overhead
-- [ ] Do NOT add `@pytest.mark.performance` to either test -- both are correctness tests
+- [x] Do NOT add `@pytest.mark.performance` to either test -- both are correctness tests
 
 **Timing**: 45 minutes
 
