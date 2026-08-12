@@ -1,0 +1,24 @@
+{
+  "status": "implemented",
+  "summary": "Corrected all four drifted release/environment docs: workflows README reduced to a pointer stub, RELEASE_SETUP.md matrix wording and two archive paths fixed, ENVIRONMENT_SETUP.md Python floor/casing/Nix prose corrected, and a new NixOS post-publish verification recipe added to BASIC_INSTALLATION.md. release.yml and flake.nix confirmed unmodified.",
+  "artifacts": [
+    {"type": "summary", "path": "specs/147_correct_stale_release_and_environment_docs/summaries/01_release-env-docs-summary.md", "summary": "Implementation summary covering all five phases, decisions, and plan deviations"}
+  ],
+  "phases_completed": 5,
+  "phases_total": 5,
+  "blockers": [],
+  "next_action_hint": "none",
+  "files_modified": [
+    ".github/workflows/README.md",
+    ".github/RELEASE_SETUP.md",
+    "code/docs/development/ENVIRONMENT_SETUP.md",
+    "docs/installation/BASIC_INSTALLATION.md"
+  ],
+  "decisions_made": [
+    "workflows/README.md reduced to a claim-free pointer stub rather than rewritten or deleted",
+    "ENVIRONMENT_SETUP.md scope expanded to fix all four ModelChecker/Code casing sites and all six shell.nix/nix-shell references, not just the two named in the task description"
+  ],
+  "dead_ends": [],
+  "plan_markers_verified": true,
+  "continuation_path": null
+}
