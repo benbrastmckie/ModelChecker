@@ -695,18 +695,20 @@ a fresh `oracle/run-oracle-exhaustive-scan.sh` run — there is no other sanctio
 **The two-budget contract (derivation vs. gating re-check).** The manifest is *derived* at
 `SELF_SCAN_SOLVE_TIMEOUT_MS` (10000 ms — the exhaustive scan, `scan_runner.py`'s default, and
 every re-derivation keep this budget), but the gating re-check re-solves the manifest population
-at the separate, wider `GATING_RECHECK_SOLVE_TIMEOUT_MS` (20000 ms, both constants in
-`test_cross_oracle_differential.py`). The two are deliberately decoupled: the slowest manifest
+at the separate, wider `GATING_RECHECK_SOLVE_TIMEOUT_MS` (40000 ms as of 2026-08-12, widened from
+the original 20000 ms after a real CI conclusive-population shortfall — see that constant's own
+comment in `test_cross_oracle_differential.py` for the full measurement-backed justification; both
+constants live in that same file). The two are deliberately decoupled: the slowest manifest
 member entered the manifest at 10.094 s against the 10000 ms derivation budget, so re-checking at
 the derivation budget ran at ~1.0x headroom by construction. Decoupling is sound because
 conclusiveness is monotone in budget — every derivation-time member remains legitimately
-conclusive at the wider budget, so no manifest re-derivation is triggered, the gating floor is
-untouched, and `disagreements == 0` is asserted over *more* decided results. The recorded
-trade-off: per-formula solve-cost regressions from <10 s into the 10-20 s band no longer trip the
-gating floor; that regression detection lives in the scheduled exhaustive scan, which keeps the
-10000 ms budget and its manifest-freshness check. Only a manifest re-derivation changes what
-"known-conclusive" means; the re-check budget only changes how much headroom the gating pass has
-while verifying it.
+conclusive at a wider re-check budget, so no manifest re-derivation is triggered, the gating floor
+is untouched, and `disagreements == 0` is asserted over *more* decided results. The recorded
+trade-off: per-formula solve-cost regressions from <10 s into the 10 s-to-re-check-budget band no
+longer trip the gating floor; that regression detection lives in the scheduled exhaustive scan,
+which keeps the 10000 ms budget and its manifest-freshness check. Only a manifest re-derivation
+changes what "known-conclusive" means; the re-check budget only changes how much headroom the
+gating pass has while verifying it.
 
 **The JSON-artifact and completion-marker contract.** Both the exhaustive test and the standalone
 `oracle/scan_runner.py` CLI call the same shared scan core
@@ -798,6 +800,77 @@ A skip is always a budget/performance outcome, never a semantic regression, and 
 reporting-only: it adds no marker, never touches `session.exitstatus`, and never converts a skip
 into a failure. Never widen a solve budget to clear a `[NEW]` or `[RESOLVED]` entry off this list —
 see 8.6 above and the hard constraint two subsections up.
+
+### 8.9 The `unstable` Marker
+
+**What the marker means.** Registered verbatim in `code/pyproject.toml` (and mirrored in
+`oracle/conftest.py`'s `pytest_configure`, since `oracle/` sits outside `code/pyproject.toml`'s
+ini-discovery reach — see that file's module docstring): "Tests with a documented, investigated
+non-semantic instability (e.g. a heavy-tailed solver draw). Deselected from release-gating runs
+with `-m "not unstable"`; run on their own by the unstable-watch workflow so they stay observed
+rather than forgotten." `unstable` is the pressure-release valve for genuine residue *after*
+repair is attempted — see 8.6's timing-budget discipline and 8.8's gating-floor discipline for the
+two mechanisms this category exists to route around when they run out.
+
+**Entry criteria.** All four are mandatory and must be recorded explicitly, as separately
+identifiable items, in a comment at the marker's source site — not merely implied:
+
+1. **What fails and why** — the specific failure mechanism (e.g. a heavy-tailed Z3 solve
+   distribution near a budget), with concrete measurements, not a vague "sometimes flaky".
+2. **Demonstrably non-semantic** — the assertion holds on every decided/complete run; the failure
+   mode is a budget overrun or resource exhaustion, never a changed logical conclusion.
+3. **A genuine fix was attempted and its failure recorded** — cite the specific avenues tried
+   (encoding changes, budget recalibrations, alternative algorithms) and what each measurement
+   showed, so a future reader starts from the frontier instead of re-trying a closed avenue.
+4. **A written, concrete exit criterion** — see below.
+
+**"It failed once in CI" never qualifies on its own** — that is exactly the ordinary machine-load
+variance 8.6 describes, and the correct first response is checking the budget, not reaching for
+this marker. `unstable` is for instability that survives a genuine repair attempt, not a shortcut
+around one. The category must not become a dumping ground: every marking costs this policy's
+credibility, so mark sparingly and keep the entry-criteria record honest.
+
+**Exit criteria and the promotion path.** The general rule: a written, per-test exit criterion is
+mandatory at the marker site, stated concretely enough that "has this been met?" has a yes/no
+answer. The concrete default, absent a test-specific reason to differ: **20 consecutive
+`unstable-watch` runs recording zero failures (nightly cadence, so roughly 3 weeks), OR a genuine
+encoding/algorithmic fix demonstrated to collapse the instability across a statistically
+meaningful sweep (e.g. >= 20 seeds) with no residual failure at the documented budget.** When an
+exit criterion is met, promotion is mechanical: remove `@pytest.mark.unstable` (or the
+`UNSTABLE_EXAMPLES`-style membership that applies it) from the test, remove it from any
+workflow-level exclusion accounting that names it directly, and record the promotion — with the
+date and the evidence that justified it — in the settings/marker comment rather than deleting that
+comment's history. The history of what was tried and what finally worked is worth more than a
+clean diff.
+
+**Review cadence.** The `unstable` set is reviewed monthly (a human check that every marked test
+still has a live justification and an unmet exit criterion). `unstable-watch.yml` itself runs
+nightly and surfaces `READY TO PROMOTE` automatically the moment the 20-run streak is reached —
+the monthly review is a backstop for cases the automated streak does not catch (e.g. a test that
+should be promoted for a different reason, such as a landed encoding fix).
+
+**The standing rule.** An indefinitely-quarantined test is itself a defect to escalate, not a
+steady state that the marker lets a codebase settle into. A test still marked `unstable` after two
+review cycles (roughly two months) with no promotion and no active repair work in progress must
+get a task opened against it — continuing to sit in the `unstable` category with neither progress
+nor an active investigation is the failure mode this rule exists to catch.
+
+**Where the deselection is wired.** `.github/workflows/tests.yml`'s main suite invocation,
+`.github/workflows/differential-tests.yml`'s first invocation, and `flake.nix`'s `checks.default`
+(the same suite under the nixpkgs-native Z3 toolchain) all carry `and not unstable` in their `-m`
+expression. `.github/workflows/release.yml`'s `test-and-release` job runs no pytest suite at all —
+a documented no-op comment there states that any pytest suite added to that job in the future MUST
+carry `not unstable`; the `build` job's packaging-contract invocation already carries a defensive
+`and not unstable` even though no packaging test is or should ever be `unstable`-marked. A future
+author adding a new gating pytest invocation anywhere in this repository should include the same
+filter as a matter of course, not rediscover the need for it.
+
+**Currently marked.** `test_example_cases[BM_CM_1-example_case7]` in
+`code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py` — see that file's
+`UNSTABLE_EXAMPLES` entry-criteria comment block for the full record (a heavy-tailed solve on the
+Future/all_future quantifier family; three closed encoding avenues; the written 20-run-or-verified-
+fix exit criterion). Not duplicated here; the in-line block at the marker site is the source of
+truth.
 
 ---
 

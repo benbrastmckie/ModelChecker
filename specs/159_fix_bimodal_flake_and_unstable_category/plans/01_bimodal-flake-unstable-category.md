@@ -548,7 +548,7 @@ anything is quarantined (Phase 4).
 
 ---
 
-### Phase 7: Document the `unstable` policy in TESTING_GUIDE.md 8.9 [NOT STARTED]
+### Phase 7: Document the `unstable` policy in TESTING_GUIDE.md 8.9 [COMPLETED]
 
 - **Goal:** A durable, discoverable policy record: entry criteria, exit criteria, review
   cadence, promotion path, and the standing escalation rule.
