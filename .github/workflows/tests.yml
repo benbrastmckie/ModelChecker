@@ -63,7 +63,7 @@ jobs:
           # covers it: this job exercises the PyPI z3-solver wheel users actually install, while
           # the flake check exercises the nixpkgs-packaged Z3/Python toolchain -- deliberate
           # cross-toolchain coverage of the same tests, not redundant duplication.
-          pytest tests/ src/model_checker -m "not packaging" -n 6 -q
+          pytest tests/ src/model_checker -m "not packaging and not performance" -n 6 -q
 
   flake-check:
     name: nix flake check

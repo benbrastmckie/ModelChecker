@@ -222,20 +222,20 @@ command (expect exactly two hits, in the two named files).
 
 ---
 
-### Phase 3: Deselect `performance` in BOTH CI gates [NOT STARTED]
+### Phase 3: Deselect `performance` in BOTH CI gates [COMPLETED]
 
 **Goal**: Extend the existing marker selector in both gate definitions so the PyPI-toolchain gate
 and the nixpkgs-toolchain gate agree on which tests are CI-appropriate.
 
 **Tasks**:
-- [ ] `.github/workflows/tests.yml` line 66:
+- [x] `.github/workflows/tests.yml` line 66:
       `pytest tests/ src/model_checker -m "not packaging" -n 6 -q` ->
       `pytest tests/ src/model_checker -m "not packaging and not performance" -n 6 -q`
-- [ ] `flake.nix` line 147 (inside `checks.default`'s `checkPhase`):
+- [x] `flake.nix` line 147 (inside `checks.default`'s `checkPhase`):
       `pytest src/model_checker tests -m "not packaging" -n 6 -q` ->
       `pytest src/model_checker tests -m "not packaging and not performance" -n 6 -q`
-- [ ] Leave `-n 6` unchanged in both (the documented bimodal CPU-contention flake guard)
-- [ ] Do NOT touch `packaging.yml`'s `-m packaging` selector or `differential-tests.yml`'s
+- [x] Leave `-n 6` unchanged in both (the documented bimodal CPU-contention flake guard)
+- [x] Do NOT touch `packaging.yml`'s `-m packaging` selector or `differential-tests.yml`'s
       `-m "not slow and not differential"` selector
 
 **Timing**: 30 minutes

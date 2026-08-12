@@ -144,7 +144,7 @@
             runHook preCheck
             export PYTHONPATH="$PWD/src"
             export HOME="$TMPDIR"
-            pytest src/model_checker tests -m "not packaging" -n 6 -q
+            pytest src/model_checker tests -m "not packaging and not performance" -n 6 -q
             runHook postCheck
           '';
 
