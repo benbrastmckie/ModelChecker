@@ -134,3 +134,31 @@ def test_help_lists_every_registered_theory(capsys):
     help_text = flags.parser.format_help()
     for theory_name in registry.get_registered():
         assert theory_name in help_text
+
+
+def test_save_jupyter_rejected(monkeypatch, tmp_path):
+    """--save jupyter is rejected at argparse time (no Jupyter writer exists)."""
+    example_file = tmp_path / "example.py"
+    example_file.write_text("semantic_theories = {}\nexample_range = {}\n")
+
+    # file_path precedes --save so argparse's nargs='*' greedy consumption doesn't
+    # swallow the positional file_path as a --save value.
+    monkeypatch.setattr(sys, 'argv', ['model-checker', str(example_file), '--save', 'jupyter'])
+    flags = ParseFileFlags()
+    with pytest.raises(SystemExit):
+        flags.parse()
+
+
+def test_bare_save_yields_markdown_and_json(monkeypatch, tmp_path):
+    """Bare --save (no args) still yields formats == ['markdown', 'json']."""
+    from model_checker.output.config import create_output_config
+
+    example_file = tmp_path / "example.py"
+    example_file.write_text("semantic_theories = {}\nexample_range = {}\n")
+
+    monkeypatch.setattr(sys, 'argv', ['model-checker', str(example_file), '--save'])
+    flags = ParseFileFlags()
+    module_flags, _ = flags.parse()
+
+    config = create_output_config(module_flags)
+    assert config.formats == ['markdown', 'json']

@@ -54,7 +54,9 @@ def create_output_config(args, settings=None) -> OutputConfig:
     Returns:
         OutputConfig instance
     """
-    # Determine formats from --save flag
+    # Determine formats from --save flag.
+    # Supported format set is markdown + json only; this mirrors the parser's
+    # --save choices=['markdown', 'json'] in model_checker.__main__.
     formats = []
     save_output = False
 

@@ -122,10 +122,10 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
             '--save',
             '-s',
             nargs='*',  # Allow 0 or more arguments
-            choices=['markdown', 'json', 'jupyter'],
+            choices=['markdown', 'json'],
             default=None,  # When flag not used at all
-            help='Save results. Formats: markdown, json, jupyter. '
-                 'No args = all formats. With args = specified only'
+            help='Save results. Formats: markdown, json. '
+                 'No args = markdown and json. With args = specified only'
         )
         output_group.add_argument(
             '--sequential',
