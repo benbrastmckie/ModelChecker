@@ -573,5 +573,16 @@
     "architecture",
     "testing",
     "semantics"
-  ]
+  ],
+  "deployment_versions": {
+    "last_deployed": "v1.3.1",
+    "last_deployed_at": "2026-08-12T20:38:48Z",
+    "deployment_history": [
+      {
+        "version": "v1.3.1",
+        "deployed_at": "2026-08-12T20:38:48Z",
+        "commit_sha": "983f9233492b6c490877e48149a0baaa2cbb4f6d"
+      }
+    ]
+  }
 }
