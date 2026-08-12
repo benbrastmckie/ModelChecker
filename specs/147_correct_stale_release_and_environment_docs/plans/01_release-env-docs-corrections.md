@@ -1,7 +1,7 @@
 # Implementation Plan: Task #147
 
 - **Task**: 147 - Correct stale release and environment docs
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/147_correct_stale_release_and_environment_docs/reports/01_release-env-docs-drift.md
