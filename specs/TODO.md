@@ -11,8 +11,8 @@ next_project_number: 158
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 151,152,155,156 | -- | packaging, testing, semantics |
-| 2 | 153,157 | 152,155 | packaging, semantics |
+| 1 | 151,152,156,157 | -- | packaging, semantics |
+| 2 | 153 | 152 | semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -22,10 +22,6 @@ next_project_number: 158
 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 156 [NOT STARTED] — Document a portable check-wheel-contents recipe in .github/RELEAS
 157 [NOT STARTED] — Deduplicate the four identical theory_lib VERSION files to clear 
-
-### Testing
-
-155 [IMPLEMENTING] — Fix the CI failures surfaced by the first live workflow run on 20
 
 ### Semantics
 
@@ -74,12 +70,13 @@ CORRECT A STALE CLAIM: the archived rehearsal recorded check-wheel-contents as c
 ---
 
 ### 155. Fix ci failures wheel dep and timing gated tests
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [155_fix_ci_failures_wheel_dep_and_timing_gated_tests/reports/01_ci-failures-wheel-and-timing.md]
 - **Plan**: [155_fix_ci_failures_wheel_dep_and_timing_gated_tests/plans/01_ci-fixes-wheel-and-timing.md]
+- **Summary**: [155_fix_ci_failures_wheel_dep_and_timing_gated_tests/summaries/01_ci-fixes-summary.md]
 
 **Description**: Fix the CI failures surfaced by the first live workflow run on 2026-08-12 (runs 31609253772, 31609253774, 31609253618). Every failure falls into one of two classes; NEITHER is a semantic defect. The substance is green: 2000-2002 passed on every job, matching the 2002 measured locally during the CI-gate work.
 
