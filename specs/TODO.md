@@ -11,15 +11,11 @@ next_project_number: 162
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,158,160,161 | -- | packaging, semantics, release-engineering |
-| 2 | 153 | 152 | semantics |
+| 1 | 152,160,161 | -- | semantics, release-engineering |
+| 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
-
-### Packaging
-
-161 [NOT STARTED] — Fix TestPyPI trusted-publishing failure in release CI and adopt b
 
 ### Semantics
 
@@ -29,18 +25,57 @@ next_project_number: 162
 
 ### Release Engineering
 
-158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
+161 [NOT STARTED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
+  └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 
 ## Tasks
 
-### 161. Fix testpypi trusted publishing ci
+### 161. Fix testpypi trusted publisher
 - **Status**: [NOT STARTED]
-- **Task Type**: general
-- **Topic**: packaging
+- **Task Type**: python
+- **Topic**: release-engineering
 - **Dependencies**: None
 
-**Description**: Fix TestPyPI trusted-publishing failure in release CI and adopt best-practice TestPyPI publishing. Tagging a new version and pushing causes the "Publish to TestPyPI" job in .github/workflows/release.yml to fail with `invalid-publisher`: "valid token, but no corresponding publisher (Publisher with matching claims was not found)". OIDC claims presented: sub=repo:benbrastmckie/ModelChecker:environment:testpypi, repository=benbrastmckie/ModelChecker, repository_owner=benbrastmckie, repository_owner_id=64314593, workflow_ref=benbrastmckie/ModelChecker/.github/workflows/release.yml@refs/tags/v1.3.1, job_workflow_ref=same, ref=refs/tags/v1.3.1, environment=testpypi. Reconcile the TestPyPI trusted-publisher configuration (project name, workflow filename, environment name) with the workflow, and restructure the CI pipeline so TestPyPI publishing follows current best practices for this repo configuration. See https://docs.pypi.org/trusted-publishers/troubleshooting/
+**Description**: Make TestPyPI publishing succeed at all: fix the TestPyPI trusted-publisher registration and make future OIDC mismatches diagnosable in one glance. SCOPE IS DELIBERATELY NARROW -- this is the unblock prerequisite carved out of the larger release-CI hardening task (`harden_release_ci_testpypi_gate`), which now declares this task as a dependency. Everything about PROMOTING TestPyPI to a gate (dropping `continue-on-error`, adding a `verify-testpypi` install-and-smoke-test job, preflight assertions, human confirmation gates) belongs to that task and MUST NOT be done here.
+
+SYMPTOM, AND WHY IT IS STILL OPEN. The "Publish to TestPyPI" job in `.github/workflows/release.yml` fails at the OIDC token exchange with:
+
+    invalid-publisher: valid token, but no corresponding publisher
+    (Publisher with matching claims was not found)
+
+This first appeared on the v1.3.0 tag push and RECURRED UNCHANGED on the v1.3.1 tag push -- i.e. the registration was never fixed in between. It has not blocked a release only because the job currently carries `continue-on-error: true`; that tolerance is exactly what the dependent task will remove, so this must be fixed first.
+
+CLAIMS PRESENTED BY THE v1.3.1 RUN (the diff target -- whatever is registered on test.pypi.org must match these exactly):
+
+    sub                : repo:benbrastmckie/ModelChecker:environment:testpypi
+    repository         : benbrastmckie/ModelChecker
+    repository_owner   : benbrastmckie
+    repository_owner_id: 64314593
+    workflow_ref       : benbrastmckie/ModelChecker/.github/workflows/release.yml@refs/tags/v1.3.1
+    job_workflow_ref   : benbrastmckie/ModelChecker/.github/workflows/release.yml@refs/tags/v1.3.1
+    ref                : refs/tags/v1.3.1
+    environment        : testpypi
+
+(1) USER-ONLY: REGISTER OR CORRECT THE TRUSTED PUBLISHER ON test.pypi.org. PyPI and TestPyPI are entirely separate registries with separate trusted-publisher configs and separate accounts; a publisher registered on pypi.org does nothing for test.pypi.org. No agent can perform this -- it is web-UI work. Surface it as an explicit user gate and do not attempt to work around it.
+
+  Go to test.pypi.org -> the `model-checker` project -> Publishing (or, if the project does not yet exist there, "Add a pending publisher"), and confirm all four fields:
+      Owner            : benbrastmckie
+      Repository       : ModelChecker
+      Workflow name    : release.yml       (the filename, not the workflow's display name)
+      Environment name : testpypi          (must match the job's `environment:` exactly; NOT `pypi`)
+
+  The three failure modes to check for, in likelihood order: (a) the publisher was registered on pypi.org rather than test.pypi.org; (b) the Environment field is `pypi`, or blank, rather than `testpypi`; (c) the Workflow field holds a display name ("Release") rather than the filename (`release.yml`). Also confirm the TestPyPI project name matches the distribution name actually being uploaded -- a pending publisher registered under a differently-spelled project name will not match.
+
+(2) ADD AN OIDC-CLAIMS DIAGNOSTIC STEP TO release.yml. Agent-authorable. In the publish-testpypi job, BEFORE the upload action runs, mint the Actions OIDC token for the PyPI audience and print its DECODED claims -- at minimum `sub`, `repository`, `workflow_ref`, and `environment`. This turns the next `invalid-publisher` from a guess into a two-second diff against the registration screen.
+
+  HARD CONSTRAINT: never print the token itself, and never echo it into a step output, artifact, or log. Print only the decoded claim fields named above. The step must not fail the job if minting fails -- it is a diagnostic, not a gate (the gating decision belongs to the dependent task).
+
+(3) VERIFY ON A REAL TAG PUSH. The only true verification is a `v*` tag push in which publish-testpypi completes green and the artifact appears on test.pypi.org. USER-ONLY per .claude/rules/pr-prohibition.md: `git push`, `git tag`, `/tag`, `/merge`, and any twine upload are user-initiated. An agent may author and commit the workflow change; it may not exercise it. If a real tag is not wanted purely for verification, note that `workflow_dispatch` cannot substitute unless the workflow already exposes it AND the trusted publisher's claims would still match -- a non-tag ref changes `ref` and `workflow_ref`, so a dispatch-based rehearsal may fail for reasons unrelated to the registration. Prefer verifying on the next genuine release tag.
+
+DONE MEANS: publish-testpypi completes green on a real tag push, the diagnostic step is in place and redacting correctly, and the dependent hardening task is unblocked. It does NOT mean TestPyPI is a gate -- that is explicitly out of scope here.
+
+FILE OVERLAP: this task and `harden_release_ci_testpypi_gate` both edit `.github/workflows/release.yml`. They MUST NOT run concurrently. This task runs FIRST; the other re-reads the file afterward rather than working from a stale copy.
 
 ---
 
@@ -169,7 +204,7 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, `git push`, `git tag`, `/
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: release-engineering
-- **Dependencies**: None
+- **Dependencies**: Task 161
 
 **Description**: Harden the release CI pipeline so TestPyPI becomes a real verification gate before production PyPI, and close the friction points observed during the 1.3.0 release run (2026-08-12, Actions run 31628414655). The 1.3.0 publish SUCCEEDED -- this task is about making the next one safer and less manual, not about fixing a broken release.
 
@@ -186,7 +221,7 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, `git push`, `git tag`, `/
 
   (c) Consider a human confirmation gate: adding a required-reviewer protection rule to the `pypi` GitHub Environment makes publish-pypi wait for an explicit click after TestPyPI verification passes, with zero workflow code. Both `pypi` and `testpypi` Environments currently exist with NO protection rules. Evaluate whether this is wanted -- it trades automation for control, and may be redundant once (b) exists.
 
-(2) FIX THE TESTPYPI TRUSTED PUBLISHER, AND MAKE OIDC MISMATCH DIAGNOSABLE. PyPI and TestPyPI are separate registries with separate trusted-publisher configs. The `invalid-publisher` failure means the TestPyPI-side registration does not match the workflow's OIDC claims -- most commonly it was registered on pypi.org instead of test.pypi.org, or its Environment name is `pypi` rather than `testpypi`. USER-ONLY to fix (test.pypi.org web UI): Owner `benbrastmckie`, Repository `ModelChecker`, Workflow `release.yml`, Environment `testpypi`. Additionally, add a diagnostic step that mints the OIDC token and prints its decoded claims (`repository`, `workflow_ref`, `environment`) BEFORE attempting upload, so the next `invalid-publisher` is a two-second diff instead of a guess. Do not print the token itself.
+(2) MOVED OUT -- DO NOT EXECUTE HERE. Fixing the TestPyPI trusted-publisher registration and adding the OIDC-claims diagnostic step is now owned by the separate unblock task `fix_testpypi_trusted_publisher` (a declared dependency of this task; see the DEPENDENCY note at the end). It was split out because it is a PREREQUISITE, not a peer: item (1)(b)'s `verify-testpypi` job cannot be built or exercised while TestPyPI uploads are rejected at the OIDC token exchange, and the registration itself is user-only web-UI work with no agent-authorable component. Treat a working TestPyPI upload as an INPUT to this task. If that dependency has not completed, do not attempt to re-derive or re-fix the registration here -- stop and report.
 
 (3) ADD A CHEAP FAIL-FAST PREFLIGHT JOB. The 1.3.0 run spent the entire 9-job matrix (ubuntu/macos/windows x py3.10-3.12) plus the build before any publish was attempted. A preflight job costing seconds should run first and assert:
     - the tag version matches `code/pyproject.toml` version, `flake.nix:25`, and `flake.nix:137` (three literals that can drift independently; `model_checker.__version__` derives via importlib.metadata so it is not a fourth)
@@ -228,7 +263,17 @@ Items (10), (11), and (12) above are SUPERSEDED by the bimodal-flake task (`fix_
 
 Item (9) is unaffected and remains verify-only (the duplicate-tag-trigger fix landed in commit b3822ac7).
 
-CONCURRENCY: this task and the bimodal-flake task overlap on `.github/workflows/tests.yml`, `.github/workflows/release.yml`, and `.github/workflows/differential-tests.yml`. They MUST NOT run concurrently -- both edit the same pytest selection expressions. Run one, then re-read its outcome before starting the other. This task's headline TestPyPI-gate work (items 1-8) is otherwise fully independent of the bimodal defects and is the higher-priority half.
+CONCURRENCY: this task and the bimodal-flake task overlap on `.github/workflows/tests.yml`, `.github/workflows/release.yml`, and `.github/workflows/differential-tests.yml`. They MUST NOT run concurrently -- both edit the same pytest selection expressions. Run one, then re-read its outcome before starting the other. This task's headline TestPyPI-gate work (items 1, 3-8) is otherwise fully independent of the bimodal defects and is the higher-priority half.
+
+=== DEPENDENCY: fix_testpypi_trusted_publisher (see `dependencies` in state.json) ===
+
+That task must COMPLETE before this one starts, for two independent reasons:
+
+  (i) SEQUENCING. Its output -- a TestPyPI upload that actually succeeds -- is the precondition for item (1)'s entire gate story. Promoting `continue-on-error: true` to a hard gate (1)(a) while the trusted publisher is still misconfigured would convert a silent canary failure into a HARD BLOCK on every production release. Do not land (1)(a) before the dependency is verified green on a real tag push.
+
+  (ii) FILE OVERLAP. Both tasks edit `.github/workflows/release.yml` -- the dependency adds a diagnostic step to the publish-testpypi job, this task restructures that same job and its `needs:` edges. Serialize; re-read the file after the dependency lands rather than working from a stale copy.
+
+Evidence the dependency is real and still open: the `invalid-publisher` failure recurred on the v1.3.1 tag push, after the 1.3.0 run that originally motivated this task. The registration has NOT been fixed in the interim.
 
 ---
 
