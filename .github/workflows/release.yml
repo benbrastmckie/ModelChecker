@@ -43,6 +43,13 @@ jobs:
 
     - name: Install and test package
       shell: bash
+      # This job deliberately runs NO pytest suite -- it only builds the wheel, installs
+      # it, and smoke-tests import/CLI/version match below. There is therefore no `-m`
+      # expression here for BM_CM_1's `unstable` marker (see code/pyproject.toml and
+      # code/docs/core/TESTING_GUIDE.md section 8.9) to gate a release from. Any pytest
+      # suite added to this job in the future MUST carry `not unstable` in its `-m`
+      # expression, mirroring tests.yml and differential-tests.yml, so this job cannot
+      # become a silent gate on a quarantined test.
       run: |
         cd code
 
@@ -109,10 +116,15 @@ jobs:
       # Additive, non-publish-affecting check: contents-verifies this same revision's wheel/sdist
       # (rebuilt fresh into a pytest temp dir by the suite itself -- it never reads code/dist/)
       # before the artifact below is uploaded and eventually published.
+      #
+      # "and not unstable" is a defensive no-op today (no packaging test is or should be
+      # `unstable`) -- it makes this real pytest invocation on the release-gating path
+      # structurally incapable of gating on a quarantined test, matching tests.yml and
+      # differential-tests.yml, even though nothing here currently needs the exclusion.
       run: |
         cd code
         pip install pytest
-        python -m pytest tests/packaging/ -v -m packaging
+        python -m pytest tests/packaging/ -v -m "packaging and not unstable"
 
     - name: Upload distribution artifact
       uses: actions/upload-artifact@v4

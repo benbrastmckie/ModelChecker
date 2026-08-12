@@ -401,7 +401,7 @@ anything is quarantined (Phase 4).
 
 ---
 
-### Phase 5: Wire `unstable` deselection into the gating workflows [NOT STARTED]
+### Phase 5: Wire `unstable` deselection into the gating workflows [COMPLETED]
 
 - **Goal:** No release-gating pytest invocation can be gated on an `unstable`-marked test.
 

@@ -64,13 +64,17 @@ jobs:
           #
           # -n 6, never xdist's auto worker-count mode: the theory_lib/bimodal suite has a
           # documented CPU-contention flake under that mode
-          # (test_bimodal.py::test_example_cases[BM_CM_1-example_case7]).
+          # (test_bimodal.py::test_example_cases[BM_CM_1-example_case7]). That case is now
+          # `unstable`-marked (see code/pyproject.toml's marker registration and
+          # code/docs/core/TESTING_GUIDE.md section 8.9) and deselected below via
+          # `not unstable`; it is separately observed on its own by the non-gating
+          # unstable-watch.yml workflow so it stays visible rather than silently dropped.
           # -n 6 is the value flake.nix's checks.default also uses, and this job deliberately does
           # NOT exclude bimodal even though `nix flake check` (see the flake-check job below) also
           # covers it: this job exercises the PyPI z3-solver wheel users actually install, while
           # the flake check exercises the nixpkgs-packaged Z3/Python toolchain -- deliberate
           # cross-toolchain coverage of the same tests, not redundant duplication.
-          pytest tests/ src/model_checker -m "not packaging and not performance" -n 6 -q
+          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable" -n 6 -q
 
   flake-check:
     name: nix flake check

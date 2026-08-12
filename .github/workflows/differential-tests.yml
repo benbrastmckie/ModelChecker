@@ -54,7 +54,7 @@ jobs:
           PYTHONPATH=code/src pytest \
             oracle/bimodal_logic/tests/test_cross_oracle_differential.py \
             -v \
-            -m "not slow and not differential" \
+            -m "not slow and not differential and not unstable" \
             --timeout=1500
         env:
           PYTHONPATH: code/src
