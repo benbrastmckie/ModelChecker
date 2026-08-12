@@ -166,25 +166,25 @@ existing files. Confirm by `git status --short` showing exactly one added path u
 
 ---
 
-### Phase 2: Doc-scan test (RED demonstration) and violation inventory [NOT STARTED]
+### Phase 2: Doc-scan test (RED demonstration) and violation inventory [COMPLETED]
 
 **Goal**: Point the extractor at the real documentation tree, demonstrate RED with a complete,
 actionable violation inventory, and land it in a committable (green) state via a strict xfail.
 
 **Tasks**:
-- [ ] Add `_DOC_GLOBS` to the test module: `docs/**/*.md`, `code/docs/**/*.md`,
+- [x] Add `_DOC_GLOBS` to the test module: `docs/**/*.md`, `code/docs/**/*.md`,
       `code/src/model_checker/**/*.md`, `code/README.md`, `README.md`. Explicitly exclude
       `specs/**` and `.claude/**` (task artifacts deliberately quote broken flags) with a comment
       stating why.
-- [ ] Add `test_documented_flags_are_registered()` asserting every extracted token is registered
+- [x] Add `test_documented_flags_are_registered()` asserting every extracted token is registered
       or a dev_cli wrapper flag, failing with a sorted `file:line: token` report modeled on
       `test_every_registered_flag_is_covered_or_excluded`'s set-difference message style.
-- [ ] Add a sanity assertion that the scan visited a non-trivial number of files, so a broken glob
+- [x] Add a sanity assertion that the scan visited a non-trivial number of files, so a broken glob
       cannot produce a vacuous pass.
-- [ ] Run the test, capture the full failure output, and write the inventory to
+- [x] Run the test, capture the full failure output, and write the inventory to
       `specs/162_fix_nonexistent_cli_flags_in_docs/reports/02_violation-inventory.md`, grouped by
       the owning phase (3-7).
-- [ ] Mark `test_documented_flags_are_registered` with
+- [x] Mark `test_documented_flags_are_registered` with
       `@pytest.mark.xfail(strict=True, reason="RED until docs are fixed; xfail removed in Phase 8")`
       so the commit is green and the eventual xpass hard-fails.
 

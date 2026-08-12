@@ -326,3 +326,76 @@ def test_iso_debug_and_load_wrapper_flags_are_allowed():
             assert token in _allowed_tokens(), (
                 f"{token!r} from {command!r} should be an allowed dev_cli wrapper flag"
             )
+
+
+# ---------------------------------------------------------------------------------------------
+# Doc-scan test: the real documentation tree
+# ---------------------------------------------------------------------------------------------
+
+# Repository root, derived from this file's own location rather than cwd, so the glob set is
+# correct regardless of where pytest is invoked from.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+
+# Markdown globs scanned by the doc-flag lint. `specs/**` and `.claude/**` are deliberately
+# excluded: task artifacts under those trees intentionally quote broken/fabricated flags while
+# describing or planning this very fix, and scanning them would make the guard permanently
+# unsatisfiable.
+_DOC_GLOBS = (
+    'docs/**/*.md',
+    'code/docs/**/*.md',
+    'code/src/model_checker/**/*.md',
+    'code/README.md',
+    'README.md',
+)
+
+
+def _iter_doc_files():
+    """Yield every markdown file matched by `_DOC_GLOBS`, relative to `_REPO_ROOT`."""
+    seen: set[Path] = set()
+    for pattern in _DOC_GLOBS:
+        for path in _REPO_ROOT.glob(pattern):
+            if path in seen:
+                continue
+            seen.add(path)
+            yield path
+
+
+def _scan_doc_violations():
+    """Return a sorted list of (relative_path, line_number, token) triples for every
+    documented invocation-line flag token that is neither registered on the parser nor a known
+    dev_cli.py wrapper flag."""
+    allowed = _allowed_tokens()
+    violations = []
+    files_scanned = 0
+    for doc_path in _iter_doc_files():
+        files_scanned += 1
+        text = doc_path.read_text(errors='replace')
+        rel_path = doc_path.relative_to(_REPO_ROOT)
+        for line_number, command in _iter_invocations(text):
+            for token in _extract_flag_tokens(command):
+                if token not in allowed:
+                    violations.append((str(rel_path), line_number, token))
+    violations.sort()
+    return violations, files_scanned
+
+
+@pytest.mark.xfail(strict=True, reason="RED until docs are fixed; xfail removed in Phase 8")
+def test_documented_flags_are_registered():
+    """Every flag token named in a documented shell invocation line must be registered on the
+    parser or be a known `dev_cli.py` wrapper flag. See the module docstring for the declared
+    prose/diagram blind spot.
+    """
+    violations, files_scanned = _scan_doc_violations()
+
+    # Sanity: a broken glob (e.g. a typo'd pattern matching nothing) must not produce a vacuous
+    # pass. The declared doc globs cover 200+ markdown files in this tree as of this writing.
+    assert files_scanned > 50, (
+        f"only {files_scanned} files scanned -- _DOC_GLOBS may be broken (too narrow)"
+    )
+
+    if violations:
+        report_lines = [f"{path}:{line}: {token}" for path, line, token in violations]
+        pytest.fail(
+            f"{len(violations)} fabricated/unregistered flag token(s) found in documented "
+            f"invocation lines:\n" + "\n".join(report_lines)
+        )
