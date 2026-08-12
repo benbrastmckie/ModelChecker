@@ -74,7 +74,7 @@
     {
       "project_number": 146,
       "project_name": "fix_cli_defects_found_in_release_review",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "python",
       "topic": "architecture",
       "priority": "high",
@@ -101,7 +101,7 @@
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-12T02:10:15Z",
+      "last_updated": "2026-08-12T02:11:19Z",
       "next_artifact_number": 1,
       "session_id": "sess_1786500059_e89d8c_146"
     },
@@ -174,7 +174,7 @@
     {
       "project_number": 149,
       "project_name": "wheel_and_sdist_packaging_contract_tests",
-      "status": "planned",
+      "status": "completed",
       "task_type": "python",
       "topic": "packaging",
       "priority": "medium",
@@ -195,13 +195,19 @@
           "path": "specs/149_wheel_and_sdist_packaging_contract_tests/plans/01_packaging-contract-tests.md",
           "type": "plan",
           "summary": "Six-phase plan: build fixture and marker, exclusions, registry-driven inclusions, parity, entry point, CI wiring"
+        },
+        {
+          "path": "specs/149_wheel_and_sdist_packaging_contract_tests/summaries/01_packaging-contract-tests-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary covering all 6 phases of the packaging contract test suite and CI wiring"
         }
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-12T02:10:15Z",
+      "last_updated": "2026-08-12T02:42:19Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1786500059_e89d8c_149"
+      "session_id": "sess_1786500059_e89d8c_149",
+      "completion_summary": "Added an executable code/tests/packaging/ suite (108 tests under the new packaging pytest marker) that builds fresh wheel/sdist artifacts and asserts exclusions, registry-driven inclusions, wheel/sdist parity, and console-script installability, then wired a push/PR-triggered packaging.yml workflow plus an additive packaging-test step in release.yml's build job so the suite actually runs in CI."
     },
     {
       "project_number": 150,

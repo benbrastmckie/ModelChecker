@@ -11,21 +11,20 @@ next_project_number: 155
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 146,149,152 | -- | packaging, architecture, semantics |
+| 1 | 146,152 | -- | architecture, semantics |
 | 2 | 148,153 | 146,152 | testing, semantics |
-| 3 | 150,154 | 148,149,153 | architecture, semantics |
+| 3 | 150,154 | 148,153 | architecture, semantics |
 | 4 | 151 | 150 | packaging |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Packaging
 
-149 [PLANNED] — Add executable tests for the packaging contract. Surfaced by the 
 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 
 ### Architecture
 
-146 [PLANNED] — Fix the user-visible CLI defects surfaced by the 2026-08-11 relea
+146 [IMPLEMENTING] — Fix the user-visible CLI defects surfaced by the 2026-08-11 relea
 150 [NOT STARTED] — Add continuous integration for the main test suites. Surfaced by 
 
 ### Testing
@@ -183,12 +182,13 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, do not push branches or o
 ---
 
 ### 149. Wheel and sdist packaging contract tests
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
 - **Research**: [149_wheel_and_sdist_packaging_contract_tests/reports/01_packaging-contract-tests.md]
 - **Plan**: [149_wheel_and_sdist_packaging_contract_tests/plans/01_packaging-contract-tests.md]
+- **Summary**: [149_wheel_and_sdist_packaging_contract_tests/summaries/01_packaging-contract-tests-summary.md]
 
 **Description**: Add executable tests for the packaging contract. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issue 10).
 
@@ -270,7 +270,7 @@ SCOPE NOTE: documentation only. Do not modify release.yml or flake.nix here; if 
 ---
 
 ### 146. Fix cli defects found in release review
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: None
