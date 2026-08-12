@@ -314,7 +314,7 @@ strictly safer for every caller, but confirm no sibling test asserts on the old 
 
 ---
 
-### Phase 5: Raise the pre-existing differential-tests timeout [NOT STARTED]
+### Phase 5: Raise the pre-existing differential-tests timeout [COMPLETED]
 
 **Goal**: Give `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` a
 budget that reflects its observed 620s runtime, without marking it `slow` (which would silently
@@ -322,15 +322,15 @@ drop the scan from every regular gating run). Lowest priority; NOT release-block
 regression from the CI-gate work.
 
 **Tasks**:
-- [ ] `.github/workflows/differential-tests.yml` line 38 (the FIRST/broad pytest step,
+- [x] `.github/workflows/differential-tests.yml` line 38 (the FIRST/broad pytest step,
       `-m "not slow and not differential"`): raise `--timeout=300` to `--timeout=900`
-- [ ] Add a brief comment at that step recording why: the failing scan is `xdist_serial` (it
+- [x] Add a brief comment at that step recording why: the failing scan is `xdist_serial` (it
       already runs alone, so this is a genuine budget-too-tight issue rather than worker
       contention), does real re-solving work, and is deliberately unmarked so it runs every
       gating pass
-- [ ] Leave line 52 (the explicit six-class step) at `--timeout=300` -- its class list does not
+- [x] Leave line 52 (the explicit six-class step) at `--timeout=300` -- its class list does not
       include `TestGatingConclusiveScan` and it is unaffected
-- [ ] Do NOT add `@pytest.mark.slow` to `TestGatingConclusiveScan`
+- [x] Do NOT add `@pytest.mark.slow` to `TestGatingConclusiveScan`
 
 **Timing**: 15 minutes
 
