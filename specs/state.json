@@ -1,6 +1,16 @@
 {
-  "next_project_number": 161,
+  "next_project_number": 162,
   "active_projects": [
+    {
+      "project_number": 161,
+      "project_name": "fix_testpypi_trusted_publishing_ci",
+      "status": "not_started",
+      "task_type": "general",
+      "description": "Fix TestPyPI trusted-publishing failure in release CI and adopt best-practice TestPyPI publishing. Tagging a new version and pushing causes the \"Publish to TestPyPI\" job in .github/workflows/release.yml to fail with `invalid-publisher`: \"valid token, but no corresponding publisher (Publisher with matching claims was not found)\". OIDC claims presented: sub=repo:benbrastmckie/ModelChecker:environment:testpypi, repository=benbrastmckie/ModelChecker, repository_owner=benbrastmckie, repository_owner_id=64314593, workflow_ref=benbrastmckie/ModelChecker/.github/workflows/release.yml@refs/tags/v1.3.1, job_workflow_ref=same, ref=refs/tags/v1.3.1, environment=testpypi. Reconcile the TestPyPI trusted-publisher configuration (project name, workflow filename, environment name) with the workflow, and restructure the CI pipeline so TestPyPI publishing follows current best practices for this repo configuration. See https://docs.pypi.org/trusted-publishers/troubleshooting/",
+      "topic": "packaging",
+      "created": "2026-08-12T20:53:37Z",
+      "last_updated": "2026-08-12T20:53:37Z"
+    },
     {
       "project_number": 159,
       "project_name": "fix_bimodal_flake_and_unstable_category",

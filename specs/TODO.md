@@ -1,5 +1,5 @@
 ---
-next_project_number: 161
+next_project_number: 162
 ---
 
 # TODO
@@ -11,11 +11,15 @@ next_project_number: 161
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,158,160 | -- | semantics, release-engineering |
+| 1 | 152,158,160,161 | -- | packaging, semantics, release-engineering |
 | 2 | 153 | 152 | semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
+
+### Packaging
+
+161 [NOT STARTED] — Fix TestPyPI trusted-publishing failure in release CI and adopt b
 
 ### Semantics
 
@@ -29,6 +33,16 @@ next_project_number: 161
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 
 ## Tasks
+
+### 161. Fix testpypi trusted publishing ci
+- **Status**: [NOT STARTED]
+- **Task Type**: general
+- **Topic**: packaging
+- **Dependencies**: None
+
+**Description**: Fix TestPyPI trusted-publishing failure in release CI and adopt best-practice TestPyPI publishing. Tagging a new version and pushing causes the "Publish to TestPyPI" job in .github/workflows/release.yml to fail with `invalid-publisher`: "valid token, but no corresponding publisher (Publisher with matching claims was not found)". OIDC claims presented: sub=repo:benbrastmckie/ModelChecker:environment:testpypi, repository=benbrastmckie/ModelChecker, repository_owner=benbrastmckie, repository_owner_id=64314593, workflow_ref=benbrastmckie/ModelChecker/.github/workflows/release.yml@refs/tags/v1.3.1, job_workflow_ref=same, ref=refs/tags/v1.3.1, environment=testpypi. Reconcile the TestPyPI trusted-publisher configuration (project name, workflow filename, environment name) with the workflow, and restructure the CI pipeline so TestPyPI publishing follows current best practices for this repo configuration. See https://docs.pypi.org/trusted-publishers/troubleshooting/
+
+---
 
 ### 160. Verify bimodal oracle budget and watch unstable marker
 - **Status**: [NOT STARTED]
