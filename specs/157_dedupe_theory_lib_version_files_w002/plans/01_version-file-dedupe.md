@@ -363,7 +363,7 @@ comparing collected test counts before/after.
 
 ---
 
-### Phase 5: Verify by rebuilding — plain check-wheel-contents must exit 0 [NOT STARTED]
+### Phase 5: Verify by rebuilding — plain check-wheel-contents must exit 0 [COMPLETED]
 
 **Goal**: Prove the remedy actually eliminated W002, from a from-scratch build, with no `--ignore`.
 
