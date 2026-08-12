@@ -11,10 +11,9 @@ next_project_number: 155
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 146,152 | -- | architecture, semantics |
-| 2 | 148,153 | 146,152 | testing, semantics |
-| 3 | 150,154 | 148,153 | architecture, semantics |
-| 4 | 151 | 150 | packaging |
+| 1 | 148,152 | -- | testing, semantics |
+| 2 | 150,153 | 148,152 | architecture, semantics |
+| 3 | 151,154 | 150,153 | packaging, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -24,7 +23,6 @@ next_project_number: 155
 
 ### Architecture
 
-146 [IMPLEMENTING] — Fix the user-visible CLI defects surfaced by the 2026-08-11 relea
 150 [NOT STARTED] — Add continuous integration for the main test suites. Surfaced by 
 
 ### Testing
@@ -270,12 +268,13 @@ SCOPE NOTE: documentation only. Do not modify release.yml or flake.nix here; if 
 ---
 
 ### 146. Fix cli defects found in release review
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: None
 - **Research**: [146_fix_cli_defects_found_in_release_review/reports/01_cli-defect-fixes.md]
 - **Plan**: [146_fix_cli_defects_found_in_release_review/plans/01_fix-cli-defects.md]
+- **Summary**: [146_fix_cli_defects_found_in_release_review/summaries/01_fix-cli-defects-summary.md]
 
 **Description**: Fix the user-visible CLI defects surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 8, 9, 11, 12, 13, 15). These are small, independent, and should land in the published artifact rather than as a post-release follow-up. All line references are against code/src/model_checker/__main__.py unless noted.
 

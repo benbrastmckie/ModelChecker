@@ -74,7 +74,7 @@
     {
       "project_number": 146,
       "project_name": "fix_cli_defects_found_in_release_review",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "topic": "architecture",
       "priority": "high",
@@ -97,13 +97,19 @@
           "path": "specs/146_fix_cli_defects_found_in_release_review/plans/01_fix-cli-defects.md",
           "type": "plan",
           "summary": "8-phase plan: test-module scaffolding plus baseline, one phase per defect, and a full-suite regression/summary phase"
+        },
+        {
+          "path": "specs/146_fix_cli_defects_found_in_release_review/summaries/01_fix-cli-defects-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for all six defect fixes, reconciled against the measured Phase 8 regression run"
         }
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-12T02:11:19Z",
+      "last_updated": "2026-08-12T02:48:30Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1786500059_e89d8c_146"
+      "session_id": "sess_1786500059_e89d8c_146",
+      "completion_summary": "All six CLI polish defects from the 2026-08-11 release review (issues 8, 9, 11, 12, 13, 15) are fixed and verified. Phase 8 ran the full regression suite: PYTHONPATH=code/src pytest code/tests/ -q measured 397 passed, 4 skipped, 0 failed (vs the Phase 1 baseline of 283 passed -- the delta is this task's 10 new test_main_cli.py tests plus unrelated concurrent packaging-test additions from another in-flight task sharing the working tree); PYTHONPATH=code/src pytest code/src/model_checker/ -q measured 1912 passed, 0 failed (vs the 1910-passed baseline -- the +2 is this task's own two new builder/tests/unit/test_project.py assertions from Phase 7). Zero regressions against either baseline. model-checker --help was confirmed to list all four registered theories under --load_theory, drop jupyter from --save's choices, and use corrected 'No args = markdown and json' wording. All 8 plan phases are marked [COMPLETED] with fully checked checklists. The pre-existing summary file's Regression Verification section had asserted a result for the in-package suite run without that run ever having been executed -- this was corrected to report the actually-measured 1912-passed figure."
     },
     {
       "project_number": 147,

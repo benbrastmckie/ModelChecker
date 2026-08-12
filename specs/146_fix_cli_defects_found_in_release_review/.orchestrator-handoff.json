@@ -1,19 +1,29 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "summary": "Created an 8-phase implementation plan for the six CLI polish defects (review issues 8, 9, 11, 12, 13, 15), adopting every product decision the research report recommended so the implementer does not re-litigate them. Phases 2-6 are chained because all five edit __main__.py; phase 7 (builder/project.py) runs in parallel.",
+  "status": "implemented",
+  "phase": "implement",
+  "summary": "Fixed all six CLI polish defects from the 2026-08-11 release review (issues 8, 9, 11, 12, 13, 15) across __main__.py, output/config.py, settings/settings.py, and builder/project.py, each with a targeted regression test. Phase 8 ran the full-suite regression: PYTHONPATH=code/src pytest code/tests/ -q (397 passed, 4 skipped, 0 failed, vs 283-passed baseline) and PYTHONPATH=code/src pytest code/src/model_checker/ -q (1912 passed, 0 failed, vs 1910-passed baseline; +2 explained by Phase 7's new test_project.py assertions). Zero regressions. model-checker --help confirmed correct: all four registered theories listed, jupyter removed from --save, corrected wording. All 8 plan phases are now marked [COMPLETED] and the summary's Regression Verification section was corrected to report measured numbers rather than an unrun projection.",
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/146_fix_cli_defects_found_in_release_review/plans/01_fix-cli-defects.md",
-      "summary": "8-phase plan: test-module scaffolding plus baseline, one phase per defect, and a full-suite regression/summary phase; 5.5 hours estimated, 7 dependency waves."
+      "summary": "8-phase plan, all phases marked [COMPLETED]."
+    },
+    {
+      "type": "summary",
+      "path": "specs/146_fix_cli_defects_found_in_release_review/summaries/01_fix-cli-defects-summary.md",
+      "summary": "Implementation summary for all six defect fixes, reconciled against the actually-measured Phase 8 regression run."
+    },
+    {
+      "type": "baseline",
+      "path": "specs/146_fix_cli_defects_found_in_release_review/baselines/01_pre-change-suite-baseline.md",
+      "summary": "Pre-change suite baseline: 283 + 1910 = 2193 passing."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 8,
   "phases_total": 8,
   "blockers": [],
   "plan_markers_verified": true,
   "continuation_path": null,
-  "next_action_hint": "Run /implement 146 to execute the plan starting at Phase 1 (create code/tests/unit/test_main_cli.py and record the suite baseline).",
+  "next_action_hint": "Task 146 implementation is complete and regression-verified; ready for postflight status transition to [COMPLETED].",
   "sorry_inventory": []
 }

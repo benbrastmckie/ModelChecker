@@ -1,7 +1,7 @@
 # Implementation Plan: Task #146
 
 - **Task**: 146 - fix_cli_defects_found_in_release_review
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 5.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/146_fix_cli_defects_found_in_release_review/reports/01_cli-defect-fixes.md
