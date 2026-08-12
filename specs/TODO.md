@@ -11,8 +11,8 @@ next_project_number: 155
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 150,152 | -- | architecture, semantics |
-| 2 | 151,153 | 150,152 | packaging, semantics |
+| 1 | 151,152 | -- | packaging, semantics |
+| 2 | 153 | 152 | semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -20,10 +20,6 @@ next_project_number: 155
 ### Packaging
 
 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
-
-### Architecture
-
-150 [NOT STARTED] — Add continuous integration for the main test suites. Surfaced by 
 
 ### Semantics
 
@@ -150,10 +146,13 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md and the archived checklist
 ---
 
 ### 150. Add general ci workflow and flake check gate
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: general
 - **Topic**: architecture
 - **Dependencies**: Task 147, Task 148, Task 149
+- **Research**: [150_add_general_ci_workflow_and_flake_check_gate/reports/01_ci-workflow-and-flake-gate.md]
+- **Plan**: [150_add_general_ci_workflow_and_flake_check_gate/plans/01_ci-workflow-and-flake-gate.md]
+- **Summary**: [150_add_general_ci_workflow_and_flake_check_gate/summaries/01_ci-workflow-and-flake-gate-summary.md]
 
 **Description**: Add continuous integration for the main test suites. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issue 7) and already an open Phase 1 item in specs/ROADMAP.md ("Add `nix flake check` as a CI gate job").
 
