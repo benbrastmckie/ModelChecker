@@ -1,0 +1,18 @@
+{
+  "status": "researched",
+  "phase": "research",
+  "dispatch_seq": 1,
+  "summary": "Audited all four named nonexistent-flag families plus adjacent occurrences. Confirmed the real argparse flag set from __main__.py, determined settings/README.md's Theory-Specific Flags were never real (verified via full git history search), and found additional in-scope issues (broader settings/README.md hyphenation bugs, --save notebook/all, --no-terminal, --iso-debug, and a live --output-dir bug in output/errors.py). Report written; ready for planning.",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/reports/01_nonexistent-cli-flags-audit.md",
+      "summary": "Full audit of nonexistent CLI flags across user-facing docs with root causes, fix recommendations, and a regression-guard design."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 0,
+  "blockers": [],
+  "continuation_path": null,
+  "next_action_hint": "Run /plan 162 to create an implementation plan from the research report."
+}

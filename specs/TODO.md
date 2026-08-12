@@ -19,7 +19,7 @@ next_project_number: 163
 
 ### Documentation
 
-162 [NOT STARTED] — Audit and fix nonexistent CLI flags documented across user-facing
+162 [RESEARCHED] — Audit and fix nonexistent CLI flags documented across user-facing
 
 ### Semantics
 
@@ -36,10 +36,11 @@ next_project_number: 163
 ## Tasks
 
 ### 162. Fix nonexistent cli flags in docs
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: documentation
 - **Dependencies**: None
+- **Research**: [162_fix_nonexistent_cli_flags_in_docs/reports/01_nonexistent-cli-flags-audit.md]
 
 **Description**: Audit and fix nonexistent CLI flags documented across user-facing docs. Verified against the live argparse parser (model_checker.__main__.ParseFileFlags): the real flag set is --align_vertically --contingent --cvc5 --disjoint --load_theory --maximize --non_empty --non_null --print_constraints --print_impossible --print_z3 --save --sequential --upgrade --version --z3 plus short forms -a -c -d -e -i -l -m -n -p -q -s -u -v -z. Docs reference flags that do not exist and fail with "unrecognized arguments": (1) --subtheory / -st, 17 occurrences in docs/usage/WORKFLOW.md, docs/usage/TOOLS.md, docs/usage/PROJECT.md, docs/installation/GETTING_STARTED.md - replace with the real Python idiom logos.get_theory(subtheories=[...]), rewriting the surrounding prose about automatic dependency loading rather than doing a token swap; (2) --verbose, 4 occurrences in docs/architecture/PIPELINE.md, docs/architecture/ITERATE.md, docs/architecture/SETTINGS.md, docs/usage/OUTPUT.md, docs/usage/TOOLS.md; (3) --output-dir and --format, 6 occurrences in docs/usage/OUTPUT.md and docs/architecture/PIPELINE.md; (4) code/src/model_checker/settings/README.md has an entire "Theory-Specific Flags" section inventing --coherence-check, --witness-optimization, --imposition-depth, --state-modification, --save-output, and -M/--M (12 occurrences) - needs a decision on whether these were planned-and-dropped or never real before rewriting. Add a regression guard so docs cannot drift again: a test that extracts flag tokens from markdown code blocks and asserts each is registered on the parser. Already fixed separately and out of scope: the swapped --non_null/--non_empty help strings in __main__.py, and hyphenated long-flag spellings in docs/usage/{SETTINGS,SEMANTICS,TOOLS,README,PROJECT}.md and logos/docs/USER_GUIDE.md.
 
