@@ -1,5 +1,5 @@
 ---
-next_project_number: 156
+next_project_number: 158
 ---
 
 # TODO
@@ -11,8 +11,8 @@ next_project_number: 156
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 151,152,155 | -- | packaging, testing, semantics |
-| 2 | 153 | 152 | semantics |
+| 1 | 151,152,155,156 | -- | packaging, testing, semantics |
+| 2 | 153,157 | 152,155 | packaging, semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -20,10 +20,12 @@ next_project_number: 156
 ### Packaging
 
 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
+156 [NOT STARTED] — Document a portable check-wheel-contents recipe in .github/RELEAS
+157 [NOT STARTED] — Deduplicate the four identical theory_lib VERSION files to clear 
 
 ### Testing
 
-155 [PLANNED] — Fix the CI failures surfaced by the first live workflow run on 20
+155 [IMPLEMENTING] — Fix the CI failures surfaced by the first live workflow run on 20
 
 ### Semantics
 
@@ -33,8 +35,46 @@ next_project_number: 156
 
 ## Tasks
 
+### 157. Dedupe theory lib version files w002
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: packaging
+- **Dependencies**: Task 155
+
+**Description**: Deduplicate the four identical theory_lib VERSION files to clear check-wheel-contents W002. code/src/model_checker/theory_lib/{bimodal,exclusion,imposition,logos}/VERSION are four byte-identical files each containing `1.0.0`. check-wheel-contents flags them as `W002: Wheel contains duplicate files` and exits 1 on the built wheel; `--ignore W002` returns OK with exit 0. Independently verified twice against code/dist/model_checker-1.3.0-py3-none-any.whl. The finding is structural (four identical files), not an artifact of a stale build, so it reproduces on a fresh build.
+
+THIS IS PRE-EXISTING, NOT A REGRESSION. It is out of scope for the CI-failure fix work that surfaced it, which deliberately reports W002 without remediating it and explicitly forbids touching the VERSION files to silence the lint. Do not treat this as urgent or release-blocking: `--ignore W002` is a legitimate signal for release verification in the meantime.
+
+A STALE CLAIM NEEDS CORRECTING TOO: the archived rehearsal under specs/archive/125_release_engineering_and_pypi_rehearsal/ recorded check-wheel-contents as clean/OK. That no longer reproduces, consistent with specs/TODO.md:161's note that the rehearsal evidence is stale.
+
+DECIDE THE REMEDY DELIBERATELY, do not assume deletion is correct. Research first: establish what reads these per-theory VERSION files at runtime, whether the value is load-bearing anywhere (packaging metadata, theory-version reporting, tests), and whether per-theory versioning is an intended convention that simply is not yet exercised (all four sitting at 1.0.0 is consistent with BOTH "vestigial" and "intended but never bumped"). Only then choose among: remove them in favour of a single source of truth; keep them but exclude them from the wheel; or keep them and accept W002 permanently via a pinned --ignore. Any option that changes what ships in the wheel must be checked against the packaging contract suite under code/tests/packaging/.
+
+VERIFY BY REBUILDING. The evidence is a fresh `python -m build` plus check-wheel-contents on the resulting wheel -- a plain run should reach exit 0 without needing --ignore W002 if the remedy was deduplication. Note code/dist is gitignored (.gitignore:13, **/dist), so a local build does not perturb the working tree.
+
+---
+
+### 156. Document portable check wheel contents recipe
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: packaging
+- **Dependencies**: None
+
+**Description**: Document a portable check-wheel-contents recipe in .github/RELEASE_SETUP.md. RELEASE_SETUP.md:147 names `python -m build`, `check-wheel-contents`, and `twine check --strict` as part of the release verification, but the repo provides no reproducible way to obtain them. flake.nix's devShells.default declares `packages = [ devPython ]`, and devPython carries only pytest, pytest-xdist, and pytest-timeout -- no build, no twine, no check-wheel-contents. Nothing in .github/ invokes the tool; the only reference is that prose line. Today the tool is only available because it happens to sit in one developer's nix profile (verified: /home/benjamin/.nix-profile/bin/check-wheel-contents, 0.6.3), and it is NOT resolvable from the flake-registry nixpkgs -- nixpkgs#check-wheel-contents, #checkWheelContents, #python3Packages.check-wheel-contents, and #python3Packages.checkWheelContents all fail to evaluate. That makes the documented release verification non-reproducible for anyone else, and unpinned (0.6.3 today, silent drift later) for evidence that is meant to be compared across releases.
+
+REUSE THE ESTABLISHED TECHNIQUE, do not invent one. The archived release rehearsal under specs/archive/125_release_engineering_and_pypi_rehearsal/ already solved this: create an isolated venv INSIDE `nix develop` and pip install the tools there, never modifying flake.nix. Its plan records the two constraints that make this non-obvious -- installing the tools system-wide fails on NixOS, and each `nix develop` invocation gets a fresh non-persisting TMPDIR, so the whole build-and-inspect sequence must run in a SINGLE invocation. Both belong in the documented recipe.
+
+PIN THE VERSIONS. The point of this task is comparable evidence across releases, so the recipe should pin check-wheel-contents (and build/twine) rather than floating.
+
+SCOPE: documentation only. Do NOT add these tools to flake.nix's devShell -- the venv-inside-nix-develop approach exists precisely to avoid that, and widening the devShell is a separate decision with its own cost. Do NOT change any workflow to run check-wheel-contents in CI; that is also a separate decision.
+
+EXPECT W002 TO FIRE. Running check-wheel-contents on the current tree exits 1 with `W002: Wheel contains duplicate files` for the four identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files (independently verified twice; `--ignore W002` returns OK, exit 0). Do not fix that here -- it has its own task. The recipe should state the expected exit-1 and name --ignore W002 as the "is there anything new?" signal, so a future reader is not misled into thinking the toolchain is broken.
+
+CORRECT A STALE CLAIM: the archived rehearsal recorded check-wheel-contents as clean/OK, which no longer reproduces. specs/TODO.md:161 already notes that rehearsal's evidence is stale; the recipe should not cite it as current evidence.
+
+---
+
 ### 155. Fix ci failures wheel dep and timing gated tests
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
