@@ -7,6 +7,12 @@ name: Tests
 # serially on every push/PR) and narrower in matrix than release.yml (see rationale below).
 on:
   push:
+    # `branches` is REQUIRED here, not decorative. A `push` trigger that specifies only tag
+    # filters does not run on branch pushes at all -- adding `tags-ignore` alone silently
+    # disabled this entire gate on every master push. Keep both lists: `branches` is what
+    # makes branch pushes fire, `tags-ignore` is what keeps tag pushes out.
+    branches:
+      - '**'
     # Tag pushes are deliberately excluded: release.yml owns the v*.*.* tag event and
     # runs its own, wider (3-OS x 3-Python) `test-and-release` matrix before publishing.
     # Without this, a single tag push fired both workflows over the same commit --

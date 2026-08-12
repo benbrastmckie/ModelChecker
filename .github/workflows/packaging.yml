@@ -6,6 +6,10 @@ name: Packaging Contract Tests
 # non-goal this respects.
 on:
   push:
+    # `branches` is REQUIRED here, not decorative -- a `push` trigger specifying only tag
+    # filters never fires on branch pushes. See the fuller note in tests.yml.
+    branches:
+      - '**'
     # Tag pushes are deliberately excluded: release.yml owns the v*.*.* tag event and
     # builds/validates the same artifacts itself (`build` job + `twine check --strict`)
     # before publishing. See the matching note in tests.yml.

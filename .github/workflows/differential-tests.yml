@@ -3,6 +3,12 @@ name: Differential Oracle Tests
 on:
   workflow_dispatch:
   push:
+    # `branches` is REQUIRED here, not decorative -- a `push` trigger specifying only tag
+    # filters never fires on branch pushes. See the fuller note in tests.yml. `branches`
+    # and `paths` below are ANDed, which is the intended behaviour: a branch push runs this
+    # suite only when it touches one of the oracle/bimodal paths.
+    branches:
+      - '**'
     # Tag pushes are deliberately excluded. GitHub does not apply the `paths` filter below
     # to a tag push, so without this the full ~12-minute cross-oracle suite ran on every
     # release tag regardless of whether any bimodal or oracle file changed. The oracle
