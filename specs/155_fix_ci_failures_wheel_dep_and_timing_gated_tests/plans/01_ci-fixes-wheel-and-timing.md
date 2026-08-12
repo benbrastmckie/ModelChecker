@@ -1,7 +1,7 @@
 # Implementation Plan: Fix CI failures (wheel dep and timing-gated tests)
 
 - **Task**: 155 - fix_ci_failures_wheel_dep_and_timing_gated_tests
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.75 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/reports/01_ci-failures-wheel-and-timing.md
@@ -354,45 +354,48 @@ from it.
 
 ---
 
-### Phase 6: Consolidated local verification and readiness report [NOT STARTED]
+### Phase 6: Consolidated local verification and readiness report [COMPLETED]
 
 **Goal**: Run the full affected surface locally, then report the fixes as READY -- naming exactly
 which workflow runs the user must observe -- without claiming CI-green.
 
 **Tasks**:
-- [ ] Run the full CI selector locally exactly as the gate will:
+- [x] Run the full CI selector locally exactly as the gate will:
       `cd code && PYTHONPATH=src python -m pytest tests/ src/model_checker -m "not packaging and not performance" -n 6 -q`
-- [ ] Record the passed count and confirm it is exactly 2 lower than the pre-change baseline
-      (2002 -> 2000), accounting for the two deselected performance tests and nothing else
-- [ ] Confirm the two deselected tests still PASS when explicitly selected on this quiet host:
+- [x] Record the passed count and confirm it is exactly 2 lower than the pre-change baseline,
+      accounting for the two deselected performance tests and nothing else. (Observed: 2254
+      passed locally, exactly -2 vs. the local pre-change baseline of 2256; this local absolute
+      count differs from the CI-observed 2000-2002 range for environment reasons documented in
+      the summary -- the delta, not the absolute count, is the invariant that was checked.)
+- [x] Confirm the two deselected tests still PASS when explicitly selected on this quiet host:
       `cd code && PYTHONPATH=src python -m pytest -m performance src/model_checker tests -v`
-- [ ] Run `git diff --stat` and confirm the changed-file set is exactly the nine files this plan
+- [x] Run `git diff --stat` and confirm the changed-file set is exactly the nine files this plan
       names, with no production/library code among them
-- [ ] Clear stale build output so the wheel glob is unambiguous: `rm -rf code/dist` (this is
+- [x] Clear stale build output so the wheel glob is unambiguous: `rm -rf code/dist` (this is
       gitignored, regenerable build output -- `.gitignore:13` is `**/dist`; the currently-present
       1.3.0 artifacts date from a prior build and their hashes are already recorded under
       `specs/archive/125_release_engineering_and_pypi_rehearsal/`)
-- [ ] Build the wheel locally the way Class 1's failure mode actually surfaces:
+- [x] Build the wheel locally the way Class 1's failure mode actually surfaces:
       `cd code && python -m build --no-isolation`. Run this from the **ambient shell, NOT inside
       `nix develop`** -- the flake devShell has no `build`/`wheel`/`check-wheel-contents`.
       `--no-isolation` is required, not incidental: it deliberately does not provision
       `build-system.requires` (`["setuptools>=42", "wheel"]`), so it reproduces the exact
       `ERROR Missing dependencies: wheel` condition that Phase 1 fixes. A zero exit here is the
       direct local observation that the Class 1 remedy works
-- [ ] Lint the wheel that build just produced: `check-wheel-contents code/dist/*.whl`.
+- [x] Lint the wheel that build just produced: `check-wheel-contents code/dist/*.whl`.
       **Expect exit 1** with the pre-existing `W002: Wheel contains duplicate files` naming the
       four identical `theory_lib/{bimodal,exclusion,imposition,logos}/VERSION` files. Per the
       Non-blocking contract below this is NOT a phase failure
-- [ ] Re-run as `check-wheel-contents --ignore W002 code/dist/*.whl` to isolate the "is there
+- [x] Re-run as `check-wheel-contents --ignore W002 code/dist/*.whl` to isolate the "is there
       anything NEW?" signal. Expect `OK` and exit 0. If this second run reports anything beyond
       `OK`, that IS a new finding worth surfacing prominently in the readiness report (still as
       information, not as a phase failure)
-- [ ] Record both `check-wheel-contents` invocations verbatim -- command, exit code, and full
+- [x] Record both `check-wheel-contents` invocations verbatim -- command, exit code, and full
       output -- in the summary artifact. Do NOT fix the W002 duplicate `VERSION` files under this
       task; see the Non-blocking contract
-- [ ] Confirm `git status --porcelain` still shows no `code/dist` entry after building, proving
+- [x] Confirm `git status --porcelain` still shows no `code/dist` entry after building, proving
       the build did not perturb the nine-path change set
-- [ ] Write the summary artifact stating: (i) what changed per class, (ii) that local green is
+- [x] Write the summary artifact stating: (i) what changed per class, (ii) that local green is
       NECESSARY BUT NOT SUFFICIENT evidence here -- this task exists precisely because local green
       did not predict CI green, (iii) the explicit statement that CI-green is NOT being claimed,
       (iv) the local `python -m build --no-isolation` result and both `check-wheel-contents`
@@ -400,15 +403,15 @@ which workflow runs the user must observe -- without claiming CI-green.
       task. Note that (iv) STRENGTHENS but does not upgrade (ii): a locally-built, locally-linted
       wheel is still local evidence, and says nothing about whether the CI runner's install step
       now provisions `wheel` correctly
-- [ ] Name the workflow runs the user should check after they push:
+- [x] Name the workflow runs the user should check after they push:
       `.github/workflows/packaging.yml` (Class 1), `.github/workflows/tests.yml` -- BOTH the
       `general-tests` matrix and the `flake-check` job (Classes 1-interaction and 2a), and
       `.github/workflows/differential-tests.yml` (Class 3)
-- [ ] State that `.github/workflows/release.yml` cannot be observed without a tag push, which is
+- [x] State that `.github/workflows/release.yml` cannot be observed without a tag push, which is
       user-only; its `build`-job fix is evidenced by static inspection (identical
       `pip install ... build` + `python -m build` shape to `packaging.yml`) plus the fact that a
       green `packaging.yml` run exercises the same failure mode
-- [ ] MUST NOT: push a branch, open a PR, invoke `/merge`, or tag. MUST NOT claim any CI run
+- [x] MUST NOT: push a branch, open a PR, invoke `/merge`, or tag. MUST NOT claim any CI run
       passed. MUST NOT commit anything under `code/dist/`
 
 #### Non-blocking contract for `check-wheel-contents`
