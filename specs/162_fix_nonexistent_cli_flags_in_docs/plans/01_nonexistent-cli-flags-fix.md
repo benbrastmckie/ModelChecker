@@ -307,25 +307,25 @@ the prose half by grepping both files for `no-terminal`, `notebook`, `verbose`, 
 
 ---
 
-### Phase 5: Fix architecture docs [NOT STARTED]
+### Phase 5: Fix architecture docs [COMPLETED]
 
 **Goal**: Remove the `--verbose` and `--format` fictions from the three owned architecture docs
 while preserving the genuinely real `--iso-debug`.
 
 **Tasks**:
-- [ ] `docs/architecture/PIPELINE.md`: remove `--verbose` and `--format json` from example
+- [x] `docs/architecture/PIPELINE.md`: remove `--verbose` and `--format json` from example
       command lines; where format selection is being illustrated, use `--save json` /
       `--save markdown`.
-- [ ] `docs/architecture/PIPELINE.md`: remove `--verbose` from the CLI-flags diagram box.
-- [ ] `docs/architecture/SETTINGS.md`: remove the `• --verbose Overrides all other settings`
+- [x] `docs/architecture/PIPELINE.md`: remove `--verbose` from the CLI-flags diagram box.
+- [x] `docs/architecture/SETTINGS.md`: remove the `• --verbose Overrides all other settings`
       diagram entry; if a debug-output mechanism is worth naming there, name the real one, the
       `MODELCHECKER_VERBOSE=true` environment variable (`settings/settings.py`'s
       `VERBOSE_SETTINGS`).
-- [ ] `docs/architecture/ITERATE.md`: fix the `# Debug messages (with --verbose)` comment to
+- [x] `docs/architecture/ITERATE.md`: fix the `# Debug messages (with --verbose)` comment to
       reference `MODELCHECKER_VERBOSE=true`.
-- [ ] `docs/architecture/ITERATE.md`: remove or correct the `DEBUG_CONFIG` dict's `'verbose': True`
+- [x] `docs/architecture/ITERATE.md`: remove or correct the `DEBUG_CONFIG` dict's `'verbose': True`
       entry, which presents a nonexistent settings key.
-- [ ] `docs/architecture/ITERATE.md`: leave the `./dev_cli.py --iso-debug` example unchanged and
+- [x] `docs/architecture/ITERATE.md`: leave the `./dev_cli.py --iso-debug` example unchanged and
       add a short note that it is a `dev_cli.py` wrapper flag, not a `model-checker` flag.
 
 **Timing**: 45 minutes

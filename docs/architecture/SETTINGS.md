@@ -19,8 +19,7 @@ The ModelChecker uses a five-level settings hierarchy with clear precedence:
 
 ┌──────────────────────┐
 │   CLI Arguments      │  [1] HIGHEST PRIORITY
-│ • --verbose          │  Overrides all other settings
-│ • --contingent       │
+│ • --contingent       │  Overrides all other settings
 │ • --save             │
 └──────────┬───────────┘
            │

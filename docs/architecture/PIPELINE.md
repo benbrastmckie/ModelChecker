@@ -53,7 +53,7 @@ settings = {
 ### 4. CLI Flags
 Command-line options that modify behavior:
 ```bash
-model-checker example.py --save --verbose --format json
+model-checker example.py --save json
 ```
 
 ## Processing Pipeline
@@ -353,7 +353,7 @@ File saving process:
 │  ┌────────────────────┐  ┌────────────────────┐  ┌────────────────────┐     │
 │  │ example.py         │  │ CLI Flags          │  │ Settings           │     │
 │  │ • Premises         │  │ • --save           │  │ • N=4              │     │
-│  │ • Conclusions      │  │ • --verbose        │  │ • max_time=30      │     │
+│  │ • Conclusions      │  │ • --contingent     │  │ • max_time=30      │     │
 │  │                    │  │ • etc.             │  │ • etc.             │     │
 │  └────────┬───────────┘  └─────────┬──────────┘  └────────┬───────────┘     │
 │           └────────────────────────┼──────────────────────┘                 │
@@ -417,7 +417,7 @@ settings = {'N': 2, 'max_models': 1}
 
 ### Command
 ```bash
-model-checker example.py --verbose --save
+model-checker example.py --save
 ```
 
 ### Processing Steps

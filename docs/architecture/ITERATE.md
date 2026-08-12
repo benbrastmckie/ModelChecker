@@ -915,14 +915,14 @@ Enable debugging for iteration issues:
 # Debug configuration for troubleshooting iteration issues
 DEBUG_CONFIG = {
     'iterate': 2,                    # Small count for debugging
-    'verbose': True,                 # Show all progress messages
     'show_progress': True,           # Display progress bar
     'print_constraints': True,       # Show Z3 difference constraints
     'debug_isomorphism': True,       # Log isomorphism check details
     'save_graphs': True              # Export model graphs for analysis
 }
 
-# Command line debugging
+# Command line debugging -- --iso-debug is a dev_cli.py wrapper flag (consumed and
+# stripped by dev_cli.py before argparse runs), not a model-checker flag.
 ./dev_cli.py --iso-debug examples/iterate_test.py  # Enable debug logging
 
 # Debug output locations
@@ -1091,7 +1091,7 @@ Iteration produces various debug messages:
 "[ITERATION] Successfully found all 5 requested models"
 "[ITERATION] Found 3 distinct models (requested 5)"
 
-# Debug messages (with --verbose)
+# Debug messages (with MODELCHECKER_VERBOSE=true)
 "Solver check took 0.23 seconds, result: sat"
 "Creating stronger constraints after 3 isomorphic models"
 "Adding constraint to exclude invalid model"
