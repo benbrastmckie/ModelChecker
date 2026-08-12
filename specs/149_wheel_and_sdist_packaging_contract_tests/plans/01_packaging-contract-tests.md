@@ -215,28 +215,30 @@ task omits (or vice versa), record the discrepancy rather than quietly picking o
 
 ---
 
-### Phase 3: Registry-Driven Inclusion Assertions [NOT STARTED]
+### Phase 3: Registry-Driven Inclusion Assertions [COMPLETED]
 
 **Goal**: Every registered theory is proven to ship its contract-required metadata, docs, and
 notebooks in both artifacts, with the theory list driven off the registry.
 
 **Tasks**:
-- [ ] Create `code/tests/packaging/test_inclusions.py`.
-- [ ] Bind `AVAILABLE_THEORIES = registry.get_registered()` at module level and parametrize with
+- [x] Create `code/tests/packaging/test_inclusions.py`.
+- [x] Bind `AVAILABLE_THEORIES = registry.get_registered()` at module level and parametrize with
       `@pytest.mark.parametrize('theory', AVAILABLE_THEORIES)`, mirroring
       `theory_lib/tests/test_theory_conformance.py`. Do not hardcode theory names or counts.
-- [ ] Define `REQUIRED_ROOT_FILES = ['README.md', 'CITATION.md', 'LICENSE.md', 'VERSION']` and
+- [x] Define `REQUIRED_ROOT_FILES = ['README.md', 'CITATION.md', 'LICENSE.md', 'VERSION']` and
       `REQUIRED_DOCS_FILES = ['README.md', 'API_REFERENCE.md', 'ARCHITECTURE.md', 'ITERATE.md',
       'SETTINGS.md', 'USER_GUIDE.md']`, sourced from `THEORY_ARCHITECTURE.md`'s Theory Contract.
-- [ ] Assert per theory, per artifact, that `model_checker/theory_lib/{theory}/{f}` is a member
-      for each `REQUIRED_ROOT_FILES` entry.
-- [ ] Assert per theory, per artifact, that `model_checker/theory_lib/{theory}/docs/{f}` is a
+- [x] Assert per theory, per artifact, that `model_checker/theory_lib/{theory}/{f}` is a member
+      for each `REQUIRED_ROOT_FILES` entry. (Sdist path prefix differs -- `src/model_checker/...`
+      -- handled by the `ARTIFACT_PREFIXES` map, since the sdist retains the source `src/` layout
+      while the wheel does not.)
+- [x] Assert per theory, per artifact, that `model_checker/theory_lib/{theory}/docs/{f}` is a
       member for each `REQUIRED_DOCS_FILES` entry — **minimum-set semantics**: extras such as
       exclusion's `docs/DATA.md` are tolerated and must not fail the test.
-- [ ] Assert notebooks conditionally: for each `*.ipynb` present on disk under
+- [x] Assert notebooks conditionally: for each `*.ipynb` present on disk under
       `theory_lib/{theory}/notebooks/`, assert the corresponding member exists in both
       artifacts. A theory with no notebooks directory yields no assertions, not a failure.
-- [ ] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
+- [x] Mark the module `@pytest.mark.packaging` and `@pytest.mark.slow`.
 
 **Timing**: 1.25 hours
 
@@ -258,6 +260,11 @@ time. The test itself must assert nothing about the theory count.
   registered theory in the wheel.
 - Sdist inclusion results are recorded (they feed Phase 4's `docs/*.md` question); a sdist docs
   failure here is an expected possible outcome, not a blocker — hand it to Phase 4.
+  **Recorded outcome**: all 84 non-skipped assertions passed on first run (0 failures) —
+  `docs/*.md` is present in the sdist for every theory already, confirming
+  `include-package-data = true` auto-folds `docs/*.md` into `SOURCES.txt` with no MANIFEST.in
+  mirror rule needed. Phase 4 confirms this directly via the parity test rather than relying on
+  this observation alone.
 - Confirm the parametrize IDs in `-v` output list the theories the registry actually returned.
 
 ---
