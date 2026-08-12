@@ -1,0 +1,21 @@
+release-verify.sh run
+started (UTC): 2026-08-12T17:50:25Z
+REF=1.2.12
+OUT_DIR=/home/benjamin/Projects/ModelChecker/specs/151_rerun_release_rehearsal_and_publish_to_pypi/rehearsal
+
+Resolved pinned tool versions (from pip freeze):
+build==1.5.0
+check-wheel-contents==0.6.3
+twine==7.0.0
+
+a-provision              gate   exit=0    (versions recorded in summary.txt)
+b-build                  gate   exit=0    build.log
+c-twine                  gate   exit=0    twine-check.txt
+d1-wheel-contents        gate   exit=0    wheel-contents.txt
+e1-reference-fetch       gate   exit=0    pip-download-1.2.12.log
+e2-file-listings         info   exit=0    new-wheel-files.txt, ref-1.2.12-wheel-files.txt
+e3-diffs                 info   exit=0    wheel-files-diff.txt, top-level-dir-diff.txt
+f-hashes                 info   exit=0    sha256sums.txt
+parity-diff              info   exit=0    parity-diff.md
+
+FAILURES=0

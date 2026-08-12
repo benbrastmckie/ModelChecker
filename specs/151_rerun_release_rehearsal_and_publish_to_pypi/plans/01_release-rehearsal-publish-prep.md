@@ -297,7 +297,48 @@ literal exists, the fold decision still holds but the confirmation list must be 
 
 ---
 
-### Phase 4: Run the corrected rehearsal and archive fresh evidence [NOT STARTED]
+### Phase 4: Run the corrected rehearsal and archive fresh evidence [COMPLETED]
+
+**Host contention at run time**: `uptime` load average 0.71/1.06/1.35; `ps aux | grep -c claude`
+showed 40 concurrent Claude Code processes (multiple other agent sessions active on this shared
+host). Recorded for the record; the build itself is still valid evidence regardless of load
+(this contention concern is specific to Phase 5's Z3-timing verdict, not to this build/check
+rehearsal).
+
+**Run**: `bash code/scripts/release-verify.sh --ref 1.2.12 --out
+specs/151_rerun_release_rehearsal_and_publish_to_pypi/rehearsal/` exited **0**.
+`summary.txt` shows every step, including `d1-wheel-contents gate exit=0` — direct confirmation
+Phase 1's flip is correct and W002 no longer fires. `twine-check.txt` shows PASSED for both the
+wheel and sdist. `wheel-contents.txt` shows a clean `OK`, no W002, no appended note.
+
+**Evidence file count**: 11 files, matching Phase 1's manifest comment exactly (`ls -1
+rehearsal/ | wc -l` = 11).
+
+**Fresh sha256sums** (`rehearsal/sha256sums.txt`), superseding both the archived task-125 hashes
+(`f85e6512...` / `255d2c01...`) and the prior rehearsal's set:
+- New wheel `model_checker-1.3.0-py3-none-any.whl`:
+  `5d9d8d5f8895b733fd05b89e0dc3ab65e711ea029105e9d76788e94e39c9aa4c`
+- New sdist `model_checker-1.3.0.tar.gz`:
+  `bc421583678950f36782cd6004ac1d9d3ca103f1eddc4815fc6a42663d97d3f0`
+- Reference wheel `model_checker-1.2.12-py3-none-any.whl` (downloaded, not built):
+  `cebe110c0a599c9ab962b7a4fd88686c3cff5c893099b05002117ef3fb7a6d4e`
+
+Note: wheel/sdist builds are not byte-reproducible on this toolchain (independent rebuilds of the
+identical source tree, including this task's own earlier ambient premise-check build, each
+produced a different wheel/sdist hash) — the hash is a run identifier for this evidence set, not
+a fixed target value to match across rebuilds.
+
+**Parity-diff classification** (`parity-diff.md`, `wheel-files-diff.txt`, `top-level-dir-diff.txt`):
+514 files in the reference 1.2.12 wheel vs. 474 in the new 1.3.0 wheel. The diff is large and
+entirely explained by the core/theory_lib refactor: a new top-level `model_checker/solver`
+package (with its own `tests/`), relocated/renamed modules (e.g. `builder/z3_utils.py` ->
+`iterate/z3_utils.py`, new `api.py`/`registry.py`/`models/concurrency.py`), and removed stray
+`.ipynb_checkpoints/` notebook-checkpoint artifacts that had been shipping accidentally. No
+`oracle/`, `specs/`, or unexpected top-level content appears in either the added or removed sets
+— every diffed path stays under `model_checker/` or the versioned `.dist-info/` directory.
+
+**`code/dist/` confirmed gitignored** (`.gitignore:13`, `**/dist`) and absent from `git status
+--short` throughout this phase — never staged.
 
 **Goal**: A complete, current `release-verify.sh` evidence set lives under
 `specs/151_rerun_release_rehearsal_and_publish_to_pypi/rehearsal/` with every hard gate green and

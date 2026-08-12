@@ -1,0 +1,5 @@
+Checking 
+/home/benjamin/Projects/ModelChecker/code/dist/model_checker-1.3.0-py3-none-any.
+whl: [32mPASSED[0m
+Checking 
+/home/benjamin/Projects/ModelChecker/code/dist/model_checker-1.3.0.tar.gz: [32mPASSED[0m
