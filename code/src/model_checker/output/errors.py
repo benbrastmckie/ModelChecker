@@ -35,7 +35,7 @@ class OutputDirectoryError(OutputError):
         else:
             # Provide default suggestions based on reason
             if "permission" in reason.lower():
-                message += "\n  Suggestion: Check write permissions or use --output-dir flag"
+                message += "\n  Suggestion: Check write permissions on the current directory"
             elif "exists" in reason.lower():
                 message += "\n  Suggestion: Use a different directory or remove existing files"
             elif "space" in reason.lower():

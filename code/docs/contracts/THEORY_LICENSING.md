@@ -349,18 +349,6 @@ THEORY_METADATA = {
 }
 ```
 
-### Automated License Generation
-
-The framework provides automated license generation for derivative works:
-
-```bash
-# Generate license for new derivative theory
-model-checker --generate-license \
-  --base-theory logos \
-  --author "Your Name" \
-  --theory-name temporal_logos
-```
-
 ## References
 
 - [GPL-3.0 License Text](https://www.gnu.org/licenses/gpl-3.0.txt)

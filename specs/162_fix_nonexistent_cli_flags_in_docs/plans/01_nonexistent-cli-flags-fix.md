@@ -400,27 +400,27 @@ path and separately grepping the file for each fabricated token.
 
 ---
 
-### Phase 7: Residual docs sweep and the output/errors.py source fix [NOT STARTED]
+### Phase 7: Residual docs sweep and the output/errors.py source fix [COMPLETED]
 
 **Goal**: Clear the remaining fabricated flags found outside the report's four findings, and fix
 the one live runtime message that recommends a flag that never existed.
 
 **Tasks**:
-- [ ] `code/docs/contracts/THEORY_LICENSING.md`: remove or rewrite the "Automated License
+- [x] `code/docs/contracts/THEORY_LICENSING.md`: remove or rewrite the "Automated License
       Generation" invocation — `--generate-license`, `--base-theory`, `--author`, and
       `--theory-name` do not exist. If no such automation exists, delete the claim rather than
       restating it in another form.
-- [ ] `code/src/model_checker/theory_lib/docs/CONTRIBUTING.md`: replace `model-checker -t
+- [x] `code/src/model_checker/theory_lib/docs/CONTRIBUTING.md`: replace `model-checker -t
       my_test_name` with the real invocation (`PYTHONPATH=code/src pytest ... -k my_test_name`).
-- [ ] `docs/installation/DEVELOPER_SETUP.md`: remove `./dev_cli.py --profile examples/slow.py`;
+- [x] `docs/installation/DEVELOPER_SETUP.md`: remove `./dev_cli.py --profile examples/slow.py`;
       the file already shows the working alternative (`python -m cProfile -o profile.stats
       dev_cli.py examples/slow.py`).
-- [ ] `code/src/model_checker/output/errors.py`: change `OutputDirectoryError`'s permission-branch
+- [x] `code/src/model_checker/output/errors.py`: change `OutputDirectoryError`'s permission-branch
       default suggestion from "Check write permissions or use --output-dir flag" to text that
       names no nonexistent flag.
-- [ ] Add a unit test asserting no `OutputDirectoryError` default suggestion string names an
+- [x] Add a unit test asserting no `OutputDirectoryError` default suggestion string names an
       unregistered `--flag` token, reusing the Phase 1 allowed-token derivation.
-- [ ] `code/README.md`: confirm the `--iso-debug` mention is framed as a `dev_cli.py` flag; adjust
+- [x] `code/README.md`: confirm the `--iso-debug` mention is framed as a `dev_cli.py` flag; adjust
       wording only if it implies a `model-checker` flag. Do not delete it.
 
 **Timing**: 45 minutes

@@ -78,7 +78,7 @@ Modify the generated files to implement your semantic framework:
 model-checker examples.py
 
 # Run specific tests
-model-checker -t my_test_name
+PYTHONPATH=code/src pytest code/tests/ -k my_test_name
 ```
 
 #### Creating Theory-Specific Tests

@@ -168,10 +168,9 @@ The `dev_cli.py` script provides development utilities:
 
 # Create new theory template
 ./dev_cli.py -l my_new_theory
-
-# Run with profiling
-./dev_cli.py --profile examples/slow.py
 ```
+
+For profiling, use `python -m cProfile` directly (see below) -- there is no `--profile` flag.
 
 ## Project Structure
 

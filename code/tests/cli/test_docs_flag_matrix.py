@@ -379,7 +379,6 @@ def _scan_doc_violations():
     return violations, files_scanned
 
 
-@pytest.mark.xfail(strict=True, reason="RED until docs are fixed; xfail removed in Phase 8")
 def test_documented_flags_are_registered():
     """Every flag token named in a documented shell invocation line must be registered on the
     parser or be a known `dev_cli.py` wrapper flag. See the module docstring for the declared
@@ -399,3 +398,27 @@ def test_documented_flags_are_registered():
             f"{len(violations)} fabricated/unregistered flag token(s) found in documented "
             f"invocation lines:\n" + "\n".join(report_lines)
         )
+
+
+# ---------------------------------------------------------------------------------------------
+# output/errors.py suggestion-string guard
+# ---------------------------------------------------------------------------------------------
+
+
+def test_output_directory_error_suggestion_names_no_unregistered_flag():
+    """`OutputDirectoryError`'s default suggestion strings must never recommend a `--flag` the
+    parser doesn't accept -- this is what previously happened with the fabricated
+    `--output-dir` suggestion in the permission branch (fixed in the same change as this test).
+    Reuses the Phase 1 allowed-token derivation rather than a hand-transcribed list.
+    """
+    from model_checker.output.errors import OutputDirectoryError
+
+    allowed = _allowed_tokens()
+    for reason in ('permission denied', 'directory already exists', 'insufficient disk space'):
+        error = OutputDirectoryError(directory='/tmp/example', reason=reason)
+        message = str(error)
+        for token in re.findall(r'--[A-Za-z][A-Za-z0-9_-]*', message):
+            assert token in allowed, (
+                f"OutputDirectoryError({reason!r}) suggestion names unregistered flag "
+                f"{token!r}: {message!r}"
+            )
