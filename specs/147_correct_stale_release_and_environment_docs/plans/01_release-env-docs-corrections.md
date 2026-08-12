@@ -236,7 +236,7 @@ implementation summary rather than silently exceeding the stated scope.
 
 ---
 
-### Phase 3: Correct Python floor, directory casing, and Nix prose in `ENVIRONMENT_SETUP.md` [NOT STARTED]
+### Phase 3: Correct Python floor, directory casing, and Nix prose in `ENVIRONMENT_SETUP.md` [COMPLETED]
 
 **Goal**: Bring the file in line with `requires-python = ">=3.10"`, the lowercase `code/`
 directory, and the `flake.nix` / `nix develop` workflow, per Decision 2.

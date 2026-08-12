@@ -15,7 +15,7 @@ This guide provides comprehensive instructions for setting up a development envi
 
 ### System Requirements
 
-- **Python**: 3.8 or higher (check pyproject.toml for specific version)
+- **Python**: 3.10 or higher (see `requires-python` in `code/pyproject.toml`)
 - **Key Dependencies**: z3-solver, jupyter, pytest
 - **Virtual Environment**: Recommended for isolated development
 - **Platform Support**: Linux (primary), macOS, Windows, with NixOS-specific tooling
@@ -36,7 +36,7 @@ For macOS, Windows, and non-NixOS Linux systems:
 ```bash
 # Clone the repository
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker/code
 
 # Verify you're in the correct directory
 ls -la  # Should show src/, docs/, dev_cli.py, etc.
@@ -97,22 +97,24 @@ NixOS requires special handling due to its immutable package management system:
 ```bash
 # Clone the repository
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker
 
-# Verify nix configuration files exist
-ls shell.nix .envrc  # Should exist for NixOS support
+# Verify nix configuration files exist (flake.nix and .envrc live at the repo root)
+ls flake.nix .envrc  # Should exist for NixOS support
 ```
 
 ### 2. Development Shell
 
 ```bash
-# Enter the development shell
-nix-shell
+# Enter the development shell (run from the ModelChecker repository root)
+nix develop
 
-# The shell.nix file automatically:
+# Move into the code/ directory for the rest of this guide
+cd code
+
+# The flake.nix devShell automatically:
 # - Sets PYTHONPATH to include local source code
-# - Installs required dependencies (z3-solver, networkx, etc.)
-# - Makes development scripts executable
+# - Provides required dependencies (z3-solver, networkx, pytest, etc.)
 ```
 
 ### 3. Optional: Automatic Environment Activation
@@ -123,12 +125,12 @@ For convenience, set up automatic environment activation:
 # Install direnv if you haven't already
 nix-env -i direnv
 
-# Allow the .envrc file once
+# Allow the .envrc file once (run from the ModelChecker repository root)
 direnv allow
 
 # Environment will now activate automatically when entering directory
 cd ..  # Leave directory
-cd ModelChecker/Code  # Environment activates automatically
+cd ModelChecker  # Environment activates automatically
 ```
 
 ### 4. Verification
@@ -304,8 +306,8 @@ pip install "z3-solver>=4.12.0,<5.0.0"
 
 ```bash
 # If you get "No module named model_checker"
-# Ensure you're in the Code directory and installed with -e flag
-pwd  # Should show .../ModelChecker/Code
+# Ensure you're in the code directory and installed with -e flag
+pwd  # Should show .../ModelChecker/code
 pip install -e .
 
 # Check PYTHONPATH
@@ -333,8 +335,8 @@ python -c "import z3"
 # Verify PYTHONPATH is set correctly
 echo $PYTHONPATH  # Should include src directory
 
-# If not in nix-shell, enter it
-nix-shell
+# If not in the Nix dev shell, enter it
+nix develop
 
 # If direnv not working
 direnv allow
@@ -420,7 +422,7 @@ time ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 
 ```bash
 # 1. Activate environment
-source venv/bin/activate  # or enter nix-shell
+source venv/bin/activate  # or enter the Nix dev shell (nix develop)
 
 # 2. Update from remote
 git pull origin main
