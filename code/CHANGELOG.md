@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-08-12
+
+### Documentation
+- Rewrote `code/README.md`, which serves as the PyPI long description, to match the current
+  codebase. Corrected the stated Python floor (3.8+ -> 3.10+), the subtheory count (five -> four),
+  and the Logos operator inventory (added `\CFBox`, `\CFDiamond`, `\Rightarrow`, and `\preceq`,
+  for the documented total of 18). Removed the `run_update.py`/`test_update.py` entries from the
+  development-scripts table; both scripts were deleted in the cruft sweep that preceded 1.3.0.
+- Replaced the inlined `LogosSemantics`, semantic-helper, and counterfactual-operator source
+  listings with prose descriptions linking to the corresponding modules, so the README no longer
+  carries copies of code that drift independently of their source. This also resolved an
+  attribution error in which `fusion` and `is_part_of` were presented as Logos methods rather
+  than as `SemanticDefaults` methods.
+- Dropped the pasted example output, which no longer matched the current display format and is in
+  any case not reproducible: the countermodel found for `CF_CM_1` varies between runs. A single
+  abridged sample is retained and labelled as such.
+- Documented previously unmentioned capabilities: the cvc5 solver backend and its `--z3`/`--cvc5`
+  flags, the `--sequential` and `--align_vertically` flags, `--save`'s `markdown`/`json`
+  arguments, and the `jupyter` extra.
+- Converted the two remaining repository-relative links to absolute URLs, which are the only form
+  that resolves when the README is rendered on PyPI.
+
 ## [1.3.0] - 2026-07-24 (entry expanded 2026-08-12; publish date is set when the `v1.3.0` tag is pushed)
 
 This release restores the `model_checker` package to full working order, ships a package-loading
