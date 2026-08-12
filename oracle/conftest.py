@@ -6,11 +6,13 @@ of pytest's rootdir/inifile resolution, so it registers marks for any
 `oracle/`-rooted invocation without becoming the first-found inifile and
 without perturbing rootdir semantics for the tree.
 
-`differential` and `slow` are already declared in `code/pyproject.toml`, but
-that file is a sibling of `oracle/`, not an ancestor -- pytest's ini-discovery
-never reaches it when the invocation is rooted at `oracle/` (or at the repo
-root, since the repo root itself has no ini file). Re-declaring them here
-closes that ini-discovery gap.
+`differential`, `slow`, and `unstable` are already declared in
+`code/pyproject.toml`, but that file is a sibling of `oracle/`, not an
+ancestor -- pytest's ini-discovery never reaches it when the invocation is
+rooted at `oracle/` (or at the repo root, since the repo root itself has no
+ini file). Re-declaring them here closes that ini-discovery gap; keep this
+list and `code/pyproject.toml`'s `markers` list in sync so the two
+declarations never drift apart.
 """
 
 from __future__ import annotations
@@ -43,6 +45,13 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers",
         "slow: Tests that are computationally expensive and skipped in CI",
+    )
+    config.addinivalue_line(
+        "markers",
+        "unstable: Tests with a documented, investigated non-semantic instability "
+        "(e.g. a heavy-tailed solver draw). Deselected from release-gating runs "
+        "with `-m \"not unstable\"`; run on their own by the unstable-watch "
+        "workflow so they stay observed rather than forgotten.",
     )
     config.addinivalue_line(
         "markers",

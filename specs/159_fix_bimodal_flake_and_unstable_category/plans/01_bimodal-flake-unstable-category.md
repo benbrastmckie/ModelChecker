@@ -212,7 +212,7 @@ anything is quarantined (Phase 4).
 
 ---
 
-### Phase 2: Widen the oracle gating re-check budget (genuine repair for defect (b)) [NOT STARTED]
+### Phase 2: Widen the oracle gating re-check budget (genuine repair for defect (b)) [COMPLETED]
 
 - **Goal:** Land the measurement-justified budget recalibration
   (`GATING_RECHECK_SOLVE_TIMEOUT_MS` 20000 -> 40000 ms) with the same in-comment rigor as
@@ -285,7 +285,7 @@ anything is quarantined (Phase 4).
 
 ---
 
-### Phase 3: Register the `unstable` marker in both pytest trees [NOT STARTED]
+### Phase 3: Register the `unstable` marker in both pytest trees [COMPLETED]
 
 - **Goal:** Make `unstable` a first-class, registered marker in both marker-registration sites,
   with no test marked yet. Infrastructure only.

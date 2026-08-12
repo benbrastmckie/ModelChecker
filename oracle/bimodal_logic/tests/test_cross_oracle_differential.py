@@ -111,7 +111,61 @@ SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 # section 8.8). Used ONLY by TestGatingConclusiveScan's two solve call sites; the
 # exhaustive scan, scan_runner default, and manifest derivation all keep
 # SELF_SCAN_SOLVE_TIMEOUT_MS.
-GATING_RECHECK_SOLVE_TIMEOUT_MS = 20000
+#
+# Widened 20000 -> 40000 (2026-08-12) in response to a real CI conclusive-population
+# shortfall (see MIN_CONCLUSIVE_GATING_FORMULAS below for the observed counts). Same
+# class of remedy as the BM_CM_1/BM_CM_4 recalibrations in
+# code/src/model_checker/theory_lib/bimodal/examples.py -- a measurement-justified
+# budget widening, not an assertion weakening.
+#
+# METHOD: re-ran test_known_conclusive_population_self_consistent unmodified, twice,
+# on the derivation workstation (24-core / 30GB).
+# LOCAL RESULTS: unrestricted (24 cores) -- agreements=103 disagreements=0
+# timeout_count=0, conclusive=103/103, 194.64s wall clock. CPU-restricted to 2 cores
+# (`taskset -c 0,1`, approximating a weak runner's core *count*) -- agreements=103
+# disagreements=0 timeout_count=0, conclusive=103/103, 176.06s wall clock -- no
+# degradation at all under local core restriction.
+# REAL CI RESULTS: run 31628414697 (v1.3.0 tag push) -- 96/103 conclusive, 7
+# timeouts, 0 disagreements, 744.54s step wall clock (well inside the 900s
+# --timeout, so this is real per-formula solve degradation, not a suite-timeout
+# artifact). Run 31628228088 (master push, same day) -- 95/103 conclusive, 8
+# timeouts, 0 disagreements. Both real CI runs: zero disagreements, matching this
+# floor's own framing that a shortfall here is a performance regression to
+# investigate, not a semantic one.
+# WHAT WAS RULED OUT: genuine cost growth in the oracle harness itself. If the
+# formulas had gotten genuinely more expensive to solve, restricting to 2 local
+# cores should have started exposing that; it reproduced 103/103 both with and
+# without the restriction. Core-count restriction alone does not reproduce the CI
+# shortfall.
+# CONCLUSION: GitHub's standard `ubuntu-latest` runners are 4 vCPU / 16GB against
+# this 24-core / 30GB derivation host -- a real, large hardware gap `taskset`
+# cannot isolate (it reduces core *count* only, not per-core clock/IPC or
+# shared/virtualized-neighbor contention). The pattern (0 disagreements, ~92-93%
+# conclusive on CI vs 100% locally under any local core restriction) is exactly
+# what "CI hardware/contention is slower per-formula than the derivation host"
+# predicts.
+# MULTIPLIER RATIONALE: 2x, matching the ~2x-of-measured-worst convention already
+# used for GATING_RECHECK_SOLVE_TIMEOUT_MS's own original derivation above and for
+# the BM_CM_1/BM_CM_4 example recalibrations.
+# THE FLOOR WAS DELIBERATELY NOT LOWERED: MIN_CONCLUSIVE_GATING_FORMULAS stays 100.
+# It encodes a real quality property (that the gating subset is, by construction,
+# almost the whole known-conclusive population); the fix targets the budget that
+# does not transfer to CI hardware, not the property being checked.
+#
+# USER ACTION REQUIRED: this 40000ms multiplier is NOT YET VERIFIED on real CI --
+# verification requires pushing this change and dispatching
+# .github/workflows/differential-tests.yml via workflow_dispatch 2-3 times, which
+# is a user-only operation (see .claude/rules/pr-prohibition.md; agents cannot
+# push or trigger workflow_dispatch). A successful verification looks like
+# >= 100 of 103 conclusive on every dispatched run, with 0 disagreements. If it
+# still falls short after a genuinely widened and CI-verified budget: do NOT
+# lower this floor. The documented fallback is marking
+# TestGatingConclusiveScan::test_known_conclusive_population_self_consistent
+# `unstable` under the same four entry criteria used for BM_CM_1 (see
+# test_bimodal.py's UNSTABLE_EXAMPLES block and TESTING_GUIDE.md section 8.9) --
+# deferred to the follow-up task since CI verification cannot happen in this
+# implementation round.
+GATING_RECHECK_SOLVE_TIMEOUT_MS = 40000
 
 # Floor for "how many of the 274 complexity<=5 formulas must be conclusive (neither
 # solve timed out) for a green run to mean anything".

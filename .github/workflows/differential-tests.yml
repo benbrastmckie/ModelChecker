@@ -37,16 +37,25 @@ jobs:
 
       - name: Run differential tests (non-slow, no BimodalHarness)
         run: |
-          # --timeout=900: TestGatingConclusiveScan::test_known_conclusive_population_self_consistent
-          # is xdist_serial (it already runs alone, so this is a genuine
-          # budget-too-tight issue rather than worker contention), does real
-          # re-solving work, and is deliberately unmarked (not @pytest.mark.slow)
-          # so it runs every gating pass; its observed runtime is ~620s.
+          # --timeout=1500 (widened from 900, 2026-08-12): TestGatingConclusiveScan
+          # ::test_known_conclusive_population_self_consistent is xdist_serial (it
+          # already runs alone, so this is a genuine budget-too-tight issue rather
+          # than worker contention), does real re-solving work, and is deliberately
+          # unmarked (not @pytest.mark.slow) so it runs every gating pass; its
+          # observed runtime was ~620s at the old 20s-per-formula budget with 7-8
+          # formulas timing out. GATING_RECHECK_SOLVE_TIMEOUT_MS was widened
+          # 20000 -> 40000ms in test_cross_oracle_differential.py (see that
+          # constant's own comment for the full justification) to close a real CI
+          # conclusive-population shortfall; at 40s those same 7-8 timeouts add
+          # roughly another 140-160s, landing near ~780s against the OLD 900s cap
+          # -- only ~13% headroom, too thin, since a suite timeout here would
+          # destroy the very countable evidence this test exists to produce. 1500
+          # restores comfortable headroom over that ~780s estimate.
           PYTHONPATH=code/src pytest \
             oracle/bimodal_logic/tests/test_cross_oracle_differential.py \
             -v \
             -m "not slow and not differential" \
-            --timeout=900
+            --timeout=1500
         env:
           PYTHONPATH: code/src
 
