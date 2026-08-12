@@ -308,6 +308,7 @@ class TestTargetLoaderBehavior(TestCase):
             with self.assertRaises(ImportError):
                 from model_checker.builder.strategies import LegacyImportStrategy
                 
+    @pytest.mark.performance
     def test_performance_improvement(self):
         """Target: Fast initialization performance."""
         if True:  # No longer needs try block

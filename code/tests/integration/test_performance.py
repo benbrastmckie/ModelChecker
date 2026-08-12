@@ -51,6 +51,7 @@ class TestExecutionPerformance(BaseModelTest):
         assert model.N == 8
 
     @pytest.mark.timeout(30)
+    @pytest.mark.performance
     def test_complex_model_performance(self):
         """Test complex models complete within timeout.
 

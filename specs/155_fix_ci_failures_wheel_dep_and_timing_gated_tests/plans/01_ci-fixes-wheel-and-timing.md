@@ -182,23 +182,23 @@ suite, release.yml:51, release.yml:~101) of which exactly two install lines need
 
 ---
 
-### Phase 2: Mark the two speed-assertion tests `@pytest.mark.performance` [NOT STARTED]
+### Phase 2: Mark the two speed-assertion tests `@pytest.mark.performance` [COMPLETED]
 
 **Goal**: Attach the already-registered but never-applied `performance` marker to the two tests
 that assert a wall-clock speed bound a shared 2-core runner cannot fairly measure.
 
 **Tasks**:
-- [ ] Confirm the marker is registered at `code/pyproject.toml:90`
+- [x] Confirm the marker is registered at `code/pyproject.toml:90`
       (`"performance: Tests that verify performance characteristics"`) -- registration exists, do
       not re-add it
-- [ ] `code/src/model_checker/builder/tests/test_refactoring_target_behavior.py`: add
+- [x] `code/src/model_checker/builder/tests/test_refactoring_target_behavior.py`: add
       `@pytest.mark.performance` immediately above `def test_performance_improvement(self):`
       (line ~311). This is a `unittest.TestCase` method; pytest marks apply to TestCase methods.
       `import pytest` is already present at line 18 -- do not add a duplicate import
-- [ ] `code/tests/integration/test_performance.py`: stack `@pytest.mark.performance` alongside the
+- [x] `code/tests/integration/test_performance.py`: stack `@pytest.mark.performance` alongside the
       existing `@pytest.mark.timeout(30)` above `def test_complex_model_performance(self):`
       (line ~53). Leave the existing timeout marker in place
-- [ ] Do NOT add the marker to any other test
+- [x] Do NOT add the marker to any other test
 
 **Timing**: 15 minutes
 
