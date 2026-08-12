@@ -397,7 +397,7 @@
     {
       "project_number": 151,
       "project_name": "rerun_release_rehearsal_and_publish_to_pypi",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
       "topic": "packaging",
       "priority": "high",
@@ -413,13 +413,22 @@
         "code/pyproject.toml",
         "code/CHANGELOG.md",
         "flake.nix",
-        ".github/workflows/release.yml"
+        ".github/workflows/release.yml",
+        ".github/RELEASE_SETUP.md",
+        "code/scripts/release-verify.sh"
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "path": "specs/151_rerun_release_rehearsal_and_publish_to_pypi/reports/01_release-rehearsal-rerun.md",
+          "type": "report",
+          "summary": "Release rehearsal re-run research: runner adoption, W002 staleness, version decision, CI gate state"
+        }
+      ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-12T16:47:47Z",
-      "next_artifact_number": 1
+      "last_updated": "2026-08-12T17:25:53Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1786552888_007b13_151"
     }
   ],
   "repository_health": {
