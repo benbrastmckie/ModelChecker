@@ -1,15 +1,26 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "summary": "Created a six-phase implementation plan for the wheel/sdist packaging contract tests, resolving all five open questions from the research report (test location, CI-gap scope, the docs/*.md sdist question, minimum-set docs assertions, and toolchain provisioning).",
+  "status": "implemented",
+  "summary": "Phase 6 (CI wiring) verified and committed: packaging.yml created (push/PR-triggered, -m packaging), release.yml build job gets one additive packaging-test step, README.md documents all three workflows. 108 packaging tests pass under -m packaging exactly as CI invokes them. All 6 plan phases now closed.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/149_wheel_and_sdist_packaging_contract_tests/plans/01_packaging-contract-tests.md",
-      "summary": "Six-phase plan: build fixture and marker, exclusions, registry-driven inclusions, parity plus conditional MANIFEST.in remediation, entry point, CI wiring."
+      "type": "summary",
+      "path": "specs/149_wheel_and_sdist_packaging_contract_tests/summaries/01_packaging-contract-tests-summary.md",
+      "summary": "Implementation summary covering all 6 phases of the packaging contract test suite and CI wiring"
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
-  "blockers": []
+  "blockers": [],
+  "next_action_hint": "none",
+  "files_modified": [
+    ".github/workflows/packaging.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/README.md"
+  ],
+  "decisions_made": [
+    "CI-gap remediation held to the plan's stated non-goal: no general full-suite CI workflow added, only the narrowly-scoped packaging.yml plus one additive step in release.yml's build job"
+  ],
+  "dead_ends": [],
+  "continuation_path": null,
+  "plan_markers_verified": true
 }
