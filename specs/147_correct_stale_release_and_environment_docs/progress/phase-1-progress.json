@@ -1,0 +1,12 @@
+{
+  "phase": 1,
+  "phase_name": "Reduce .github/workflows/README.md to a pointer stub",
+  "started_at": "2026-08-11T00:00:00Z",
+  "last_updated": "2026-08-11T00:05:00Z",
+  "objectives": [
+    {"id": 1, "description": "Replace README.md with pointer stub, verify no stale claims remain", "status": "done", "files_touched": [".github/workflows/README.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

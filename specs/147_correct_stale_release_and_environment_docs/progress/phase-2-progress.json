@@ -1,0 +1,12 @@
+{
+  "phase": 2,
+  "phase_name": "Correct the three verified inaccuracies in RELEASE_SETUP.md",
+  "started_at": "2026-08-11T00:05:00Z",
+  "last_updated": "2026-08-11T00:10:00Z",
+  "objectives": [
+    {"id": 1, "description": "Fix matrix wording and two archive paths", "status": "done", "files_touched": [".github/RELEASE_SETUP.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

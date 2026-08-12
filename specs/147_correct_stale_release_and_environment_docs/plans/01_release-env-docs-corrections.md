@@ -1,7 +1,7 @@
 # Implementation Plan: Task #147
 
 - **Task**: 147 - Correct stale release and environment docs
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/147_correct_stale_release_and_environment_docs/reports/01_release-env-docs-drift.md
@@ -143,7 +143,7 @@ that requires all four.
 
 ---
 
-### Phase 1: Reduce `.github/workflows/README.md` to a pointer stub [NOT STARTED]
+### Phase 1: Reduce `.github/workflows/README.md` to a pointer stub [COMPLETED]
 
 **Goal**: Remove every false claim from the file while preserving a GitHub web-UI entry point for
 `.github/workflows/`.
@@ -184,7 +184,7 @@ that requires all four.
 
 ---
 
-### Phase 2: Correct the three verified inaccuracies in `.github/RELEASE_SETUP.md` [NOT STARTED]
+### Phase 2: Correct the three verified inaccuracies in `.github/RELEASE_SETUP.md` [COMPLETED]
 
 **Goal**: Fix the stale test-matrix wording and the two pre-archive `specs/` paths, changing
 nothing else in the file.
