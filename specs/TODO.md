@@ -11,9 +11,9 @@ next_project_number: 155
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 148,152 | -- | testing, semantics |
-| 2 | 150,153 | 148,152 | architecture, semantics |
-| 3 | 151,154 | 150,153 | packaging, semantics |
+| 1 | 150,152 | -- | architecture, semantics |
+| 2 | 151,153 | 150,152 | packaging, semantics |
+| 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -24,10 +24,6 @@ next_project_number: 155
 ### Architecture
 
 150 [NOT STARTED] — Add continuous integration for the main test suites. Surfaced by 
-
-### Testing
-
-148 [IMPLEMENTING] — Build real end-to-end verification for the CLI. This is the large
 
 ### Semantics
 
@@ -209,12 +205,13 @@ IMPLEMENTATION NOTES:
 ---
 
 ### 148. Cli end to end verification suite
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 146
 - **Research**: [148_cli_end_to_end_verification_suite/reports/01_cli-e2e-verification-research.md]
 - **Plan**: [148_cli_end_to_end_verification_suite/plans/01_cli-e2e-verification-plan.md]
+- **Summary**: [148_cli_end_to_end_verification_suite/summaries/01_cli-e2e-verification-summary.md]
 
 **Description**: Build real end-to-end verification for the CLI. This is the largest coverage gap found by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 4, 5, 6) and the main reason the CLI defects tracked separately went unnoticed.
 

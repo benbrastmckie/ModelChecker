@@ -1,7 +1,7 @@
 # Implementation Plan: CLI End-to-End Verification Suite
 
 - **Task**: 148 - cli_end_to_end_verification_suite
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 10 hours
 - **Dependencies**: 146 (CLI defects — COMPLETED, landed at `55ea4e8f`)
 - **Research Inputs**: `specs/148_cli_end_to_end_verification_suite/reports/01_cli-e2e-verification-research.md`
