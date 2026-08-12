@@ -11,16 +11,15 @@ next_project_number: 158
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,157 | -- | packaging, semantics |
-| 2 | 151,153 | 152,157 | packaging, semantics |
+| 1 | 151,152 | -- | packaging, semantics |
+| 2 | 153 | 152 | semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Packaging
 
-157 [IMPLEMENTING] — Deduplicate the four identical theory_lib VERSION files to clear 
-  └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
+151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
 
 ### Semantics
 
@@ -31,12 +30,13 @@ next_project_number: 158
 ## Tasks
 
 ### 157. Dedupe theory lib version files w002
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 155
 - **Research**: [157_dedupe_theory_lib_version_files_w002/reports/01_version-file-dedupe.md]
 - **Plan**: [157_dedupe_theory_lib_version_files_w002/plans/01_version-file-dedupe.md]
+- **Summary**: [157_dedupe_theory_lib_version_files_w002/summaries/01_version-file-dedupe-summary.md]
 
 **Description**: Deduplicate the four identical theory_lib VERSION files to clear check-wheel-contents W002. code/src/model_checker/theory_lib/{bimodal,exclusion,imposition,logos}/VERSION are four byte-identical files each containing `1.0.0`. check-wheel-contents flags them as `W002: Wheel contains duplicate files` and exits 1 on the built wheel; `--ignore W002` returns OK with exit 0. Independently verified twice against code/dist/model_checker-1.3.0-py3-none-any.whl. The finding is structural (four identical files), not an artifact of a stale build, so it reproduces on a fresh build.
 
