@@ -1,0 +1,19 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "summary": "Created an 8-phase implementation plan for the six CLI polish defects (review issues 8, 9, 11, 12, 13, 15), adopting every product decision the research report recommended so the implementer does not re-litigate them. Phases 2-6 are chained because all five edit __main__.py; phase 7 (builder/project.py) runs in parallel.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/146_fix_cli_defects_found_in_release_review/plans/01_fix-cli-defects.md",
+      "summary": "8-phase plan: test-module scaffolding plus baseline, one phase per defect, and a full-suite regression/summary phase; 5.5 hours estimated, 7 dependency waves."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 8,
+  "blockers": [],
+  "plan_markers_verified": true,
+  "continuation_path": null,
+  "next_action_hint": "Run /implement 146 to execute the plan starting at Phase 1 (create code/tests/unit/test_main_cli.py and record the suite baseline).",
+  "sorry_inventory": []
+}

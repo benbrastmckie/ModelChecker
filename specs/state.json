@@ -1,10 +1,80 @@
 {
-  "next_project_number": 152,
+  "next_project_number": 155,
   "active_projects": [
+    {
+      "project_number": 154,
+      "project_name": "extension_certified_search_over_small_bimodal_models",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "semantics",
+      "priority": "high",
+      "description": "THE PAYOFF, and the one task in this group where OVER-CLAIMING is the principal risk. With the frame axioms in place, the paper's `thm:extension` becomes applicable to bimodal countermodels: every partial history the solver finds is a fragment of a genuine total world history in $H_\\F$. Use that to move work out of the solver -- but only the half the theorem actually covers.\n\nWHAT THE THEOREM BUYS. Today the solver is made to approximate totality inside the search: `world_interval_constraint` gives each world a time interval, `lawful` chains unit steps across it, and the `capped_skolem_abundance_constraint` / `depth_bounded_skolem_abundance_constraint` family manufactures time-shifted copies. The extension theorem says the interval-and-shift scaffolding is not needed in order to KNOW that a found history is realizable: any partial assignment consistent with the frame axioms already lies inside some total history. So the solver may search genuinely small partial structures -- fewer worlds, narrower windows, no shift closure -- with totality discharged afterwards.\n\nWHAT IT DOES NOT BUY. This must be stated in the code and in the summary, not only here. `thm:extension` is EXISTENTIAL. It certifies that a witness exists; it says nothing about universal obligations. Truth of `\\Box \\phi` quantifies over all of $H_\\F$, and truth of `\\Future \\phi` and `\\Past \\phi` over all of $\\D$, whereas `NecessityOperator.true_at` currently quantifies over the solver's finite world set and the tense operators over the bounded window. The abundance constraints approximate that second column and the extension theorem DOES NOT REPLACE THEM. Any design that drops abundance wholesale and cites `thm:extension` as cover is wrong. The preceding audit's baseline records exactly which examples this bites; use it.\n\nDELIVERABLE 1 -- POST-HOC CERTIFICATION. After extraction, take the countermodel's partial histories and produce the finite lasso witness of BimodalLogic 441 (prefix plus cycle, forward and backward), verify that it satisfies the frame axioms and agrees with the extracted window, and attach it to the model structure. This is the concrete, checkable form of the claim \"this bounded history is a fragment of a possible world\", and it replaces the prose assurance currently carried in the `task_restriction` soundness comment.\n\nDELIVERABLE 2 -- SPLIT THE CONSTRAINT SET BY POLARITY. Formulas whose falsification obligations are purely existential -- no `\\Box` or universal tense operator in a verifying position -- need no abundance closure and can be searched at smaller `M` with fewer worlds. Formulas carrying universal obligations keep the current treatment. Drive this off the EXISTING `temporal_depth` machinery, which already performs depth-aware abundance selection, rather than adding a second parallel mechanism beside it.\n\nDELIVERABLE 3 -- MEASURE IT. The claim here is a performance claim as well as a soundness claim. Report solve times against the audit baseline for the examples in each polarity class, and report honestly if the win turns out to be small or absent. A correct-but-slower result is a legitimate outcome and should be reported as such rather than tuned until it looks good.\n\nDELIVERABLE 4 -- SURFACE THE CERTIFICATE. A user who gets a bimodal countermodel should be able to see the extension witness, not just the bounded window. Fit this to the existing output conventions rather than inventing a new output channel.\n\nDEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the extension theorem does not apply at all), the audit task (baseline), and BimodalLogic 441 (the lasso construction and the agreement lemma, including its explicit statement of what does not transfer).",
+      "dependencies": [
+        152,
+        153
+      ],
+      "file_scope": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+        "code/src/model_checker/theory_lib/bimodal/semantic/model.py",
+        "code/src/model_checker/theory_lib/bimodal/operators.py",
+        "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"
+      ],
+      "artifacts": [],
+      "blockers": null,
+      "created": "2026-08-11T23:11:53Z",
+      "last_updated": "2026-08-11T23:11:53Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_manual_154"
+    },
+    {
+      "project_number": 153,
+      "project_name": "assert_missing_frame_axioms_in_bimodal_semantics",
+      "status": "not_started",
+      "task_type": "z3",
+      "topic": "semantics",
+      "priority": "high",
+      "description": "Bring `BimodalSemantics`'s frame class up to the JPL paper's `def:frame`, so that `thm:extension` becomes applicable to its countermodels. Today it is not: two of the paper's four frame axioms are missing, and they are precisely the two the extension proof consumes.\n\nDELIVERABLE 1 -- *SERIALITY*. Assert that for every world state `w` and every valid non-negative duration `x` there exist `u` and `v` with `task_rel(w, x, u)` and `task_rel(v, x, w)`. Over the finite state space `BitVec[N]` this is a bounded obligation. PREFER a grounded or Skolemized encoding over a nested `ForAll`/`Exists`: the source comment on the disabled `task_restriction` documents that `ForAll`/`Exists` alternation causes MBQI timeouts at `M >= 3`, and that lesson applies directly here. Benchmark before and after; do not land an encoding that reintroduces the timeout the disabled constraint was disabled for.\n\nDELIVERABLE 2 -- INTERPOLATION (the missing half of *Compositionality*). The paper's axiom is a biconditional; only composition is currently asserted. The direct fix is `task_rel(w, d1+d2, v) -> exists u . task_rel(w, d1, u) and task_rel(u, d2, v)` under the existing duration guards.\n\nEVALUATE THIS ALTERNATIVE FIRST, it is strongly preferred if it measures acceptably: instead of asserting both halves of a biconditional over an unconstrained ternary predicate, DEFINE `task_rel(w, d, v)` as the `d`-step reachability of a single unit relation `R`. Under that definition *Compositionality* holds in both directions BY CONSTRUCTION, interpolation included, and `converse` and `nullity_identity` become theorems rather than assertions. That trades the five quantified variables of `build_forward_comp_constraint` for a definitional encoding, and may be a net solver win as well as a soundness win. Measure it honestly; if it loses badly, fall back to asserting the missing half directly and record the measurement so the question is not reopened blind.\n\nDELIVERABLE 3 -- RECORD, DO NOT ASSERT, THE TWO FREE AXIOMS. *Spherical* holds because `WorldState = BitVec[N]` is finite -- cite BimodalLogic's `spherical_of_finite` and the corresponding paper corollary rather than re-deriving. *Limit* follows from the already-asserted `nullity_identity` biconditional over a discrete duration order -- cite BimodalLogic's `TaskFrame.limit_of_succOrder`, whose hypothesis is exactly that biconditional. Put the result in `code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md` as a frame-class table distinguishing the four ASSERTED axioms from the two FREE ones, with the citation for each. The current docstring in `build_frame_constraints` claims a three-axiom TaskFrame correspondence that this task supersedes; update it rather than leaving two accounts in the tree.\n\nDELIVERABLE 4 -- THE DURATION-DOMAIN HONESTY ITEM. The paper requires $\\D$ to be a nontrivial totally ordered abelian GROUP; `is_valid_duration` bounds durations to the open interval from `-M` to `M`, which is not a group. Either state and justify the embedding -- the finite structure determines a frame over $\\D = \\Z$ by taking `task_rel` to be the reachability relation of the unit relation, which is defined at every integer duration -- or record it explicitly as an open gap. Do not leave it unstated: it is load-bearing for the follow-on certification work, which claims things about total histories over all of $\\Z$.\n\nVERIFICATION. The full bimodal suite must stay green, and the baseline from the preceding audit must be used to detect verdict flips. A verdict flip is NOT automatically a regression here -- adding a missing frame axiom legitimately shrinks the frame class and can turn a SAT into an UNSAT -- but every flip must be explained individually in the summary, never absorbed silently.\n\nDEPENDENCIES. The bimodal frame-class audit (baseline and ledger) and BimodalLogic 440 (the citation backing Deliverable 3).",
+      "dependencies": [
+        152
+      ],
+      "file_scope": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+        "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
+        "code/src/model_checker/theory_lib/bimodal/tests"
+      ],
+      "artifacts": [],
+      "blockers": null,
+      "created": "2026-08-11T23:11:53Z",
+      "last_updated": "2026-08-11T23:11:53Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_manual_153"
+    },
+    {
+      "project_number": 152,
+      "project_name": "audit_bimodal_frame_class_and_verdict_dependence",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "semantics",
+      "priority": "high",
+      "description": "AUDIT ONLY -- no semantics change, no constraint change, no examples change. Produce the soundness ledger and the regression baseline that the two follow-on tasks need, because both alter the frame class the solver searches and neither can be landed safely without knowing which existing verdicts depend on what.\n\nWHAT IS ALREADY ESTABLISHED (verified 2026-08-11; do not re-derive, but DO re-resolve the code references, which will drift):\n\n  - `code/src/model_checker/theory_lib/bimodal/semantic/core.py::build_frame_constraints` asserts eleven constraints, three of which are billed as TaskFrame axioms: `nullity_identity` (a biconditional, `task_rel(w,0,u) <-> w=u`), `converse` (a guarded biconditional), and `forward_comp`.\n\n  - `forward_comp` is ONLY the right-to-left half of the JPL paper's *Compositionality*, which is a BICONDITIONAL: \"$w \\Rightarrow_{x+y} v$ if and only if $w \\Rightarrow_x u$ and $u \\Rightarrow_y v$ for some $u \\in W$\" (`def:frame`). The left-to-right (interpolation) half is asserted nowhere.\n\n  - *Seriality* is asserted nowhere. `grep -rn \"serial\" semantic/` returns nothing.\n\n  - Those two missing axioms are EXACTLY the two the paper's `lem:constraint` consumes -- *Seriality* for the one-sided case and interpolation for the flanked case (the Lean formalization names the corresponding steps `nonempty_fib_of_serial` and `nonempty_seg_of_interpolates`). Consequence: `thm:extension` cannot currently be invoked on a ModelChecker countermodel at all. This is the single most important fact in this audit.\n\n  - `operators.py::NecessityOperator.true_at` quantifies over `is_world(other_world)` -- the finite set of world IDs the solver chose -- not over $H_\\F$. `FutureOperator` and `PastOperator` quantify over the bounded time window, not over $\\D$.\n\n  - `task_restriction`, which would ground every `task_rel` triple in a concrete world history, is written but DISABLED for solver-performance reasons, with a soundness analysis in the source comment that this audit should assess rather than accept.\n\n  - The extension theorem itself is NOT missing upstream: it is fully proved and axiom-clean in the BimodalLogic Lean repository at `FormalSystem/Semantics/Extension/`. The gap is entirely on this side.\n\nDELIVERABLE 1 -- THE LEDGER. A report under `specs/{NNN}_{SLUG}/reports/` separating the semantics' obligations into two columns:\n  (a) obligations discharged by an EXISTENTIAL witness -- a countermodel to `\\Box \\phi`; a witness time falsifying `\\Future \\phi`;\n  (b) obligations requiring a UNIVERSAL guarantee -- truth of `\\Box \\phi` across all of $H_\\F$; truth of `\\Future \\phi` across all of $\\D$.\n`thm:extension` addresses only column (a). State plainly that the `capped_skolem_abundance_constraint` / `depth_bounded_skolem_abundance_constraint` shift-closure family is the current approximation of column (b) and that NO theorem in the paper replaces it. This distinction is the thing the follow-on work is most likely to blur, so make it hard to miss.\n\nDELIVERABLE 2 -- THE BASELINE. Classify every example in `code/src/model_checker/theory_lib/bimodal/examples.py` by whether its expected verdict depends on the abundance approximation. Method: re-run each example with the abundance constraints removed and record which verdicts flip. Record results under `specs/{NNN}_{SLUG}/baselines/` per the project's per-task baseline convention. This is the regression net for both follow-on tasks, and without it neither can distinguish a legitimate frame-class narrowing from a genuine regression. Note that BM_CM_1 example_case7 has a documented Z3 timing flake under CPU contention -- run on a quiet host and record the condition.\n\nDELIVERABLE 3 -- THE `task_restriction` VERDICT. State whether the disabled `task_restriction` becomes unnecessary once interpolation and seriality are asserted, or whether it remains an independent gap. Its stated purpose (grounding every `task_rel` triple in a world history) overlaps with what interpolation plus the extension theorem provide, and that overlap should be settled on paper here rather than discovered during implementation. Do NOT enable it in this task.\n\nNON-GOALS. No change to `core.py`, `operators.py`, or `examples.py`. This task ends with two documents and a baseline.",
+      "dependencies": [],
+      "file_scope": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+        "code/src/model_checker/theory_lib/bimodal/operators.py",
+        "code/src/model_checker/theory_lib/bimodal/examples.py",
+        "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"
+      ],
+      "artifacts": [],
+      "blockers": null,
+      "created": "2026-08-11T23:11:53Z",
+      "last_updated": "2026-08-11T23:11:53Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_manual_152"
+    },
     {
       "project_number": 146,
       "project_name": "fix_cli_defects_found_in_release_review",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "topic": "architecture",
       "priority": "high",
@@ -22,18 +92,23 @@
           "path": "specs/146_fix_cli_defects_found_in_release_review/reports/01_cli-defect-fixes.md",
           "type": "report",
           "summary": "Root-cause analysis and recommended fixes for the six CLI defects from review-20260811.md (issues 8, 9, 11, 12, 13, 15): -p short-flag mapping gap in ParseFileFlags._short_to_long, stale/unvalidated --load_theory help+choices, silently-discarded --save jupyter format plus inaccurate help wording, uncaught NotImplementedError from --sequential, dead -j/--jupyter pre-check block, and __pycache__ warning leak in BuildProject's manifest copy loop. Each item includes exact file/line locations, confirmed root cause, a scope-respecting recommended fix, and a minimal verification approach."
+        },
+        {
+          "path": "specs/146_fix_cli_defects_found_in_release_review/plans/01_fix-cli-defects.md",
+          "type": "plan",
+          "summary": "8-phase plan: test-module scaffolding plus baseline, one phase per defect, and a full-suite regression/summary phase"
         }
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-11T23:08:08Z",
+      "last_updated": "2026-08-12T02:10:15Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1786489030_3e5392_146"
+      "session_id": "sess_1786500059_e89d8c_146"
     },
     {
       "project_number": 147,
       "project_name": "correct_stale_release_and_environment_docs",
-      "status": "planned",
+      "status": "completed",
       "task_type": "markdown",
       "topic": "documentation",
       "priority": "high",
@@ -55,13 +130,19 @@
           "path": "specs/147_correct_stale_release_and_environment_docs/plans/01_release-env-docs-corrections.md",
           "type": "plan",
           "summary": "Five-phase documentation-correction plan covering the workflows README pointer stub, three RELEASE_SETUP.md fixes, the ENVIRONMENT_SETUP.md Python/casing/Nix corrections, the BASIC_INSTALLATION.md NixOS verification recipe, and a cross-file verification phase recording the out-of-scope run_update.py drift."
+        },
+        {
+          "path": "specs/147_correct_stale_release_and_environment_docs/summaries/01_release-env-docs-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary covering all five phases, decisions, and plan deviations"
         }
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-11T23:09:15Z",
+      "last_updated": "2026-08-12T02:10:16Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1786489030_3e5392_147"
+      "session_id": "sess_1786500059_e89d8c_147",
+      "completion_summary": "Corrected all four drifted release/environment docs: workflows README reduced to a pointer stub, RELEASE_SETUP.md matrix wording and archive paths fixed, ENVIRONMENT_SETUP.md Python floor/casing/Nix prose corrected, and a new NixOS post-publish verification recipe added to BASIC_INSTALLATION.md."
     },
     {
       "project_number": 148,
@@ -93,7 +174,7 @@
     {
       "project_number": 149,
       "project_name": "wheel_and_sdist_packaging_contract_tests",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "topic": "packaging",
       "priority": "medium",
@@ -109,13 +190,18 @@
           "path": "specs/149_wheel_and_sdist_packaging_contract_tests/reports/01_packaging-contract-tests.md",
           "type": "report",
           "summary": "Maps the current wheel (pyproject.toml package-data) and sdist (MANIFEST.in) allowlists in full, the theory registry (model_checker.theory_lib.AVAILABLE_THEORIES / model_checker.registry.get_registered()) to drive the theory list from per test_theory_conformance.py precedent, a candidate concrete drift (MANIFEST.in has no docs/*.md rule mirroring pyproject.toml's package-data entry, to be resolved by building and inspecting rather than assumed), the finding that NO CI workflow currently runs the general test suite at all (only release.yml, tag-triggered, and differential-tests.yml, path-triggered on oracle/bimodal) which bears directly on the task's CI-wiring requirement, the isolated-venv-inside-nix-develop + PIP_USER=0 + single-invocation technique established by task 125's release rehearsal for running build/twine/check-wheel-contents on this NixOS host, existing test-suite conventions (markers, test_layering.py placement precedent, test_theory_conformance.py parametrization pattern, conftest.py autouse fixture), entry-point assertion scope, and five open questions for the plan phase (test file location, CI-gap remediation scope, the docs/*.md sdist question, exact-set vs minimum-set docs assertions, and toolchain provisioning strategy)."
+        },
+        {
+          "path": "specs/149_wheel_and_sdist_packaging_contract_tests/plans/01_packaging-contract-tests.md",
+          "type": "plan",
+          "summary": "Six-phase plan: build fixture and marker, exclusions, registry-driven inclusions, parity, entry point, CI wiring"
         }
       ],
       "blockers": null,
       "created": "2026-08-11T22:30:00Z",
-      "last_updated": "2026-08-11T23:08:54Z",
+      "last_updated": "2026-08-12T02:10:15Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1786489030_3e5392_149"
+      "session_id": "sess_1786500059_e89d8c_149"
     },
     {
       "project_number": 150,
@@ -178,6 +264,7 @@
     "documentation",
     "packaging",
     "architecture",
-    "testing"
+    "testing",
+    "semantics"
   ]
 }
