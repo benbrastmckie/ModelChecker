@@ -11,8 +11,8 @@ next_project_number: 161
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,158,159 | -- | semantics, release-engineering |
-| 2 | 153,160 | 152,159 | semantics, release-engineering |
+| 1 | 152,158,160 | -- | semantics, release-engineering |
+| 2 | 153 | 152 | semantics |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -26,8 +26,7 @@ next_project_number: 161
 ### Release Engineering
 
 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
-159 [IMPLEMENTING] — Fix the bimodal solver-timing flakes, and introduce an 'unstable'
-  └─ 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
+160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 
 ## Tasks
 
@@ -114,12 +113,13 @@ task_type: python. file_scope: the bimodal theory package
 ---
 
 ### 159. Fix bimodal flake and unstable category
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
 - **Research**: [159_fix_bimodal_flake_and_unstable_category/reports/01_bimodal-flake-and-unstable-category.md]
 - **Plan**: [159_fix_bimodal_flake_and_unstable_category/plans/01_bimodal-flake-unstable-category.md]
+- **Summary**: [159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md]
 
 **Description**: Fix the bimodal solver-timing flakes, and introduce an 'unstable' test category so that whatever genuinely resists fixing stops holding up releases WITHOUT disappearing from view. Supersedes an earlier framing of this task that proposed withdrawing the bimodal theory from the published release surface; that remedy was rejected as disproportionate. The evidence says bimodal WORKS -- it shipped in 1.3.0, post-publish verification ran it from the published wheel (exit 0, ~770 lines of genuine countermodel output), and BM_CM_1 finds its countermodel on every decided draw. The defects are timing, not semantics. The theory stays registered and stays published.
 

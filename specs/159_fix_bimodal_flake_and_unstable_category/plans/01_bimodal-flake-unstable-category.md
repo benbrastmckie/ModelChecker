@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Bimodal Solver-Timing Flakes and Introduce the `unstable` Test Category
 
 - **Task**: 159 - fix_bimodal_flake_and_unstable_category
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 7.5 hours
 - **Dependencies**: None (but MUST NOT run concurrently with the CI-hardening task -- both touch `.github/workflows/tests.yml`, `release.yml`, `differential-tests.yml`)
 - **Research Inputs**: `specs/159_fix_bimodal_flake_and_unstable_category/reports/01_bimodal-flake-and-unstable-category.md`

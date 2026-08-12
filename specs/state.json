@@ -4,7 +4,7 @@
     {
       "project_number": 159,
       "project_name": "fix_bimodal_flake_and_unstable_category",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "description": "Fix the bimodal solver-timing flakes, and introduce an 'unstable' test category so that whatever genuinely resists fixing stops holding up releases WITHOUT disappearing from view. Supersedes an earlier framing of this task that proposed withdrawing the bimodal theory from the published release surface; that remedy was rejected as disproportionate. The evidence says bimodal WORKS -- it shipped in 1.3.0, post-publish verification ran it from the published wheel (exit 0, ~770 lines of genuine countermodel output), and BM_CM_1 finds its countermodel on every decided draw. The defects are timing, not semantics. The theory stays registered and stays published.\n\nPRIMARY AIM: FIX THE TESTS. The 'unstable' category is a pressure-release valve for the residue, NOT the deliverable. A run of this task that quarantines both tests without a genuine repair attempt has failed its primary aim.\n\nTHE TWO DEFECTS.\n  (a) `test_bimodal.py::test_example_cases[BM_CM_1-example_case7]` -- intermittent. `examples.py`'s BM_CM_1_settings comment records a 15->60s recalibration and a divergent draw measured undecided at 600s (~64x median), concluding \"the divergent-draw residual is accepted and recorded: no budget closes it\". It failed in the tag-triggered Tests run while PASSING in release.yml's own matrix on the identical commit and on the preceding master push.\n  (b) `oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` -- fails at 95-96 of 103 conclusive against floor=100, consistently, on GitHub runners; red on master since at least 2026-08-10. Its own assertion message calls it \"a budget/performance regression to investigate, not a semantic one\".\n\n(1) ATTEMPT A REAL FIX FIRST -- (a), THE DIVERGENT DRAW. Do NOT re-tune `max_time`: the settings comment already states no budget closes this, and a second recalibration would burn a cycle re-learning that. Investigate instead: is the divergence seed-dependent (probe `smt/sat.random_seed` across a wide sweep and characterise the decided/undecided split)? Does the `\\Future`/all_future operator family's quantifier bound-variable-aliasing cost (see operators.py `_fresh_bound_int` docstring, named in the settings comment as the cost-growth source) admit an encoding improvement that collapses the tail? Would a different N/M, or a tightened frame constraint, keep the same semantic content on a tractable search? A genuine encoding fix that removes the tail is the win condition here; seed-pinning is a fallback, not a fix, because it hides the tail rather than removing it.\n\n(2) ATTEMPT A REAL FIX FIRST -- (b), THE CONCLUSIVE-POPULATION SHORTFALL. Diagnose before touching any number. Determine whether the shortfall is genuine cost growth in the oracle harness, shared-runner contention a larger per-formula budget would absorb, or a floor calibrated on quiet-host measurements that was never valid on CI hardware. DO NOT lower the floor to reach green -- the assertion encodes a real quality property. If the honest conclusion is that the floor was mis-calibrated for CI hardware, changing it is legitimate, but only with an in-comment justification of the same standard as BM_CM_1's budget recalibration (measurements, method, what was ruled out).\n\n(3) INTRODUCE THE 'unstable' MARKER. Only for what survives (1) and (2). `code/pyproject.toml`'s `[tool.pytest.ini_options] markers` already carries this exact convention -- `slow` is the model to follow, including its style of explaining in-line how to select/deselect it. Add:\n      \"unstable: Tests with a documented, investigated non-semantic instability (e.g. a heavy-tailed solver draw). Deselected from release-gating runs with `-m \\\"not unstable\\\"`; run on their own by the unstable-watch workflow so they stay observed rather than forgotten.\"\n    STRICT ENTRY CRITERIA -- this category must not become a dumping ground. A test may be marked `unstable` ONLY when all hold: the instability is understood and documented in-line at the marker site (what fails, why, what was ruled out); it is demonstrably NOT semantic (the assertion still holds on every decided/complete run); a genuine fix was attempted and its failure recorded; and an explicit EXIT criterion is written down (what must be observed for the marker to come off). \"It failed once in CI\" never qualifies.\n\n(4) WIRE DESELECTION INTO THE GATING RUNS. `.github/workflows/tests.yml:73` currently runs `pytest tests/ src/model_checker -m \"not packaging and not performance\" -n 6 -q` -- extend the expression to also exclude `unstable`. Do the same for release.yml's `test-and-release` matrix and differential-tests.yml's invocations (lines ~45/55). Releases must not be gated on a known-unstable test; that is the entire point of the category.\n\n(5) KEEP AN EYE ON THEM -- THE WATCH WORKFLOW IS A FIRST-CLASS DELIVERABLE. Quarantine without observation is deletion with extra steps. Add a NON-GATING workflow (e.g. `.github/workflows/unstable-watch.yml`) that runs on a schedule (nightly or weekly) plus `workflow_dispatch`, executes ONLY `-m unstable`, and reports outcomes in a form that makes the trend visible -- at minimum a job summary; better, an append-only record of pass/fail per run so the decided/undecided ratio is legible over time. It MUST NOT gate pushes, PRs, or tags. Two behaviours matter as much as the runs themselves: a test that has been green across the agreed exit threshold should be surfaced as READY TO PROMOTE back into the gating suite, and a test that starts failing in a NEW way (a semantic assertion, not the documented timing signature) must be loud, because that is a real regression hiding inside a quarantined test.\n\n(6) DOCUMENT THE POLICY. Record entry criteria, exit criteria, the review cadence, and the promotion path in a durable place (extend `code/docs/core/TESTING_GUIDE.md` rather than inventing a new home, unless a better location exists). Include the standing rule that the `unstable` set is reviewed on a fixed cadence and that an indefinitely-quarantined test is itself a defect to escalate, not a steady state.\n\n(7) TERMINAL DELIVERABLE -- CONDITIONAL FOLLOW-UP TASK. If (1) and (2) both fully succeed and nothing needed the marker, no follow-up is required; record that outcome. Otherwise, conclude by creating a follow-up task covering exactly what remains unstable, carrying forward concretely: which tests were marked and why; the evidence and the standing verdict that no budget closes the BM_CM_1 tail (so the follow-up does not re-tune `max_time` either); the oracle 95-96/103-vs-floor-100 measurements and the do-not-lower-the-floor instruction; each test's written exit criterion; and what was already ruled out by this task's repair attempts, so the follow-up starts from the frontier rather than the beginning. Set its `task_type` to `python` with a `file_scope` covering the bimodal theory package, its tests, and the oracle bimodal tree.\n\nRELATIONSHIP TO THE CI-HARDENING TASK: that task's items (10) (harden/quarantine the BM_CM_1 flake), (11) (investigate the oracle floor), and (12) (decide whether the oracle suite gates anything) are SUPERSEDED by this task and must not be executed twice -- items (10) and (11) are this task's phases (1)-(3), and item (12) is answered by phases (4)-(5) (the oracle suite keeps gating, minus any unstable-marked members). The two tasks overlap on `.github/workflows/tests.yml`, `release.yml`, and `differential-tests.yml`, so they MUST NOT be run concurrently; run one, then re-read its outcome before starting the other. That task's headline TestPyPI-gate work is otherwise independent of this one.\n\nAGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, `git push`, `git tag`, `/merge`, `/tag`, and any twine upload remain USER-ONLY.",
       "topic": "release-engineering",
@@ -22,7 +22,7 @@
       ],
       "dependencies": [],
       "created": "2026-08-12T19:00:03Z",
-      "last_updated": "2026-08-12T19:49:38Z",
+      "last_updated": "2026-08-12T20:08:38Z",
       "session_id": "sess_1786562372_0f5f79",
       "artifacts": [
         {
@@ -34,8 +34,48 @@
           "path": "specs/159_fix_bimodal_flake_and_unstable_category/plans/01_bimodal-flake-unstable-category.md",
           "type": "plan",
           "summary": "8-phase plan: repair-first ordering before any quarantine; unstable marker; deselection wiring; nightly non-gating unstable-watch.yml; TESTING_GUIDE 8.9; conditional follow-up task."
+        },
+        {
+          "path": "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary covering all 8 plan phases: BM_CM_1 repair-frontier recording, the oracle budget widening, unstable marker registration/marking/wiring, unstable-watch.yml, TESTING_GUIDE.md 8.9, and the conditional follow-up task."
         }
-      ]
+      ],
+      "completion_summary": "Recorded BM_CM_1's full repair frontier (a third closed encoding avenue) and marked it unstable with all four entry criteria in-line since no fix exists. Landed a measurement-justified widening of the oracle gating re-check budget (20000->40000ms), verified locally at 103/103 conclusive but not yet on real CI. Registered and wired the unstable marker's deselection across tests.yml, differential-tests.yml, release.yml, and flake.nix; added the non-gating unstable-watch.yml observation workflow; documented the full policy in TESTING_GUIDE.md 8.9; and created follow-up task 160 since neither defect fully closed within this round.",
+      "memory_candidates": [
+        {
+          "content": "For a pytest suite with an ini file that is a sibling (not ancestor) of a standalone test tree (e.g. code/pyproject.toml vs. oracle/), marker registration must be mirrored in BOTH the ini file AND a conftest.py in the standalone tree's own pytest_configure via config.addinivalue_line -- ini-discovery never reaches a sibling directory's ini file, so registering only in the ini file leaves the standalone tree emitting unknown-marker warnings (or erroring under --strict-markers).",
+          "category": "PATTERN",
+          "source_artifact": "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md",
+          "confidence": 0.75,
+          "suggested_keywords": [
+            "pytest",
+            "markers",
+            "conftest.py",
+            "ini-discovery",
+            "addinivalue_line"
+          ]
+        },
+        {
+          "content": "When converting a pytest parametrize call from a bare dict.items() view to pytest.param(...) objects (e.g. to attach per-case marks), passing no explicit ids= reproduces the original auto-generated node IDs exactly, verified via a --collect-only diff before/after -- this is the safe way to add a conditional mark to select parametrized cases without breaking existing node-ID-dependent -k selections or CI history.",
+          "category": "TECHNIQUE",
+          "source_artifact": "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md",
+          "confidence": 0.8,
+          "suggested_keywords": [
+            "pytest",
+            "parametrize",
+            "pytest.param",
+            "node-id-stability",
+            "collect-only"
+          ]
+        }
+      ],
+      "reflection": {
+        "what_worked": "Reading the research report's measurement tables closely before writing any comment made the in-line entry-criteria and budget-justification blocks fast to draft accurately -- the evidence was already assembled, so the work was transcription with fidelity checks, not re-derivation.",
+        "what_was_hard": "The no-task-references-in-deliverables hook blocked the first operators.py docstring edit for citing task numbers in a code comment; had to rewrite the historical cross-references using dates and durable anchors instead.",
+        "what_was_missed": "Phases 2 and 3's git adds were batched together before the first commit, merging what the plan intended as two separate phase commits into one -- caught and recorded honestly in the summary rather than silently left unremarked.",
+        "successes": "All 8 phases completed and verified: node IDs byte-identical before/after the unstable marking, the widened oracle budget still passes at 103/103 conclusive locally, all workflow YAML parses, the unstable-watch.yml classification logic tested correct against a hand-written TIMING/NEW sample, and TESTING_GUIDE.md 8.9 cross-references all verified to exist."
+      }
     },
     {
       "project_number": 158,
