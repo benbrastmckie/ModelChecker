@@ -7,6 +7,13 @@ name: Tests
 # serially on every push/PR) and narrower in matrix than release.yml (see rationale below).
 on:
   push:
+    # Tag pushes are deliberately excluded: release.yml owns the v*.*.* tag event and
+    # runs its own, wider (3-OS x 3-Python) `test-and-release` matrix before publishing.
+    # Without this, a single tag push fired both workflows over the same commit --
+    # duplicating the full suite, and surfacing contention-sensitive failures against a
+    # release that release.yml had already tested green.
+    tags-ignore:
+      - '**'
   pull_request:
 
 jobs:

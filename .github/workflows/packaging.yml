@@ -6,6 +6,11 @@ name: Packaging Contract Tests
 # non-goal this respects.
 on:
   push:
+    # Tag pushes are deliberately excluded: release.yml owns the v*.*.* tag event and
+    # builds/validates the same artifacts itself (`build` job + `twine check --strict`)
+    # before publishing. See the matching note in tests.yml.
+    tags-ignore:
+      - '**'
   pull_request:
 
 jobs:

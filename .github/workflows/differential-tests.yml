@@ -3,6 +3,12 @@ name: Differential Oracle Tests
 on:
   workflow_dispatch:
   push:
+    # Tag pushes are deliberately excluded. GitHub does not apply the `paths` filter below
+    # to a tag push, so without this the full ~12-minute cross-oracle suite ran on every
+    # release tag regardless of whether any bimodal or oracle file changed. The oracle
+    # tree is excluded from the wheel entirely, so it has no bearing on a release.
+    tags-ignore:
+      - '**'
     paths:
       - 'oracle/bimodal_logic/**'
       - 'code/src/model_checker/theory_lib/bimodal/**'
