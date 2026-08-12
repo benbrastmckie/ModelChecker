@@ -271,41 +271,51 @@ so Phases 3 and 4 have somewhere to write and something to write with.
 
 ---
 
-### Phase 3: `ParseFileFlags` unit tests and the short/long equivalence sweep [NOT STARTED]
+### Phase 3: `ParseFileFlags` unit tests and the short/long equivalence sweep [COMPLETED]
 
 **Goal**: Cover the parser class that no test has ever imported, and install the direct
 regression guard for the `-p` class of silent-no-op defect.
 
 **Tasks**:
-- [ ] New `code/tests/cli/test_parse_file_flags.py`. Import `ParseFileFlags` from
-      `model_checker.__main__` — the first test in the repo to do so.
-- [ ] Test `_create_parser()` structure: `-l/--load_theory` choices come from
+- [x] New `code/tests/cli/test_parse_file_flags.py`. Import `ParseFileFlags` from
+      `model_checker.__main__` — the first test in the repo to do so. (Correction: as noted in
+      Phase 1's Implementation Notes, `tests/unit/test_main_cli.py` already did this; this file
+      is complementary, not first.)
+- [x] Test `_create_parser()` structure: `-l/--load_theory` choices come from
       `registry.get_registered()`; `--z3`/`--cvc5` form a mutually exclusive group with no short
       forms; `-s/--save` is `nargs='*'` with `choices=['markdown','json']`.
-- [ ] Test `parse()` stamps `_short_to_long` and `_parsed_args` (`= sys.argv[1:]`) onto the
+- [x] Test `parse()` stamps `_short_to_long` and `_parsed_args` (`= sys.argv[1:]`) onto the
       returned Namespace. Drive via `monkeypatch.setattr(sys, "argv", [...])`, since `parse()`
       reads `sys.argv` directly rather than accepting an argv argument.
-- [ ] **Short/long equivalence sweep** (the core regression guard): parametrize over
-      `ParseFileFlags()._short_to_long.items()`. For each `(short, long)` pair, run a full
+- [x] **Short/long equivalence sweep** (the core regression guard): parametrize over the
+      generic-sweep subset of `_short_to_long.items()`. For each `(short, long)` pair, run a full
       `parse()` + `SettingsManager` merge for `-x` and separately for `--long_name`, and assert
       the resulting merged settings dicts are equal. Exclude the pairs whose flags exit the
       process (`v`/`version`) or take a required value (`l`/`load_theory`), and handle
       `s`/`save` (`nargs='*'`) and `u`/`upgrade` (no settings key) explicitly rather than by
       silently skipping them — an unexplained skip would hide exactly the mapping bug this sweep
       exists to catch.
-- [ ] Assert the sweep's own completeness: the number of pairs actually asserted plus the number
+- [x] Assert the sweep's own completeness: the number of pairs actually asserted plus the number
       explicitly excluded equals `len(_short_to_long)`. Without this, adding a 15th flag would
       silently go uncovered.
-- [ ] Test the `settings.py:202-274` override mechanism directly: a flag present in
+- [x] Test the `settings.py` override mechanism directly: a flag present in
       `_parsed_args` overrides the merged setting; a flag absent leaves the default; a flag whose
       argparse attribute is set but which is *not* in `_parsed_args` does **not** override (this
       is the silent-no-op mechanism).
-- [ ] Test the documented clustered-short-flag gap: `-cn` parses successfully in argparse but
+- [x] Test the documented clustered-short-flag gap: `-cn` parses successfully in argparse but
       does **not** override either setting, because `len('-cn') != 2`. Assert the documented
-      behavior with a comment pointing at `settings.py:214-220`, so a future reader sees this is
-      intentional, not a latent bug the test enshrined by accident.
-- [ ] Test `standard_args` (`settings.py:253-255`) produce no "unknown flag" warning.
-- [ ] Fill the empty `pass` stub at `code/tests/integration/test_error_handling.py:69`
+      behavior with a comment pointing at the relevant `settings.py` comment, so a future reader
+      sees this is intentional, not a latent bug the test enshrined by accident. **Correction
+      found while writing this test**: the actual mechanism is stronger than "leaves the
+      default" — because `_apply_overrides`'s `key in merged_settings` / `elif key in
+      DEFAULT_EXAMPLE_SETTINGS` branches are both nested inside `if is_mock or key in
+      user_provided_flags`, an unrecognized clustered token doesn't just skip overriding, it
+      means the key is **never added to `merged_settings` at all** when it wasn't already
+      present (e.g. `contingent`/`non_null`, which only live in `DEFAULT_EXAMPLE_SETTINGS`, not
+      the base general settings). The test asserts `'contingent' not in settings` rather than
+      `settings['contingent'] is False`, matching the real behavior exactly.
+- [x] Test `standard_args` produce no "unknown flag" warning.
+- [x] Fill the empty `pass` stub at `code/tests/integration/test_error_handling.py:69`
       (`test_conflicting_flags`) with the real `--z3 --cvc5` mutex assertion: argparse exits
       `SystemExit(2)` with the mutex message on stderr.
 

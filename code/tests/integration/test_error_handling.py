@@ -66,11 +66,18 @@ theory = bimodal.get_theory()
         error_output = result.stderr or result.stdout
         assert 'unrecognized' in error_output.lower() or 'invalid' in error_output.lower()
     
-    def test_conflicting_flags(self):
-        """Test handling of conflicting CLI flags."""
-        # Test mutually exclusive flags if any exist
-        # For example, batch and interactive modes if they conflict
-        pass
+    def test_conflicting_flags(self, tmp_path):
+        """--z3 and --cvc5 are registered as a mutually exclusive argparse group
+        (__main__.py's solver_mutex): passing both exits SystemExit(2) with argparse's
+        standard "not allowed with" mutex message on stderr, before any file is even read.
+        """
+        example_file = tmp_path / "example.py"
+        example_file.write_text("semantic_theories = {}\nexample_range = {}\n")
+
+        result = run_cli_command(['--z3', '--cvc5', str(example_file)], check=False)
+
+        assert result.returncode == 2
+        assert 'not allowed with' in result.stderr.lower()
 
 
 class TestFrameworkErrorHandling:
