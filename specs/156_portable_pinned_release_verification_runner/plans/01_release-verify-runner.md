@@ -293,30 +293,30 @@ finished contract, and the end-to-end run exercises everything.
 
 ---
 
-### Phase 3: Reference fetch, parity diffs, hashes, and the parity report (steps e-f) [NOT STARTED]
+### Phase 3: Reference fetch, parity diffs, hashes, and the parity report (steps e-f) [COMPLETED]
 
 - **Goal**: Implement the reference-release download, the wheel file-listing and top-level-directory
   parity diffs, the sha256 manifest, and the generated `parity-diff.md` — completing the 11-file
   evidence set.
 
 - **Tasks**:
-  - [ ] **Step (e1) — reference fetch**: `"$VENV/bin/pip" download --no-deps
+  - [x] **Step (e1) — reference fetch**: `"$VENV/bin/pip" download --no-deps
         "model-checker==$REF" -d "$TMPDIR/ref-download"`, capturing output to
         `<out>/pip-download-<REF>.log`. On failure call the named
         `REFERENCE FETCH FAILED: could not download model-checker==<REF> (network required)` path
         and exit 2 — a missing reference must not silently degrade into a diff-free evidence set.
-  - [ ] **Step (e2) — file listings**: write the sorted full file listing of the freshly built wheel
+  - [x] **Step (e2) — file listings**: write the sorted full file listing of the freshly built wheel
         to `<out>/new-wheel-files.txt` and of the reference wheel to
         `<out>/ref-<REF>-wheel-files.txt` (use `python -m zipfile -l` or `unzip -Z1` from the venv
         interpreter — do not depend on a tool absent from the devShell).
-  - [ ] **Step (e3) — diffs**: unified `diff` of the two full listings to
+  - [x] **Step (e3) — diffs**: unified `diff` of the two full listings to
         `<out>/wheel-files-diff.txt`, and of the two maxdepth-2 top-level directory sets to
         `<out>/top-level-dir-diff.txt`, mirroring the archived files' raw-`diff`-output format.
         Both classified **informational**: a nonempty diff between a 1.3.0 build and a 1.2.12
         release is expected and must never gate.
-  - [ ] **Step (f) — hashes**: `sha256sum` the new wheel, the new sdist, and the reference wheel into
+  - [x] **Step (f) — hashes**: `sha256sum` the new wheel, the new sdist, and the reference wheel into
         `<out>/sha256sums.txt`, one `sha256  path` line each, matching the archived three-line shape.
-  - [ ] **Generate `<out>/parity-diff.md`** following the archived report's structure: an Artifact
+  - [x] **Generate `<out>/parity-diff.md`** following the archived report's structure: an Artifact
         Identity table (artifact / name / SHA256), a File Count Summary, a Classified Differences
         section, and a Conclusion. The generated version must (i) state that classification of the
         differences is a **human** step the reviewer performs, (ii) state explicitly that the diff
@@ -324,10 +324,10 @@ finished contract, and the end-to-end run exercises everything.
         the UTC timestamp, and the pinned tool versions. Do not fabricate a classification verdict
         the script cannot compute — leave the Classified Differences section as the raw grouping
         plus a reviewer prompt.
-  - [ ] Finalize the exit logic: `exit 0` iff no hard gate failed; `exit 1` if any did; `exit 2` on
+  - [x] Finalize the exit logic: `exit 0` iff no hard gate failed; `exit 1` if any did; `exit 2` on
         a setup/network abort. Print a closing consolidated summary to the terminal naming the
         `--out` directory and each step's classification and outcome.
-  - [ ] Confirm every one of the 11 evidence files plus `summary.txt` is written by a successful
+  - [x] Confirm every one of the 11 evidence files plus `summary.txt` is written by a successful
         run, and that a missing file at the end is itself reported as a failure rather than passing
         unnoticed.
 

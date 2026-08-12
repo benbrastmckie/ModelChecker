@@ -158,14 +158,17 @@ fail() {
   FAILURES=$((FAILURES + 1))
 }
 
-# setup_fail: a required step (provisioning or reference fetch) could not run
-# at all. Never continue past this into steps that would produce a partial,
-# success-looking evidence set. Exits 2 (distinct from the hard-gate-failure
-# exit 1).
+# setup_fail <message> [label]: a required step (provisioning or reference
+# fetch) could not run at all. Never continue past this into steps that would
+# produce a partial, success-looking evidence set. Exits 2 (distinct from the
+# hard-gate-failure exit 1). label defaults to "SETUP FAILED" (provisioning);
+# pass "REFERENCE FETCH FAILED" for the step (e1) reference-download path.
 setup_fail() {
-  echo "[release-verify] SETUP FAILED: $*" >&2
+  local msg="$1"
+  local label="${2:-SETUP FAILED}"
+  echo "[release-verify] ${label}: ${msg}" >&2
   {
-    echo "SETUP FAILED: $*"
+    echo "${label}: ${msg}"
   } >> "${OUT_DIR}/summary.txt"
   exit 2
 }
@@ -192,6 +195,7 @@ VENV_DIR=""
 NEW_WHEEL=""
 NEW_SDIST=""
 REF_WHEEL=""
+TOOL_VERSIONS=""
 
 # --- Step (a): provisioning ---------------------------------------------------
 # python -m venv created INSIDE this single nix develop invocation; PIP_USER=0
@@ -220,6 +224,7 @@ step_a_provision() {
 
   local resolved_versions
   resolved_versions=$("${VENV_DIR}/bin/pip" freeze 2>/dev/null | grep -E '^(build|twine|check-wheel-contents)==' || true)
+  TOOL_VERSIONS="$resolved_versions"
   {
     echo "Resolved pinned tool versions (from pip freeze):"
     echo "${resolved_versions:-<none found>}"
@@ -337,33 +342,200 @@ step_d2_wheel_contents_ignore_w002() {
   record_step "d2-wheel-contents-w002" "$rc" gate "wheel-contents-ignore-w002.txt"
 }
 
-# --- Step (e1): reference fetch [STUB] ---------------------------------------
+# --- Step (e1): reference fetch -------------------------------------------------
+# A missing reference must not silently degrade into a diff-free evidence set:
+# on failure this is a setup_fail (exit 2), same class as provisioning.
 step_e1_reference_fetch() {
-  note "Step (e1): pip download reference release [STUB]"
+  note "Step (e1): pip download reference release model-checker==${REF}"
+  local ref_dir="${TMPDIR:-/tmp}/release-verify-ref-download"
+  rm -rf "$ref_dir"
+  mkdir -p "$ref_dir"
+
+  if ! "${VENV_DIR}/bin/pip" download --no-deps "model-checker==${REF}" -d "$ref_dir" \
+        > "${OUT_DIR}/pip-download-${REF}.log" 2>&1; then
+    cat "${OUT_DIR}/pip-download-${REF}.log" >&2 || true
+    setup_fail "could not download model-checker==${REF} (network required)" "REFERENCE FETCH FAILED"
+  fi
+
+  REF_WHEEL="$(find "$ref_dir" -maxdepth 1 -name '*.whl' | head -1)"
+  if [ -z "$REF_WHEEL" ]; then
+    setup_fail "reference download for model-checker==${REF} produced no wheel file" "REFERENCE FETCH FAILED"
+  fi
+
+  note "OK: downloaded reference $(basename "$REF_WHEEL")"
   record_step "e1-reference-fetch" 0 gate "pip-download-${REF}.log"
 }
 
-# --- Step (e2): file listings [STUB] -----------------------------------------
+# --- Step (e2): file listings -----------------------------------------------------
+# Sorted full file listing of each wheel via the venv interpreter's zipfile
+# module -- avoids depending on unzip/`check-wheel-contents`-adjacent tools
+# that may be absent from the devShell.
 step_e2_file_listings() {
-  note "Step (e2): wheel file listings [STUB]"
+  note "Step (e2): wheel file listings"
+  if [ -z "$NEW_WHEEL" ] || [ -z "$REF_WHEEL" ]; then
+    echo "SKIPPED: missing wheel(s)" > "${OUT_DIR}/new-wheel-files.txt"
+    echo "SKIPPED: missing wheel(s)" > "${OUT_DIR}/ref-${REF}-wheel-files.txt"
+    fail "wheel file listings skipped: missing new or reference wheel"
+    record_step "e2-file-listings" 1 info "new-wheel-files.txt, ref-${REF}-wheel-files.txt"
+    return
+  fi
+
+  "${VENV_DIR}/bin/python" -c '
+import sys, zipfile
+zf = zipfile.ZipFile(sys.argv[1])
+for name in sorted(zf.namelist()):
+    print("./" + name)
+' "$NEW_WHEEL" > "${OUT_DIR}/new-wheel-files.txt"
+  "${VENV_DIR}/bin/python" -c '
+import sys, zipfile
+zf = zipfile.ZipFile(sys.argv[1])
+for name in sorted(zf.namelist()):
+    print("./" + name)
+' "$REF_WHEEL" > "${OUT_DIR}/ref-${REF}-wheel-files.txt"
+
+  note "OK: wrote new-wheel-files.txt and ref-${REF}-wheel-files.txt"
   record_step "e2-file-listings" 0 info "new-wheel-files.txt, ref-${REF}-wheel-files.txt"
 }
 
-# --- Step (e3): diffs [STUB] --------------------------------------------------
+# --- Step (e3): diffs -----------------------------------------------------------
+# Unified diff of the two full file listings, and of the two maxdepth-2
+# top-level directory sets. Both classified informational: a nonempty diff
+# between a 1.3.0 build and a 1.2.12 release is expected and must never gate.
 step_e3_diffs() {
-  note "Step (e3): wheel-files/top-level-dir diffs [STUB]"
+  note "Step (e3): wheel-files/top-level-dir diffs"
+  if [ -z "$NEW_WHEEL" ] || [ -z "$REF_WHEEL" ]; then
+    echo "SKIPPED: missing wheel(s)" > "${OUT_DIR}/wheel-files-diff.txt"
+    echo "SKIPPED: missing wheel(s)" > "${OUT_DIR}/top-level-dir-diff.txt"
+    fail "diffs skipped: missing new or reference wheel"
+    record_step "e3-diffs" 1 info "wheel-files-diff.txt, top-level-dir-diff.txt"
+    return
+  fi
+
+  diff -u "${OUT_DIR}/ref-${REF}-wheel-files.txt" "${OUT_DIR}/new-wheel-files.txt" \
+    > "${OUT_DIR}/wheel-files-diff.txt"
+  # diff exits 1 when inputs differ -- expected and informational; never fail here.
+
+  local extract_new="${TMPDIR:-/tmp}/release-verify-extract-new"
+  local extract_ref="${TMPDIR:-/tmp}/release-verify-extract-ref"
+  local ref_dirs="${TMPDIR:-/tmp}/release-verify-ref-dirs.txt"
+  local new_dirs="${TMPDIR:-/tmp}/release-verify-new-dirs.txt"
+  rm -rf "$extract_new" "$extract_ref"
+  mkdir -p "$extract_new" "$extract_ref"
+  "${VENV_DIR}/bin/python" -m zipfile -e "$NEW_WHEEL" "$extract_new" >/dev/null 2>&1
+  "${VENV_DIR}/bin/python" -m zipfile -e "$REF_WHEEL" "$extract_ref" >/dev/null 2>&1
+
+  (cd "$extract_ref" && find . -maxdepth 2 -type d | sort) > "$ref_dirs"
+  (cd "$extract_new" && find . -maxdepth 2 -type d | sort) > "$new_dirs"
+  diff -u "$ref_dirs" "$new_dirs" > "${OUT_DIR}/top-level-dir-diff.txt"
+
+  note "OK: wrote wheel-files-diff.txt and top-level-dir-diff.txt (nonempty diff expected, informational)"
   record_step "e3-diffs" 0 info "wheel-files-diff.txt, top-level-dir-diff.txt"
 }
 
-# --- Step (f): hashes [STUB] --------------------------------------------------
+# --- Step (f): hashes -------------------------------------------------------------
 step_f_hashes() {
-  note "Step (f): sha256sums [STUB]"
+  note "Step (f): sha256sums"
+  {
+    [ -n "$NEW_WHEEL" ] && sha256sum "$NEW_WHEEL"
+    [ -n "$NEW_SDIST" ] && sha256sum "$NEW_SDIST"
+    [ -n "$REF_WHEEL" ] && sha256sum "$REF_WHEEL"
+  } > "${OUT_DIR}/sha256sums.txt"
+
+  local line_count
+  line_count=$(wc -l < "${OUT_DIR}/sha256sums.txt" | tr -d ' ')
+  if [ "$line_count" -ne 3 ]; then
+    fail "sha256sums.txt has ${line_count} line(s), expected exactly 3 (new wheel, new sdist, reference wheel)"
+    record_step "f-hashes" 1 info "sha256sums.txt"
+    return
+  fi
+
+  note "OK: wrote sha256sums.txt (3 lines)"
   record_step "f-hashes" 0 info "sha256sums.txt"
 }
 
-# --- parity-diff.md generation [STUB] ----------------------------------------
+# --- parity-diff.md generation -----------------------------------------------------
+# Evidentiary report: artifact identity, file-count summary, and a reviewer
+# prompt for the Classified Differences section. Never fabricates a
+# classification verdict the script cannot compute; never presents this diff
+# as a release gate.
 generate_parity_diff() {
-  note "Generating parity-diff.md [STUB]"
+  note "Generating parity-diff.md"
+  local parity_file="${OUT_DIR}/parity-diff.md"
+  local new_version="unknown"
+  local sha_new_wheel="" sha_new_sdist="" sha_ref_wheel=""
+  local new_count="0" ref_count="0"
+
+  if [ -n "$NEW_WHEEL" ]; then
+    new_version="$(basename "$NEW_WHEEL" | sed -E 's/^model_checker-([^-]+)-.*/\1/')"
+  fi
+  if [ -f "${OUT_DIR}/sha256sums.txt" ]; then
+    [ -n "$NEW_WHEEL" ] && sha_new_wheel=$(grep -F "$(basename "$NEW_WHEEL")" "${OUT_DIR}/sha256sums.txt" | awk '{print $1}')
+    [ -n "$NEW_SDIST" ] && sha_new_sdist=$(grep -F "$(basename "$NEW_SDIST")" "${OUT_DIR}/sha256sums.txt" | awk '{print $1}')
+    [ -n "$REF_WHEEL" ] && sha_ref_wheel=$(grep -F "$(basename "$REF_WHEEL")" "${OUT_DIR}/sha256sums.txt" | awk '{print $1}')
+  fi
+  [ -f "${OUT_DIR}/new-wheel-files.txt" ] && new_count=$(wc -l < "${OUT_DIR}/new-wheel-files.txt" | tr -d ' ')
+  [ -f "${OUT_DIR}/ref-${REF}-wheel-files.txt" ] && ref_count=$(wc -l < "${OUT_DIR}/ref-${REF}-wheel-files.txt" | tr -d ' ')
+
+  {
+    echo "# Wheel Parity Diff: model_checker ${new_version} vs. published model-checker ${REF}"
+    echo
+    echo "**Run date (UTC)**: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    echo "**Environment**: \`nix develop\` (flake devShell) with an isolated venv created in"
+    echo "\`\$TMPDIR\`, provisioned from \`code/scripts/release-tools-requirements.txt\`;"
+    echo "\`flake.nix\` was not modified."
+    echo
+    echo "**Pinned tool versions**:"
+    echo '```'
+    echo "${TOOL_VERSIONS:-<unavailable>}"
+    echo '```'
+    echo
+    echo "## Artifact Identity"
+    echo
+    echo "| Artifact | Name | SHA256 |"
+    echo "|----------|------|--------|"
+    echo "| New wheel | \`$(basename "${NEW_WHEEL:-<not built>}")\` | \`${sha_new_wheel:-<unavailable>}\` |"
+    echo "| New sdist | \`$(basename "${NEW_SDIST:-<not built>}")\` | \`${sha_new_sdist:-<unavailable>}\` |"
+    echo "| Reference wheel | \`$(basename "${REF_WHEEL:-<not downloaded>}")\` (from \`pip download --no-deps model-checker==${REF}\`) | \`${sha_ref_wheel:-<unavailable>}\` |"
+    echo
+    echo "Full hash listing: \`sha256sums.txt\` in this directory."
+    echo
+    echo "## File Count Summary"
+    echo
+    echo "| | Files |"
+    echo "|---|---|"
+    echo "| Reference wheel (${REF}) | ${ref_count} |"
+    echo "| New wheel (${new_version}) | ${new_count} |"
+    echo
+    echo "## Classified Differences"
+    echo
+    echo "This script computes the raw file-listing and top-level-directory diffs"
+    echo "(\`wheel-files-diff.txt\`, \`top-level-dir-diff.txt\`) but does NOT classify them --"
+    echo "classification of each grouping (intended addition/removal vs. an unexpected"
+    echo "regression) is a **human** step the reviewer performs by reading those two files"
+    echo "against the repository's git history."
+    echo
+    echo "## Conclusion"
+    echo
+    echo "This diff is **evidentiary, not a release gate**. Byte-identity against a prior"
+    echo "published release is never a pass condition -- \`twine check --strict\` (see"
+    echo "\`twine-check.txt\`) and \`check-wheel-contents --ignore W002\` (see"
+    echo "\`wheel-contents-ignore-w002.txt\`) are this run's actual hard gates."
+    echo
+    echo "## Evidence Files (this directory)"
+    echo
+    echo "- \`build.log\` -- full \`python -m build\` output plus \`code/dist/\` listing."
+    echo "- \`twine-check.txt\` -- \`twine check --strict code/dist/*\` output."
+    echo "- \`wheel-contents.txt\` -- bare \`check-wheel-contents\` output (W002 expected)."
+    echo "- \`wheel-contents-ignore-w002.txt\` -- \`check-wheel-contents --ignore W002\` output."
+    echo "- \`pip-download-${REF}.log\` -- \`pip download --no-deps model-checker==${REF}\` output."
+    echo "- \`sha256sums.txt\` -- SHA256 of the new wheel, new sdist, and reference wheel."
+    echo "- \`new-wheel-files.txt\` / \`ref-${REF}-wheel-files.txt\` -- sorted full file listings."
+    echo "- \`top-level-dir-diff.txt\` -- \`diff\` of maxdepth-2 directory listings."
+    echo "- \`wheel-files-diff.txt\` -- full \`diff\` of the sorted file listings."
+    echo "- \`summary.txt\` -- per-step status ledger."
+  } > "$parity_file"
+
+  note "OK: wrote parity-diff.md"
   record_step "parity-diff" 0 info "parity-diff.md"
 }
 
