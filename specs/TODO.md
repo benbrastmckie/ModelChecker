@@ -19,9 +19,9 @@ next_project_number: 158
 
 ### Packaging
 
-156 [PLANNED] — Turn the release verification named in .github/RELEASE_SETUP.md i
+156 [IMPLEMENTING] — Turn the release verification named in .github/RELEASE_SETUP.md i
   └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t
-157 [RESEARCHING] — Deduplicate the four identical theory_lib VERSION files to clear 
+157 [RESEARCHED] — Deduplicate the four identical theory_lib VERSION files to clear 
   └─ 151 [NOT STARTED] — Re-run the release rehearsal against the post-refactor tree and t (see above)
 
 ### Semantics
@@ -33,10 +33,11 @@ next_project_number: 158
 ## Tasks
 
 ### 157. Dedupe theory lib version files w002
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 155
+- **Research**: [157_dedupe_theory_lib_version_files_w002/reports/01_version-file-dedupe.md]
 
 **Description**: Deduplicate the four identical theory_lib VERSION files to clear check-wheel-contents W002. code/src/model_checker/theory_lib/{bimodal,exclusion,imposition,logos}/VERSION are four byte-identical files each containing `1.0.0`. check-wheel-contents flags them as `W002: Wheel contains duplicate files` and exits 1 on the built wheel; `--ignore W002` returns OK with exit 0. Independently verified twice against code/dist/model_checker-1.3.0-py3-none-any.whl. The finding is structural (four identical files), not an artifact of a stale build, so it reproduces on a fresh build.
 
@@ -51,7 +52,7 @@ VERIFY BY REBUILDING. The evidence is a fresh `python -m build` plus check-wheel
 ---
 
 ### 156. Portable pinned release verification runner
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
