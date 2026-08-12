@@ -30,6 +30,7 @@ since `--outdir` already keeps the build's actual output out of it.
 
 from __future__ import annotations
 
+import functools
 import os
 import shutil
 import subprocess
@@ -66,6 +67,51 @@ def _provisioning_failure(reason: str) -> None:
         pytest.skip(reason)
 
 
+@functools.lru_cache(maxsize=1)
+def _nix_cxx_runtime_lib_dir() -> str:
+    """Return the Nix C++ runtime library directory, or `""` when it does not apply.
+
+    On a non-FHS host (NixOS), a pip-installed `z3-solver` wheel's bundled `libz3.so` cannot
+    resolve `libstdc++.so.6` from inside an isolated venv, because the wheel's binaries are not
+    `nix-ld`-patched and so search only FHS-standard paths that do not exist here. Pointing
+    `LD_LIBRARY_PATH` at the Nix stdenv's C++ runtime resolves it -- the same recipe the release
+    rehearsal established for verifying a published wheel on this platform.
+
+    Returns `""` (and the caller then changes nothing) whenever this does not apply: no `nix` on
+    PATH, the evaluation failing or timing out, or the resolved directory not existing. On a
+    standard FHS Linux runner -- CI included -- there is no `nix` binary, so this is inert and
+    the subprocess environment is left exactly as it was.
+    """
+    if not shutil.which("nix"):
+        return ""
+    try:
+        result = subprocess.run(
+            ["nix", "eval", "--raw", "nixpkgs#stdenv.cc.cc.lib"],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    except (OSError, subprocess.SubprocessError):  # pragma: no cover -- host-dependent
+        return ""
+    if result.returncode != 0:  # pragma: no cover -- host-dependent
+        return ""
+    lib_dir = Path(result.stdout.strip()) / "lib"
+    return str(lib_dir) if lib_dir.is_dir() else ""
+
+
+def _add_cxx_runtime_to_env(env: Dict[str, str]) -> Dict[str, str]:
+    """Prepend the Nix C++ runtime dir to `LD_LIBRARY_PATH` in `env`, when it applies.
+
+    Mutates and returns `env`. A no-op wherever `_nix_cxx_runtime_lib_dir()` returns `""`.
+    """
+    lib_dir = _nix_cxx_runtime_lib_dir()
+    if not lib_dir:
+        return env
+    existing = env.get("LD_LIBRARY_PATH", "")
+    env["LD_LIBRARY_PATH"] = f"{lib_dir}:{existing}" if existing else lib_dir
+    return env
+
+
 def handle_known_venv_libz3_link_failure(result: subprocess.CompletedProcess) -> None:
     """Apply the same CI-gated skip/fail policy as `_provisioning_failure`, but only for one
     specific, identified failure signature: the isolated packaging-test venv's pip-installed
@@ -82,6 +128,13 @@ def handle_known_venv_libz3_link_failure(result: subprocess.CompletedProcess) ->
     model_checker code defect, so it is handled with the same provisioning-failure policy
     `packaging_toolchain`/`built_artifacts` already use: skip outside CI (a dev-machine
     limitation), fail loudly in CI (where a standard Linux runner should not hit this).
+
+    **This is now a backstop, not the expected path.** `installed_venv` prepends the Nix C++
+    runtime directory to `LD_LIBRARY_PATH` (see `_add_cxx_runtime_to_env`), which resolves the
+    signature described above at its source, so these tests execute rather than skip on this
+    platform. This handler remains for any host where that repair does not apply -- some other
+    non-FHS layout, or a `nix eval` that cannot run -- so such a host still degrades to a
+    loud, reason-carrying skip instead of an unexplained failure.
 
     Any other failure is left completely untouched -- this function only recognizes this one
     exact signature and returns silently (no skip, no fail) for everything else, so real defects
@@ -258,6 +311,11 @@ def installed_venv(built_artifacts: Dict[str, Path], tmp_path_factory: pytest.Te
     # site-packages only.
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     env["PIP_USER"] = "0"
+    # Make the venv's pip-installed `z3-solver` able to resolve its own bundled shared
+    # libraries on a non-FHS host. Inert on a standard FHS Linux runner (CI included). This is
+    # set before the install so the single returned `env` covers both provisioning and every
+    # later console-script/`python -m` invocation that consumes `installed_venv["env"]`.
+    _add_cxx_runtime_to_env(env)
     result = subprocess.run(
         [str(interp), "-m", "pip", "install", "--no-user", str(built_artifacts["wheel"])],
         env=env,
