@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Nonexistent CLI Flags in Docs
 
 - **Task**: 162 - Audit and fix nonexistent CLI flags documented across user-facing docs
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 7 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/162_fix_nonexistent_cli_flags_in_docs/reports/01_nonexistent-cli-flags-audit.md
@@ -112,32 +112,32 @@ be dispatched concurrently.
 
 ---
 
-### Phase 1: Doc-flag extractor and allowed-token derivation [NOT STARTED]
+### Phase 1: Doc-flag extractor and allowed-token derivation [COMPLETED]
 
 **Goal**: Build the machinery of the regression guard — allowed-token derivation and the token
 extractor — with its own unit tests passing, before any documentation is scanned.
 
 **Tasks**:
-- [ ] Create `code/tests/cli/test_docs_flag_matrix.py` with a module docstring recording (a) that
+- [x] Create `code/tests/cli/test_docs_flag_matrix.py` with a module docstring recording (a) that
       the allowed set is derived from `parser._actions`, never hand-transcribed, and (b) the
       declared blind spot: only shell invocation lines inside fenced code blocks are scanned;
       prose and diagram mentions are not.
-- [ ] Implement `_registered_option_strings()` returning every `opt` from
+- [x] Implement `_registered_option_strings()` returning every `opt` from
       `ParseFileFlags().parser._actions` `option_strings`, plus `-h`/`--help` (argparse builtins),
       following the idiom of `test_help_lists_every_registered_long_flag`.
-- [ ] Implement `_DEV_CLI_WRAPPER_FLAGS = {'--iso-debug', '--load', '-load'}` with an inline
+- [x] Implement `_DEV_CLI_WRAPPER_FLAGS = {'--iso-debug', '--load', '-load'}` with an inline
       comment citing `code/dev_cli.py`'s pre-argparse `sys.argv` rewriting block.
-- [ ] Add `test_dev_cli_wrapper_flags_still_exist()` asserting each literal appears in
+- [x] Add `test_dev_cli_wrapper_flags_still_exist()` asserting each literal appears in
       `code/dev_cli.py`'s source, so allowlist drift fails loudly.
-- [ ] Implement `_iter_invocations(text)`: walk fenced blocks, admit only ` ```bash `/` ```sh `/
+- [x] Implement `_iter_invocations(text)`: walk fenced blocks, admit only ` ```bash `/` ```sh `/
       ` ```shell `/` ```console `/untagged blocks, join trailing-backslash continuations, strip a
       leading `$ ` prompt and `PYTHONPATH=...` prefix, match only lines beginning with
       `model-checker`, `./dev_cli.py`, `dev_cli.py`, or `python -m model_checker`, and truncate at
       the first `|`, `&&`, `||`, `;`, or redirection operator. Yield `(line_number, command)`.
-- [ ] Implement `_extract_flag_tokens(command)` yielding long (`--foo`) and short (`-f`) tokens,
+- [x] Implement `_extract_flag_tokens(command)` yielding long (`--foo`) and short (`-f`) tokens,
       classifying any `-[a-zA-Z]{2,}` single-hyphen token as unconditionally invalid (this parser
       has no multi-letter short options — this is what catches `-st`).
-- [ ] Add extractor unit tests over inline fixture strings covering: a valid invocation passes;
+- [x] Add extractor unit tests over inline fixture strings covering: a valid invocation passes;
       ` ```python ` blocks are skipped (the `parser.add_argument('--your-setting', ...)`
       illustration in `settings/README.md`); `pip install --user model-checker` is not an
       invocation; `ls -la` / `apt ... -y` are not invocations; `./dev_cli.py ... | grep -E "..."`
