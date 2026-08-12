@@ -1,0 +1,17 @@
+{
+  "phase": "plan",
+  "status": "planned",
+  "summary": "Created a 6-phase plan for the terminal release task. Agent-executable work: fix release-verify.sh's stale d1/d2 W002 gate contract, correct RELEASE_SETUP.md and code/scripts/README.md, fold post-refactor work into the never-published 1.3.0 CHANGELOG entry (no version bump), run the corrected rehearsal and archive fresh evidence, and obtain a quiet-host nix flake check verdict. Tagging, pushing, and publishing are explicitly USER-ONLY, and the PyPI trusted-publisher registration is surfaced as gate item 0 in a task-scoped PUBLISH-CHECKLIST.md.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/151_rerun_release_rehearsal_and_publish_to_pypi/plans/01_release-rehearsal-publish-prep.md",
+      "summary": "6-phase plan: W002 gate fix, docs correction, CHANGELOG fold-into-1.3.0, fresh rehearsal evidence, quiet-host flake check, publish checklist"
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "blockers": [],
+  "continuation_path": null,
+  "plan_markers_verified": true
+}

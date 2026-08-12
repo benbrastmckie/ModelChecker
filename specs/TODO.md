@@ -19,7 +19,7 @@ next_project_number: 158
 
 ### Packaging
 
-151 [RESEARCHED] — Re-run the release rehearsal against the post-refactor tree and t
+151 [PLANNED] — Re-run the release rehearsal against the post-refactor tree and t
 
 ### Semantics
 
@@ -216,11 +216,12 @@ NON-GOALS. No change to `core.py`, `operators.py`, or `examples.py`. This task e
 ---
 
 ### 151. Rerun release rehearsal and publish to pypi
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 147, Task 149, Task 150, Task 156, Task 157
 - **Research**: [151_rerun_release_rehearsal_and_publish_to_pypi/reports/01_release-rehearsal-rerun.md]
+- **Plan**: [151_rerun_release_rehearsal_and_publish_to_pypi/plans/01_release-rehearsal-publish-prep.md]
 
 **Description**: Re-run the release rehearsal against the post-refactor tree and take the release to PyPI. Surfaced by the 2026-08-11 release review (specs/reviews/review-20260811.md, issues 1, 3, 17). This is the terminal task of the release sequence and should run only after the CLI defects, the documentation corrections, the CLI test suite, and the packaging-contract tests are done.
 
