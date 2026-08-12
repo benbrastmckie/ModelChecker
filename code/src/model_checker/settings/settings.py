@@ -210,7 +210,14 @@ class SettingsManager:
             Set of flag names that were explicitly provided
         """
         user_provided_flags: UserProvidedFlags = set()
-        
+
+        # NOTE: only `len(arg) == 2` short tokens (e.g. "-p") are recognized below, so
+        # argparse's clustered short-flag form (e.g. "-cn" for -c and -n together) is parsed
+        # correctly by argparse itself but is NOT detected as user-provided here -- a clustered
+        # flag silently fails to register its override. This is a known, deliberately
+        # out-of-scope gap (not an oversight): fixing it would require splitting clustered
+        # tokens character-by-character against `_short_to_long`, which touches the override
+        # detection path more broadly than the single-flag fixes this comment accompanies.
         # For real argparse objects, extract flags from the raw command line arguments
         if not is_mock and hasattr(module_flags, '_parsed_args') and module_flags._parsed_args:
             for arg in module_flags._parsed_args:
