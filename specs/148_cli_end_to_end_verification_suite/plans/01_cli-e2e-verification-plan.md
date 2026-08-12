@@ -343,43 +343,81 @@ subset.
 
 ---
 
-### Phase 4: Flag matrix through `python -m model_checker` [NOT STARTED]
+### Phase 4: Flag matrix through `python -m model_checker` [COMPLETED]
 
 **Goal**: Exercise every flag in the registered table at CLI level, fast, without a venv build.
 
 **Tasks**:
-- [ ] New `code/tests/cli/test_flag_matrix.py`, using the Phase 1 harness and tiny-example
+- [x] New `code/tests/cli/test_flag_matrix.py`, using the Phase 1 harness and tiny-example
       fixture.
-- [ ] `--version`/`-v`: exit 0, non-empty stdout containing a version-shaped string.
-- [ ] `--help`/`-h`: exit 0, stdout lists every long flag in the registered table. Assert
+- [x] `--version`/`-v`: exit 0, non-empty stdout containing a version-shaped string.
+- [x] `--help`/`-h`: exit 0, stdout lists every long flag in the registered table. Assert
       coverage by iterating the parser's own actions, so a newly added flag missing from help is
       caught.
-- [ ] Boolean flags — `--contingent/-c`, `--non_null/-n`, `--non_empty/-e`, `--disjoint/-d`,
+- [x] Boolean flags — `--contingent/-c`, `--non_null/-n`, `--non_empty/-e`, `--disjoint/-d`,
       `--print_constraints/-p`, `--print_z3/-z`, `--print_impossible/-i`, `--align_vertically/-a`
       — each in both spellings against the tiny example: exit 0 and no `Traceback` in stderr.
       For the three flags with observable output effects (`-p`, `-z`, `-i`), additionally assert
       the output differs from the no-flag baseline run, so the test is not merely asserting the
       flag is accepted.
-- [ ] `--save/-s`: run in a `tmp_path` cwd and assert output files are actually produced on disk.
+- [x] `--save/-s`: run in a `tmp_path` cwd and assert output files are actually produced on disk.
       Cover all three states distinctly — flag absent (nothing saved), `-s` with zero args (the
       `nargs='*'` "save both" case), and `-s markdown` / `-s json`.
-- [ ] `--maximize/-m`: assert dispatch to `module.comparison.run_comparison()`
-      (`__main__.py:299-301`). Use the smallest viable comparison example and an explicit
-      subprocess timeout; this path forks a `ProcessPoolExecutor`.
-- [ ] `--z3`: exit 0, backend selected. `--cvc5`: assert the missing-dependency path at
-      `__main__.py:271-279` — prints `Error: ...` plus the `pip install cvc5` hint and returns
-      cleanly with **exit 0, not a crash**. Guard on cvc5 import availability and give the
-      cvc5-present arm its own success assertion, so neither environment passes vacuously.
-- [ ] `--upgrade/-u`: **unit test with `unittest.mock.patch('subprocess.run')`. Never execute.**
+- [x] `--maximize/-m`: assert dispatch to `module.comparison.run_comparison()`. Use the smallest
+      viable comparison example and an explicit subprocess timeout; this path forks a
+      `ProcessPoolExecutor`.
+- [x] `--z3`: exit 0, backend selected. `--cvc5`: assert the missing-dependency path — prints
+      `Error: ...` plus the `pip install cvc5` hint and returns cleanly with **exit 0, not a
+      crash**. Guard on cvc5 import availability and give the cvc5-present arm its own success
+      assertion, so neither environment passes vacuously.
+- [x] `--upgrade/-u`: **unit test with `unittest.mock.patch('subprocess.run')`. Never execute.**
       Assert the constructed argv is exactly
       `[sys.executable, '-m', 'pip', 'install', '--upgrade', package_name]` and that `check=True`
-      is passed (`__main__.py:281-287`).
-- [ ] `--sequential/-q`: assert the fail-fast contract established at `module.py:140-152` —
-      `NotImplementedError` is raised, caught at `__main__.py:294-297`, printed as `Error: ...`,
-      and the process exits 1. This is the correct current behavior, not a defect.
-- [ ] Do **not** invoke `-l/--load_theory` as a bare subprocess: it dispatches to
+      is passed.
+- [x] `--sequential/-q`: assert the fail-fast contract — `NotImplementedError` is raised, caught
+      at `__main__.py`, printed as `Error: ...`, and the process exits 1. This is the correct
+      current behavior, not a defect.
+- [x] Do **not** invoke `-l/--load_theory` as a bare subprocess: it dispatches to
       `BuildProject.ask_generate()` and blocks on `input()`. Its non-interactive coverage belongs
       to Phase 6.
+
+**Implementation Notes -- two genuine defects surfaced, handled per the TDD Direction**:
+- **Fixed (small, unambiguous, in-scope): `--cvc5` crashed on every invocation with a raw
+  Python traceback, exit 1** (`AttributeError: module 'cvc5.pythonic' has no attribute
+  'reset_params'`). `builder/runner.py`'s `_initialize_z3_context` called `z3.reset_params()`/
+  `z3.set_param(verbose=0)` unconditionally through the `z3_shim`, but `cvc5.pythonic` (the
+  actual backend module cvc5 selection forwards to) implements neither function -- confirmed
+  directly (`'reset_params' in dir(cvc5.pythonic)` is `False`, same for `set_param`). This
+  crashed *every* `--cvc5` run in an environment where cvc5 is installed, before any solving
+  began, contradicting the research/plan's premise that "the cvc5-missing `ImportError` path is
+  exercisable in this environment (cvc5 not installed)" -- cvc5 **is** installed here
+  (`pip show cvc5` reports version 1.3.3). Fixed by guarding both calls behind
+  `get_active_backend() == "z3"` in `builder/runner.py`; single call site, no other code paths
+  affected (verified: `code/src/model_checker/builder/`, `code/src/model_checker/solver/`, and
+  the full `code/tests/` suite all still green after the fix).
+- **Recorded, not fixed (theory-specific, out of scope): bimodal cannot complete a solve under
+  `--cvc5`** -- after the fix above, `--cvc5` against a bimodal example still crashes, one level
+  deeper, with `AttributeError: module 'cvc5.pythonic' has no attribute 'MultiPattern'`
+  (`theory_lib/bimodal/semantic/core.py`'s `build_forward_comp_constraint` calls
+  `z3.MultiPattern` directly via the shim). This is a real, theory-specific gap in cvc5.pythonic
+  API coverage, not a CLI-flag defect, and fixing it would mean extending the cvc5 compatibility
+  shim or bimodal's constraint-building code -- both well outside this task's `--cvc5`
+  flag-dispatch scope. `logos` was confirmed to complete successfully under `--cvc5` in this
+  same environment (exit 0, real solve, correct output), so `test_cvc5_flag` in
+  `test_flag_matrix.py` uses logos for its cvc5-present success assertion rather than the shared
+  bimodal `tiny_example_file` fixture, with a comment naming the gap. This finding should be
+  reported as a follow-up rather than left implicit.
+- Also discovered while prototyping the `--maximize` test (no fix needed, test-design-only):
+  `builder/comparison.py`'s `ModelComparison`/`_find_max_N_static` path builds
+  `semantics_class(settings)` directly from the raw example-case settings dict, bypassing
+  `SettingsManager`'s merge with the theory's `DEFAULT_EXAMPLE_SETTINGS` entirely (unlike the
+  normal single-run path through `BuildExample`, which does merge). A comparison example
+  supplying only `{"N": 2, "max_time": ...}` therefore fails per-theory with `KeyError`s for any
+  setting the theory itself doesn't default in the caller's dict (e.g. bimodal's `M`,
+  `contingent`). `test_maximize_dispatches_to_run_comparison`'s fixture instead seeds a complete
+  settings dict from `theory["semantics"].DEFAULT_EXAMPLE_SETTINGS` before overriding `N`/
+  `max_time`, matching the pattern `tests/utils/helpers.py::create_test_model` already uses for
+  the same reason.
 
 **Timing**: 2 hours
 
