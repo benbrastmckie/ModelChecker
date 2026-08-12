@@ -391,7 +391,46 @@ comment; a mismatch means either the manifest or a step body was missed in Phase
 
 ---
 
-### Phase 5: Obtain a quiet-host nix flake check verdict [NOT STARTED]
+### Phase 5: Obtain a quiet-host nix flake check verdict [COMPLETED]
+
+**Quiet-host conditions established before starting**: `uptime` reported load average
+0.76/1.05/1.31 on a 24-core host (`nproc` = 24) — well under 1.5 across all three windows,
+starkly lower than the research report's documented contended run (load average 4.84 with 4
+concurrent agent sessions). `ps aux | grep -c claude` showed 40 process entries, but per-process
+CPU% (`ps aux` column 3) showed all but a handful at 0.0%, i.e. mostly idle/waiting shells rather
+than active compute load — load average, the metric that actually predicts CPU-solve-time
+contention, is the authoritative signal here and it was low. This host state is judged
+demonstrably quiet.
+
+**Run**: `nix flake check` (default system, `x86_64-linux`) completed to full completion. Verbatim
+tail:
+```
+running 1 flake checks...
+building '/nix/store/pia34dfy72n9sspiwpdq5clghgmf5nhr-model-checker-checks-1.3.0.drv'...
+all checks passed!
+warning: The check omitted these incompatible systems: aarch64-darwin, aarch64-linux, x86_64-darwin
+```
+
+**Verdict: PASS.** All checks passed on a confirmed-quiet host. Neither documented
+contention-sensitive test failed: `test_bimodal.py::test_example_cases[BM_CM_1-example_case7]`
+did not reproduce, and `test_iteration_via_iterate_api` (today's earlier contended-run failure,
+per the research report) also did not reproduce. This clears the release-blocking nix-flake-check
+gate — no `max_time` hardening is needed for either test, since the quiet-host run was clean
+without it.
+
+**Dirty-tree caveat recorded, not release-relevant**: the run emitted `warning: Git tree
+'.../ModelChecker' is dirty`. `git status --short` at run time showed only task-management
+artifacts dirty — `specs/TODO.md`, `specs/state.json`, `specs/events.jsonl`, and untracked
+orchestrator/session state files (`.syncprotect`, `.orchestrator-multi-state*.json`,
+`specs/.sessions/`, this task's own `.lock/`/`.orchestrator-loop-guard`) — from other concurrent
+agent sessions active on this host, per the delegation context. `flake.nix`'s two derivations
+(lines 25 and 138) both set `src = ./code;`, so none of the dirty paths above are part of the
+Nix build/check input; the dirty-tree warning does not affect the derivation content or this
+verdict's validity.
+
+**FLAKE/hardening branch not taken**: since the PASS verdict was clean without needing it, no
+`max_time` raise was applied to `test_iteration_via_iterate_api`; `code/src/model_checker/builder/
+tests/unit/test_example.py` was not touched by this phase.
 
 **Goal**: A recorded, defensible verdict on `nix flake check` against the current tree —
 either a clean pass on a demonstrably quiet host, or an explicit regression finding that blocks
