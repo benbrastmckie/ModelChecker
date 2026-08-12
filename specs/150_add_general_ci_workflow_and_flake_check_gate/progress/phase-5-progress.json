@@ -1,0 +1,29 @@
+{
+  "phase": 5,
+  "phase_name": "Close the two answered ROADMAP items",
+  "started_at": "2026-08-12T09:43:00Z",
+  "last_updated": "2026-08-12T09:50:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Close the nix flake check CI-gate ROADMAP item with completion annotation",
+      "status": "done",
+      "files_touched": ["specs/ROADMAP.md"]
+    },
+    {
+      "id": 2,
+      "description": "Close the 28-failures follow-up ROADMAP item as resolved-not-reproducing",
+      "status": "done",
+      "files_touched": ["specs/ROADMAP.md"]
+    },
+    {
+      "id": 3,
+      "description": "Optionally annotate (not close) the Oracle differential-suite cadence item",
+      "status": "done",
+      "files_touched": ["specs/ROADMAP.md"]
+    }
+  ],
+  "current_objective": 3,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

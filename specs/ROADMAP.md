@@ -59,29 +59,33 @@
   PUBLISH-CHECKLIST.md walkthrough) before a single 1.3.0 release follows. No agent performs any
   publish step — push, tag, `/merge`, and PyPI upload are all user-only per
   `.claude/rules/pr-prohibition.md`.
-- [ ] **Add `nix flake check` as a CI gate job**: the flake's `checks.default` derivation
-  (in-package bimodal suite, 286/286) currently only runs when invoked locally or as part of
-  release-prep review. Add a GitHub Actions workflow (or a job within an existing one) that runs
-  `nix flake check` on every push/PR so the hermetic reproducibility gate is continuously
-  enforced, not just checked manually before a release.
+- [x] **Add `nix flake check` as a CI gate job** *(Completed: Task 150, 20260812)*:
+  `.github/workflows/tests.yml`'s `flake-check` job now runs `nix flake check` on every push/PR.
+  `flake.nix`'s `checks.default` derivation was also broadened from the bimodal-only suite
+  (286/286) to the full in-package suite plus `code/tests/` (minus the `packaging` marker,
+  2002 passed / 254 skipped / 0 failed at `-n 6`), so the gate is now both continuously enforced
+  and meaningfully scoped.
 - [ ] **Oracle differential-suite cadence decision**: `differential-tests.yml` is now correctly
   path-filtered to `oracle/bimodal_logic/**` and `code/src/model_checker/theory_lib/bimodal/**`
   and points at the live `oracle/bimodal_logic/tests/test_cross_oracle_differential.py`. Decide
   whether push/PR-triggered (current behavior) is the right cadence long-term, or whether the
   suite's slower tests (full complexity-5 scans, `TestBimodalHarnessIntegration`) warrant a
-  separate scheduled/nightly job instead of blocking every matching push.
-- [ ] **Follow-up task for the 28 documented "everything-else" failures**: none of these are
-  release-blocking (all pre-existing, none traced to release-prep source edits — see
-  `specs/122_rootcause_crossoracle_differential_and_establish_t/baselines/rest-suite-disposition.md`
-  for the full 8-category root-cause breakdown). Start with Category B/G (12 tests total): the
-  malformed `"A[]"` shared test-formula literal in
-  `code/tests/utils/helpers.py::create_test_model()` (default `conclusions=['A[]']`, not valid
-  formula syntax for the current parser) plus one hardcoded duplicate in
-  `test_batch_output_real.py`. Categories A (6, builder-suite drift), C (4, timing/threshold
-  authoring defects), D (2, broken scaling-assertion threshold), E (1, `Mock.assert_and_track`
-  misuse), F (1, missing fixture module), and H (2, unset `WitnessRegistryError`/
-  `WitnessConstraintError.theory`) can be folded into the same follow-up task or split further at
-  triage time.
+  separate scheduled/nightly job instead of blocking every matching push. *(Note, Task 150,
+  20260812: the exhaustive complexity-5 scan and `TestBimodalHarnessIntegration` were already
+  deliberately designed as manual-only/self-skipping — `oracle/run-oracle-exhaustive-scan.sh`'s
+  own header states it is never part of the gating path, and `TestBimodalHarnessIntegration`
+  self-skips whenever the sibling `BimodalHarness` checkout is not importable, which it never is
+  on a GitHub Actions runner. No new scheduled job is warranted; left open in case the cadence
+  question is revisited for reasons other than these two already-answered sub-cases.)*
+- [x] **Follow-up task for the 28 documented "everything-else" failures** *(Completed: Task 150,
+  20260812)*: **resolved, not reproducing.** A measured re-run of the same selection
+  (`code/tests/ code/src/model_checker --ignore=.../bimodal/tests -m "not packaging" -n 6`)
+  produced 1700 passed / 254 skipped / 0 failed / 0 errors in 74.10s. All eight root-cause
+  categories, including the Category B/G malformed `"A[]"` literal in
+  `code/tests/utils/helpers.py`, were resolved as a side effect of the core/theory_lib boundary
+  refactor and the CLI end-to-end suite's rewrite of `test_batch_output_real.py`. See
+  `specs/150_add_general_ci_workflow_and_flake_check_gate/reports/01_ci-workflow-and-flake-gate.md`
+  for the full measurement.
 
 ## Deferred Items
 

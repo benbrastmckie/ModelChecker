@@ -379,18 +379,18 @@ recording the *why* of each scoping decision so the next editor does not re-deri
 
 ---
 
-### Phase 5: Close the two answered ROADMAP items [NOT STARTED]
+### Phase 5: Close the two answered ROADMAP items [COMPLETED]
 
 **Goal**: Mark the `nix flake check` CI-gate item and the 28-failures follow-up item complete in
 `specs/ROADMAP.md`, with accurate annotations.
 
 **Tasks**:
-- [ ] Change the `- [ ] **Add `nix flake check` as a CI gate job**` item to `- [x]` with a completion
+- [x] Change the `- [ ] **Add `nix flake check` as a CI gate job**` item to `- [x]` with a completion
       annotation `*(Completed: Task 150, 20260812)*` and a one-line note that `tests.yml` now runs
       `nix flake check` on every push/PR and that `checks.default` was broadened beyond the
       bimodal-only scope. (`specs/**` is exempt from the no-task-references rule, so the task-number
-      annotation is correct *here* and only here.)
-- [ ] Change the `- [ ] **Follow-up task for the 28 documented "everything-else" failures**` item to
+      annotation is correct *here* and only here.) *(completed)*
+- [x] Change the `- [ ] **Follow-up task for the 28 documented "everything-else" failures**` item to
       `- [x]` with the same completion annotation, and rewrite its body to state the resolution:
       **resolved, not reproducing.** A measured re-run of the same selection
       (`code/tests/ code/src/model_checker --ignore=.../bimodal/tests -m "not packaging" -n 6`)
@@ -399,11 +399,14 @@ recording the *why* of each scoping decision so the next editor does not re-deri
       `code/tests/utils/helpers.py`, were resolved as a side effect of the core/theory_lib boundary
       refactor and the CLI end-to-end suite's rewrite of `test_batch_output_real.py`. Cite
       `specs/150_add_general_ci_workflow_and_flake_check_gate/reports/01_ci-workflow-and-flake-gate.md`
-      as the measurement source.
-- [ ] Do NOT close the "Oracle differential-suite cadence decision" item as part of this task's
+      as the measurement source. *(completed)*
+- [x] Do NOT close the "Oracle differential-suite cadence decision" item as part of this task's
       required scope; if annotating it, annotate only that the exhaustive/harness-dependent tests
-      were already designed as manual-only and no new scheduled job is warranted.
-- [ ] Do not renumber, reorder, or reformat unrelated ROADMAP items.
+      were already designed as manual-only and no new scheduled job is warranted. *(completed:
+      left unchecked, annotated with a *(Note, Task 150, 20260812: ...)* explaining the two
+      already-answered sub-cases without closing the item)*
+- [x] Do not renumber, reorder, or reformat unrelated ROADMAP items. *(completed — diff confirmed
+      additive-only to the three Phase 1 items, no reordering)*
 
 **Timing**: 0.5 hours
 
@@ -413,14 +416,17 @@ recording the *why* of each scoping decision so the next editor does not re-deri
 
 **Verification**:
 - `grep -n "nix flake check\` as a CI gate" specs/ROADMAP.md` shows the item now begins `- [x]`.
+  *(passed)*
 - `grep -n "28 documented" specs/ROADMAP.md` shows the item now begins `- [x]` and its body states
-  the not-reproducing resolution.
+  the not-reproducing resolution. *(passed)*
 - `git diff specs/ROADMAP.md` read-through confirming only those two items (and their bodies)
-  changed — no unrelated hunks.
+  changed — no unrelated hunks. *(passed; the middle "Oracle differential-suite cadence decision"
+  item also gained an optional annotation, explicitly allowed by this phase's own task list and
+  the plan's Roadmap Alignment section, and remains unchecked)*
 - Both claims being closed are true as of this commit: `.github/workflows/tests.yml` contains a
   `nix flake check` step (`grep -n "flake check" .github/workflows/tests.yml`), and `flake.nix` no
   longer restricts `checks.default` to `theory_lib/bimodal/tests`
-  (`grep -n "theory_lib/bimodal/tests" flake.nix` returns nothing inside `checkPhase`).
+  (`grep -n "theory_lib/bimodal/tests" flake.nix` returns nothing inside `checkPhase`). *(passed)*
 
 **Files to modify**:
 - `specs/ROADMAP.md` — two Phase 1 checklist items.
