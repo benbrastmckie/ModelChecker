@@ -126,3 +126,24 @@ bash code/scripts/release-verify.sh [--ref VERSION] [--out DIR] [--help]
 `summary.txt` (a per-step status ledger). See `.github/RELEASE_SETUP.md` for what each file
 contains and how to read it.
 
+## verify-installed-cli.sh
+
+Local podman debug loop for the installed-wheel CLI verification described in
+`code/tests/README.md`'s `MODELCHECKER_CLI_TEST_MODE` section: mounts the repo read-only into a
+slim distro container, creates a venv, `pip install`s the wheel from `code/dist/` plus `pytest`,
+and runs the full `tests/cli/` suite under both `installed` and `installed-module` modes.
+
+**Requires podman** (`virtualisation.podman.enable = true;` plus a rebuild, on NixOS). A Nix FHS
+sandbox is a deliberately rejected substitute (glibc/host-state leakage, not portable to CI); the
+script fails fast and non-zero, naming the exact host action, rather than falling back to one.
+Also fails fast and non-zero when no wheel newer than `pyproject.toml` exists in `code/dist/`.
+
+### Usage
+
+```bash
+bash code/scripts/verify-installed-cli.sh [IMAGE]
+```
+
+`IMAGE` defaults to `python:3.11-slim`; pass `python:3.10-slim`, `python:3.12-slim`, etc. to
+exercise a different interpreter without editing the script.
+

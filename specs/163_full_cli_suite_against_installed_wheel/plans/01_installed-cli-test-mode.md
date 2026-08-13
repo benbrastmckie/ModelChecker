@@ -364,7 +364,14 @@ unavoidable — the injections live there. Widen `file_scope` to `["code/tests/"
 
 ---
 
-### Phase 4: Local container runner script [NOT STARTED]
+### Phase 4: Local container runner script [COMPLETED]
+
+**Verification performed**: `bash -n` clean; `shellcheck` (via `nix run nixpkgs#shellcheck`)
+clean with zero findings; executable bit set (`chmod +x`). Both failure paths exercised directly
+on this host (which genuinely lacks podman, so the "podman absent" path needed no simulation):
+absent-podman run exits 1 with the exact `virtualisation.podman.enable = true;` + rebuild
+instruction; a temporarily-moved `code/dist/` with a stubbed-out fake `podman` on `PATH` exits 2
+with the `python -m build` command to run. Neither failure path performs any partial work.
 
 **Goal**: Provide `code/scripts/verify-installed-cli.sh` so the container behaviour is
 reproducible locally in seconds instead of via CI cycles (R5).
