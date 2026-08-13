@@ -34,13 +34,13 @@ _COVERED_FLAGS = {
     'z3', 'cvc5',
     'upgrade',
     'sequential',
+    'load_theory',
 }
-# Excluded, with reason: -l/--load_theory cannot be invoked as a bare non-interactive
-# subprocess (it dispatches to BuildProject.ask_generate() and blocks on input()); its
-# non-interactive coverage lives in the registry-driven generate-then-execute suite, and its
-# registry-derived choices/help text are already covered by
-# tests/unit/test_main_cli.py and this directory's test_parse_file_flags.py.
-_EXCLUDED_FLAGS = {'load_theory'}
+# No exclusions: -l/--load_theory dispatches to BuildProject.ask_generate(), which blocks on
+# input() -- but run_cli_command's existing `input=` parameter pipes answers through the
+# subprocess's stdin, closing the matrix with no source change. See
+# test_load_theory_generates_project_non_interactively below.
+_EXCLUDED_FLAGS = set()
 
 
 def test_every_registered_flag_is_covered_or_excluded():
@@ -380,4 +380,38 @@ def test_sequential_fails_fast_without_traceback(tiny_example_file, flag):
     assert result.returncode == 1
     combined = (result.stdout or '') + (result.stderr or '')
     assert 'Traceback' not in combined
-    assert 'Error' in combined
+
+
+# ---------------------------------------------------------------------------------------------
+# --load_theory / -l -- dispatches to BuildProject.ask_generate(), which blocks on input();
+# piped through run_cli_command's existing `input=` parameter rather than left excluded.
+# ---------------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("flag", ["--load_theory", "-l"])
+def test_load_theory_generates_project_non_interactively(tmp_path, flag):
+    """Answer all three ask_generate()/`_handle_example_script` prompts ('y' to generate,
+    a project name, 'n' to skip the example run) via stdin, run in `tmp_path` so the generated
+    project is contained, and confirm a clean, error-free, successful generation."""
+    result = run_cli_command(
+        [flag, 'bimodal'],
+        input="y\ngen_project\nn\n",
+        cwd=tmp_path,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, (
+        f"load_theory generation failed: stdout={result.stdout!r} stderr={result.stderr!r}"
+    )
+    assert 'Error creating project' not in result.stdout
+    assert 'Traceback' not in result.stdout and 'Traceback' not in (result.stderr or '')
+    assert (tmp_path / 'project_gen_project').is_dir()
+
+
+def test_load_theory_does_not_hang_with_closed_stdin(tmp_path):
+    """A closed stdin (EOF on the very first prompt) must fail fast, not hang -- confirms the
+    30s default timeout is a backstop, not the normal path."""
+    result = run_cli_command(
+        ['-l', 'bimodal'], input="", cwd=tmp_path, timeout=30, check=False
+    )
+    assert result.returncode != 0

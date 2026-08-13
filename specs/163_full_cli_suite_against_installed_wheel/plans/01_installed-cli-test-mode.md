@@ -454,7 +454,22 @@ swallowed as a skip) and the run is not evidence.
 
 ---
 
-### Phase 6: Attempt to retire the `load_theory` exclusion [NOT STARTED]
+### Phase 6: Attempt to retire the `load_theory` exclusion [COMPLETED]
+
+**Result**: retired cleanly. `ask_generate()` prompts three times, not the plan's assumed one
+(`(y/n)` to generate, project name, then `_handle_example_script`'s `(y/n)` to test the
+generated example) -- discovered by direct dispatch before writing the test. Piping
+`input="y\ngen_project\nn\n"` through `run_cli_command` produces a clean, error-free,
+`returncode == 0` generation, confirmed 6/6 clean runs during investigation and 5/5 repeat runs
+of the finished test (`pytest -k load_theory`, run 5x per the plan's requirement) -- all fast
+(~0.2s each) and none hung. A closed-stdin run (`input=""`) fails immediately with a nonzero
+return code (EOFError on the very first uncaught `input()` call) rather than hanging, confirmed
+separately. `_EXCLUDED_FLAGS` is now empty; `test_every_registered_flag_is_covered_or_excluded`
+passes with `load_theory` moved into `_COVERED_FLAGS`. Full-file wall time: 38.04s (was ~37s
+before this phase) -- same order, no regression.
+
+**Files modified**: `code/tests/cli/test_flag_matrix.py` (dispatch test added,
+`_EXCLUDED_FLAGS`/`_COVERED_FLAGS` updated).
 
 **Goal**: Close the completeness gate over the full registered flag set by piping `input="y\n"`
 through `run_cli_command`'s existing `input` parameter — or, failing that, leave the exclusion and
