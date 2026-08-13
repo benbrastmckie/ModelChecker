@@ -1,21 +1,25 @@
 ---
-next_project_number: 163
+next_project_number: 164
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-08-12. Generated from state.json dependency graph.*
+*Updated 2026-08-13. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161 | -- | semantics, release-engineering |
+| 1 | 152,160,161,163 | -- | testing, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
+
+### Testing
+
+163 [RESEARCHED] — Run the full CLI test suite against a pip-installed wheel, not ju
 
 ### Semantics
 
@@ -30,6 +34,31 @@ next_project_number: 163
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 
 ## Tasks
+
+### 163. Full cli suite against installed wheel
+- **Status**: [RESEARCHED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+- **Research**: [163_full_cli_suite_against_installed_wheel/reports/01_installed-cli-verification.md]
+
+**Description**: Run the full CLI test suite against a pip-installed wheel, not just the source tree. Every CLI test in code/tests/cli/ funnels through one helper, run_cli_command (code/tests/utils/helpers.py:14), which hardcodes both the `python -m model_checker` invocation and the PYTHONPATH injection pointing at code/src. Parametrise that single helper over MODELCHECKER_CLI_TEST_MODE = source | installed | installed-module so the entire existing suite -- including its parser-derived completeness gate (test_flag_matrix.py::test_every_registered_flag_is_covered_or_excluded) -- runs unchanged against a pip-installed console script. Default stays `source`, so the developer loop is unaffected; `installed-module` additionally yields console-script vs `python -m` parity across the whole suite, where packaging tests currently check it only for --version/--help.
+
+MANDATORY GUARD: add a test asserting model_checker.__file__ contains site-packages when a non-source mode is active. If code/src reaches sys.path in the verification environment, imports silently resolve to the working tree and the whole suite passes without ever touching the wheel -- a silent vacuous pass that would make this entire change worthless.
+
+MOTIVATION (NixOS blind spot): the packaging suite passes locally only because code/tests/packaging/conftest.py repairs the dynamic linker via LD_LIBRARY_PATH -- the pip-installed z3-solver wheel cannot otherwise find its bundled libz3.so on a non-FHS host. Local green therefore cannot distinguish "works everywhere" from "works because we patched it". This host also runs glibc 2.42, newer than any mainstream distro (Debian 12: 2.36, Ubuntu 22.04: 2.35, Ubuntu 20.04: 2.31), so it is the most permissive possible target and cannot detect low-end linkage breakage. Verification must therefore happen in a real distro container; a Nix FHS sandbox is NOT an acceptable substitute (you choose targetPkgs yourself so it cannot discover a missing library, it serves the same glibc 2.42, it bind-mounts real /home and /tmp so ~/.cache/pip can produce a false green, and it cannot move to CI).
+
+ALSO IN SCOPE: (a) a small code/scripts/verify-installed-cli.sh wrapping a podman invocation for the local debug loop (requires virtualisation.podman.enable, user action); (b) attempt to retire the sole _EXCLUDED_FLAGS entry, load_theory, by piping input="y\n" through run_cli_command`s existing input parameter -- if that works the completeness gate covers the full registered flag set with no exclusions. If it does not work, leave the exclusion and its comment intact.
+
+SCOPE BOUNDARY -- DO NOT TOUCH .github/workflows/release.yml. That file is owned by harden_release_ci_testpypi_gate, which already owns adding a post-build verification job, and which is itself blocked on fix_testpypi_trusted_publisher (user-only web-UI OIDC work). Claiming release.yml here would auto-serialise this task behind a blocked one for no reason -- this task has no dependency of its own and can start immediately. The CI wiring is recorded as recommendation R4 in the research report, with exact YAML, for that task to adopt.
+
+REPORT FINDING WORTH ESCALATING to harden_release_ci_testpypi_gate: its item (1)(b) proposes gating on a TestPyPI install. Gating on the `dist` build artifact instead is equal or better fidelity (byte-identical wheel), avoids the cross-index nondeterminism of --extra-index-url (TestPyPI mirrors neither z3-solver nor networkx), avoids retry-flake from index propagation lag, and crucially is NOT blocked by the OIDC registration. The two are complementary, not exclusive -- artifact-gating proves the wheel works, TestPyPI verification proves upload/index metadata work -- but artifact-gating should not wait behind the other.
+
+DO FIRST, SEPARATELY: `nix flake check` is red on master at the released commit (test_example.py::TestBuildExampleIntegration::test_iteration_via_iterate_api, "Should find initial model for A", 1 failed / 2012 passed, Actions run 31654864134). It sits exactly on the seam this task concerns: flake.nix builds against nixpkgs-native z3 and strips the PyPI dependency (pythonRemoveDeps = [ "z3-solver" ]), while users get the PyPI z3-solver wheel. Diagnose whether it is a divergent draw or a genuine version sensitivity before relying on either environment as an oracle.
+
+DEFERRED, NOT IN SCOPE: executable documentation -- executing extracted doc commands (rather than only checking flag tokens against the parser) against an installed package, reusing test_docs_flag_matrix.py`s extractor plus this task`s installed mode. Worth its own task after this one lands.
+
+---
 
 ### 162. Fix nonexistent cli flags in docs
 - **Status**: [COMPLETED]
