@@ -1,7 +1,16 @@
 """Shared fixtures for `code/tests/cli/` -- the ParseFileFlags unit tests and the flag matrix.
 
-All CLI invocations in this directory go through `python -m model_checker` (never the installed
-console script -- that lives in `code/tests/packaging/`), so no venv is built here.
+All CLI invocations in this directory go through `tests.utils.helpers.run_cli_command` (the
+`run_cli` fixture below), which dispatches over `MODELCHECKER_CLI_TEST_MODE`
+(`tests.utils.cli_mode.get_cli_test_mode`): `source` (default) invokes `python -m model_checker`
+against the working tree, exactly as this module originally did unconditionally; `installed`
+invokes the pip-installed `model-checker` console script; `installed-module` invokes
+`python -m model_checker` against an installed package with no source-tree `PYTHONPATH`
+injection. No venv is built by this directory itself -- `installed`/`installed-module` runs
+expect one already active on `PATH`/the interpreter (see `code/tests/README.md`'s "CLI Invocation
+Modes" section, or `code/scripts/verify-installed-cli.sh` for a containerized one). Console
+script behavior specific to packaging concerns (build/install contract, not CLI dispatch) still
+lives in `code/tests/packaging/`.
 """
 
 from __future__ import annotations

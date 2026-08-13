@@ -269,6 +269,49 @@ else:
     print(f"✗ {test_name}: {specific_failure_reason}")
 ```
 
+## CLI Invocation Modes
+
+Every CLI test in `tests/cli/` funnels through a single chokepoint,
+`tests/utils/helpers.run_cli_command` (exposed as the `run_cli` fixture in
+`tests/cli/conftest.py`), which dispatches over `MODELCHECKER_CLI_TEST_MODE`:
+
+| Mode | Invocation | `PYTHONPATH` | Purpose |
+|------|------------|--------------|---------|
+| `source` (default) | `python -m model_checker` | `code/src` injected | The everyday developer loop. Unaffected by this mode's existence -- byte-for-byte the suite's original behavior. |
+| `installed` | the pip-installed `model-checker` console script (`shutil.which`) | popped | Proves the CLI works against a real installed package, not the working tree. |
+| `installed-module` | `python -m model_checker` | popped | Console-script vs. `python -m` parity, across the whole suite. |
+
+`source` requires no setup. `installed`/`installed-module` require `model-checker` to actually be
+importable/on-`PATH` -- normally via a real `pip install` of a built wheel into a venv, e.g.:
+
+```bash
+python -m build                                    # produces code/dist/*.whl
+python -m venv /tmp/v && . /tmp/v/bin/activate
+pip install code/dist/*.whl pytest
+cd code
+MODELCHECKER_CLI_TEST_MODE=installed        pytest tests/cli/ -v
+MODELCHECKER_CLI_TEST_MODE=installed-module pytest tests/cli/ -v
+```
+
+On a NixOS host, a pip-installed `z3-solver` wheel needs `LD_LIBRARY_PATH` pointed at the Nix C++
+runtime to resolve `libz3.so`/`libstdc++.so.6` -- see `tests/packaging/conftest.py`'s
+`_add_cxx_runtime_to_env` for the exact mechanism, already applied automatically by that suite's
+fixtures. `code/scripts/verify-installed-cli.sh` (see `code/scripts/README.md`) reproduces this
+whole flow inside a real distro container via podman, so container-level verification is
+reproducible in seconds rather than five-minute CI cycles; it requires podman on `PATH`
+(`virtualisation.podman.enable = true;` on NixOS, plus a rebuild).
+
+### The anti-vacuous-pass guard
+
+`tests/cli/test_installed_mode_guard.py` is a mandatory, always-collected test: in `installed`/
+`installed-module` mode it asserts `model_checker.__file__` resolves under `site-packages` and
+that no `sys.path` entry resolves to `code/src`. Without this guard, a non-source mode running
+inside an environment where the source tree is still importable would pass the *entire* CLI
+suite without ever touching the installed wheel -- a silent, structurally-invisible false
+positive. The guard exists specifically to make that failure loud instead. It `pytest.skip()`s in
+`source` mode (the assertion does not apply there) and must be seen to **pass**, never skip, in
+any `installed`/`installed-module` run that is meant to count as verification evidence.
+
 ## Documentation
 
 ### For New Users

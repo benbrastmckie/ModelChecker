@@ -1,7 +1,7 @@
 # Implementation Plan: Run full CLI suite against installed wheel
 
 - **Task**: 163 - Run full CLI suite against installed wheel
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED] -- all 7 phases COMPLETED
 - **Effort**: 8 hours
 - **Dependencies**: None blocking. Adjacent (must not be touched):
   `harden_release_ci_testpypi_gate` owns `.github/workflows/release.yml`.
@@ -538,7 +538,21 @@ here.
 
 ---
 
-### Phase 7: Document the mode and record the CI handoff [NOT STARTED]
+### Phase 7: Document the mode and record the CI handoff [COMPLETED]
+
+**Verification performed**: added a "CLI Invocation Modes" section to `code/tests/README.md`
+(the three modes, setup requirements, the NixOS `LD_LIBRARY_PATH` note, the guard's contract) and
+corrected `code/tests/cli/conftest.py`'s stale module docstring; re-ran `pytest code/tests/cli/
+-v` after the docstring edit (87 passed, 1 skipped -- the guard, correctly, in source mode).
+Confirmed no `code/**` file this task touched cites a task number by direct grep of the changed
+paths (`code/tests/`, `code/scripts/`, `code/conftest.py`); the repo-wide
+`check-task-references.sh` scan's 109 flagged occurrences are pre-existing and entirely within
+`.opencode/`, unrelated to this task. `.github/workflows/release.yml` untouched throughout
+(`git diff --stat` against it shows nothing this session).
+
+**Files modified**: `code/tests/README.md`, `code/tests/cli/conftest.py`,
+`specs/163_full_cli_suite_against_installed_wheel/summaries/01_installed-cli-test-mode-summary.md`
+(new).
 
 **Goal**: Make `MODELCHECKER_CLI_TEST_MODE` discoverable to a developer who did not read this
 plan, and leave the R4 CI wiring where its owning task will find it.
