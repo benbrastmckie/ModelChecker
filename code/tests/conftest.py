@@ -13,6 +13,8 @@ import glob
 from pathlib import Path
 from unittest.mock import Mock
 
+from tests.utils.cli_mode import get_cli_test_mode
+
 
 @pytest.fixture
 def z3_context_isolation():
@@ -35,8 +37,15 @@ def z3_context_isolation():
     from model_checker.utils.context import isolated_z3_context
     return isolated_z3_context()
 
-# Add src to path for testing
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+# Add src to path for testing -- only in 'source' mode (the default). In a non-source
+# MODELCHECKER_CLI_TEST_MODE, this insertion must NOT happen: it is one of the two confirmed
+# in-process source-tree injection sites (the other being pyproject.toml's
+# `[tool.pytest.ini_options] pythonpath = "src"`, purged separately in code/conftest.py, the
+# rootdir conftest, since that one is applied before this file even loads) that would otherwise
+# let `import model_checker` silently resolve to the working tree instead of the installed
+# wheel -- see tests/cli/test_installed_mode_guard.py.
+if get_cli_test_mode() == 'source':
+    sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 
 @pytest.fixture(autouse=True)

@@ -259,7 +259,58 @@ for that call site and it must be routed through the helper or explicitly except
 
 ---
 
-### Phase 3: Close the source-tree shadowing holes and add the vacuous-pass guard [NOT STARTED]
+### Phase 3: Close the source-tree shadowing holes and add the vacuous-pass guard [COMPLETED]
+
+**Scope Hypothesis result**: exactly **two** in-process source-tree injection sites confirmed by
+a live `sys.path` dump inside `code/tests/cli/` under a forced non-source mode, both resolving to
+the literal same path (`code/src`, appearing twice) -- `pyproject.toml`'s `pythonpath = "src"`
+and `tests/conftest.py`'s own insert. The third hypothesized site ("whatever rootdir/cwd entry
+pytest itself contributes under `--import-mode=importlib`") did **not** manifest as a `sys.path`
+entry at all -- pytest's importlib import mode resolves the `tests` package via direct
+`sys.modules` population during collection, not via a `sys.path` search, so `from
+tests.utils.helpers import ...` remains resolvable after the purge with no third injection to
+handle and no `PYTHONPATH=code` fallback needed (de-risking the corresponding row in the plan's
+Risks table).
+
+**`code/conftest.py` import-ordering finding**: `from tests.utils.cli_mode import
+get_cli_test_mode` at this rootdir conftest's module-load time genuinely raises
+`ModuleNotFoundError` (confirmed empirically with a debug marker, then removed) -- the rootdir
+conftest loads before pytest's importlib package-chain machinery has bound `tests` for this
+invocation. The `try/except ModuleNotFoundError` fallback in `code/conftest.py` (reading the env
+var directly, same default) is therefore load-bearing, not defensive dead code, and is commented
+as the one deliberate exception to "no other module re-derives the vocabulary."
+
+**Guard-fails-loud demonstration** (required before the purge landed): confirmed once,
+deliberately -- `MODELCHECKER_CLI_TEST_MODE=installed PYTHONPATH=code/src pytest
+code/tests/cli/test_installed_mode_guard.py` **FAILED** (not skipped, not errored) with
+`model_checker` resolving to `code/src/model_checker/__init__.py`.
+
+**Post-purge verification, real installed wheel**: built `model_checker-1.3.3-py3-none-any.whl`
+locally (`PIP_USER=0 python -m build`, worked around this host's ambient `pip.conf`
+`install.user=true`), installed it into a scratch venv with the same `LD_LIBRARY_PATH` repair
+`tests/packaging/conftest.py` documents, and ran the full `tests/cli/` suite against it directly
+(not yet inside a container -- that remains Phase 5's job):
+- `installed` mode: guard **PASSED** (not skipped), `model_checker.__file__` resolved to
+  `.../wheeltest/lib/python3.13/site-packages/model_checker/__init__.py`; full `tests/cli/`
+  suite **85 passed**.
+- `installed-module` mode: same wheel, **85 passed**.
+- Collected-test count matched the host source-mode baseline exactly: **85 == 85**.
+- `test_every_registered_flag_is_covered_or_excluded` executed (not just collected) in both
+  installed-mode runs, as part of the 85.
+
+**Source mode regression check**: `PYTHONPATH=code/src pytest code/tests/cli/
+code/tests/unit/test_main_cli.py -v` -> 94 passed, 1 skipped (the guard, correctly, in source
+mode). Full-suite regression check (`pytest src/model_checker tests -m "not packaging and not
+performance and not unstable" -n 6 -q`, matching the `nix flake check` selection): **1 failed,
+2276 passed, 1 skipped** -- the one failure
+(`test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_5]`) passed cleanly when rerun
+in isolation immediately after, and touches solver comparison logic entirely unrelated to
+`sys.path`/import location; recorded as a pre-existing `-n 6` contention flake (the same
+documented class as Phase 1's finding and the codebase's own `max_time`-under-load comments), not
+a regression introduced by this phase's changes.
+
+**Files modified**: `code/tests/cli/test_installed_mode_guard.py` (new), `code/tests/conftest.py`
+(gated insert), `code/conftest.py` (purge, with the fallback vocabulary reader).
 
 **Goal**: Make it structurally impossible for `import model_checker` to resolve to the working
 tree while a non-source mode is active, and assert loudly if it ever does. This is the phase the

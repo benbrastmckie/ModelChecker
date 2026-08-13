@@ -9,6 +9,51 @@ import glob
 import shutil
 import atexit
 import os
+import sys
+from pathlib import Path
+
+try:
+    from tests.utils.cli_mode import get_cli_test_mode
+except ModuleNotFoundError:
+    # This is the rootdir conftest, loaded before pytest has necessarily made the `tests`
+    # package importable in every invocation shape (e.g. a bare `pytest <file>` collection
+    # rooted somewhere that has not yet touched the `tests` package chain). Fall back to
+    # reading the same env var directly with the same default; this is the one deliberate,
+    # commented exception to "no other module re-derives the vocabulary"
+    # (tests/utils/cli_mode.py's docstring) and exists only for this ordering edge case.
+    def get_cli_test_mode() -> str:  # type: ignore[no-redef]
+        return os.environ.get('MODELCHECKER_CLI_TEST_MODE', 'source')
+
+
+def _purge_source_tree_from_sys_path() -> None:
+    """Purge every `sys.path` entry resolving to `code/src` when a non-source
+    `MODELCHECKER_CLI_TEST_MODE` is active.
+
+    This is the only available defence against `[tool.pytest.ini_options] pythonpath = "src"`
+    in `code/pyproject.toml`, which pytest applies during config -- before this rootdir conftest,
+    or any other conftest, loads. Left unpurged, `import model_checker` would silently resolve
+    to the working tree instead of the installed wheel in `installed`/`installed-module` modes,
+    making the entire verification vacuous (see tests/cli/test_installed_mode_guard.py).
+
+    A no-op in `source` mode: that path must remain byte-for-byte unchanged.
+    """
+    if get_cli_test_mode() == 'source':
+        return
+    repo_src = str((Path(__file__).parent / 'src').resolve())
+    sys.path[:] = [
+        entry for entry in sys.path
+        if not (entry and _resolves_to(entry, repo_src))
+    ]
+
+
+def _resolves_to(entry: str, target: str) -> bool:
+    try:
+        return str(Path(entry).resolve()) == target
+    except OSError:  # pragma: no cover -- defensive; unresolvable entries are never our injection
+        return False
+
+
+_purge_source_tree_from_sys_path()
 
 
 @pytest.fixture(autouse=True, scope='function')
