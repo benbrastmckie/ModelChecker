@@ -19,7 +19,7 @@ next_project_number: 164
 
 ### Testing
 
-163 [RESEARCHED] — Run the full CLI test suite against a pip-installed wheel, not ju
+163 [IMPLEMENTING] — Run the full CLI test suite against a pip-installed wheel, not ju
 
 ### Semantics
 
@@ -36,11 +36,12 @@ next_project_number: 164
 ## Tasks
 
 ### 163. Full cli suite against installed wheel
-- **Status**: [RESEARCHED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [163_full_cli_suite_against_installed_wheel/reports/01_installed-cli-verification.md]
+- **Plan**: [163_full_cli_suite_against_installed_wheel/plans/01_installed-cli-test-mode.md]
 
 **Description**: Run the full CLI test suite against a pip-installed wheel, not just the source tree. Every CLI test in code/tests/cli/ funnels through one helper, run_cli_command (code/tests/utils/helpers.py:14), which hardcodes both the `python -m model_checker` invocation and the PYTHONPATH injection pointing at code/src. Parametrise that single helper over MODELCHECKER_CLI_TEST_MODE = source | installed | installed-module so the entire existing suite -- including its parser-derived completeness gate (test_flag_matrix.py::test_every_registered_flag_is_covered_or_excluded) -- runs unchanged against a pip-installed console script. Default stays `source`, so the developer loop is unaffected; `installed-module` additionally yields console-script vs `python -m` parity across the whole suite, where packaging tests currently check it only for --version/--help.
 
