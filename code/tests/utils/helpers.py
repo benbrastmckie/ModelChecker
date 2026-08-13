@@ -4,17 +4,36 @@ This module provides common utility functions used across test modules
 to reduce duplication and improve test maintainability.
 """
 
+import shutil
 import subprocess
 import sys
 import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
+from tests.utils.cli_mode import get_cli_test_mode
+
 
 def run_cli_command(args: List[str], capture_output: bool = True,
                    check: bool = False, timeout: Optional[int] = 30,
                    cwd: Optional[Path] = None, input: Optional[str] = None):
     """Run ModelChecker CLI command and return result.
+
+    Invocation is dispatched over `MODELCHECKER_CLI_TEST_MODE`
+    (`tests.utils.cli_mode.get_cli_test_mode`), which defaults to `'source'`:
+
+    - ``source`` (default): `python -m model_checker`, with `code/src` prepended to
+      `PYTHONPATH` exactly as before this mode existed. The developer loop is unaffected --
+      this branch is byte-for-byte the prior unconditional behavior.
+    - ``installed``: the pip-installed `model-checker` console script, resolved via
+      `shutil.which('model-checker')`, with `PYTHONPATH` popped rather than injected. This is
+      deliberate: any test that only passes because the source tree is importable must fail in
+      this mode, since that is exactly the vacuous-pass condition the mode exists to rule out.
+      Raises `RuntimeError` immediately if the console script is not on `PATH`.
+    - ``installed-module``: `python -m model_checker`, also with `PYTHONPATH` popped, so it can
+      only succeed against a package actually installed into the running interpreter. This
+      yields console-script vs. `python -m` parity across the whole CLI suite (previously
+      checked only for `--version`/`--help` in `tests/packaging/`).
 
     Args:
         args: List of command-line arguments
@@ -32,18 +51,36 @@ def run_cli_command(args: List[str], capture_output: bool = True,
 
     Returns:
         subprocess.CompletedProcess: Result of command execution
+
+    Raises:
+        RuntimeError: mode is 'installed' and 'model-checker' is not on PATH.
+        ValueError: MODELCHECKER_CLI_TEST_MODE is set to an unrecognized value.
     """
+    mode = get_cli_test_mode()
+
     # Find the project root (directory containing pyproject.toml)
     current_dir = Path(__file__).parent
     while not (current_dir / 'pyproject.toml').exists() and current_dir.parent != current_dir:
         current_dir = current_dir.parent
 
-    # Add src to Python path
-    src_dir = current_dir / 'src'
     env = os.environ.copy()
-    env['PYTHONPATH'] = str(src_dir) + os.pathsep + env.get('PYTHONPATH', '')
 
-    cmd = [sys.executable, '-m', 'model_checker'] + args
+    if mode == 'source':
+        src_dir = current_dir / 'src'
+        env['PYTHONPATH'] = str(src_dir) + os.pathsep + env.get('PYTHONPATH', '')
+        cmd = [sys.executable, '-m', 'model_checker'] + args
+    elif mode == 'installed':
+        # No PYTHONPATH injection: any reliance on the source tree must fail here, by design.
+        env.pop('PYTHONPATH', None)
+        script = shutil.which('model-checker')
+        if script is None:
+            raise RuntimeError(
+                "MODELCHECKER_CLI_TEST_MODE=installed but 'model-checker' is not on PATH"
+            )
+        cmd = [script] + args
+    else:  # mode == 'installed-module', the only remaining value get_cli_test_mode() permits
+        env.pop('PYTHONPATH', None)
+        cmd = [sys.executable, '-m', 'model_checker'] + args
 
     result = subprocess.run(
         cmd,
