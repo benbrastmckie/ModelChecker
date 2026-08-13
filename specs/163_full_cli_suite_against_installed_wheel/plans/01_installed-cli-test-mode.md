@@ -407,7 +407,37 @@ reproducible locally in seconds instead of via CI cycles (R5).
 
 ---
 
-### Phase 5: Execute container verification against a real installed wheel [NOT STARTED]
+### Phase 5: Execute container verification against a real installed wheel [COMPLETED]
+
+**Fallback-ladder correction**: (a) `podman` and (b) `docker` are both absent from this host's
+`PATH`, as expected. (c) `nix run nixpkgs#podman` -- expected by the plan to fail without the
+host's setuid `newuidmap` wrapper -- **actually succeeded**: this host supports rootless podman
+via unprivileged user namespaces without that wrapper. The only blockers hit were two missing
+config files (`~/.config/containers/policy.json`, `registries.conf`), created directly (a
+standard, minimal `insecureAcceptAnything` policy and a `docker.io` unqualified-search-registry
+entry -- neither is a repo file, both are outside `file_scope` and outside any tracked path).
+After that, `podman run docker.io/library/python:3.11-slim ...` worked immediately. The plan's
+prediction was wrong for this host; recorded as a correction rather than silently overwritten.
+
+**Evidence** (fresh wheel built this session, `model_checker-1.3.3-py3-none-any.whl`, via
+`code/scripts/verify-installed-cli.sh` against `python:3.11-slim`):
+- `MODELCHECKER_CLI_TEST_MODE=installed`: **88 passed, 1 warning in 16.03s**. Guard test
+  (`test_installed_mode_does_not_shadow_via_source_tree`) **PASSED** (not skipped).
+  `test_every_registered_flag_is_covered_or_excluded` **PASSED** (executed, not just collected).
+- `MODELCHECKER_CLI_TEST_MODE=installed-module`: same wheel, **88 passed, 1 warning in 15.49s**,
+  same two tests confirmed PASSED.
+- Resolved `model_checker.__file__` inside the container:
+  `/v/lib/python3.11/site-packages/model_checker/__init__.py` -- under `site-packages`, confirmed
+  directly (not merely inferred from the guard's own internal assertion).
+- Collected-test count parity: host source-mode `pytest tests/cli/ --collect-only` reports **88
+  tests collected**; both container runs report **88 passed**. Exact match, zero dropped.
+- The one warning in both runs is `PytestCacheWarning: cache could not write path
+  .../.pytest_cache/v/cache/nodeids` -- the repo mount is read-only (`-v ...:ro`) by design;
+  cosmetic, not a failure.
+
+**Files modified**: none (Phase 5 itself performs no source edits, per plan; the wheel built for
+this verification was already produced and consumed within Phase 3's local venv check and
+rebuilt fresh here from the same unmodified `code/pyproject.toml`).
 
 **Goal**: Actually run the full `tests/cli/` suite against a pip-installed wheel inside a real
 distro container, in both `installed` and `installed-module` modes, with the guard active. This
