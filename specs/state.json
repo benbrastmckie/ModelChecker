@@ -1,6 +1,16 @@
 {
-  "next_project_number": 164,
+  "next_project_number": 165,
   "active_projects": [
+    {
+      "project_number": 164,
+      "project_name": "populate_py_spec_python_architecture",
+      "status": "not_started",
+      "task_type": "python",
+      "description": "Populate haskell/py_spec.md with a concise description of the core architecture for the Python implementation of the ModelChecker, including the modular compiler design for generating SMT-LIB constraints from sentences expressed in an extensible DSL and the host of features and tools for adjusting and evaluating the countermodels that the ModelChecker finds",
+      "topic": "architecture",
+      "created": "2026-08-18T23:21:26Z",
+      "last_updated": "2026-08-18T23:21:26Z"
+    },
     {
       "project_number": 162,
       "project_name": "fix_nonexistent_cli_flags_in_docs",

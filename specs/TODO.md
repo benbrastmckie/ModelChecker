@@ -1,21 +1,25 @@
 ---
-next_project_number: 164
+next_project_number: 165
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-08-13. Generated from state.json dependency graph.*
+*Updated 2026-08-18. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161 | -- | semantics, release-engineering |
+| 1 | 152,160,161,164 | -- | architecture, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
+
+### Architecture
+
+164 [NOT STARTED] — Populate haskell/py_spec.md with a concise description of the cor
 
 ### Semantics
 
@@ -30,6 +34,16 @@ next_project_number: 164
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 
 ## Tasks
+
+### 164. Populate py spec python architecture
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: architecture
+- **Dependencies**: None
+
+**Description**: Populate haskell/py_spec.md with a concise description of the core architecture for the Python implementation of the ModelChecker, including the modular compiler design for generating SMT-LIB constraints from sentences expressed in an extensible DSL and the host of features and tools for adjusting and evaluating the countermodels that the ModelChecker finds
+
+---
 
 ### 163. Full cli suite against installed wheel
 - **Status**: [COMPLETED]
