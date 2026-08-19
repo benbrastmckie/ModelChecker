@@ -338,7 +338,7 @@ shape), §2 (the `Sentence` class, lifecycle, infix rendering), §3 (operator ab
 
 ---
 
-### Phase 3: Constraint generation and the state encoding [NOT STARTED]
+### Phase 3: Constraint generation and the state encoding [COMPLETED]
 
 **Goal**: Specify how a parsed formula becomes SMT constraints, and the bit-vector encoding those
 constraints live in.
