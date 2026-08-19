@@ -100,6 +100,11 @@ it emits the atomic clause directly (the base case); otherwise it delegates to
 `operator.true_at(*arguments, eval_point)`, and that operator recurses back into
 `semantics.true_at`/`extended_verify` for its own subformulas. `false_at`, `extended_verify`, and
 `extended_falsify` are structured the same way. The recursion bottoms out at sentence letters.
+The formula each operator method contributes at its recursion step is stated per operator in
+[`03a-operator-semantics.md`](./03a-operator-semantics.md) — e.g. the counterfactual's
+`true_at` step unfolds to `∀x, u. (ver(x, A) ∧ is_alternative(u, x, w)) → true(B, u)`, which is
+where the helper predicates of [`05-state-encoding.md`](./05-state-encoding.md) enter the
+generated constraints.
 
 ## The `proposition_constraints` idiom
 

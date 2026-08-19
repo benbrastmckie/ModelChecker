@@ -150,19 +150,19 @@ theory primitives.
 
 ---
 
-### Phase 2: Operator Semantics Document — Logos [NOT STARTED]
+### Phase 2: Operator Semantics Document — Logos [COMPLETED]
 
 **Goal**: Close the logos half of A1 — create `03a-operator-semantics.md` stating the actual
 truth conditions for every logos operator, in the `05-state-encoding.md` mathematical register.
 
 **Tasks**:
-- [ ] Enumerate all logos operators from the four subtheory `operators.py` files
+- [x] Enumerate all logos operators from the four subtheory `operators.py` files
       (extensional, modal, counterfactual, constitutive) and confirm the count against
       `11-theory-catalog.md`'s "18, all subtheories loaded".
-- [ ] Create `haskell/py-spec/03a-operator-semantics.md` with README back-link second line, a
+- [x] Create `haskell/py-spec/03a-operator-semantics.md` with README back-link second line, a
       short preamble stating the document's contract (content for `03-operators.md`'s
       abstraction: per-operator formulas, not method shapes), and a `## Source files` section.
-- [ ] For each **primitive** logos operator, one table block giving `true_at` / `false_at` /
+- [x] For each **primitive** logos operator, one table block giving `true_at` / `false_at` /
       `extended_verify` / `extended_falsify` as formulas. E.g. negation's pure delegation
       (`true_at(¬A, pt) = false_at(A, pt)`); conjunction's fusion-existential
       (`∃x,y. verify(x,A) ∧ verify(y,B) ∧ s = x ⊔ y`) and disjunction's structurally different
@@ -170,12 +170,12 @@ truth conditions for every logos operator, in the `05-state-encoding.md` mathema
       `extended_verify` collapsing to the null state; the counterfactual via
       `is_alternative` (`∀x,u. (extended_verify(x,A,pt) ∧ is_alternative(u,x,w)) →
       true_at(B, w:=u)`).
-- [ ] For each **defined** logos operator, state its definitional expansion instead — and
+- [x] For each **defined** logos operator, state its definitional expansion instead — and
       explicitly flag the two documented irregularities: `\rightarrow` hand-maintains an
       independent `true_at`/`extended_verify` despite being defined (the concrete instance of
       03-'s abstract three-register drift warning), and might-counterfactual's ad-hoc
       construction of a counterfactual instance bypassing normal operator collection wiring.
-- [ ] Cross-link: `03-operators.md` gains a short pointer ("method shapes here; the formulas
+- [x] Cross-link: `03-operators.md` gains a short pointer ("method shapes here; the formulas
       each method computes are in `03a-operator-semantics.md`"); `04-constraint-generation.md`'s
       double-dispatch section points at the counterfactual formula it currently elides.
 

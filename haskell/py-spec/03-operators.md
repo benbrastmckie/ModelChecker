@@ -4,6 +4,10 @@
 > The `Operator` / `DefinedOperator` / `OperatorCollection` abstraction, the six semantic
 > methods every concrete operator implements, and definitional expansion.
 
+This document covers the operator *abstraction* — method shapes, not formulas. The actual truth,
+falsity, verification, and falsification conditions each method computes, for every operator in
+all four theories, are in [`03a-operator-semantics.md`](./03a-operator-semantics.md).
+
 ## The `Operator` base class
 
 Only three class attributes and the constructor are declared on the base class:
@@ -139,6 +143,7 @@ operator) where all three registers independently re-derive alternative worlds.
 
 ## Related
 
+- [Operator semantics](./03a-operator-semantics.md) — the formulas each method computes
 - [Syntax and the AST](./02-syntax-and-ast.md) — the phase-2 type update that drives expansion
 - [Constraint generation](./04-constraint-generation.md) — the double dispatch that calls these
   methods
