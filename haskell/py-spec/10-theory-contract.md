@@ -70,8 +70,9 @@ flowchart TD
 **Core may never import `theory_lib`** — not via a static import, a function-local import, or an
 `importlib` string literal — **and may never hardcode a theory name.** `theory_lib` may import
 core freely. Only the upper layer is permitted to know both. This is enforced by an AST-walking
-test, not merely documented, and it holds in practice: the theory library imports core in roughly
-ninety places; core imports the theory library in zero.
+test, not merely documented, and it holds in practice: the theory library imports core
+pervasively (dozens of files, a few hundred import statements); core imports the theory library
+in exactly zero.
 
 ## The executable contracts (authoritative over any prose)
 

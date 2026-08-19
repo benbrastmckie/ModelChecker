@@ -46,6 +46,14 @@ This is the central concept a port must preserve: the constraint layer only forc
 kind of difference; genuine novelty is a separate, more expensive check run after a candidate
 model already exists.
 
+One verified defect lives exactly here (known-defect #1 in
+[`14-porting-notes.md`](./14-porting-notes.md)): the generic difference-constraint generator in
+[`iterate/constraints.py`](../../code/src/model_checker/iterate/constraints.py) enumerates
+candidate states via `_generate_input_combinations`, whose unary case iterates
+`range(domain_size)` with the **bit-width `N`** passed as `domain_size` — the first `N` states,
+not the `2^N` states of the space. The syntactic-difference tier is therefore weaker than
+designed, and the isomorphism tier absorbs the duplicates it lets through.
+
 ## Rebuilding MODEL 2+
 
 The next model is not simply "the next thing the solver returns" — it must be *re-solved* under
@@ -62,14 +70,18 @@ forced to exactly the intended model — then interpret it.
 
 Each candidate and every previous model is turned into a graph — one node per world, edges for
 the theory's accessibility relation — and compared with a general graph-isomorphism algorithm.
-**What the check does not see matters as much as what it does**: the definitive comparison is a
-pure structural isomorphism test with no attribute matching, so it is blind to proposition
-valuations and to which relation produced which edge. Two models with identical shape but
-different truth-value assignments are declared isomorphic and skipped; conversely, only the
-declared accessibility relation is encoded in the graph at all, so any hyperintensional structure
-that lives elsewhere (verifier/falsifier content, parthood) is invisible to the check entirely.
-A port using this technique should attribute-match the comparison rather than reproduce a
-structure-only check.
+**What the check does not see matters as much as what it does** — and the blindness is more
+specific than "no attributes": the graph builder in
+[`iterate/graph.py`](../../code/src/model_checker/iterate/graph.py) **computes and stores
+per-node sentence-letter truth-value properties on every world node**, but the comparison then
+calls the isomorphism check with **no node-match or edge-match arguments**, so that computed
+data is built and silently ignored. The check is attribute-blind *by omitted argument*, not by
+design. Two models with identical shape but different truth-value assignments are declared
+isomorphic and skipped; and only the declared accessibility relation is encoded as edges, so
+hyperintensional structure living elsewhere (verifier/falsifier content, parthood) is invisible
+to the check entirely. The consequence for a port: attribute-matching the comparison is a
+**one-argument change** to the isomorphism call — the node data is already there — not a rebuild
+of the graph encoding.
 
 ## Termination budgets
 

@@ -86,7 +86,11 @@ by (formula, model) or avoid needing proposition identity across models at all.
 - [`models/proposition.py`](../../code/src/model_checker/models/proposition.py) —
   `PropositionDefaults`: construction, aliasing, identity, the abstract-by-guard contract
 - [`theory_lib/logos/semantic/proposition.py`](../../code/src/model_checker/theory_lib/logos/semantic/proposition.py)
-  — `find_verifiers_and_falsifiers`, the bilateral scheme
+  — `find_proposition`, which drives the bilateral scheme by *calling*
+  `find_verifiers_and_falsifiers`; that method is defined per-operator across the four logos
+  subtheory operator files (see [`03a-operator-semantics.md`](./03a-operator-semantics.md)),
+  with its shared signature declared in
+  [`theory_lib/logos/protocols.py`](../../code/src/model_checker/theory_lib/logos/protocols.py)
 - [`theory_lib/exclusion/operators.py`](../../code/src/model_checker/theory_lib/exclusion/operators.py)
   — `compute_verifiers`, the unilateral scheme
 - [`theory_lib/bimodal/operators.py`](../../code/src/model_checker/theory_lib/bimodal/operators.py)

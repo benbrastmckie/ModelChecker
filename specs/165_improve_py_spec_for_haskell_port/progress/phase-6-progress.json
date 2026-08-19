@@ -1,0 +1,53 @@
+{
+  "phase": 6,
+  "phase_name": "Error Taxonomy Survey and Iteration Corrections",
+  "started_at": "2026-08-19T06:47:24Z",
+  "last_updated": "2026-08-19T06:50:29Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Survey error modules, add taxonomy + edge-case tables to 12-",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/12-settings-and-registry.md"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Fold A7 settings/registry items into 12-",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/12-settings-and-registry.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Fix 08-iteration.md two inaccuracies",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/08-iteration.md"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "Fix 07- attribution and 10- import-count wording",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/07-propositions.md",
+        "haskell/py-spec/10-theory-contract.md"
+      ]
+    }
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "deviations": [
+    {
+      "task_id": "6.1",
+      "description": "Survey the nine error modules",
+      "type": "altered",
+      "reason": "Eight error modules exist on disk (the research report's own path list also names eight); table documents what was found per the phase scope hypothesis",
+      "annotation": "*(deviation: altered \u2014 eight modules found, not nine)*"
+    }
+  ],
+  "handoff_count": 0
+}

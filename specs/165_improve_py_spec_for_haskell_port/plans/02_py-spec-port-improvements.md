@@ -341,13 +341,13 @@ determinism/ordering contract for set-typed data.
 
 ---
 
-### Phase 6: Error Taxonomy Survey and Iteration Corrections [NOT STARTED]
+### Phase 6: Error Taxonomy Survey and Iteration Corrections [COMPLETED]
 
 **Goal**: Close A5, A4, and the two minor accuracy nits — map the exception hierarchy onto the
 strict/absorb/warn policy with an edge-case table; fix `08-iteration.md`'s two inaccuracies.
 
 **Tasks**:
-- [ ] Survey the nine error modules (`output/errors.py`, `settings/errors.py`,
+- [x] Survey the nine error modules (`output/errors.py`, `settings/errors.py`,
       `iterate/errors.py`, `models/errors.py`, `theory_lib/errors.py`, `syntactic/errors.py`,
       `builder/error_types.py`, `builder/errors.py`) and add to
       `12-settings-and-registry.md`: a table mapping each exception family to the
@@ -355,20 +355,20 @@ strict/absorb/warn policy with an edge-case table; fix `08-iteration.md`'s two i
       `N` out of `[1, MAX_N]` (raises `SemanticError` — name the type and range in the settings
       table), N=0, empty premises, empty conclusions, malformed formula (the two parser gaps
       from 02-), unknown operator, unknown theory.
-- [ ] Fold in A7 settings items while in 12-: settings type/range validators beyond the bare
+- [x] Fold in A7 settings items while in 12-: settings type/range validators beyond the bare
       type column; the registry's full API surface (`set_adapter`, `set_default_theory`,
       `get_default_theory`, `iter_theories`).
-- [ ] Fix `08-iteration.md`: (a) cite `iterate/constraints.py` directly (file-level link,
+- [x] Fix `08-iteration.md`: (a) cite `iterate/constraints.py` directly (file-level link,
       symbol named in prose: `_generate_input_combinations` iterating `range(domain_size)`
       where the width, not the state count, bounds the range) for known-defect #1, instead of
       deferring the citation to 14-; (b) correct "blind to proposition valuations" — per-node
       truth-value properties are computed and stored by the graph builder, then ignored because
       the isomorphism call passes no node/edge matcher: attribute-blind by omitted argument,
       not by design; the tree's recommended fix is a one-argument change, not a rebuild.
-- [ ] Fix `07-propositions.md`'s source-files list: `proposition.py` calls
+- [x] Fix `07-propositions.md`'s source-files list: `proposition.py` calls
       `find_verifiers_and_falsifiers`; it is defined per-operator across subtheory files plus
       the protocol.
-- [ ] Soften `10-theory-contract.md`'s "roughly ninety places" import-count claim to the
+- [x] Soften `10-theory-contract.md`'s "roughly ninety places" import-count claim to the
       measured order of magnitude or reword to be count-free.
 
 **Timing**: 1.5 hours
