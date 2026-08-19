@@ -52,6 +52,27 @@ flowchart TD
 A port should make "evaluation scheme" an explicit, named abstraction with at least these three
 inhabitants, rather than three unrelated method names a caller must discover by inspection.
 
+## Ordering and determinism of extracted sets
+
+The verifier/falsifier sets returned by post-solve extraction are Python `set` objects —
+**unordered by contract**. Iteration order over them is incidental (hash-based) and nothing in
+the extraction path canonicalizes it. Two consequences, both verified against source:
+
+- **The displayed order is canonical, but by an unexpected key.** Every set the output shows
+  passes through a formatting helper that sorts elements **lexicographically on their rendered
+  fusion-notation names** (`bitvec_to_substates` then a string sort) — so `{a.b.c, b, b.c}`
+  prints in that order even though the underlying states are `7, 2, 6`. Displayed output is
+  therefore deterministic run-to-run, but it is *string* order, not bit-vector order.
+- **In-memory order is not a contract anywhere.** No computation depends on set iteration
+  order; only the display path imposes an order, and only at the last moment.
+
+For a port: use ordered sets (`Data.Set` over the state's numeric value is fine) and define a
+canonical order — sorted by bit-vector value is the natural choice — for your own golden-test
+comparisons. Compare *set contents*, not rendered strings, against captured Python output; if
+you do compare rendered display (see the worked trace,
+[`07a-worked-trace.md`](./07a-worked-trace.md)), reproduce the lexicographic-on-names sort,
+which disagrees with numeric order whenever state-name lengths differ.
+
 ## Identity is by formula name only
 
 A proposition's equality and hash are computed **from the sentence's formula name alone** — so
@@ -72,6 +93,8 @@ by (formula, model) or avoid needing proposition identity across models at all.
   — `find_truth_condition`, the temporal-profile scheme
 - [`models/structure.py`](../../code/src/model_checker/models/structure.py) — `interpret`, the
   bottom-up attachment walk
+- [`utils/formatting.py`](../../code/src/model_checker/utils/formatting.py) — the sorted set
+  rendering behind the display-order guarantee
 
 ## Related
 

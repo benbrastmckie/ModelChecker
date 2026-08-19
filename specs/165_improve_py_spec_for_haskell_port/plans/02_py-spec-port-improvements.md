@@ -296,27 +296,27 @@ Skolemized, why, the exact function signatures, and the constraints generated.
 
 ---
 
-### Phase 5: Worked End-to-End Trace and Determinism Contract [NOT STARTED]
+### Phase 5: Worked End-to-End Trace and Determinism Contract [COMPLETED]
 
 **Goal**: Close P1.4 and A6 — one valid example and one countermodel traced through all five
 pipeline stages with actual constraints and actual verifier/falsifier output; state the
 determinism/ordering contract for set-typed data.
 
 **Tasks**:
-- [ ] Select anchoring examples from
+- [x] Select anchoring examples from
       `theory_lib/logos/subtheories/extensional/examples.py` (`EXT_TH_1` for validity,
       `EXT_CM_1` or similar for a countermodel) — chosen because the extensional fragment keeps
       the constraint dump small; name the anchors in the document so future editors re-run them.
-- [ ] Run each via `cd code && ./dev_cli.py` (with print-constraints settings as needed) to
+- [x] Run each via `cd code && ./dev_cli.py` (with print-constraints settings as needed) to
       capture: the actual generated constraint groups (frame, atomic, premise, conclusion), the
       solver verdict, and for the countermodel the actual state space, world set, and
       verifier/falsifier sets per sentence letter.
-- [ ] Create `haskell/py-spec/07a-worked-trace.md`: stage-by-stage narrative (parse → semantics
+- [x] Create `haskell/py-spec/07a-worked-trace.md`: stage-by-stage narrative (parse → semantics
       → constraints → solve → interpret) showing at each stage the concrete artifact, with
       constraints rendered in the tree's mathematical register alongside the raw output;
       conclude with a "use as golden test" section telling a porter exactly what to reproduce
       and what is incidental.
-- [ ] Determine (from `find_proposition` in `theory_lib/logos/semantic/proposition.py` and the
+- [x] Determine (from `find_proposition` in `theory_lib/logos/semantic/proposition.py` and the
       display path) whether verifier/falsifier display order is canonical or incidental
       Python-set iteration order; state the contract explicitly in `07-propositions.md` (and
       note it in the trace where output is shown). If order is incidental, say so and recommend
