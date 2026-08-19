@@ -627,7 +627,7 @@ registered but raises `NotImplementedError` as nonfunctional rather than omittin
 
 ---
 
-### Phase 8: Porting notes [NOT STARTED]
+### Phase 8: Porting notes [COMPLETED]
 
 **Goal**: Give a reader the cross-cutting judgement layer: what must be preserved, what must not
 be reproduced, and what is known to be wrong.
