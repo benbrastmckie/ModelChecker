@@ -4,13 +4,13 @@
     {
       "project_number": 164,
       "project_name": "populate_py_spec_python_architecture",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "description": "Populate haskell/py_spec.md with a concise description of the core architecture for the Python implementation of the ModelChecker, including the modular compiler design for generating SMT-LIB constraints from sentences expressed in an extensible DSL and the host of features and tools for adjusting and evaluating the countermodels that the ModelChecker finds",
       "topic": "architecture",
       "created": "2026-08-18T23:21:26Z",
-      "last_updated": "2026-08-19T05:36:00Z",
-      "session_id": "sess_1787116669_26ec2d",
+      "last_updated": "2026-08-19T05:52:43Z",
+      "session_id": "sess_1787118251_14c817",
       "memory_candidates": [
         {
           "content": "In the ModelChecker repo, prose documentation (92 markdown files under docs/ and code/docs/) is materially stale in specific verified ways: wrong operator method signatures in syntactic/README.md, a fully documented --sequential workflow whose flag raises NotImplementedError, three iterator settings documented but absent from source, and a max_time unit inversion. The authoritative contracts are four executable test files instead: code/tests/test_layering.py (three-layer dependency direction), theory_lib/tests/test_theory_conformance.py (canonical theory module set), code/tests/cli/test_docs_flag_matrix.py (parser-derived CLI flag guard), and code/tests/packaging/. Verify architectural claims against these and against source, never against docs/architecture/.",
@@ -60,6 +60,11 @@
           "path": "specs/164_populate_py_spec_python_architecture/reports/01_python-architecture-spec.md",
           "type": "report",
           "summary": "Source-verified architectural specification of the Python ModelChecker across five territories (compiler pipeline, core utilities, tools/features, UI/CLI, theory library), written as a porting spec with 30+ verified doc/source divergences and prioritized improvement opportunities"
+        },
+        {
+          "path": "specs/164_populate_py_spec_python_architecture/plans/01_py-spec-document-tree.md",
+          "type": "plan",
+          "summary": "9 phases, 3 dependency waves; each phase names its exact findings-file source sections, diagrams, and per-file verification."
         }
       ],
       "next_artifact_number": 2
