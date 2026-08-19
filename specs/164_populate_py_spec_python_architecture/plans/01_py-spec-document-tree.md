@@ -282,7 +282,7 @@ with the index naming exactly the 14 filenames in D2.
 
 ---
 
-### Phase 2: The compiler front end [NOT STARTED]
+### Phase 2: The compiler front end [COMPLETED]
 
 **Goal**: Specify the DSL surface syntax, the parser, the AST and its lifecycle, and the operator
 abstraction.
