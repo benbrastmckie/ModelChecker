@@ -500,7 +500,7 @@ contract, saving, `--maximize`, progress) for `09`; report §3.1-3.3. The dead-c
 
 ---
 
-### Phase 6: The theory contract and the theory catalog [NOT STARTED]
+### Phase 6: The theory contract and the theory catalog [COMPLETED]
 
 **Goal**: Specify what makes something a theory in this framework, and describe the four shipped
 theories as instances of that contract.
