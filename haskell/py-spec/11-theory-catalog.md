@@ -9,7 +9,7 @@
 | Theory | Model theory | Atomic primitives | Distinctive machinery | Operator count (v1.3.3) |
 |---|---|---|---|---|
 | **logos** (flagship) | bilateral truthmaker semantics; state lattice under fusion/parthood; worlds are maximal possible states | `verify`, `falsify`, `possible` | the subtheory system; counterfactuals via maximal compatible parts | 18, all subtheories loaded |
-| **exclusion** | unilateral truthmaker semantics; verifiers only | `verify`, primitive `excludes`; `possible` is *derived* | per-formula Skolem witness functions making minimality-quantified negation first-order | 4 |
+| **exclusion** | unilateral truthmaker semantics; verifiers only | `verify`, primitive `excludes`; `possible` is *derived* | per-formula Skolem witness functions making minimality-quantified negation first-order — specified in [`11a-exclusion-witnesses.md`](./11a-exclusion-witnesses.md) | 4 |
 | **imposition** | Kit Fine's counterfactual semantics over the same state lattice as logos | logos's primitives plus a primitive ternary `imposition` relation | Fine's four frame conditions; a mode that turns a run into a meta-proof relating `imposition` to logos's alternative-worlds definition | 13, including both counterfactual styles side by side |
 | **bimodal** | temporal + modal logic over world histories — a genuinely different model theory | a binary `truth_condition` (no verifiers at all); a ternary task relation; world histories indexed by integer time | evaluation points are (world-id, time) pairs; frame axioms aligned with an independent formal (Lean) specification | 17 |
 
@@ -32,6 +32,20 @@ adding only its own primitive relation and counterfactual operator. Bimodal is d
 — it shares only the abstract core classes and the operator/collection machinery, and
 re-implements everything else, because its model theory (world histories, no verifiers, integer
 time) has no state-lattice counterpart to reuse.
+
+## Exclusion's witness machinery
+
+The exclusion theory's distinctive machinery deserves more than its table cell: unilateral
+negation's verification condition existentially quantifies over *functions* — for `s` to verify
+`¬A`, witness functions `h, y` must map every verifier of `A` to an excluder of one of its
+parts, with `s` the least state containing all the excluders. The implementation Skolemizes
+that second-order condition into a fresh pair of uninterpreted Z3 functions
+`h_f, y_f : BitVec(N) → BitVec(N)` per negation subformula, registered and keyed by formula
+string in a dedicated registry, inlined into every constraint that mentions the negation, and
+queried back out of the found model for post-solve verifier computation. Getting this wrong is
+the single likeliest way to mis-port the theory — the complete specification (the higher-order
+condition, the Skolemization step, exact signatures, registry lifecycle, generated constraints,
+and the known failure modes) is [`11a-exclusion-witnesses.md`](./11a-exclusion-witnesses.md).
 
 ## Worked example: the counterfactual operator's three registers
 

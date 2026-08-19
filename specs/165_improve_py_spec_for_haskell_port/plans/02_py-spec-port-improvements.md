@@ -250,17 +250,17 @@ document actual reuse boundaries found.
 
 ---
 
-### Phase 4: Exclusion Witness-Predicate Specification [NOT STARTED]
+### Phase 4: Exclusion Witness-Predicate Specification [COMPLETED]
 
 **Goal**: Close A3 — specify the Skolem witness-predicate mechanism completely: what is
 Skolemized, why, the exact function signatures, and the constraints generated.
 
 **Tasks**:
-- [ ] Read `theory_lib/exclusion/semantic/registry.py` (WitnessRegistry, ~126 lines),
+- [x] Read `theory_lib/exclusion/semantic/registry.py` (WitnessRegistry, ~126 lines),
       `theory_lib/exclusion/semantic/core.py` (~572 lines), and
       `theory_lib/exclusion/semantic/constraints.py` (~175 lines) in full; cross-check against
       `theory_lib/exclusion/docs/` and the academic source the theory implements.
-- [ ] Create `haskell/py-spec/11a-exclusion-witnesses.md`: (1) the minimality-quantified
+- [x] Create `haskell/py-spec/11a-exclusion-witnesses.md`: (1) the minimality-quantified
       negation condition of unilateral semantics as a higher-order formula — the thing being
       replaced; (2) the Skolemization step — why witness *functions* make it first-order;
       (3) the exact signatures: a fresh pair `h, y : BitVec(N) → BitVec(N)` per formula,
@@ -270,10 +270,10 @@ Skolemized, why, the exact function signatures, and the constraints generated.
       failure modes a port must avoid (this mechanism is a documented source of published
       errata in the source literature — say what goes wrong when witnesses are shared or keyed
       incorrectly).
-- [ ] Expand `11-theory-catalog.md`'s exclusion row/section from the five-word phrase to a
+- [x] Expand `11-theory-catalog.md`'s exclusion row/section from the five-word phrase to a
       short paragraph plus link to `11a-`, matching the depth the catalog already gives the
       logos counterfactual walkthrough.
-- [ ] Add a Mermaid diagram only if it shows mechanism (e.g. formula → registry → fresh
+- [x] Add a Mermaid diagram only if it shows mechanism (e.g. formula → registry → fresh
       function pair → constraint sites); no decorated lists (README convention).
 
 **Timing**: 2 hours
