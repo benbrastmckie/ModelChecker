@@ -564,7 +564,7 @@ version 1.3.3" rather than as timeless facts.
 
 ---
 
-### Phase 7: Settings, registry, examples, and the CLI [NOT STARTED]
+### Phase 7: Settings, registry, examples, and the CLI [COMPLETED]
 
 **Goal**: Specify the configuration model and the surface through which a user actually drives the
 system.
