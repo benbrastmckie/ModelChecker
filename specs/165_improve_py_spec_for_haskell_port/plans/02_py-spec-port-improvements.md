@@ -487,15 +487,15 @@ terms, README map covering the new satellites, and a final consistency audit of 
 
 ## Testing & Validation
 
-- [ ] Every formula in `03a-`, `05-`, and `11a-` cross-checked against its cited Python source
+- [x] Every formula in `03a-`, `05-`, and `11a-` cross-checked against its cited Python source
       file during the authoring phase (semantic equivalence, mathematical notation).
-- [ ] Worked-trace output captured from a real `./dev_cli.py` run with the command recorded;
+- [x] Worked-trace output captured from a real `./dev_cli.py` run with the command recorded;
       re-runnable by a reviewer.
-- [ ] All relative links in `haskell/py-spec/` resolve; no line-anchored links introduced.
-- [ ] All Mermaid fences syntactically valid (render or careful syntax review).
-- [ ] Task-reference lint clean over `haskell/py-spec/` (deliverable tree).
-- [ ] Compression phases verified by diff read-through: no cross-referenced invariant deleted.
-- [ ] README map lists all 19 documents; each document's back-link and `## Source files`
+- [x] All relative links in `haskell/py-spec/` resolve; no line-anchored links introduced.
+- [x] All Mermaid fences syntactically valid (render or careful syntax review).
+- [x] Task-reference lint clean over `haskell/py-spec/` (deliverable tree).
+- [x] Compression phases verified by diff read-through: no cross-referenced invariant deleted.
+- [x] README map lists all 19 documents; each document's back-link and `## Source files`
       section present.
 
 ## Artifacts & Outputs
