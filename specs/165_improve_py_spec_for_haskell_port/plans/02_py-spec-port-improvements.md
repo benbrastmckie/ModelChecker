@@ -204,27 +204,27 @@ count to source, not to the catalog claim.
 
 ---
 
-### Phase 3: Operator Semantics Document — Exclusion, Imposition, Bimodal [NOT STARTED]
+### Phase 3: Operator Semantics Document — Exclusion, Imposition, Bimodal [COMPLETED]
 
 **Goal**: Close the remaining half of A1 — extend `03a-operator-semantics.md` with the other
 three theories' operator truth conditions.
 
 **Tasks**:
-- [ ] Enumerate operators from `theory_lib/exclusion/operators.py`,
+- [x] Enumerate operators from `theory_lib/exclusion/operators.py`,
       `theory_lib/imposition/operators.py`, and bimodal's operators; confirm counts (4 / 13 /
       17 per the catalog) and identify which imposition operators are logos reuse (cite the
       logos table rather than duplicating) versus imposition-specific (the primitive
       counterfactual over the `imposition` relation).
-- [ ] Exclusion section: the four unilateral operators' conditions, verifier-only register,
+- [x] Exclusion section: the four unilateral operators' conditions, verifier-only register,
       derived `possible`; where a condition depends on witness predicates, state the surface
       form here and link forward to `11a-exclusion-witnesses.md` for the mechanism (that doc is
       Phase 4's deliverable; use the filename now, content lands in parallel).
-- [ ] Imposition section: the primitive ternary `imposition` relation's role in the
+- [x] Imposition section: the primitive ternary `imposition` relation's role in the
       counterfactual truth condition; Fine's four frame conditions named with their formulas;
       the side-by-side second counterfactual style noted.
-- [ ] Bimodal section: `truth_condition` register (no verifiers), (world-id, time) evaluation
+- [x] Bimodal section: `truth_condition` register (no verifiers), (world-id, time) evaluation
       points, task-relation-dependent temporal/modal operator conditions.
-- [ ] Keep the per-theory sections parallel in shape so a porter can read one theory's block
+- [x] Keep the per-theory sections parallel in shape so a porter can read one theory's block
       and know where everything is in the others.
 
 **Timing**: 2 hours
