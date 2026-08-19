@@ -1,7 +1,7 @@
 # Implementation Plan: Task #165
 
 - **Task**: 165 - Improve py-spec for Haskell port
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 14 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/165_improve_py_spec_for_haskell_port/reports/01_haskell-porting-readiness.md
