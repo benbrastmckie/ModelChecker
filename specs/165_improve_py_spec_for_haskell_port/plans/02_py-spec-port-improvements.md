@@ -1,7 +1,7 @@
 # Implementation Plan: Task #165
 
 - **Task**: 165 - Improve py-spec for Haskell port
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 14 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/165_improve_py_spec_for_haskell_port/reports/01_haskell-porting-readiness.md
@@ -101,33 +101,33 @@ Phases within the same wave can execute in parallel (they touch disjoint files).
 
 ---
 
-### Phase 1: Helper Predicates, Frame Constraints, and Primitive Signatures [NOT STARTED]
+### Phase 1: Helper Predicates, Frame Constraints, and Primitive Signatures [COMPLETED]
 
 **Goal**: Close A2 — define every load-bearing semantic helper predicate and state the exact,
 exhaustive frame-constraint list, plus the exact Z3 uninterpreted-function signatures for all
 theory primitives.
 
 **Tasks**:
-- [ ] Read `theory_lib/logos/semantic/core.py` (helper definitions and `__init__` frame
+- [x] Read `theory_lib/logos/semantic/core.py` (helper definitions and `__init__` frame
       constraints), plus the analogous exclusion/imposition/bimodal semantic cores for their
       primitives.
-- [ ] Extend `05-state-encoding.md` with a **helper-predicate table** in the existing encoding
+- [x] Extend `05-state-encoding.md` with a **helper-predicate table** in the existing encoding
       table's mathematical register: `compatible(x,y) := possible(x ⊔ y)`;
       `maximal(w) := ∀x. compatible(x,w) → x ⊑ w`; `is_world(w) := possible(w) ∧ maximal(w)`;
       `max_compatible_part(z,x,w)` (the maximality-of-compatible-part condition);
       `is_alternative(u,x,w)` (world u contains x and a maximal w-part compatible with x). Each
       row cites its defining file (file-level link, no line anchors).
-- [ ] Add a **primitive-signature table**: `verify, falsify : BitVec(N) × AtomSort → Bool`,
+- [x] Add a **primitive-signature table**: `verify, falsify : BitVec(N) × AtomSort → Bool`,
       `possible : BitVec(N) → Bool` as genuine uninterpreted `z3.Function` declarations;
       exclusion's `excludes`; imposition's ternary `imposition`; bimodal's `truth_condition` and
       task relation — the exact signature form an SMT binding needs.
-- [ ] Correct `04-constraint-generation.md`'s open-ended "model-shape axioms" framing: logos
+- [x] Correct `04-constraint-generation.md`'s open-ended "model-shape axioms" framing: logos
       declares exactly two frame constraints — `possibility_downward_closure` and
       `is_world(main_world)` — and the list is closed, not illustrative. Cross-link to the new
       05- tables. State (or link to) the frame-constraint lists for the other three theories
       (imposition's four Fine frame conditions belong in `11a-`/11- treatment but are named
       here as existing).
-- [ ] Keep all additions in theory-agnostic notation; Python names appear only as cited symbol
+- [x] Keep all additions in theory-agnostic notation; Python names appear only as cited symbol
       names in prose.
 
 **Timing**: 2 hours

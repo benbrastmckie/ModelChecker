@@ -19,7 +19,7 @@ next_project_number: 166
 
 ### Architecture
 
-165 [PLANNED] — Improve haskell/py-spec/ so it is sufficient as a porting specifi
+165 [IMPLEMENTING] — Improve haskell/py-spec/ so it is sufficient as a porting specifi
 
 ### Semantics
 
@@ -36,7 +36,7 @@ next_project_number: 166
 ## Tasks
 
 ### 165. Improve py spec for haskell port
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: markdown
 - **Topic**: architecture
 - **Dependencies**: None

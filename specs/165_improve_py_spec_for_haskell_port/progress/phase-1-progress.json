@@ -1,0 +1,48 @@
+{
+  "phase": 1,
+  "phase_name": "Helper Predicates, Frame Constraints, and Primitive Signatures",
+  "started_at": "2026-08-18T00:00:00Z",
+  "last_updated": "2026-08-19T06:35:39Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Read semantic cores for all four theories",
+      "status": "done",
+      "files_touched": []
+    },
+    {
+      "id": 2,
+      "description": "Extend 05-state-encoding.md with helper-predicate table",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/05-state-encoding.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Add primitive-signature table to 05-state-encoding.md",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/05-state-encoding.md"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "Correct 04-constraint-generation.md frame-constraint framing",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/04-constraint-generation.md"
+      ]
+    },
+    {
+      "id": 5,
+      "description": "Notation audit",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": 5,
+  "approaches_tried": [],
+  "deviations": [],
+  "handoff_count": 0
+}
