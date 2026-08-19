@@ -6,7 +6,7 @@ next_project_number: 165
 
 ## Task Order
 
-*Updated 2026-08-18. Generated from state.json dependency graph.*
+*Updated 2026-08-19. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
@@ -19,7 +19,7 @@ next_project_number: 165
 
 ### Architecture
 
-164 [NOT STARTED] — Populate haskell/py_spec.md with a concise description of the cor
+164 [RESEARCHED] — Populate haskell/py_spec.md with a concise description of the cor
 
 ### Semantics
 
@@ -36,10 +36,11 @@ next_project_number: 165
 ## Tasks
 
 ### 164. Populate py spec python architecture
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: None
+- **Research**: [164_populate_py_spec_python_architecture/reports/01_python-architecture-spec.md]
 
 **Description**: Populate haskell/py_spec.md with a concise description of the core architecture for the Python implementation of the ModelChecker, including the modular compiler design for generating SMT-LIB constraints from sentences expressed in an extensible DSL and the host of features and tools for adjusting and evaluating the countermodels that the ModelChecker finds
 

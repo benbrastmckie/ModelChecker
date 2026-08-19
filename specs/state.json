@@ -4,12 +4,65 @@
     {
       "project_number": 164,
       "project_name": "populate_py_spec_python_architecture",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
       "description": "Populate haskell/py_spec.md with a concise description of the core architecture for the Python implementation of the ModelChecker, including the modular compiler design for generating SMT-LIB constraints from sentences expressed in an extensible DSL and the host of features and tools for adjusting and evaluating the countermodels that the ModelChecker finds",
       "topic": "architecture",
       "created": "2026-08-18T23:21:26Z",
-      "last_updated": "2026-08-18T23:21:26Z"
+      "last_updated": "2026-08-19T05:36:00Z",
+      "session_id": "sess_1787116669_26ec2d",
+      "memory_candidates": [
+        {
+          "content": "In the ModelChecker repo, prose documentation (92 markdown files under docs/ and code/docs/) is materially stale in specific verified ways: wrong operator method signatures in syntactic/README.md, a fully documented --sequential workflow whose flag raises NotImplementedError, three iterator settings documented but absent from source, and a max_time unit inversion. The authoritative contracts are four executable test files instead: code/tests/test_layering.py (three-layer dependency direction), theory_lib/tests/test_theory_conformance.py (canonical theory module set), code/tests/cli/test_docs_flag_matrix.py (parser-derived CLI flag guard), and code/tests/packaging/. Verify architectural claims against these and against source, never against docs/architecture/.",
+          "category": "INSIGHT",
+          "source_artifact": "specs/164_populate_py_spec_python_architecture/reports/01_python-architecture-spec.md",
+          "confidence": 0.9,
+          "suggested_keywords": [
+            "modelchecker",
+            "documentation-staleness",
+            "executable-contracts",
+            "test_layering",
+            "theory-conformance",
+            "doc-source-divergence"
+          ]
+        },
+        {
+          "content": "Researching a large multi-package codebase for a specification-grade deliverable works well as parallel agents with exclusive file-ownership territories plus three enforced contracts: (1) every agent MUST write a findings file (analysis-only response = failed dispatch), (2) every substantive claim cites file.py:LINE from a file actually read, (3) documentation is treated as suspect and each agent produces an explicit 'Doc/Source Divergences' section. The lead session runs the documentation sweep and cross-cutting invariants (layering, packaging, concurrency, test scale) that no single territory owns, then synthesizes. This produced ~3,750 lines of grounded findings across five territories with zero overlap and surfaced four live defects incidentally.",
+          "category": "TECHNIQUE",
+          "source_artifact": "specs/164_populate_py_spec_python_architecture/reports/01_python-architecture-spec.md",
+          "confidence": 0.85,
+          "suggested_keywords": [
+            "parallel-research",
+            "territory-contracts",
+            "hard-mode",
+            "adversarial-verification",
+            "codebase-architecture-research"
+          ]
+        },
+        {
+          "content": "The ModelChecker's core architecture is a five-stage pipeline assembled by hand in five separate places: Syntax(premises, conclusions, operator_collection) -> Semantics(settings) -> ModelConstraints(settings, syntax, semantics, proposition_class) -> ModelStructure(model_constraints, settings) which SOLVES IN ITS CONSTRUCTOR -> model_structure.interpret(sentences). It produces exactly four labelled constraint groups (frame, model, premise, conclusion) and encodes countermodel search: premises true and conclusions false at main_point, so sat = invalid argument and unsat = valid. States are BitVec(N), fusion is bitwise OR, part-of is (s|t == t), and quantifiers are finite expansions over all 2^N values rather than native Z3 quantifiers.",
+          "category": "PATTERN",
+          "source_artifact": "specs/164_populate_py_spec_python_architecture/reports/01_python-architecture-spec.md",
+          "confidence": 0.9,
+          "suggested_keywords": [
+            "modelchecker",
+            "pipeline",
+            "ModelConstraints",
+            "constraint-generation",
+            "bitvector-encoding",
+            "countermodel-search",
+            "z3"
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "specs/164_populate_py_spec_python_architecture/reports/01_python-architecture-spec.md",
+          "type": "report",
+          "summary": "Source-verified architectural specification of the Python ModelChecker across five territories (compiler pipeline, core utilities, tools/features, UI/CLI, theory library), written as a porting spec with 30+ verified doc/source divergences and prioritized improvement opportunities"
+        }
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 162,
