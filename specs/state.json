@@ -4,12 +4,12 @@
     {
       "project_number": 164,
       "project_name": "populate_py_spec_python_architecture",
-      "status": "planned",
+      "status": "completed",
       "task_type": "python",
       "description": "Populate haskell/py_spec.md with a concise description of the core architecture for the Python implementation of the ModelChecker, including the modular compiler design for generating SMT-LIB constraints from sentences expressed in an extensible DSL and the host of features and tools for adjusting and evaluating the countermodels that the ModelChecker finds",
       "topic": "architecture",
       "created": "2026-08-18T23:21:26Z",
-      "last_updated": "2026-08-19T05:52:43Z",
+      "last_updated": "2026-08-19T06:07:24Z",
       "session_id": "sess_1787118251_14c817",
       "memory_candidates": [
         {
@@ -65,9 +65,15 @@
           "path": "specs/164_populate_py_spec_python_architecture/plans/01_py-spec-document-tree.md",
           "type": "plan",
           "summary": "9 phases, 3 dependency waves; each phase names its exact findings-file source sections, diagrams, and per-file verification."
+        },
+        {
+          "path": "specs/164_populate_py_spec_python_architecture/summaries/01_py-spec-document-tree-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for the 15-file haskell/py-spec/ Python architecture specification tree."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Built haskell/py-spec/ as a flat, README-mapped tree of 15 files (README.md plus 14 numbered documents) specifying the Python ModelChecker's architecture for a Haskell port, source-grounded via the task's research findings. Deleted haskell/py_spec.md per decision D8, carrying its blurb into the new README, and marked the corresponding haskell/TODO.md bullet done."
     },
     {
       "project_number": 162,

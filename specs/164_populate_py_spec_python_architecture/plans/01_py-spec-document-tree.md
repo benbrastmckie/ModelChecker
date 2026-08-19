@@ -1,7 +1,7 @@
 # Implementation Plan: Python Architecture Spec Document Tree
 
 - **Task**: 164 - Populate the Python architecture specification for the ModelChecker
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 8.5 hours
 - **Dependencies**: None
 - **Research Inputs**:
