@@ -49,7 +49,7 @@ A theory must supply, on its model-structure class: `print_to`, `print_all`, `pr
 `print_evaluation`. Its proposition class must supply `print_proposition`. Every operator must
 supply `print_method`, normally delegating to one of three base helpers provided by the operator
 base class (a generic recursive printer, and two variants for printing over worlds or over
-times — see [`03-operators.md`](./03-operators.md)).
+times).
 
 ## Recursive truth-tree printing
 
@@ -69,8 +69,8 @@ wrapped a second time.
 `--maximize` compares theories, but its metric is **the maximum model size `N` each theory can
 still solve within the time limit** — not validity agreement between theories. Each theory runs
 in its own process (one worker per theory, consistent with the single-threaded construction
-invariant in [`06-solver-and-results.md`](./06-solver-and-results.md)), incrementing `N` until a
-run fails or times out; results are sorted and printed as plain text, bypassing the saving
+invariant that governs model building), incrementing `N` until a run fails or times out; results
+are sorted and printed as plain text, bypassing the saving
 subsystem entirely. Genuine cross-theory *semantic* comparison — the same example evaluated under
 several theories, with operator-name translation dictionaries — is just the ordinary run path,
 not a special mode.

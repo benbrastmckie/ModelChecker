@@ -8,8 +8,8 @@
 
 A `Proposition` is **the semantic value of one sentence in one solved model** — the object that
 knows how to compute and print a truth value once a model exists. Propositions are constructed
-**eagerly, bottom-up, exactly once per solved model**: `interpret` (stage 5 of
-[`01-pipeline.md`](./01-pipeline.md)) walks the sentence tree, recursing into arguments first so
+**eagerly, bottom-up, exactly once per solved model**: `interpret` (the pipeline's final stage)
+walks the sentence tree, recursing into arguments first so
 that every subformula's proposition exists before its parent's is built, and attaches one
 `Proposition` per `Sentence` node. Nothing prevents calling `interpret` twice — a second call
 silently overwrites the propositions with fresh, equal ones.
@@ -18,7 +18,7 @@ silently overwrites the propositions with fresh, equal ones.
 
 | When | What |
 |---|---|
-| Constraint time (class-level, no instance) | `proposition_constraints(letter)` — the per-atom constraint menu (see [`04-constraint-generation.md`](./04-constraint-generation.md) and [`05-state-encoding.md`](./05-state-encoding.md)) |
+| Constraint time (class-level, no instance) | `proposition_constraints(letter)` — the per-atom constraint menu |
 | Post-solve | extraction of the concrete extension — see below, three different method names |
 | Post-solve | `truth_value_at(eval_point)` |
 | Post-solve | `print_proposition(eval_point, indent, use_colors)` |
@@ -50,8 +50,7 @@ flowchart TD
 ```
 
 A port should make "evaluation scheme" an explicit, named abstraction with at least these three
-inhabitants, rather than three unrelated method names a caller must discover by inspection. See
-[`11-theory-catalog.md`](./11-theory-catalog.md) for which shipped theory uses which scheme.
+inhabitants, rather than three unrelated method names a caller must discover by inspection.
 
 ## Identity is by formula name only
 

@@ -32,9 +32,9 @@ Nothing in the loader enforces these, but every shipped example file follows the
 - A `unit_tests` dict holds the *complete* set of examples in a module, consumed by the test
   suite; `example_range` is a smaller, curated subset selected for interactive/default runs,
   conventionally maintained as a dict literal with most entries commented out.
-- Each theory's test suite parametrizes directly over `unit_tests` and rebuilds the pipeline
-  ([`01-pipeline.md`](./01-pipeline.md)) without going through the CLI/builder layer at all —
-  **the examples corpus is the executable specification**, not illustrative sample input.
+- Each theory's test suite parametrizes directly over `unit_tests` and rebuilds the five-stage
+  pipeline without going through the CLI/builder layer at all — **the examples corpus is the
+  executable specification**, not illustrative sample input.
 
 ```mermaid
 flowchart TD

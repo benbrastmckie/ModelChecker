@@ -25,7 +25,7 @@ model this design can represent, not an arbitrary constant.
 
 Fusion and part-of are the two primitives; `product` (pairwise fusion of two state sets) and
 `coproduct` (fusion-closure of a union) are built from them and used by operators that combine
-verifier/falsifier sets (see [`03-operators.md`](./03-operators.md)).
+verifier/falsifier sets.
 
 ## The full encoding table
 
@@ -42,7 +42,7 @@ verifier/falsifier sets (see [`03-operators.md`](./03-operators.md)).
 | truth at a world | `∃x ⊑ w. verify(x, p)`, expanded to a `2^N`-way disjunction |
 | sentence letter | Z3 `Const(name, AtomSort)`, `AtomSort` a process-global uninterpreted sort |
 
-This table (together with the operator-method table in [`03-operators.md`](./03-operators.md)) is
+This table (together with the operator-method table described in the operators specification) is
 the most directly reusable artifact in this specification — it is the whole semantic core that
 the state-mereology theory family (logos, exclusion, imposition; see
 [`11-theory-catalog.md`](./11-theory-catalog.md)) is built from.

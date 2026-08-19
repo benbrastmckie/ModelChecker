@@ -681,7 +681,7 @@ than forcing the number.
 
 ---
 
-### Phase 9: Navigation audit and tree acceptance [NOT STARTED]
+### Phase 9: Navigation audit and tree acceptance [COMPLETED]
 
 **Goal**: Prove the navigation contract holds across the finished tree and reconcile the map with
 what was actually written.

@@ -98,7 +98,7 @@ stateDiagram-v2
 premises or conclusions is one shared, mutable object, not a copy. Sentence letters (atoms) become
 Z3 `Const(name, AtomSort)`, where `AtomSort` is a Z3 uninterpreted sort created lazily and cached
 **per process**, not per example — isolation between examples relies on fresh solvers, not fresh
-sorts (see [`06-solver-and-results.md`](./06-solver-and-results.md)). Distinctness of atom
+sorts. Distinctness of atom
 constants is Z3's ordinary name-interning; nothing asserts that two differently-named letters
 denote different atoms — the `verify`/`falsify` functions simply take the atom as an argument.
 

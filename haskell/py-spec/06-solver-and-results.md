@@ -72,8 +72,8 @@ context, which is not safe for concurrent use. A process-global, thread-**reentr
 the outermost constructor of every pipeline class: the same thread may re-enter freely (so
 iteration, which nests a fresh pipeline run inside an existing one, works), but a second thread
 raises an error immediately instead of corrupting process memory. The sanctioned form of
-parallelism is one model per **process** (used by `--maximize`,
-[`09-output-and-display.md`](./09-output-and-display.md)). A port with per-run solver contexts and
+parallelism is one model per **process** (used by the theory-comparison mode). A port with
+per-run solver contexts and
 real immutable terms can drop the guard mechanism itself, but must preserve the invariant it
 protects: **construction of one model is a single serialized transaction.**
 

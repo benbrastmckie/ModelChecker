@@ -45,9 +45,8 @@ a documented, known gap, not an oversight worth reproducing.
 
 An unrecognized setting key produces a **printed warning and is discarded** — not an error — 
 unless an opt-in strict mode is enabled, and nothing in the production path enables it. This is a
-direct contradiction of the project's own stated fail-fast principle, worth naming explicitly in
-[`14-porting-notes.md`](./14-porting-notes.md) as an intended change rather than a behavior to
-preserve.
+direct contradiction of the project's own stated fail-fast principle, worth naming explicitly as
+an intended change rather than a behavior to preserve.
 
 ## The setting inventory
 
@@ -86,9 +85,9 @@ theory's four components, i.e. **discovery errors surface at first use, not at s
 ## The error-handling policy, stated as policy
 
 The practiced (if not always documented) rule across the whole system: errors that could produce
-a **wrong logical verdict** are handled strictly (the unknown-as-timeout rule in
-[`06-solver-and-results.md`](./06-solver-and-results.md), `N` validation, model-state extraction,
-the single-threaded construction guard); errors in **presentation and metadata** are absorbed with
+a **wrong logical verdict** are handled strictly (the unknown-as-timeout rule described in the
+solving specification, `N` validation, model-state extraction, the single-threaded construction
+guard); errors in **presentation and metadata** are absorbed with
 placeholder fallbacks; **configuration** errors are warnings by default, as described above. This
 is a coherent, worth-preserving policy — a port should state it explicitly as a design rule rather
 than let it emerge from scattered individual choices, which is how it currently exists.
