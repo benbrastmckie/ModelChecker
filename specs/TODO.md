@@ -19,7 +19,7 @@ next_project_number: 166
 
 ### Architecture
 
-165 [RESEARCHED] — Improve haskell/py-spec/ so it is sufficient as a porting specifi
+165 [PLANNED] — Improve haskell/py-spec/ so it is sufficient as a porting specifi
 
 ### Semantics
 
@@ -36,11 +36,12 @@ next_project_number: 166
 ## Tasks
 
 ### 165. Improve py spec for haskell port
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: markdown
 - **Topic**: architecture
 - **Dependencies**: None
 - **Research**: [165_improve_py_spec_for_haskell_port/reports/01_haskell-porting-readiness.md]
+- **Plan**: [165_improve_py_spec_for_haskell_port/plans/02_py-spec-port-improvements.md]
 
 **Description**: Improve haskell/py-spec/ so it is sufficient as a porting specification for a Haskell reimplementation of the ModelChecker. The QC review linked on this task found the tree architecturally accurate but shallow: it maps control flow, not content. Three P0 port-blockers: (1) no operator anywhere has its truth condition stated -- 03-operators.md gives method signatures only, for negation through the counterfactual; (2) the semantic helper predicates the modal/counterfactual operators depend on (is_alternative, maximal, compatible, max_compatible_part) and the exact exhaustive frame-constraint list are never given; (3) the exclusion theory Skolem witness-predicate mechanism -- the hardest part of unilateral truthmaker semantics to implement correctly, ~870 lines of source -- is reduced to a five-word phrase in one table cell. P1: add a worked end-to-end trace (valid + countermodel, with actual constraints and verifier/falsifier output) to serve as a golden test; survey the error/exception taxonomy against the strict/absorb/warn policy with an N=0 / empty-premises / malformed-input case table; state the determinism and ordering contract for verifier/falsifier sets; fix 08-iteration.md (cite iterate/constraints.py directly for defect #1; correct "blind to proposition valuations" -- the data is computed then discarded, not never computed). P2: compress 13-examples-and-cli.md project-generation/Jupyter/packaging tail by ~two thirds and cut the entry-points paragraph; compress 09-output-and-display.md stdout-identity detail by ~a third; add a glossary. The 14-document decomposition by pipeline stage is sound and must NOT be reorganized -- this is one new operator-semantics document, one worked-trace artifact, targeted expansion of the exclusion treatment, and compression elsewhere. Discipline for the truth-condition tables: theory-agnostic mathematical notation following the existing 05-state-encoding.md table style, never Python transliteration.
 
