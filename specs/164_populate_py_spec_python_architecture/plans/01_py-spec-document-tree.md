@@ -445,7 +445,7 @@ extraction names.
 
 ---
 
-### Phase 5: Post-solve tooling — iteration, output, comparison [NOT STARTED]
+### Phase 5: Post-solve tooling — iteration, output, comparison [COMPLETED]
 
 **Goal**: Specify the machinery for finding further countermodels and for presenting them.
 
