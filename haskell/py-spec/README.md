@@ -32,6 +32,10 @@ that every other document is a satellite of. End at
 [`14-porting-notes.md`](./14-porting-notes.md): it collects what to preserve, what not to
 reproduce, and what is verified broken, plus a warning about the reliability of the repository's
 own prose documentation.
+Keep [`00-glossary.md`](./00-glossary.md) at hand as the reference companion — one canonical
+definition per load-bearing term, each linking to its treating document. The lettered documents
+(`03a`, `07a`, `11a`) are reference satellites of their numbered parents — consult them when the
+parent points there; they do not change the 01 → 14 reading order.
 
 ## Pipeline at a glance
 
@@ -56,6 +60,7 @@ this five-stage spine. Details in [`01-pipeline.md`](./01-pipeline.md).
 | [`01-pipeline.md`](./01-pipeline.md) | The five-stage spine, the object graph, construction order, aliasing and cycles |
 | [`02-syntax-and-ast.md`](./02-syntax-and-ast.md) | The surface DSL, the parser, the `Sentence` node and its four-phase lifecycle, interning |
 | [`03-operators.md`](./03-operators.md) | `Operator` / `DefinedOperator` / `OperatorCollection`, the six semantic methods, definitional expansion |
+| [`03a-operator-semantics.md`](./03a-operator-semantics.md) | The actual truth/falsity/verification/falsification conditions of every operator, all four theories |
 | [`04-constraint-generation.md`](./04-constraint-generation.md) | `ModelConstraints`, the four constraint groups, the countermodel framing, double dispatch |
 | [`05-state-encoding.md`](./05-state-encoding.md) | The bit-vector state space, mereology, the encoding table, finite quantifier expansion |
 
@@ -65,6 +70,7 @@ this five-stage spine. Details in [`01-pipeline.md`](./01-pipeline.md).
 |---|---|
 | [`06-solver-and-results.md`](./06-solver-and-results.md) | Solver backends, tracked assertions, unknown-as-timeout, per-example isolation |
 | [`07-propositions.md`](./07-propositions.md) | The proposition contract, the three evaluation schemes, post-solve extraction |
+| [`07a-worked-trace.md`](./07a-worked-trace.md) | One valid example and one countermodel traced through all five stages, with captured constraints and model — the golden test |
 
 ### Tools built on a solved model
 
@@ -79,19 +85,21 @@ this five-stage spine. Details in [`01-pipeline.md`](./01-pipeline.md).
 |---|---|
 | [`10-theory-contract.md`](./10-theory-contract.md) | What a theory must supply, the layering rule, the executable conformance contracts |
 | [`11-theory-catalog.md`](./11-theory-catalog.md) | The four shipped theories, the two families, a worked operator walkthrough |
+| [`11a-exclusion-witnesses.md`](./11a-exclusion-witnesses.md) | The exclusion theory's Skolem witness-function mechanism, specified completely |
 
 ### Configuration and the user surface
 
 | Document | Covers |
 |---|---|
 | [`12-settings-and-registry.md`](./12-settings-and-registry.md) | Settings declaration and precedence, the theory registry, error-handling policy |
-| [`13-examples-and-cli.md`](./13-examples-and-cli.md) | The example-file format, the CLI surface, entry points, project generation, packaging |
+| [`13-examples-and-cli.md`](./13-examples-and-cli.md) | The example-file format, examples as the executable specification, the CLI surface |
 
 ### Reading this as a port
 
 | Document | Covers |
 |---|---|
 | [`14-porting-notes.md`](./14-porting-notes.md) | Semantics to preserve, mechanism not to reproduce, known defects, dead code, documentation reliability |
+| [`00-glossary.md`](./00-glossary.md) | Canonical definitions of the load-bearing terms, alphabetical |
 
 ## Conventions
 

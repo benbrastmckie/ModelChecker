@@ -1,0 +1,40 @@
+{
+  "phase": 8,
+  "phase_name": "Glossary, Map Update, and Tree-Wide Consistency Pass",
+  "started_at": "2026-08-19T06:52:18Z",
+  "last_updated": "2026-08-19T06:54:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Create 00-glossary.md",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/00-glossary.md"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Update README map with four new documents",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/README.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Consistency pass: back-links, Source files, link resolution, mermaid",
+      "status": "done",
+      "files_touched": []
+    },
+    {
+      "id": 4,
+      "description": "Task-reference lint + final reader pass",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "deviations": [],
+  "handoff_count": 0
+}

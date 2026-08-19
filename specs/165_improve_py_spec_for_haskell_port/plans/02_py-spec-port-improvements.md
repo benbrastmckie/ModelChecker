@@ -441,29 +441,29 @@ is the report's ratio applied to actual current line counts, and the CLI flag ta
 
 ---
 
-### Phase 8: Glossary, Map Update, and Tree-Wide Consistency Pass [NOT STARTED]
+### Phase 8: Glossary, Map Update, and Tree-Wide Consistency Pass [COMPLETED]
 
 **Goal**: Close P2.10 and integrate everything — canonical definition site for cross-document
 terms, README map covering the new satellites, and a final consistency audit of the whole tree.
 
 **Tasks**:
-- [ ] Create `haskell/py-spec/00-glossary.md`: one canonical definition per load-bearing term —
+- [x] Create `haskell/py-spec/00-glossary.md`: one canonical definition per load-bearing term —
       state, world, possible, compatible, maximal, verifier, falsifier, fusion, part-of,
       evaluation point, main_point, frame constraint, alternative world, witness predicate,
       isomorphism (model), interning, evaluation scheme — each definition one to three lines in
       the tree's mathematical register, linking to the document that treats it fully. Ordered
       for lookup (alphabetical), not narrative.
-- [ ] Update `README.md`: add the four new documents to the map tables in their natural
+- [x] Update `README.md`: add the four new documents to the map tables in their natural
       sections (03a with the compiler pipeline, 07a with solving/semantic values, 11a with the
       theory library, 00-glossary in "How to read this" as the reference companion); keep the
       "start at 01, end at 14" reading instruction intact.
-- [ ] Consistency pass over all 19 files: every document's second line back-links to the map;
+- [x] Consistency pass over all 19 files: every document's second line back-links to the map;
       every document carries `## Source files`; all relative links resolve (script check: grep
       links, test file existence); no line-anchored links anywhere; all Mermaid fences parse
       (render check via `mmdc` if available, otherwise a syntax review of each fence).
-- [ ] Repo lint: run the task-reference check over `haskell/py-spec/` — deliverables must not
+- [x] Repo lint: run the task-reference check over `haskell/py-spec/` — deliverables must not
       cite task numbers; confirm zero occurrences.
-- [ ] Final reader pass in the persona named by the user focus: an engineer learning the
+- [x] Final reader pass in the persona named by the user focus: an engineer learning the
       system to port it — confirm the reading path (README → 01 → ... → 14, glossary and
       satellites as reference) is stated and coherent, and prose is concise throughout.
 
