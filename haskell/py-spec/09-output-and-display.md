@@ -24,7 +24,9 @@ itself consumes.
 The saved-output architecture is **capture-then-format**: when saving is enabled, standard output
 is redirected into an in-memory buffer, the model prints itself exactly as it would to a terminal,
 output is restored, the captured text is re-printed to the real console, and the Markdown artifact
-is produced by regex-converting the captured ANSI escape codes into Markdown emphasis markup. The
+is produced by regex-converting the captured ANSI escape codes into Markdown emphasis markup —
+only red and green carry meaning (they become `**bold**` and `_italic_` respectively); every
+other ANSI code is stripped. The
 JSON artifact's structured half comes from a *separate* collector that duck-types four extraction
 hooks on the model structure — it is not derived from the same captured text.
 
@@ -59,10 +61,8 @@ operator `print_method`s: an atomic sentence delegates to its proposition's
 typically prints its own line and then recurses back into the model structure's printer for each
 argument, one indent level deeper — producing the indented evaluation tree seen in terminal
 output. Because propositions and operators print to bare standard output rather than an injected
-sink, the whole recursion has to run inside a stdout-redirect wrapper whenever output is being
-captured for saving, and color choice is decided by testing object identity against the real
-terminal stdout — which silently disables colors under capture and breaks if the output stream is
-wrapped a second time.
+sink, capture for saving must wrap the whole recursion in a stdout redirect — and colors are
+keyed to a stdout-identity test, so captured output is uncolored by construction.
 
 ## `--maximize`: narrower than it sounds
 

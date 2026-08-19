@@ -21,7 +21,9 @@ Per example, in order:
 2. Each of the four constraint groups (see
    [`04-constraint-generation.md`](./04-constraint-generation.md)) is asserted with a **tracking
    label** — `frame1`, `model1`, `premises1`, `conclusions1`, and so on — via
-   `assert_tracked(constraint, label)`.
+   `assert_tracked(constraint, label)`. Each label is materialized as a fresh solver Boolean
+   (`Bool(label)`); label uniqueness is scoped to one solver setup — labels may repeat across
+   examples, since every example gets a fresh solver (isolation below).
 3. The solver's timeout is set from `max_time`, a setting expressed in **seconds** and converted
    to milliseconds at this boundary (a divergence worth flagging: the constructor's own
    docstring says milliseconds — it is wrong).
@@ -82,7 +84,10 @@ protects: **construction of one model is a single serialized transaction.**
 `ModelStructure` (in the Python implementation, a single class combining the solver driver and
 the result presenter) ends up, after construction, holding roughly ten mutable fields — `solver`,
 a second `stored_solver` handle, `timeout`, `z3_model`, `unsat_core`, a status flag, a runtime
-figure, `solved`, `satisfiable`, and a raw positional result tuple. An unsat or timed-out
+figure, `solved`, `satisfiable`, and a raw positional result tuple — exactly
+`(is_timeout : bool, model_or_core, is_satisfiable : bool, runtime : float)`, with
+`model_or_core` a solver model on `sat` and an unsat core otherwise; this shape directly informs
+the recommended `Result` sum type below. An unsat or timed-out
 structure is still a fully constructed object, distinguished from a successful one only by these
 flags. The spec-level restatement a port should adopt: separate `build : Constraints -> Problem`
 from `solve : Problem -> Result`, and make `Result` a genuine sum type —

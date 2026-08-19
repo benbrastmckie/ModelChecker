@@ -1,0 +1,43 @@
+{
+  "phase": 7,
+  "phase_name": "Compression and Small-Gap Folds",
+  "started_at": "2026-08-19T06:50:37Z",
+  "last_updated": "2026-08-19T06:52:11Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Compress 13- tail, cut entry-points paragraph",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/13-examples-and-cli.md"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Compress 09- stdout-identity detail, add ANSI rule",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/09-output-and-display.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Fold Result tuple + tracked-assertion scope into 06-",
+      "status": "done",
+      "files_touched": [
+        "haskell/py-spec/06-solver-and-results.md",
+        "haskell/py-spec/09-output-and-display.md"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "Re-read compressed docs for invariant loss",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "deviations": [],
+  "handoff_count": 0
+}

@@ -2,8 +2,7 @@
 [← Spec map](./README.md)
 
 > The example-file format — the user's real input language — examples as the executable
-> behavioral specification, the CLI surface, entry points, and project generation, Jupyter, and
-> packaging in brief.
+> behavioral specification, and the CLI surface.
 
 ## The example file: an ordinary module, executed on load
 
@@ -51,25 +50,30 @@ flowchart TD
 
 One positional argument (the examples file path) plus 17 options.
 
-| Flag | Short | Effect |
-|---|---|---|
-| `file_path` | — | path to the examples file (optional; omitted ⇒ interactive project generation) |
-| `--load_theory` | `-l` | generate a new project from a theory instead of running a file |
-| `--contingent` | `-c` | settings override |
-| `--non_null` | `-n` | settings override |
-| `--non_empty` | `-e` | settings override |
-| `--disjoint` | `-d` | settings override |
-| `--maximize` | `-m` | theory-comparison mode (see [`09-output-and-display.md`](./09-output-and-display.md)) |
-| `--save [FMT...]` | `-s` | enable output saving; no format given = both markdown and json |
-| `--sequential` | `-q` | **registered but nonfunctional** — parses successfully, then raises a not-implemented error before doing anything |
-| `--align_vertically` | `-a` | vertical temporal display (the temporal theory only) |
-| `--z3` | — | select the Z3 backend (mutually exclusive with `--cvc5`) |
-| `--cvc5` | — | select the cvc5 backend |
-| `--print_constraints` | `-p` | show solver constraints |
-| `--print_z3` | `-z` | show raw solver output |
-| `--print_impossible` | `-i` | include impossible states in display |
-| `--version` | `-v` | print version and exit |
-| `--upgrade` | `-u` | upgrade the installed package |
+| Flag | Effect |
+|---|---|
+| `file_path` | path to the examples file (optional; omitted ⇒ interactive project generation) |
+| `--load_theory` | generate a new project from a theory instead of running a file |
+| `--contingent` | settings override |
+| `--non_null` | settings override |
+| `--non_empty` | settings override |
+| `--disjoint` | settings override |
+| `--maximize` | theory-comparison mode (see [`09-output-and-display.md`](./09-output-and-display.md)) |
+| `--save [FMT...]` | enable output saving; no format given = both markdown and json |
+| `--sequential` | **registered but nonfunctional** — parses successfully, then raises a not-implemented error before doing anything |
+| `--align_vertically` | vertical temporal display (the temporal theory only) |
+| `--z3` | select the Z3 backend (mutually exclusive with `--cvc5`) |
+| `--cvc5` | select the cvc5 backend |
+| `--print_constraints` | show solver constraints |
+| `--print_z3` | show raw solver output |
+| `--print_impossible` | include impossible states in display |
+| `--version` | print version and exit |
+| `--upgrade` | upgrade the installed package |
+
+Every option except the backend pair (`--z3`/`--cvc5`) also has a one-letter short form. The
+short forms matter to a port only through the flag-provenance re-scan gap described in
+[`12-settings-and-registry.md`](./12-settings-and-registry.md) (clustered short flags parse but
+their overrides silently fail to apply).
 
 The `--sequential` entry is marked nonfunctional deliberately: the flag exists, is documented
 elsewhere in the repository as working, and is registered on the parser — but its implementation
@@ -78,27 +82,15 @@ for invocation examples and checks flag registration cannot catch this class of 
 *is* registered); it is worth naming explicitly so a port does not treat "the flag exists" as
 evidence the feature does.
 
-## Entry points
-
-Three ways to invoke the tool: an installed console script, `python -m` module execution, and a
-development wrapper that prepends the working tree's source directory to the import path so local
-changes are picked up ahead of any installed copy. All three converge on the same `main()`. With
-no file-path argument, every entry point runs interactive project generation instead of executing
-an examples file.
-
 ## Project generation, Jupyter, and packaging
 
-**Project generation** copies a theory's directory according to an explicit required/optional
-manifest (not a verbatim tree copy), writes a marker file recording which theory the project was
-generated from, and rewrites version strings in the copied package by regex. **Jupyter
-integration** is two-tier: always-available helpers (Unicode ↔ LaTeX conversion, environment
-setup) plus a dependency-gated interactive layer (a full widget UI with a formula box, theory
-dropdown, per-theory settings, and a graph visualization of the found model) that degrades to
-typed stub errors when its optional dependencies are absent; the notebook path bypasses the
-ordinary module-loading machinery entirely and constructs the pipeline directly.
-**Packaging** uses an explicit package-data allowlist rather than a blanket glob (so stray files
-under a theory's directory are not silently shipped), with a dedicated test suite that builds real
-wheels and sdists and asserts on their contents, entry points, and console-script execution.
+These subsystems are Python packaging/UX machinery of the kind
+[`14-porting-notes.md`](./14-porting-notes.md)'s mechanism-not-to-reproduce table classifies —
+a port designs its own scaffolding, notebook story, and packaging. Three invariants survive the
+cut: project generation copies a theory by explicit manifest, never a verbatim tree copy;
+Jupyter integration is a dependency-gated layer that degrades to typed stubs; packaging ships
+by explicit allowlist, enforced by the executable packaging contract named in
+[`10-theory-contract.md`](./10-theory-contract.md).
 
 ## Source files
 

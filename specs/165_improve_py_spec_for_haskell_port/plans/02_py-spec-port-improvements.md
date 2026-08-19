@@ -395,27 +395,27 @@ is found, not what the report predicted.
 
 ---
 
-### Phase 7: Compression and Small-Gap Folds [NOT STARTED]
+### Phase 7: Compression and Small-Gap Folds [COMPLETED]
 
 **Goal**: Close P2.8, P2.9, and the remaining A7 items — cut Python packaging/UX trivia, keep
 every invariant.
 
 **Tasks**:
-- [ ] `13-examples-and-cli.md`: compress the project-generation/Jupyter/packaging tail
+- [x] `13-examples-and-cli.md`: compress the project-generation/Jupyter/packaging tail
       (~25 lines) by roughly two thirds to a single paragraph pointing at
       `14-porting-notes.md`'s mechanism-not-to-reproduce table; cut the three-entry-points
       paragraph entirely; keep the 17-flag CLI → settings table intact (drop short-flag-letter
       trivia if present).
-- [ ] `09-output-and-display.md`: compress the stdout-identity color-decision detail to one
+- [x] `09-output-and-display.md`: compress the stdout-identity color-decision detail to one
       sentence (~1/3 reduction of that subsection); preserve the capture-then-format vs.
       data-then-render framing untouched.
-- [ ] Fold remaining A7 items: the exact `Result`-tuple shape
+- [x] Fold remaining A7 items: the exact `Result`-tuple shape
       `(is_timeout, model_or_core, is_satisfiable, runtime)` into
       `06-solver-and-results.md` (it directly informs the recommended target sum type); the
       ANSI→Markdown rule (red/green become bold/italic, all other codes stripped) as one
       sentence in 09-; the tracked-assertion `Bool(label)` uniqueness scope (one solver setup
       call) as one sentence in 06-.
-- [ ] Re-read both compressed documents end-to-end to confirm no invariant or contract was
+- [x] Re-read both compressed documents end-to-end to confirm no invariant or contract was
       deleted with the trivia.
 
 **Timing**: 1.5 hours
