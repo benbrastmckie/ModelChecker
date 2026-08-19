@@ -391,7 +391,7 @@ semantics contract); report §1.4-1.6.
 
 ---
 
-### Phase 4: Solving, results, and propositions [NOT STARTED]
+### Phase 4: Solving, results, and propositions [COMPLETED]
 
 **Goal**: Specify the solver boundary, the shape of a solve result, and the semantic value a
 solved model assigns to each sentence.
