@@ -1,7 +1,7 @@
 # Implementation Plan: Python Architecture Spec Document Tree
 
 - **Task**: 164 - Populate the Python architecture specification for the ModelChecker
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 8.5 hours
 - **Dependencies**: None
 - **Research Inputs**:
@@ -219,7 +219,7 @@ Phase 1 and Phase 9 only.
 
 ---
 
-### Phase 1: Map, conventions, and the pipeline spine [NOT STARTED]
+### Phase 1: Map, conventions, and the pipeline spine [COMPLETED]
 
 **Goal**: Establish `README.md` as the map plus the conventions every later phase follows, and
 write the spine document the rest of the tree hangs off.
