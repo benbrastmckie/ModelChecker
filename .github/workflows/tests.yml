@@ -20,6 +20,28 @@ on:
     # release that release.yml had already tested green.
     tags-ignore:
       - '**'
+    # Commits touching ONLY task-management artifacts cannot affect the package, but they
+    # dominate this repository's master history: 23 of the 40 commits preceding v1.3.5 changed
+    # nothing outside specs/**. Each one ran the full 3-Python matrix plus the flake-check job
+    # for zero package signal -- and, because this suite carries contention-sensitive Z3 solve
+    # budgets, each was an independent chance to surface a red X against a release that had
+    # already published green. `/tag`'s own "record deployment in state.json" commit is exactly
+    # this shape (9 lines of specs/state.json).
+    #
+    # Scoped deliberately narrowly. Only these two trees are unambiguously outside the package:
+    # no test under code/ reads either (verified by grep over code/tests/ and
+    # code/src/model_checker/). Markdown is NOT ignored here even though docs commits are
+    # equally inert -- code/tests/packaging/test_inclusions.py, test_exclusions.py, and
+    # theory_lib/tests/test_theory_conformance.py all assert on .md files' presence and
+    # packaging, so a `**.md` entry would hide a real breakage.
+    #
+    # Applied to `push` only, NOT to `pull_request`. master is currently unprotected, but if
+    # required status checks are ever enabled, a `paths-ignore`d check on a pull_request never
+    # reports at all and blocks the merge indefinitely rather than passing. The push trigger has
+    # no such failure mode, and it is where the 23-of-40 waste actually is.
+    paths-ignore:
+      - 'specs/**'
+      - '.claude/**'
   pull_request:
 
 jobs:
