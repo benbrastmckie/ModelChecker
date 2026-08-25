@@ -518,37 +518,77 @@ Phase 7 parity guard exists to forbid.
 
 ---
 
-### Phase 7: Executable Regression Guards [NOT STARTED]
+### Phase 7: Executable Regression Guards [COMPLETED]
 
 **Goal**: Convert all three invariants from prose into tests, so none of the three defect classes
 can silently return.
 
 **Tasks**:
-- [ ] Create `code/tests/ci/` with an `__init__`-free pytest layout matching `code/tests/packaging/`.
-- [ ] Write `code/tests/ci/test_workflow_parity.py`, modeled on `code/tests/packaging/test_parity.py`:
+- [x] Create `code/tests/ci/` with an `__init__`-free pytest layout matching `code/tests/packaging/`.
+      Deviation: `code/tests/packaging/` itself (and every other `code/tests/**`/
+      `code/src/model_checker/**/tests/**` subdirectory, confirmed by inventory) DOES carry an
+      `__init__.py`, contradicting the plan's literal premise. Followed the actual, confirmed
+      repo-wide convention instead and added `code/tests/ci/__init__.py` with a short module
+      docstring, matching `packaging/__init__.py`'s style.
+- [x] Write `code/tests/ci/test_workflow_parity.py`, modeled on `code/tests/packaging/test_parity.py`:
       parse `.github/workflows/tests.yml` with `yaml.safe_load` and extract `flake.nix`'s
       `checkPhase` pytest lines by targeted regex; assert both files agree on the parallel-pass
       marker expression, the serial-pass marker expression, the `-n` worker count, the
       `--timeout` value, and `--timeout-method`. Each assertion carries a message naming the two
       source locations so a failure is self-explanatory.
-- [ ] Add an assertion to the same module that every marker named in either invocation's `-m`
+      Deviation: used targeted regex for BOTH files, not `yaml.safe_load` for `tests.yml`.
+      Confirmed `PyYAML` is not an installed dependency in either CI toolchain (neither
+      `tests.yml`'s "Install test dependencies" step's package list nor `flake.nix`'s
+      `devPython` list requires it) -- adding one is out of this phase's declared scope, and
+      `flake.nix` must be regex-parsed regardless since it is not YAML, so both files are handled
+      the same way for consistency.
+- [x] Add an assertion to the same module that every marker named in either invocation's `-m`
       expression is registered in `code/pyproject.toml`'s `markers` list, so a typo in a marker
       name cannot silently deselect nothing.
-- [ ] Write `code/tests/ci/test_timing_marker_coverage.py`: walk `code/src/model_checker/**/tests/**`
+- [x] Write `code/tests/ci/test_timing_marker_coverage.py`: walk `code/src/model_checker/**/tests/**`
       and `code/tests/**` with `ast`, find functions that both call a real clock
       (`time.time`, `time.perf_counter`, `time.monotonic`) and assert a comparison on the derived
       elapsed value, and assert each carries `performance` or `xdist_serial`. Carry an explicit,
       commented allowlist for mocked-clock modules.
-- [ ] Extend `code/src/model_checker/builder/tests/unit/test_example.py` with the timeout-key
+      Finding: the AST scan surfaced two genuinely unmarked cases Phase 5's scope hypothesis
+      missed -- `code/tests/integration/test_timeout_resources.py::test_z3_solver_timeout` and
+      `::test_cli_command_timeout` (both real `time.time()` reads with `assert elapsed < N`
+      hang-guard bounds, in `code/tests/**` which Phase 5's own handoff had claimed contributed
+      no candidates). Marked both `@pytest.mark.xdist_serial` with a contention-sensitivity
+      comment, in this phase rather than reopening the closed Phase 5, since finding exactly this
+      kind of gap is this guard's purpose. xdist_serial inventory is now 9 (was 7); gating
+      selection recount: 2291 selected (2413 total collected, up from 2408 -- the +5 is this
+      phase's own 5 new `test_workflow_parity.py` tests, unmarked and therefore themselves part
+      of the gating pool, which is correct: they do not read a wall clock).
+- [x] Extend `code/src/model_checker/builder/tests/unit/test_example.py` with the timeout-key
       guard: `get_result()` always contains `"timeout"`, and a forced-UNKNOWN model structure
       yields `timeout=True` with `model_found=False` — asserting the two are independently
       readable, mirroring the three-way partition assertion style in
       `oracle/bimodal_logic/tests/test_cross_oracle_differential.py`.
-- [ ] Confirm each guard actually fails when its invariant is broken: temporarily revert one
+      Finding: Phase 1 already added exactly this guard (`TestTimeoutSurfacing` class:
+      `test_get_result_contains_timeout_key` and `test_get_result_timeout_true_on_unknown`, using
+      a mock model_structure to simulate a forced UNKNOWN). No further extension was needed; this
+      task's verification requirement (task 6 below) was satisfied against the existing tests.
+- [x] Confirm each guard actually fails when its invariant is broken: temporarily revert one
       value in each of the three cases, observe the failure, restore. Record all three
       observations.
-- [ ] Confirm the new `code/tests/ci/` module is selected by both CI invocations' path arguments
+      (1) `test_workflow_parity.py`: changed both `tests.yml` `--timeout=300` occurrences to
+      `999` -> `test_timeout_value_and_method_match` failed with `assert 2 == 1` naming both
+      source lines and values; restored, 5 passed.
+      (2) `test_timing_marker_coverage.py`: removed `@pytest.mark.performance` from
+      `test_refactoring_target_behavior.py::test_performance_improvement` ->
+      `test_all_wall_clock_timing_assertions_are_marked` failed naming exactly that
+      function/line; restored, 2 passed, `git diff --stat` on the file confirmed zero net change.
+      (3) `TestTimeoutSurfacing`: renamed `get_result()`'s `"timeout"` key to
+      `"timeout_DISABLED_FOR_GUARD_CHECK"` -> `test_get_result_contains_timeout_key` and
+      `test_get_result_timeout_true_on_unknown` both failed (`KeyError: 'timeout'`); restored,
+      full `test_example.py` suite green (17 passed), `git diff --stat` confirmed zero net change.
+- [x] Confirm the new `code/tests/ci/` module is selected by both CI invocations' path arguments
       (`tests/` in `tests.yml`, `tests` in `flake.nix`) and carries no marker that deselects it.
+      Confirmed via `--collect-only` under the gating marker expression: `<Package ci>` with its
+      five `test_workflow_parity.py` tests plus the two `test_timing_marker_coverage.py` tests
+      all appear in the selected tree; neither module carries `packaging`/`performance`/
+      `unstable`/`xdist_serial`.
 
 **Timing**: 1.5 hours
 

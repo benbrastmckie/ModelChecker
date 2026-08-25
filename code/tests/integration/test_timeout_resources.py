@@ -25,6 +25,13 @@ from model_checker.models.concurrency import ConcurrentConstructionError
 class TestTimeoutHandling:
     """Test timeout handling in various components."""
     
+    # Contention-sensitive: asserts an absolute wall-clock bound (elapsed < 5.0s)
+    # derived from a real time.time() read around Z3 solving, which CPU contention
+    # under -n 6 can push past budget -- run serially instead. Surfaced by
+    # code/tests/ci/test_timing_marker_coverage.py's AST scan (Phase 5's own
+    # inventory, scoped to code/src/model_checker/**/tests/** plus a code/tests/**
+    # grep pass, missed this file).
+    @pytest.mark.xdist_serial
     def test_z3_solver_timeout(self):
         """Test Z3 solver respects timeout settings.
 
@@ -61,6 +68,10 @@ class TestTimeoutHandling:
             elapsed = time.time() - start_time
             assert elapsed < 5.0  # Should timeout within reasonable time
     
+    # Contention-sensitive: asserts an absolute wall-clock bound (elapsed < 6.0s)
+    # derived from a real time.time() read around a CLI subprocess call, which CPU
+    # contention under -n 6 can push past budget -- run serially instead.
+    @pytest.mark.xdist_serial
     def test_cli_command_timeout(self, tmp_path):
         """Test CLI respects timeout for long-running operations.
 
