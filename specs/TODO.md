@@ -1,5 +1,5 @@
 ---
-next_project_number: 167
+next_project_number: 168
 ---
 
 # TODO
@@ -11,11 +11,15 @@ next_project_number: 167
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161 | -- | semantics, release-engineering |
+| 1 | 152,160,161,167 | -- | testing, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
+
+### Testing
+
+167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
 
 ### Semantics
 
@@ -30,6 +34,16 @@ next_project_number: 167
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 
 ## Tasks
+
+### 167. Flaky testmixedformulas failures
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/tests/test_oracle_interface.py - test_mixed_or_diamond_prev and test_mixed_and_all_future_neg both fail in some pytest runs and pass in others (test_mixed_and_all_future_neg was observed failing in one full-file run and passing in the next with no code change), so determine whether the nondeterminism comes from Z3 solver behavior, test ordering/state leakage, or a genuine semantics defect, then make the outcomes deterministic
+
+---
 
 ### 166. Unstable watch workflow failures
 - **Status**: [COMPLETED]
