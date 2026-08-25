@@ -793,9 +793,14 @@
     "release-engineering"
   ],
   "deployment_versions": {
-    "last_deployed": "v1.3.3",
-    "last_deployed_at": "2026-08-13T00:34:28Z",
+    "last_deployed": "v1.3.4",
+    "last_deployed_at": "2026-08-25T20:47:42Z",
     "deployment_history": [
+      {
+        "version": "v1.3.4",
+        "deployed_at": "2026-08-25T20:47:42Z",
+        "commit_sha": "5bd168ebfa0ae85bf3b53b9f498eee8cd53143ac"
+      },
       {
         "version": "v1.3.3",
         "deployed_at": "2026-08-13T00:34:28Z",
