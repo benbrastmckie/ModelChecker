@@ -1,7 +1,7 @@
 # Implementation Plan: Eliminate Wall-Clock-Sensitive Test Flakes
 
 - **Task**: 169 - Eliminate wall-clock-sensitive test flakes and undiagnosable hangs
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 10.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/169_eliminate_wall_clock_sensitive_test_flakes/reports/01_wall-clock-flake-root-causes.md`

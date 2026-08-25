@@ -11,7 +11,7 @@ next_project_number: 170
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161,167,168,169 | -- | testing, semantics, release-engineering |
+| 1 | 152,160,161,167,168 | -- | testing, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
@@ -20,7 +20,6 @@ next_project_number: 170
 ### Testing
 
 167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
-169 [IMPLEMENTING] — Eliminate wall-clock-sensitive test flakes and undiagnosable hang
 
 ### Semantics
 
@@ -38,12 +37,13 @@ next_project_number: 170
 ## Tasks
 
 ### 169. Eliminate wall clock sensitive test flakes
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [169_eliminate_wall_clock_sensitive_test_flakes/reports/01_wall-clock-flake-root-causes.md]
 - **Plan**: [169_eliminate_wall_clock_sensitive_test_flakes/plans/01_eliminate-wall-clock-test-flakes.md]
+- **Summary**: [169_eliminate_wall_clock_sensitive_test_flakes/summaries/01_eliminate-wall-clock-test-flakes-summary.md]
 
 **Description**: Eliminate wall-clock-sensitive test flakes and undiagnosable hangs at their root rather than per-test, across BOTH tests.yml jobs -- the Python 3.10-3.12 matrix and the nix flake check job, which run the identical invocation (pytest -m "not packaging and not performance and not unstable" -n 6) under two different toolchains, so the same defects surface in either. Three sub-families, each needing a distinct remedy.
 
