@@ -161,7 +161,18 @@
             runHook preCheck
             export PYTHONPATH="$PWD/src"
             export HOME="$TMPDIR"
-            pytest src/model_checker tests -m "not packaging and not performance and not unstable" -n 6 -q
+            # --timeout=300 --timeout-method=thread, and the xdist_serial two-pass split
+            # below, mirror .github/workflows/tests.yml's identical general-tests step
+            # byte-for-byte (see that file's comment for the full rationale:
+            # pytest-timeout's default `signal` method cannot interrupt or diagnose a hang
+            # blocked inside a C extension call such as a stuck Z3 solve, `thread` dumps
+            # every thread's stack via `faulthandler` instead; motivating incident CI run
+            # 32897405646; prior in-repo precedent
+            # specs/archive/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md
+            # lines 134, 143, 359). Kept identical across both files so
+            # code/tests/ci/test_workflow_parity.py has something to actually assert equal.
+            pytest src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial" -n 6 -q --timeout=300 --timeout-method=thread
+            pytest src/model_checker tests -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread
             runHook postCheck
           '';
 

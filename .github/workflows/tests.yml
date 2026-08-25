@@ -80,7 +80,30 @@ jobs:
           # covers it: this job exercises the PyPI z3-solver wheel users actually install, while
           # the flake check exercises the nixpkgs-packaged Z3/Python toolchain -- deliberate
           # cross-toolchain coverage of the same tests, not redundant duplication.
-          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable" -n 6 -q
+          # --timeout=300 --timeout-method=thread: pytest-timeout's default `signal` method
+          # cannot interrupt or diagnose a hang blocked inside a C extension call such as a stuck
+          # Z3 solve -- `thread` instead runs a watcher thread that dumps every thread's stack via
+          # `faulthandler` regardless of where execution is blocked. Motivating incident: CI run
+          # 32897405646's Python 3.12 job reached 94% progress, produced zero output for 17
+          # minutes, and was killed by the job-level `timeout-minutes: 20` backstop with no
+          # indication of which test had hung -- only orphaned pytest and worker processes in the
+          # cleanup log. 300s sits far below that 20-minute backstop (so the per-test timeout
+          # fires first and actually produces the diagnostic) and comfortably above the slowest
+          # single test measured locally under this same `-n 6` selection (82.34s,
+          # TestBimodalIteratorReal::test_iterate_two_produces_distinct_models). Prior in-repo
+          # precedent for this exact `--timeout=N --timeout-method=thread` invocation shape:
+          # specs/archive/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md
+          # (lines 134, 143, 359).
+          #
+          # Two-pass split, mirroring oracle/run-oracle-suite.sh's parallel/serial structure:
+          # the `-n 6` pass excludes `xdist_serial` (see code/pyproject.toml's marker
+          # registration and code/docs/core/TESTING_GUIDE.md's marker taxonomy) -- tests with a
+          # real wall-clock assertion that CPU contention under a shared `-n` worker pool can
+          # push past budget -- and a second, serial pass (no `-n` flag) runs exactly those
+          # tests instead, so they keep gating coverage without the contention that made them
+          # flake.
+          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 6 -q --timeout=300 --timeout-method=thread
+          pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread
 
   flake-check:
     name: nix flake check

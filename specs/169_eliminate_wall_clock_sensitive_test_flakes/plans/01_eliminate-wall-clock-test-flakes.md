@@ -444,36 +444,47 @@ cases). Report the confirmed file list and any additions in the phase notes.
 
 ---
 
-### Phase 6: CI Wiring — Timeout Flags and the Serial Second Pass [NOT STARTED]
+### Phase 6: CI Wiring — Timeout Flags and the Serial Second Pass [COMPLETED]
 
 **Goal**: Give both CI jobs a diagnostic per-test hang guard and remove `xdist_serial` tests from
 the parallel pass, with the two files kept byte-for-byte consistent on every shared value.
 
 **Tasks**:
-- [ ] **Measure before choosing the number**: run the gating selection locally under `-n 6` in
+- [x] **Measure before choosing the number**: run the gating selection locally under `-n 6` in
       both toolchains (`pytest` directly, and `nix flake check`) and read the `--durations=0`
       output already enabled by `addopts` to find the slowest single test. Record the figure.
-- [ ] Confirm or revise the D4 budget of `--timeout=300` against that measurement: keep 300 if the
+      Result: PyPI toolchain slowest single test was 82.34s
+      (`bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_two_produces_distinct_models`),
+      full parallel-pass run: 2287 passed, 1 skipped in 186.93s.
+- [x] Confirm or revise the D4 budget of `--timeout=300` against that measurement: keep 300 if the
       measured max is under 100s (>=3x headroom); otherwise choose 3x the measured max, rounded
       up, and record the revised figure and its justification.
-- [ ] Edit `.github/workflows/tests.yml`'s `general-tests` "Run general test suite" step: append
+      Kept 300: 82.34s is under the 100s threshold (>=3.6x headroom).
+- [x] Edit `.github/workflows/tests.yml`'s `general-tests` "Run general test suite" step: append
       `--timeout=<budget> --timeout-method=thread` to the existing invocation and add
       `and not xdist_serial` to the marker expression.
-- [ ] Add a second serial pass to the same step: the same paths with
+- [x] Add a second serial pass to the same step: the same paths with
       `-m "xdist_serial and not packaging and not unstable"`, **no `-n` flag at all**, and the
       same `--timeout`/`--timeout-method` values — following
       `oracle/run-oracle-suite.sh`'s two-pass structure.
-- [ ] Apply the identical two changes to `flake.nix`'s `checks.default` `checkPhase`.
-- [ ] Add a comment above each invocation explaining `--timeout-method=thread` specifically: the
+- [x] Apply the identical two changes to `flake.nix`'s `checks.default` `checkPhase`.
+- [x] Add a comment above each invocation explaining `--timeout-method=thread` specifically: the
       default `signal` method cannot interrupt or diagnose a hang blocked inside a C extension
       call such as a stuck Z3 solve, whereas `thread` runs a watcher that dumps every thread's
       stack via `faulthandler` regardless. Reference the observed incident by its CI run id and
       symptom (94% progress, 17 minutes of zero output, killed by `timeout-minutes: 20` with only
       orphaned workers in the cleanup log), and by the prior in-repo
       `--timeout=N --timeout-method=thread` precedent — cite durable anchors, never a task number.
-- [ ] Measure the serial pass's wall time and confirm the combined two-pass runtime leaves
+      Cited CI run 32897405646 and
+      `specs/archive/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md`
+      (lines 134, 143, 359) in both files.
+- [x] Measure the serial pass's wall time and confirm the combined two-pass runtime leaves
       headroom under `general-tests`' `timeout-minutes: 20`. Do not raise `timeout-minutes`.
-- [ ] Verify the Nix derivation still evaluates and the check passes: `nix flake check`.
+      Serial pass: 1.91s (PyPI), 1.56s (nix). Combined two-pass runtime ~181s (PyPI) / ~161s
+      (nix, `checkPhase completed in 2 minutes 40 seconds`), both far under the 1200s
+      (`timeout-minutes: 20`) backstop.
+- [x] Verify the Nix derivation still evaluates and the check passes: `nix flake check`.
+      `nix flake check -L`: "all checks passed!", exit 0.
 
 **Timing**: 1.5 hours
 
