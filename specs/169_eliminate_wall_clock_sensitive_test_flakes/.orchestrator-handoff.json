@@ -1,0 +1,20 @@
+{
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 4,
+  "summary": "All 8 plan phases completed and committed (HEAD d154019c). Timeout signal surfacing, three-way check_result(), rlimit budgets, redesigned timing assertions, xdist_serial marker taxonomy (9 tests), CI timeout/serial-pass wiring, three executable regression guards, and TESTING_GUIDE documentation. Both PyPI (2292 passed, 1 skipped) and Nix (all checks passed) toolchains green end-to-end.",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/169_eliminate_wall_clock_sensitive_test_flakes/summaries/01_eliminate-wall-clock-test-flakes-summary.md",
+      "summary": "Full implementation summary covering all 8 phases, verification results, and plan deviations."
+    }
+  ],
+  "phases_completed": 8,
+  "phases_total": 8,
+  "blockers": [],
+  "continuation_path": null,
+  "plan_markers_verified": true,
+  "next_action_hint": "No further phases remain; task ready for postflight/completion.",
+  "sorry_inventory": []
+}
