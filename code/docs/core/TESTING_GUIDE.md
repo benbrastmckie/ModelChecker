@@ -1156,14 +1156,25 @@ genuine hang, with no evidence that the extra margin is needed.
 oracle gating floor and 8.9 states for `unstable`: the constant encodes a real property, and
 editing it to make a run green is the assertion-weakening those sections exist to forbid.
 
-**`max_rlimit` for the residual case.** Two examples (`CL_TH_12`, `CL_TH_13`) additionally carry
-`max_rlimit`, 8.6's deterministic complement -- a Z3 resource-unit budget that the same
-constraint set exhausts identically regardless of host speed or contention. Their requirement was
-bisected to ~3.13M and ~3.22M units and verified stable across repeated draws; both are set to
-20M. An over-large `max_rlimit` costs nothing, because `max_time` still caps the wall clock:
-it fires only as a deterministic backstop, never as the binding budget on a healthy run. Prefer
-this pairing for any example whose flakiness is specifically load-driven rather than a genuine
-near-budget solve.
+**`max_rlimit` was evaluated and deliberately not adopted.** 8.6 recommends its deterministic
+resource-unit budget alongside `max_time` for a flake that is specifically load-driven, which
+described `CL_TH_12`/`CL_TH_13` exactly. It was measured -- their requirement bisects to ~3.13M
+and ~3.22M units, stable across repeated draws, so a 20M setting would sit ~6x clear -- and then
+left out, because that margin is the argument against it rather than for it. **An `rlimit` bound
+can only ever cause an inconclusive result, never prevent one.** It has no mechanism to rescue a
+solve; it only supplies an additional way to fail. Adding one to an example that a widened
+`max_time` has already carried green therefore widens the failure surface without widening the
+success surface. The corollary matters for reading a green run: because the bound never fired on
+CI, that run is evidence for the `max_time` widening alone, and removing the `rlimit` cannot
+regress it.
+
+Reach for `max_rlimit` where it actually earns its place: an example whose wall-clock budget
+cannot be widened far enough to be safe (because the suite cannot afford the worst case), where
+a *tight, calibrated* rlimit converts an unpredictable load-dependent timeout into a
+reproducible, host-independent one. That is a different situation from a budget that simply had
+too little headroom, which 8.6's "set budgets generously" already solves outright. Measured
+requirements are recorded at the marker site so the option can be exercised without re-deriving
+them.
 
 **Coverage is deliberately partial.** `bimodal`, `exclusion`, and `imposition` still carry 20
 settings dicts at `max_time: 2` and 2 at `3`. They are the same latent hazard but have not been

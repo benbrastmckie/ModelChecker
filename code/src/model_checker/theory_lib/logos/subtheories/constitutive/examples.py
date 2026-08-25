@@ -556,17 +556,17 @@ CL_TH_12_settings = {
     # (CL_TH_13) measured on a 12-core AMD Ryzen AI 9 HX 370, against a next-worst CL_TH_20 at
     # 0.059s. At their former 'max_time': 1 that was ~3x headroom locally but under 1x on a
     # 4-vCPU ubuntu-latest runner sharing six xdist workers, and both failed on all three Python
-    # versions plus `nix flake check` on the v1.3.5 release pushes.
+    # versions plus `nix flake check` on the v1.3.5 release pushes. At 10s (~29x the measured
+    # solve) all four of those jobs went green -- CI-verified, not merely reasoned about.
     #
-    # max_rlimit alongside max_time, per TESTING_GUIDE.md section 8.6's guidance for a flake
-    # that is specifically load-driven rather than a genuine near-budget solve: it counts Z3
-    # resource units rather than wall-clock, so the same constraint set exhausts the same budget
-    # regardless of host CPU speed or contention. Bisected requirement is ~3.13M units for
-    # CL_TH_12 and ~3.22M for CL_TH_13, verified stable across repeated runs (a value 3% above
-    # the bisected threshold decided all 6 of 6 draws). 20M is ~6x that -- generous because an
-    # over-large rlimit costs nothing: max_time still caps the wall clock at 10s, so this only
-    # ever fires as a deterministic backstop, never as the binding budget on a healthy run.
-    'max_rlimit': 20000000,
+    # max_rlimit was evaluated as TESTING_GUIDE.md section 8.6's deterministic complement and
+    # deliberately NOT adopted. The bisected requirement is ~3.13M Z3 resource units for
+    # CL_TH_12 and ~3.22M for CL_TH_13, stable across repeated draws, so a 20M setting would sit
+    # ~6x clear -- meaning it would never bind on a healthy solve. That is exactly why it earns
+    # nothing here: an rlimit bound can only ever CAUSE an inconclusive result, never prevent
+    # one, so adding it to an already-green example widens the failure surface without widening
+    # the success surface. Keep these numbers for the case where a max_time-scale failure does
+    # surface and a load-independent budget becomes the right tool; do not add it pre-emptively.
     'iterate': 1,
     'expectation': False,
 }
@@ -590,17 +590,17 @@ CL_TH_13_settings = {
     # (CL_TH_13) measured on a 12-core AMD Ryzen AI 9 HX 370, against a next-worst CL_TH_20 at
     # 0.059s. At their former 'max_time': 1 that was ~3x headroom locally but under 1x on a
     # 4-vCPU ubuntu-latest runner sharing six xdist workers, and both failed on all three Python
-    # versions plus `nix flake check` on the v1.3.5 release pushes.
+    # versions plus `nix flake check` on the v1.3.5 release pushes. At 10s (~29x the measured
+    # solve) all four of those jobs went green -- CI-verified, not merely reasoned about.
     #
-    # max_rlimit alongside max_time, per TESTING_GUIDE.md section 8.6's guidance for a flake
-    # that is specifically load-driven rather than a genuine near-budget solve: it counts Z3
-    # resource units rather than wall-clock, so the same constraint set exhausts the same budget
-    # regardless of host CPU speed or contention. Bisected requirement is ~3.13M units for
-    # CL_TH_12 and ~3.22M for CL_TH_13, verified stable across repeated runs (a value 3% above
-    # the bisected threshold decided all 6 of 6 draws). 20M is ~6x that -- generous because an
-    # over-large rlimit costs nothing: max_time still caps the wall clock at 10s, so this only
-    # ever fires as a deterministic backstop, never as the binding budget on a healthy run.
-    'max_rlimit': 20000000,
+    # max_rlimit was evaluated as TESTING_GUIDE.md section 8.6's deterministic complement and
+    # deliberately NOT adopted. The bisected requirement is ~3.13M Z3 resource units for
+    # CL_TH_12 and ~3.22M for CL_TH_13, stable across repeated draws, so a 20M setting would sit
+    # ~6x clear -- meaning it would never bind on a healthy solve. That is exactly why it earns
+    # nothing here: an rlimit bound can only ever CAUSE an inconclusive result, never prevent
+    # one, so adding it to an already-green example widens the failure surface without widening
+    # the success surface. Keep these numbers for the case where a max_time-scale failure does
+    # surface and a load-independent budget becomes the right tool; do not add it pre-emptively.
     'iterate': 1,
     'expectation': False,
 }
