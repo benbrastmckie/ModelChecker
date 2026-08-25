@@ -20,7 +20,7 @@ next_project_number: 170
 ### Testing
 
 167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
-169 [NOT STARTED] — Eliminate wall-clock-sensitive test flakes in the tests.yml gener
+169 [NOT STARTED] — Eliminate wall-clock-sensitive test flakes at their root rather t
 
 ### Semantics
 
@@ -43,7 +43,7 @@ next_project_number: 170
 - **Topic**: testing
 - **Dependencies**: None
 
-**Description**: Eliminate wall-clock-sensitive test flakes in the tests.yml general suite at their root rather than per-test: surface the existing ModelStructure.timeout flag in BuildExample results so an inconclusive Z3 UNKNOWN is never reported as model_found False (currently indistinguishable from a genuine UNSAT), give solver-heavy tests deterministic Z3 rlimit budgets alongside the load-dependent max_time wall-clock timeout, isolate solver-timing and performance-ratio tests from pytest -n 6 xdist oversubscription on 4-vCPU runners, and add a regression guard plus TESTING_GUIDE documentation so the class cannot silently return
+**Description**: Eliminate wall-clock-sensitive test flakes at their root rather than per-test, across BOTH tests.yml jobs -- the Python 3.10-3.12 matrix and the nix flake check job, which run the identical invocation (pytest -m "not packaging and not performance and not unstable" -n 6) under two different toolchains, so the same flakes surface in either. Two distinct sub-families need distinct remedies. (1) Solver-budget flakes: surface the existing ModelStructure.timeout flag in BuildExample results so an inconclusive Z3 UNKNOWN is never reported as model_found False (models/structure.py maps UNKNOWN to is_satisfiable=False, making a timeout indistinguishable from a genuine UNSAT at builder/example.py), and give solver-heavy tests deterministic Z3 rlimit budgets alongside the load-dependent max_time wall-clock timeout. (2) Timing-assertion design flakes, which no solver change touches: unbounded max/min ratio assertions over sub-second, cold-start-sensitive operations, observed as TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance failing at ratio 17.4 against a 5.0 bound while its companion absolute bound (max < 10.0s) passed -- the operation is pure filesystem work in BuildProject.generate() with no solver involved, and the ratio grows as warm iterations get faster, so the assertion degrades as the code improves. Redesign these to assert absolute budgets or median-plus-slack, and discard the cold first iteration. Also close the marker gap that makes the existing 'not performance' deselection nearly vacuous: exactly one test in src/model_checker carries @pytest.mark.performance while roughly six test files assert on wall-clock timings unmarked, which is why a timing test reached a contended runner at all. Then isolate any remaining timing-sensitive tests from -n 6 xdist oversubscription on 4-vCPU runners (in both tests.yml and flake.nix, which must stay in sync), and add a regression guard plus TESTING_GUIDE documentation so the class cannot silently return.
 
 ---
 
