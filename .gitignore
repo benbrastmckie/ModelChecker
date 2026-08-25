@@ -39,3 +39,4 @@ specs/.events.lock
 
 # Task 144 bench harness bytecode cache
 specs/144_fix_oracle_per_formula_solve_timeouts/__pycache__/
+specs/.sessions/
