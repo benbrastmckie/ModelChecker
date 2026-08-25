@@ -872,6 +872,42 @@ Future/all_future quantifier family; three closed encoding avenues; the written 
 fix exit criterion). Not duplicated here; the in-line block at the marker site is the source of
 truth.
 
+### 8.10 Optional, Developer-Local External Test Dependencies
+
+Some test files in `oracle/bimodal_logic/tests/` reference `bimodal_harness`, a separate,
+developer-local package (not part of this repository, not declared in `code/pyproject.toml`,
+never installed by any CI workflow). Any test file that touches such a package MUST NOT import it
+at module scope unconditionally: pytest must successfully import a module before it can inspect
+that module's markers, so an unguarded top-level import crashes *collection* -- before marker-based
+deselection (e.g. `-m unstable`) ever gets a chance to run -- on every machine and every CI runner
+where the optional package is not installed.
+
+**Required pattern.** `oracle/bimodal_logic/tests/_bimodal_harness.py` is the shared guard module
+for this dependency: it exposes `BH_AVAILABLE` (a module-level bool set by attempting the import
+inside a `try/except ImportError`) and `BH_SKIP_REASON` (a shared skip message). Any test file
+needing symbols from the optional package must:
+
+1. Import `BH_AVAILABLE` and `BH_SKIP_REASON` from `_bimodal_harness` -- never import the optional
+   package itself at module scope.
+2. Resolve the optional package's symbols conditionally (`if BH_AVAILABLE: import ...` else bind
+   to `None`), so the names still exist for a skipped test's body.
+3. Gate only the specific tests that need those symbols with
+   `@pytest.mark.skipif(not BH_AVAILABLE, reason=BH_SKIP_REASON)`, at test granularity -- never at
+   class or module granularity, so tests that do not depend on the optional package keep running
+   and keep providing coverage.
+4. When stacking `skipif` above an existing `xfail(strict=True)` mark, note that `skipif` is
+   evaluated first: the test reports as `SKIPPED`, not `XFAIL`, when the optional dependency is
+   unavailable.
+
+**Verifying a fix for this class of defect.** A plain local run is not sufficient evidence that a
+guard actually works, because an accidental `sys.path` mutation performed by an alphabetically
+earlier file in the same collected directory can silently make the optional package importable for
+a later file too, masking exactly the failure mode this pattern exists to prevent. Verification
+must instead run in a subprocess with an explicit `sys.meta_path` finder that raises `ImportError`
+for the optional package's name (and any of its submodules), faithfully simulating a CI runner
+where the package genuinely does not exist. See `test_bimodal_harness_guard.py` for the reference
+implementation of this blocker harness and its two portability regression tests.
+
 ---
 
 ## Quick Reference

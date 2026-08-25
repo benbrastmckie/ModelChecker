@@ -25,6 +25,10 @@ Test Classes:
     TestFullScanReport:              Full complexity-5 scan (slow)
     TestCIGate:                      CI self-contained gate validation
 
+BimodalHarness pointer: `BH_AVAILABLE`/`BH_MODULE`/`BH_SKIP_REASON` are imported from the
+shared guard module `_bimodal_harness.py` -- see its module docstring for the required
+pattern any test file touching the optional `bimodal_harness` package must follow.
+
 Completion marker contract: when `_generate_differential_report()` is called with
 `artifact_dir` set, it writes `report.json` first, closes it, then writes a
 `SCAN_COMPLETE` marker last (via write-to-temp-then-`os.replace`, so the write is

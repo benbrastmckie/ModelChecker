@@ -1,7 +1,7 @@
 # Implementation Plan: Guard the bimodal_harness Import in the Oracle Test Tree
 
 - **Task**: 166 - Research and fix recurring unstable-watch.yml GitHub Actions failures
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/166_unstable_watch_workflow_failures/reports/01_root-cause-and-fix-recommendation.md
@@ -185,18 +185,18 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 4: Verify the workflow invocation, record the narrowing decision, document the pattern [NOT STARTED]
+### Phase 4: Verify the workflow invocation, record the narrowing decision, document the pattern [COMPLETED]
 
 - **Goal:** Prove the actual CI condition is fixed, close the documentation gap, and record the
   defense-in-depth decision explicitly.
 - **Tasks:**
   - [ ] Run the exact `unstable-watch.yml` oracle-step invocation from the repo root under the blocker: `PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/ -m unstable -v --junitxml=/tmp/watch-oracle.xml`. Capture the exit code and assert it is 0 or 5 (the workflow treats both as success; with no `unstable`-marked oracle test present, 5 is the expected value).
-  - [ ] Inspect `/tmp/watch-oracle.xml` and confirm it contains no `<error>` element — this is what the workflow's `classify` step parses, and an error element is what produced the `NEW` classification that failed every run.
-  - [ ] Run the code-tree step too (`cd code && PYTHONPATH=src python -m pytest tests/ src/model_checker -m unstable -v --junitxml=/tmp/watch-code.xml`) to confirm it is still green and this change did not perturb it.
-  - [ ] **Record the workflow-narrowing decision.** Decision: do NOT narrow `unstable-watch.yml`'s oracle step to an explicit filename list. Rationale: the directory-wide scope is precisely what surfaced this defect, and the Phase 1 regression test now enforces directory-wide portability from inside the repo on every suite run — a stronger, self-maintaining guard than a workflow-level allowlist that a contributor must remember to update. Narrowing would also silently exclude any future genuinely `unstable`-marked oracle test from the watch the workflow exists to perform, and would restore the blind spot rather than remove it. Write this decision and rationale into the implementation summary so a future reader does not re-open it.
-  - [ ] Add a short subsection to `code/docs/core/TESTING_GUIDE.md` (adjacent to the section 8.9 `unstable`-marker material) naming `oracle/bimodal_logic/tests/_bimodal_harness.py` as the required pattern for any test file depending on an external, developer-local package, and stating the rule: never import such a package at module scope. Per `.claude/rules/no-task-references-in-deliverables.md`, cite file paths and section headings only — no task-number references in this file.
-  - [ ] Add a one-line pointer comment at the top of both `test_oracle_interface.py` and `test_cross_oracle_differential.py` directing readers to the shared helper.
-  - [ ] Commit locally. Do NOT push, do NOT open a pull request, do NOT invoke `/merge`.
+  - [x] Inspect `/tmp/watch-oracle.xml` and confirm it contains no `<error>` element — this is what the workflow's `classify` step parses, and an error element is what produced the `NEW` classification that failed every run. *(completed: errors="0", zero &lt;error&gt; elements)*
+  - [x] Run the code-tree step too (`cd code && PYTHONPATH=src python -m pytest tests/ src/model_checker -m unstable -v --junitxml=/tmp/watch-code.xml`) to confirm it is still green and this change did not perturb it. *(completed: 1 passed, 2393 deselected)*
+  - [x] **Record the workflow-narrowing decision.** Decision: do NOT narrow `unstable-watch.yml`'s oracle step to an explicit filename list. Rationale: the directory-wide scope is precisely what surfaced this defect, and the Phase 1 regression test now enforces directory-wide portability from inside the repo on every suite run — a stronger, self-maintaining guard than a workflow-level allowlist that a contributor must remember to update. Narrowing would also silently exclude any future genuinely `unstable`-marked oracle test from the watch the workflow exists to perform, and would restore the blind spot rather than remove it. Write this decision and rationale into the implementation summary so a future reader does not re-open it. *(completed: recorded here and in the summary)*
+  - [x] Add a short subsection to `code/docs/core/TESTING_GUIDE.md` (adjacent to the section 8.9 `unstable`-marker material) naming `oracle/bimodal_logic/tests/_bimodal_harness.py` as the required pattern for any test file depending on an external, developer-local package, and stating the rule: never import such a package at module scope. Per `.claude/rules/no-task-references-in-deliverables.md`, cite file paths and section headings only — no task-number references in this file. *(completed: added section 8.10)*
+  - [x] Add a one-line pointer comment at the top of both `test_oracle_interface.py` and `test_cross_oracle_differential.py` directing readers to the shared helper. *(completed)*
+  - [x] Commit locally. Do NOT push, do NOT open a pull request, do NOT invoke `/merge`. *(completed)*
 - **Timing:** 45 minutes
 - **Depends on:** 3
 - **Verification Tier:** full
@@ -214,14 +214,14 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ## Testing & Validation
 
-- [ ] `oracle/bimodal_logic/tests/test_bimodal_harness_guard.py` fails before Phase 3 and passes after (RED -> GREEN, per `code/docs/core/TESTING_GUIDE.md`).
-- [ ] Whole-directory `--collect-only` under an explicit `bimodal_harness` blocker: zero collection errors.
-- [ ] Exact `unstable-watch.yml` oracle-step command under the blocker: exit code 0 or 5, JUnit XML free of `<error>` elements.
-- [ ] Exact `unstable-watch.yml` code-step command: unchanged, still green.
-- [ ] `differential-tests.yml`'s invocations against `test_cross_oracle_differential.py`: identical counts to the pre-change baseline.
-- [ ] With BimodalHarness available: `test_oracle_interface.py` pass/fail/xfail counts identical to the pre-change baseline.
-- [ ] Under the blocker: exactly the three BimodalHarness-dependent tests report `SKIPPED`; no test reports `ERROR`.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` unaffected (this change does not touch `code/`).
+- [x] `oracle/bimodal_logic/tests/test_bimodal_harness_guard.py` fails before Phase 3 and passes after (RED -> GREEN, per `code/docs/core/TESTING_GUIDE.md`). *(confirmed)*
+- [x] Whole-directory `--collect-only` under an explicit `bimodal_harness` blocker: zero collection errors. *(confirmed: 629/629 collected, zero errors)*
+- [x] Exact `unstable-watch.yml` oracle-step command under the blocker: exit code 0 or 5, JUnit XML free of `<error>` elements. *(confirmed: exit 5, errors="0")*
+- [x] Exact `unstable-watch.yml` code-step command: unchanged, still green. *(confirmed: 1 passed, 2393 deselected)*
+- [x] `differential-tests.yml`'s invocations against `test_cross_oracle_differential.py`: identical counts to the pre-change baseline. *(confirmed: 63 passed/9 deselected identical both invocations; CI-gate invocation 49 passed; 8 BH-dependent tests skip cleanly under the blocker)*
+- [x] With BimodalHarness available: `test_oracle_interface.py` pass/fail/xfail counts identical to the pre-change baseline. *(confirmed at the total level -- 114 in both runs; one pre-existing, documented Z3 solver-timing flake (TESTING_GUIDE.md 8.6, unrelated to bimodal_harness) shifted 1 test between FAILED and PASSED across runs -- see phase-3-progress.json for the full breakdown)*
+- [x] Under the blocker: exactly the three BimodalHarness-dependent tests report `SKIPPED`; no test reports `ERROR`. *(confirmed: 6 skipped total = 3 pre-existing budget skips + the 3 newly-gated tests; zero ERROR)*
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` unaffected (this change does not touch `code/`). *(confirmed: 487 passed, 5 skipped, fully unaffected)*
 
 ## Artifacts & Outputs
 
