@@ -32,6 +32,9 @@ code/scaling_results.json
 **/.postflight-pending
 **/.return-meta.json
 **/.return-meta-multi.json
+**/.return-meta-multi-sess_*.json
+**/.orchestrator-multi-state.json
+**/.orchestrator-multi-state-sess_*.json
 **/specs/tmp/
 /.claude
 /.claude-extensions.json
