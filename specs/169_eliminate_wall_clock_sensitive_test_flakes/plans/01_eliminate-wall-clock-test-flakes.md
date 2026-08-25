@@ -383,7 +383,7 @@ combined with a time-derived list before closing the phase; extend the phase if 
 
 ---
 
-### Phase 5: Marker Taxonomy and Full Inventory Marking [NOT STARTED]
+### Phase 5: Marker Taxonomy and Full Inventory Marking [IN PROGRESS]
 
 **Goal**: Ensure no wall-clock-asserting test is left unmarked in the contended `-n 6` pool, per
 D3's two-marker taxonomy.
