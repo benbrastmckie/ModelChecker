@@ -160,17 +160,17 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 3: Guard test_oracle_interface.py and gate the three dependent tests [NOT STARTED]
+### Phase 3: Guard test_oracle_interface.py and gate the three dependent tests [COMPLETED]
 
 - **Goal:** Turn Phase 1 GREEN. Remove the two unguarded module-level imports and skip only the
   tests that genuinely need them.
 - **Tasks:**
-  - [ ] Delete `from bimodal_harness.oracle.protocol import OracleProvider` and `from bimodal_harness.oracle.registry import OracleRegistry` at `test_oracle_interface.py:37-38`.
-  - [ ] Import `BH_AVAILABLE` and `BH_SKIP_REASON` from the shared module instead, and resolve `OracleProvider` / `OracleRegistry` only when available (module-level conditional binding to `None` otherwise, so the names still exist for the skipped tests' bodies).
-  - [ ] Gate `TestOracleProtocolCompliance.test_provider_implements_protocol` with `@pytest.mark.skipif(not BH_AVAILABLE, reason=BH_SKIP_REASON)`. Gate at test granularity — the other tests in that class do not use `OracleProvider` and MUST keep running.
-  - [ ] Gate `TestEntryPointDiscovery.test_oracle_registry_discover` and `test_discovered_provider_is_correct_type` the same way, stacking `skipif` above the existing `@pytest.mark.xfail(strict=True, ...)` marks. Leave `test_entry_point_registered` and `test_entry_point_loads_correct_class` untouched — they use only `importlib.metadata` and have no BimodalHarness dependency.
-  - [ ] Verify (do not modify) that `TestSpotCheckCrossSignal._get_spot_check_formulas` at line 1061 is already correctly guarded by its own `try/except ImportError` returning `None`, and that its callers handle `None`. If a caller does not, gate that caller too.
-  - [ ] Confirm no other symbol in the module resolves through `bimodal_harness`.
+  - [x] Delete `from bimodal_harness.oracle.protocol import OracleProvider` and `from bimodal_harness.oracle.registry import OracleRegistry` at `test_oracle_interface.py:37-38`. *(completed)*
+  - [x] Import `BH_AVAILABLE` and `BH_SKIP_REASON` from the shared module instead, and resolve `OracleProvider` / `OracleRegistry` only when available (module-level conditional binding to `None` otherwise, so the names still exist for the skipped tests' bodies). *(completed)*
+  - [x] Gate `TestOracleProtocolCompliance.test_provider_implements_protocol` with `@pytest.mark.skipif(not BH_AVAILABLE, reason=BH_SKIP_REASON)`. Gate at test granularity — the other tests in that class do not use `OracleProvider` and MUST keep running. *(completed)*
+  - [x] Gate `TestEntryPointDiscovery.test_oracle_registry_discover` and `test_discovered_provider_is_correct_type` the same way, stacking `skipif` above the existing `@pytest.mark.xfail(strict=True, ...)` marks. Leave `test_entry_point_registered` and `test_entry_point_loads_correct_class` untouched — they use only `importlib.metadata` and have no BimodalHarness dependency. *(completed: confirmed under the blocker — these two report SKIPPED, not XFAIL, dropping the class's xfailed count from 4 to 2 exactly as the skipif-precedence rule predicts)*
+  - [x] Verify (do not modify) that `TestSpotCheckCrossSignal._get_spot_check_formulas` at line 1061 is already correctly guarded by its own `try/except ImportError` returning `None`, and that its callers handle `None`. If a caller does not, gate that caller too. *(completed: verified unmodified and correctly guarded; TestSpotCheckCrossSignal tests pass under the blocker)*
+  - [x] Confirm no other symbol in the module resolves through `bimodal_harness`. *(completed)*
 - **Timing:** 45 minutes
 - **Depends on:** 2
 - **Verification Tier:** interface

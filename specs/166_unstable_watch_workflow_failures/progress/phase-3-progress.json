@@ -1,0 +1,30 @@
+{
+  "phase": 3,
+  "phase_name": "Guard test_oracle_interface.py and gate the three dependent tests",
+  "started_at": "2026-08-25T01:00:00Z",
+  "last_updated": "2026-08-25T02:30:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Replace unguarded imports with shared guard; conditional OracleProvider/OracleRegistry binding",
+      "status": "done",
+      "files_touched": ["oracle/bimodal_logic/tests/test_oracle_interface.py"]
+    },
+    {
+      "id": 2,
+      "description": "Gate the three dependent tests with skipif, stacked above existing xfail marks where applicable",
+      "status": "done",
+      "files_touched": ["oracle/bimodal_logic/tests/test_oracle_interface.py"]
+    },
+    {
+      "id": 3,
+      "description": "Verify Phase 1 regression tests now PASS; directory collect-only under blocker zero errors; exactly 3 SKIPPED under blocker; WITHOUT blocker counts match pre-edit baseline",
+      "status": "done",
+      "files_touched": [],
+      "note": "Pre-edit baseline (BimodalHarness available, isolated run with BH src on PYTHONPATH): 2 failed, 105 passed, 3 skipped, 4 xfailed (114 total). Post-edit, BimodalHarness available (no extra PYTHONPATH needed -- the shared helper's own sys.path insertion now makes BH available even in isolation, an incidental portability improvement): 1 failed, 106 passed, 3 skipped, 4 xfailed (114 total). The single-test delta (test_mixed_and_all_future_neg: FAILED pre-edit, PASSED post-edit) is documented pre-existing Z3 solver-timing variance (OracleTimeoutError at a 60-150s budget), per TESTING_GUIDE.md section 8.6 -- unrelated to bimodal_harness/OracleProvider/OracleRegistry and outside this task's scope. test_mixed_or_diamond_prev failed identically in every run (pre-edit, post-edit, and under the blocker) -- a separate, pre-existing, out-of-scope issue in TestMixedFormulas, not touched by this fix. Under the blocker: 1 failed (same test_mixed_or_diamond_prev), 105 passed, 6 skipped (3 pre-existing budget skips + the 3 newly BimodalHarness-gated tests), 2 xfailed (down from 4, exactly matching the skipif-precedence-over-xfail rule since 2 of the 4 previously-xfailed tests are now among the 3 newly-gated skips), 114 total, zero ERROR occurrences, zero ModuleNotFoundError."
+    }
+  ],
+  "current_objective": 3,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

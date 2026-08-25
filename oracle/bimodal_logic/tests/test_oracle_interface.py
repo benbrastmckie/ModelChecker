@@ -14,6 +14,14 @@ pipeline. It covers:
 7. Entry-point discovery
 8. Z3 isolation stress tests (150+ calls, memory tracking)
 
+BimodalHarness pointer: this module uses the optional, developer-local
+``bimodal_harness`` package for two symbols (``OracleProvider``,
+``OracleRegistry``). Per the shared-guard pattern required by any test file
+in this tree that touches ``bimodal_harness`` (see ``_bimodal_harness.py``'s
+module docstring), those two symbols are imported through that shared
+module rather than at module scope here, and only the three tests that
+actually need them are skipped when the package is unavailable.
+
 Test Classes:
     TestOracleProtocolCompliance:     5 properties + 2 methods exist
     TestOracleExampleRegressionViaAPI: 52-example regression through oracle API
@@ -34,8 +42,7 @@ import tracemalloc
 
 import pytest
 
-from bimodal_harness.oracle.protocol import OracleProvider
-from bimodal_harness.oracle.registry import OracleRegistry
+from bimodal_logic.tests._bimodal_harness import BH_AVAILABLE, BH_SKIP_REASON
 from bimodal_logic import OracleTimeoutError, Z3OracleProvider
 from bimodal_logic.ground_truth import ground_truth_verdict
 from bimodal_logic.translation import temporal_depth, unfold_formula
@@ -43,6 +50,18 @@ from model_checker.theory_lib.bimodal.examples import (
     countermodel_examples,
     theorem_examples,
 )
+
+# OracleProvider / OracleRegistry are only resolved when bimodal_harness is
+# actually importable; the three tests below that reference them are gated
+# with skipif(not BH_AVAILABLE, ...), but the names must still exist
+# (bound to None) so those tests' bodies remain syntactically valid when
+# skipped rather than executed.
+if BH_AVAILABLE:
+    from bimodal_harness.oracle.protocol import OracleProvider
+    from bimodal_harness.oracle.registry import OracleRegistry
+else:
+    OracleProvider = None
+    OracleRegistry = None
 
 
 ##############################################################################
@@ -515,6 +534,7 @@ class TestOracleProtocolCompliance:
     def setup_method(self):
         self.provider = Z3OracleProvider()
 
+    @pytest.mark.skipif(not BH_AVAILABLE, reason=BH_SKIP_REASON)
     def test_provider_implements_protocol(self):
         """Verify isinstance(provider, OracleProvider) using runtime_checkable."""
         assert isinstance(self.provider, OracleProvider), (
@@ -1530,6 +1550,7 @@ class TestEntryPointDiscovery:
             f"Entry point loaded {loaded}, expected Z3OracleProvider"
         )
 
+    @pytest.mark.skipif(not BH_AVAILABLE, reason=BH_SKIP_REASON)
     @pytest.mark.xfail(strict=True, reason=_ENTRY_POINT_XFAIL_REASON)
     def test_oracle_registry_discover(self):
         """OracleRegistry.discover() finds z3_base provider."""
@@ -1540,6 +1561,7 @@ class TestEntryPointDiscovery:
             f"z3_base not discovered. Found: {provider_ids}"
         )
 
+    @pytest.mark.skipif(not BH_AVAILABLE, reason=BH_SKIP_REASON)
     @pytest.mark.xfail(strict=True, reason=_ENTRY_POINT_XFAIL_REASON)
     def test_discovered_provider_is_correct_type(self):
         """Discovered provider is Z3OracleProvider instance."""
