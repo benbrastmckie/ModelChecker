@@ -250,9 +250,71 @@ general_settings = {}
         self.assertTrue(hasattr(build_example, 'settings_manager'))
 
 
+class TestTimeoutSurfacing(unittest.TestCase):
+    """Test that a Z3 UNKNOWN is never reported as model_found=False without
+    an accompanying, readable timeout signal.
+
+    models/structure.py's solve()/re_solve() already classify every Z3
+    UNKNOWN as is_timeout=True and populate ModelStructure.timeout -- the
+    break was entirely in builder/example.py, which never read it. These
+    tests pin the fix: get_result() and _get_model_structure_data() must
+    both surface a "timeout" key alongside "model_found".
+    """
+
+    def _build_example_with_mock_structure(self, timeout, z3_model_status):
+        """Construct a BuildExample with a minimal mock model_structure,
+        mirroring test_get_result_without_model_check's __new__ pattern to
+        avoid a real solve."""
+        example = BuildExample.__new__(BuildExample)
+        mock_structure = Mock()
+        mock_structure.timeout = timeout
+        mock_structure.z3_model_status = z3_model_status
+        mock_structure.z3_model_runtime = 1.23
+        mock_structure.z3_model = None
+        example.model_structure = mock_structure
+        example.settings = {}
+        return example
+
+    def test_get_result_contains_timeout_key(self):
+        """get_result() always carries a 'timeout' key."""
+        example = self._build_example_with_mock_structure(
+            timeout=False, z3_model_status=True
+        )
+        result = example.get_result()
+        self.assertIn("timeout", result)
+
+    def test_get_result_timeout_true_on_unknown(self):
+        """A timed-out solve yields model_found=False and timeout=True,
+        independently readable rather than conflated."""
+        example = self._build_example_with_mock_structure(
+            timeout=True, z3_model_status=False
+        )
+        result = example.get_result()
+        self.assertFalse(result["model_found"])
+        self.assertTrue(result["timeout"])
+
+    def test_get_model_structure_data_contains_timeout_key(self):
+        """_get_model_structure_data() always carries a 'timeout' key."""
+        example = self._build_example_with_mock_structure(
+            timeout=False, z3_model_status=True
+        )
+        data = example._get_model_structure_data()
+        self.assertIn("timeout", data)
+
+    def test_get_model_structure_data_timeout_true_on_unknown(self):
+        """A timed-out solve's structure data reports model_found=False and
+        timeout=True, independently readable rather than conflated."""
+        example = self._build_example_with_mock_structure(
+            timeout=True, z3_model_status=False
+        )
+        data = example._get_model_structure_data()
+        self.assertFalse(data["model_found"])
+        self.assertTrue(data["timeout"])
+
+
 class TestBuildExampleErrorHandling(unittest.TestCase):
     """Test BuildExample error handling."""
-    
+
     def test_get_result_without_model_check(self):
         """Test get_result raises error when called before model checking."""
         # Create a BuildExample without proper initialization

@@ -1,7 +1,7 @@
 # Implementation Plan: Eliminate Wall-Clock-Sensitive Test Flakes
 
 - **Task**: 169 - Eliminate wall-clock-sensitive test flakes and undiagnosable hangs
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 10.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/169_eliminate_wall_clock_sensitive_test_flakes/reports/01_wall-clock-flake-root-causes.md`
@@ -173,28 +173,28 @@ Phase 5 is blocked by Phase 4 only (both edit `test_project_edge_cases.py`).
 
 ---
 
-### Phase 1: Surface `timeout` in Result Dictionaries [NOT STARTED]
+### Phase 1: Surface `timeout` in Result Dictionaries [COMPLETED]
 
 **Goal**: Make an inconclusive Z3 UNKNOWN readable as such by every consumer of a result dict,
 without changing any existing key's meaning.
 
 **Tasks**:
-- [ ] Write failing tests first (RED): a test asserting `BuildExample.get_result()` contains a
+- [x] Write failing tests first (RED): a test asserting `BuildExample.get_result()` contains a
       `"timeout"` key; a test asserting that a `ModelStructure` with `timeout=True` and
       `z3_model_status=False` yields `{"model_found": False, "timeout": True}`; the same pair for
       `_get_model_structure_data()`.
-- [ ] Add `"timeout": self.model_structure.timeout` to `get_result()`'s returned dict and update
+- [x] Add `"timeout": self.model_structure.timeout` to `get_result()`'s returned dict and update
       its docstring's documented structure block.
-- [ ] Add the same key to `_get_model_structure_data()`.
-- [ ] Add a `timeout` field (default `False`) to `TestResultData.__init__` in
+- [x] Add the same key to `_get_model_structure_data()`.
+- [x] Add a `timeout` field (default `False`) to `TestResultData.__init__` in
       `utils/testing.py` and populate it in `run_enhanced_test()` from
       `model_structure_obj.timeout`, immediately alongside the existing
       `result_data.model_found = ...` assignment.
-- [ ] Make `TestResultData.is_valid_countermodel()` return `False` on a timeout without implying
+- [x] Make `TestResultData.is_valid_countermodel()` return `False` on a timeout without implying
       a semantic negative, and document that distinction in its docstring.
-- [ ] Fix `get_result()`'s stale return annotation (`Tuple[bool, Optional[Any], str]`) to
+- [x] Fix `get_result()`'s stale return annotation (`Tuple[bool, Optional[Any], str]`) to
       `Dict[str, Any]`, which is what it has always actually returned.
-- [ ] Run the builder unit suite to GREEN.
+- [x] Run the builder unit suite to GREEN.
 
 **Timing**: 1.5 hours
 

@@ -60,6 +60,7 @@ class TestResultData:
     
     def __init__(self) -> None:
         self.model_found = False
+        self.timeout = False
         self.check_result = False
         self.premise_evaluations = []
         self.conclusion_evaluations = []
@@ -68,17 +69,26 @@ class TestResultData:
         self.function_witnesses = {}
         self.error_message = None
         self.strategy_name = None
-        
+
     def is_valid_countermodel(self) -> bool:
-        """Check if this represents a valid countermodel (true premises, false conclusions)."""
+        """Check if this represents a valid countermodel (true premises, false conclusions).
+
+        Returns False both when no model was found and when the solve timed
+        out (self.timeout is True). This is deliberate: False here means
+        "not a demonstrated valid countermodel", not "the solver proved no
+        countermodel exists" -- callers that need to distinguish an
+        inconclusive timeout from a genuine non-countermodel must check
+        self.timeout separately rather than treating this method's False
+        as a semantic negative.
+        """
         if not self.model_found:
             return False
-        
+
         # All premises must be true
         premises_valid = all(self.premise_evaluations)
-        # All conclusions must be false  
+        # All conclusions must be false
         conclusions_valid = all(not c for c in self.conclusion_evaluations)
-        
+
         return premises_valid and conclusions_valid
 
 
@@ -138,6 +148,7 @@ def run_enhanced_test(
         result_data.check_result = model_structure_obj.check_result()
         result_data.z3_model_status = model_structure_obj.z3_model_status
         result_data.model_found = model_structure_obj.z3_model is not None
+        result_data.timeout = model_structure_obj.timeout
         
         # Extract detailed evaluation data if model was found
         if result_data.model_found and model_structure_obj.z3_model:

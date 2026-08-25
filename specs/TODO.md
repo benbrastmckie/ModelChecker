@@ -20,7 +20,7 @@ next_project_number: 170
 ### Testing
 
 167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
-169 [PLANNED] — Eliminate wall-clock-sensitive test flakes and undiagnosable hang
+169 [IMPLEMENTING] — Eliminate wall-clock-sensitive test flakes and undiagnosable hang
 
 ### Semantics
 
@@ -38,7 +38,7 @@ next_project_number: 170
 ## Tasks
 
 ### 169. Eliminate wall clock sensitive test flakes
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None

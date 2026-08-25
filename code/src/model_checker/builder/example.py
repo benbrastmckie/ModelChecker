@@ -196,38 +196,47 @@ class BuildExample:
         # Store solver reference
         self.solver = self.model_structure.solver
     
-    def get_result(self) -> Tuple[bool, Optional[Any], str]:
+    def get_result(self) -> Dict[str, Any]:
         """Get the result of the model checking.
-        
+
         Returns:
             dict: Model data with structure:
                 {
                     "model_found": bool,
+                    "timeout": bool,
                     "runtime": float,
                     "model_structure": dict of model internals
                 }
-                
+
+                "model_found" is False both when the solver proved
+                unsatisfiability and when the solver timed out (Z3 UNKNOWN);
+                "timeout" disambiguates the two -- it is True only for the
+                latter, so an inconclusive solve is never silently reported
+                as a definitive "no model exists".
+
         Raises:
             RuntimeError: If model checking has not been performed
         """
         if not hasattr(self, 'model_structure') or self.model_structure is None:
             raise RuntimeError("No model check has been performed")
-            
+
         return {
             "model_found": self.model_structure.z3_model_status,
+            "timeout": self.model_structure.timeout,
             "runtime": self.model_structure.z3_model_runtime,
             "model_structure": self._get_model_structure_data()
         }
-    
+
     def _get_model_structure_data(self) -> Dict[str, Any]:
         """Extract relevant data from the model structure.
-        
+
         Returns:
             dict: Model structure data in a serializable format
         """
         # Extract basic model information
         result = {
             "model_found": self.model_structure.z3_model_status,
+            "timeout": self.model_structure.timeout,
             "runtime": self.model_structure.z3_model_runtime,
             "settings": self.settings
         }
