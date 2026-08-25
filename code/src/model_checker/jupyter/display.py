@@ -329,13 +329,21 @@ def display_formula_check(formula: str,
             theory_name
         )
         
-        # Format and display
-        valid = model.check_result()
-        color = "green" if valid else "red"
-        
+        # Format and display -- "match"/"mismatch"/"inconclusive" is
+        # rendered as a distinct, explicit label rather than collapsed into
+        # True/False, so a solver timeout is never shown as if it were a
+        # decided (in)valid result.
+        check = model.check_result()
+        if check == "match":
+            color, valid_label = "green", "True"
+        elif check == "mismatch":
+            color, valid_label = "red", "False"
+        else:  # "inconclusive"
+            color, valid_label = "orange", "solver budget exhausted -- result unknown"
+
         html_result = HTML(
             f"<h3>Formula: {formula}</h3>"
-            f"<p><b>Valid:</b> <span style='color:{color}'>{valid}</span></p>"
+            f"<p><b>Valid:</b> <span style='color:{color}'>{valid_label}</span></p>"
             f"{convert_ansi_to_html(output)}"
         )
         
@@ -399,14 +407,17 @@ def display_countermodel(formula: str,
         
         example = [premises or [], [formula], settings]
         model = BuildExample(build_module, theory, example)
-        
-        # Check if we found a countermodel
-        valid = model.check_result()
-        
-        if not valid:
+
+        # Check if we found a countermodel. Only an explicit "mismatch"
+        # triggers the graph view; "inconclusive" (solver timeout) is never
+        # treated as if no countermodel exists -- it falls through to the
+        # text result, which already surfaces the timeout distinctly.
+        check = model.check_result()
+
+        if check == "mismatch":
             # Show the graph visualization below the text result
             display(result)
-            
+
             # Return the graph visualization
             return display_model(model, visualization_type="graph")
     except Exception as e:

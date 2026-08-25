@@ -344,10 +344,20 @@ class BuildExample:
     
     def check_result(self) -> str:
         """Compare the model findings against expected model existence.
-        
+
         Returns:
-            bool: True if model findings match expectations, False otherwise.
+            str: "match" if the model findings match expectations,
+                 "mismatch" if they do not, or "inconclusive" if the solver
+                 timed out. The timeout check happens before the
+                 expectation comparison (mirroring
+                 oracle/bimodal_logic/tests/test_cross_oracle_differential.py's
+                 timeout-checked-first ordering), so an inconclusive Z3
+                 UNKNOWN is never reported as a definitive mismatch -- a
+                 boolean return value cannot express "we ran out of time"
+                 without conflating it with one of the two decided outcomes.
         """
+        if self.model_structure.timeout:
+            return "inconclusive"
         model_expectation = self.settings.get("model", True)
         model_findings = self.model_structure.z3_model_status
-        return model_findings == model_expectation
+        return "match" if model_findings == model_expectation else "mismatch"

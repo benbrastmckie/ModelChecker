@@ -35,7 +35,12 @@ def run_test(
         model_structure: The model structure class to use
         
     Returns:
-        bool: True if the model matches the expected behavior, False otherwise
+        bool: True if the model matches the expected behavior ("match"),
+              False otherwise ("mismatch" or "inconclusive" -- a timed-out
+              solve is treated as not matching rather than silently
+              collapsing into either boolean value, preserving this
+              function's boolean contract for its many theory-level
+              callers)
     """
     premises, conclusions, settings = example_case
     example_syntax = syntax_class(premises, conclusions, operator_collection)
@@ -49,10 +54,10 @@ def run_test(
     )
     # Create model structure
     model_structure = model_structure(
-        model_constraints, 
+        model_constraints,
         settings,
     )
-    return model_structure.check_result()
+    return model_structure.check_result() == "match"
 
 
 class TestResultData:
@@ -61,7 +66,12 @@ class TestResultData:
     def __init__(self) -> None:
         self.model_found = False
         self.timeout = False
-        self.check_result = False
+        # "match" / "mismatch" / "inconclusive" -- see
+        # models.structure.ModelDefaults.check_result(). Defaults to
+        # "inconclusive" (not False) because no solve has happened yet;
+        # a bool default cannot express "not yet decided" without
+        # conflating it with a genuine mismatch.
+        self.check_result = "inconclusive"
         self.premise_evaluations = []
         self.conclusion_evaluations = []
         self.solving_time = 0.0

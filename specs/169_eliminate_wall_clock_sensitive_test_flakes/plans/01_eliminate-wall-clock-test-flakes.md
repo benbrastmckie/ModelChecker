@@ -225,28 +225,28 @@ production consumers appear, extend this phase rather than silently proceeding.
 
 ---
 
-### Phase 2: Three-Way `check_result()` and Call-Site Migration [NOT STARTED]
+### Phase 2: Three-Way `check_result()` and Call-Site Migration [COMPLETED]
 
 **Goal**: Replace the boolean match/mismatch verdict with an explicit three-value result so a
 timeout is never reported as a semantic mismatch.
 
 **Tasks**:
-- [ ] Write failing tests first (RED) covering all three returns of both `check_result()` methods.
-- [ ] Change `BuildExample.check_result()` to return `"match"`, `"mismatch"`, or `"inconclusive"`,
+- [x] Write failing tests first (RED) covering all three returns of both `check_result()` methods.
+- [x] Change `BuildExample.check_result()` to return `"match"`, `"mismatch"`, or `"inconclusive"`,
       returning `"inconclusive"` whenever `self.model_structure.timeout` is truthy, checked
       **before** the expectation comparison (mirroring `run_differential_scan()`'s
       timeout-checked-first ordering in
       `oracle/bimodal_logic/tests/test_cross_oracle_differential.py`).
-- [ ] Apply the identical three-way change to `ModelDefaults.check_result()` in
+- [x] Apply the identical three-way change to `ModelDefaults.check_result()` in
       `code/src/model_checker/models/structure.py`.
-- [ ] Migrate every call site: `jupyter/display.py`, `jupyter/interactive.py`,
+- [x] Migrate every call site: `jupyter/display.py`, `jupyter/interactive.py`,
       `utils/testing.py` (both the module-level helper and `run_enhanced_test()`), and
       `models/tests/unit/test_structure.py::test_check_result`.
-- [ ] At each Jupyter call site, render `"inconclusive"` as a distinct user-visible state
+- [x] At each Jupyter call site, render `"inconclusive"` as a distinct user-visible state
       ("solver budget exhausted -- result unknown"), never as invalid.
-- [ ] Store the enum on `TestResultData.check_result` and update its default from `False` to
+- [x] Store the enum on `TestResultData.check_result` and update its default from `False` to
       `"inconclusive"`.
-- [ ] Update the `test_iteration_via_iterate_api` assertion in
+- [x] Update the `test_iteration_via_iterate_api` assertion in
       `builder/tests/unit/test_example.py` to branch on `timeout` first and skip (not fail) on an
       inconclusive solve, with a comment naming the 30.62s-vs-`max_time=30` observation as the
       motivating case.

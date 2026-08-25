@@ -223,25 +223,39 @@ class TestModelDefaultsStructure(unittest.TestCase):
             self.model_defaults.re_solve()
     
     def test_check_result(self):
-        """Test result checking functionality."""
+        """Test three-way result checking functionality.
+
+        check_result() returns "match" / "mismatch" / "inconclusive" rather
+        than a boolean, so a timed-out solve can never be reported as a
+        semantic mismatch. "inconclusive" is checked before the expectation
+        comparison.
+        """
         # Test before solving - check_result needs solved state
         self.model_defaults.solved = False
         result = self.model_defaults.check_result()
-        self.assertIsNone(result)
-        
+        self.assertEqual(result, "inconclusive")
+
         # Set up solved state
         self.model_defaults.solved = True
+        self.model_defaults.timeout = False
         self.model_defaults.z3_model_status = True
         self.settings["expectation"] = True
-        
+
         # Test expectation matching
         result = self.model_defaults.check_result()
-        self.assertTrue(result)
-        
+        self.assertEqual(result, "match")
+
         # Test expectation mismatch
         self.settings["expectation"] = False
         result = self.model_defaults.check_result()
-        self.assertFalse(result)
+        self.assertEqual(result, "mismatch")
+
+        # Test timeout: checked before the expectation comparison, so an
+        # inconclusive solve is never reported as a mismatch even when
+        # z3_model_status happens not to equal expectation.
+        self.model_defaults.timeout = True
+        result = self.model_defaults.check_result()
+        self.assertEqual(result, "inconclusive")
     
     def test_interpret_method(self):
         """Test sentence interpretation method."""

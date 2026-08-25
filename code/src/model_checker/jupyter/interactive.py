@@ -42,6 +42,20 @@ def _resolve_theory(theory_name):
     return entry.as_theory_dict(), name
 
 
+def _check_result_color_label(check: str) -> tuple:
+    """Map a BuildExample.check_result() three-way value to a (color, label)
+    pair for simple 'Valid'/'Invalid' display sites.
+
+    "inconclusive" (solver timeout) renders as its own distinct label,
+    never silently shown as if the result were a decided True/False.
+    """
+    if check == "match":
+        return "green", "True"
+    if check == "mismatch":
+        return "red", "False"
+    return "orange", "Inconclusive (solver budget exhausted -- result unknown)"
+
+
 # Define high-level utility functions
 def check_formula(formula, theory_name=None, premises=None, settings=None):
     """Check if a formula is valid given premises."""
@@ -73,19 +87,24 @@ def check_formula(formula, theory_name=None, premises=None, settings=None):
         example = [premises, [formula], settings]
         model = create_build_example("jupyter_check", theory, example)
         
-        # Get result
-        valid = model.check_result()
-        
-        # Create HTML output
-        color = "green" if valid else "red"
+        # Get result -- "match"/"mismatch"/"inconclusive" is rendered as a
+        # distinct, explicit label rather than collapsed into Valid/Invalid,
+        # so a solver timeout is never shown as if it were a decided result.
+        check = model.check_result()
+        if check == "match":
+            color, result_label = "green", "Valid"
+        elif check == "mismatch":
+            color, result_label = "red", "Invalid"
+        else:  # "inconclusive"
+            color, result_label = "orange", "Inconclusive (solver budget exhausted -- result unknown)"
         premises_text = " with premises: " + ", ".join(premises) if premises else ""
-        
+
         html_output = f"""
         <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
             <h3>Formula Check Result</h3>
             <p><strong>Theory:</strong> {theory_name}</p>
             <p><strong>Formula:</strong> {formula}{premises_text}</p>
-            <p><strong>Result:</strong> <span style='color:{color}; font-weight:bold'>{'Valid' if valid else 'Invalid'}</span></p>
+            <p><strong>Result:</strong> <span style='color:{color}; font-weight:bold'>{result_label}</span></p>
         </div>
         """
         
@@ -130,11 +149,13 @@ def find_countermodel(formula, theory_name=None, premises=None, settings=None):
         example = [premises, [formula], settings]
         model = create_build_example("jupyter_countermodel", theory, example)
         
-        # Get result
-        valid = model.check_result()
-        
+        # Get result -- "inconclusive" (solver timeout) is rendered as its
+        # own distinct branch below, never silently folded into either the
+        # "countermodel found" or "no countermodel" case.
+        check = model.check_result()
+
         # Create HTML output
-        if not valid:
+        if check == "mismatch":
             # Found a countermodel - capture model output
             output = StringIO()
             try:
@@ -142,9 +163,9 @@ def find_countermodel(formula, theory_name=None, premises=None, settings=None):
                 model_output = output.getvalue()
             except:
                 model_output = "Model details unavailable"
-            
+
             premises_text = " with premises: " + ", ".join(premises) if premises else ""
-            
+
             html_output = f"""
             <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
                 <h3>Countermodel Found</h3>
@@ -157,10 +178,23 @@ def find_countermodel(formula, theory_name=None, premises=None, settings=None):
                 </details>
             </div>
             """
+        elif check == "inconclusive":
+            # Solver timed out -- distinct from both "countermodel found"
+            # and "no countermodel", never rendered as either.
+            premises_text = " with premises: " + ", ".join(premises) if premises else ""
+
+            html_output = f"""
+            <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                <h3>Inconclusive</h3>
+                <p><strong>Theory:</strong> {theory_name}</p>
+                <p><strong>Formula:</strong> {formula}{premises_text}</p>
+                <p><strong>Result:</strong> <span style='color:orange; font-weight:bold'>Inconclusive (solver budget exhausted -- result unknown)</span></p>
+            </div>
+            """
         else:
             # No countermodel found - formula is valid
             premises_text = " with premises: " + ", ".join(premises) if premises else ""
-            
+
             html_output = f"""
             <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
                 <h3>No Countermodel</h3>
@@ -405,32 +439,32 @@ class ModelExplorer:
                     import traceback
                     traceback.print_exc()
                 
-                # Show validity result
+                # Show validity result -- "inconclusive" renders as its own
+                # distinct label, never shown as if it were a decided
+                # True/False.
                 try:
                     formula = self.formula_input.value
-                    valid = self.model.check_result()
-                    color = "green" if valid else "red"
+                    color, valid_label = _check_result_color_label(self.model.check_result())
                     display(HTML(
                         f"<h3>Formula: {formula}</h3>"
-                        f"<p><b>Valid:</b> <span style='color:{color}'>{valid}</span></p>"
+                        f"<p><b>Valid:</b> <span style='color:{color}'>{valid_label}</span></p>"
                     ))
                 except Exception as e:
                     print(f"Error displaying validity result: {str(e)}")
-                
+
             elif view_type == 'Graph Visualization':
                 # Display graph visualization
                 try:
                     display_model(self.model, visualization_type="graph")
-                    
+
                     # Show text summary alongside graph
                     formula = self.formula_input.value
-                    valid = self.model.check_result()
-                    color = "green" if valid else "red"
+                    color, valid_label = _check_result_color_label(self.model.check_result())
                     display(HTML(
                         f"<h3>Formula: {formula}</h3>"
-                        f"<p><b>Valid:</b> <span style='color:{color}'>{valid}</span></p>"
+                        f"<p><b>Valid:</b> <span style='color:{color}'>{valid_label}</span></p>"
                     ))
-                    
+
                 except Exception as e:
                     print(f"Error creating visualization: {str(e)}")
                     import traceback

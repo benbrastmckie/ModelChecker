@@ -312,6 +312,52 @@ class TestTimeoutSurfacing(unittest.TestCase):
         self.assertTrue(data["timeout"])
 
 
+class TestThreeWayCheckResult(unittest.TestCase):
+    """Test that BuildExample.check_result() returns one of three explicit
+    string values -- "match", "mismatch", "inconclusive" -- instead of a
+    boolean that structurally cannot express "the solver timed out".
+
+    check_result()'s signature was already annotated `-> str` while its body
+    returned a bool; this fixes that long-standing annotation/behavior
+    mismatch. "inconclusive" is checked before the expectation comparison,
+    mirroring oracle/bimodal_logic/tests/test_cross_oracle_differential.py's
+    timeout-checked-first ordering, so a timed-out solve is never reported
+    as a semantic mismatch.
+    """
+
+    def _build_example_with_mock_structure(self, timeout, z3_model_status, settings=None):
+        example = BuildExample.__new__(BuildExample)
+        mock_structure = Mock()
+        mock_structure.timeout = timeout
+        mock_structure.z3_model_status = z3_model_status
+        example.model_structure = mock_structure
+        example.settings = settings if settings is not None else {}
+        return example
+
+    def test_check_result_match(self):
+        """model_findings equal to the expectation returns 'match'."""
+        example = self._build_example_with_mock_structure(
+            timeout=False, z3_model_status=True, settings={"model": True}
+        )
+        self.assertEqual(example.check_result(), "match")
+
+    def test_check_result_mismatch(self):
+        """model_findings unequal to the expectation returns 'mismatch'."""
+        example = self._build_example_with_mock_structure(
+            timeout=False, z3_model_status=False, settings={"model": True}
+        )
+        self.assertEqual(example.check_result(), "mismatch")
+
+    def test_check_result_inconclusive_on_timeout(self):
+        """A timed-out solve returns 'inconclusive', checked before the
+        expectation comparison -- even when z3_model_status happens to
+        equal the expectation (which would otherwise read as a 'match')."""
+        example = self._build_example_with_mock_structure(
+            timeout=True, z3_model_status=True, settings={"model": True}
+        )
+        self.assertEqual(example.check_result(), "inconclusive")
+
+
 class TestBuildExampleErrorHandling(unittest.TestCase):
     """Test BuildExample error handling."""
 
@@ -470,12 +516,24 @@ general_settings = {}
         example = list(build_module.example_range.values())[0]
         
         build_example = BuildExample(build_module, theory, example, "Test")
-        
-        # Should find initial model
+
+        # Should find initial model -- branch on timeout first, since an
+        # inconclusive Z3 UNKNOWN (solver ran out of budget) is not the
+        # same as "no model exists" and must never be reported as a test
+        # failure. Motivating case: this solve was observed taking 30.62s
+        # against this example's own explicit max_time=30 under load, which
+        # a plain `assertTrue(result["model_found"])` could not distinguish
+        # from a genuine absence of a model.
         result = build_example.get_result()
+        if result["timeout"]:
+            self.skipTest(
+                "Solver timed out (inconclusive) rather than deciding "
+                "satisfiability -- not a test failure. See the 30.62s-vs-"
+                "max_time=30 observation this branch guards against."
+            )
         self.assertTrue(result["model_found"],
                        "Should find initial model for A")
-        
+
         # Finding further models is the iterate package's job, not
         # BuildExample's: BuildExample exposes no find_next_model method,
         # and each theory supplies its own iterate_example entry point (see

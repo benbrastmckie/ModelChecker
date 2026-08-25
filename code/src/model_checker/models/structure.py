@@ -329,20 +329,24 @@ class ModelDefaults:
             from .errors import ModelSolverError
             raise ModelSolverError(f"Re-solve operation failed: {e}") from e
 
-    def check_result(self) -> Optional[bool]:
+    def check_result(self) -> str:
         """Checks if the model's result matches the expected outcome.
-        
+
         Compares the actual model status (satisfiable/unsatisfiable) against the
         expected outcome specified in the settings. This is used to verify if
         the model checker produced the anticipated result.
-        
+
         Returns:
-            bool or None: True if the model status matches expectations, 
-                         False otherwise, None if not solved yet
+            str: "match" if the model status matches expectations,
+                 "mismatch" if it does not, or "inconclusive" if the model
+                 has not been solved yet or the solver timed out (checked
+                 before the expectation comparison) -- a boolean/None return
+                 cannot express "we ran out of time" without conflating it
+                 with a decided outcome.
         """
-        if not self.solved:
-            return None
-        return self.z3_model_status == self.settings["expectation"]
+        if not self.solved or self.timeout:
+            return "inconclusive"
+        return "match" if self.z3_model_status == self.settings["expectation"] else "mismatch"
 
     def interpret(self, sentences: List['Sentence']) -> None:
         """Recursively updates sentences with their semantic interpretations in the model.
