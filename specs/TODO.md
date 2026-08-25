@@ -1,5 +1,5 @@
 ---
-next_project_number: 169
+next_project_number: 170
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 169
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161,167,168 | -- | testing, semantics, release-engineering |
+| 1 | 152,160,161,167,168,169 | -- | testing, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
@@ -20,6 +20,7 @@ next_project_number: 169
 ### Testing
 
 167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
+169 [NOT STARTED] — Eliminate wall-clock-sensitive test flakes in the tests.yml gener
 
 ### Semantics
 
@@ -35,6 +36,16 @@ next_project_number: 169
 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ## Tasks
+
+### 169. Eliminate wall clock sensitive test flakes
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Eliminate wall-clock-sensitive test flakes in the tests.yml general suite at their root rather than per-test: surface the existing ModelStructure.timeout flag in BuildExample results so an inconclusive Z3 UNKNOWN is never reported as model_found False (currently indistinguishable from a genuine UNSAT), give solver-heavy tests deterministic Z3 rlimit budgets alongside the load-dependent max_time wall-clock timeout, isolate solver-timing and performance-ratio tests from pytest -n 6 xdist oversubscription on 4-vCPU runners, and add a regression guard plus TESTING_GUIDE documentation so the class cannot silently return
+
+---
 
 ### 168. Pypi install and full cli verification ci
 - **Status**: [NOT STARTED]

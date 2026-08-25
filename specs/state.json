@@ -1,6 +1,16 @@
 {
-  "next_project_number": 169,
+  "next_project_number": 170,
   "active_projects": [
+    {
+      "project_number": 169,
+      "project_name": "eliminate_wall_clock_sensitive_test_flakes",
+      "status": "not_started",
+      "task_type": "python",
+      "description": "Eliminate wall-clock-sensitive test flakes in the tests.yml general suite at their root rather than per-test: surface the existing ModelStructure.timeout flag in BuildExample results so an inconclusive Z3 UNKNOWN is never reported as model_found False (currently indistinguishable from a genuine UNSAT), give solver-heavy tests deterministic Z3 rlimit budgets alongside the load-dependent max_time wall-clock timeout, isolate solver-timing and performance-ratio tests from pytest -n 6 xdist oversubscription on 4-vCPU runners, and add a regression guard plus TESTING_GUIDE documentation so the class cannot silently return",
+      "topic": "testing",
+      "created": "2026-08-25T21:06:14Z",
+      "last_updated": "2026-08-25T21:06:14Z"
+    },
     {
       "project_number": 168,
       "project_name": "pypi_install_and_full_cli_verification_ci",
