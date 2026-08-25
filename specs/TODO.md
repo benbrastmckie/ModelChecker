@@ -20,7 +20,7 @@ next_project_number: 170
 ### Testing
 
 167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
-169 [RESEARCHED] — Eliminate wall-clock-sensitive test flakes and undiagnosable hang
+169 [PLANNED] — Eliminate wall-clock-sensitive test flakes and undiagnosable hang
 
 ### Semantics
 
@@ -38,11 +38,12 @@ next_project_number: 170
 ## Tasks
 
 ### 169. Eliminate wall clock sensitive test flakes
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [169_eliminate_wall_clock_sensitive_test_flakes/reports/01_wall-clock-flake-root-causes.md]
+- **Plan**: [169_eliminate_wall_clock_sensitive_test_flakes/plans/01_eliminate-wall-clock-test-flakes.md]
 
 **Description**: Eliminate wall-clock-sensitive test flakes and undiagnosable hangs at their root rather than per-test, across BOTH tests.yml jobs -- the Python 3.10-3.12 matrix and the nix flake check job, which run the identical invocation (pytest -m "not packaging and not performance and not unstable" -n 6) under two different toolchains, so the same defects surface in either. Three sub-families, each needing a distinct remedy.
 
