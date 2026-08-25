@@ -28,15 +28,16 @@ next_project_number: 167
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 161 [NOT STARTED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
-166 [NOT STARTED] — Research and fix recurring unstable-watch.yml GitHub Actions fail
+166 [RESEARCHED] — Research and fix recurring unstable-watch.yml GitHub Actions fail
 
 ## Tasks
 
 ### 166. Unstable watch workflow failures
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: general
 - **Topic**: release-engineering
 - **Dependencies**: None
+- **Research**: [166_unstable_watch_workflow_failures/reports/01_root-cause-and-fix-recommendation.md]
 
 **Description**: Research and fix recurring unstable-watch.yml GitHub Actions failures reported at https://github.com/benbrastmckie/ModelChecker/actions/runs/32813308100 - systematically diagnose the root cause of the reported errors, evaluate long-term solutions, and design a high-quality fix before implementing
 

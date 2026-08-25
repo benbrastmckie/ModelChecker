@@ -4,12 +4,20 @@
     {
       "project_number": 166,
       "project_name": "unstable_watch_workflow_failures",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "general",
       "description": "Research and fix recurring unstable-watch.yml GitHub Actions failures reported at https://github.com/benbrastmckie/ModelChecker/actions/runs/32813308100 - systematically diagnose the root cause of the reported errors, evaluate long-term solutions, and design a high-quality fix before implementing",
       "topic": "release-engineering",
       "created": "2026-08-25T17:12:25Z",
-      "last_updated": "2026-08-25T17:12:25Z"
+      "last_updated": "2026-08-25T17:22:54Z",
+      "session_id": "sess_1787678019_f793e5",
+      "artifacts": [
+        {
+          "path": "specs/166_unstable_watch_workflow_failures/reports/01_root-cause-and-fix-recommendation.md",
+          "type": "report",
+          "summary": "Root-cause diagnosis of unstable-watch.yml's 100% failure rate: unguarded top-level bimodal_harness import in oracle/bimodal_logic/tests/test_oracle_interface.py crashes pytest collection in every CI run."
+        }
+      ]
     },
     {
       "project_number": 164,
