@@ -4,12 +4,20 @@
     {
       "project_number": 169,
       "project_name": "eliminate_wall_clock_sensitive_test_flakes",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
       "description": "Eliminate wall-clock-sensitive test flakes and undiagnosable hangs at their root rather than per-test, across BOTH tests.yml jobs -- the Python 3.10-3.12 matrix and the nix flake check job, which run the identical invocation (pytest -m \"not packaging and not performance and not unstable\" -n 6) under two different toolchains, so the same defects surface in either. Three sub-families, each needing a distinct remedy.\n\n(1) SOLVER-BUDGET FLAKES. Surface the existing ModelStructure.timeout flag in BuildExample results so an inconclusive Z3 UNKNOWN is never reported as model_found False -- models/structure.py maps UNKNOWN to is_satisfiable=False, making a timeout indistinguishable from a genuine UNSAT at builder/example.py, so the suite reports 'no model exists' when it means 'we ran out of time'. Observed as test_iteration_via_iterate_api failing with a 30.62s call against its explicit max_time=30. Also give solver-heavy tests deterministic Z3 rlimit budgets alongside the load-dependent max_time wall-clock timeout. NOTE: the oracle harness at oracle/bimodal_logic/tests/test_cross_oracle_differential.py ALREADY implements this separation correctly (it reports timeout_count independently of disagreements) -- use it as the reference implementation rather than inventing a new shape.\n\n(2) TIMING-ASSERTION DESIGN FLAKES, which no solver change touches. Unbounded max/min ratio assertions over sub-second, cold-start-sensitive operations, observed as TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance failing at ratio 17.4 against a 5.0 bound while its companion absolute bound (max < 10.0s) passed. The operation is pure filesystem work in BuildProject.generate() with no solver involved, and the ratio grows as warm iterations get faster -- so the assertion degrades as the code improves. Redesign to assert absolute budgets or median-plus-slack, and discard the cold first iteration.\n\n(3) UNDIAGNOSABLE HANGS -- no per-test timeout guard in the general suite. tests.yml line 83 runs bare 'pytest ... -n 6 -q' and pyproject.toml's addopts sets no --timeout, even though pytest-timeout is installed in both toolchains and differential-tests.yml does pass --timeout (lines 64, 78). Consequence, observed directly: the Python 3.12 job of run 32897405646 reached 94 percent, produced zero output for 17 minutes, and was killed by the job-level timeout-minutes: 20 with no indication of which test hung -- only orphaned pytest and six python workers in the cleanup log. Add --timeout with --timeout-method=thread to both tests.yml and flake.nix so a hang names its test and dumps a stack instead of an opaque job cancellation. A job-level timeout is a backstop, never a diagnostic.\n\nCROSS-CUTTING. Close the marker gap that makes the existing 'not performance' deselection nearly vacuous: exactly one test in src/model_checker carries @pytest.mark.performance (test_refactoring_target_behavior.py) while roughly six test files assert on wall-clock timings unmarked, including the whole TestPerformanceAndScalabilityScenarios class -- which is why a timing test reached a contended runner at all. Isolate any remaining timing-sensitive tests from -n 6 xdist oversubscription on 4-vCPU runners. tests.yml and flake.nix must stay in sync on marker expression, worker count, and timeout flags. Add a regression guard plus TESTING_GUIDE documentation so none of the three classes can silently return.",
       "topic": "testing",
       "created": "2026-08-25T21:06:14Z",
-      "last_updated": "2026-08-25T21:13:04Z"
+      "last_updated": "2026-08-25T21:23:35Z",
+      "session_id": "sess_1787692623_ea4ae8",
+      "artifacts": [
+        {
+          "path": "specs/169_eliminate_wall_clock_sensitive_test_flakes/reports/01_wall-clock-flake-root-causes.md",
+          "type": "report",
+          "summary": "Root-cause analysis of the three test-flake families plus performance-marker gap and CI sync requirements"
+        }
+      ]
     },
     {
       "project_number": 168,
