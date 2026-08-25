@@ -1,6 +1,17 @@
 {
-  "next_project_number": 170,
+  "next_project_number": 171,
   "active_projects": [
+    {
+      "project_number": 170,
+      "project_name": "resolve_xdist_worker_count_and_differential_oracle_floor",
+      "status": "not_started",
+      "task_type": "python",
+      "description": "Two open CI-budget questions left deliberately unresolved when the max_time floor and the specs/** paths-ignore landed. (A) XDIST WORKER COUNT: .github/workflows/tests.yml and flake.nix both run the parallel gating pass at -n 6 on a 4-vCPU ubuntu-latest runner -- six workers over four cores, which is what pushed contention-sensitive Z3 solves past budget. -n 4 would match the runner, but it is NOT obviously safe: reducing worker count changes which examples run concurrently and therefore the ambient load each solve sees, so it must be verified that no example flips outcome (in particular that no countermodel-expected example stops finding one) rather than assumed monotone. The -n 6 value is load-bearing and documented -- it was chosen over xdist's auto mode because auto reproduced a bimodal contention flake -- so any change must preserve that reasoning and stay textually in sync across both files (code/tests/ci/test_workflow_parity.py enforces the sync). Measure, do not assume. (B) DIFFERENTIAL ORACLE FLOOR: oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent has failed on all six runs the workflow has ever had, always with the same shortfall (96 of 103 formulas conclusive against MIN_CONCLUSIVE_GATING_FORMULAS=100, 0 disagreements). The GATING_RECHECK_SOLVE_TIMEOUT_MS widening from 20000 to 40000ms on 2026-08-12 did NOT move the number -- 96/103 with 7 timeouts both before and after, with step wall clock rising 744s to 1103s -- so the seven timing-out formulas are not merely near-budget and doubling again is unlikely to help. That constant's own comment block records the widening as never CI-verified and names marking the test `unstable` as the documented fallback. Identify the seven formulas, determine whether their cost is a genuine property of the population or a regression, and decide between a measurement-backed remedy and the unstable route under section 8.9's four entry criteria. The floor itself must NOT be lowered -- that is the assertion-weakening the existing comment block explicitly forbids. (C) RESIDUAL TIGHT BUDGETS OUTSIDE LOGOS: an AST survey found 20 example settings dicts still at max_time 2 and 2 at max_time 3 in theory_lib/bimodal, exclusion, and imposition. These are the same latent hazard the logos floor corrected but have not been observed failing, and bimodal's budgets were deliberately calibrated per-example (see the BM_CM_1/BM_CM_4 recalibration record). Decide whether to extend code/tests/ci/test_example_budget_floor.py's _COVERED list to them, backed by measurement rather than by pattern-matching the logos change.",
+      "topic": "testing",
+      "dependencies": null,
+      "created": "2026-08-25T23:15:08Z",
+      "last_updated": "2026-08-25T23:15:08Z"
+    },
     {
       "project_number": 168,
       "project_name": "pypi_install_and_full_cli_verification_ci",
