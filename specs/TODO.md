@@ -1,17 +1,17 @@
 ---
-next_project_number: 166
+next_project_number: 167
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-08-19. Generated from state.json dependency graph.*
+*Updated 2026-08-25. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161 | -- | semantics, release-engineering |
+| 1 | 152,160,161,166 | -- | semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
@@ -28,8 +28,19 @@ next_project_number: 166
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 161 [NOT STARTED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
+166 [NOT STARTED] — Research and fix recurring unstable-watch.yml GitHub Actions fail
 
 ## Tasks
+
+### 166. Unstable watch workflow failures
+- **Status**: [NOT STARTED]
+- **Task Type**: general
+- **Topic**: release-engineering
+- **Dependencies**: None
+
+**Description**: Research and fix recurring unstable-watch.yml GitHub Actions failures reported at https://github.com/benbrastmckie/ModelChecker/actions/runs/32813308100 - systematically diagnose the root cause of the reported errors, evaluate long-term solutions, and design a high-quality fix before implementing
+
+---
 
 ### 165. Improve py spec for haskell port
 - **Status**: [COMPLETED]

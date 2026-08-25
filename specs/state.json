@@ -1,6 +1,16 @@
 {
-  "next_project_number": 166,
+  "next_project_number": 167,
   "active_projects": [
+    {
+      "project_number": 166,
+      "project_name": "unstable_watch_workflow_failures",
+      "status": "not_started",
+      "task_type": "general",
+      "description": "Research and fix recurring unstable-watch.yml GitHub Actions failures reported at https://github.com/benbrastmckie/ModelChecker/actions/runs/32813308100 - systematically diagnose the root cause of the reported errors, evaluate long-term solutions, and design a high-quality fix before implementing",
+      "topic": "release-engineering",
+      "created": "2026-08-25T17:12:25Z",
+      "last_updated": "2026-08-25T17:12:25Z"
+    },
     {
       "project_number": 164,
       "project_name": "populate_py_spec_python_architecture",
