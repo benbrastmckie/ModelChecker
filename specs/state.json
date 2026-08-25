@@ -4,12 +4,12 @@
     {
       "project_number": 166,
       "project_name": "unstable_watch_workflow_failures",
-      "status": "planned",
+      "status": "completed",
       "task_type": "general",
       "description": "Research and fix recurring unstable-watch.yml GitHub Actions failures reported at https://github.com/benbrastmckie/ModelChecker/actions/runs/32813308100 - systematically diagnose the root cause of the reported errors, evaluate long-term solutions, and design a high-quality fix before implementing",
       "topic": "release-engineering",
       "created": "2026-08-25T17:12:25Z",
-      "last_updated": "2026-08-25T17:28:46Z",
+      "last_updated": "2026-08-25T20:39:30Z",
       "session_id": "sess_1787678019_f793e5",
       "artifacts": [
         {
@@ -21,8 +21,14 @@
           "path": "specs/166_unstable_watch_workflow_failures/plans/01_guard-bimodal-harness-import.md",
           "type": "plan",
           "summary": "4-phase TDD plan to guard the unconditional bimodal_harness import behind a shared helper, locked in by a directory-wide collection regression test."
+        },
+        {
+          "path": "specs/166_unstable_watch_workflow_failures/summaries/01_guard-bimodal-harness-import-summary.md",
+          "type": "summary",
+          "summary": "All 4 phases complete: guarded the unconditional bimodal_harness import via a shared helper, locked in with a directory-wide collection regression test, verified against the exact unstable-watch.yml invocation, documented in TESTING_GUIDE.md 8.10."
         }
-      ]
+      ],
+      "completion_summary": "Fixed the recurring unstable-watch.yml collection crash by guarding the unconditional bimodal_harness import in oracle/bimodal_logic/tests/test_oracle_interface.py behind a new shared helper module (_bimodal_harness.py), gating the three dependent tests with skipif, locking the fix in with a subprocess-blocker regression test, and documenting the required pattern in TESTING_GUIDE.md section 8.10."
     },
     {
       "project_number": 164,
