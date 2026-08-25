@@ -1112,6 +1112,65 @@ function, its enclosing class, or a module-level `pytestmark`). It carries an ex
 commented `MOCKED_CLOCK_ALLOWLIST` for a future test that patches the clock rather than reading
 real wall-clock time, so a mocked-time assertion is never forced to carry either marker.
 
+### 8.13 The Example Solve-Budget Floor
+
+**The class 8.12's guard cannot see.** `test_timing_marker_coverage.py` scans for the *explicit*
+wall-clock shape -- a test that reads `time.time()` and asserts a bound on the delta. The larger
+class is *implicit*: an example whose `max_time` setting is itself the clock. When such a budget
+sits near the example's typical solve time, ordinary CPU contention turns into a test failure --
+Z3 returns UNKNOWN, `ModelDefaults.check_result()` reports `"inconclusive"`, and
+`utils.testing.run_test()` maps that to `False`, which the theory-level example tests assert on.
+The resulting message ("Model result did not match expectation value in settings") reads as a
+semantic regression while being purely a budget artifact. No marker applies and no AST scan for
+clock reads will ever flag it.
+
+**The motivating incident.** `CL_TH_12` and `CL_TH_13` in
+`theory_lib/logos/subtheories/constitutive/examples.py` were set to `'max_time': 1` against
+measured solve times of 0.267s and 0.350s -- ~3x headroom on a 12-core development host, but
+under 1x on a 4-vCPU `ubuntu-latest` runner sharing six xdist workers. Both failed on all three
+Python versions and under `nix flake check` on the v1.3.5 release pushes. The same mechanism had
+already fired on different victims in earlier runs
+(`test_iterate_example_generator_yields_models`, `test_iteration_via_iterate_api`), which is what
+identifies it as a class rather than two bad constants.
+
+**Note that a local reproduction is not available for this class.** Restricting the development
+host with `taskset -c 0-3` and running the full gating selection at `-n 6` passes cleanly
+(2292 passed) -- core-count restriction does not reproduce a per-core clock/IPC gap or a
+virtualized neighbour. The oracle suite's own budget work reached the identical conclusion
+independently (103/103 conclusive both with and without `taskset -c 0,1`, against 96/103 on real
+CI). Because the failure cannot be reproduced locally, a budget must carry enough margin that the
+question never arises -- which is precisely 8.6's "set budgets generously, not tightly", restated
+as an executable floor.
+
+**The floor.** `code/tests/ci/test_example_budget_floor.py` AST-scans the four
+`logos/subtheories/*/examples.py` files and fails on any settings dict whose `max_time` is below
+10 seconds, or whose `max_time` is not an integer literal at all (an indirected budget defeats
+the point of a readable floor). 10 was chosen because it is already the in-tree convention for 81
+of the 129 budgeted examples across `theory_lib/`, including 25 in the sibling
+`counterfactual/examples.py`, and gives ~29x headroom over the worst solve in the covered files.
+It is a floor, not an equality: 8.6's 30s bimodal convention remains available above it. A
+blanket 30 was rejected only because it would cost 30s per failure across ~100 examples on a
+genuine hang, with no evidence that the extra margin is needed.
+
+**Raise the budget; never lower the floor.** This is the same discipline 8.8 states for the
+oracle gating floor and 8.9 states for `unstable`: the constant encodes a real property, and
+editing it to make a run green is the assertion-weakening those sections exist to forbid.
+
+**`max_rlimit` for the residual case.** Two examples (`CL_TH_12`, `CL_TH_13`) additionally carry
+`max_rlimit`, 8.6's deterministic complement -- a Z3 resource-unit budget that the same
+constraint set exhausts identically regardless of host speed or contention. Their requirement was
+bisected to ~3.13M and ~3.22M units and verified stable across repeated draws; both are set to
+20M. An over-large `max_rlimit` costs nothing, because `max_time` still caps the wall clock:
+it fires only as a deterministic backstop, never as the binding budget on a healthy run. Prefer
+this pairing for any example whose flakiness is specifically load-driven rather than a genuine
+near-budget solve.
+
+**Coverage is deliberately partial.** `bimodal`, `exclusion`, and `imposition` still carry 20
+settings dicts at `max_time: 2` and 2 at `3`. They are the same latent hazard but have not been
+observed failing, and bimodal's budgets were calibrated per-example (see that file's
+`BM_CM_1`/`BM_CM_4` recalibration record). Extending `_COVERED` to them is a separate,
+measurement-backed decision -- not a pattern-match on the logos change.
+
 ---
 
 ## Quick Reference

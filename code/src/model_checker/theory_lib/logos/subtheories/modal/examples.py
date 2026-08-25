@@ -66,7 +66,7 @@ MOD_CM_1_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 2,
     'expectation': True,
 }
@@ -85,7 +85,7 @@ MOD_CM_2_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -104,7 +104,7 @@ MOD_CM_3_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -123,7 +123,7 @@ MOD_CM_4_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -147,7 +147,7 @@ MOD_TH_1_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -166,7 +166,7 @@ MOD_TH_2_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -185,7 +185,7 @@ MOD_TH_3_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -204,7 +204,7 @@ MOD_TH_4_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -223,7 +223,7 @@ MOD_TH_5_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -242,7 +242,7 @@ MOD_TH_6_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -261,7 +261,7 @@ MOD_TH_7_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -280,7 +280,7 @@ MOD_TH_8_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -299,7 +299,7 @@ MOD_TH_9_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -318,7 +318,7 @@ MOD_TH_10_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -337,7 +337,7 @@ MOD_TH_11_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -356,7 +356,7 @@ MOD_TH_12_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -375,7 +375,7 @@ MOD_TH_13_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -394,7 +394,7 @@ MOD_TH_14_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -417,7 +417,7 @@ MOD_DEF_1_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -436,7 +436,7 @@ MOD_DEF_2_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -455,7 +455,7 @@ MOD_DEF_3_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -474,7 +474,7 @@ MOD_DEF_4_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -493,7 +493,7 @@ MOD_DEF_5_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -512,7 +512,7 @@ MOD_DEF_6_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }

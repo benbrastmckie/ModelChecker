@@ -156,7 +156,7 @@ CF_CM_6_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -298,7 +298,7 @@ CF_CM_13_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -332,7 +332,7 @@ CF_CM_14_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -351,7 +351,7 @@ CF_CM_15_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -370,7 +370,7 @@ CF_CM_16_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -389,7 +389,7 @@ CF_CM_17_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -408,7 +408,7 @@ CF_CM_18_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -427,7 +427,7 @@ CF_CM_19_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 3,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -446,7 +446,7 @@ CF_CM_20_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 3,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -465,7 +465,7 @@ CF_CM_21_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 2,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -761,7 +761,7 @@ CF_TH_13_settings = {
     'disjoint': False,
     'non_empty': True,
     'non_null': True,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -780,7 +780,7 @@ CF_TH_14_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }

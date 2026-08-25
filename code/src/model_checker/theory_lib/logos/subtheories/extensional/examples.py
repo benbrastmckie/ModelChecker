@@ -59,7 +59,7 @@ EXT_CM_1_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 2,
     'expectation': True,
 }
@@ -78,7 +78,7 @@ EXT_CM_2_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 3,
     'expectation': True,
 }
@@ -97,7 +97,7 @@ EXT_TH_1_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -116,7 +116,7 @@ EXT_TH_2_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -135,7 +135,7 @@ EXT_TH_3_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -154,7 +154,7 @@ EXT_TH_4_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -173,7 +173,7 @@ EXT_TH_5_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -192,7 +192,7 @@ EXT_TH_6_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -211,7 +211,7 @@ EXT_TH_7_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -230,7 +230,7 @@ EXT_TH_8_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -249,7 +249,7 @@ EXT_TH_9_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -268,7 +268,7 @@ EXT_TH_10_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -287,7 +287,7 @@ EXT_TH_11_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -306,7 +306,7 @@ EXT_TH_12_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 1,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
