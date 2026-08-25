@@ -20,7 +20,7 @@ next_project_number: 170
 ### Testing
 
 167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
-169 [NOT STARTED] — Eliminate wall-clock-sensitive test flakes at their root rather t
+169 [NOT STARTED] — Eliminate wall-clock-sensitive test flakes and undiagnosable hang
 
 ### Semantics
 
@@ -43,7 +43,15 @@ next_project_number: 170
 - **Topic**: testing
 - **Dependencies**: None
 
-**Description**: Eliminate wall-clock-sensitive test flakes at their root rather than per-test, across BOTH tests.yml jobs -- the Python 3.10-3.12 matrix and the nix flake check job, which run the identical invocation (pytest -m "not packaging and not performance and not unstable" -n 6) under two different toolchains, so the same flakes surface in either. Two distinct sub-families need distinct remedies. (1) Solver-budget flakes: surface the existing ModelStructure.timeout flag in BuildExample results so an inconclusive Z3 UNKNOWN is never reported as model_found False (models/structure.py maps UNKNOWN to is_satisfiable=False, making a timeout indistinguishable from a genuine UNSAT at builder/example.py), and give solver-heavy tests deterministic Z3 rlimit budgets alongside the load-dependent max_time wall-clock timeout. (2) Timing-assertion design flakes, which no solver change touches: unbounded max/min ratio assertions over sub-second, cold-start-sensitive operations, observed as TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance failing at ratio 17.4 against a 5.0 bound while its companion absolute bound (max < 10.0s) passed -- the operation is pure filesystem work in BuildProject.generate() with no solver involved, and the ratio grows as warm iterations get faster, so the assertion degrades as the code improves. Redesign these to assert absolute budgets or median-plus-slack, and discard the cold first iteration. Also close the marker gap that makes the existing 'not performance' deselection nearly vacuous: exactly one test in src/model_checker carries @pytest.mark.performance while roughly six test files assert on wall-clock timings unmarked, which is why a timing test reached a contended runner at all. Then isolate any remaining timing-sensitive tests from -n 6 xdist oversubscription on 4-vCPU runners (in both tests.yml and flake.nix, which must stay in sync), and add a regression guard plus TESTING_GUIDE documentation so the class cannot silently return.
+**Description**: Eliminate wall-clock-sensitive test flakes and undiagnosable hangs at their root rather than per-test, across BOTH tests.yml jobs -- the Python 3.10-3.12 matrix and the nix flake check job, which run the identical invocation (pytest -m "not packaging and not performance and not unstable" -n 6) under two different toolchains, so the same defects surface in either. Three sub-families, each needing a distinct remedy.
+
+(1) SOLVER-BUDGET FLAKES. Surface the existing ModelStructure.timeout flag in BuildExample results so an inconclusive Z3 UNKNOWN is never reported as model_found False -- models/structure.py maps UNKNOWN to is_satisfiable=False, making a timeout indistinguishable from a genuine UNSAT at builder/example.py, so the suite reports 'no model exists' when it means 'we ran out of time'. Observed as test_iteration_via_iterate_api failing with a 30.62s call against its explicit max_time=30. Also give solver-heavy tests deterministic Z3 rlimit budgets alongside the load-dependent max_time wall-clock timeout. NOTE: the oracle harness at oracle/bimodal_logic/tests/test_cross_oracle_differential.py ALREADY implements this separation correctly (it reports timeout_count independently of disagreements) -- use it as the reference implementation rather than inventing a new shape.
+
+(2) TIMING-ASSERTION DESIGN FLAKES, which no solver change touches. Unbounded max/min ratio assertions over sub-second, cold-start-sensitive operations, observed as TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance failing at ratio 17.4 against a 5.0 bound while its companion absolute bound (max < 10.0s) passed. The operation is pure filesystem work in BuildProject.generate() with no solver involved, and the ratio grows as warm iterations get faster -- so the assertion degrades as the code improves. Redesign to assert absolute budgets or median-plus-slack, and discard the cold first iteration.
+
+(3) UNDIAGNOSABLE HANGS -- no per-test timeout guard in the general suite. tests.yml line 83 runs bare 'pytest ... -n 6 -q' and pyproject.toml's addopts sets no --timeout, even though pytest-timeout is installed in both toolchains and differential-tests.yml does pass --timeout (lines 64, 78). Consequence, observed directly: the Python 3.12 job of run 32897405646 reached 94 percent, produced zero output for 17 minutes, and was killed by the job-level timeout-minutes: 20 with no indication of which test hung -- only orphaned pytest and six python workers in the cleanup log. Add --timeout with --timeout-method=thread to both tests.yml and flake.nix so a hang names its test and dumps a stack instead of an opaque job cancellation. A job-level timeout is a backstop, never a diagnostic.
+
+CROSS-CUTTING. Close the marker gap that makes the existing 'not performance' deselection nearly vacuous: exactly one test in src/model_checker carries @pytest.mark.performance (test_refactoring_target_behavior.py) while roughly six test files assert on wall-clock timings unmarked, including the whole TestPerformanceAndScalabilityScenarios class -- which is why a timing test reached a contended runner at all. Isolate any remaining timing-sensitive tests from -n 6 xdist oversubscription on 4-vCPU runners. tests.yml and flake.nix must stay in sync on marker expression, worker count, and timeout flags. Add a regression guard plus TESTING_GUIDE documentation so none of the three classes can silently return.
 
 ---
 
@@ -236,17 +244,28 @@ the same commit. `MIN_CONCLUSIVE_GATING_FORMULAS` was deliberately NOT lowered (
 encodes a real quality property. This instruction carries forward unchanged: do not lower the
 floor to reach green; investigate and re-measure instead.
 
-(4) OUTSTANDING CI VERIFICATION OBLIGATION (this task's primary job).
-The widened GATING_RECHECK_SOLVE_TIMEOUT_MS=40000ms has NOT been verified on real CI. This
-requires a human to push and dispatch `.github/workflows/differential-tests.yml` via
-`workflow_dispatch` 2-3 times (agents cannot push or trigger workflow_dispatch per
-.claude/rules/pr-prohibition.md) and observe the results. Success looks like >= 100 of 103
-conclusive on every dispatched run, with 0 disagreements. If it still falls short after a
-genuinely widened and CI-verified budget: do NOT lower the floor a second time. The documented
-fallback, only then, is marking
+(4) CI VERIFICATION OBLIGATION -- DISCHARGED 2026-08-25, RESULT NEGATIVE. DO NOT RE-VERIFY.
+The widened GATING_RECHECK_SOLVE_TIMEOUT_MS=40000ms HAS now been exercised on real CI, on the
+Differential Oracle Tests workflow at commit 93cda5b9. Result:
+`scan report: agreements=96 disagreements=0 timeout_count=7 conclusive=96/103` against floor=100
+-- byte-for-byte identical to the pre-widening 20000ms measurement already recorded in item (3)
+(run 31628414697: 96/103, 7 timeouts, 0 disagreements). Doubling the budget 20000 -> 40000ms
+bought exactly ZERO additional conclusive formulas. Do not widen it a third time and do not
+re-run this verification expecting a different answer: identical counts at 2x budget indicate the
+7 shortfall formulas are budget-INDEPENDENT in this range on CI hardware, not marginally over the
+line -- which is what the constant's own comment block already predicted ("conclusiveness is
+essentially budget-independent in this range... not a tuning artifact of the budget chosen").
+The floor stays at 100 (item (3)'s do-not-lower instruction is unchanged and now doubly earned).
+The documented fallback is therefore UNBLOCKED and is this task's remaining primary job: mark
 `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` `unstable` under the
-same four entry criteria used for BM_CM_1 (see TESTING_GUIDE.md section 8.9 and
-test_bimodal.py's UNSTABLE_EXAMPLES block for the pattern to follow).
+same four entry criteria used for BM_CM_1 (see TESTING_GUIDE.md section 8.9 and test_bimodal.py's
+UNSTABLE_EXAMPLES block for the pattern to follow), which routes it to unstable-watch.yml where it
+stays observed rather than silently dropped. Worth confirming while doing so, since the report
+gives only counts: whether the SAME 7 formulas time out across runs. If they are the same 7, that
+is a stable, nameable subset worth recording at the marker site rather than an ambient-load story.
+One open lead the widening never tested: this test is not `xdist_serial`-marked, so
+oracle/run-oracle-suite.sh's -n 6 pass runs it alongside five other workers on a 4-vCPU runner --
+serial isolation is a distinct remedy from budget widening and has not been tried.
 
 (5) WHAT IS ALREADY RULED OUT -- START FROM THIS FRONTIER.
 For BM_CM_1 / the Future-operator quantifier family: z3.FreshInt substitution (regresses even
