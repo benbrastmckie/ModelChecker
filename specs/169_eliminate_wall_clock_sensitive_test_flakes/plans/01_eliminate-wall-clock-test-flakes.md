@@ -334,27 +334,27 @@ exists, integrate with it rather than adding a parallel path.
 
 ---
 
-### Phase 4: Redesign the Repeated-Operation Timing Assertions [NOT STARTED]
+### Phase 4: Redesign the Repeated-Operation Timing Assertions [COMPLETED]
 
 **Goal**: Make `TestPerformanceAndScalabilityScenarios`'s assertions stable and
 monotonically-improving-friendly instead of degrading as the code gets faster.
 
 **Tasks**:
-- [ ] Write the redesigned assertion first and confirm it fails on a synthetic cold-start-heavy
+- [x] Write the redesigned assertion first and confirm it fails on a synthetic cold-start-heavy
       sample and passes on a realistic one (RED then GREEN, using injected sample times).
-- [ ] In `test_repeated_project_operations_maintain_consistent_performance`, run one explicit
+- [x] In `test_repeated_project_operations_maintain_consistent_performance`, run one explicit
       discarded warm-up iteration before the measured loop, so no cold-cache/cold-import
       measurement enters any statistic.
-- [ ] Delete the `max_time / min_time` ratio assertion entirely — it has no floor on `min_time`
+- [x] Delete the `max_time / min_time` ratio assertion entirely — it has no floor on `min_time`
       and is the assertion whose bound tightens as the implementation improves.
-- [ ] Replace it with two bounds: every warm iteration under a fixed absolute ceiling, and
+- [x] Replace it with two bounds: every warm iteration under a fixed absolute ceiling, and
       `max(warm_times) < median(warm_times) + FIXED_SLACK_SECONDS`, with `FIXED_SLACK_SECONDS`
       defined as a named module constant carrying a comment explaining why a fixed slack, not a
       ratio, is used.
-- [ ] Add a comment at the assertion recording the observed failure (ratio 17.4 against a 5.0
+- [x] Add a comment at the assertion recording the observed failure (ratio 17.4 against a 5.0
       bound while the companion `max < 10.0s` absolute bound passed comfortably) as the
       motivating evidence — cite the file and class, never a task number.
-- [ ] Review `test_multiple_project_generation_completes_within_reasonable_time` in the same
+- [x] Review `test_multiple_project_generation_completes_within_reasonable_time` in the same
       class: it already uses an absolute-only bound and needs no assertion redesign, only the
       marker applied in Phase 5. Record that as a deliberate no-op rather than skipping it
       silently.
