@@ -7,6 +7,8 @@ proper version retrieval and handling of fallback scenarios.
 
 import unittest
 
+import pytest
+
 from model_checker.builder.tests.fixtures.test_data import TestConstants
 from model_checker.builder.tests.fixtures.assertions import (
     assert_no_exceptions_during_execution
@@ -111,6 +113,10 @@ class TestVersionDetectionEdgeCases(unittest.TestCase):
         self.assertEqual(len(unique_versions), 1,
                         f"Version should be consistent across theories: {detected_versions}")
     
+    # Contention-sensitive: asserts an absolute wall-clock bound on
+    # real version detection, which CPU contention under -n 6 can push
+    # past budget -- run serially instead.
+    @pytest.mark.xdist_serial
     def test_version_detection_performance_is_reasonable(self):
         """Test version detection completes within reasonable time."""
         import time

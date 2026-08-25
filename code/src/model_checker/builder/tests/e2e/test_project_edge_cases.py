@@ -12,6 +12,8 @@ import sys
 import time
 from pathlib import Path
 
+import pytest
+
 from model_checker.builder.tests.fixtures.test_data import TestConstants
 from model_checker.builder.tests.fixtures.mock_objects import MockObjectFactory
 from model_checker.builder.tests.fixtures.temp_resources import TempFileCleanup
@@ -346,6 +348,10 @@ class TestSystemPathIsolationBehavior(unittest.TestCase):
                        "Second project should have examples file")
 
 
+# Contention-sensitive: both methods below assert absolute wall-clock
+# bounds on real BuildProject.generate() calls, which CPU contention
+# under -n 6 can push past budget -- run serially instead.
+@pytest.mark.xdist_serial
 class TestPerformanceAndScalabilityScenarios(unittest.TestCase):
     """Test performance and scalability scenarios for project operations."""
     

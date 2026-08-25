@@ -18,6 +18,8 @@ import unittest
 import time
 import tempfile
 import os
+
+import pytest
 from unittest.mock import Mock, patch
 
 # Import test fixtures
@@ -222,6 +224,10 @@ general_settings = {}
             sorted(build_module.semantic_theories), ["CF", "Ext"]
         )
 
+    # Contention-sensitive: asserts an absolute wall-clock bound on
+    # real module loading, which CPU contention under -n 6 can push
+    # past budget -- run serially instead.
+    @pytest.mark.xdist_serial
     def test_module_loading_performance(self):
         """Test module loading completes quickly.
 
@@ -259,6 +265,10 @@ general_settings = {}
         self.assertLess(loading_time, 0.1,
                        f"Module loading should complete in <100ms, took {loading_time:.3f}s")
     
+    # Contention-sensitive: asserts an absolute wall-clock bound on
+    # real serialization work, which CPU contention under -n 6 can push
+    # past budget -- run serially instead.
+    @pytest.mark.xdist_serial
     def test_serialization_performance(self):
         """Test serialization of results completes quickly.
         

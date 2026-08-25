@@ -8,6 +8,8 @@ theory serialization, operator handling, and import utility functions.
 import unittest
 from unittest.mock import MagicMock, patch, Mock
 
+import pytest
+
 from model_checker.builder.tests.fixtures.test_data import TestTheories, TestConstants
 from model_checker.builder.tests.fixtures.mock_objects import MockObjectFactory
 from model_checker.builder.tests.fixtures.temp_resources import TempFileCleanup
@@ -413,6 +415,10 @@ class TestSerializationEdgeCases(unittest.TestCase):
         self.assertEqual(result["dictionary"]["日本語"], "∨",
                         "Unicode dictionary values should be preserved")
     
+    # Contention-sensitive: asserts an absolute wall-clock bound on
+    # real serialization of 100 operators, which CPU contention under
+    # -n 6 can push past budget -- run serially instead.
+    @pytest.mark.xdist_serial
     def test_serialize_semantic_theory_handles_large_operator_collections(self):
         """Test serialize_semantic_theory handles large operator collections efficiently."""
         import time

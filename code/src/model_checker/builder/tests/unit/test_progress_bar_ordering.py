@@ -20,6 +20,8 @@ import time
 import unittest
 from unittest.mock import Mock, MagicMock, patch, PropertyMock
 
+import pytest
+
 from model_checker.output.progress.core import UnifiedProgress
 from model_checker.output.progress.animated import TimeBasedProgress
 from model_checker.output.progress.display import TerminalDisplay
@@ -395,6 +397,10 @@ class TestBarOutputBarOrdering(unittest.TestCase):
     both captured at freeze time, not complete() time.
     """
 
+    # Contention-sensitive: asserts absolute wall-clock bounds around a
+    # real time.sleep(0.3), which CPU contention under -n 6 can push
+    # past budget -- run serially instead.
+    @pytest.mark.xdist_serial
     def test_freeze_complete_time_consistency(self):
         """Test that complete() uses frozen elapsed time, not current time.
 

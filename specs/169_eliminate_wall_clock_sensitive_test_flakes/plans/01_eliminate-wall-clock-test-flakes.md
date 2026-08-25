@@ -383,29 +383,35 @@ combined with a time-derived list before closing the phase; extend the phase if 
 
 ---
 
-### Phase 5: Marker Taxonomy and Full Inventory Marking [IN PROGRESS]
+### Phase 5: Marker Taxonomy and Full Inventory Marking [COMPLETED]
 
 **Goal**: Ensure no wall-clock-asserting test is left unmarked in the contended `-n 6` pool, per
 D3's two-marker taxonomy.
 
 **Tasks**:
-- [ ] Register `xdist_serial` in `code/pyproject.toml`'s `[tool.pytest.ini_options].markers`,
+- [x] Register `xdist_serial` in `code/pyproject.toml`'s `[tool.pytest.ini_options].markers`,
       reusing `oracle/conftest.py`'s wording so the two declarations stay recognizably the same
       concept.
-- [ ] Record a before-state: the selected-test count of
+- [x] Record a before-state: the selected-test count of
       `pytest tests/ src/model_checker -m "not packaging and not performance and not unstable" -n 6 --collect-only -q | tail -1`.
-- [ ] Apply `@pytest.mark.xdist_serial` to the wall-clock-asserting tests in:
+      Result: 2295 selected (via `git stash` of the marking edits to get a pristine collect).
+- [x] Apply `@pytest.mark.xdist_serial` to the wall-clock-asserting tests in:
       `builder/tests/e2e/test_project_edge_cases.py` (the whole
       `TestPerformanceAndScalabilityScenarios` class), `builder/tests/integration/test_performance.py`,
       `builder/tests/unit/test_project_version.py`, `builder/tests/unit/test_serialize.py`, and
       `builder/tests/unit/test_progress_bar_ordering.py`.
-- [ ] Leave `builder/tests/test_refactoring_target_behavior.py::test_performance_improvement`
+- [x] Leave `builder/tests/test_refactoring_target_behavior.py::test_performance_improvement`
       on `@pytest.mark.performance` — its 0.01s budget is the sub-10ms class D3 assigns to that
-      marker. Do not add `xdist_serial` to it.
-- [ ] Add a one-line comment at each newly marked location stating why the test is
+      marker. Do not add `xdist_serial` to it. Confirmed unchanged by diff.
+- [x] Add a one-line comment at each newly marked location stating why the test is
       contention-sensitive, so the marker is self-documenting at the site.
-- [ ] Record the after-state selected-test count and the delta; the delta must equal the number of
+- [x] Record the after-state selected-test count and the delta; the delta must equal the number of
       newly `xdist_serial`-marked tests, no more.
+      Result: `-m "xdist_serial"` collects exactly 7 tests (2 in
+      `TestPerformanceAndScalabilityScenarios`, 2 in `test_performance.py`, 1 each in
+      `test_progress_bar_ordering.py`, `test_project_version.py`, `test_serialize.py`); the
+      gating selection with `and not xdist_serial` added collects 2288 = 2295 - 7. Delta matches
+      exactly.
 
 **Timing**: 1 hour
 
