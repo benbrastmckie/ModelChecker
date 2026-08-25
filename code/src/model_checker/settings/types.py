@@ -62,6 +62,11 @@ class ExampleSettings(TypedDict, total=False):
     """Example settings schema."""
     N: int
     max_time: int
+    max_rlimit: int
+    """Deterministic Z3 resource-unit budget; independent of machine load,
+    unlike max_time. Optional; when absent, no rlimit is set (Z3's
+    unlimited default) and behavior is unchanged from before this field
+    existed."""
     model: bool
     expectation: bool
     contingent: List[str]

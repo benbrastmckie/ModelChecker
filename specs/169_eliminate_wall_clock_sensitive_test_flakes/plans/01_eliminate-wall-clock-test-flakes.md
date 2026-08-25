@@ -282,26 +282,26 @@ the phase notes.
 
 ---
 
-### Phase 3: Deterministic Z3 `rlimit` Budgets [NOT STARTED]
+### Phase 3: Deterministic Z3 `rlimit` Budgets [COMPLETED]
 
 **Goal**: Add a machine-load-independent resource budget alongside the wall-clock `max_time`,
 through the plumbing `max_time` already uses, default-off.
 
 **Tasks**:
-- [ ] Write failing tests first (RED): a test that `Z3SolverAdapter.set_rlimit(n)` sets the
+- [x] Write failing tests first (RED): a test that `Z3SolverAdapter.set_rlimit(n)` sets the
       solver parameter; a test that a settings dict without the new field results in **no**
       `rlimit` being set; a test that a settings dict with the field set produces a solver whose
       `rlimit` parameter matches.
-- [ ] Add `set_rlimit(self, units: int) -> None` to `Z3SolverAdapter`, implemented as
+- [x] Add `set_rlimit(self, units: int) -> None` to `Z3SolverAdapter`, implemented as
       `self._solver.set("rlimit", units)`, directly alongside the existing `set_timeout()`.
-- [ ] Declare `set_rlimit` on `SolverProtocol`/`TrackedSolverProtocol` in
+- [x] Declare `set_rlimit` on `SolverProtocol`/`TrackedSolverProtocol` in
       `code/src/model_checker/solver/protocols.py`, matching how `set_timeout` is declared.
-- [ ] Add `max_rlimit: int` (optional; `total=False` already applies) to `ExampleSettings` in
+- [x] Add `max_rlimit: int` (optional; `total=False` already applies) to `ExampleSettings` in
       `code/src/model_checker/settings/types.py`, documented as "deterministic Z3 resource-unit
       budget; independent of machine load, unlike `max_time`".
-- [ ] Wire it in `ModelDefaults.solve()` and `ModelDefaults.re_solve()`: call `set_rlimit` only
+- [x] Wire it in `ModelDefaults.solve()` and `ModelDefaults.re_solve()`: call `set_rlimit` only
       when the setting is present and truthy, immediately after the existing `set_timeout` call.
-- [ ] Confirm the existing UNKNOWN-as-timeout branch already covers an rlimit-exhausted UNKNOWN
+- [x] Confirm the existing UNKNOWN-as-timeout branch already covers an rlimit-exhausted UNKNOWN
       (it treats *any* UNKNOWN as `is_timeout=True` regardless of `reason_unknown()`); add a test
       pinning that behavior so a future narrowing of the branch cannot silently regress it.
 

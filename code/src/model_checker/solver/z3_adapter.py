@@ -149,6 +149,20 @@ class Z3SolverAdapter:
         """
         self._solver.set("timeout", ms)
 
+    def set_rlimit(self, units: int) -> None:
+        """Set a deterministic Z3 resource-unit budget for solver operations.
+
+        Unlike set_timeout()'s wall-clock milliseconds, rlimit counts Z3's
+        internal resource units and so is independent of machine load --
+        the same constraint set exhausts the same rlimit budget regardless
+        of how busy the host CPU is. Intended to be used alongside (not
+        instead of) set_timeout().
+
+        Args:
+            units: Resource-unit budget. 0 means unlimited (Z3's default).
+        """
+        self._solver.set("rlimit", units)
+
     def reason_unknown(self) -> str:
         """Get the reason for an unknown result.
 

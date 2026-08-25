@@ -106,6 +106,15 @@ class TrackedSolverProtocol(SolverProtocol, Protocol):
         """
         ...
 
+    def set_rlimit(self, units: int) -> None:
+        """Set a deterministic, machine-load-independent resource-unit
+        budget for solver operations, alongside the wall-clock timeout.
+
+        Args:
+            units: Resource-unit budget. 0 means unlimited.
+        """
+        ...
+
 
 class SolverResult:
     """Result of a satisfiability check.

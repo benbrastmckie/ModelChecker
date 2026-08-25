@@ -260,6 +260,13 @@ class ModelDefaults:
 
             # Set timeout and solve
             self.solver.set_timeout(int(max_time * 1000))
+            # Deterministic, machine-load-independent resource budget,
+            # alongside the wall-clock timeout above. Optional and
+            # default-off: only set when the settings dict carries a
+            # truthy max_rlimit, so no existing example's behavior changes.
+            max_rlimit = self.settings.get("max_rlimit")
+            if max_rlimit:
+                self.solver.set_rlimit(max_rlimit)
             start_time = time.time()
             result = self.solver.check()
 
@@ -309,6 +316,11 @@ class ModelDefaults:
             assert self.solver is not None
             # Re-apply timeout setting
             self.solver.set_timeout(int(self.max_time * 1000))
+            # Re-apply the deterministic resource budget, matching solve()'s
+            # optional, default-off wiring immediately after set_timeout.
+            max_rlimit = self.settings.get("max_rlimit")
+            if max_rlimit:
+                self.solver.set_rlimit(max_rlimit)
 
             start_time = time.time()
             result = self.solver.check()

@@ -323,6 +323,83 @@ class TestModelDefaultsStructure(unittest.TestCase):
         self.assertIsNone(model_or_core)
         self.assertFalse(is_satisfiable)
 
+    def test_solve_without_max_rlimit_sets_no_rlimit(self):
+        """Default-off: a settings dict without max_rlimit must not call
+        set_rlimit() at all, so no existing example's behavior changes."""
+        mock_solver = MagicMock()
+        mock_solver.check.return_value = "sat"
+        mock_solver.assert_tracked = MagicMock()
+
+        self.assertNotIn("max_rlimit", self.settings)
+        with patch('model_checker.models.structure.create_solver', return_value=mock_solver):
+            self.model_defaults.solve(self.model_constraints, 10)
+
+        mock_solver.set_rlimit.assert_not_called()
+
+    def test_solve_with_max_rlimit_sets_rlimit(self):
+        """A settings dict carrying max_rlimit produces a solver whose
+        set_rlimit() was called with the matching value, immediately
+        alongside set_timeout()."""
+        mock_solver = MagicMock()
+        mock_solver.check.return_value = "sat"
+        mock_solver.assert_tracked = MagicMock()
+
+        self.settings["max_rlimit"] = 500000
+        with patch('model_checker.models.structure.create_solver', return_value=mock_solver):
+            self.model_defaults.solve(self.model_constraints, 10)
+
+        mock_solver.set_rlimit.assert_called_once_with(500000)
+
+    def test_re_solve_without_max_rlimit_sets_no_rlimit(self):
+        """Same default-off guarantee as solve(), for re_solve()."""
+        mock_solver = MagicMock()
+        mock_solver.check.return_value = "sat"
+
+        self.model_defaults.solver = mock_solver
+        self.model_defaults.max_time = 10
+        self.assertNotIn("max_rlimit", self.settings)
+
+        self.model_defaults.re_solve()
+
+        mock_solver.set_rlimit.assert_not_called()
+
+    def test_re_solve_with_max_rlimit_sets_rlimit(self):
+        """Same wiring guarantee as solve(), for re_solve()."""
+        mock_solver = MagicMock()
+        mock_solver.check.return_value = "sat"
+
+        self.model_defaults.solver = mock_solver
+        self.model_defaults.max_time = 10
+        self.settings["max_rlimit"] = 250000
+
+        self.model_defaults.re_solve()
+
+        mock_solver.set_rlimit.assert_called_once_with(250000)
+
+    def test_solve_rlimit_exhausted_unknown_is_reported_as_timeout(self):
+        """An UNKNOWN caused by rlimit exhaustion (reason_unknown() ==
+        "max. resource limit exceeded", not "timeout") must still be
+        reported as is_timeout=True -- pinning that the existing
+        UNKNOWN-is-always-inconclusive branch (see
+        test_solve_unknown_non_timeout_reason_is_not_reported_unsat above)
+        already covers this new rlimit-driven cause, so a future narrowing
+        of that branch cannot silently regress it.
+        """
+        mock_solver = MagicMock()
+        mock_solver.check.return_value = "unknown"
+        mock_solver.assert_tracked = MagicMock()
+        mock_solver.reason_unknown.return_value = "max. resource limit exceeded"
+
+        self.settings["max_rlimit"] = 1
+        with patch('model_checker.models.structure.create_solver', return_value=mock_solver):
+            result = self.model_defaults.solve(self.model_constraints, 10)
+
+        is_timeout, model_or_core, is_satisfiable, runtime = result
+        mock_solver.set_rlimit.assert_called_once_with(1)
+        self.assertTrue(is_timeout, "rlimit-exhausted UNKNOWN must be reported as inconclusive")
+        self.assertIsNone(model_or_core)
+        self.assertFalse(is_satisfiable)
+
     def test_solver_isolation(self):
         """Test that solving works correctly with different constraint sets."""
         # First solve

@@ -111,6 +111,27 @@ class TestZ3AdapterOptions:
         # Just verify it doesn't raise
         assert True
 
+    def test_set_rlimit(self):
+        """set_rlimit() sets a deterministic, machine-load-independent Z3
+        resource-unit budget, alongside the existing wall-clock
+        set_timeout(). Verified functionally (not just "doesn't raise"): a
+        tiny rlimit exhausts on a moderately complex constraint and
+        reason_unknown() names the resource limit, not a timeout -- proving
+        the parameter actually reached the underlying solver.
+        """
+        adapter = Z3SolverAdapter()
+        adapter.set_rlimit(1)
+        x = z3.BitVec("x", 32)
+        adapter.add(x * x * x * x == 123456789)
+        result = adapter.check()
+        assert result == SolverResult.UNKNOWN
+        assert "resource" in adapter.reason_unknown().lower()
+
+    def test_adapter_satisfies_tracked_protocol(self):
+        """Z3 adapter (with set_rlimit) should satisfy TrackedSolverProtocol."""
+        adapter = Z3SolverAdapter()
+        assert isinstance(adapter, TrackedSolverProtocol)
+
     def test_reset(self):
         """Should be able to reset solver state."""
         adapter = Z3SolverAdapter()

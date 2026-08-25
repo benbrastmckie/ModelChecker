@@ -1,13 +1,15 @@
 {
   "session_id": "sess_1787692623_ea4ae8",
-  "cycle_count": 2,
+  "cycle_count": 3,
   "max_cycles": 5,
   "infra_failures": 0,
   "max_infra_failures": 3,
-  "current_state": "planned",
+  "current_state": "implementing",
   "detected_defects": [],
   "started": "2026-08-25T21:17:31Z",
-  "last_updated": "2026-08-25T21:30:06Z",
-  "dispatch_seq_counter": 3,
-  "last_session_id": "sess_1787692623_ea4ae8"
+  "last_updated": "2026-08-25T21:49:52Z",
+  "dispatch_seq_counter": 4,
+  "last_session_id": "sess_1787692623_ea4ae8",
+  "last_recovered_phases_completed": 3,
+  "last_recovered_phases_total": 8
 }
