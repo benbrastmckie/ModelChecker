@@ -1,7 +1,7 @@
 # Implementation Plan: Guard the bimodal_harness Import in the Oracle Test Tree
 
 - **Task**: 166 - Research and fix recurring unstable-watch.yml GitHub Actions failures
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 3 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/166_unstable_watch_workflow_failures/reports/01_root-cause-and-fix-recommendation.md
@@ -109,19 +109,19 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 1: Reproduce the CI failure and add the failing regression test [NOT STARTED]
+### Phase 1: Reproduce the CI failure and add the failing regression test [COMPLETED]
 
 - **Goal:** Establish RED. Reproduce the exact CI collection crash locally under a
   `bimodal_harness` blocker, then commit a regression test that fails for that reason.
 - **Tasks:**
-  - [ ] Reproduce the raw defect: `PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/test_oracle_interface.py --collect-only -q` and confirm `ModuleNotFoundError: No module named 'bimodal_harness'`.
-  - [ ] Create `oracle/bimodal_logic/tests/test_bimodal_harness_guard.py`. It MUST NOT import `bimodal_harness` at module level (that would reintroduce the very defect).
-  - [ ] Implement a subprocess-based blocker harness in that file: launch `python -c` in a child process that first inserts a `sys.meta_path` finder whose `find_spec` raises `ImportError` for `bimodal_harness` and any `bimodal_harness.*` submodule, then calls `pytest.main([...])`. Pass `PYTHONPATH=code/src` through the child environment. The blocker is what simulates every CI runner; do not substitute a `sys.modules` deletion or a `monkeypatch`, neither of which survives into a fresh collection.
-  - [ ] Add the primary regression test: run `--collect-only -q` over the whole `oracle/bimodal_logic/tests/` directory under the blocker and assert the child exits 0 with no `ERROR collecting` and no `ModuleNotFoundError` in its output. Directory scope, not file scope — this is the scope `unstable-watch.yml` actually uses and the scope that would catch a future offender.
-  - [ ] Add a second, narrower regression test asserting the same for `test_oracle_interface.py` alone, so a failure localizes immediately.
-  - [ ] Give the file a module docstring naming the failure mode it prevents and pointing at the shared helper as the required pattern.
-  - [ ] Run the new tests and confirm BOTH FAIL against unmodified source. Record the failure output.
-  - [ ] Confirm `--collect-only` in the child cannot recurse: the child collects but never executes this file's own tests.
+  - [x] Reproduce the raw defect: `PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/test_oracle_interface.py --collect-only -q` and confirm `ModuleNotFoundError: No module named 'bimodal_harness'`. *(completed)*
+  - [x] Create `oracle/bimodal_logic/tests/test_bimodal_harness_guard.py`. It MUST NOT import `bimodal_harness` at module level (that would reintroduce the very defect). *(completed)*
+  - [x] Implement a subprocess-based blocker harness in that file: launch `python -c` in a child process that first inserts a `sys.meta_path` finder whose `find_spec` raises `ImportError` for `bimodal_harness` and any `bimodal_harness.*` submodule, then calls `pytest.main([...])`. Pass `PYTHONPATH=code/src` through the child environment. The blocker is what simulates every CI runner; do not substitute a `sys.modules` deletion or a `monkeypatch`, neither of which survives into a fresh collection. *(completed)*
+  - [x] Add the primary regression test: run `--collect-only -q` over the whole `oracle/bimodal_logic/tests/` directory under the blocker and assert the child exits 0 with no `ERROR collecting` and no `ModuleNotFoundError` in its output. Directory scope, not file scope — this is the scope `unstable-watch.yml` actually uses and the scope that would catch a future offender. *(completed)*
+  - [x] Add a second, narrower regression test asserting the same for `test_oracle_interface.py` alone, so a failure localizes immediately. *(completed)*
+  - [x] Give the file a module docstring naming the failure mode it prevents and pointing at the shared helper as the required pattern. *(completed)*
+  - [x] Run the new tests and confirm BOTH FAIL against unmodified source. Record the failure output. *(completed: both failed with the blocker's ImportError surfaced inside "ERROR collecting", confirming genuine RED)*
+  - [x] Confirm `--collect-only` in the child cannot recurse: the child collects but never executes this file's own tests. *(completed: every invocation passes --collect-only; self-consistency check on the new file itself also passed)*
 - **Timing:** 45 minutes
 - **Depends on:** none
 - **Verification Tier:** local
