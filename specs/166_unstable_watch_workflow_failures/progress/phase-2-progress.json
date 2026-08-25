@@ -1,0 +1,35 @@
+{
+  "phase": 2,
+  "phase_name": "Extract the guard into a shared helper module",
+  "started_at": "2026-08-25T00:15:00Z",
+  "last_updated": "2026-08-25T00:45:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Create shared _bimodal_harness.py helper module with BH_AVAILABLE/BH_SKIP_REASON",
+      "status": "done",
+      "files_touched": ["oracle/bimodal_logic/tests/_bimodal_harness.py"]
+    },
+    {
+      "id": 2,
+      "description": "Update test_cross_oracle_differential.py to import from shared module, unify skip messages",
+      "status": "done",
+      "files_touched": ["oracle/bimodal_logic/tests/test_cross_oracle_differential.py"]
+    },
+    {
+      "id": 3,
+      "description": "Verify import resolves, baseline counts identical before/after, blocker skip behavior clean, Phase 1 tests still RED",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": 3,
+  "approaches_tried": [
+    {
+      "approach": "Relative package import bimodal_logic.tests._bimodal_harness (not a fragile sys.path-based import)",
+      "result": "succeeded",
+      "reason": "oracle/ has no __init__.py so it lands on sys.path under pytest's prepend import mode, and bimodal_logic/ and bimodal_logic/tests/ both have __init__.py, making the absolute-within-package import resolve cleanly. Fallback (duplicating the helper) was not needed."
+    }
+  ],
+  "handoff_count": 0
+}

@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import tempfile
 import time
 from pathlib import Path
@@ -1233,26 +1232,11 @@ class TestDifferentialComparison:
 # Phase 3: BimodalHarness Integration (conditional)
 ##############################################################################
 
-def _try_import_bimodal_harness() -> tuple[bool, Any]:
-    """Attempt to import BimodalHarness without raising.
-
-    Returns:
-        Tuple (available, module_or_none). If the import succeeds, available=True
-        and the second element is the top-level bimodal_harness module.
-        If unavailable, available=False and the second element is None.
-    """
-    bh_src = Path("/home/benjamin/Projects/BimodalHarness/src")
-    if bh_src.exists() and str(bh_src) not in sys.path:
-        sys.path.insert(0, str(bh_src))
-    try:
-        import bimodal_harness  # noqa: F401
-        return True, bimodal_harness
-    except ImportError:
-        return False, None
-
-
-# Try importing at module level to set a flag
-_BH_AVAILABLE, _BH_MODULE = _try_import_bimodal_harness()
+from bimodal_logic.tests._bimodal_harness import (
+    BH_AVAILABLE as _BH_AVAILABLE,
+    BH_MODULE as _BH_MODULE,
+    BH_SKIP_REASON as _BH_SKIP_REASON,
+)
 
 
 @pytest.mark.differential
@@ -1266,7 +1250,7 @@ class TestBimodalHarnessIntegration:
 
     def setup_method(self):
         if not _BH_AVAILABLE:
-            pytest.skip("BimodalHarness not available at /home/benjamin/Projects/BimodalHarness")
+            pytest.skip(_BH_SKIP_REASON)
         from bimodal_logic import Z3OracleProvider
         self.mc_oracle = Z3OracleProvider()
 
@@ -1581,7 +1565,7 @@ class TestMockOracleSpotCheck:
 
     def setup_method(self):
         if not _BH_AVAILABLE:
-            pytest.skip("BimodalHarness not available")
+            pytest.skip(_BH_SKIP_REASON)
         from bimodal_logic import Z3OracleProvider
         self.mc_oracle = Z3OracleProvider()
 

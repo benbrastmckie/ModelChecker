@@ -134,17 +134,17 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 2: Extract the guard into a shared helper module [NOT STARTED]
+### Phase 2: Extract the guard into a shared helper module [COMPLETED]
 
 - **Goal:** Move `_try_import_bimodal_harness()` out of `test_cross_oracle_differential.py` into one
   shared module both test files can consume, with zero behavior change.
 - **Tasks:**
-  - [ ] Create `oracle/bimodal_logic/tests/_bimodal_harness.py` (leading underscore: not a test module). Move the helper verbatim from `test_cross_oracle_differential.py:1236-1253`, preserving the existence check on `/home/benjamin/Projects/BimodalHarness/src`, the conditional `sys.path.insert`, and the `try/except ImportError`.
-  - [ ] Export a module-level `BH_AVAILABLE` flag and a `BH_SKIP_REASON` string constant so both consumers share one skip message instead of two hand-written ones.
-  - [ ] Give the module a docstring stating that any test file in this tree touching `bimodal_harness` must import from here rather than importing `bimodal_harness` at module scope.
-  - [ ] Update `test_cross_oracle_differential.py` to import from the shared module and delete the local helper definition. Keep the existing `_BH_AVAILABLE` / `_BH_MODULE` names bound to the shared values so the ~7 downstream reference sites in that file need no edits.
-  - [ ] Confirm the import resolves under pytest's prepend import mode (the `tests/` and `bimodal_logic/` packages both have `__init__.py`; `oracle/` does not, so `oracle/` lands on `sys.path` and both a relative import and `bimodal_logic.tests._bimodal_harness` resolve).
-  - [ ] Fallback if that import proves fragile: abandon extraction, duplicate the helper directly in `test_oracle_interface.py`, revert this phase's edit to the sibling, and record the decision in the phase notes. Do not spend more than 20 minutes on import-path debugging before taking the fallback.
+  - [x] Create `oracle/bimodal_logic/tests/_bimodal_harness.py` (leading underscore: not a test module). Move the helper verbatim from `test_cross_oracle_differential.py:1236-1253`, preserving the existence check on `/home/benjamin/Projects/BimodalHarness/src`, the conditional `sys.path.insert`, and the `try/except ImportError`. *(completed)*
+  - [x] Export a module-level `BH_AVAILABLE` flag and a `BH_SKIP_REASON` string constant so both consumers share one skip message instead of two hand-written ones. *(completed)*
+  - [x] Give the module a docstring stating that any test file in this tree touching `bimodal_harness` must import from here rather than importing `bimodal_harness` at module scope. *(completed)*
+  - [x] Update `test_cross_oracle_differential.py` to import from the shared module and delete the local helper definition. Keep the existing `_BH_AVAILABLE` / `_BH_MODULE` names bound to the shared values so the ~7 downstream reference sites in that file need no edits. *(completed: 5 downstream reference sites found and preserved via alias import, not 7 -- corrected count; also unified both hand-written pytest.skip() messages to the shared BH_SKIP_REASON constant)*
+  - [x] Confirm the import resolves under pytest's prepend import mode (the `tests/` and `bimodal_logic/` packages both have `__init__.py`; `oracle/` does not, so `oracle/` lands on `sys.path` and both a relative import and `bimodal_logic.tests._bimodal_harness` resolve). *(completed)*
+  - [x] Fallback if that import proves fragile: abandon extraction, duplicate the helper directly in `test_oracle_interface.py`, revert this phase's edit to the sibling, and record the decision in the phase notes. Do not spend more than 20 minutes on import-path debugging before taking the fallback. *(completed: fallback not needed -- import resolved cleanly on first attempt)*
 - **Timing:** 30 minutes
 - **Depends on:** 1
 - **Verification Tier:** interface
