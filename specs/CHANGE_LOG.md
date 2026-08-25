@@ -324,3 +324,202 @@ Archived 24 tasks (24 completed, 0 abandoned).
   - `specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/summaries/01_fix-quantifier-aliasing-rebaseline-summary.md`
 
 
+
+## 2026-08-25
+
+
+### Task 146: fix_cli_defects_found_in_release_review
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: All six CLI polish defects from the 2026-08-11 release review (issues 8, 9, 11, 12, 13, 15) are fixed and verified. Phase 8 ran the full regression suite: PYTHONPATH=code/src pytest code/tests/ -q measured 397 passed, 4 skipped, 0 failed (vs the Phase 1 baseline of 283 passed -- the delta is this task's 10 new test_main_cli.py tests plus unrelated concurrent packaging-test additions from another in-flight task sharing the working tree); PYTHONPATH=code/src pytest code/src/model_checker/ -q measured 1912 passed, 0 failed (vs the 1910-passed baseline -- the +2 is this task's own two new builder/tests/unit/test_project.py assertions from Phase 7). Zero regressions against either baseline. model-checker --help was confirmed to list all four registered theories under --load_theory, drop jupyter from --save's choices, and use corrected 'No args = markdown and json' wording. All 8 plan phases are marked [COMPLETED] with fully checked checklists. The pre-existing summary file's Regression Verification section had asserted a result for the in-package suite run without that run ever having been executed -- this was corrected to report the actually-measured 1912-passed figure.
+- **Artifacts**:
+  - `specs/archive/146_fix_cli_defects_found_in_release_review/reports/01_cli-defect-fixes.md`
+  - `specs/archive/146_fix_cli_defects_found_in_release_review/plans/01_fix-cli-defects.md`
+  - `specs/archive/146_fix_cli_defects_found_in_release_review/summaries/01_fix-cli-defects-summary.md`
+
+
+### Task 147: correct_stale_release_and_environment_docs
+
+- **Status**: COMPLETED
+- **Type**: markdown
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Corrected all four drifted release/environment docs: workflows README reduced to a pointer stub, RELEASE_SETUP.md matrix wording and archive paths fixed, ENVIRONMENT_SETUP.md Python floor/casing/Nix prose corrected, and a new NixOS post-publish verification recipe added to BASIC_INSTALLATION.md.
+- **Artifacts**:
+  - `specs/archive/147_correct_stale_release_and_environment_docs/reports/01_release-env-docs-drift.md`
+  - `specs/archive/147_correct_stale_release_and_environment_docs/plans/01_release-env-docs-corrections.md`
+  - `specs/archive/147_correct_stale_release_and_environment_docs/summaries/01_release-env-docs-summary.md`
+
+
+### Task 148: cli_end_to_end_verification_suite
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: _(no completion summary recorded at archival time)_
+- **Artifacts**:
+  - `specs/archive/148_cli_end_to_end_verification_suite/reports/01_cli-e2e-verification-research.md`
+  - `specs/archive/148_cli_end_to_end_verification_suite/plans/01_cli-e2e-verification-plan.md`
+  - `specs/archive/148_cli_end_to_end_verification_suite/summaries/01_cli-e2e-verification-summary.md`
+
+
+### Task 149: wheel_and_sdist_packaging_contract_tests
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Added an executable code/tests/packaging/ suite (108 tests under the new packaging pytest marker) that builds fresh wheel/sdist artifacts and asserts exclusions, registry-driven inclusions, wheel/sdist parity, and console-script installability, then wired a push/PR-triggered packaging.yml workflow plus an additive packaging-test step in release.yml's build job so the suite actually runs in CI.
+- **Artifacts**:
+  - `specs/archive/149_wheel_and_sdist_packaging_contract_tests/reports/01_packaging-contract-tests.md`
+  - `specs/archive/149_wheel_and_sdist_packaging_contract_tests/plans/01_packaging-contract-tests.md`
+  - `specs/archive/149_wheel_and_sdist_packaging_contract_tests/summaries/01_packaging-contract-tests-summary.md`
+
+
+### Task 150: add_general_ci_workflow_and_flake_check_gate
+
+- **Status**: COMPLETED
+- **Type**: general
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Added .github/workflows/tests.yml (push/PR general-tests matrix across Python 3.10/3.11/3.12 plus a nix flake check job) and broadened flake.nix's checks.default beyond the bimodal-only suite, correcting its false '28 documented failures' justification. Discovered and fixed one additional genuine missing dependency (typing-extensions) not anticipated in the plan, needed in both flake.nix's devPython and the workflow's pip install list to reach a true green. Documented the new workflow's scoping decisions in .github/workflows/README.md and closed the two answered specs/ROADMAP.md Phase 1 items. All verification was local-only (YAML parse, exact pytest selectors, a real nix flake check run) per the plan's local-only verification contract; nothing was pushed and no PR was opened.
+- **Artifacts**:
+  - `specs/archive/150_add_general_ci_workflow_and_flake_check_gate/reports/01_ci-workflow-and-flake-gate.md`
+  - `specs/archive/150_add_general_ci_workflow_and_flake_check_gate/plans/01_ci-workflow-and-flake-gate.md`
+  - `specs/archive/150_add_general_ci_workflow_and_flake_check_gate/summaries/01_ci-workflow-and-flake-gate-summary.md`
+
+
+### Task 151: rerun_release_rehearsal_and_publish_to_pypi
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Corrected release-verify.sh's stale W002 gate contract and its documentation, expanded the never-published 1.3.0 CHANGELOG entry to cover all post-refactor work, captured a fresh fully-green rehearsal evidence set, obtained a PASS nix flake check verdict on a confirmed-quiet host, and wrote a task-scoped PUBLISH-CHECKLIST.md gating on the PyPI trusted-publisher registration as the sole remaining, user-only blocker.
+- **Artifacts**:
+  - `specs/archive/151_rerun_release_rehearsal_and_publish_to_pypi/reports/01_release-rehearsal-rerun.md`
+  - `specs/archive/151_rerun_release_rehearsal_and_publish_to_pypi/plans/01_release-rehearsal-publish-prep.md`
+  - `specs/archive/151_rerun_release_rehearsal_and_publish_to_pypi/summaries/01_release-rehearsal-publish-prep-summary.md`
+
+
+### Task 155: fix_ci_failures_wheel_dep_and_timing_gated_tests
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: _(no completion summary recorded at archival time)_
+- **Artifacts**:
+  - `specs/archive/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/reports/01_ci-failures-wheel-and-timing.md`
+  - `specs/archive/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/plans/01_ci-fixes-wheel-and-timing.md`
+  - `specs/archive/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/summaries/01_ci-fixes-summary.md`
+
+
+### Task 156: portable_pinned_release_verification_runner
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Built and ran end to end a pinned, portable local release-verification runner (code/scripts/release-verify.sh) that provisions build/twine/check-wheel-contents into a venv inside a single nix develop invocation and writes a 12-file evidence set; rewrote .github/RELEASE_SETUP.md's Local Rehearsal section and code/scripts/README.md to document it; archived the real run's evidence under specs/156_.../rehearsal/. All 5 plan phases closed COMPLETED; flake.nix and .github/workflows/ untouched; no push/tag/PR.
+- **Artifacts**:
+  - `specs/archive/156_portable_pinned_release_verification_runner/reports/01_portable-release-verification.md`
+  - `specs/archive/156_portable_pinned_release_verification_runner/plans/01_release-verify-runner.md`
+  - `specs/archive/156_portable_pinned_release_verification_runner/summaries/01_release-verify-runner-summary.md`
+
+
+### Task 157: dedupe_theory_lib_version_files_w002
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: _(no completion summary recorded at archival time)_
+- **Artifacts**:
+  - `specs/archive/157_dedupe_theory_lib_version_files_w002/reports/01_version-file-dedupe.md`
+  - `specs/archive/157_dedupe_theory_lib_version_files_w002/plans/01_version-file-dedupe.md`
+  - `specs/archive/157_dedupe_theory_lib_version_files_w002/summaries/01_version-file-dedupe-summary.md`
+
+
+### Task 159: fix_bimodal_flake_and_unstable_category
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Recorded BM_CM_1's full repair frontier (a third closed encoding avenue) and marked it unstable with all four entry criteria in-line since no fix exists. Landed a measurement-justified widening of the oracle gating re-check budget (20000->40000ms), verified locally at 103/103 conclusive but not yet on real CI. Registered and wired the unstable marker's deselection across tests.yml, differential-tests.yml, release.yml, and flake.nix; added the non-gating unstable-watch.yml observation workflow; documented the full policy in TESTING_GUIDE.md 8.9; and created follow-up task 160 since neither defect fully closed within this round.
+- **Artifacts**:
+  - `specs/archive/159_fix_bimodal_flake_and_unstable_category/reports/01_bimodal-flake-and-unstable-category.md`
+  - `specs/archive/159_fix_bimodal_flake_and_unstable_category/plans/01_bimodal-flake-unstable-category.md`
+  - `specs/archive/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md`
+
+
+### Task 162: fix_nonexistent_cli_flags_in_docs
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: _(no completion summary recorded at archival time)_
+- **Artifacts**:
+  - `specs/archive/162_fix_nonexistent_cli_flags_in_docs/reports/01_nonexistent-cli-flags-audit.md`
+  - `specs/archive/162_fix_nonexistent_cli_flags_in_docs/reports/02_violation-inventory.md`
+  - `specs/archive/162_fix_nonexistent_cli_flags_in_docs/plans/01_nonexistent-cli-flags-fix.md`
+  - `specs/archive/162_fix_nonexistent_cli_flags_in_docs/summaries/01_nonexistent-cli-flags-summary.md`
+
+
+### Task 163: full_cli_suite_against_installed_wheel
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: _(no completion summary recorded at archival time)_
+- **Artifacts**:
+  - `specs/archive/163_full_cli_suite_against_installed_wheel/reports/01_installed-cli-verification.md`
+  - `specs/archive/163_full_cli_suite_against_installed_wheel/plans/01_installed-cli-test-mode.md`
+  - `specs/archive/163_full_cli_suite_against_installed_wheel/summaries/01_installed-cli-test-mode-summary.md`
+
+
+### Task 164: populate_py_spec_python_architecture
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Built haskell/py-spec/ as a flat, README-mapped tree of 15 files (README.md plus 14 numbered documents) specifying the Python ModelChecker's architecture for a Haskell port, source-grounded via the task's research findings. Deleted haskell/py_spec.md per decision D8, carrying its blurb into the new README, and marked the corresponding haskell/TODO.md bullet done.
+- **Artifacts**:
+  - `specs/archive/164_populate_py_spec_python_architecture/reports/01_python-architecture-spec.md`
+  - `specs/archive/164_populate_py_spec_python_architecture/plans/01_py-spec-document-tree.md`
+  - `specs/archive/164_populate_py_spec_python_architecture/summaries/01_py-spec-document-tree-summary.md`
+
+
+### Task 165: improve_py_spec_for_haskell_port
+
+- **Status**: COMPLETED
+- **Type**: markdown
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Raised haskell/py-spec/ to a self-sufficient Haskell-porting specification: created 03a-operator-semantics.md (truth conditions for all 52 operators across four theories), 11a-exclusion-witnesses.md (complete Skolem witness mechanism), 07a-worked-trace.md (golden trace captured from a real dev_cli.py run), and 00-glossary.md; expanded 05-/04-/12-/06-/07-/11- with helper predicates, primitive signatures, closed frame-constraint lists, exception taxonomy, and determinism contract; fixed 08-/07-/10- inaccuracies; compressed 13-/09- Python trivia. All formulas verified against source; 14-document spine preserved.
+- **Artifacts**:
+  - `specs/archive/165_improve_py_spec_for_haskell_port/reports/01_haskell-porting-readiness.md`
+  - `specs/archive/165_improve_py_spec_for_haskell_port/plans/02_py-spec-port-improvements.md`
+  - `specs/archive/165_improve_py_spec_for_haskell_port/summaries/02_py-spec-port-improvements-summary.md`
+
+
+### Task 166: unstable_watch_workflow_failures
+
+- **Status**: COMPLETED
+- **Type**: general
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: Fixed the recurring unstable-watch.yml collection crash by guarding the unconditional bimodal_harness import in oracle/bimodal_logic/tests/test_oracle_interface.py behind a new shared helper module (_bimodal_harness.py), gating the three dependent tests with skipif, locking the fix in with a subprocess-blocker regression test, and documenting the required pattern in TESTING_GUIDE.md section 8.10.
+- **Artifacts**:
+  - `specs/archive/166_unstable_watch_workflow_failures/reports/01_root-cause-and-fix-recommendation.md`
+  - `specs/archive/166_unstable_watch_workflow_failures/plans/01_guard-bimodal-harness-import.md`
+  - `specs/archive/166_unstable_watch_workflow_failures/summaries/01_guard-bimodal-harness-import-summary.md`
+
+
+### Task 169: eliminate_wall_clock_sensitive_test_flakes
+
+- **Status**: COMPLETED
+- **Type**: python
+- **Archived**: 2026-08-25T22:50:08Z
+- **Summary**: _(no completion summary recorded at archival time)_
+- **Artifacts**:
+  - `specs/archive/169_eliminate_wall_clock_sensitive_test_flakes/reports/01_wall-clock-flake-root-causes.md`
+  - `specs/archive/169_eliminate_wall_clock_sensitive_test_flakes/plans/01_eliminate-wall-clock-test-flakes.md`
+  - `specs/archive/169_eliminate_wall_clock_sensitive_test_flakes/summaries/01_eliminate-wall-clock-test-flakes-summary.md`
+
+**Memory harvest**: 5 candidate(s) surfaced from tasks 159 and 164; 1 completion reflection
+recorded on task 159. None created automatically -- run `/learn --task 159` or
+`/learn --task 164` to review and add them.
