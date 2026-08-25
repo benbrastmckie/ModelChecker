@@ -27,6 +27,25 @@ TESTS_YML = REPO_ROOT / ".github" / "workflows" / "tests.yml"
 FLAKE_NIX = REPO_ROOT / "flake.nix"
 PYPROJECT_TOML = REPO_ROOT / "code" / "pyproject.toml"
 
+# flake.nix's checks.default derivation sets `src = ./code`, so the sandboxed `nix flake check`
+# build only ever contains the code/ subtree -- .github/workflows/tests.yml and flake.nix itself,
+# both outside code/, are structurally absent there (this module's own __file__ resolves to
+# /build/code/tests/ci/..., i.e. REPO_ROOT resolves to /build, which has no .github/ or flake.nix
+# under it). This guard's actual job -- catching a real divergence between the two files -- is
+# still done: .github/workflows/tests.yml's own `general-tests` job checks out the FULL repo via
+# actions/checkout@v4, so this guard runs there with both files present. Skip cleanly here rather
+# than fail on an environment this guard cannot evaluate in.
+_MISSING_REPO_ROOT_FILES = [p for p in (TESTS_YML, FLAKE_NIX) if not p.exists()]
+if _MISSING_REPO_ROOT_FILES:
+    pytest.skip(
+        "Repo-root files not present in this sandbox (expected under `nix flake check`'s "
+        "checks.default, whose `src = ./code` excludes the repo root): "
+        + ", ".join(str(p) for p in _MISSING_REPO_ROOT_FILES)
+        + ". This guard runs in .github/workflows/tests.yml's general-tests job instead, where "
+        "actions/checkout@v4 provides the full repository.",
+        allow_module_level=True,
+    )
+
 # Matches a `pytest <paths> ...` invocation line regardless of leading indentation. The two
 # files order their path arguments differently (`tests/ src/model_checker` vs
 # `src/model_checker tests`) -- that ordering is a pre-existing divergence outside this guard's

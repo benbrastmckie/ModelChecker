@@ -615,33 +615,49 @@ with any existing guard rather than duplicating it.
 
 ---
 
-### Phase 8: TESTING_GUIDE Documentation [NOT STARTED]
+### Phase 8: TESTING_GUIDE Documentation [COMPLETED]
 
 **Goal**: Document the fixed state, the marker taxonomy, and the timeout convention so the
 guide stops modeling the anti-pattern this task removes.
 
 **Tasks**:
-- [ ] Add a new subsection under section 8.5 ("Repeated-Operation Timing: Discard Cold Starts,
+- [x] Add a new subsection under section 8.5 ("Repeated-Operation Timing: Discard Cold Starts,
       Avoid Unbounded Ratios") with a worked before/after example: the unbounded `max/min` ratio
       as the anti-pattern, and the warm-up-discard plus absolute/median-plus-slack form as the
       correct pattern, with an explicit note that a ratio bound tightens as the implementation
       gets faster.
-- [ ] Update section 8.6 ("Solver Timing Budgets and Machine Variance") to describe the **fixed**
+      Added as `#### Repeated-Operation Timing: ...` nested under `### 8.5`, not a new top-level
+      `###` section, so 8.6-8.10's existing numbers were not disturbed.
+- [x] Update section 8.6 ("Solver Timing Budgets and Machine Variance") to describe the **fixed**
       state: it currently reads as if `max_time`-tuning is the only remedy. Document the new
       `timeout` key in `BuildExample` results, the three-value `check_result()` return, and the
       new `max_rlimit` setting as the deterministic complement to `max_time`.
-- [ ] Add a new subsection documenting the `--timeout` / `--timeout-method=thread` CI convention,
+- [x] Add a new subsection documenting the `--timeout` / `--timeout-method=thread` CI convention,
       opening with the observed hang incident as its motivating case (matching how 8.6 opens with
       a concrete measured incident), and stating why `thread` rather than the default `signal`.
-- [ ] Add a marker subsection for `xdist_serial` modeled structurally on section 8.9's `unstable`
+      Added as new `### 8.11`, appended after 8.10 (before `## Quick Reference`) rather than
+      inserted mid-sequence, so no existing section number changed.
+- [x] Add a marker subsection for `xdist_serial` modeled structurally on section 8.9's `unstable`
       treatment: meaning, entry criteria, and a per-workflow inventory of where the deselection
       and the serial pass are wired.
-- [ ] Cross-reference the three regression guards by path so a future reader knows the invariants
+      Added as new `### 8.12`. "Entry criteria" for `xdist_serial` is the two-marker taxonomy
+      table (D3, distinguishing it from `performance`) rather than 8.9's four-item severity
+      checklist, since `xdist_serial` is a routine structural classification, not a quarantine
+      for an investigated residual defect -- stated explicitly in the subsection's opening
+      paragraph.
+- [x] Cross-reference the three regression guards by path so a future reader knows the invariants
       are executable, not aspirational.
-- [ ] Verify every file path, section number, and cross-reference in the new prose resolves.
-- [ ] Confirm no task numbers appear anywhere in the added prose — cite filenames, class names,
+      `code/tests/ci/test_workflow_parity.py` and `code/tests/ci/test_timing_marker_coverage.py`
+      cited in 8.11/8.12; `TestTimeoutSurfacing`/`TestThreeWayCheckResult` in
+      `builder/tests/unit/test_example.py` cited in 8.6.
+- [x] Verify every file path, section number, and cross-reference in the new prose resolves.
+      All 17 distinct backtick-quoted file paths in the new prose confirmed to exist via `test -e`;
+      all `8.N` cross-references (8.5-8.12) confirmed to match real headings via
+      `grep -n "^### 8\."`.
+- [x] Confirm no task numbers appear anywhere in the added prose — cite filenames, class names,
       section headings, and the CI run id instead
       (`.claude/rules/no-task-references-in-deliverables.md`).
+      `grep -inE "task [0-9]|tasks [0-9]+-[0-9]|\(task [0-9]"` over the new prose: no matches.
 
 **Timing**: 1 hour
 
@@ -665,20 +681,49 @@ guide stops modeling the anti-pattern this task removes.
 
 ## Testing & Validation
 
-- [ ] Full gating selection green in the PyPI toolchain:
+- [x] Full gating selection green in the PyPI toolchain:
       `cd code && PYTHONPATH=src pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 6 --timeout=<budget> --timeout-method=thread -q`
-- [ ] Serial pass green: same paths with `-m "xdist_serial and not packaging and not unstable"`,
+      Result: 2292 passed, 1 skipped, 0 failed in 168.93s.
+- [x] Serial pass green: same paths with `-m "xdist_serial and not packaging and not unstable"`,
       no `-n` flag
-- [ ] Full check green in the Nix toolchain: `nix flake check`
-- [ ] `code/tests/ci/` guards green and each demonstrated to fail on a broken invariant
-- [ ] `test_iteration_via_iterate_api` reports an inconclusive solve as inconclusive, not as
+      Result: 9 passed, 0 failed in 3.19s.
+- [x] Full check green in the Nix toolchain: `nix flake check`
+      Result: "all checks passed!" (parallel: 2033 passed, 256 skipped, 0 failed in 152.81s;
+      serial: 9 passed, 1 skipped, 0 failed in 1.84s). Required one bugfix (see Phase 8 handoff):
+      `code/tests/ci/test_workflow_parity.py` unconditionally read `.github/workflows/tests.yml`
+      and `flake.nix` from the repo root, but `flake.nix`'s `checks.default` derivation sets
+      `src = ./code`, so that sandboxed build never contains either file (both live outside
+      `code/`). Added a clean `pytest.skip(..., allow_module_level=True)` when either file is
+      absent, with a comment explaining why and noting the guard still runs for real in
+      `tests.yml`'s `general-tests` job, where `actions/checkout@v4` provides the full repo.
+      Verified by simulating the sandbox's layout locally (a `code/`-only copy with no repo-root
+      siblings): the module now skips cleanly instead of erroring.
+- [x] `code/tests/ci/` guards green and each demonstrated to fail on a broken invariant
+      (see Phase 7 handoff for the three fail-then-restore observations)
+- [x] `test_iteration_via_iterate_api` reports an inconclusive solve as inconclusive, not as
       "no model found" — verified by forcing a short `max_time`
-- [ ] `TestPerformanceAndScalabilityScenarios` passes 10 consecutive runs under concurrent `-n 6`
+      (Phase 2; covered by the full-suite passes above and `TestThreeWayCheckResult`)
+- [x] `TestPerformanceAndScalabilityScenarios` passes 10 consecutive runs under concurrent `-n 6`
       load
-- [ ] Default `rlimit` behavior unchanged: a test proves no `rlimit` is set when `max_rlimit` is
+      Ran 10 consecutive standalone invocations, all green (2 passed each time). The
+      "concurrent `-n 6` load" framing predates this class's Phase 5 `xdist_serial` marking; by
+      design that marker now guarantees this class never runs alongside the `-n 6` pool in
+      gating CI (it runs alone in the serial pass instead), so standalone repetition is the
+      condition that actually matters post-fix, and it is what was verified.
+- [x] Default `rlimit` behavior unchanged: a test proves no `rlimit` is set when `max_rlimit` is
       absent
-- [ ] No unregistered-marker warnings anywhere in pytest output
-- [ ] `pytest --collect-only` before/after counts reconcile exactly with the marking delta
+      (`test_solve_without_max_rlimit_sets_no_rlimit`, `test_re_solve_without_max_rlimit_sets_no_rlimit`;
+      both pass)
+- [x] No unregistered-marker warnings anywhere in pytest output
+      Confirmed via `--collect-only -W error::pytest.PytestUnknownMarkWarning`: 2415 collected,
+      no warning raised.
+- [x] `pytest --collect-only` before/after counts reconcile exactly with the marking delta
+      Final reconciliation (post-Phase 7's 2-test correction): 2415 total collected; 9
+      `xdist_serial`; 2293 in the gating selection
+      (`not packaging and not performance and not unstable and not xdist_serial`); 2415 - 9 = 2406,
+      and 2406 - 2293 = 113 deselected by `packaging`/`performance`/`unstable`, unchanged from the
+      original pre-task baseline (113) since this task added no new `packaging`/`performance`/
+      `unstable` markings.
 
 ## Artifacts & Outputs
 

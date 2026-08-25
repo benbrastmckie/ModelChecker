@@ -584,6 +584,65 @@ def test_iteration_completes_within_time_limit():
     assert duration < 5.0, f"Iteration took {duration}s, should complete in <5s"
 ```
 
+#### Repeated-Operation Timing: Discard Cold Starts, Avoid Unbounded Ratios
+
+A single-shot absolute-budget assertion like the one above is fine. A *repeated*-operation
+assertion needs a different shape, because a naive one degrades as the code under test gets
+faster rather than staying reliable.
+
+**Anti-pattern (observed failing in this repository).**
+`code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py`'s
+`TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance`
+used to time five repeated `BuildProject.generate()` calls and assert
+`max_time / min_time < 5.0`:
+
+```python
+# Anti-pattern: an unbounded max/min ratio over repeated real filesystem work.
+operation_times = []
+for iteration in range(5):
+    start_time = time.time()
+    project_generator.generate(f'{project_name}_{iteration}')
+    operation_times.append(time.time() - start_time)
+
+ratio = max(operation_times) / min(operation_times)
+assert ratio < 5.0  # Failed at ratio 17.4
+```
+
+This failed at a measured ratio of **17.4 against the 5.0 bound**, while a companion absolute
+bound on the same run (`max(operation_times) < 10.0`) passed comfortably. The operation
+(`BuildProject.generate()`) is pure filesystem work with no solver involved, and the first
+("cold") iteration pays one-time costs -- cold Python import caches, cold OS filesystem caches --
+that later iterations do not. A ratio assertion over a series that includes that cold iteration
+has no floor on `min_time`, so as the *warm* iterations get faster (the code improving), the
+ratio *grows*: the assertion degrades exactly when the implementation gets better, which is
+backwards for a regression guard.
+
+**Correct pattern: discard the cold iteration, then bound the warm ones absolutely.** Run one
+throwaway warm-up iteration before the measured loop, then assert every warm iteration against a
+fixed absolute ceiling, plus `max(warm_times) < median(warm_times) + FIXED_SLACK_SECONDS` (a
+fixed slack, never a ratio) to catch a single outlier without punishing overall improvement:
+
+```python
+# Correct pattern: one discarded warm-up, then absolute + median-plus-slack bounds.
+warm_up_generator = BuildProject('bimodal')
+warm_up_generator.generate(f'{project_name}_warmup')  # discarded, not measured
+
+operation_times = []
+for iteration in range(5):
+    start_time = time.time()
+    project_generator.generate(f'{project_name}_{iteration}')
+    operation_times.append(time.time() - start_time)
+
+assert_warm_iterations_consistent(self, operation_times)  # absolute ceiling + median + slack
+```
+
+See `assert_warm_iterations_consistent()` and the module-level `WARM_ITERATION_*` constants in
+`test_project_edge_cases.py` for the concrete bounds. This test now also carries
+`@pytest.mark.xdist_serial` (see 8.12 below) -- the redesigned assertion has adequate headroom
+under normal conditions, but CPU contention under the shared `-n 6` worker pool can still push a
+tight repeated-operation timing assertion past budget, independent of the ratio-vs-absolute
+question this subsection addresses.
+
 ### 8.6 Solver Timing Budgets and Machine Variance
 
 Z3 solve times for the *same* formula vary widely between runs on the same machine. Measured on a
@@ -591,11 +650,44 @@ single unchanged test exercising one bimodal countermodel, the reported call tim
 invocations was 0.69s, 1.37s, 1.85s, 1.98s, and 15.08s — roughly a 20x spread with no change to
 the code under test. The variance tracks machine load, not test order.
 
-**Why this matters more than ordinary slowness**: when a solve exceeds `max_time`, the result is
-reported as `model_found == False` rather than as an error. A timeout is therefore
-indistinguishable from a genuine "no countermodel exists" outcome at the assertion site. A test
-whose `max_time` sits near its typical solve time does not fail loudly — it silently inverts its
-semantic conclusion under load.
+**Why this matters more than ordinary slowness**: when a solve exceeds `max_time`, Z3 returns
+UNKNOWN, which `models/structure.py`'s `solve()`/`re_solve()` already classify as
+`is_timeout=True`, populating `ModelStructure.timeout`. A test whose `max_time` sits near its
+typical solve time therefore risks reading an inconclusive run as if it were a genuine "no
+countermodel exists" outcome under load, unless the caller actually reads the timeout signal.
+
+**Fixed: the timeout signal is now surfaced everywhere a result is read, not just inside
+`ModelStructure`.** `BuildExample.get_result()` and `BuildExample._get_model_structure_data()`
+(and the equivalent module-level helper and `run_enhanced_test()` in `utils/testing.py`) always
+carry a `"timeout"` key alongside `"model_found"`, populated from `ModelStructure.timeout` and
+readable independently of it -- `model_found=False, timeout=True` and
+`model_found=False, timeout=False` are now distinguishable, where before both collapsed to the
+same `model_found=False`. `TestResultData.check_result` and both `BuildExample.check_result()`
+(in `builder/example.py`) and `ModelDefaults.check_result()` (in `models/structure.py`) return
+one of three values -- `"match"`, `"mismatch"`, or `"inconclusive"` -- checking `timeout` before
+the expectation comparison, so a timed-out solve is reported as `"inconclusive"` rather than
+silently folded into `"mismatch"`. See
+`code/src/model_checker/builder/tests/unit/test_example.py`'s `TestTimeoutSurfacing` and
+`TestThreeWayCheckResult` classes for the pinning tests, and
+`code/src/model_checker/models/tests/unit/test_structure.py::test_check_result` for the
+`ModelDefaults` side.
+
+**A deterministic complement to `max_time`: the `max_rlimit` setting.** `max_time` is a
+wall-clock budget in milliseconds, so it inherits the machine-load variance this section
+documents -- the same formula can time out on a busy machine and not on an idle one.
+`ExampleSettings` (`code/src/model_checker/settings/types.py`) also accepts an optional
+`max_rlimit: int`: a Z3 resource-unit budget, set via `Z3SolverAdapter.set_rlimit()`
+(`code/src/model_checker/solver/z3_adapter.py`), that counts Z3's internal resource units rather
+than wall-clock time, so the same constraint set exhausts the same budget regardless of host CPU
+load. It is optional and default-off: `ModelDefaults.solve()`/`re_solve()`
+(`code/src/model_checker/models/structure.py`) only call `set_rlimit()` when
+`settings.get("max_rlimit")` is truthy, immediately after the existing `set_timeout()` call, so
+no existing example's behavior changes unless it opts in. An `rlimit`-exhausted UNKNOWN is
+classified identically to a wall-clock timeout (`is_timeout=True`) -- the existing UNKNOWN-as-
+timeout branch already covers it without narrowing, pinned by a dedicated test in
+`models/tests/unit/test_structure.py`. Prefer `max_rlimit` alongside `max_time` (not instead of
+it) for a test whose flakiness is specifically load-driven rather than a genuine near-budget
+solve.
 
 **Set budgets generously, not tightly.** Do not derive `max_time` from a measured solve time plus a
 small margin. An observed ~1.7s solve was given a 10s budget — an ~6x margin — and still failed at
@@ -623,8 +715,12 @@ first; only then look for shared state.
 
 **Wall-clock assertions are load-sensitive.** The timing assertions shown in 8.5 above inherit this
 same variance: repeat full sweeps of the suite have differed from each other by several failures
-with no intervening code change. Give such assertions generous tolerances, or move them behind an
-opt-in marker, so that a default run is deterministic.
+with no intervening code change. Give such assertions generous tolerances, and mark them
+`@pytest.mark.xdist_serial` (see 8.12 below) so they run outside the contended `-n` worker pool,
+or `@pytest.mark.performance` if the budget itself is too tight for any shared CI runner
+(8.12's taxonomy table draws that line precisely) -- either way, a default gating run should have
+no unmarked wall-clock assertion left in it. `code/tests/ci/test_timing_marker_coverage.py`
+enforces this with an AST scan: see 8.12 below.
 
 **Concurrent test sessions contend.** Two test runs in the same sandbox measurably affect each
 other's timing-sensitive outcomes, and a long suite can be killed outright by resource pressure
@@ -907,6 +1003,114 @@ must instead run in a subprocess with an explicit `sys.meta_path` finder that ra
 for the optional package's name (and any of its submodules), faithfully simulating a CI runner
 where the package genuinely does not exist. See `test_bimodal_harness_guard.py` for the reference
 implementation of this blocker harness and its two portability regression tests.
+
+### 8.11 CI Timeout Guard: `--timeout` and `--timeout-method=thread`
+
+**Motivating incident.** CI run `32897405646`'s Python 3.12 job reached 94% progress, produced
+zero output for 17 minutes, and was killed by `general-tests`' job-level `timeout-minutes: 20`
+backstop -- the cleanup log showed only orphaned `pytest` and worker processes, with no
+indication of which test had hung. A job-level timeout is a backstop, not a diagnostic: it ends
+the job, but names nothing.
+
+**The fix: a per-test `pytest-timeout` guard on both gating pytest invocations.**
+`.github/workflows/tests.yml`'s `general-tests` job and `flake.nix`'s `checks.default`
+`checkPhase` (the same suite under, respectively, the PyPI `z3-solver` wheel and the
+nixpkgs-native Z3/Python toolchain) both pass `--timeout=300 --timeout-method=thread` on every
+pytest invocation. `pytest-timeout` was already an installed dependency in both toolchains before
+this addition (`code/pyproject.toml`'s `dev` extra, and `flake.nix`'s `devPython` package list);
+what was missing was passing the flag at all.
+
+**Why `--timeout-method=thread`, not the `signal` default.** `pytest-timeout`'s default `signal`
+method delivers `SIGALRM`, which the Python interpreter can only act on between bytecode
+instructions -- it cannot interrupt or diagnose a hang blocked inside a C extension call such as
+a stuck Z3 solve, which is exactly the failure mode the motivating incident exhibits. The
+`thread` method instead runs a watcher thread that, on timeout, dumps every thread's stack via
+`faulthandler` regardless of where execution is blocked, naming the hung test and showing exactly
+where it is stuck.
+
+**Why 300 seconds.** It sits far below `general-tests`' `timeout-minutes: 20` (1200s) job-level
+backstop, so the per-test timeout fires first and actually produces the diagnostic, and it
+comfortably exceeds the slowest single test measured locally under the same `-n 6` gating
+selection (82.34s,
+`theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_two_produces_distinct_models`)
+-- better than 3x headroom. If a future test's genuine runtime approaches this budget, raise the
+value in both files in a single commit; never remove the flag, and never raise
+`timeout-minutes` instead.
+
+**Prior in-repo precedent for this invocation shape.**
+`specs/archive/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md`
+used `--timeout=180 --timeout-method=thread` (and `--timeout=300 --timeout-method=thread`) for a
+comparable verification sweep before this convention was adopted for the two gating CI
+invocations themselves.
+
+**Kept in sync by an executable guard, not a comment.**
+`code/tests/ci/test_workflow_parity.py` regex-extracts both files' pytest invocation lines and
+asserts the `--timeout` value, `--timeout-method`, `-n` worker count, and both marker expressions
+(parallel-pass and serial-pass, see 8.12 below) are textually identical between them, plus that
+every marker token either invocation names is registered in `code/pyproject.toml`'s `markers`
+list. A future edit that changes one file without the other, or introduces an unregistered
+marker typo, fails this guard rather than silently drifting.
+
+### 8.12 The `xdist_serial` Marker
+
+**What the marker means.** Registered in `code/pyproject.toml` (and mirrored in
+`oracle/conftest.py`'s identically-named marker for the oracle suite's own parallel/serial
+split): "Tests with a real wall-clock timing assertion that has adequate headroom under normal
+conditions, but which CPU contention under pytest-xdist's `-n` worker pool can push past budget.
+Deselected from the parallel `-n` pass; run in a serial second CI pass with no `-n` flag
+instead." Unlike 8.9's `unstable` marker, `xdist_serial` is not a quarantine for a residual,
+investigated defect -- it is a routine, structural classification for any real wall-clock
+assertion that belongs in the gating suite but should not compete with five other workers for
+CPU while its clock is running.
+
+**Two-marker taxonomy (`performance` vs. `xdist_serial`).** Both markers cover a wall-clock
+assertion; which one applies is a budget-size question, not a severity question:
+
+| Marker | Meaning | CI treatment |
+|---|---|---|
+| `performance` | Budget too tight for any shared CI runner (sub-10ms class) | Deselected from both the parallel and serial passes entirely |
+| `xdist_serial` | Real wall-clock assertion with adequate headroom, but which shared-runner contention can push past budget | Deselected from the `-n` pass; run in the serial second pass |
+
+Folding every wall-clock-asserting test under `performance` alone is wrong: `performance` is
+deselected outright by both gating CI invocations, so it silently deletes coverage rather than
+relocating it. Use `xdist_serial` for anything that should keep gating but cannot tolerate
+`-n`-pool contention; reserve `performance` for the genuinely too-tight sub-10ms class (currently
+`test_refactoring_target_behavior.py::test_performance_improvement` and
+`code/tests/integration/test_performance.py::test_complex_model_performance`, the latter carrying
+`@pytest.mark.timeout(30)` as a hang guard alongside `performance`, not as a substitute for it).
+
+**Where the deselection and the serial pass are wired.** `.github/workflows/tests.yml`'s
+`general-tests` step and `flake.nix`'s `checks.default` `checkPhase` each run two pytest
+invocations: a parallel pass with `and not xdist_serial` added to its `-m` expression and `-n 6`,
+followed immediately by a serial pass with `-m "xdist_serial and not packaging and not
+unstable"` and no `-n` flag at all -- mirroring `oracle/run-oracle-suite.sh`'s existing
+parallel/serial two-pass structure for the oracle suite. Both passes carry the identical
+`--timeout=300 --timeout-method=thread` guard from 8.11 above.
+`code/tests/ci/test_workflow_parity.py` enforces that both files' parallel- and serial-pass
+marker expressions stay textually identical.
+
+**Currently marked.** Nine tests across six files, each carrying a one-line
+contention-sensitivity comment at the marker site:
+`builder/tests/e2e/test_project_edge_cases.py`'s `TestPerformanceAndScalabilityScenarios` class
+(both methods -- see 8.5's repeated-operation subsection above for the redesigned assertion this
+class uses),
+`builder/tests/integration/test_performance.py::test_module_loading_performance` and
+`::test_serialization_performance`,
+`builder/tests/unit/test_project_version.py::test_version_detection_performance_is_reasonable`,
+`builder/tests/unit/test_serialize.py::test_serialize_semantic_theory_handles_large_operator_collections`,
+`builder/tests/unit/test_progress_bar_ordering.py::test_freeze_complete_time_consistency`, and
+`code/tests/integration/test_timeout_resources.py::test_z3_solver_timeout` and
+`::test_cli_command_timeout`.
+
+**Kept complete by an executable AST guard, not a one-time grep.**
+`code/tests/ci/test_timing_marker_coverage.py` walks every test file under
+`code/src/model_checker/**/tests/**` and `code/tests/**`, and flags any `test_*` function that
+both reads a real clock (`time.time`, `time.perf_counter`, or `time.monotonic`, checked in the
+function's own body or in a same-module helper function it calls) and asserts a bound comparison
+on the derived value, but carries neither `performance` nor `xdist_serial` (checked at the
+function, its enclosing class, or a module-level `pytestmark`). It carries an explicit,
+commented `MOCKED_CLOCK_ALLOWLIST` for a future test that patches the clock rather than reading
+real wall-clock time, so a mocked-time assertion is never forced to carry either marker.
 
 ---
 
