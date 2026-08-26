@@ -1,7 +1,7 @@
 # Implementation Plan: Fix TestPyPI Trusted Publisher + One-Glance OIDC Diagnostics
 
 - **Task**: 161 - Fix TestPyPI trusted-publisher registration and make future OIDC mismatches diagnosable in one glance
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 1.25 hours (agent-side: 0.75h; user-side gates: 0.5h plus CI wall-clock)
 - **Dependencies**: None (this task BLOCKS `harden_release_ci_testpypi_gate`, which declares it as a dependency)
 - **Research Inputs**: specs/161_fix_testpypi_trusted_publisher/reports/01_fix-testpypi-trusted-publisher.md
@@ -109,7 +109,7 @@ Additional non-goals for this task specifically:
 Phases within the same wave can execute in parallel. Phase 1 is agent work; Phase 2 is user
 work; they are genuinely independent and may proceed concurrently. Phase 3 requires both.
 
-### Phase 1: Add OIDC-claims diagnostic step to `publish-testpypi` [NOT STARTED]
+### Phase 1: Add OIDC-claims diagnostic step to `publish-testpypi` [COMPLETED]
 
 **Goal**: `.github/workflows/release.yml` gains one additive, diagnostic-only step in the
 `publish-testpypi` job that prints the four decoded OIDC claims before the upload step, cannot

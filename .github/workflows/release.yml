@@ -147,6 +147,42 @@ jobs:
     continue-on-error: true
 
     steps:
+    # Diagnostic only -- never a gate. Prints the OIDC claims test.pypi.org
+    # matches a trusted publisher against, so an `invalid-publisher` rejection
+    # is readable at a glance instead of by expanding the upload step's log.
+    # Mirrors the claim vocabulary and "debugging purposes only" framing of
+    # pypa/gh-action-pypi-publish's own oidc-exchange.py.
+    #
+    # SECURITY: ACTIONS_ID_TOKEN_REQUEST_TOKEN and the minted JWT are generated
+    # at runtime and are NOT covered by GitHub's automatic secret masking. The
+    # jq whitelist below is the only thing keeping them out of the log: neither
+    # value is ever echoed, and neither is written to $GITHUB_OUTPUT,
+    # $GITHUB_ENV, or an artifact.
+    - name: Print OIDC claims (diagnostic only)
+      continue-on-error: true
+      env:
+        # Kept in sync with the `repository-url` of the publish step below.
+        OIDC_HOST: test.pypi.org
+      run: |
+        set -euo pipefail
+        AUDIENCE="$(curl -sS "https://${OIDC_HOST}/_/oidc/audience" \
+          | jq -r '.audience' || echo '')"
+        if [ -z "${AUDIENCE}" ] || [ "${AUDIENCE}" = "null" ]; then
+          AUDIENCE=testpypi
+        fi
+        echo "OIDC audience: ${AUDIENCE}"
+        JWT="$(curl -sS \
+          -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+          "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${AUDIENCE}" \
+          | jq -r '.value')"
+        PAYLOAD="$(printf '%s' "${JWT}" | cut -d. -f2 | tr '_-' '/+')"
+        while [ $(( ${#PAYLOAD} % 4 )) -ne 0 ]; do PAYLOAD="${PAYLOAD}="; done
+        echo "The claims below are for debugging purposes only. Do not use them"
+        echo "to configure a trusted publisher unless they already match your"
+        echo "expectations."
+        printf '%s' "${PAYLOAD}" | base64 -d \
+          | jq '{sub, repository, workflow_ref, environment}'
+
     - name: Download distribution artifact
       uses: actions/download-artifact@v4
       with:
