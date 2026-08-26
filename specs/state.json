@@ -43,12 +43,12 @@
     {
       "project_number": 167,
       "project_name": "flaky_testmixedformulas_failures",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "description": "Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/tests/test_oracle_interface.py - test_mixed_or_diamond_prev and test_mixed_and_all_future_neg both fail in some pytest runs and pass in others (test_mixed_and_all_future_neg was observed failing in one full-file run and passing in the next with no code change), so determine whether the nondeterminism comes from Z3 solver behavior, test ordering/state leakage, or a genuine semantics defect, then make the outcomes deterministic",
       "topic": "testing",
       "created": "2026-08-25T20:52:20Z",
-      "last_updated": "2026-08-26T07:43:15Z",
+      "last_updated": "2026-08-26T07:52:28Z",
       "file_scope": [
         "oracle/bimodal_logic/",
         "code/src/model_checker/theory_lib/bimodal/"
@@ -60,6 +60,11 @@
           "path": "specs/167_flaky_testmixedformulas_failures/reports/01_flaky-testmixedformulas-root-cause.md",
           "type": "report",
           "summary": "Root cause: genuine Z3 solve-time variance near timeout budgets. Rules out ordering/state leakage and semantics defect. Recommends seed-pinned probe campaign to set timeout_ms over measured worst tail; unstable-marking as fallback."
+        },
+        {
+          "path": "specs/167_flaky_testmixedformulas_failures/plans/01_deterministic-mixed-formula-budgets.md",
+          "type": "plan",
+          "summary": "7 phases, waves [1][2][3][4,6][5][7]; routes to max_rlimit (load-independent Z3 budget) rather than a 4th timeout widening; 45-min bounded probe ceiling; fixes a live defect in the unstable-watch fallback route."
         }
       ]
     },

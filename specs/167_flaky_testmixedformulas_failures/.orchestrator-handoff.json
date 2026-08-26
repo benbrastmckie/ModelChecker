@@ -1,0 +1,38 @@
+{
+  "dispatch_seq": 7,
+  "task_number": 167,
+  "session_id": "sess_1787724742_be20e8_167",
+  "phase": "plan",
+  "agent_type": "planner-agent",
+  "status": "planned",
+  "plan_path": "specs/167_flaky_testmixedformulas_failures/plans/01_deterministic-mixed-formula-budgets.md",
+  "phase_count": 7,
+  "estimated_hours": 5.5,
+  "dependency_waves": [[1], [2], [3], [4, 6], [5], [7]],
+  "route_exclusive": {
+    "gate_phase": 3,
+    "route_a_phases": [4, 5],
+    "route_b_phases": [6],
+    "rule": "Exactly one route executes. The not-taken route closes [COMPLETED WITH EXCLUSIONS] with a #### Reasoned Exclusions record naming the Phase 3 measurement."
+  },
+  "process_constraints": [
+    "All commands run in the FOREGROUND with an explicit `timeout` prefix; run_in_background is prohibited for every command in this plan.",
+    "Phase 2 probe campaign has a hard 45-minute total wall-clock ceiling and a bounded repetition count of 3 draws per formula.",
+    "A probe that hits its timeout is a recorded data point, not a blocker: log it and continue.",
+    "Do not modify oracle/run-oracle-suite.sh or .github/workflows/unstable-watch.yml; the extracted classifier module is the sanctioned extension point."
+  ],
+  "key_findings_for_implementer": [
+    "max_rlimit is already plumbed ExampleSettings -> ModelDefaults.solve()/re_solve() -> Z3SolverAdapter.set_rlimit(), but Z3OracleProvider.find_countermodel() builds its own settings dict and never sets it. That gap is the Route A fix.",
+    "DEFECT IN THE NAIVE FALLBACK: extending MAX_TIME_BY_NODEID_FRAGMENT alone would NOT work. That classify() path also requires FAILURE_SIGNATURE == 'Test failed for example:' in the failure text; these tests fail with an uncaught OracleTimeoutError, which does not contain that string. Route B needs a dedicated classify() branch following the GATING_FLOOR_NODEID_FRAGMENT pattern.",
+    "The prior docstrings' 80.6s/107.4s heavy draws were measured under PINNED non-default sat/smt.random_seed values. Production sets no seed, so those figures describe a distribution the test never samples.",
+    "oracle/run-oracle-suite.sh already carries `and not unstable` on BOTH passes; no edit is needed there under either route.",
+    "The file's own house constant TEMPORAL_SOLVE_TIMEOUT_MS = 180000 already exceeds both tests' current 150000/60000 budgets and exists for temporal_depth>0 formulas, which both target formulas are."
+  ],
+  "open_items_disposition": {
+    "no_direct_repro": "Not planned as a sampling campaign (cost/ceiling). A cheap FORCED repro under a deliberately tiny budget is planned in Phase 2 step 5 to capture the verbatim failure text Route B's classifier needs.",
+    "z3_vs_host_variance": "PLANNED - this is the load-bearing measurement. Phase 2 reads rlimit alongside wall time at zero incremental cost; the answer selects the route.",
+    "n_contention_untested": "Not planned. Both tests are xdist_serial and run-oracle-suite.sh routes them to the contention-free pass 2, so an -n 6 measurement would characterize a path the gating suite never takes. Phase 7 re-verifies both markers survive.",
+    "ci_flake_history": "Bounded non-blocking single `gh run list` query with timeout 60 in Phase 2 step 6; unavailability is recorded and the phase proceeds."
+  },
+  "next_steps": "Run /implement 167 to execute the plan"
+}
