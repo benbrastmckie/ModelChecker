@@ -48,6 +48,15 @@ jobs:
   general-tests:
     name: General Suite / Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    # timeout-minutes left at 20 (not raised) when -n 6 became -n 4 below: the local
+    # falsification screen's four full-selection draws (parallel pass only, "Run general test
+    # suite" step's comment has the full rationale) showed no systematic -n 4 slowdown --
+    # -n 6 averaged 260.4s, -n 4 averaged 272.8s, a ~5% difference well inside the ~70s
+    # draw-to-draw spread, and the single fastest draw overall was actually an -n 4 draw. This
+    # host's seconds do not extrapolate directly to the ubuntu-latest runner (see the same
+    # comment's evidence-limitation note), but the *qualitative* absence of a large, systematic
+    # slowdown is the basis for leaving the 20-minute backstop unchanged rather than an assumed
+    # CI-side minute count.
     timeout-minutes: 20
 
     strategy:
@@ -90,18 +99,37 @@ jobs:
           # release.yml's build job -- do not remove this filter to "widen coverage"; it would
           # duplicate existing coverage and reintroduce the build race.
           #
-          # -n 6, never xdist's auto worker-count mode: the theory_lib/bimodal suite has a
+          # -n 4, never xdist's auto worker-count mode: the theory_lib/bimodal suite has a
           # documented CPU-contention flake under that mode
           # (test_bimodal.py::test_example_cases[BM_CM_1-example_case7]). That case is now
           # `unstable`-marked (see code/pyproject.toml's marker registration and
           # code/docs/core/TESTING_GUIDE.md section 8.9) and deselected below via
           # `not unstable`; it is separately observed on its own by the non-gating
           # unstable-watch.yml workflow so it stays visible rather than silently dropped.
-          # -n 6 is the value flake.nix's checks.default also uses, and this job deliberately does
+          # -n 4 is the value flake.nix's checks.default also uses, and this job deliberately does
           # NOT exclude bimodal even though `nix flake check` (see the flake-check job below) also
           # covers it: this job exercises the PyPI z3-solver wheel users actually install, while
           # the flake check exercises the nixpkgs-packaged Z3/Python toolchain -- deliberate
           # cross-toolchain coverage of the same tests, not redundant duplication.
+          #
+          # Changed from -n 6 to -n 4 on measured evidence, not a safety proof. A local
+          # falsification screen (taskset -c 0,1,2,3, two draws each at -n 6 and -n 4 over the
+          # full 2323-test gating selection) produced byte-identical PASSED/FAILED/ERROR node-id
+          # outcomes across all four draws -- every cross-`-n` diff and every within-`-n` diff was
+          # empty -- which corroborates an earlier, narrower 554-test measurement over just
+          # bimodal/exclusion/imposition that found the same. This screen can only FALSIFY -n 4
+          # (a node id changing outcome would have been decisive against it); it cannot PROVE
+          # -n 4 is safe on the real CI runner. TESTING_GUIDE.md section 8.13 already records
+          # that this exact `taskset -c 0-3`/`-n 6` command shape passes cleanly on a
+          # core-restricted development host while the identical selection failed on real CI --
+          # core-count restriction does not reproduce a per-core clock/IPC gap or a virtualized
+          # neighbour, so this screen's clean result narrows risk without eliminating it.
+          # Revert trigger (restore -n 6 in both this file and flake.nix, together, per
+          # code/tests/ci/test_workflow_parity.py::test_worker_count_matches): the first CI run
+          # in which a countermodel-expected example stops finding a countermodel, or a new
+          # contention-shaped failure appears (timeout, worker death, "Model result did not
+          # match expectation value in settings" against an example with ample measured
+          # headroom).
           # --timeout=300 --timeout-method=thread: pytest-timeout's default `signal` method
           # cannot interrupt or diagnose a hang blocked inside a C extension call such as a stuck
           # Z3 solve -- `thread` instead runs a watcher thread that dumps every thread's stack via
@@ -124,7 +152,7 @@ jobs:
           # push past budget -- and a second, serial pass (no `-n` flag) runs exactly those
           # tests instead, so they keep gating coverage without the contention that made them
           # flake.
-          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 6 -q --timeout=300 --timeout-method=thread
+          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread
           pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread
 
   flake-check:

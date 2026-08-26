@@ -319,11 +319,15 @@ so in the artifact.
 
 ---
 
-### Phase 3: Decide and apply (or decline) the `-n 6` -> `-n 4` change [NOT STARTED]
+### Phase 3: Decide and apply (or decline) the `-n 6` -> `-n 4` change [COMPLETED]
 
 **Goal**: The `-n` value is settled by an explicit, written decision rule applied to Phase 2's
 recorded outcome, with both files changed together and the documented rationale preserved — or
 with `-n 6` retained and the residual risk recorded.
+
+**Branch taken**: **Clean** (Phase 2's recorded outcome). Changed `-n 6` to `-n 4` in both
+`.github/workflows/tests.yml` and `flake.nix`. `timeout-minutes: 20` left unchanged, with the
+comparison and rationale recorded in a comment (no systematic slowdown observed; see below).
 
 **Decision rule** (apply exactly; do not improvise):
 
@@ -339,26 +343,40 @@ with `-n 6` retained and the residual risk recorded.
 
 **Tasks** (the change tasks apply only on the **clean** branch):
 
-- [ ] Read Phase 2's recorded outcome and state the branch taken before editing anything.
-- [ ] Compare the `-n 4` draw wall clock against the `-n 6` draw wall clock and against
+- [x] Read Phase 2's recorded outcome and state the branch taken before editing anything.
+      **CLEAN** (see above).
+- [x] Compare the `-n 4` draw wall clock against the `-n 6` draw wall clock and against
       `general-tests`' `timeout-minutes: 20`. If the projected CI-side `-n 4` duration leaves less
       than a comfortable margin, raise `timeout-minutes` in the same edit and justify the new
       value in a comment. Do not ship a `-n` reduction that silently narrows the backstop margin.
-- [ ] **RED**: change `-n 6` to `-n 4` in `.github/workflows/tests.yml` **only**, then run
+      **Decision: left at 20, not raised.** `-n 6` averaged 260.4s, `-n 4` averaged 272.8s (~5%
+      difference, inside the ~70s draw-to-draw spread; the single fastest draw overall was an
+      `-n 4` draw) — no systematic slowdown to project forward. Rationale recorded in a comment
+      directly above `timeout-minutes: 20`.
+- [x] **RED**: change `-n 6` to `-n 4` in `.github/workflows/tests.yml` **only**, then run
       `pytest code/tests/ci/test_workflow_parity.py -v`. Confirm `test_worker_count_matches`
       fails. This demonstrates the parity guard is live before relying on it.
-- [ ] **GREEN**: make the matching change in `flake.nix`. Re-run the parity module; confirm all
-      of it green.
-- [ ] Reword the inline rationale comment in `tests.yml`. **Retain verbatim** the existing
+      **Confirmed RED**: `AssertionError: -n worker count diverged ... ('4') and ... ('6')`.
+- [x] **GREEN**: make the matching change in `flake.nix`. Re-run the parity module; confirm all
+      of it green. **Confirmed GREEN**: 5/5 passed.
+- [x] Reword the inline rationale comment in `tests.yml`. **Retain verbatim** the existing
       `-n 6`-over-`auto` reasoning and its `BM_CM_1` contention-flake reference — that reasoning
       is about fixed `-n` versus `auto` and is preserved under any fixed value. Append the new
       evidence beneath it: the measured screen, the number of tests compared, and the explicit
       statement that the local instrument is known not to reproduce the CI contention class.
       Update `flake.nix`'s cross-reference comment so it still points at `tests.yml`'s comment as
       the full rationale.
-- [ ] Record a named revert trigger in the comment: the first CI run in which a
+      **Done.** `BM_CM_1-example_case7` citation and the never-`-n auto` argument survive verbatim
+      in both files (only the literal `6`->`4` digit updated where the sentence describes this
+      job's own current value); new paragraph appended in `tests.yml` with the screen's four-draw
+      result, the corroborating 554-test prior measurement, and the explicit "can only falsify,
+      cannot prove CI-safe" statement (citing `TESTING_GUIDE.md` 8.13). `flake.nix`'s comment
+      updated to point at `tests.yml`'s step comment as the full rationale.
+- [x] Record a named revert trigger in the comment: the first CI run in which a
       countermodel-expected example stops finding a countermodel, or a new contention-shaped
       failure appears, restores `-n 6` in both files.
+      **Done**, in `tests.yml`'s new paragraph, naming `test_workflow_parity.py`'s
+      `test_worker_count_matches` as the two-sided-revert guard.
 
 **Timing**: 0.75 hours.
 

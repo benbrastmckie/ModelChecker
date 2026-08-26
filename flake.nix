@@ -136,10 +136,15 @@
         # not safe under xdist parallelism (a `-n 6` run including them reproduced 86 spurious
         # build-race errors); they are already covered serially by
         # `.github/workflows/packaging.yml` and by `release.yml`'s build job, so re-running them
-        # here would be both unsafe and redundant. `-n 6` is used deliberately, not `-n auto`: the
+        # here would be both unsafe and redundant. `-n 4` is used deliberately, not `-n auto`: the
         # bimodal suite has a documented CPU-contention flake under `-n auto`, corroborated by a
         # measured ~1.8x slowdown under concurrent load. All Python deps come from nixpkgs; there
-        # is no PyPI/network fetch inside the sandbox.
+        # is no PyPI/network fetch inside the sandbox. Changed from `-n 6` to `-n 4` on measured
+        # falsification-screen evidence, not a safety proof -- see
+        # `.github/workflows/tests.yml`'s "Run general test suite" step comment for the full
+        # rationale (measured screen, evidence limitation, and revert trigger); kept identical
+        # here so `code/tests/ci/test_workflow_parity.py::test_worker_count_matches` has
+        # something to assert equal.
         #
         # "and not unstable" added to mirror .github/workflows/tests.yml's identical marker
         # expression: this check runs the same bimodal suite (including
@@ -171,7 +176,7 @@
             # specs/archive/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md
             # lines 134, 143, 359). Kept identical across both files so
             # code/tests/ci/test_workflow_parity.py has something to actually assert equal.
-            pytest src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial" -n 6 -q --timeout=300 --timeout-method=thread
+            pytest src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread
             pytest src/model_checker tests -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread
             runHook postCheck
           '';
