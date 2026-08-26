@@ -62,7 +62,18 @@ jobs:
         continue-on-error: true
         run: |
           set +e
+          # -o junit_logging=system-out: pytest's default JUnit XML does NOT embed a
+          # captured print() inside <failure> at all -- it only appears in a sibling
+          # <system-out> element, and only when junit_logging includes stdout (verified
+          # empirically; default is "no"). TestGatingConclusiveScan's floor failure is
+          # only distinguishable from a genuine disagreements failure via the
+          # "disagreements=0" text _assert_scan_report unconditionally print()s before
+          # either assertion -- .github/scripts/unstable_watch_classify.py's parse_junit
+          # reads this sibling element and folds it into failure_text for exactly this
+          # reason. Scoped to this step only: the code/ tree's BM_CM_1 signature needs no
+          # system-out (its FAILURE_SIGNATURE lives directly in the assertion message).
           PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/ -m unstable -v \
+            -o junit_logging=system-out \
             --junitxml=/tmp/watch-oracle.xml
           code=$?
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"

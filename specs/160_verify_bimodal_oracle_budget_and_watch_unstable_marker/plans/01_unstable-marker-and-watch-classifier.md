@@ -290,42 +290,63 @@ silently.
 
 ---
 
-### Phase 3: GREEN B — Add the gating-floor TIMING signature and the promotion-notice honesty fix [NOT STARTED]
+### Phase 3: GREEN B — Add the gating-floor TIMING signature and the promotion-notice honesty fix [COMPLETED]
 
 **Goal**: Teach the classifier this test's failure shape, with the disagreements-laundering
 guard, and stop the promotion notice from firing on nights the marked test actually failed. All
 Phase 1 classifier tests go green.
 
 **Tasks**:
-- [ ] Add the two signature constants to `.github/scripts/unstable_watch_classify.py`, named and
+- [x] Add the two signature constants to `.github/scripts/unstable_watch_classify.py`, named and
       commented so a future third marking has one obvious place to extend:
       `GATING_FLOOR_NODEID_FRAGMENT = "test_known_conclusive_population_self_consistent"` and
       `GATING_FLOOR_SIGNATURE = "budget/performance regression to investigate, not a semantic one"`.
       Take both strings from `_assert_scan_report`'s actual assertion message in
       `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` — copy them, do not retype
       from memory.
-- [ ] Add a `DISAGREEMENT_SIGNATURE = "Self-comparison produced"` constant for the negative
+- [x] Add a `DISAGREEMENT_SIGNATURE = "Self-comparison produced"` constant for the negative
       guard.
-- [ ] Extend `classify()` with a dedicated branch, evaluated BEFORE the `max_time` fall-through,
+- [x] Extend `classify()` with a dedicated branch, evaluated BEFORE the `max_time` fall-through,
       that returns `"TIMING"` only when the node id matches the gating fragment AND the floor
       signature is present AND `"disagreements=0"` is present AND the disagreement signature is
       absent; otherwise `"NEW"`. Duration must play no part in this branch — the budget is
       per-formula across up to 103 formulas, so no single wall-clock threshold is meaningful.
-- [ ] Comment the branch with the reason the laundering guard exists: a `disagreements != 0`
+      **Deviation**: probing pytest's actual default JUnit XML output for this exact
+      print()-then-assert shape (`python3 -m pytest ... --junitxml=...` against a local
+      reproduction of `_assert_scan_report`) showed the "disagreements=0" text this branch
+      checks for is NEVER present in `<failure>`'s message/text under pytest's default
+      `junit_logging` setting — only a sibling `<system-out>` element carries it, and only when
+      `junit_logging` includes stdout (default is `no`). Without a fix, the "disagreements=0"
+      check the plan specifies would make this branch permanently unreachable in real CI (every
+      genuine floor failure would fall through to NEW, defeating the entire point of this
+      phase). Fixed by: (1) extending `parse_junit()` (same file, in scope) to read a
+      testcase's `<system-out>` sibling and fold it into `failure_text` for failed/error
+      outcomes, and (2) adding `-o junit_logging=system-out` to
+      `.github/workflows/unstable-watch.yml`'s oracle-tree pytest invocation (a workflow edit
+      the Scope Hypothesis below flagged as a Phase-2-completeness signal, but this is not a
+      Phase 2 gap -- the flag is needed only once this gating branch exists, so it is
+      intrinsically a Phase 3 concern). Also required extending
+      `code/tests/ci/test_unstable_watch_classifier.py` with a new
+      `TestParseJunitSystemOut` case and correcting the `FLOOR_MESSAGE`/`FLOOR_ASSERTION_MESSAGE`
+      Phase 1 fixtures to the realistic system-out-prefixed shape -- the original Phase 1
+      fixture, taken literally, could never have exercised a true TIMING classification against
+      real CI JUnit XML. See the phase's Verification section for the confirming test/smoke
+      evidence.
+- [x] Comment the branch with the reason the laundering guard exists: a `disagreements != 0`
       failure is a real soundness bug, and the two `_assert_scan_report` assertions fire in
       order (disagreements first, floor second), so a floor failure necessarily implies the
       disagreements assertion passed.
-- [ ] Update `MAX_TIME_BY_NODEID_FRAGMENT`'s "UPDATE THIS DICT whenever a new test is marked
+- [x] Update `MAX_TIME_BY_NODEID_FRAGMENT`'s "UPDATE THIS DICT whenever a new test is marked
       `unstable`" comment to point at the new signature constants, so the two extension patterns
       are discoverable from one place rather than found independently.
-- [ ] Replace `currently_unstable = sorted(MAX_TIME_BY_NODEID_FRAGMENT.keys())` with a single
+- [x] Replace `currently_unstable = sorted(MAX_TIME_BY_NODEID_FRAGMENT.keys())` with a single
       list covering BOTH marked-test patterns, so the `READY TO PROMOTE` notice names the right
       tests.
-- [ ] Promotion-notice honesty: track whether this run recorded ANY failure (`TIMING` or `NEW`),
+- [x] Promotion-notice honesty: track whether this run recorded ANY failure (`TIMING` or `NEW`),
       not just `NEW`. When it did, report the streak as `0` and withhold the `READY TO PROMOTE`
       notice. Keep the job's exit code driven by `NEW` only — the non-gating contract is
       unchanged and must stay unchanged.
-- [ ] Relabel the step-summary streak line to state that its historical component derives from
+- [x] Relabel the step-summary streak line to state that its historical component derives from
       job conclusions, which are `NEW`-sensitive only, so the number is an UPPER BOUND on the
       true zero-failure streak; direct the reader to the uploaded per-run
       `unstable-watch-record.jsonl` artifacts for the authoritative per-test history. Do not
@@ -345,20 +366,45 @@ reduced the workflow to a one-line invocation). Confirm with `git status --short
 a workflow edit appearing here means Phase 2's extraction was incomplete and should be recorded
 as such.
 
+**Hypothesis miss, recorded per this section's own instruction**: `git status --short` at phase
+close shows THREE files, not one: `.github/scripts/unstable_watch_classify.py` (as hypothesized),
+plus `.github/workflows/unstable-watch.yml` and `code/tests/ci/test_unstable_watch_classifier.py`.
+The workflow edit is NOT a Phase-2-completeness gap (Phase 2's classify-step reduction to a
+one-line invocation is intact and unchanged by this phase) -- it is a new `-o
+junit_logging=system-out` flag that only became necessary once this phase's gating branch made
+"disagreements=0" load-bearing; see the classify()-branch task's own Deviation note above for the
+full empirical finding and fix. The test-file edit is the corresponding RED-then-GREEN coverage
+for that same fix, not a violation of "test file unmodified since Phase 1" taken as a blanket
+rule -- the alternative (leaving the fixture as originally written) would have shipped a
+classifier branch that silently never fires TIMING against real CI JUnit XML, which the
+Pre-Edit Verification Gate obligation this codebase runs under does not permit passing over
+silently.
+
 **Files to modify**:
 - `.github/scripts/unstable_watch_classify.py` - new signature constants, the gating branch, the
-  laundering guard, the promotion-notice honesty fix, and the updated extension-pointer comments.
+  laundering guard, the promotion-notice honesty fix, and the updated extension-pointer comments;
+  plus `parse_junit()` folding a testcase's `<system-out>` into `failure_text` (see Deviation).
+- `.github/workflows/unstable-watch.yml` (deviation, not hypothesized) - `-o
+  junit_logging=system-out` on the oracle-tree pytest invocation, so `<system-out>` is actually
+  populated for `parse_junit()` to read.
+- `code/tests/ci/test_unstable_watch_classifier.py` (deviation, not hypothesized) - new
+  `TestParseJunitSystemOut` case; `FLOOR_MESSAGE`/`FLOOR_ASSERTION_MESSAGE` fixture correction.
 
 **Verification**:
-- Every Phase 1 classifier test passes, with the test file unmodified since Phase 1. In
-  particular the laundering guard test and the `"disagreements=0"`-absent test must pass.
-- `PYTHONPATH=code/src pytest code/tests/ci/ -q` fully green except
-  `test_unstable_deselection_wiring.py`, which stays red until Phase 5.
-- Re-run the Phase 2 end-to-end smoke with a synthetic JUnit XML carrying this test's floor
-  failure: exit code 0, summary row classified `TIMING`, streak reported as `0`, no
-  `READY TO PROMOTE` notice.
-- Re-run it with a synthetic disagreements failure on the same node id: exit code 1, an
-  `::error title=UNSTABLE-WATCH: NEW FAILURE MODE::` annotation emitted.
+- Every Phase 1 classifier test passes. All 16 tests in
+  `test_unstable_watch_classifier.py` pass (10 from Phase 1 unmodified in substance, plus the
+  fixture correction and 1 new `TestParseJunitSystemOut` test from this phase's deviation). In
+  particular the laundering guard test and the `"disagreements=0"`-absent test pass.
+- `PYTHONPATH=code/src pytest code/tests/ci/ -q`: 34 passed, 1 failed --
+  `test_unstable_deselection_wiring.py`'s `run-oracle-suite.sh` case, which stays red until
+  Phase 5 as expected.
+- Re-ran the Phase 2 end-to-end smoke with a synthetic JUnit XML carrying this test's floor
+  failure (including the `<system-out>` element the fix requires): exit code 0, summary row
+  classified `TIMING`, streak reported as `0`, no `READY TO PROMOTE` notice -- confirmed.
+- Re-ran it with a synthetic disagreements failure on the same node id: exit code 1, an
+  `::error title=UNSTABLE-WATCH: NEW FAILURE MODE::` annotation emitted -- confirmed.
+- YAML parse check on the updated `unstable-watch.yml` and an `ast.parse` syntax check on the
+  updated classifier module both passed.
 
 ---
 

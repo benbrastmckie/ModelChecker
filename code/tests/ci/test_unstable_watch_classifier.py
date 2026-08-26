@@ -78,10 +78,28 @@ GATING_NODEID = (
 UNRECOGNIZED_NODEID = "code/tests/some_other_module.py::test_unrelated_thing"
 
 # Exact strings, copied verbatim from source rather than retyped:
-# oracle/bimodal_logic/tests/test_cross_oracle_differential.py::_assert_scan_report
-FLOOR_MESSAGE = (
+# oracle/bimodal_logic/tests/test_cross_oracle_differential.py::_assert_scan_report.
+# FLOOR_MESSAGE below concatenates the floor-assertion message with the print() line that
+# precedes it in _assert_scan_report -- exactly the shape production failure_text takes once
+# parse_junit() appends a testcase's <system-out> content (see TestParseJunitSystemOut below and
+# the "disagreements=0" note on classify()'s gating branch): pytest's default JUnit XML does NOT
+# embed a captured print() inside <failure> at all (verified empirically against this exact
+# print()-then-assert shape; only sibling <system-out>, present when junit_logging=system-out is
+# configured, carries it), so the classifier's "disagreements=0" check is meaningless unless
+# parse_junit reads system-out AND unstable-watch.yml's oracle pytest invocation enables
+# junit_logging=system-out -- both are part of this task's Phase 3 change.
+# The bare assertion-message text alone (what <failure>'s own message/text carries with no
+# system-out folded in) -- deliberately does NOT contain "disagreements=0".
+FLOOR_ASSERTION_MESSAGE = (
     "Only 96 of 103 formulas were conclusive (floor=100); this is a "
     "budget/performance regression to investigate, not a semantic one."
+)
+# The realistic production shape: FLOOR_ASSERTION_MESSAGE with the preceding print() line
+# folded in ahead of it (as parse_junit does once it reads <system-out> -- see
+# TestParseJunitSystemOut below), which is where "disagreements=0" actually comes from.
+FLOOR_MESSAGE = (
+    "scan report: agreements=96 disagreements=0 timeout_count=7 conclusive=96/103\n"
+    + FLOOR_ASSERTION_MESSAGE
 )
 DISAGREEMENT_MESSAGE = "Self-comparison produced 3 disagreements among conclusive results: []"
 # code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases
@@ -148,29 +166,22 @@ class TestClassifyGatingFloorSignature:
     def test_floor_message_without_disagreements_zero_is_new(self):
         """Floor message present, but "disagreements=0" is ABSENT from the captured
         text -- cannot confirm the soundness half held, so classify NEW rather than
-        assume it."""
-        floor_message_no_disagreements_marker = (
-            "Only 96 of 103 formulas were conclusive (floor=100); this is a "
-            "budget/performance regression to investigate, not a semantic one."
-        )
-        # Deliberately built without the "disagreements=0" substring anywhere in
-        # the captured text (unlike FLOOR_MESSAGE's caller context, which in the
-        # real report always prints "disagreements=0 " ahead of this message via
-        # _assert_scan_report's unconditional print -- this test simulates a
-        # truncated/partial capture where that print line was not retained).
-        result = classify_mod.classify(
-            GATING_NODEID, 780.0, floor_message_no_disagreements_marker
-        )
+        assume it. Uses FLOOR_ASSERTION_MESSAGE alone (the <failure> message/text
+        content with no <system-out> folded in), simulating either a truncated
+        capture or an environment where junit_logging=system-out was not honored."""
+        result = classify_mod.classify(GATING_NODEID, 780.0, FLOOR_ASSERTION_MESSAGE)
         assert result == "NEW"
 
     def test_floor_message_with_nonzero_disagreements_substring_is_new(self):
         """Floor message present, but the text ALSO contains a nonzero-disagreements
         substring (e.g. from the printed "scan report: ... disagreements=2 ..."
         line) -> NEW. The floor branch requires disagreements=0 AND the absence of
-        the disagreement-failure signature."""
+        the disagreement-failure signature. Built from FLOOR_ASSERTION_MESSAGE (not
+        FLOOR_MESSAGE) so no "disagreements=0" substring is present anywhere in the
+        text -- only the nonzero variant."""
         combined_text = (
             "scan report: agreements=96 disagreements=2 timeout_count=7 "
-            "conclusive=96/103\n" + FLOOR_MESSAGE
+            "conclusive=96/103\n" + FLOOR_ASSERTION_MESSAGE
         )
         result = classify_mod.classify(GATING_NODEID, 780.0, combined_text)
         assert result == "NEW"
@@ -242,6 +253,40 @@ class TestParseJunit:
         missing_path = tmp_path / "does-not-exist.xml"
         results = list(classify_mod.parse_junit(str(missing_path)))
         assert results == []
+
+
+_JUNIT_XML_WITH_SYSTEM_OUT = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="oracle.bimodal_logic.tests.test_cross_oracle_differential.TestGatingConclusiveScan" name="test_known_conclusive_population_self_consistent" time="780.0">
+      <failure message="AssertionError: Only 96 of 103 formulas were conclusive (floor=100); this is a budget/performance regression to investigate, not a semantic one.">traceback text with no disagreements mention</failure>
+      <system-out>--------------------------------- Captured Out ---------------------------------
+scan report: agreements=96 disagreements=0 timeout_count=7 conclusive=96/103
+</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>
+"""
+
+
+class TestParseJunitSystemOut:
+    """pytest's default JUnit XML does NOT embed a captured print() inside <failure> at all --
+    <system-out> is a SIBLING of <failure> within <testcase>, populated only when
+    junit_logging=system-out (or an equivalent value) is configured (verified empirically
+    against the exact print()-then-assert shape _assert_scan_report uses). The gating-floor
+    classify() branch's "disagreements=0" check is only meaningful in production if
+    parse_junit reads that sibling and folds it into the returned failure_text -- this is what
+    makes the check load-bearing rather than a no-op that always falls through to NEW."""
+
+    def test_system_out_is_folded_into_failure_text(self, tmp_path):
+        junit_path = tmp_path / "junit.xml"
+        junit_path.write_text(_JUNIT_XML_WITH_SYSTEM_OUT)
+        results = list(classify_mod.parse_junit(str(junit_path)))
+        assert len(results) == 1
+        nodeid, outcome, duration, failure_text = results[0]
+        assert outcome == "failed"
+        assert "budget/performance regression to investigate, not a semantic one" in failure_text
+        assert "disagreements=0" in failure_text
 
 
 # ---------------------------------------------------------------------------
