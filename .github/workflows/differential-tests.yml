@@ -57,6 +57,18 @@ jobs:
           # -- only ~13% headroom, too thin, since a suite timeout here would
           # destroy the very countable evidence this test exists to produce. 1500
           # restores comfortable headroom over that ~780s estimate.
+          #
+          # STALE ASSUMPTION (TESTING_GUIDE.md section 8.9): the ~780s estimate above
+          # assumed TestGatingConclusiveScan::test_known_conclusive_population_self_consistent
+          # still ran in THIS step. It no longer does -- the test is now marked
+          # `unstable` (see that class's test method) AND this step's own `-m` already
+          # carries `and not unstable`, so it is deselected here and observed instead by
+          # `.github/workflows/unstable-watch.yml`. 1500 is retained anyway: it remains
+          # a safe, harmless value for the tests that DO still run in this step, and
+          # section 8.9 does not require re-tightening a budget that costs nothing to
+          # leave wide. Do not re-tighten this value on the theory that it is now
+          # "obviously" too generous -- that theory is exactly what this note exists to
+          # head off.
           PYTHONPATH=code/src pytest \
             oracle/bimodal_logic/tests/test_cross_oracle_differential.py \
             -v \

@@ -506,29 +506,29 @@ confirmation of that verification bullet.
 
 ---
 
-### Phase 5: Wire the `unstable` deselection into the oracle suite driver [NOT STARTED]
+### Phase 5: Wire the `unstable` deselection into the oracle suite driver [COMPLETED]
 
 **Goal**: Close the gap this task's finding surfaced — `oracle/run-oracle-suite.sh` runs the
 newly-marked test in its serial pass with no `unstable` deselection — and make the wiring
 executable via the Phase 1 contract test.
 
 **Tasks**:
-- [ ] Add `and not unstable` to `oracle/run-oracle-suite.sh`'s serial pass marker expression
+- [x] Add `and not unstable` to `oracle/run-oracle-suite.sh`'s serial pass marker expression
       (`-m "xdist_serial and not slow"` -> `-m "xdist_serial and not slow and not unstable"`).
-- [ ] Add `and not unstable` to the parallel pass's expression as well, matching the defensive
+- [x] Add `and not unstable` to the parallel pass's expression as well, matching the defensive
       both-passes convention already used by `.github/workflows/tests.yml` and `flake.nix`. It
       changes nothing today (the marked test is `xdist_serial`) and prevents the next marking
       from reopening the same gap.
-- [ ] Add a short comment at the serial pass recording WHY the filter is there and pointing at
+- [x] Add a short comment at the serial pass recording WHY the filter is there and pointing at
       TESTING_GUIDE 8.9, so a future reader does not remove it as redundant.
-- [ ] Annotate the script's header comment about `TestGatingConclusiveScan` running "in this
+- [x] Annotate the script's header comment about `TestGatingConclusiveScan` running "in this
       second pass" — after this change it is deselected from that pass; correct the statement
       rather than deleting the paragraph's history.
-- [ ] Annotate (do NOT revert) `.github/workflows/differential-tests.yml`'s `--timeout=1500`
+- [x] Annotate (do NOT revert) `.github/workflows/differential-tests.yml`'s `--timeout=1500`
       rationale comment: its 7-8-timeouts-add-140-160s estimate assumed `TestGatingConclusiveScan`
       still runs in that step, which is no longer true. Record that 1500 is retained as a safe,
       harmless value and that 8.9 does not require re-tightening it.
-- [ ] Confirm `code/tests/ci/test_unstable_deselection_wiring.py` now passes.
+- [x] Confirm `code/tests/ci/test_unstable_deselection_wiring.py` now passes.
 
 **Timing**: 0.75 hours
 
@@ -553,12 +553,18 @@ check.
   No functional edit: the gating step's `-m` already carries `and not unstable`.
 
 **Verification**:
-- `PYTHONPATH=code/src pytest code/tests/ci/test_unstable_deselection_wiring.py -q` passes.
-- `bash -n oracle/run-oracle-suite.sh` parses clean.
+- `PYTHONPATH=code/src pytest code/tests/ci/test_unstable_deselection_wiring.py -q` passes:
+  7 passed — confirmed (deferred until after Phase 4 landed the marker; see the ordering
+  deviation recorded on Phase 4).
+- `bash -n oracle/run-oracle-suite.sh` parses clean — confirmed.
 - `PYTHONPATH=code/src pytest oracle -m "xdist_serial and not slow and not unstable" --collect-only -q`
-  does not collect `test_known_conclusive_population_self_consistent`.
-- `PYTHONPATH=code/src pytest code/tests/ci/test_workflow_parity.py -q` still passes — the
-  `tests.yml`/`flake.nix` parity invariant is untouched by this phase.
+  does not collect `test_known_conclusive_population_self_consistent` — confirmed (count: 0).
+- `PYTHONPATH=code/src pytest code/tests/ci/test_workflow_parity.py -q` still passes — 5 passed,
+  confirmed; the `tests.yml`/`flake.nix` parity invariant is untouched by this phase.
+- `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/differential-tests.yml'))"`
+  parses clean after the annotation edit.
+- Full `PYTHONPATH=code/src pytest code/tests/ci/ -q`: 35 passed, 0 failed — every guard in this
+  directory (including the two from Phase 1) is now green.
 
 ---
 

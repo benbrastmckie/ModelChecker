@@ -36,7 +36,11 @@
 # pass with zero sibling pytest workers competing for cores. The gating
 # conclusive-population scan (TestGatingConclusiveScan, see
 # code/docs/core/TESTING_GUIDE.md section 8.8) is marked `xdist_serial` for
-# the same contention reason and so runs in this second pass.
+# the same contention reason -- it WOULD run in this second pass, except its
+# one test method is now additionally marked `unstable` (see
+# code/docs/core/TESTING_GUIDE.md section 8.9) and both passes below
+# deselect `unstable`, so it is deselected from this script's gating runs
+# entirely and observed instead by `.github/workflows/unstable-watch.yml`.
 #
 # Both passes are wrapped in `timeout --kill-after=60s BUDGET`: a hang in
 # either pass must fail loudly (`TIMED OUT`, exit 124/137) rather than
@@ -170,15 +174,29 @@ fi
 # checks.default) to -n 6 for the same documented CPU-contention-flake
 # reason; -n auto would mean one worker per core on a many-core machine and
 # risks recreating the exact problem this split exists to avoid.
+#
+# "and not unstable" on BOTH passes below (TESTING_GUIDE.md section 8.9):
+# this is the first oracle-tree `unstable` marking
+# (TestGatingConclusiveScan::test_known_conclusive_population_self_consistent,
+# xdist_serial, so it lands in pass 2 today), and this script was not
+# updated when the `unstable` category was introduced -- without this
+# filter, a marked test would run (and can fail) in this gating driver,
+# defeating the entire point of the marker. Present on BOTH passes
+# defensively, matching `.github/workflows/tests.yml` and `flake.nix`'s
+# established both-passes convention, so a future `unstable` marking on a
+# non-`xdist_serial` test (landing in pass 1 instead) does not silently
+# reopen this same gap. Do not remove this filter as "redundant" without
+# re-reading this comment and TESTING_GUIDE.md section 8.9 first.
 ORACLE_SKIP_REPORT="$pass1_skip_report" timeout --kill-after=60s "$pass1_timeout" \
-  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow" -rs \
+  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow and not unstable" -rs \
     "${pass1_extra_args[@]}" "$@"
 pass1_status=$?
 
-# Pass 2: the contention-sensitive tests (still excluding `slow`), with no
-# other pytest workers running at all -- no -n flag.
+# Pass 2: the contention-sensitive tests (still excluding `slow` and
+# `unstable` -- see the comment above pass 1), with no other pytest workers
+# running at all -- no -n flag.
 ORACLE_SKIP_REPORT="$pass2_skip_report" timeout --kill-after=60s "$pass2_timeout" \
-  pytest "$repo_root/oracle" -m "xdist_serial and not slow" -rs \
+  pytest "$repo_root/oracle" -m "xdist_serial and not slow and not unstable" -rs \
     "${pass2_extra_args[@]}" "$@"
 pass2_status=$?
 
@@ -195,9 +213,9 @@ _classify() {
 }
 
 echo
-echo "== oracle suite summary (gating: slow deselected on both passes) =="
-echo "pass 1 (parallel, -n 6, not xdist_serial and not slow, budget ${pass1_timeout}s): $(_classify "$pass1_status")"
-echo "pass 2 (serial, xdist_serial and not slow, budget ${pass2_timeout}s):             $(_classify "$pass2_status")"
+echo "== oracle suite summary (gating: slow and unstable deselected on both passes) =="
+echo "pass 1 (parallel, -n 6, not xdist_serial and not slow and not unstable, budget ${pass1_timeout}s): $(_classify "$pass1_status")"
+echo "pass 2 (serial, xdist_serial and not slow and not unstable, budget ${pass2_timeout}s):             $(_classify "$pass2_status")"
 echo
 echo "Each pass above printed its own '== ORACLE TIMEOUT-SKIP INVENTORY ==' section"
 echo "(from oracle/conftest.py, see code/docs/core/TESTING_GUIDE.md section 8.8)."
