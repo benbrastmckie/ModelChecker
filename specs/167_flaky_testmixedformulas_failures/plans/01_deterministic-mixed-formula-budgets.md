@@ -1,7 +1,7 @@
 # Implementation Plan: Task #167
 
 - **Task**: 167 - Fix flaky TestMixedFormulas failures (`test_mixed_or_diamond_prev`, `test_mixed_and_all_future_neg`)
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 5.5 hours (route-exclusive; see "Route exclusivity" below — realistic single-route total is ~4.25h)
 - **Dependencies**: None
 - **Research Inputs**: `specs/167_flaky_testmixedformulas_failures/reports/01_flaky-testmixedformulas-root-cause.md`
@@ -177,7 +177,7 @@ genuinely parallel — exactly one runs, the other closes `[COMPLETED WITH EXCLU
 
 ---
 
-### Phase 1: Reusable solve-cost probe harness [NOT STARTED]
+### Phase 1: Reusable solve-cost probe harness [COMPLETED]
 
 **Goal**: A standalone, foreground CLI that solves one oracle formula through the exact
 `find_countermodel()` pipeline and reports wall time, decided/undecided, and the Z3 rlimit
@@ -187,26 +187,26 @@ script.
 
 **Tasks** (TDD — tests first, per `code/docs/core/TESTING_GUIDE.md`):
 
-- [ ] Write `oracle/bimodal_logic/tests/test_probe_solve_cost.py` (RED) covering: the CLI reports
+- [x] Write `oracle/bimodal_logic/tests/test_probe_solve_cost.py` (RED) covering: the CLI reports
       a decided result with a positive rlimit for a cheap **atemporal** formula (sub-second, so
       the test itself is fast and unmarked); it reports `undecided` rather than raising when given
       a deliberately tiny `--timeout-ms`; it emits one machine-readable JSON record per draw; it
       accepts and applies `--seed` (pinning `sat.random_seed` and `smt.random_seed`) and
       `--repeat N`.
-- [ ] Implement `oracle/probe_solve_cost.py` (GREEN), sited alongside the existing standalone
+- [x] Implement `oracle/probe_solve_cost.py` (GREEN), sited alongside the existing standalone
       `oracle/scan_runner.py` CLI. It must replicate `find_countermodel()`'s settings dict
       verbatim (`N=2`, `M=max(depth+2,3)`, `temporal_depth`, `contingent=False`,
       `disjoint=False`, `max_time`, `expectation=True`, `solver='z3'`) inside
       `isolated_z3_context()`, so a probed number is a number about the real path.
-- [ ] Read the consumed rlimit from the solver's Z3 statistics. `ModelDefaults.solve()` keeps
+- [x] Read the consumed rlimit from the solver's Z3 statistics. `ModelDefaults.solve()` keeps
       `self.stored_solver` alongside `self.solver`, and `Z3SolverAdapter.raw_solver()` exposes the
       underlying `z3.Solver`, so `structure.stored_solver.raw_solver().statistics()` is the
       intended access path. **Confirm this survives `_cleanup_solver_resources()`** — see Scope
       Hypothesis. If it does not, capture the statistic inside a probe-local replication of the
       solve call rather than reaching into the structure after the fact.
-- [ ] Record `PYTHONHASHSEED`, the resolved `z3.get_version_string()`, and the seed (or `default`)
+- [x] Record `PYTHONHASHSEED`, the resolved `z3.get_version_string()`, and the seed (or `default`)
       in every emitted JSON record.
-- [ ] Verify: `timeout 300 env PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_probe_solve_cost.py -v`
+- [x] Verify: `timeout 300 env PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_probe_solve_cost.py -v`
 
 **Timing**: 1.0 hour
 
