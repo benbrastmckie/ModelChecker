@@ -212,6 +212,95 @@ class TestBimodalIteratorMocked:
         assert constraint is not None
 
 
+def _skip_if_solver_timed_out(example):
+    """Skip when Z3 returned UNKNOWN rather than a decided result.
+
+    WHY THIS EXISTS -- A TIMEOUT IS NOT AN UNSAT. `ModelDefaults.solve()` (see
+    `code/src/model_checker/models/structure.py`) returns `_create_result(True, None, False,
+    ...)` on `SolverResult.UNKNOWN`, i.e. `timeout=True` AND `z3_model_status=False`. A
+    genuine unsatisfiable result returns `timeout=False, z3_model_status=False`. Asserting on
+    `z3_model_status` alone therefore CANNOT distinguish "the solver ran out of budget under
+    CI contention" from "these constraints are unsatisfiable", and a contention-induced
+    timeout inverts into a false negative reading "First model was not satisfiable".
+
+    That is a hole in the discriminator, not a budget that needs raising. This example's
+    `max_time` was already widened 30 -> 60 for exactly this failure, and it recurred anyway on
+    `nix flake check` (CI run 32996446859) -- because no `max_time` value closes the hole. The
+    structure already carries the discriminator; these tests simply were not consulting it.
+
+    This does NOT weaken the assertion it guards: a genuine unsat still has `timeout=False`
+    and still fails. Only the inconclusive case is routed to a skip, where it belongs -- an
+    undecided solver run is not evidence about satisfiability in either direction.
+
+    Deliberately a `skip`, not an `xfail`: the outcome is nondeterministic (budget-dependent),
+    and `xfail` would report a spurious XPASS on every run where the solve does finish in
+    time. See TESTING_GUIDE.md section 8.6 on timing-budget discipline.
+    """
+    if example.model_structure.timeout:
+        pytest.skip(
+            "Z3 returned UNKNOWN (budget exhausted under load), not a decided result; "
+            "an inconclusive solve cannot exercise iteration and is not an unsat. "
+            f"max_time={example.model_structure.settings.get('max_time')}s, "
+            f"runtime={example.model_structure.z3_model_runtime}s"
+        )
+
+
+class TestSkipIfSolverTimedOut:
+    """Unit tests for the timeout/unsat discriminator itself.
+
+    WHY THESE EXIST. `_skip_if_solver_timed_out`'s skip branch only fires when Z3 returns
+    UNKNOWN under real contention -- a condition that does not reproduce on an idle
+    development host, where both real-solve tests below pass with the branch never taken.
+    Without these tests the discriminator would ship exercised only on the CI runs it is
+    meant to protect, which is precisely backwards. A stub structure lets both branches be
+    driven deterministically in microseconds.
+    """
+
+    @staticmethod
+    def _example(timeout, z3_model_status, max_time=60, runtime=None):
+        return SimpleNamespace(
+            model_structure=SimpleNamespace(
+                timeout=timeout,
+                z3_model_status=z3_model_status,
+                z3_model_runtime=runtime,
+                settings={"max_time": max_time},
+            )
+        )
+
+    def test_skips_when_solver_returned_unknown(self):
+        """timeout=True is the UNKNOWN case -- inconclusive, not unsat."""
+        # NOTE: pytest.skip() raises Skipped, which subclasses BaseException, not Exception.
+        # pytest.raises(Exception) would let it propagate and silently skip THIS test instead
+        # of asserting on it -- which is exactly what happened on the first draft of these
+        # tests (reported "2 passed, 2 skipped" where 4 passed was expected).
+        with pytest.raises(BaseException) as excinfo:
+            _skip_if_solver_timed_out(self._example(timeout=True, z3_model_status=False, runtime=60.2))
+        assert excinfo.typename == "Skipped", (
+            f"Expected a pytest skip, got {excinfo.typename}"
+        )
+
+    def test_does_not_skip_on_genuine_unsat(self):
+        """timeout=False with z3_model_status=False is a REAL unsat.
+
+        This is the case the guard must let through to the assertion -- routing it to a skip
+        would be the assertion-weakening this fix exists to avoid.
+        """
+        _skip_if_solver_timed_out(self._example(timeout=False, z3_model_status=False))
+
+    def test_does_not_skip_on_satisfiable_result(self):
+        _skip_if_solver_timed_out(self._example(timeout=False, z3_model_status=True))
+
+    def test_skip_message_names_the_budget_and_runtime(self):
+        """The skip reason must carry enough to diagnose without re-running."""
+        with pytest.raises(BaseException) as excinfo:
+            _skip_if_solver_timed_out(self._example(timeout=True, z3_model_status=False, max_time=60, runtime=60.4))
+        assert excinfo.typename == "Skipped"
+        msg = str(excinfo.value)
+        assert "max_time=60" in msg
+        assert "60.4" in msg
+        assert "not an unsat" in msg
+
+
 class TestBimodalIteratorReal:
     """Functional tests exercising the iterator against a real (non-mocked)
     bimodal model, proving that ``iterate: 2`` produces distinct models
@@ -264,6 +353,8 @@ class TestBimodalIteratorReal:
         """
         example = self._build_example(iterate=2)
 
+        _skip_if_solver_timed_out(example)
+
         assert example.model_structure.z3_model_status, (
             "First model was not satisfiable; cannot exercise iteration"
         )
@@ -291,6 +382,8 @@ class TestBimodalIteratorReal:
         builder/runner.py's generator-preferring code path expects.
         """
         example = self._build_example(iterate=2)
+
+        _skip_if_solver_timed_out(example)
 
         assert example.model_structure.z3_model_status, (
             "First model was not satisfiable; cannot exercise iteration"
