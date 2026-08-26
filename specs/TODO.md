@@ -31,7 +31,7 @@ next_project_number: 171
 ### Release Engineering
 
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
-161 [PLANNED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
+161 [IMPLEMENTING] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
@@ -68,7 +68,7 @@ next_project_number: 171
 ---
 
 ### 161. Fix testpypi trusted publisher
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None

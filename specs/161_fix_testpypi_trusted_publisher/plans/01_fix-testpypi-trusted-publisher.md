@@ -118,15 +118,15 @@ fail the job, and leaks nothing.
 **AGENT-AUTHORABLE.** This is the only phase an implementation dispatch executes.
 
 **Tasks**:
-- [ ] Read the current `publish-testpypi` job (`.github/workflows/release.yml`, job begins at
+- [x] Read the current `publish-testpypi` job (`.github/workflows/release.yml`, job begins at
       line 136; `steps:` at line 149; upload step `Publish to TestPyPI` at line 156). Re-derive
       the line numbers at implementation time rather than trusting these.
-- [ ] Insert a new step as the FIRST entry of the job's `steps:` list — immediately after
+- [x] Insert a new step as the FIRST entry of the job's `steps:` list — immediately after
       `steps:` and before `- name: Download distribution artifact`. This satisfies the "before
       the `pypa/gh-action-pypi-publish` upload step" requirement and additionally surfaces the
       claims even if the artifact download fails or a future precondition prevents the upload
       step from running at all.
-- [ ] Author the step to this shape (adapt indentation to the file's existing 4-space
+- [x] Author the step to this shape (adapt indentation to the file's existing 4-space
       step indentation; do not reformat surrounding YAML):
 
 ```yaml
@@ -167,7 +167,7 @@ fail the job, and leaks nothing.
           | jq '{sub, repository, workflow_ref, environment}'
 ```
 
-- [ ] Confirm the deliberate decisions below are preserved verbatim, since each is a
+- [x] Confirm the deliberate decisions below are preserved verbatim, since each is a
       research-backed choice rather than an incidental detail:
   - **Audience is resolved, not hardcoded** (research section B option (ii)): the `curl` against
     `https://test.pypi.org/_/oidc/audience` mirrors what upstream `oidc-exchange.py` itself does
@@ -187,9 +187,9 @@ fail the job, and leaks nothing.
     with or substituted for it.
   - **Only four claims are printed.** Upstream renders a fuller set; the four here are the
     minimum that diagnoses every registration-field mismatch and keeps the whitelist tight.
-- [ ] Verify the job's `permissions: id-token: write` (line 142) is already present — it is, and
+- [x] Verify the job's `permissions: id-token: write` (line 142) is already present — it is, and
       it must NOT be added again or moved.
-- [ ] Commit the change (`task 161: add OIDC claims diagnostic step to publish-testpypi`). Do
+- [x] Commit the change (`task 161: add OIDC claims diagnostic step to publish-testpypi`). Do
       NOT push, tag, or open a PR.
 
 **Timing**: 45 minutes
@@ -219,20 +219,20 @@ as `null` rather than failing, so the step degrades visibly rather than breaking
   `steps:` list. No other job, key, or line touched.
 
 **Verification** (all agent-executable without pushing):
-- [ ] YAML still parses:
+- [x] YAML still parses:
       `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/release.yml')); print('ok')"`
-- [ ] The new step's `run:` body is valid bash. Extract it and check syntax, e.g. a `python3`
+- [x] The new step's `run:` body is valid bash. Extract it and check syntax, e.g. a `python3`
       snippet that loads the YAML, selects
       `jobs['publish-testpypi']['steps']` by `name == 'Print OIDC claims (diagnostic only)'`,
       writes its `run` value to the scratchpad, then `bash -n` on that file.
-- [ ] Decode pipeline replayed locally: build a synthetic base64url payload containing the four
+- [x] Decode pipeline replayed locally: build a synthetic base64url payload containing the four
       claims (deliberately without `=` padding), run the `tr` + pad-loop + `base64 -d` + `jq`
       portion against it in the scratchpad, and confirm stdout is exactly a JSON object with the
       four keys and nothing else. This exercises the padding fix without any real token.
-- [ ] Step-level flag present and job-level flag untouched:
+- [x] Step-level flag present and job-level flag untouched:
       `python3` assertion that the new step dict has `continue-on-error: True`, AND
       `git diff -- .github/workflows/release.yml` shows no change at or near line 147.
-- [ ] Leak audit over the new step's text only:
+- [x] Leak audit over the new step's text only:
   - `ACTIONS_ID_TOKEN_REQUEST_TOKEN` appears exactly once, and only inside the `curl`
     `Authorization: bearer` header.
   - No `echo`/`printf`/`cat` of `${JWT}` or `$ACTIONS_ID_TOKEN_REQUEST_TOKEN`; the only
@@ -241,9 +241,9 @@ as `null` rather than failing, so the step degrades visibly rather than breaking
     `::set-output` anywhere in the new step.
   - The only unfiltered stdout writes are the three fixed disclaimer lines and the
     `OIDC audience:` line — no variable interpolation of a secret-bearing value.
-- [ ] Diff is additive-only and single-file: `git diff --stat` names exactly
+- [x] Diff is additive-only and single-file: `git diff --stat` names exactly
       `.github/workflows/release.yml` with 0 deletions.
-- [ ] Change is committed; working tree clean for this file.
+- [x] Change is committed; working tree clean for this file.
 
 ---
 
