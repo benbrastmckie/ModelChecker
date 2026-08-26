@@ -1,0 +1,13 @@
+{
+  "session_id": "sess_1787706122_ec4532",
+  "cycle_count": 3,
+  "max_cycles": 5,
+  "infra_failures": 0,
+  "max_infra_failures": 3,
+  "current_state": "blocked",
+  "detected_defects": [],
+  "started": "2026-08-26T01:02:35Z",
+  "last_updated": "2026-08-26T05:48:43Z",
+  "dispatch_seq_counter": 3,
+  "last_session_id": "sess_1787723282_749efc"
+}
