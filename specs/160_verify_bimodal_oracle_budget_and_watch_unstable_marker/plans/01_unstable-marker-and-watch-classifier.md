@@ -408,53 +408,53 @@ silently.
 
 ---
 
-### Phase 4: Mark the test `unstable` with the four-criteria record [NOT STARTED]
+### Phase 4: Mark the test `unstable` with the four-criteria record [COMPLETED]
 
 **Goal**: Apply `@pytest.mark.unstable` to
 `test_known_conclusive_population_self_consistent` and record all four TESTING_GUIDE 8.9 entry
 criteria explicitly at the source site.
 
 **Tasks**:
-- [ ] Add `@pytest.mark.unstable` directly above the method (method level, not class level —
+- [x] Add `@pytest.mark.unstable` directly above the method (method level, not class level —
       consistent with how `test_bimodal.py` marks individual cases rather than whole classes).
       Leave the class-level `@pytest.mark.xdist_serial` and the existing docstrings untouched.
-- [ ] Replace the stale `USER ACTION REQUIRED: this 40000ms multiplier is NOT YET VERIFIED on
+- [x] Replace the stale `USER ACTION REQUIRED: this 40000ms multiplier is NOT YET VERIFIED on
       real CI ...` tail of `GATING_RECHECK_SOLVE_TIMEOUT_MS`'s comment block with the verified
       outcome and the four-criteria record, substantially as drafted in the research report's
       "Code change 2". Preserve the rest of that comment block's measurement history — 8.9 is
       explicit that the history of what was tried is worth more than a clean diff.
-- [ ] The verified-outcome paragraph must state: verified on real CI 2026-08-25 at commit
+- [x] The verified-outcome paragraph must state: verified on real CI 2026-08-25 at commit
       93cda5b9, `agreements=96 disagreements=0 timeout_count=7 conclusive=96/103`, byte-for-byte
       identical to the pre-widening 20000ms measurement; doubling the budget bought zero
       additional conclusive formulas; do not widen again and do not re-verify expecting a
       different answer.
-- [ ] Criterion (1) WHAT FAILS AND WHY: the floor assertion's concrete counts across all three
+- [x] Criterion (1) WHAT FAILS AND WHY: the floor assertion's concrete counts across all three
       recorded runs (`31628414697`: 96/103, 7 timeouts; `31628228088`: 95/103, 8 timeouts;
       93cda5b9 at 2x budget: 96/103, 7 timeouts) against local 103/103 both unrestricted and
       under `taskset -c 0,1`.
-- [ ] Criterion (2) DEMONSTRABLY NOT SEMANTIC: zero disagreements on every recorded run;
+- [x] Criterion (2) DEMONSTRABLY NOT SEMANTIC: zero disagreements on every recorded run;
       `_assert_scan_report`'s two assertions are separate and ordered, and only the second has
       ever fired.
-- [ ] Criterion (3) GENUINE FIX ATTEMPTED AND RECORDED: the CI-verified 2x widening that bought
+- [x] Criterion (3) GENUINE FIX ATTEMPTED AND RECORDED: the CI-verified 2x widening that bought
       nothing; local 2-core restriction not reproducing the shortfall; and the closed
       `xdist_serial` lead — state plainly that the marker has been in place since 2026-08-06,
       predating both shortfall runs, and that `differential-tests.yml` uses no `-n` flag at all,
       so pytest-xdist sibling-worker contention was never live and must not be re-opened.
       State that `MIN_CONCLUSIVE_GATING_FORMULAS` is deliberately NOT lowered.
-- [ ] Record honestly that the seven timing-out formulas' individual identities are NOT
+- [x] Record honestly that the seven timing-out formulas' individual identities are NOT
       recoverable from available CI artifacts (no `upload-artifact` step in
       `differential-tests.yml`; logs print aggregate counts only; the call site passes none of
       `_generate_differential_report`'s `progress_path` / `heartbeat_every` / `artifact_dir`
       parameters), and that the 7-vs-8 count difference rules out a strictly identical fixed
       subset while leaving a mostly-stable heavy-tailed subset open. Name enabling that
       instrumentation as the actionable path for a future round. Do NOT assert a same-7 claim.
-- [ ] Criterion (4) EXIT CRITERION: 20 consecutive `unstable-watch` runs with zero recorded
+- [x] Criterion (4) EXIT CRITERION: 20 consecutive `unstable-watch` runs with zero recorded
       failures of this test (verified against the uploaded per-run
       `unstable-watch-record.jsonl` artifacts, because the step-summary streak's historical
       component is `NEW`-sensitive only and is an upper bound — see Phase 3), OR a genuine
       CI-runner/harness fix (explicitly NOT a further budget widening) demonstrated to reach
       103/103 conclusive with 0 disagreements. A single green run never qualifies.
-- [ ] Add a one-line pointer from `test_known_conclusive_population_self_consistent`'s docstring
+- [x] Add a one-line pointer from `test_known_conclusive_population_self_consistent`'s docstring
       to the criteria block, mirroring `test_bimodal.py`'s convention of keeping the prose at the
       marker's definition site.
 
@@ -481,17 +481,28 @@ before and after the edit (expect a difference of exactly 1). Do not assume; rec
 
 **Verification**:
 - `PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_cross_oracle_differential.py --collect-only -q -m unstable`
-  collects exactly `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`.
-- The same file with `-m "not slow and not differential and not unstable"` no longer collects it
-  (this is what removes it from `differential-tests.yml`'s gating step, confirmed without a CI
-  run).
-- `-m "xdist_serial"` still collects it — the two markers are orthogonal and both must apply.
+  collects exactly `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`
+  (1/72; was 0/72 before this phase) -- confirmed.
+- The same file with `-m "not slow and not differential and not unstable"` no longer collects it:
+  62/72 collected (was 63/72 before this phase, a difference of exactly 1) -- confirmed.
+- `-m "xdist_serial"` still collects it — the two markers are orthogonal and both must apply --
+  confirmed.
 - `PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScanMechanism -q`
-  passes: the Z3-free mechanism proofs of the two failure modes are unaffected by the marking.
-- `oracle/conftest.py` needs no change (`unstable` is already registered there); confirm by
-  reading, and confirm no `PytestUnknownMarkWarning` appears in the collect output.
+  passes: 3 passed -- confirmed, the Z3-free mechanism proofs are unaffected by the marking.
+- `oracle/conftest.py` needs no change (`unstable` is already registered there); confirmed by
+  reading, and no `PytestUnknownMarkWarning` appeared in the collect output.
 - No line in the diff changes the value of `GATING_RECHECK_SOLVE_TIMEOUT_MS` or
-  `MIN_CONCLUSIVE_GATING_FORMULAS`. Verify with `git diff` before commit.
+  `MIN_CONCLUSIVE_GATING_FORMULAS` -- confirmed with `git diff`.
+
+**Deviation (phase-ordering, recorded per Phase 5's own ordering note)**: Phase 5's edits
+(`oracle/run-oracle-suite.sh`, `.github/workflows/differential-tests.yml`) were made in the
+working tree BEFORE this phase's marker landed, discovering that one of Phase 5's own
+verification bullets (`--collect-only -q` not collecting the marked test under
+`xdist_serial and not slow and not unstable`) implicitly depends on this phase's marker already
+existing -- an unstated cross-phase dependency the wave table's `[4, 5]` grouping did not
+surface. Corrected by closing this phase (4) first and Phase 5 second, despite Phase 5's edits
+having been drafted first; Phase 5's own handoff records the completed ordering and the final
+confirmation of that verification bullet.
 
 ---
 

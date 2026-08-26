@@ -155,19 +155,65 @@ SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 # almost the whole known-conclusive population); the fix targets the budget that
 # does not transfer to CI hardware, not the property being checked.
 #
-# USER ACTION REQUIRED: this 40000ms multiplier is NOT YET VERIFIED on real CI --
-# verification requires pushing this change and dispatching
-# .github/workflows/differential-tests.yml via workflow_dispatch 2-3 times, which
-# is a user-only operation (see .claude/rules/pr-prohibition.md; agents cannot
-# push or trigger workflow_dispatch). A successful verification looks like
-# >= 100 of 103 conclusive on every dispatched run, with 0 disagreements. If it
-# still falls short after a genuinely widened and CI-verified budget: do NOT
-# lower this floor. The documented fallback is marking
-# TestGatingConclusiveScan::test_known_conclusive_population_self_consistent
-# `unstable` under the same four entry criteria used for BM_CM_1 (see
-# test_bimodal.py's UNSTABLE_EXAMPLES block and TESTING_GUIDE.md section 8.9) --
-# deferred to the follow-up task since CI verification cannot happen in this
-# implementation round.
+# VERIFIED ON REAL CI (2026-08-25, commit 93cda5b9, Differential Oracle Tests workflow):
+# scan report: agreements=96 disagreements=0 timeout_count=7 conclusive=96/103 -- BYTE-FOR-BYTE
+# IDENTICAL to the pre-widening 20000ms measurement (run 31628414697: 96/103, 7 timeouts, 0
+# disagreements). Doubling the budget bought zero additional conclusive formulas: the shortfall
+# is budget-independent in this range on CI hardware, exactly as this comment's own "essentially
+# budget-independent" prediction (above) anticipated. Do not widen this constant again and do not
+# re-verify expecting a different answer.
+#
+# THE FALLBACK IS NOW EXERCISED: test_known_conclusive_population_self_consistent is marked
+# `unstable` (see @pytest.mark.unstable directly above that method) per TESTING_GUIDE.md section
+# 8.9's four entry criteria, recorded here:
+#
+# (1) WHAT FAILS AND WHY -- `_assert_scan_report`'s performance-floor assertion
+#     (`conclusive >= min_conclusive`) fails on real CI: 96/103 conclusive, 7 timeouts (run
+#     31628414697, v1.3.0 tag push, 2026-08-12); 95/103, 8 timeouts (run 31628228088, master
+#     push, 2026-08-12); 96/103, 7 timeouts again at 2x budget (commit 93cda5b9, 2026-08-25).
+#     Local runs of the identical unmodified test resolve 103/103 with zero timeouts, both
+#     unrestricted on 24 cores (194.64s) and CPU-restricted to 2 cores via `taskset -c 0,1`
+#     (176.06s, no degradation) -- ruling out genuine per-formula solver cost growth and pointing
+#     at CI-runner-specific hardware/contention (GitHub's 4 vCPU/16GB standard runner vs. the
+#     24-core/30GB derivation host) as the live, still-unconfirmed hypothesis.
+#
+# (2) DEMONSTRABLY NOT SEMANTIC -- zero disagreements on every recorded CI run, including the
+#     shortfall runs and the re-verification run. `_assert_scan_report` asserts disagreements==0
+#     and the conclusive floor as two SEPARATE assertions, in that order; only the second has
+#     ever fired. The failure is always `conclusive < min_conclusive` reported as "budget/
+#     performance regression to investigate, not a semantic one" (that literal string is this
+#     assertion's own message), never a changed verdict on any decided formula.
+#
+# (3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED -- GATING_RECHECK_SOLVE_TIMEOUT_MS doubled
+#     20000 -> 40000ms (2026-08-12) and verified on real CI (2026-08-25, commit 93cda5b9):
+#     identical 96/103, 7 timeouts -- zero additional conclusive formulas bought by 2x budget.
+#     2-core local CPU restriction does not reproduce the shortfall (103/103 either way), ruling
+#     out genuine harness cost growth. THE `xdist_serial` LEAD IS CLOSED, NOT OPEN: this class
+#     has carried `@pytest.mark.xdist_serial` since 2026-08-06 -- six days before either
+#     shortfall run -- and differential-tests.yml's invocation of it uses no pytest-xdist `-n`
+#     flag at all, so pytest-xdist sibling-worker contention was never live for either recorded
+#     shortfall run (distinct from the still-live shared-host noisy-neighbor hypothesis in (1),
+#     which no marker change can test -- do not re-open the xdist_serial investigation).
+#     MIN_CONCLUSIVE_GATING_FORMULAS is deliberately NOT lowered -- it encodes a real quality
+#     property; lowering it is the assertion-weakening this policy exists to forbid. The seven
+#     timing-out formulas' individual identities are NOT recoverable from available CI
+#     artifacts: differential-tests.yml has no `actions/upload-artifact` step, the captured logs
+#     print only the aggregate `scan report: ...` line, and this call site passes none of
+#     `_generate_differential_report`'s `progress_path`/`heartbeat_every`/`artifact_dir`
+#     instrumentation. The 7-vs-8 count difference across the two shortfall runs rules out a
+#     strictly identical fixed subset, while leaving a mostly-stable heavy-tailed subset with
+#     membership churn at the margin open -- do not assert a same-7 claim; enabling that
+#     instrumentation is a possible future round, not attempted here.
+#
+# (4) EXIT CRITERION -- verbatim per TESTING_GUIDE.md section 8.9's default: the marker comes off
+#     when EITHER 20 consecutive unstable-watch runs record zero (TIMING-classified) failures
+#     (nightly cadence, ~3 weeks; verified against the uploaded per-run
+#     `unstable-watch-record.jsonl` artifacts, because unstable-watch.yml's step-summary streak
+#     counter is NEW-sensitive only and is an upper bound -- see
+#     `.github/scripts/unstable_watch_classify.py`'s `compute_promotion_streak`), OR a genuine
+#     fix (a CI-runner/harness change, NOT a further budget widening -- see (3) above)
+#     demonstrated to close the shortfall across a re-verification run with 103/103 conclusive
+#     and 0 disagreements. A single green run never qualifies.
 GATING_RECHECK_SOLVE_TIMEOUT_MS = 40000
 
 # Floor for "how many of the 274 complexity<=5 formulas must be conclusive (neither
@@ -2363,6 +2409,7 @@ class TestGatingConclusiveScan:
         from bimodal_logic import Z3OracleProvider
         self.oracle = Z3OracleProvider()
 
+    @pytest.mark.unstable
     def test_known_conclusive_population_self_consistent(self):
         """Solve only the manifest's known-conclusive subset and assert the
         unmodified `_assert_scan_report` soundness/floor teeth over it.
@@ -2375,6 +2422,14 @@ class TestGatingConclusiveScan:
         subset (a starved budget or contention must not silently degrade
         into "everything timed out here too, therefore zero disagreements,
         therefore pass").
+
+        Marked `unstable` (TESTING_GUIDE.md section 8.9) for a documented,
+        CI-verified conclusive-population shortfall on the performance floor
+        only, never on the soundness (disagreements) claim -- see this
+        module's `GATING_RECHECK_SOLVE_TIMEOUT_MS` constant's comment block
+        (near the top of this file) for the full four-criteria entry record,
+        mirroring how test_bimodal.py keeps its four-criteria prose at the
+        `UNSTABLE_EXAMPLES` definition site rather than duplicating it here.
         """
         manifest = _load_known_conclusive_manifest(KNOWN_CONCLUSIVE_MANIFEST_PATH)
         conclusive_formulas = _verify_manifest_matches_enumeration(manifest)
