@@ -568,32 +568,33 @@ check.
 
 ---
 
-### Phase 6: Documentation, final gate, and close-out [IN PROGRESS]
+### Phase 6: Documentation, final gate, and close-out [COMPLETED]
 
 **Goal**: Bring TESTING_GUIDE.md's 8.9 record in line with reality and run the complete gate set
 before the task closes.
 
 **Tasks**:
-- [ ] Extend TESTING_GUIDE 8.9's "Currently marked" paragraph with a second entry for
+- [x] Extend TESTING_GUIDE 8.9's "Currently marked" paragraph with a second entry for
       `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`, using the
       same one-line-pointer-to-the-source-of-truth convention `BM_CM_1` uses. Do not duplicate
       the four-criteria text into the guide.
-- [ ] Extend 8.9's "Where the deselection is wired" paragraph to name
+- [x] Extend 8.9's "Where the deselection is wired" paragraph to name
       `oracle/run-oracle-suite.sh`'s two passes, and state that the oracle tree is now in scope
       for the deselection rule (it was not while `BM_CM_1` was the only marking).
-- [ ] Add a short subsection or paragraph to 8.9 recording the promotion-streak limitation: the
+- [x] Add a short subsection or paragraph to 8.9 recording the promotion-streak limitation: the
       workflow's streak counter is `NEW`-sensitive in its historical component and is therefore
       an upper bound; exit-criterion evaluation for a test that fails `TIMING`-style regularly
       must be checked against the uploaded per-run `unstable-watch-record.jsonl` artifacts.
-- [ ] Note in 8.9 that `unstable-watch.yml`'s classifier now lives in
+- [x] Note in 8.9 that `unstable-watch.yml`'s classifier now lives in
       `.github/scripts/unstable_watch_classify.py` with unit tests in
       `code/tests/ci/test_unstable_watch_classifier.py`, and that adding a third `unstable`
       marking means extending that module (and its tests) — not editing YAML.
-- [ ] Check TESTING_GUIDE 8.8's mention of `TestGatingConclusiveScan` (around the gating vs.
+- [x] Check TESTING_GUIDE 8.8's mention of `TestGatingConclusiveScan` (around the gating vs.
       exhaustive split) for staleness introduced by the marking; correct only if it now asserts
-      something false.
-- [ ] Run the full gate set (below) and record the results.
-- [ ] Write the implementation summary to
+      something false. (Confirmed no false claim introduced; no edit needed.)
+- [x] Run the full gate set (below) and record the results. (Gate 3 narrowed — see Deviations in
+      the implementation summary.)
+- [x] Write the implementation summary to
       `specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/summaries/01_unstable-marker-and-watch-classifier-summary.md`.
 
 **Timing**: 1 hour

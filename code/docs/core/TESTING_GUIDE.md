@@ -757,8 +757,10 @@ so that routine, gating test runs stay fast while a full self-consistency sweep 
 on demand.
 
 **The `not slow` gating default, and why `oracle/` must spell it out.** `oracle/run-oracle-suite.sh`
-runs two pytest passes, and both deselect the `slow` marker explicitly
-(`-m "not xdist_serial and not slow"` / `-m "xdist_serial and not slow"`). Unlike `code/`, which has
+runs two pytest passes, and both deselect the `slow` marker explicitly (and, since this tree's
+first `unstable` marking, `unstable` as well — see 8.9 below):
+`-m "not xdist_serial and not slow and not unstable"` /
+`-m "xdist_serial and not slow and not unstable"`. Unlike `code/`, which has
 `code/pyproject.toml` as a reachable ini file, `oracle/` (and the repo root above it) has no ini
 file for pytest to read a default `-m` expression from — `oracle/conftest.py`'s own module
 docstring explains why marks are registered there instead of in an ini file. Without an explicit
@@ -952,20 +954,54 @@ get a task opened against it — continuing to sit in the `unstable` category wi
 nor an active investigation is the failure mode this rule exists to catch.
 
 **Where the deselection is wired.** `.github/workflows/tests.yml`'s main suite invocation,
-`.github/workflows/differential-tests.yml`'s first invocation, and `flake.nix`'s `checks.default`
-(the same suite under the nixpkgs-native Z3 toolchain) all carry `and not unstable` in their `-m`
-expression. `.github/workflows/release.yml`'s `test-and-release` job runs no pytest suite at all —
-a documented no-op comment there states that any pytest suite added to that job in the future MUST
+`.github/workflows/differential-tests.yml`'s first invocation, `flake.nix`'s `checks.default`
+(the same suite under the nixpkgs-native Z3 toolchain), and `oracle/run-oracle-suite.sh`'s two
+passes (parallel and serial) all carry `and not unstable` in their `-m` expression.
+`oracle/run-oracle-suite.sh` entered scope only once the oracle tree carried its first `unstable`
+marking (see "Currently marked" below) — `.github/workflows/tests.yml`'s and `flake.nix`'s
+`code/`-tree invocations never reach `oracle/`, so this script needed its own, separate filter.
+`.github/workflows/release.yml`'s `test-and-release` job runs no pytest suite at all — a
+documented no-op comment there states that any pytest suite added to that job in the future MUST
 carry `not unstable`; the `build` job's packaging-contract invocation already carries a defensive
 `and not unstable` even though no packaging test is or should ever be `unstable`-marked. A future
 author adding a new gating pytest invocation anywhere in this repository should include the same
-filter as a matter of course, not rediscover the need for it.
+filter as a matter of course, not rediscover the need for it —
+`code/tests/ci/test_unstable_deselection_wiring.py` enforces this contract executably across
+`tests.yml`, `flake.nix`, `differential-tests.yml`, and `run-oracle-suite.sh`.
 
-**Currently marked.** `test_example_cases[BM_CM_1-example_case7]` in
-`code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py` — see that file's
-`UNSTABLE_EXAMPLES` entry-criteria comment block for the full record (a heavy-tailed solve on the
-Future/all_future quantifier family; three closed encoding avenues; the written 20-run-or-verified-
-fix exit criterion). Not duplicated here; the in-line block at the marker site is the source of
+**The classifier lives in an importable module, not YAML.** `unstable-watch.yml`'s classify step
+invokes `.github/scripts/unstable_watch_classify.py`, unit-tested by
+`code/tests/ci/test_unstable_watch_classifier.py`. Adding a third `unstable` marking means
+extending that module (a new signature branch in `classify()`, following the pattern the
+`GATING_FLOOR_NODEID_FRAGMENT`/`GATING_FLOOR_SIGNATURE` constants establish, plus tests) — not
+editing workflow YAML.
+
+**Promotion-streak limitation.** `unstable-watch.yml`'s step-summary streak counter's historical
+component (prior runs, via `gh run list` job conclusions) is `NEW`-sensitive only: a run whose
+marked test failed `TIMING`-style still exits 0, so that run's job conclusion reads as success.
+This run's own contribution to the streak is honesty-corrected (`compute_promotion_streak` zeroes
+it on ANY failure, `TIMING` or `NEW`), but the historical component cannot be retroactively
+corrected without downloading and re-parsing every prior run's `unstable-watch-record.jsonl`
+artifact — out of scope for the mechanism as it stands. The reported streak is therefore an
+UPPER BOUND on the true zero-failure streak. Evaluating a per-test exit criterion (above) for a
+test expected to fail `TIMING`-style with any regularity requires checking the uploaded per-run
+`unstable-watch-record.jsonl` artifacts directly, not just the step-summary number.
+
+**Currently marked.**
+- `test_example_cases[BM_CM_1-example_case7]` in
+  `code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py` — see that file's
+  `UNSTABLE_EXAMPLES` entry-criteria comment block for the full record (a heavy-tailed solve on
+  the Future/all_future quantifier family; three closed encoding avenues; the written
+  20-run-or-verified-fix exit criterion).
+- `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` in
+  `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` — see that file's
+  `GATING_RECHECK_SOLVE_TIMEOUT_MS` comment block for the full record (a CI-verified
+  conclusive-population shortfall on the performance floor only, never on the disagreements
+  soundness check; the closed `xdist_serial` isolation lead; the CI-verified 2x budget widening
+  that bought zero additional conclusive formulas; the written 20-run-or-verified-fix exit
+  criterion).
+
+Neither record is duplicated here; each marker's own source-site comment block is the source of
 truth.
 
 ### 8.10 Optional, Developer-Local External Test Dependencies
