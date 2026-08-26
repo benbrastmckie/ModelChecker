@@ -1023,9 +1023,39 @@ class TestMixedFormulas:
         underlying contention mechanism this marker exists to route
         around) -- this test now runs in oracle/run-oracle-suite.sh's
         contention-free serial pass instead.
+
+        Fourth investigation (2026-08-26): the prior round recorded above
+        (and its two siblings against `test_mixed_and_all_future_neg`,
+        commits `caf20bea`/`7f7269d6`/`6ea94522`) reactively widened a
+        wall-clock `timeout_ms` in response to a load-driven failure -- a
+        load-independent pass/fail boundary was never established. This
+        round measures the actual Z3 work quantity instead of wall clock:
+        3 isolated default-seed draws (Z3 4.16.0,
+        `PYTHONHASHSEED` unset) produced the *bit-identical* rlimit
+        250005414 on every draw (0% spread) while wall time still varied
+        with host load (68.53s-70.73s across the same 3 draws) -- direct
+        confirmation that the work quantity is deterministic and wall
+        clock was measuring host load, not Z3 variance. `max_rlimit` is
+        therefore set to 800000000 (~3.2x the measured 250005414, per
+        TESTING_GUIDE.md 8.6's "set budgets generously, not tightly" --
+        headroom for genuine future cost growth, not run-to-run noise).
+        `timeout_ms` is kept at the house `TEMPORAL_SOLVE_TIMEOUT_MS`
+        constant (180000ms, ~2.5x the measured 70.73s worst draw), now
+        acting as a generous backstop rather than the operative bound --
+        `max_rlimit` is expected to fire first if it fires at all.
+        `PYTHONHASHSEED=0` control was not needed (no rlimit disagreement
+        was observed to control for). Recalibration trigger: this rlimit
+        figure is valid for Z3 4.16.0 only -- a Z3 version upgrade
+        invalidates it and requires a fresh probe via
+        `oracle/probe_solve_cost.py` before trusting this budget again.
+        `xdist_serial` remains for the unrelated `-n 6` contention
+        mechanism documented above; the budget-unit change is orthogonal
+        to it.
         """
         formula = _or(_diamond(A), _prev(B))
-        result = self.provider.find_countermodel(formula, timeout_ms=150000)
+        result = self.provider.find_countermodel(
+            formula, timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS, max_rlimit=800000000
+        )
         # SAT -- countermodel where both disjuncts are false
         assert result is not None
 
@@ -1045,9 +1075,51 @@ class TestMixedFormulas:
         ever fails SERIALLY, treat that as new measurement contradicting the
         60000ms figure and recalibrate from a fresh uncensored probe -- do
         not tweak the budget reactively.
+
+        Fourth investigation (2026-08-26) -- resolves the watch item above:
+        this task's originating report observed `test_mixed_and_all_future_neg`
+        failing in one full-file run and passing in the next with no code
+        change -- consistent with (though not a directly reproduced instance
+        of) the watch item's predicted failure mode, and sufficient grounds
+        to treat the 60000ms figure as contradicted and trigger the
+        recalibration this docstring called for, per the research report's
+        own root-cause analysis (`specs/167_flaky_testmixedformulas_failures/reports/01_flaky-testmixedformulas-root-cause.md`).
+        Rather than a fifth reactive `timeout_ms` widening, this round
+        measures the actual Z3 work quantity: 3
+        isolated default-seed draws (Z3 4.16.0, `PYTHONHASHSEED` unset)
+        produced the *bit-identical* rlimit 363423989 on every draw (0%
+        spread) while wall time still varied with host load
+        (104.70s-105.81s across the same 3 draws) -- direct confirmation
+        the work quantity is deterministic and wall clock was measuring
+        host load, not Z3 variance. Note also: the 80.6s/107.4s tail
+        recorded above was measured under pinned, non-default
+        `sat.random_seed`/`smt.random_seed` values -- production never sets
+        a seed, so that tail characterizes a distribution this test does
+        not actually sample from; this round's numbers are the first
+        default-seed measurement on record for this formula. The
+        60000ms figure is now superseded: `max_rlimit` is set to
+        1100000000 (~3.0x the measured 363423989, per TESTING_GUIDE.md
+        8.6's "set budgets generously, not tightly" -- headroom for
+        genuine future cost growth, not run-to-run noise). `timeout_ms` is
+        widened to a dedicated 240000ms (180000ms, the house
+        `TEMPORAL_SOLVE_TIMEOUT_MS`, clears only ~1.7x the measured
+        105.81s worst draw -- short of the required >=2x headroom rule --
+        so this test keeps its own larger explicit value rather than
+        adopting the shared constant), now acting as a generous backstop
+        rather than the operative bound -- `max_rlimit` is expected to
+        fire first if it fires at all. `PYTHONHASHSEED=0` control was not
+        needed (no rlimit disagreement was observed to control for).
+        Recalibration trigger: this rlimit figure is valid for Z3 4.16.0
+        only -- a Z3 version upgrade invalidates it and requires a fresh
+        probe via `oracle/probe_solve_cost.py` before trusting this budget
+        again. `xdist_serial` remains for the unrelated `-n 6` contention
+        mechanism documented above; the budget-unit change is orthogonal
+        to it.
         """
         formula = _and(_neg(A), _next(B))
-        result = self.provider.find_countermodel(formula, timeout_ms=60000)
+        result = self.provider.find_countermodel(
+            formula, timeout_ms=240000, max_rlimit=1100000000
+        )
         # SAT: countermodel where neg(A) is false or next(B) is false
         assert result is not None
 

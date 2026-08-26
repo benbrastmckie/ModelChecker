@@ -437,7 +437,7 @@ proceeding on the plan's count.
 
 ---
 
-### Phase 5: Route A — Apply calibrated budgets and record the fourth investigation [NOT STARTED]
+### Phase 5: Route A — Apply calibrated budgets and record the fourth investigation [COMPLETED]
 
 **Goal**: Both target tests bound their solve by a **deterministic** rlimit ceiling with generous
 headroom, backed by a wall-clock budget wide enough that it is not the operative bound — and their
@@ -445,35 +445,58 @@ docstrings record this investigation the way the three prior ones were recorded.
 
 **Tasks**:
 
-- [ ] Set each test's `max_rlimit` to **>= 3x** its Phase 2 measured default-seed rlimit. Not
+- [x] Set each test's `max_rlimit` to **>= 3x** its Phase 2 measured default-seed rlimit. Not
       measured-plus-margin: `TESTING_GUIDE.md` section 8.6's standing instruction is "Set budgets
       generously, not tightly", and the sibling recalibrations in this tree used ~2.07x-2.3x of a
       *wall-clock* worst; an rlimit bound is deterministic, so its headroom exists to absorb
-      future genuine cost growth, not run-to-run noise.
-- [ ] Widen each test's `timeout_ms` so wall clock is no longer the operative bound. Prefer the
+      future genuine cost growth, not run-to-run noise. Applied: `test_mixed_or_diamond_prev`
+      `max_rlimit=800000000` (~3.2x of measured 250005414); `test_mixed_and_all_future_neg`
+      `max_rlimit=1100000000` (~3.0x of measured 363423989).
+- [x] Widen each test's `timeout_ms` so wall clock is no longer the operative bound. Prefer the
       file's own existing house constant `TEMPORAL_SOLVE_TIMEOUT_MS = 180000` (both formulas have
       `temporal_depth > 0`, which is exactly what that constant exists for, and it is already
       more generous than both tests' current 150000/60000) over a fresh bespoke number. Where a
       Phase 2 draw makes 180000 insufficient headroom, state the measured basis for the larger
-      figure inline.
-- [ ] Rewrite both docstrings to record: the fourth investigation and its date; the default-seed
+      figure inline. Applied: `test_mixed_or_diamond_prev` uses `TEMPORAL_SOLVE_TIMEOUT_MS`
+      (180000ms, ~2.5x the measured 70.73s worst draw). `test_mixed_and_all_future_neg` uses an
+      explicit `timeout_ms=240000` instead — 180000 clears only ~1.7x the measured 105.81s worst
+      draw, short of the required >=2x headroom rule, so the larger explicit value was set with
+      the measured basis recorded inline in the docstring, per the Scope Hypothesis's own
+      confirm-at-implementation-time instruction.
+- [x] Rewrite both docstrings to record: the fourth investigation and its date; the default-seed
       rlimit measured and the draw count; the wall-clock range observed; the Z3 version the rlimit
       figure is valid for and the explicit statement that a Z3 upgrade requires recalibration; and
       why the pass/fail boundary moved from a wall-clock unit to a resource unit. **Preserve the
       existing docstring history** — `TESTING_GUIDE.md` section 8.9 is explicit that "the history
       of what was tried and what finally worked is worth more than a clean diff". Append; do not
-      replace.
-- [ ] Explicitly resolve `test_mixed_and_all_future_neg`'s standing watch item ("If this test ever
+      replace. Confirmed: prior docstring history (three earlier investigations, commits
+      `caf20bea`/`7f7269d6`/`6ea94522`) is intact in the diff — the "Fourth investigation
+      (2026-08-26)" record is appended after it, not a replacement.
+- [x] Explicitly resolve `test_mixed_and_all_future_neg`'s standing watch item ("If this test ever
       fails SERIALLY, treat that as new measurement contradicting the 60000ms figure and
       recalibrate from a fresh uncensored probe -- do not tweak the budget reactively") — state in
       the docstring that the recalibration happened, from which probe, and that the 60000ms figure
-      is superseded.
-- [ ] Note explicitly that the cross-seed 80.6s/107.4s draws recorded in the prior docstring were
+      is superseded. Done — the docstring states the watch item is resolved, names the report that
+      triggered it, and states the 60000ms figure is superseded.
+- [x] Note explicitly that the cross-seed 80.6s/107.4s draws recorded in the prior docstring were
       measured under **pinned non-default seeds** and do not describe the production draw, so the
-      new budget is not "ignoring" them.
-- [ ] Keep both `@pytest.mark.xdist_serial` markers. Add a one-line docstring note that the marker
+      new budget is not "ignoring" them. Done in both docstrings.
+- [x] Keep both `@pytest.mark.xdist_serial` markers. Add a one-line docstring note that the marker
       remains for the `-n 6` contention mechanism, which is separate from the budget-unit change.
-- [ ] Verify: `timeout 900 env PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_oracle_interface.py -m xdist_serial -v`
+      Confirmed via `grep -n xdist_serial` — both markers are intact immediately above their
+      respective `def`.
+- [x] Verify (**narrowed** — see deviation note below):
+      `PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_oracle_interface.py::TestMixedFormulas::test_mixed_or_diamond_prev oracle/bimodal_logic/tests/test_oracle_interface.py::TestMixedFormulas::test_mixed_and_all_future_neg -q`
+      -- exit 0, 2 passed in 126.32s (0:02:06), no `OracleTimeoutError`, no host-load-driven
+      failure on this run.
+
+**Deviation from plan**: the phase's own verify line runs `-m xdist_serial -v` over the whole
+`test_oracle_interface.py` file (four `xdist_serial`-marked tests plus the wider file's collection
+overhead), foreground with `timeout 900`. This dispatch narrowed the verify step to exactly the
+two node ids this phase modifies, run foreground with no `timeout` prefix needed (the selection
+completed in 126.32s, comfortably inside a bounded dispatch gate) — the same narrowing rationale
+recorded in Phase 4's deviation note. The full `xdist_serial` selection (all four markers) and the
+full non-serial parallel-pass selection are both exercised in Phase 7 instead.
 
 **Timing**: 0.75 hours
 
