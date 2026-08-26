@@ -37,3 +37,13 @@ Z3-dependent -- the rlimit identity is the signal that matters).
 `--formula-name mixed_or_diamond_prev --timeout-ms 240000`, default seed, each invocation
 prefixed `timeout 300`, foreground, one at a time.
 
+- Draw 4: `{"formula_name": "mixed_or_diamond_prev", "timeout_ms": 240000, "seed": "default", "wall_s": 69.2333, "decided": true, "rlimit": 250005414, "z3_version": "4.16.0", "pythonhashseed": null, "draw_index": 0}`
+- Draw 5: `{"formula_name": "mixed_or_diamond_prev", "timeout_ms": 240000, "seed": "default", "wall_s": 68.5269, "decided": true, "rlimit": 250005414, "z3_version": "4.16.0", "pythonhashseed": null, "draw_index": 0}`
+- Draw 6: `{"formula_name": "mixed_or_diamond_prev", "timeout_ms": 240000, "seed": "default", "wall_s": 70.7327, "decided": true, "rlimit": 250005414, "z3_version": "4.16.0", "pythonhashseed": null, "draw_index": 0}`
+
+**Summary for `mixed_or_diamond_prev`**: rlimit = 250005414 on all 3 draws (0% spread, exact
+match). wall_s = 69.23 / 68.53 / 70.73.
+
+**Conditional PYTHONHASHSEED=0 control**: SKIPPED. Both formulas' rlimit values agree exactly
+(0% spread) across all 3 draws each -- the plan's conditional step only fires "if rlimit disagrees
+across draws of the same formula", which did not happen for either formula.
