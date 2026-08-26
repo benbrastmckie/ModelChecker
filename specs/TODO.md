@@ -1,5 +1,5 @@
 ---
-next_project_number: 171
+next_project_number: 172
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 171
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,161 | -- | semantics, release-engineering |
+| 1 | 152,161,171 | -- | semantics, release-engineering, ci-verification |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154,168 | 153,158 | semantics, release-engineering |
 
@@ -29,7 +29,38 @@ next_project_number: 171
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
     └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
+### Ci Verification
+
+171 [NOT STARTED] — Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction t
+
 ## Tasks
+
+### 171. Verify xdist worker count on real ci
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: ci-verification
+- **Dependencies**: None
+
+**Description**: Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction that landed for the CI-budget task, and close the deferred oracle-suite verification gates it left behind.
+
+BACKGROUND -- WHY THIS CANNOT BE CLOSED LOCALLY. The worker-count change (-n 6 -> -n 4 in BOTH .github/workflows/tests.yml and flake.nix, kept textually in sync and enforced by code/tests/ci/test_workflow_parity.py::test_worker_count_matches) was accepted on the strength of a LOCAL four-draw falsification screen under `taskset -c 0,1,2,3`: all four pairwise pass/fail diffs were empty. That screen is a falsification attempt, not a safety proof, and its own instrument is documented as blind to the failure class in question -- code/docs/core/TESTING_GUIDE.md section 8.13 records that `taskset -c 0-3` at -n 6 passes cleanly locally (2292 passed) while the SAME selection failed on real CI. Only a real CI run can discharge this. Agents cannot push or trigger workflow_dispatch, so this task exists for a human to run and interpret.
+
+WHAT TO DO.
+(1) Trigger the Tests workflow on real CI against the current master (which carries the -n 4 change) across the full Python matrix (3.10, 3.11, 3.12) plus the nix flake check job.
+(2) Confirm no example flips outcome relative to the -n 6 baseline -- in particular that no countermodel-expected example stops finding a countermodel. A flipped node id IS the finding, not noise.
+(3) Confirm the job still fits `timeout-minutes: 20`. The local screen measured -n 6 at 260.4s average and -n 4 at 272.8s average (~5% difference, inside the ~70s draw-to-draw spread, and the single fastest draw overall was an -n 4 draw), so no systematic slowdown was observed locally and timeout-minutes was deliberately left at 20 -- but CI hardware is a 4-vCPU/16GB standard runner, not the 24-core derivation host, so this must be confirmed rather than assumed.
+(4) The change carries a named revert trigger recorded at its own site -- if CI shows a flip or a timeout, revert both files together (never one-sided; the parity guard will go red) and record the observed failure, rather than widening timeout-minutes to accommodate it.
+
+SECOND, INDEPENDENT ITEM -- PYTHON 3.12 WORKER CRASH TELEMETRY.
+The same task added .github/scripts/worker_rss_sample.py, a /proc-only peak-RSS-per-worker sampler, wired 3.12-gated and non-gating into CI, with 20 hermetic unit tests in code/tests/ci/test_worker_rss_sampler.py. Its root cause remains explicitly OPEN: `[gw2] node down: Not properly terminated` on the Python 3.12 job, where the named test is a confirmed innocent bystander (CI logs show the replacement worker re-ran it in 0.23s) and both recorded incidents show a silent gap (123s and ~17min) immediately before the worker was detected dead -- consistent with process death, not a hang inside one test. This CI run is the first opportunity to collect that telemetry. Read the sampler output and record peak RSS per worker alongside worker count. Note the interaction: -n 4 means more memory headroom per worker, so if the crash stops recurring that is CONSISTENT WITH the memory-ceiling hypothesis but does NOT confirm it and does NOT exclude the Z3/Python-3.12 ABI hypothesis. Do not close item D as explained on that basis alone.
+
+HARD CONSTRAINTS (carried forward, all previously verified by a git diff gate):
+- Do NOT edit GATING_RECHECK_SOLVE_TIMEOUT_MS (stays 40000).
+- Do NOT edit MIN_CONCLUSIVE_GATING_FORMULAS (stays 100).
+- Do NOT widen timeout-minutes to paper over a slow run.
+- Any worker-count revert must change both files together and keep the documented -n-over-auto plus BM_CM_1 contention rationale verbatim.
+
+---
 
 ### 170. Resolve xdist worker count and differential oracle floor
 - **Status**: [COMPLETED]
