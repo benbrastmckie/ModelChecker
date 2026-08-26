@@ -367,7 +367,7 @@ resource-unit budget and reports honestly when it fires — closing the one gap 
 
 **Tasks** (TDD — tests first):
 
-- [ ] Write RED tests in `oracle/bimodal_logic/tests/test_oracle_interface.py` (or a focused
+- [x] Write RED tests in `oracle/bimodal_logic/tests/test_oracle_interface.py` (or a focused
       sibling module, using **atemporal** formulas only so the new tests are fast and unmarked):
   - `find_countermodel(..., max_rlimit=None)` (the default) produces a settings dict with **no**
     `max_rlimit` key — behavior is byte-for-byte unchanged for every existing caller.
@@ -375,21 +375,36 @@ resource-unit budget and reports honestly when it fires — closing the one gap 
     otherwise decides — confirming the budget actually reaches `Z3SolverAdapter.set_rlimit()`.
   - The raised error's `context` dict carries `max_rlimit`, and its message names **both**
     budgets rather than asserting the wall-clock one fired.
-- [ ] Add an optional `max_rlimit: int | None = None` parameter to `find_countermodel()` and
+- [x] Add an optional `max_rlimit: int | None = None` parameter to `find_countermodel()` and
       insert `'max_rlimit': max_rlimit` into the settings dict **only when truthy**, mirroring
       `ModelDefaults.solve()`'s own default-off `if max_rlimit:` guard.
-- [ ] Add an optional `max_rlimit: int | None = None` parameter to `OracleTimeoutError.__init__`.
+- [x] Add an optional `max_rlimit: int | None = None` parameter to `OracleTimeoutError.__init__`.
       When present: include it in `self.context`, and phrase the message as budget exhaustion
       naming both budgets (an rlimit-exhausted UNKNOWN is classified `is_timeout=True` identically
       to a wall-clock timeout by `ModelDefaults.solve()`, so the code genuinely cannot tell which
       fired — the message must not pretend it can). When absent, the existing message is
       unchanged.
-- [ ] Confirm the two existing construction sites in
+- [x] Confirm the two existing construction sites in
       `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` still work unchanged (the new
-      parameter is optional and keyword-only in effect).
-- [ ] Update `find_countermodel()`'s docstring: document `max_rlimit` as the load-independent
+      parameter is optional and keyword-only in effect). Confirmed: both sites
+      (`_StubOracle.find_countermodel` and the `ref_fn` raise in
+      `TestDifferentialReportBoundaries`) construct `OracleTimeoutError` without `max_rlimit` and
+      were not edited.
+- [x] Update `find_countermodel()`'s docstring: document `max_rlimit` as the load-independent
       complement to `timeout_ms`, and cross-reference `TESTING_GUIDE.md` section 8.6.
-- [ ] Verify: `timeout 600 env PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/ -m "not slow and not unstable and not xdist_serial" -q`
+- [x] Verify (**narrowed** — see deviation note below):
+      `timeout 280 env PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_oracle_interface.py -m "not slow and not unstable and not xdist_serial" -q`
+      -- exit 0, all passed (1 skipped, 0 failures).
+
+**Deviation from plan**: the plan's own verify line targets the full
+`oracle/bimodal_logic/tests/` directory. A prior dispatch in this same orchestration measured
+that full-directory selection at ~46 minutes (2758s) wall clock, which exceeds any single bounded
+dispatch gate; running it unbounded (or backgrounded) is exactly the failure mode
+`## Process constraints` item 1 forbids, and is what stalled three earlier dispatches in this
+batch. This phase's verify step was narrowed to the single file this phase actually modifies
+(`test_oracle_interface.py`), run foreground with an explicit `timeout 280` (comfortably inside
+the tool's own background-promotion threshold), and it passed cleanly. The full-directory
+selection is exercised in Phase 7 instead, narrowed the same way there.
 
 **Timing**: 1.0 hour
 
