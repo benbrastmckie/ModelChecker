@@ -1,5 +1,5 @@
 ---
-next_project_number: 172
+next_project_number: 173
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 172
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,161,171 | -- | semantics, release-engineering, ci-verification |
+| 1 | 152,161,171,172 | -- | semantics, release-engineering, ci-verification, ... |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154,168 | 153,158 | semantics, release-engineering |
 
@@ -33,7 +33,49 @@ next_project_number: 172
 
 171 [NOT STARTED] — Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction t
 
+### Test Reliability
+
+172 [NOT STARTED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+
 ## Tasks
+
+### 172. Fix contention flaky soundness regression tests
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: None
+
+**Description**: Three tests in oracle/bimodal_logic/tests/test_soundness_regression.py fail deterministically under the gating suite's parallel pass but pass in isolation. They are CPU-contention casualties of a tight solve budget, and they were invisible to every narrowed verification gate run to date because no recent task touched their file.
+
+THE THREE TESTS:
+- TestBoundaryVacuity::test_depth1_countermodel_has_required_fields
+- TestGuardedCompositionality::test_forward_comp_with_temporal_formula_output
+- TestGuardedCompositionality::test_nullity_with_temporal_formula_output
+
+MEASURED EVIDENCE (2026-08-26, full two-pass run of oracle/run-oracle-suite.sh on the 24-core dev host):
+- Pass 1 (626 tests, -n 6, "not xdist_serial and not slow and not unstable"): 3 failed, 617 passed, 2 skipped, 4 xfailed in 770.33s. The three failures above are the only ones.
+- All three fail identically with OracleTimeoutError at the provider default timeout_ms=5000, temporal_depth=1, time_bound M=3, raised at oracle/bimodal_logic/provider.py:292.
+- Run SERIALLY at the same commit, all three pass in 4.53s TOTAL (~1.5s each) -- roughly 3x contention inflation against the 5000ms budget under six workers.
+- Pass 2 (15 tests, serial): 15 passed in 677.08s, clean.
+
+RULED OUT -- NOT A REGRESSION. The max_rlimit plumbing added to Z3OracleProvider.find_countermodel() is genuinely default-off: `timeout_ms: int = 5000` is unchanged and `max_rlimit` is only inserted into the settings dict when truthy (`if max_rlimit:`), mirroring ModelDefaults.solve()'s own guard. All three of these tests call find_countermodel(F_P) with no keyword arguments, so their code path is byte-for-byte identical to before that change. Do not spend time re-investigating this.
+
+WHY THEY ARE NOT ALREADY HANDLED. These three tests are NOT marked @pytest.mark.xdist_serial, so they land in pass 1 under -n 6 rather than in the serial pass that exists precisely to eliminate this contention class. This is the same hazard the logos max_time floor corrected and that the CI-budget task addressed for example settings dicts -- but on a DIFFERENT constant: the oracle provider's own timeout_ms default, which no floor guard currently covers.
+
+WHAT TO DO. Choose a remedy backed by measurement, not by pattern-matching:
+(a) Route the three to the serial pass with @pytest.mark.xdist_serial -- the precedent already used for test_mixed_and_box_next and the BM_CM_4 parametrizations, and the fix the two-pass split was designed for. Cheapest and most consistent, but it lengthens pass 2 (currently 677s against an 1800s budget, so there is headroom -- confirm it stays inside).
+(b) Pass max_rlimit alongside timeout_ms at these call sites -- Z3's load-INDEPENDENT resource-unit budget, already plumbed end-to-end and blessed by code/docs/core/TESTING_GUIDE.md section 8.6. Measure the rlimit for each of the three formulas first and set the budget over the measured worst draw with headroom, following the ~2x-to-3x-of-worst convention used elsewhere in this tree. This addresses the root cause (wrong unit) rather than rescheduling around it.
+(c) Both -- (a) for immediate green, (b) for durability.
+
+Also consider, and decide explicitly with reasons recorded: whether the oracle provider's timeout_ms=5000 default deserves a floor guard analogous to code/tests/ci/test_example_budget_floor.py, since nothing currently prevents another test from being written against a budget that only holds when the machine is idle. Survey the other call sites before deciding -- a floor is only worth adding if the population justifies it.
+
+CONSTRAINTS:
+- Do NOT weaken any assertion to reach green.
+- Do NOT edit GATING_RECHECK_SOLVE_TIMEOUT_MS (stays 40000) or MIN_CONCLUSIVE_GATING_FORMULAS (stays 100).
+- Verify via the real two-pass driver `bash oracle/run-oracle-suite.sh`, NOT a narrowed single-file selection -- narrowed gates are exactly what hid this defect. Budget ~25 minutes for a full run (pass 1 ~13 min at -n 6, pass 2 ~11 min serial).
+- Note for the implementer: long runs are reaped by the harness if launched as ordinary background tasks. Use `setsid nohup ... &` to detach, then poll.
+
+---
 
 ### 171. Verify xdist worker count on real ci
 - **Status**: [NOT STARTED]
