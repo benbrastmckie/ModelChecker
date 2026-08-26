@@ -191,3 +191,111 @@ Follow-on questions this run raises:
 - `oracle/bimodal_logic/tests/test_cross_oracle_differential.py:2412` — the `unstable` marker
 - `code/tests/ci/test_workflow_parity.py::test_worker_count_matches` — the `-n` sync guard
 - `code/docs/core/TESTING_GUIDE.md` section 8.13 — why local `taskset` screens are blind here
+
+---
+
+# ADDENDUM (2026-08-26T18:15Z): the crash recurred on Python 3.11
+
+**This addendum falsifies a conclusion drawn above.** The body of this report states that the
+`[gw2] node down` crash "did not recur." That was true of run `32995122897`. It is **not** true
+in general: the very next Tests run, `32996446859` (sha `3dd6a985`, the version-bump commit),
+reproduced it — **on Python 3.11, at `-n 4`**.
+
+```
+[gw2] node down: Not properly terminated
+FAILED src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py
+       ::TestFixtureSmoke::test_extract_world_histories_nonempty
+       - worker 'gw2' crashed while running '...'
+1 failed, 2088 passed, 255 skipped in 342.19s (0:05:42)
+```
+
+The same run also failed `nix flake check` on a *different* mechanism (see below).
+
+## What this changes for item D
+
+Three hypotheses were live. This incident moves all three:
+
+1. **The Z3/Python-3.12 ABI hypothesis is substantially weakened.** The crash is not
+   3.12-specific. It has now occurred on 3.11. The instrumentation comment in
+   `.github/workflows/tests.yml` justifying the 3.12 gate — "the only leg the crash has been
+   observed on" — is now **factually false** and must be updated.
+2. **The memory-ceiling hypothesis is weakened, not strengthened.** `-n 4` gives more headroom
+   per worker than `-n 6`, and the crash still occurred. Combined with the 4.14 GiB aggregate
+   peak (26% of 16 GB) recorded above, memory exhaustion looks unlikely as the sole cause.
+3. **The xdist/execnet worker-communication hypothesis gains relative weight** by elimination,
+   though nothing here confirms it directly.
+
+## The instrumentation is on the wrong job
+
+`worker_rss_sample.py` is gated on `matrix.python-version == '3.12'`
+(`.github/workflows/tests.yml:180`). The crash occurred on **3.11**, so the sampler collected
+**nothing** for the one incident it was built to explain. This is the single highest-value
+correction available: **remove the 3.12 gate and sample on all three legs.** The step is
+already non-gating and costs almost nothing.
+
+## A pattern the "innocent bystander" reading may have missed
+
+Both confirmed `node down` incidents share two properties not previously connected:
+
+| Run | Python | Worker | Test file |
+|-----|--------|--------|-----------|
+| `32910478240` | 3.12 | `gw2` | `test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_three_taskframe_axioms_present_in_frame_constraints` |
+| `32996446859` | 3.11 | `gw2` | `test_frame_class_mapping.py::TestFixtureSmoke::test_extract_world_histories_nonempty` |
+
+Same worker id, same file, different tests and different Pythons. The prior analysis concluded
+the *named test* is an innocent bystander, which the differing test names still support. But
+two-for-two on the same **module** is a stronger signal than the bystander reading accounts
+for, and warrants checking whether xdist's distribution consistently assigns
+`test_frame_class_mapping.py` to `gw2` and whether that module's fixtures hold unusual native
+state. Two incidents is a thin base for either conclusion — this is a lead, not a finding.
+
+## Second, independent failure in the same run: `nix flake check`
+
+```
+FAILED src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py
+       ::TestBimodalIteratorReal::test_iterate_example_generator_yields_models
+       - AssertionError: First model was not satisfiable; cannot exercise iteration
+1 failed, 2040 passed, 259 skipped, 3 warnings in 229.65s (0:03:49)
+```
+
+**This is a different mechanism from the worker crash** — a solve-budget overrun, not process
+death — and must not be conflated with it.
+
+The root cause is an **assertion-design flaw, not a budget number**. `solve()` in
+`code/src/model_checker/models/structure.py:293` returns `_create_result(True, None, False,
+start_time)` on `UNKNOWN`, i.e. `timeout=True` **and** `z3_model_status=False`. A genuine unsat
+returns `timeout=False, z3_model_status=False`. The test asserts only `z3_model_status`, so a
+contention-induced timeout is **indistinguishable from a real unsatisfiable result** and
+inverts into a false negative.
+
+This is why the recorded 30 -> 60 `max_time` widening did not fix it, and why 60 -> 120 would
+not either: no budget value closes a hole in the discriminator. The structure already carries
+the discriminator (`model_structure.timeout`); the test simply does not consult it.
+
+**Recommended fix** (does not weaken the assertion — a genuine unsat still fails):
+
+```python
+if example.model_structure.timeout:
+    pytest.skip("Z3 exceeded max_time under CI contention; timeout is not unsat")
+assert example.model_structure.z3_model_status, (
+    "First model was not satisfiable; cannot exercise iteration"
+)
+```
+
+The sibling test `test_iterate_two_produces_distinct_models` already handles the analogous
+budget-sensitivity gracefully in its docstring's terms; this test does not.
+
+## Revised recommendations
+
+Superseding items 3 and 4 of the body:
+
+1. **Ungate the RSS sampler from 3.12** and correct the now-false "only leg observed on"
+   comment. Highest value, lowest cost, non-gating.
+2. **Fix the `test_iterate` assertion** to consult `model_structure.timeout` before asserting
+   `z3_model_status`. This is a genuine fix, not a budget bump.
+3. **Item D remains OPEN**, now with a corrected hypothesis ranking and one more incident.
+4. **`-n 4` still stands.** Nothing here argues for reverting it: the crash predates it,
+   occurred at `-n 6` twice, and the timing verification in the body is unaffected.
+5. **Treat "green" on any single Tests run as weak evidence.** Runs `32995122897` (all green)
+   and `32996446859` (two failures) are consecutive, on near-identical trees. The failure rate
+   is what matters, not the last result.
