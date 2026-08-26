@@ -11,7 +11,7 @@ next_project_number: 171
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,161,167,170 | -- | testing, semantics, release-engineering |
+| 1 | 152,161,170 | -- | testing, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154,168 | 153,158 | semantics, release-engineering |
 
@@ -19,7 +19,6 @@ next_project_number: 171
 
 ### Testing
 
-167 [IMPLEMENTING] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
 170 [NOT STARTED] — Two open CI-budget questions left deliberately unresolved when th
 
 ### Semantics
@@ -57,12 +56,13 @@ next_project_number: 171
 ---
 
 ### 167. Flaky testmixedformulas failures
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [167_flaky_testmixedformulas_failures/reports/01_flaky-testmixedformulas-root-cause.md]
 - **Plan**: [167_flaky_testmixedformulas_failures/plans/01_deterministic-mixed-formula-budgets.md]
+- **Summary**: [167_flaky_testmixedformulas_failures/summaries/01_deterministic-mixed-formula-budgets-summary.md]
 
 **Description**: Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/tests/test_oracle_interface.py - test_mixed_or_diamond_prev and test_mixed_and_all_future_neg both fail in some pytest runs and pass in others (test_mixed_and_all_future_neg was observed failing in one full-file run and passing in the next with no code change), so determine whether the nondeterminism comes from Z3 solver behavior, test ordering/state leakage, or a genuine semantics defect, then make the outcomes deterministic
 
