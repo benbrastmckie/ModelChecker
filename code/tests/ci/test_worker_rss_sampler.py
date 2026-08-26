@@ -218,3 +218,44 @@ class TestPeakTracker:
         # json.dumps requires string keys; the module's own summary() must already convert
         # int pids to strings, or json.dumps must not raise here either way.
         json.dumps(summary)
+
+
+class TestSamplerIsNotMatrixGated:
+    """The sampler must run on EVERY Python leg, not just 3.12.
+
+    RATIONALE -- WHY THIS GUARD EXISTS. The sampler was originally wired behind
+    `if [ "${{ matrix.python-version }}" = "3.12" ]`, justified in tests.yml by the claim
+    that 3.12 was "the only leg the crash has been observed on". CI run 32996446859
+    falsified that premise: `[gw2] node down: Not properly terminated` occurred on
+    **Python 3.11**, and because the sampler was 3.12-gated it collected NOTHING for the
+    one incident it exists to explain.
+
+    Telemetry gated to a subset of legs cannot observe a failure whose leg distribution is
+    the open question. The step is non-gating and cheap (a /proc poll on a 2s interval), so
+    there is no cost argument for restricting it. This guard makes "sample every leg"
+    executable so a future edit cannot silently re-gate it and reintroduce the blind spot.
+    """
+
+    def test_sampler_invocation_is_not_python_version_conditional(self):
+        text = TESTS_YML.read_text(encoding="utf-8")
+        assert "worker_rss_sample.py" in text, (
+            "The sampler invocation vanished from tests.yml. If the telemetry was "
+            "deliberately removed (item D resolved), delete this test class too -- see the "
+            "sampler module docstring's 'removable in one piece' note."
+        )
+        for line in text.splitlines():
+            if "matrix.python-version" in line and "=" in line and "if" in line:
+                raise AssertionError(
+                    "tests.yml gates a step on a specific matrix.python-version value:\n"
+                    f"  {line.strip()}\n"
+                    "The RSS sampler must run on every Python leg -- the crash it "
+                    "instruments has been observed on both 3.11 and 3.12."
+                )
+
+    def test_sampler_runs_on_every_matrix_leg(self):
+        text = TESTS_YML.read_text(encoding="utf-8")
+        sampler_lines = [ln for ln in text.splitlines() if "worker_rss_sample.py" in ln and "python3" in ln]
+        assert len(sampler_lines) == 1, (
+            f"Expected exactly one sampler invocation line, found {len(sampler_lines)}. "
+            "A per-leg duplicate would break test_workflow_parity.py's extraction regex."
+        )
