@@ -1,0 +1,34 @@
+{
+  "dispatch_seq": 3,
+  "phase": "implement",
+  "status": "blocked",
+  "summary": "Phase 1 (additive OIDC-claims diagnostic step in publish-testpypi) implemented, statically verified (YAML parse, bash -n, decode-pipeline replay, leak audit, additive-only diff), and committed. Phases 2 and 3 are USER GATE per the plan and were left untouched at [NOT STARTED] as required -- registration on test.pypi.org and a real v* tag push cannot be performed by any agent.",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/161_fix_testpypi_trusted_publisher/summaries/01_fix-testpypi-trusted-publisher-summary.md",
+      "summary": "Phase 1 complete; Phases 2-3 outstanding as user-only gates."
+    }
+  ],
+  "phases_completed": 1,
+  "phases_total": 3,
+  "blockers": [
+    {
+      "phase": 2,
+      "target": "Register the GitHub Actions trusted publisher for model-checker on test.pypi.org",
+      "verbatim_goal": "A GitHub Actions trusted publisher for `model-checker` exists on test.pypi.org with field values that exactly match this workflow's OIDC claims.",
+      "what_was_tried": "Not attempted -- USER-ONLY per the plan's explicit MUST-NOT-ATTEMPT language.",
+      "why_it_failed": "Web-UI account action outside any agent's tool access."
+    },
+    {
+      "phase": 3,
+      "target": "Verify publish-testpypi goes green on a real v* tag push",
+      "verbatim_goal": "The `publish-testpypi` job goes green on a real release run, and the diagnostic step's printed claims are confirmed to match the registered publisher fields.",
+      "what_was_tried": "Not attempted -- USER-ONLY per .claude/rules/pr-prohibition.md.",
+      "why_it_failed": "Requires Phase 2 first, plus a real tag push which no agent may perform."
+    }
+  ],
+  "continuation_path": null,
+  "plan_markers_verified": true,
+  "next_action_hint": "Escalate to user: complete Phase 2 (test.pypi.org trusted-publisher registration) then Phase 3 (push a real v* tag and verify). No further agent dispatch is expected until the user reports back."
+}
