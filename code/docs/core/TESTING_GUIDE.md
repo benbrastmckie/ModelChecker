@@ -1087,6 +1087,49 @@ every marker token either invocation names is registered in `code/pyproject.toml
 list. A future edit that changes one file without the other, or introduces an unregistered
 marker typo, fails this guard rather than silently drifting.
 
+**A second, distinct Python-3.12-only failure mode: `[gwN] node down: Not properly
+terminated`.** Two separate CI incidents (runs `32897405646` and `32910478240`, both Python 3.12
+jobs) show an xdist worker dying outright rather than a single test timing out. Both share the
+same signature: progress reaches the mid-90s percent, log output goes **completely silent** for a
+long gap (17 minutes in the first incident, 123 seconds in the second, after the
+`--timeout-method=thread` guard above was already in place), and the job ends with
+`node down: Not properly terminated` -- never a `Fatal Python error`, a segfault message, or a
+`faulthandler` thread-stack dump. The 123-second gap in the second incident, well under the
+per-test 300s `--timeout` guard, rules out "a single test simply ran long and got killed
+correctly" -- something took the worker process down directly, before any per-test timeout could
+even fire.
+
+**Root cause is NOT determined.** The test named in each incident's failure report is confirmed
+to be an innocent bystander, not the cause: in the second incident, the replacement worker
+immediately re-ran the same test and it completed in 0.23s -- an ordinary, fast, non-iterating
+satisfiability check with nothing resembling the heavier `BM_CM_1`/`BM_CM_4`/
+`TestBimodalIteratorReal` tests. The failure report names "whichever test the worker happened to
+be running" when it died, not what killed it. Three hypotheses remain live, none confirmed and
+none excluded:
+
+1. **Memory exhaustion** on the `ubuntu-latest` runner under six (now four, see the `-n` change
+   two paragraphs below) concurrent xdist workers each running a Z3 solve.
+2. **A Python-3.12-specific `z3-solver` ABI fault** unrelated to memory -- both incidents are
+   3.12-only; no equivalent failure has been observed on 3.10 or 3.11.
+3. **An xdist/execnet worker-communication fault** under load, independent of both memory and the
+   Z3 binding.
+
+**Instrumentation added, not a fix.** `.github/scripts/worker_rss_sample.py` (unit-tested by
+`code/tests/ci/test_worker_rss_sampler.py`) polls `/proc/<pid>/status` for every descendant of
+the pytest controller process during the Python 3.12 leg's parallel gating pass, tracking peak
+resident-set size per worker pid and in aggregate, alongside the effective `-n` worker count.
+Wired into `tests.yml`'s "Run general test suite" step, 3.12-gated and strictly non-gating (a
+sampler failure can never turn a green suite red -- only pytest's own exit code, captured via
+`wait`, determines the step's result). This makes hypothesis 1 checkable against data on a future
+CI run instead of log archaeology; it does not favor it over hypotheses 2 or 3, and it emits no
+threshold or ceiling of its own (deliberately -- an assumed runner memory ceiling was never
+verified, so encoding one would be exactly the kind of unverified assumption this guide's
+"measure, don't pattern-match" discipline elsewhere in this section exists to forbid). This
+instrumentation is **removable in one piece** once the hypothesis resolves either way: delete
+`.github/scripts/worker_rss_sample.py`, `code/tests/ci/test_worker_rss_sampler.py`, and the
+conditional block in `tests.yml`'s general-tests step. Left deliberately for a future task to
+interpret the data and decide, rather than guessed at here.
+
 ### 8.12 The `xdist_serial` Marker
 
 **What the marker means.** Registered in `code/pyproject.toml` (and mirrored in
@@ -1212,11 +1255,46 @@ too little headroom, which 8.6's "set budgets generously" already solves outrigh
 requirements are recorded at the marker site so the option can be exercised without re-deriving
 them.
 
-**Coverage is deliberately partial.** `bimodal`, `exclusion`, and `imposition` still carry 20
-settings dicts at `max_time: 2` and 2 at `3`. They are the same latent hazard but have not been
-observed failing, and bimodal's budgets were calibrated per-example (see that file's
-`BM_CM_1`/`BM_CM_4` recalibration record). Extending `_COVERED` to them is a separate,
-measurement-backed decision -- not a pattern-match on the logos change.
+**Coverage now extends to `bimodal`, `exclusion`, and `imposition`.** `_COVERED` grew from the
+four `logos/subtheories/*/examples.py` files to seven: those four plus
+`bimodal/examples.py`, `exclusion/examples.py`, and `imposition/examples.py`. This was a
+measurement-backed widening, not a pattern-match on the logos incident -- and the measurement
+turned out to cover more than originally scoped. A prior pass had measured only the `max_time: 2`
+and `max_time: 3` settings dicts in these three files (20 at `2`, 2 at `3`, all measured isolated
+at 0.01s-0.37s and under `taskset -c 0,1,2,3`/`-n 6` contention at 0.06s-0.80s -- 5x-300x
+headroom). An AST re-scan performed when `_COVERED` was actually extended found 57 below-floor
+dicts total, not 22: bimodal 21, exclusion 26, imposition 10. The remaining 35 sit at
+`max_time: 5` and had never been measured. Those 35 were then measured the same way (isolated,
+single-process, direct `run_test()` calls rather than pytest for the handful of names not present
+in any test file's collected suite) and found 0.012s-1.549s -- 6.5x-800x headroom over the 10s
+floor, still comfortably clear of the ~3x-headroom regime that produced the `CL_TH_12`/`CL_TH_13`
+failures this floor exists to catch. All 57 flagged budgets were raised to exactly 10; no
+above-floor value was touched anywhere in the three files. **This does not conflict with
+bimodal's per-example recalibration record**: `BM_CM_1` (60) and `BM_CM_4` (120) sit above 10 and
+were deliberately calibrated there for a documented heavy-tailed Z3 solve distribution (see that
+record in `theory_lib/bimodal/examples.py`) -- a floor only raises values that sat *below* it, so
+the two mechanisms operate on disjoint value ranges. One measured detail worth recording
+precisely: `MD_TH_2`, `TN_CM_1`, and `MF_MODAL_FUTURE_TH` are excluded from
+`test_bimodal.py`'s collected suite via `KNOWN_TIMEOUT_EXAMPLES` (for reasons unrelated to their
+budget), and `BM_TH_5` was never added to `unit_tests` at all -- all four were still measured and
+raised here because this guard reads the source file directly, independent of what pytest
+collects.
+
+**The `-n` worker count changed from 6 to 4 alongside this widening, on falsification-screen
+evidence, not a safety proof.** A local screen (`taskset -c 0,1,2,3`, two draws each at `-n 6`
+and `-n 4` over the full 2323-test gating selection) produced byte-identical
+`PASSED`/`FAILED`/`ERROR` outcomes across all four draws -- every cross-`-n` and within-`-n` diff
+was empty -- corroborating the narrower 554-test measurement above. As stated two paragraphs up,
+this kind of local screen **cannot prove CI safety**: it can only falsify a candidate value, and
+none of the 2323 executed node ids flipped. `.github/workflows/tests.yml` and `flake.nix` both
+now use `-n 4`; the inline rationale comment in `tests.yml` carries the full falsification-screen
+result, the evidence-limitation statement, and a named revert trigger (the first CI run in which
+a countermodel-expected example stops finding a countermodel, or a new contention-shaped failure
+appears, restores `-n 6` in both files, enforced two-sided by
+`test_workflow_parity.py::test_worker_count_matches`). `timeout-minutes: 20` was left unchanged:
+the screen's `-n 4` draws averaged only ~5% slower than `-n 6` (272.8s vs. 260.4s), well inside
+the ~70s draw-to-draw spread, with the single fastest draw overall actually an `-n 4` draw -- no
+systematic slowdown to project against the backstop.
 
 ---
 

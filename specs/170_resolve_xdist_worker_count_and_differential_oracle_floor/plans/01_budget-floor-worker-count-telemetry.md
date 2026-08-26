@@ -498,7 +498,7 @@ evidence. Do not encode the 16GB figure as a threshold or an assertion anywhere 
 
 ---
 
-### Phase 5: Documentation, final gate, and honest close-out [NOT STARTED]
+### Phase 5: Documentation, final gate, and honest close-out [COMPLETED]
 
 **Goal**: `TESTING_GUIDE.md` reflects what actually landed, the full gate set runs, and the
 task's written record states plainly which items are closed, which shipped on partial evidence,
@@ -506,22 +506,31 @@ and which remain open.
 
 **Tasks**:
 
-- [ ] Rewrite section 8.13's closing paragraph ("Coverage is deliberately partial. `bimodal`,
+- [x] Rewrite section 8.13's closing paragraph ("Coverage is deliberately partial. `bimodal`,
       `exclusion`, and `imposition` still carry 20 settings dicts at `max_time: 2` and 2 at `3`
       ...") to record the widened coverage, the actual number of budgets raised, the measurement
       that backed it, and the preserved distinction from bimodal's per-example recalibration
       record. Do not delete the "Raise the budget; never lower the floor" discipline paragraph.
-- [ ] If Phase 3 took the clean branch, add a short note in 8.13 or 8.11 recording the `-n` change,
+      **Done**; discipline paragraph confirmed still present (grep-verified).
+- [x] If Phase 3 took the clean branch, add a short note in 8.13 or 8.11 recording the `-n` change,
       its evidence basis, and the named revert trigger. If Phase 3 declined, record the decline
       and why — a declined change with a written reason is a better artifact than silence.
-- [ ] Add a brief D subsection (or extend 8.11, which already narrates the worker-hang incident
+      **Done** (clean branch): added as a second paragraph directly after the widened-coverage
+      paragraph in 8.13.
+- [x] Add a brief D subsection (or extend 8.11, which already narrates the worker-hang incident
       and the `--timeout-method=thread` guard) stating: root cause **not determined**; the named
       test is a confirmed innocent bystander; the three live hypotheses; the telemetry that now
       exists; and that this is deliberately left open for a future task rather than guessed at.
-- [ ] Run the full gate set and record exactly what ran versus what was narrowed.
-- [ ] Write the implementation summary under `summaries/01_...-summary.md`, and the orchestrator
+      **Done**: extended 8.11 with a new subsection before 8.12.
+- [x] Run the full gate set and record exactly what ran versus what was narrowed.
+      **Full, no narrowing needed** (see Verification below): `code/tests/ci/` 58/58,
+      `code/tests/` 439 passed/1 skipped (0 failed), full gating selection at the settled `-n 4`
+      two-pass split: parallel 2343 passed/1 skipped in 230.44s, serial 9 passed in 2.26s. All
+      within their ceilings; no timeout hit.
+- [x] Write the implementation summary under `summaries/01_...-summary.md`, and the orchestrator
       handoff, both stating item-by-item: B closed (untouched), C landed, A decided-with-branch,
       D instrumented-not-fixed.
+      **Done.**
 
 **Timing**: 0.75 hours.
 
