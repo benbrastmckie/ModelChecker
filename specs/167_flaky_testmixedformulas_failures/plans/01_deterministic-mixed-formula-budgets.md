@@ -236,7 +236,7 @@ probe-local solve replication and record the deviation in the phase handoff.
 
 ---
 
-### Phase 2: Bounded measurement campaign [NOT STARTED]
+### Phase 2: Bounded measurement campaign [COMPLETED]
 
 **Goal**: Determine, within a hard 45-minute wall-clock ceiling, whether the **default-seed** Z3
 work quantity for each of the two formulas is stable across repeated draws — and capture the
@@ -252,19 +252,19 @@ run here. Cost at measured rates: `all_future_neg` ~30-55s x3 ~= 2.5 min; `or_di
 
 **Tasks**:
 
-- [ ] Create the measurement log
+- [x] Create the measurement log
       `specs/167_flaky_testmixedformulas_failures/measurements/01_default-seed-probe.md` and
       append to it after **every** draw, before starting the next one. A campaign that is
       interrupted must leave behind everything it already learned.
-- [ ] Record ambient conditions before the first draw and after the last:
+- [x] Record ambient conditions before the first draw and after the last:
       `timeout 10 uptime` (load average), `nproc`, `z3.get_version_string()`, `PYTHONHASHSEED`.
-- [ ] **Draws 1-3**: `and(neg(A), next(B))` (`test_mixed_and_all_future_neg`'s formula), default
+- [x] **Draws 1-3**: `and(neg(A), next(B))` (`test_mixed_and_all_future_neg`'s formula), default
       seed, probe `--timeout-ms 180000`, each invocation prefixed
       `timeout 240` — foreground, one at a time. Record wall time, decided/undecided, rlimit.
-- [ ] **Draws 4-6**: `or(diamond(A), prev(B))` (`test_mixed_or_diamond_prev`'s formula), default
+- [x] **Draws 4-6**: `or(diamond(A), prev(B))` (`test_mixed_or_diamond_prev`'s formula), default
       seed, probe `--timeout-ms 240000`, each invocation prefixed `timeout 300` — foreground,
       one at a time. Record the same fields.
-- [ ] **Step 5 — forced repro (cheap, ~seconds)**: one probe invocation per formula at a
+- [x] **Step 5 — forced repro (cheap, ~seconds)**: one probe invocation per formula at a
       deliberately tiny `--timeout-ms` (e.g. 2000), prefixed `timeout 60`, to capture the exact
       failure text a real budget overrun produces. Then one `pytest` invocation of a scratch copy
       of one target test with its `timeout_ms` temporarily lowered, prefixed `timeout 120`, to
@@ -272,16 +272,18 @@ run here. Cost at measured rates: `all_future_neg` ~30-55s x3 ~= 2.5 min; `or_di
       carry). Paste both verbatim into the log. This is the string Route B's classifier branch
       must match; it must be copied, never retyped from memory. Revert the scratch edit
       immediately and confirm with `git diff --stat`.
-- [ ] **Step 6 — bounded, non-blocking CI history query**: one
+- [x] **Step 6 — bounded, non-blocking CI history query**: one
       `timeout 60 gh run list --workflow=... --limit 50` style query looking for prior **serial**
       failures of either test. If `gh` is unavailable, unauthenticated, or the query exceeds 60s,
       record "CI history unavailable — not obtained" in the log and proceed. **This must not
       block the phase under any circumstance.**
-- [ ] **Conditional (only if rlimit disagrees across draws of the same formula)**: 2 additional
+- [x] **Conditional (only if rlimit disagrees across draws of the same formula)**: SKIPPED --
+      rlimit agreed exactly (0% spread) across all 3 draws for both formulas, so the trigger
+      condition never fired. 2 additional
       draws of the disagreeing formula with `PYTHONHASHSEED=0` fixed, same per-draw `timeout`, to
       test whether construction-order randomization rather than Z3 explains the spread. Skip
       entirely if rlimit agrees.
-- [ ] Enforce the ceiling: if 45 minutes of wall clock elapse, stop, write a "CEILING REACHED —
+- [x] Enforce the ceiling: if 45 minutes of wall clock elapse, stop, write a "CEILING REACHED —
       campaign partial" line naming which draws completed, and proceed to Phase 3 with what
       exists.
 
