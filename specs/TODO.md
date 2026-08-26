@@ -19,7 +19,7 @@ next_project_number: 171
 
 ### Testing
 
-167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
+167 [RESEARCHED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
 170 [NOT STARTED] — Two open CI-budget questions left deliberately unresolved when th
 
 ### Semantics
@@ -57,10 +57,11 @@ next_project_number: 171
 ---
 
 ### 167. Flaky testmixedformulas failures
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [167_flaky_testmixedformulas_failures/reports/01_flaky-testmixedformulas-root-cause.md]
 
 **Description**: Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/tests/test_oracle_interface.py - test_mixed_or_diamond_prev and test_mixed_and_all_future_neg both fail in some pytest runs and pass in others (test_mixed_and_all_future_neg was observed failing in one full-file run and passing in the next with no code change), so determine whether the nondeterminism comes from Z3 solver behavior, test ordering/state leakage, or a genuine semantics defect, then make the outcomes deterministic
 
