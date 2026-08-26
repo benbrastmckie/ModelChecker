@@ -1,7 +1,7 @@
 # Implementation Plan: Mark the Oracle Gating Scan `unstable` and Extend the Watch Classifier
 
 - **Task**: 160 - Verify bimodal oracle budget and watch unstable marker
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/reports/01_gating-floor-unstable-marker-and-xdist-lead.md`
@@ -134,49 +134,49 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: RED — Contract tests for the classifier and the deselection wiring [NOT STARTED]
+### Phase 1: RED — Contract tests for the classifier and the deselection wiring [COMPLETED]
 
 **Goal**: Establish the failing tests that define correct behavior, before any implementation
 exists. Both new test modules must fail for the right reason and be observed doing so.
 
 **Tasks**:
-- [ ] Create `code/tests/ci/test_unstable_watch_classifier.py`. Load the not-yet-existing
+- [x] Create `code/tests/ci/test_unstable_watch_classifier.py`. Load the not-yet-existing
       `.github/scripts/unstable_watch_classify.py` by absolute path via `importlib.util`,
       following the established in-repo pattern in
       `oracle/bimodal_logic/tests/test_timeout_skip_inventory.py::_load_oracle_conftest`.
-- [ ] Add the `nix flake check` skip guard at module scope, copying the mechanism and the
+- [x] Add the `nix flake check` skip guard at module scope, copying the mechanism and the
       explanatory comment shape from `code/tests/ci/test_workflow_parity.py`'s
       `_MISSING_REPO_ROOT_FILES` block (the `src = ./code` sandbox has no `.github/`).
-- [ ] Characterization tests pinning CURRENT `BM_CM_1` behavior (these define what Phase 2 must
+- [x] Characterization tests pinning CURRENT `BM_CM_1` behavior (these define what Phase 2 must
       not change):
-  - [ ] node id containing `BM_CM_1-example_case7`, `duration=60.94`, failure text containing
+  - [x] node id containing `BM_CM_1-example_case7`, `duration=60.94`, failure text containing
         `"Test failed for example:"` -> `"TIMING"`.
-  - [ ] same node id, `duration=3.0` (well under `0.8 * 60`), same text -> `"NEW"`.
-  - [ ] same node id, `duration=60.94`, a different assertion message -> `"NEW"`.
-  - [ ] an unrecognized node id, any duration, any text -> `"NEW"`.
-- [ ] New-signature tests for the gating scan (these define Phase 3):
-  - [ ] node id containing `test_known_conclusive_population_self_consistent` with failure text
+  - [x] same node id, `duration=3.0` (well under `0.8 * 60`), same text -> `"NEW"`.
+  - [x] same node id, `duration=60.94`, a different assertion message -> `"NEW"`.
+  - [x] an unrecognized node id, any duration, any text -> `"NEW"`.
+- [x] New-signature tests for the gating scan (these define Phase 3):
+  - [x] node id containing `test_known_conclusive_population_self_consistent` with failure text
         carrying the floor message `"budget/performance regression to investigate, not a
         semantic one"` AND `"disagreements=0"` -> `"TIMING"`.
-  - [ ] **Laundering guard**: same node id, failure text carrying the disagreements message
+  - [x] **Laundering guard**: same node id, failure text carrying the disagreements message
         `"Self-comparison produced 3 disagreements among conclusive results"` -> `"NEW"`.
         Assert explicitly, with a comment naming this as the guard the research identified.
-  - [ ] same node id, floor message present but `"disagreements=0"` ABSENT from the text ->
+  - [x] same node id, floor message present but `"disagreements=0"` ABSENT from the text ->
         `"NEW"` (cannot confirm the soundness half held).
-  - [ ] same node id, floor message present but text also contains a nonzero-disagreements
+  - [x] same node id, floor message present but text also contains a nonzero-disagreements
         substring -> `"NEW"`.
-  - [ ] same node id, an `error`-shaped failure (e.g. `OracleTimeoutError` traceback, no
+  - [x] same node id, an `error`-shaped failure (e.g. `OracleTimeoutError` traceback, no
         assertion message) -> `"NEW"`.
-  - [ ] the gating branch is duration-independent: the same floor-message-plus-`disagreements=0`
+  - [x] the gating branch is duration-independent: the same floor-message-plus-`disagreements=0`
         input classifies `"TIMING"` at both a small and a large `duration`, confirming no
         `max_time` threshold was smuggled in.
-- [ ] Tests for `parse_junit`: a synthetic JUnit XML fixture (written to `tmp_path`) covering a
+- [x] Tests for `parse_junit`: a synthetic JUnit XML fixture (written to `tmp_path`) covering a
       passed case, a `<failure>` case, an `<error>` case, and a `<skipped>` case; plus the
       missing-file case yielding nothing.
-- [ ] Test for the promotion-notice honesty rule (defines Phase 3): a helper that, given
+- [x] Test for the promotion-notice honesty rule (defines Phase 3): a helper that, given
       "this run had at least one failure of any classification", reports the streak as `0` and
       withholds `READY TO PROMOTE`.
-- [ ] Create `code/tests/ci/test_unstable_deselection_wiring.py`: regex-extract every pytest
+- [x] Create `code/tests/ci/test_unstable_deselection_wiring.py`: regex-extract every pytest
       invocation from `.github/workflows/tests.yml`, `.github/workflows/differential-tests.yml`,
       `flake.nix`, and `oracle/run-oracle-suite.sh`; assert every invocation that carries an
       `-m` marker expression includes `not unstable`. Explicitly exclude
@@ -185,7 +185,7 @@ exists. Both new test modules must fail for the right reason and be observed doi
       "Run CI gate tests explicitly" step). Use the regex approach, not `yaml.safe_load` —
       PyYAML is not installed in either CI toolchain, per `test_workflow_parity.py`'s own
       module docstring.
-- [ ] Run both modules and CONFIRM RED. Record the observed failure text for each in the
+- [x] Run both modules and CONFIRM RED. Record the observed failure text for each in the
       progress notes; a module that errors at import for an unrelated reason is not a valid RED.
 
 **Timing**: 1.25 hours

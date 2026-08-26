@@ -1,0 +1,279 @@
+"""Unit tests for `.github/scripts/unstable_watch_classify.py`, the classifier extracted
+from `.github/workflows/unstable-watch.yml`'s "Classify results and build the trend report"
+step (see `code/docs/core/TESTING_GUIDE.md` section 8.9). The heredoc it replaces was
+untestable in place; this module makes the classification contract executable.
+
+Two distinct test groups:
+
+- **Characterization tests** pin the CURRENT `BM_CM_1` behavior (duration >= 0.8x max_time
+  AND the `"Test failed for example:"` signature -> `TIMING`; anything else -> `NEW`). These
+  must stay green, unmodified, across the extraction (behavior-preserving) and across the
+  gating-floor signature addition (additive, not replacing).
+- **New-signature tests** define the gating-floor `TIMING` branch this task adds:
+  `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`'s
+  `_assert_scan_report` floor failure (see `oracle/bimodal_logic/tests/
+  test_cross_oracle_differential.py`). The laundering-guard test is the load-bearing one: a
+  `disagreements != 0` failure on the SAME node id must never classify `TIMING`, because that
+  is a real soundness bug, not the documented budget/performance instability.
+
+Loads the classifier module by absolute path via `importlib.util`, following the established
+in-repo pattern in
+`oracle/bimodal_logic/tests/test_timeout_skip_inventory.py::_load_oracle_conftest`.
+
+Skip guard mirrors `code/tests/ci/test_workflow_parity.py`'s `_MISSING_REPO_ROOT_FILES` block:
+under `nix flake check`'s `checks.default` derivation, `src = ./code` means the sandboxed build
+has no repo root at all, so `.github/` is structurally absent there. The guard below probes
+STABLE repo-root markers (`.github/workflows/tests.yml`, `flake.nix`) to detect that sandbox,
+deliberately NOT the classifier script itself -- the classifier script's own absence (before
+Phase 2 of the plan that introduced this module lands it) is the EXPECTED RED failure this
+module must report clearly, not something to skip past.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+TESTS_YML = REPO_ROOT / ".github" / "workflows" / "tests.yml"
+FLAKE_NIX = REPO_ROOT / "flake.nix"
+CLASSIFIER_SCRIPT = REPO_ROOT / ".github" / "scripts" / "unstable_watch_classify.py"
+
+_MISSING_REPO_ROOT_FILES = [p for p in (TESTS_YML, FLAKE_NIX) if not p.exists()]
+if _MISSING_REPO_ROOT_FILES:
+    pytest.skip(
+        "Repo-root files not present in this sandbox (expected under `nix flake check`'s "
+        "checks.default, whose `src = ./code` excludes the repo root): "
+        + ", ".join(str(p) for p in _MISSING_REPO_ROOT_FILES)
+        + ". This guard runs in .github/workflows/tests.yml's general-tests job instead, where "
+        "actions/checkout@v4 provides the full repository.",
+        allow_module_level=True,
+    )
+
+
+def _load_classifier():
+    """Load `.github/scripts/unstable_watch_classify.py` by absolute path. Before Phase 2 of
+    the plan lands the script, this raises a clear FileNotFoundError naming the missing path
+    at collection time -- the correctly-named RED failure for Phase 1."""
+    spec = importlib.util.spec_from_file_location(
+        "unstable_watch_classify_under_test", CLASSIFIER_SCRIPT
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+classify_mod = _load_classifier()
+
+BM_CM_1_NODEID = (
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::"
+    "test_example_cases[BM_CM_1-example_case7]"
+)
+GATING_NODEID = (
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py::"
+    "TestGatingConclusiveScan::test_known_conclusive_population_self_consistent"
+)
+UNRECOGNIZED_NODEID = "code/tests/some_other_module.py::test_unrelated_thing"
+
+# Exact strings, copied verbatim from source rather than retyped:
+# oracle/bimodal_logic/tests/test_cross_oracle_differential.py::_assert_scan_report
+FLOOR_MESSAGE = (
+    "Only 96 of 103 formulas were conclusive (floor=100); this is a "
+    "budget/performance regression to investigate, not a semantic one."
+)
+DISAGREEMENT_MESSAGE = "Self-comparison produced 3 disagreements among conclusive results: []"
+# code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases
+BM_CM_1_FAILURE_TEXT = "AssertionError: Test failed for example: BM_CM_1"
+
+
+# ---------------------------------------------------------------------------
+# Characterization tests: pin CURRENT BM_CM_1 behavior. Phase 2's extraction
+# must not change a single one of these outcomes.
+# ---------------------------------------------------------------------------
+
+
+class TestClassifyBMCM1Characterization:
+    def test_timing_signature_at_full_duration(self):
+        """duration=60.94 (>= 0.8*60) plus the known failure signature -> TIMING."""
+        result = classify_mod.classify(BM_CM_1_NODEID, 60.94, BM_CM_1_FAILURE_TEXT)
+        assert result == "TIMING"
+
+    def test_fast_failure_is_new(self):
+        """Same node id and text, but duration=3.0 is well under 0.8*60 -- the solver
+        decided quickly and the assertion still failed, which is not the documented
+        timing signature -> NEW."""
+        result = classify_mod.classify(BM_CM_1_NODEID, 3.0, BM_CM_1_FAILURE_TEXT)
+        assert result == "NEW"
+
+    def test_different_message_at_full_duration_is_new(self):
+        """Same node id and duration, but a different assertion message -> NEW."""
+        result = classify_mod.classify(
+            BM_CM_1_NODEID, 60.94, "AssertionError: something else entirely failed"
+        )
+        assert result == "NEW"
+
+    def test_unrecognized_nodeid_is_new(self):
+        """No known max_time for this node id -- cannot confirm the timing signature,
+        so treat conservatively as NEW regardless of duration or text."""
+        result = classify_mod.classify(UNRECOGNIZED_NODEID, 999.0, BM_CM_1_FAILURE_TEXT)
+        assert result == "NEW"
+
+
+# ---------------------------------------------------------------------------
+# New-signature tests: define the gating-floor branch this task adds to
+# classify(). All fail (NameError / AttributeError / wrong result) until
+# Phase 3 lands the branch.
+# ---------------------------------------------------------------------------
+
+
+class TestClassifyGatingFloorSignature:
+    def test_floor_failure_with_zero_disagreements_is_timing(self):
+        """The documented gating-floor failure shape: the floor message present AND
+        disagreements=0 present, no disagreement signature -> TIMING."""
+        result = classify_mod.classify(GATING_NODEID, 780.0, FLOOR_MESSAGE)
+        assert result == "TIMING"
+
+    def test_laundering_guard_disagreements_failure_is_new(self):
+        """THE GUARD: a genuine disagreements != 0 failure on the SAME node id must
+        never classify TIMING. This is a real soundness bug -- the two
+        _assert_scan_report assertions fire in order (disagreements first, floor
+        second), so a disagreements failure and a floor failure are mutually
+        exclusive outcomes of the same test, and only the floor shape may launder
+        into TIMING."""
+        result = classify_mod.classify(GATING_NODEID, 780.0, DISAGREEMENT_MESSAGE)
+        assert result == "NEW"
+
+    def test_floor_message_without_disagreements_zero_is_new(self):
+        """Floor message present, but "disagreements=0" is ABSENT from the captured
+        text -- cannot confirm the soundness half held, so classify NEW rather than
+        assume it."""
+        floor_message_no_disagreements_marker = (
+            "Only 96 of 103 formulas were conclusive (floor=100); this is a "
+            "budget/performance regression to investigate, not a semantic one."
+        )
+        # Deliberately built without the "disagreements=0" substring anywhere in
+        # the captured text (unlike FLOOR_MESSAGE's caller context, which in the
+        # real report always prints "disagreements=0 " ahead of this message via
+        # _assert_scan_report's unconditional print -- this test simulates a
+        # truncated/partial capture where that print line was not retained).
+        result = classify_mod.classify(
+            GATING_NODEID, 780.0, floor_message_no_disagreements_marker
+        )
+        assert result == "NEW"
+
+    def test_floor_message_with_nonzero_disagreements_substring_is_new(self):
+        """Floor message present, but the text ALSO contains a nonzero-disagreements
+        substring (e.g. from the printed "scan report: ... disagreements=2 ..."
+        line) -> NEW. The floor branch requires disagreements=0 AND the absence of
+        the disagreement-failure signature."""
+        combined_text = (
+            "scan report: agreements=96 disagreements=2 timeout_count=7 "
+            "conclusive=96/103\n" + FLOOR_MESSAGE
+        )
+        result = classify_mod.classify(GATING_NODEID, 780.0, combined_text)
+        assert result == "NEW"
+
+    def test_error_shaped_failure_is_new(self):
+        """An error-shaped failure (e.g. an OracleTimeoutError traceback with no
+        assertion message at all) on the gating node id -> NEW: neither the floor
+        signature nor "disagreements=0" is present."""
+        error_text = (
+            "OracleTimeoutError: solve exceeded timeout_ms=40000 "
+            "(temporal_depth=3, M=5)"
+        )
+        result = classify_mod.classify(GATING_NODEID, 41.0, error_text)
+        assert result == "NEW"
+
+    def test_gating_branch_is_duration_independent(self):
+        """The gating floor is per-formula across up to 103 formulas -- no single
+        wall-clock threshold is meaningful, so the branch must classify TIMING at
+        both a small and a large duration given the same floor+disagreements=0
+        text, confirming no max_time threshold was smuggled into this branch."""
+        small_duration_result = classify_mod.classify(GATING_NODEID, 5.0, FLOOR_MESSAGE)
+        large_duration_result = classify_mod.classify(GATING_NODEID, 5000.0, FLOOR_MESSAGE)
+        assert small_duration_result == "TIMING"
+        assert large_duration_result == "TIMING"
+
+
+# ---------------------------------------------------------------------------
+# parse_junit tests
+# ---------------------------------------------------------------------------
+
+_JUNIT_XML = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="4">
+    <testcase classname="pkg.mod" name="test_passed" time="1.23"></testcase>
+    <testcase classname="pkg.mod" name="test_failed" time="60.94">
+      <failure message="AssertionError: Test failed for example: BM_CM_1">traceback text</failure>
+    </testcase>
+    <testcase classname="pkg.mod" name="test_errored" time="0.5">
+      <error message="OracleTimeoutError: boom">traceback text</error>
+    </testcase>
+    <testcase classname="pkg.mod" name="test_skipped" time="0.01">
+      <skipped message="skipped reason"></skipped>
+    </testcase>
+  </testsuite>
+</testsuites>
+"""
+
+
+class TestParseJunit:
+    def test_parses_passed_failed_error_skipped(self, tmp_path):
+        junit_path = tmp_path / "junit.xml"
+        junit_path.write_text(_JUNIT_XML)
+        results = list(classify_mod.parse_junit(str(junit_path)))
+        by_name = {nodeid.rsplit("::", 1)[-1]: (outcome, duration, text) for nodeid, outcome, duration, text in results}
+
+        assert by_name["test_passed"][0] == "passed"
+        assert by_name["test_passed"][1] == pytest.approx(1.23)
+
+        assert by_name["test_failed"][0] == "failed"
+        assert by_name["test_failed"][1] == pytest.approx(60.94)
+        assert "Test failed for example: BM_CM_1" in by_name["test_failed"][2]
+
+        assert by_name["test_errored"][0] == "error"
+        assert "OracleTimeoutError" in by_name["test_errored"][2]
+
+        assert by_name["test_skipped"][0] == "skipped"
+
+    def test_missing_file_yields_nothing(self, tmp_path):
+        missing_path = tmp_path / "does-not-exist.xml"
+        results = list(classify_mod.parse_junit(str(missing_path)))
+        assert results == []
+
+
+# ---------------------------------------------------------------------------
+# Promotion-notice honesty rule (Phase 3): a run with ANY failure -- TIMING or
+# NEW -- must report the streak as 0 and withhold READY TO PROMOTE, not just a
+# NEW-classified failure. The historical (past-runs) component remains
+# NEW-sensitive only (job conclusions) -- that residual limitation is
+# unaffected by and out of scope for this helper.
+# ---------------------------------------------------------------------------
+
+
+class TestPromotionStreakHonesty:
+    def test_any_failure_this_run_zeroes_streak_and_withholds_promotion(self):
+        streak, ready = classify_mod.compute_promotion_streak(
+            this_run_had_any_failure=True,
+            past_run_successes=[True] * 25,
+        )
+        assert streak == 0
+        assert ready is False
+
+    def test_clean_run_extends_streak_over_past_successes(self):
+        streak, ready = classify_mod.compute_promotion_streak(
+            this_run_had_any_failure=False,
+            past_run_successes=[True] * 19,
+        )
+        assert streak == 20
+        assert ready is True
+
+    def test_streak_breaks_at_first_past_failure(self):
+        streak, ready = classify_mod.compute_promotion_streak(
+            this_run_had_any_failure=False,
+            past_run_successes=[True, True, False, True, True],
+        )
+        assert streak == 3
+        assert ready is False
