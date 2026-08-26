@@ -1,20 +1,29 @@
 {
-  "dispatch_seq": 2,
-  "phase": "plan",
-  "status": "planned",
-  "summary": "Six-phase TDD plan created for marking TestGatingConclusiveScan::test_known_conclusive_population_self_consistent unstable. The classifier fix the research flagged as mandatory is a first-class phase, preceded by extracting unstable-watch.yml's inline heredoc classifier into an importable, unit-tested module so TDD is actually possible. Two wiring gaps the research did not reach are also covered: oracle/run-oracle-suite.sh carries no unstable deselection, and the promotion streak is NEW-sensitive only so READY TO PROMOTE would fire after 20 TIMING-failing nights.",
+  "dispatch_seq": 5,
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "Completed Phase 6 (final phase). Extended TESTING_GUIDE.md 8.9 with the gating-scan marker entry, deselection-wiring note, promotion-streak limitation, and classifier-location note. Ran the full gate set: code/tests/ci/ (35 passed), code/tests/ (522 passed, 5 skipped), and the unstable-collect-only check (1/629, exact) all green. The whole-directory oracle gate exceeded a 580s bounded foreground timeout and was narrowed to the single modified test file, which passed (62 passed, 10 deselected). Hard-constraint gate confirmed: no phase changed MIN_CONCLUSIVE_GATING_FORMULAS (100), GATING_RECHECK_SOLVE_TIMEOUT_MS (40000), or any max_time.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/plans/01_unstable-marker-and-watch-classifier.md",
-      "summary": "Six phases, ~6 hours, waves [1],[2],[3],[4,5],[6]; validator passes with 0 warnings."
+      "type": "summary",
+      "path": "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/summaries/01_unstable-marker-and-watch-classifier-summary.md",
+      "summary": "Phase 6 close-out: documentation updates, full gate-set results, hard-constraint gate confirmation."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
   "blockers": [],
   "continuation_path": null,
-  "plan_markers_verified": true,
-  "next_action_hint": "Dispatch /implement 160. No user gate is required: every phase is local (source edits, unit tests, collect-only checks). No CI dispatch, no budget/floor change, and no re-verification run is planned or permitted.",
-  "sorry_inventory": []
+  "next_action_hint": "none",
+  "files_modified": [
+    "code/docs/core/TESTING_GUIDE.md",
+    "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/plans/01_unstable-marker-and-watch-classifier.md",
+    "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/summaries/01_unstable-marker-and-watch-classifier-summary.md",
+    "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/handoffs/phase-6-handoff-20260826-080000.md"
+  ],
+  "decisions_made": [
+    "Gate 3 (oracle bimodal suite) narrowed from the whole directory to test_cross_oracle_differential.py after a 580s bounded foreground timeout, per this dispatch's explicit process constraint; cross-checked the full-directory deselection count via a fast --collect-only pass instead."
+  ],
+  "dead_ends": [],
+  "plan_markers_verified": true
 }

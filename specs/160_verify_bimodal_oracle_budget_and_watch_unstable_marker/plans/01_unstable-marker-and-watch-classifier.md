@@ -1,7 +1,7 @@
 # Implementation Plan: Mark the Oracle Gating Scan `unstable` and Extend the Watch Classifier
 
 - **Task**: 160 - Verify bimodal oracle budget and watch unstable marker
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/reports/01_gating-floor-unstable-marker-and-xdist-lead.md`
