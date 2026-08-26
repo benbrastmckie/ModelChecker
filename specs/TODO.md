@@ -30,7 +30,7 @@ next_project_number: 171
 
 ### Release Engineering
 
-160 [PLANNED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
+160 [IMPLEMENTING] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 161 [BLOCKED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
     └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
@@ -119,7 +119,7 @@ FILE OVERLAP: this task and `harden_release_ci_testpypi_gate` both edit `.github
 ---
 
 ### 160. Verify bimodal oracle budget and watch unstable marker
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 159

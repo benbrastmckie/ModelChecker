@@ -568,7 +568,7 @@ check.
 
 ---
 
-### Phase 6: Documentation, final gate, and close-out [NOT STARTED]
+### Phase 6: Documentation, final gate, and close-out [IN PROGRESS]
 
 **Goal**: Bring TESTING_GUIDE.md's 8.9 record in line with reality and run the complete gate set
 before the task closes.
