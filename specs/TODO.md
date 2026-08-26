@@ -31,7 +31,7 @@ next_project_number: 171
 ### Release Engineering
 
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
-161 [IMPLEMENTING] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
+161 [BLOCKED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
@@ -68,12 +68,13 @@ next_project_number: 171
 ---
 
 ### 161. Fix testpypi trusted publisher
-- **Status**: [IMPLEMENTING]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
 - **Research**: [161_fix_testpypi_trusted_publisher/reports/01_fix-testpypi-trusted-publisher.md]
 - **Plan**: [161_fix_testpypi_trusted_publisher/plans/01_fix-testpypi-trusted-publisher.md]
+- **Summary**: [161_fix_testpypi_trusted_publisher/summaries/01_fix-testpypi-trusted-publisher-summary.md]
 
 **Description**: Make TestPyPI publishing succeed at all: fix the TestPyPI trusted-publisher registration and make future OIDC mismatches diagnosable in one glance. SCOPE IS DELIBERATELY NARROW -- this is the unblock prerequisite carved out of the larger release-CI hardening task (`harden_release_ci_testpypi_gate`), which now declares this task as a dependency. Everything about PROMOTING TestPyPI to a gate (dropping `continue-on-error`, adding a `verify-testpypi` install-and-smoke-test job, preflight assertions, human confirmation gates) belongs to that task and MUST NOT be done here.
 
