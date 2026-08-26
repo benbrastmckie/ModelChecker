@@ -29,17 +29,33 @@ class OracleTimeoutError(Exception):
         temporal_depth: int,
         M: int,
         suggestion: str | None = None,
+        max_rlimit: int | None = None,
     ) -> None:
-        message = (
-            f"Z3 solver did not decide the formula within {timeout_ms} ms "
-            f"(temporal_depth={temporal_depth}, time_bound M={M}); "
-            "treat as inconclusive, not as a proof of validity"
-        )
+        if max_rlimit:
+            # An rlimit-exhausted UNKNOWN is classified identically to a
+            # wall-clock timeout by ModelDefaults.solve() (is_timeout=True
+            # either way -- see code/docs/core/TESTING_GUIDE.md section 8.6),
+            # so the message must not claim the wall-clock budget is what
+            # fired when a deterministic rlimit budget was also in play.
+            message = (
+                f"Z3 solver did not decide the formula within {timeout_ms} ms "
+                f"or {max_rlimit} rlimit units "
+                f"(temporal_depth={temporal_depth}, time_bound M={M}); "
+                "treat as inconclusive, not as a proof of validity"
+            )
+        else:
+            message = (
+                f"Z3 solver did not decide the formula within {timeout_ms} ms "
+                f"(temporal_depth={temporal_depth}, time_bound M={M}); "
+                "treat as inconclusive, not as a proof of validity"
+            )
         self.context: dict[str, Any] = {
             "timeout_ms": timeout_ms,
             "temporal_depth": temporal_depth,
             "M": M,
         }
+        if max_rlimit:
+            self.context["max_rlimit"] = max_rlimit
         self.suggestion = suggestion or (
             "Increase timeout_ms, or reduce the formula's temporal_depth, "
             "and retry; a timeout is not evidence the formula is valid."

@@ -1664,3 +1664,105 @@ class TestZ3IsolationStress:
             a["name"] for a in result_after["trueAtoms"] + result_after["falseAtoms"]
         )
         assert before_atoms == after_atoms
+
+
+##############################################################################
+# max_rlimit: the deterministic, load-independent complement to timeout_ms
+# (see code/docs/core/TESTING_GUIDE.md section 8.6). find_countermodel()
+# never sets this; ExampleSettings/ModelDefaults.solve() already plumb it
+# through to Z3SolverAdapter.set_rlimit() when truthy.
+##############################################################################
+
+class TestMaxRlimitParameter:
+    """find_countermodel() accepts an optional, deterministic max_rlimit budget."""
+
+    def setup_method(self):
+        self.provider = Z3OracleProvider()
+
+    def _spy_on_settings(self, monkeypatch):
+        """Wrap bimodal_logic.provider.BimodalSemantics so the settings dict
+        passed into it is captured before delegating to the real class --
+        this is how find_countermodel()'s internal settings dict is
+        inspected without adding a return-value channel to the public API.
+        """
+        import bimodal_logic.provider as provider_module
+
+        captured = {}
+        real_semantics_cls = provider_module.BimodalSemantics
+
+        class _SpySemantics(real_semantics_cls):
+            def __init__(self, settings, *args, **kwargs):
+                captured["settings"] = dict(settings)
+                super().__init__(settings, *args, **kwargs)
+
+        monkeypatch.setattr(provider_module, "BimodalSemantics", _SpySemantics)
+        return captured
+
+    def test_default_max_rlimit_omits_settings_key(self, monkeypatch):
+        """max_rlimit=None (the default) produces a settings dict with NO
+        max_rlimit key -- behavior is byte-for-byte unchanged for every
+        existing caller that never passes the new parameter."""
+        captured = self._spy_on_settings(monkeypatch)
+        formula = _and(A, _neg(B))
+        result = self.provider.find_countermodel(formula, timeout_ms=ATEMPORAL_SOLVE_TIMEOUT_MS)
+        assert result is not None
+        assert "max_rlimit" not in captured["settings"]
+
+    def test_explicit_max_rlimit_reaches_settings_dict(self, monkeypatch):
+        """A truthy max_rlimit is inserted into the settings dict under the
+        same key ModelDefaults.solve() reads, mirroring its own default-off
+        `if max_rlimit:` guard."""
+        captured = self._spy_on_settings(monkeypatch)
+        formula = _and(A, _neg(B))
+        try:
+            self.provider.find_countermodel(
+                formula, timeout_ms=ATEMPORAL_SOLVE_TIMEOUT_MS, max_rlimit=100
+            )
+        except OracleTimeoutError:
+            pass  # a tiny max_rlimit is expected to exhaust -- see next test
+        assert captured["settings"].get("max_rlimit") == 100
+
+    def test_tiny_max_rlimit_raises_oracle_timeout_error(self):
+        """A tiny max_rlimit exhausts on a formula that otherwise decides
+        comfortably within timeout_ms -- confirming the budget actually
+        reaches Z3SolverAdapter.set_rlimit(), not just the settings dict."""
+        formula = _and(A, _neg(B))
+        # Generous timeout_ms so max_rlimit, not the wall clock, is what fires.
+        with pytest.raises(OracleTimeoutError) as exc_info:
+            self.provider.find_countermodel(
+                formula, timeout_ms=ATEMPORAL_SOLVE_TIMEOUT_MS, max_rlimit=100
+            )
+        assert exc_info.value.context["max_rlimit"] == 100
+
+    def test_max_rlimit_error_names_both_budgets(self):
+        """The raised error's message names both the wall-clock and rlimit
+        budgets rather than asserting the wall-clock one fired -- an
+        rlimit-exhausted UNKNOWN is classified identically to a wall-clock
+        timeout by ModelDefaults.solve() (is_timeout=True either way), so
+        the code genuinely cannot tell which one fired."""
+        formula = _and(A, _neg(B))
+        with pytest.raises(OracleTimeoutError) as exc_info:
+            self.provider.find_countermodel(
+                formula, timeout_ms=ATEMPORAL_SOLVE_TIMEOUT_MS, max_rlimit=100
+            )
+        message = str(exc_info.value)
+        assert str(ATEMPORAL_SOLVE_TIMEOUT_MS) in message
+        assert "100" in message
+        assert "max_rlimit" in message.lower() or "rlimit" in message.lower()
+
+    def test_no_max_rlimit_message_unchanged(self):
+        """Without max_rlimit, the error message text is byte-identical to
+        the pre-existing (no-rlimit) message -- confirmed against the exact
+        string OracleTimeoutError.__init__ has always produced."""
+        formula = _and(A, _neg(B))
+        with pytest.raises(OracleTimeoutError) as exc_info:
+            self.provider.find_countermodel(formula, timeout_ms=1)
+        message = str(exc_info.value)
+        assert message == (
+            "Z3 solver did not decide the formula within 1 ms "
+            "(temporal_depth=0, time_bound M=3); treat as inconclusive, "
+            "not as a proof of validity | Suggestion: Increase timeout_ms, "
+            "or reduce the formula's temporal_depth, and retry; a timeout "
+            "is not evidence the formula is valid."
+        )
+        assert "max_rlimit" not in exc_info.value.context

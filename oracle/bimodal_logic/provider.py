@@ -172,6 +172,7 @@ class Z3OracleProvider:
         formula_json: dict,
         frame_class: str = "Base",
         timeout_ms: int = 5000,
+        max_rlimit: int | None = None,
     ) -> dict | None:
         """Find a countermodel for the given formula JSON.
 
@@ -194,6 +195,19 @@ class Z3OracleProvider:
             frame_class: The frame class to check against. Only "Base" is
                 supported; other values return None immediately.
             timeout_ms: Maximum solver time in milliseconds.
+            max_rlimit: Optional deterministic Z3 resource-unit budget --
+                the load-independent complement to `timeout_ms` documented
+                in `code/docs/core/TESTING_GUIDE.md` section 8.6. Unlike
+                `timeout_ms` (wall-clock, so it inherits host-load
+                variance), the same constraint set exhausts the same
+                `max_rlimit` budget regardless of CPU load. Default-off:
+                when `None` (the default) or falsy, no `max_rlimit` key is
+                added to the settings dict and behavior is byte-for-byte
+                unchanged, mirroring `ModelDefaults.solve()`'s own
+                default-off `if max_rlimit:` guard. When set, it is passed
+                through to `Z3SolverAdapter.set_rlimit()` alongside (not
+                instead of) `timeout_ms`; prefer using both together for a
+                test whose flakiness is specifically load-driven.
 
         Returns:
             A dict with countermodel fields if a countermodel is found.
@@ -203,9 +217,10 @@ class Z3OracleProvider:
             that outcome raises OracleTimeoutError instead.
 
         Raises:
-            OracleTimeoutError: The Z3 solver exhausted `timeout_ms` without
-                reaching a verdict (`structure.timeout` was true). This is
-                an inconclusive result, not evidence the formula is valid --
+            OracleTimeoutError: The Z3 solver exhausted `timeout_ms` or
+                `max_rlimit` (whichever fired first) without reaching a
+                verdict (`structure.timeout` was true). This is an
+                inconclusive result, not evidence the formula is valid --
                 callers must not treat it as a countermodel-not-found case.
         """
         # Check frame class support
@@ -243,6 +258,12 @@ class Z3OracleProvider:
             'expectation': True,
             'solver': 'z3',
         }
+        # Deterministic, load-independent resource budget, alongside the
+        # wall-clock timeout above. Optional and default-off: only added
+        # when truthy, mirroring ModelDefaults.solve()'s own guard -- so no
+        # existing caller's settings dict (and therefore behavior) changes.
+        if max_rlimit:
+            settings['max_rlimit'] = max_rlimit
 
         # Reset internal semantics reference to prevent leakage
         self._semantics = None
@@ -272,6 +293,7 @@ class Z3OracleProvider:
                         timeout_ms=timeout_ms,
                         temporal_depth=depth,
                         M=M,
+                        max_rlimit=max_rlimit,
                     )
                 if not structure.z3_model_status:
                     self._semantics = None
