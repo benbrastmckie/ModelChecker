@@ -359,7 +359,7 @@ decided it.
 
 ---
 
-### Phase 4: Route A — Plumb `max_rlimit` through the oracle provider [NOT STARTED]
+### Phase 4: Route A — Plumb `max_rlimit` through the oracle provider [IN PROGRESS]
 
 **Goal**: `Z3OracleProvider.find_countermodel()` accepts an optional, deterministic
 resource-unit budget and reports honestly when it fires — closing the one gap between

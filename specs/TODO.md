@@ -19,7 +19,7 @@ next_project_number: 171
 
 ### Testing
 
-167 [PLANNED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
+167 [IMPLEMENTING] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
 170 [NOT STARTED] — Two open CI-budget questions left deliberately unresolved when th
 
 ### Semantics
@@ -57,7 +57,7 @@ next_project_number: 171
 ---
 
 ### 167. Flaky testmixedformulas failures
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
