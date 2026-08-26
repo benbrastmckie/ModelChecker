@@ -206,7 +206,7 @@ IM_CM_6_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -347,7 +347,7 @@ IM_CM_13_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -381,7 +381,7 @@ IM_CM_14_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -400,7 +400,7 @@ IM_CM_15_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -419,7 +419,7 @@ IM_CM_16_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -438,7 +438,7 @@ IM_CM_17_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -457,7 +457,7 @@ IM_CM_18_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -476,7 +476,7 @@ IM_CM_19_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 3,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -495,7 +495,7 @@ IM_CM_20_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 3,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -514,7 +514,7 @@ IM_CM_21_settings = {
     'non_null' : True,
     'non_empty' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }

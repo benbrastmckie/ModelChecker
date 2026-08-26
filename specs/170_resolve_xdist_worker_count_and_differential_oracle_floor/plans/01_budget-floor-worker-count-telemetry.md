@@ -1,7 +1,7 @@
 # Implementation Plan: Task #170
 
 - **Task**: 170 - Resolve xdist worker count and differential oracle floor
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 5.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/reports/01_ci-budget-questions-a-c-d-and-b-confirmation.md`
@@ -150,7 +150,7 @@ rather than in parallel because both edit `.github/workflows/tests.yml`.
 
 ---
 
-### Phase 1: Extend the example solve-budget floor to bimodal, exclusion, imposition [NOT STARTED]
+### Phase 1: Extend the example solve-budget floor to bimodal, exclusion, imposition [COMPLETED]
 
 **Goal**: `code/tests/ci/test_example_budget_floor.py` covers the three non-logos example files
 at the unchanged 10s floor, every below-floor budget in them is raised to at least 10, and the
@@ -158,26 +158,35 @@ guard's docstring records the measurement that justifies the widening.
 
 **Tasks**:
 
-- [ ] Re-run the below-floor AST scan over the three files and record the actual counts. Do not
+- [x] Re-run the below-floor AST scan over the three files and record the actual counts. Do not
       carry the research report's "22" forward as fact — see the Scope Hypothesis below.
-- [ ] For any below-floor budget **not** covered by the research report's measurements (the
+      **Confirmed**: re-scan found exactly 57 (bimodal 21, exclusion 26, imposition 10), matching
+      the Scope Hypothesis, not the research report's 22.
+- [x] For any below-floor budget **not** covered by the research report's measurements (the
       `max_time: 5` cohort), measure isolated solve times for those examples before raising them,
       so the widening is measurement-backed exactly as the guard's own docstring demands. Record
       the measured range in the commit and in the docstring.
-- [ ] **RED**: add the three `examples.py` paths to `_COVERED` and run
+      **Measured**: all 35 `max_time: 5` examples (11 bimodal, 24 exclusion), isolated,
+      single-process: 0.012s-1.549s.
+- [x] **RED**: add the three `examples.py` paths to `_COVERED` and run
       `pytest code/tests/ci/test_example_budget_floor.py -v`. Confirm it fails, and confirm the
       violation count matches the scan. A passing test here means the scan or the edit is wrong.
-- [ ] **GREEN**: raise every flagged `max_time` in the three files to 10. Raise only below-floor
+      **Confirmed RED**: 21 + 26 + 10 = 57 violations, exactly matching the scan.
+- [x] **GREEN**: raise every flagged `max_time` in the three files to 10. Raise only below-floor
       values — leave `BM_CM_1` (60), `BM_CM_4` (120), and every other at-or-above-floor value
       byte-identical. Re-run the guard; confirm green.
-- [ ] Rewrite the guard docstring's final scope paragraph (currently "Scope is the four
+      **Confirmed GREEN**: 8/8 tests pass; `git diff` audit confirms every removed value was <10
+      and every added value is exactly 10, with 57 changes total across the three files.
+- [x] Rewrite the guard docstring's final scope paragraph (currently "Scope is the four
       `logos/subtheories/*/examples.py` files ... do not simply add them to `_COVERED` without
       re-measuring"). It must now record: the measurement that was performed, the actual number
       of budgets raised, and an explicit note that the floor does not touch and does not conflict
       with bimodal's `BM_CM_1`/`BM_CM_4` per-example recalibration record.
-- [ ] Note in the docstring or commit that `MD_TH_2` is separately excluded from
+- [x] Note in the docstring or commit that `MD_TH_2` is separately excluded from
       `test_bimodal.py`'s collected suite via `KNOWN_TIMEOUT_EXAMPLES` for reasons unrelated to
       its budget, so its raised budget is not exercised in CI today.
+      **Extended**: docstring also notes `TN_CM_1`/`MF_MODAL_FUTURE_TH` (same exclusion
+      mechanism) and `BM_TH_5` (never added to `unit_tests` at all) share this property.
 
 **Timing**: 1.25 hours (of which ~15 minutes is the backgrounded full-gate run).
 

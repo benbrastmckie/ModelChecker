@@ -169,7 +169,7 @@ MD_CM_1_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 MD_CM_1_example = [
@@ -186,7 +186,7 @@ MD_CM_2_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : True,
 }
 MD_CM_2_example = [
@@ -203,7 +203,7 @@ MD_CM_3_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : True,
 }
 MD_CM_3_example = [
@@ -220,7 +220,7 @@ MD_CM_4_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : True,
 }
 MD_CM_4_example = [
@@ -237,7 +237,7 @@ MD_CM_5_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : True,
 }
 MD_CM_5_example = [
@@ -254,7 +254,7 @@ MD_CM_6_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : True,
 }
 MD_CM_6_example = [
@@ -277,7 +277,7 @@ TN_CM_1_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 TN_CM_1_example = [
@@ -475,7 +475,7 @@ EX_TH_1_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_1_example = [
@@ -498,7 +498,7 @@ MD_TH_1_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : False,
 }
 MD_TH_1_example = [
@@ -515,7 +515,7 @@ MD_TH_2_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : False,
 }
 MD_TH_2_example = [
@@ -538,7 +538,7 @@ TN_TH_2_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : False,
 }
 TN_TH_2_example = [
@@ -607,7 +607,7 @@ BM_TH_3_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 BM_TH_3_example = [
@@ -624,7 +624,7 @@ BM_TH_4_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : False,
 }
 BM_TH_4_example = [
@@ -641,7 +641,7 @@ BM_TH_5_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 BM_TH_5_example = [
@@ -706,7 +706,7 @@ PROP_S_TH_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 PROP_S_TH_example = [
@@ -725,7 +725,7 @@ EX_FALSO_TH_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_FALSO_TH_example = [
@@ -769,7 +769,7 @@ MODAL_T_TH_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 MODAL_T_TH_example = [
@@ -788,7 +788,7 @@ MODAL_4_TH_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 MODAL_4_TH_example = [
@@ -807,7 +807,7 @@ MODAL_B_TH_settings = {
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 MODAL_B_TH_example = [
@@ -826,7 +826,7 @@ MODAL_5_TH_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 MODAL_5_TH_example = [
@@ -1091,7 +1091,7 @@ MF_MODAL_FUTURE_TH_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 MF_MODAL_FUTURE_TH_example = [

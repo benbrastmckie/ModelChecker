@@ -33,14 +33,33 @@ bimodal examples; that remains available and is not capped here (this is a floor
 equality), but 30 as a blanket minimum would make a genuinely-hung example cost 30s per failure
 across ~100 examples, and the evidence does not support needing it.
 
-**Scope is the four `logos/subtheories/*/examples.py` files**, the ones whose budgets were
-recalibrated with this guard. `bimodal`, `exclusion`, and `imposition` still carry 20 settings
-dicts at `max_time: 2` and 2 at `3`; those are the same latent hazard but have not been
-observed failing, and bimodal's budgets in particular were deliberately calibrated per-example
-(see the `BM_CM_1`/`BM_CM_4` recalibration record in `theory_lib/bimodal/examples.py`).
-Widening this guard to cover them is a separate, measurement-backed decision -- do not simply
-add them to `_COVERED` without re-measuring, and do not lower `_MIN_MAX_TIME` to accommodate
-them.
+**Scope is seven files**: the four `logos/subtheories/*/examples.py` files whose budgets were
+originally recalibrated with this guard, plus `bimodal/examples.py`, `exclusion/examples.py`,
+and `imposition/examples.py`, added in a second widening once those three files' below-floor
+budgets were directly measured rather than pattern-matched from the logos incident. **What was
+measured and what it found.** An AST re-scan of the three files (identical method to `_budgets()`
+above) found 57 below-floor `max_time` dicts -- bimodal 21, exclusion 26, imposition 10 -- not
+the 22 (20 at `max_time: 2`, 2 at `3`) an earlier research pass had enumerated; the remaining 35
+sit at `max_time: 5` and had never been measured before this widening. The 22-item `2`/`3` cohort
+was measured isolated at 0.01s-0.37s and under `taskset -c 0,1,2,3`/`-n 6` contention at
+0.06s-0.80s (5x-300x headroom over the 10s floor). The 35-item `max_time: 5` cohort was then
+separately measured, isolated, single-process (mirroring the same method): 0.012s-1.549s, a
+6.5x-800x headroom over the 10s floor -- comfortably clear of the ~3x-headroom regime that
+produced the `CL_TH_12`/`CL_TH_13` logos failures this guard exists to catch. All 57 flagged
+budgets were raised to exactly `_MIN_MAX_TIME` (10); no budget was raised above 10 and no
+above-floor value (including bimodal's `BM_CM_1` at 60 and `BM_CM_4` at 120) was touched --
+raising a floor never lowers an existing higher value. **This does not conflict with bimodal's
+per-example recalibration record.** `BM_CM_1`/`BM_CM_4` were deliberately calibrated above 10
+for a documented heavy-tailed Z3 solve distribution (see that record in
+`theory_lib/bimodal/examples.py`); this floor only raises values that sat *below* 10, so the two
+mechanisms operate on disjoint value ranges and neither overrides the other. **One measured
+example is not exercised by CI's collected suite regardless of its raised budget:** `MD_TH_2` in
+`bimodal/examples.py` is separately excluded from `test_bimodal.py`'s collection via
+`KNOWN_TIMEOUT_EXAMPLES`, for reasons unrelated to its `max_time` (a known non-theorem under
+current bimodal semantics) -- the same is true of `TN_CM_1` and `MF_MODAL_FUTURE_TH` (also in
+`KNOWN_TIMEOUT_EXAMPLES`) and of `BM_TH_5` (present in `example_range` but never added to
+`unit_tests`, so it is not collected at all); all four were still measured and raised here
+because this guard reads the source file directly, independent of what pytest collects.
 """
 
 from __future__ import annotations
@@ -56,11 +75,16 @@ _SUBTHEORIES = REPO_ROOT / "code" / "src" / "model_checker" / "theory_lib" / "lo
 # Minimum solve budget, in seconds, for any example settings dict in a covered file.
 _MIN_MAX_TIME = 10
 
+_THEORY_LIB = REPO_ROOT / "code" / "src" / "model_checker" / "theory_lib"
+
 _COVERED = [
     _SUBTHEORIES / "constitutive" / "examples.py",
     _SUBTHEORIES / "counterfactual" / "examples.py",
     _SUBTHEORIES / "extensional" / "examples.py",
     _SUBTHEORIES / "modal" / "examples.py",
+    _THEORY_LIB / "bimodal" / "examples.py",
+    _THEORY_LIB / "exclusion" / "examples.py",
+    _THEORY_LIB / "imposition" / "examples.py",
 ]
 
 # `flake.nix`'s checks.default derivation sets `src = ./code`, so REPO_ROOT resolves to /build

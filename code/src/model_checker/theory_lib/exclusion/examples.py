@@ -89,7 +89,7 @@ EX_CM_1_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 2,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -131,7 +131,7 @@ EX_CM_3_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -152,7 +152,7 @@ EX_CM_4_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -173,7 +173,7 @@ EX_CM_5_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -194,7 +194,7 @@ EX_CM_6_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 2,
     'expectation' : True,
 }
@@ -215,7 +215,7 @@ EX_CM_7_settings = {
     'non_null' : True,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -276,7 +276,7 @@ EX_CM_10_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 2,
     'expectation' : True,
 }
@@ -297,7 +297,7 @@ EX_CM_11_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 EX_CM_11_example = [
@@ -317,7 +317,7 @@ EX_CM_12_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 EX_CM_12_example = [
@@ -337,7 +337,7 @@ EX_CM_13_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 EX_CM_13_example = [
@@ -503,7 +503,7 @@ EX_CM_21_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -524,7 +524,7 @@ EX_CM_22_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 1,
     'expectation' : True,
 }
@@ -551,7 +551,7 @@ EX_TH_1_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_1_example = [
@@ -571,7 +571,7 @@ EX_CM_23_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'iterate' : 2,
     'expectation' : True,
 }
@@ -592,7 +592,7 @@ EX_TH_3_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_3_example = [
@@ -612,7 +612,7 @@ EX_TH_4_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_4_example = [
@@ -632,7 +632,7 @@ EX_TH_5_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_5_example = [
@@ -652,7 +652,7 @@ EX_TH_6_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_6_example = [
@@ -672,7 +672,7 @@ EX_TH_7_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_7_example = [
@@ -692,7 +692,7 @@ EX_TH_8_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_8_example = [
@@ -712,7 +712,7 @@ EX_TH_9_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_9_example = [
@@ -732,7 +732,7 @@ EX_TH_10_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_10_example = [
@@ -752,7 +752,7 @@ EX_TH_11_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_11_example = [
@@ -772,7 +772,7 @@ EX_TH_12_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_12_example = [
@@ -792,7 +792,7 @@ EX_TH_13_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_13_example = [
@@ -812,7 +812,7 @@ EX_TH_14_settings = {
     'non_null' : False,
     'disjoint' : False,
     'fusion_closure': False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : False,
 }
 EX_TH_14_example = [
