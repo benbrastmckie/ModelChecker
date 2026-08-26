@@ -260,18 +260,26 @@
     {
       "project_number": 171,
       "project_name": "verify_xdist_worker_count_on_real_ci",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
       "description": "Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction that landed for the CI-budget task, and close the deferred oracle-suite verification gates it left behind.\n\nBACKGROUND -- WHY THIS CANNOT BE CLOSED LOCALLY. The worker-count change (-n 6 -> -n 4 in BOTH .github/workflows/tests.yml and flake.nix, kept textually in sync and enforced by code/tests/ci/test_workflow_parity.py::test_worker_count_matches) was accepted on the strength of a LOCAL four-draw falsification screen under `taskset -c 0,1,2,3`: all four pairwise pass/fail diffs were empty. That screen is a falsification attempt, not a safety proof, and its own instrument is documented as blind to the failure class in question -- code/docs/core/TESTING_GUIDE.md section 8.13 records that `taskset -c 0-3` at -n 6 passes cleanly locally (2292 passed) while the SAME selection failed on real CI. Only a real CI run can discharge this. Agents cannot push or trigger workflow_dispatch, so this task exists for a human to run and interpret.\n\nWHAT TO DO.\n(1) Trigger the Tests workflow on real CI against the current master (which carries the -n 4 change) across the full Python matrix (3.10, 3.11, 3.12) plus the nix flake check job.\n(2) Confirm no example flips outcome relative to the -n 6 baseline -- in particular that no countermodel-expected example stops finding a countermodel. A flipped node id IS the finding, not noise.\n(3) Confirm the job still fits `timeout-minutes: 20`. The local screen measured -n 6 at 260.4s average and -n 4 at 272.8s average (~5% difference, inside the ~70s draw-to-draw spread, and the single fastest draw overall was an -n 4 draw), so no systematic slowdown was observed locally and timeout-minutes was deliberately left at 20 -- but CI hardware is a 4-vCPU/16GB standard runner, not the 24-core derivation host, so this must be confirmed rather than assumed.\n(4) The change carries a named revert trigger recorded at its own site -- if CI shows a flip or a timeout, revert both files together (never one-sided; the parity guard will go red) and record the observed failure, rather than widening timeout-minutes to accommodate it.\n\nSECOND, INDEPENDENT ITEM -- PYTHON 3.12 WORKER CRASH TELEMETRY.\nThe same task added .github/scripts/worker_rss_sample.py, a /proc-only peak-RSS-per-worker sampler, wired 3.12-gated and non-gating into CI, with 20 hermetic unit tests in code/tests/ci/test_worker_rss_sampler.py. Its root cause remains explicitly OPEN: `[gw2] node down: Not properly terminated` on the Python 3.12 job, where the named test is a confirmed innocent bystander (CI logs show the replacement worker re-ran it in 0.23s) and both recorded incidents show a silent gap (123s and ~17min) immediately before the worker was detected dead -- consistent with process death, not a hang inside one test. This CI run is the first opportunity to collect that telemetry. Read the sampler output and record peak RSS per worker alongside worker count. Note the interaction: -n 4 means more memory headroom per worker, so if the crash stops recurring that is CONSISTENT WITH the memory-ceiling hypothesis but does NOT confirm it and does NOT exclude the Z3/Python-3.12 ABI hypothesis. Do not close item D as explained on that basis alone.\n\nHARD CONSTRAINTS (carried forward, all previously verified by a git diff gate):\n- Do NOT edit GATING_RECHECK_SOLVE_TIMEOUT_MS (stays 40000).\n- Do NOT edit MIN_CONCLUSIVE_GATING_FORMULAS (stays 100).\n- Do NOT widen timeout-minutes to paper over a slow run.\n- Any worker-count revert must change both files together and keep the documented -n-over-auto plus BM_CM_1 contention rationale verbatim.",
       "topic": "ci-verification",
       "created": "2026-08-26T14:38:05Z",
-      "last_updated": "2026-08-26T14:38:05Z",
+      "last_updated": "2026-08-26T17:53:25Z",
       "dependencies": [],
       "file_scope": [
         ".github/workflows/tests.yml",
         "flake.nix",
         ".github/scripts/worker_rss_sample.py",
         "code/tests/ci/"
+      ],
+      "session_id": "sess_1787766805_ci171",
+      "artifacts": [
+        {
+          "path": "specs/171_verify_xdist_worker_count_on_real_ci/reports/01_verify-xdist-worker-count-ci.md",
+          "type": "report",
+          "summary": "Real-CI run 32995122897 on cf60b1c8 discharges items (1)(2)(3): all four jobs green at -n 4, zero flips (2089 passed / 255 skipped on all three Pythons; +46 delta is 55 newly added test functions), and -n 4 averaged 202.4s vs the -n 6 baseline's 204.5s -- marginally faster, so timeout-minutes stays 20 and the revert trigger did not fire. First real-CI RSS telemetry collected on 3.12: aggregate peak 4.14 GiB of 16 GB with one worker at 3.59 GiB against siblings at 226/269/380 MB. Item D stays OPEN -- the crash did not recur but one clean run is not a negative result and 2s sampling cannot see a pre-crash spike. Also records that the same push's Differential Oracle green comes from the unstable-marker deselection, NOT from the 96/103 shortfall being fixed."
+        }
       ]
     },
     {

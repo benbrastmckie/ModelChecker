@@ -31,7 +31,7 @@ next_project_number: 173
 
 ### Ci Verification
 
-171 [NOT STARTED] — Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction t
+171 [RESEARCHED] — Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction t
 
 ### Test Reliability
 
@@ -78,10 +78,11 @@ CONSTRAINTS:
 ---
 
 ### 171. Verify xdist worker count on real ci
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: ci-verification
 - **Dependencies**: None
+- **Research**: [171_verify_xdist_worker_count_on_real_ci/reports/01_verify-xdist-worker-count-ci.md]
 
 **Description**: Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction that landed for the CI-budget task, and close the deferred oracle-suite verification gates it left behind.
 
