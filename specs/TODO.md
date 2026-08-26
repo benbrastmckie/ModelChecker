@@ -11,15 +11,11 @@ next_project_number: 171
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,161,170 | -- | testing, semantics, release-engineering |
+| 1 | 152,161 | -- | semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154,168 | 153,158 | semantics, release-engineering |
 
 **Grouped by Topic** (indented = depends on parent):
-
-### Testing
-
-170 [PLANNED] — Two open CI-budget questions left deliberately unresolved when th
 
 ### Semantics
 
@@ -36,12 +32,13 @@ next_project_number: 171
 ## Tasks
 
 ### 170. Resolve xdist worker count and differential oracle floor
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [170_resolve_xdist_worker_count_and_differential_oracle_floor/reports/01_ci-budget-questions-a-c-d-and-b-confirmation.md]
 - **Plan**: [170_resolve_xdist_worker_count_and_differential_oracle_floor/plans/01_budget-floor-worker-count-telemetry.md]
+- **Summary**: [170_resolve_xdist_worker_count_and_differential_oracle_floor/summaries/01_budget-floor-worker-count-telemetry-summary.md]
 
 **Description**: Two open CI-budget questions left deliberately unresolved when the max_time floor and the specs/** paths-ignore landed. (A) XDIST WORKER COUNT: .github/workflows/tests.yml and flake.nix both run the parallel gating pass at -n 6 on a 4-vCPU ubuntu-latest runner -- six workers over four cores, which is what pushed contention-sensitive Z3 solves past budget. -n 4 would match the runner, but it is NOT obviously safe: reducing worker count changes which examples run concurrently and therefore the ambient load each solve sees, so it must be verified that no example flips outcome (in particular that no countermodel-expected example stops finding one) rather than assumed monotone. The -n 6 value is load-bearing and documented -- it was chosen over xdist's auto mode because auto reproduced a bimodal contention flake -- so any change must preserve that reasoning and stay textually in sync across both files (code/tests/ci/test_workflow_parity.py enforces the sync). Measure, do not assume. (B) DIFFERENTIAL ORACLE FLOOR: oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent has failed on all six runs the workflow has ever had, always with the same shortfall (96 of 103 formulas conclusive against MIN_CONCLUSIVE_GATING_FORMULAS=100, 0 disagreements). The GATING_RECHECK_SOLVE_TIMEOUT_MS widening from 20000 to 40000ms on 2026-08-12 did NOT move the number -- 96/103 with 7 timeouts both before and after, with step wall clock rising 744s to 1103s -- so the seven timing-out formulas are not merely near-budget and doubling again is unlikely to help. That constant's own comment block records the widening as never CI-verified and names marking the test `unstable` as the documented fallback. Identify the seven formulas, determine whether their cost is a genuine property of the population or a regression, and decide between a measurement-backed remedy and the unstable route under section 8.9's four entry criteria. The floor itself must NOT be lowered -- that is the assertion-weakening the existing comment block explicitly forbids. (C) RESIDUAL TIGHT BUDGETS OUTSIDE LOGOS: an AST survey found 20 example settings dicts still at max_time 2 and 2 at max_time 3 in theory_lib/bimodal, exclusion, and imposition. These are the same latent hazard the logos floor corrected but have not been observed failing, and bimodal's budgets were deliberately calibrated per-example (see the BM_CM_1/BM_CM_4 recalibration record). Decide whether to extend code/tests/ci/test_example_budget_floor.py's _COVERED list to them, backed by measurement rather than by pattern-matching the logos change. (D) PYTHON 3.12 XDIST WORKER CRASH -- the one CI failure the max_time floor did NOT resolve, and a different mechanism entirely from a solve-budget overrun. On run 32910478240 (commit 653d5bef, the first run carrying the 10s floor), Python 3.10, 3.11, and nix flake check all went green -- zero constitutive failures, where all four jobs had previously failed on CL_TH_12/CL_TH_13 -- but Python 3.12 failed with '[gw2] node down: Not properly terminated', 'replacing crashed worker gw2', on theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_three_taskframe_axioms_present_in_frame_constraints. A worker dying mid-test is a segfault or OOM in the Z3 native layer, not a timeout: no max_time or max_rlimit value affects it, and the test named in the failure is whichever one the worker happened to be running, not necessarily the cause. Python 3.12 has prior form here -- run 32897405646's 3.12 job reached 94% progress, produced zero output for 17 minutes, and was killed by the job-level timeout-minutes: 20 backstop with orphaned pytest workers in the cleanup log, which is the same shape (worker wedged or dead rather than slow) and is what motivated the --timeout-method=thread guard. Determine whether this is a Z3/Python 3.12 ABI issue, a memory ceiling on the 16GB runner under six workers, or a genuine bimodal bug; note that it may interact with item (A), since fewer workers means more memory headroom per worker.
 
