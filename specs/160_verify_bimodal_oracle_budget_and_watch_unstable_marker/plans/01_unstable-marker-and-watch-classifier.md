@@ -222,7 +222,7 @@ reading that file's `_MISSING_REPO_ROOT_FILES` block before copying, not by assu
 
 ---
 
-### Phase 2: GREEN A — Extract the classifier into an importable module (behavior-preserving) [NOT STARTED]
+### Phase 2: GREEN A — Extract the classifier into an importable module (behavior-preserving) [COMPLETED]
 
 **Goal**: Move the `unstable-watch.yml` classify step's inline Python into
 `.github/scripts/unstable_watch_classify.py` with ZERO behavior change, and rewire the workflow
@@ -230,28 +230,28 @@ to invoke it. The characterization tests from Phase 1 turn green; the new-signat
 red.
 
 **Tasks**:
-- [ ] Create `.github/scripts/unstable_watch_classify.py` containing, verbatim in behavior, the
+- [x] Create `.github/scripts/unstable_watch_classify.py` containing, verbatim in behavior, the
       current heredoc's `MAX_TIME_BY_NODEID_FRAGMENT`, `FAILURE_SIGNATURE`, `parse_junit`,
       `classify`, the record-building loop, the `gh run list` trend query, the step-summary
       writer, and the exit-code contract. Stdlib only — the watch job installs no PyYAML and no
       third-party parsing dependency, and none may be added.
-- [ ] Preserve the module docstring's existing explanation of the non-gating contract and the
+- [x] Preserve the module docstring's existing explanation of the non-gating contract and the
       `TIMING` vs `NEW` rationale; carry it over rather than rewriting it.
-- [ ] Guard the entry point under `if __name__ == "__main__":` calling a `main()` that returns
+- [x] Guard the entry point under `if __name__ == "__main__":` calling a `main()` that returns
       the exit code, so importing the module for tests has no side effects (no file writes, no
       `gh` subprocess, no `sys.exit`).
-- [ ] Keep the JUnit input paths (`/tmp/watch-code.xml`, `/tmp/watch-oracle.xml`) and the output
+- [x] Keep the JUnit input paths (`/tmp/watch-code.xml`, `/tmp/watch-oracle.xml`) and the output
       path (`unstable-watch-record.jsonl`) parameterizable with the current values as defaults,
       so tests can drive the module against `tmp_path` fixtures.
-- [ ] Rewire `.github/workflows/unstable-watch.yml`'s "Classify results and build the trend
+- [x] Rewire `.github/workflows/unstable-watch.yml`'s "Classify results and build the trend
       report" step to `python3 .github/scripts/unstable_watch_classify.py`, deleting the heredoc.
       Preserve the step's `id`, `env` block (`GH_TOKEN`, `GITHUB_REPOSITORY`, `GITHUB_RUN_ID`),
       and its position between the two watch steps and the artifact upload.
-- [ ] Correct the now-false inline comment in the `watch_oracle` step. It currently reads "the
+- [x] Correct the now-false inline comment in the `watch_oracle` step. It currently reads "the
       oracle tree has no unstable-marked test, so this branch is expected to hit exit code 5
       every run"; after Phase 4 the oracle tree has exactly one. Reword to describe exit code 5
       as the tolerated no-collection case generally, not as the expected steady state.
-- [ ] Verify the workflow YAML still parses and the step structure is intact.
+- [x] Verify the workflow YAML still parses and the step structure is intact.
 
 **Timing**: 1 hour
 
