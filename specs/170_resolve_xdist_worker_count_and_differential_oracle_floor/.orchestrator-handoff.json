@@ -1,26 +1,50 @@
 {
-  "dispatch_seq": 12,
-  "phase": "plan",
-  "status": "planned",
-  "summary": "Created a 5-phase implementation plan for task 170, ordered by evidence strength. Phase 1 lands item C (extend test_example_budget_floor.py's _COVERED to bimodal/exclusion/imposition at the unchanged 10s floor) as a pre-declared atomic batch with an explicit RED->GREEN cycle. Phase 2 executes the research's bounded full-gating-selection -n 6 vs -n 4 screen (4 draws, taskset -c0-3, background-poll), framed as a falsification screen rather than a safety proof because TESTING_GUIDE 8.13 already records that this local instrument does not reproduce the CI contention class. Phase 3 applies a written three-branch decision rule (clean/dirty/inconclusive) to that outcome, changing tests.yml and flake.nix together only on the clean branch, and also owns the timeout-minutes: 20 margin question that a worker-count reduction raises. Phase 4 adds Python-3.12-gated, non-gating peak-RSS-per-worker telemetry as an importable unit-tested module mirroring the unstable_watch_classify.py precedent -- instrumentation only, with D's root cause stated as open. Phase 5 documents and runs the final gate. Item B is stated as closed and protected by an explicit Non-Goal forbidding any edit to GATING_RECHECK_SOLVE_TIMEOUT_MS, MIN_CONCLUSIVE_GATING_FORMULAS, or the oracle differential test file.",
+  "dispatch_seq": 13,
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "All 5 plan phases closed and committed in one dispatch. Phase 1 (item C): re-scanned and confirmed 57 below-floor max_time dicts (not the research report's 22) across bimodal/exclusion/imposition, measured the previously-unmeasured max_time:5 cohort (35 examples, 0.012s-1.549s isolated) before raising it alongside the already-measured 22-item 2/3 cohort, raised all 57 to the unchanged 10s floor, extended _COVERED to the three files; full gate green (2323/2323, 0 failed). Phase 2 (item A input): ran the bounded four-draw -n6-vs-n4 falsification screen under taskset -c0,1,2,3; all four pairwise diffs (cross-n x2, within-n x2) were empty -- CLEAN, with the required 'falsifies, does not prove CI-safe' limitation recorded per TESTING_GUIDE 8.13's already-established local-vs-CI divergence. Phase 3 (item A decision): applied the plan's clean-branch rule verbatim -- changed -n 6 to -n 4 in tests.yml and flake.nix together, demonstrated test_workflow_parity.py's test_worker_count_matches RED on a one-sided edit first, retained the BM_CM_1/never-auto rationale verbatim, appended the falsification-screen evidence and a named revert trigger, left timeout-minutes: 20 unchanged with a written wall-clock comparison. Phase 4 (item D): added .github/scripts/worker_rss_sample.py, a /proc-only (no new CI dependency) peak-RSS-per-xdist-worker sampler with 20 hermetic unit tests and a live smoke test against a real pytest -n 2 process; wired into tests.yml's existing step, 3.12-gated and strictly non-gating; root cause left explicitly open in both the module docstring and TESTING_GUIDE.md. Phase 5: rewrote TESTING_GUIDE.md 8.13 (widened-coverage + -n-change paragraphs) and extended 8.11 with a full D subsection; ran the full gate set (code/tests/ci/ 58/58, code/tests/ 439 passed/1 skipped/0 failed, full -n4 gating selection two-pass split 2343 passed/1 skipped + 9 passed, all green, no narrowing needed); verified the task-wide hard-constraint gate (GATING_RECHECK_SOLVE_TIMEOUT_MS=40000, MIN_CONCLUSIVE_GATING_FORMULAS=100, _MIN_MAX_TIME=10 all unchanged; oracle differential test file untouched; every removed max_time value was 2/3/5, never >=10; BM_CM_1=60/BM_CM_4=120 byte-identical). Item B was already closed and remained untouched throughout. Five phase commits, tests green before each.",
   "artifacts": [
     {
       "type": "plan",
-      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/plans/01_budget-floor-worker-count-telemetry.md",
-      "summary": "5 phases, 5.5 hours, fully sequential; strict-mode artifact validation passes with 0 warnings."
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/plans/01_budget-floor-worker-count-telemetry.md"
+    },
+    {
+      "type": "summary",
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/summaries/01_budget-floor-worker-count-telemetry-summary.md"
+    },
+    {
+      "type": "handoff",
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-1-handoff-20260826T090310Z.md"
+    },
+    {
+      "type": "handoff",
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-2-handoff-20260826T091857Z.md"
+    },
+    {
+      "type": "handoff",
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-3-handoff-20260826T092151Z.md"
+    },
+    {
+      "type": "handoff",
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-4-handoff-20260826T092707Z.md"
+    },
+    {
+      "type": "handoff",
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-5-handoff-20260826T093433Z.md"
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 5,
   "phases_total": 5,
   "blockers": [],
   "continuation_path": null,
   "plan_markers_verified": true,
   "decisions_made": [
-    "Item A ships (if at all) on a cleared falsification screen plus the research's 554-test result, NOT on a safety proof: TESTING_GUIDE 8.13 records that taskset -c0-3 at -n 6 passes cleanly locally (2292 passed) while the same selection failed on real CI, so the local instrument is known-blind to the CI contention class. Phase 2 records this limitation as required output and Phase 3's decision rule and workflow comment both restate it, with a named revert trigger.",
-    "Item C is sequenced first (conclusive evidence, monotone-safe change) and its full-tier gate run doubles as Phase 2's -n 6 draw 1, so the screen measures the tree that will actually ship and no full-selection run is duplicated.",
-    "Item D is sequenced after A per research recommendation 4, but is NOT dropped if -n 4 lands: 'the crash stopped recurring' is consistent with the memory hypothesis without confirming it and does not exclude the Z3/Python-3.12 ABI hypothesis, so the sampler records worker count alongside peak RSS to stay diagnostic under either -n value. Phase 4 is sequential rather than parallel with Phase 2 only because it and Phase 3 both edit .github/workflows/tests.yml.",
-    "Every phase carries a wall-clock ceiling with a defined degraded outcome, and the plan's binding Process Constraints section encodes the Bash auto-backgrounding rule (poll with BashOutput in the same turn, never end a turn waiting for a notification) that cost this batch four dispatches."
+    "Phase 1 re-ran the below-floor AST scan rather than trusting the research report's '22' figure, confirmed exactly 57 (bimodal 21, exclusion 26, imposition 10) at the RED step, and measured the 35-item max_time:5 cohort in isolation before raising it -- direct run_test() calls were used for three bimodal names not collected by any pytest suite (TN_CM_1, MF_MODAL_FUTURE_TH via KNOWN_TIMEOUT_EXAMPLES; BM_TH_5 never added to unit_tests), since the AST guard reads the source file directly regardless of test collection.",
+    "Phase 2's screen was CLEAN (all four pairwise diffs empty across 2323 executed node ids), so Phase 3 took the clean branch per the plan's decision rule: -n 6 -> -n 4 in both tests.yml and flake.nix, together, with the parity guard demonstrated RED on a one-sided edit first.",
+    "timeout-minutes: 20 was left unchanged -- Phase 2's four draws showed no systematic -n 4 slowdown (~5% average difference, well inside the ~70s draw-to-draw spread; the single fastest draw overall was an -n 4 draw), so there was no basis to raise it.",
+    "Phase 4's sampler is wired inline within the existing 'Run general test suite' step rather than as a literal separate GH Actions step, and the parallel-pass pytest invocation is now backgrounded unconditionally (not per-version-branch) -- a first, per-branch-duplicated attempt broke test_workflow_parity.py's single-parallel-pass assertions, exactly the class of regression the plan's own Phase 4 Verification section warns is a real finding, not a test to adjust.",
+    "Item B was re-confirmed closed and untouched by Phase 5's task-wide hard-constraint git diff gate: GATING_RECHECK_SOLVE_TIMEOUT_MS, MIN_CONCLUSIVE_GATING_FORMULAS unchanged, oracle differential test file has zero diff since before this task."
   ],
   "dead_ends": [],
-  "next_action_hint": "Run /implement 170. Phase 1 must begin by re-running the below-floor AST scan -- the research report's '22' is an undercount (planning-time scan found 57 below-floor max_time dicts across the three files, 35 of them at max_time 5 and never measured); this is recorded as Phase 1's Scope Hypothesis."
+  "next_action_hint": "Task is ready to close: all 5 phases COMPLETED, all verification green, all hard constraints confirmed intact. A future task should read accumulated Python 3.12 CI telemetry (worker_rss_sample.py output, once several runs have accumulated) to decide item D's memory hypothesis on data, and watch the next several CI runs for the -n 4 revert trigger named in tests.yml's comment (a countermodel-expected example losing its countermodel, or a new contention-shaped failure)."
 }

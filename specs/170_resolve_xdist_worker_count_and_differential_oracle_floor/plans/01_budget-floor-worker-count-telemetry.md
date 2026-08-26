@@ -1,7 +1,7 @@
 # Implementation Plan: Task #170
 
 - **Task**: 170 - Resolve xdist worker count and differential oracle floor
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 5.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/reports/01_ci-budget-questions-a-c-d-and-b-confirmation.md`
