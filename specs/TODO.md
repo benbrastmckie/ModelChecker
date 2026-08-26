@@ -1,5 +1,5 @@
 ---
-next_project_number: 173
+next_project_number: 174
 ---
 
 # TODO
@@ -11,11 +11,15 @@ next_project_number: 173
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,161,171,172 | -- | semantics, release-engineering, ci-verification, ... |
+| 1 | 152,161,171,172,173 | -- | testing, semantics, release-engineering, ... |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154,168 | 153,158 | semantics, release-engineering |
 
 **Grouped by Topic** (indented = depends on parent):
+
+### Testing
+
+173 [NOT STARTED] — Add a `development` pytest marker so a theory still under active 
 
 ### Semantics
 
@@ -38,6 +42,35 @@ next_project_number: 173
 172 [NOT STARTED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
 
 ## Tasks
+
+### 173. Add development marker for in progress theories
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Add a `development` pytest marker so a theory still under active construction (bimodal today) can carry known-failing or contention-flaky tests without turning the whole package's CI red -- while keeping every such test observed rather than forgotten.
+
+MOTIVATION, AND THE ONE FACT THAT MUST GROUND THE DESIGN. The bimodal theory is genuinely in development; not all of its tests are expected to pass yet, and that must not read as "the package is broken". The existing `unstable` marker cannot serve this purpose: TESTING_GUIDE.md section 8.9 imposes four mandatory entry criteria (documented failure mechanism with measurements, demonstrably non-semantic, a genuine fix attempted AND its failure recorded, and a written concrete exit criterion), states that "it failed once in CI never qualifies on its own", and explicitly warns the category "must not become a dumping ground". A development-stage theory's ordinary in-progress failures meet none of those criteria, and forcing them under `unstable` would destroy that marker's meaning -- which is precisely what section 8.9 exists to prevent.
+
+CORRECT A LIKELY PREMISE BEFORE DESIGNING. Releases are ALREADY unaffected by bimodal test failures, and the design must not be justified on a false basis. `.github/workflows/release.yml`'s `test-and-release` job runs NO pytest suite at all (it builds the wheel, installs it, imports, runs `--help`, and checks the version matches the tag); the only pytest on the release path is the `build` job's `pytest tests/packaging/ -m "packaging and not unstable"`. The bimodal suite runs in tests.yml, packaging.yml, unstable-watch.yml, and differential-tests.yml -- none of which gate a tag push. v1.3.7 published to PyPI while Tests run 32996446859 was red. So the real benefit of this marker is SIGNAL QUALITY on master and PR runs, not release unblocking. Verify this independently before writing the plan; if it has changed, say so and design against what is actually true.
+
+WHAT TO DECIDE (each explicitly, with reasons recorded).
+(1) MARKER SEMANTICS. What `development` means, how it differs from `unstable` and from `xdist_serial`, and -- the hard question -- whether it is applied per-test, per-module, or per-theory. A theory-level application (e.g. a `pytestmark` in the bimodal test package, or a marker keyed off theory membership) is what the motivation actually calls for, but it is also the version most capable of hiding a real regression. Decide with the failure mode in view, not just the convenience.
+(2) WHAT IT MUST NOT HIDE. A development marker that silently swallows a genuine semantic regression is worse than a red suite. Determine which failure classes stay gating regardless -- soundness/differential-oracle failures are the obvious candidates -- and make that boundary executable rather than a comment.
+(3) DESELECTION WIRING. Where `and not development` must appear. `code/tests/ci/test_unstable_deselection_wiring.py` already enforces the analogous contract for `unstable` across tests.yml, flake.nix, differential-tests.yml, and run-oracle-suite.sh; extend that guard rather than writing a parallel one. Note release.yml's documented no-op comment about future pytest invocations needs the same treatment.
+(4) OBSERVABILITY -- THE "DON'T FORGET" HALF. The user's requirement is explicitly that quarantined tests remain learnable-from and fixable later, not merely silenced. Decide how development-marked tests get surfaced: extending unstable-watch.yml (whose classifier lives in `.github/scripts/unstable_watch_classify.py`, unit-tested by `code/tests/ci/test_unstable_watch_classifier.py` -- extend the module, never the workflow YAML), a separate job, or a periodic report. A marker with no watch mechanism fails the stated requirement.
+(5) EXIT PATH. What retires the marker for a theory -- what "bimodal is no longer in development" means concretely, and who decides. Section 8.9's standing rule (an indefinitely-quarantined test is itself a defect to escalate) should have an analogue here, or an explicit recorded reason why it does not apply.
+(6) DOCUMENTATION. TESTING_GUIDE.md section 8.9's marker taxonomy is the source of truth and must gain the new category, including how a reader chooses between `development`, `unstable`, `xdist_serial`, and `performance`.
+
+HARD CONSTRAINTS.
+- Do NOT weaken or widen the existing `unstable` marker to cover this case. It is a separate category with separate criteria.
+- Do NOT mark the two failures from CI run 32996446859 as `development` on the way past. One is already fixed at the root (the bimodal iterate tests' timeout-vs-unsat discriminator, commit 75012389); the other is an xdist worker crash that is NOT test-scoped -- two incidents killed two DIFFERENT tests in `test_frame_class_mapping.py`, so a test-level marker cannot contain it and would give the appearance of a fix without changing the failure rate. That crash belongs to the open item-D investigation.
+- Any new gating pytest invocation must carry the deselection filter as a matter of course, per section 8.9's standing instruction.
+
+RELATED, SEPARATELY DECIDABLE. A cheap experiment worth recording either way: moving `test_frame_class_mapping.py` to the serial pass via `xdist_serial` to see whether removing it from the parallel pool stops the `[gw2] node down` crash. That is off-label for a marker meant for wall-clock assertions and is NOT part of this task's deliverable, but the result would inform item D. Decide explicitly whether to fold it in or leave it to the worker-crash investigation.
+
+---
 
 ### 172. Fix contention flaky soundness regression tests
 - **Status**: [NOT STARTED]
