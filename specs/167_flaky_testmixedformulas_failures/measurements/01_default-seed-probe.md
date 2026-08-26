@@ -133,3 +133,26 @@ All 6 primary draws completed (3 per formula), plus Step 5 (both verbatim failur
 Step 6 (CI history query). No draw hit its per-invocation `timeout`. The conditional
 `PYTHONHASHSEED=0` control was not needed (no rlimit disagreement observed). Proceeding to
 Phase 3's decision gate with a complete, non-partial campaign.
+
+## ROUTE DECISION
+
+**Route A** is selected.
+
+**Rule applied**: "Route A if, for both formulas, the rlimit values across draws agree within 5%
+of their minimum."
+
+**Deciding numbers**:
+
+| Formula | rlimit draws | min | max | spread |
+|---|---|---|---|---|
+| `mixed_and_all_future_neg` | 363423989, 363423989, 363423989 | 363423989 | 363423989 | 0% |
+| `mixed_or_diamond_prev` | 250005414, 250005414, 250005414 | 250005414 | 250005414 | 0% |
+
+Both formulas' spread (0%) is well under the 5% threshold, and both have 3 (>= 2) completed
+draws. Neither Route B trigger condition (>5% spread after PYTHONHASHSEED=0 control, or <2
+completed draws) applies. Route A is the unambiguous outcome of the decision rule -- not a close
+call.
+
+**Excluded route**: Route B (Phase 6, the `unstable` fallback) is not taken. Phase 6 closes
+`[COMPLETED WITH EXCLUSIONS]` in the plan file, with a `#### Reasoned Exclusions` record naming
+this measurement (0% rlimit spread on both formulas, well under the 5% Route B threshold).

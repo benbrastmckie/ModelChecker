@@ -319,15 +319,15 @@ ceiling rather than dropping the determinism check for `all_future_neg`.
 
 ---
 
-### Phase 3: Route decision gate [NOT STARTED]
+### Phase 3: Route decision gate [COMPLETED]
 
 **Goal**: Read Phase 2's log and commit, in writing, to Route A or Route B — with the numbers that
 decided it.
 
 **Tasks**:
 
-- [ ] Compute per-formula rlimit spread across the completed default-seed draws.
-- [ ] Apply the decision rule and record it explicitly in the measurement log:
+- [x] Compute per-formula rlimit spread across the completed default-seed draws.
+- [x] Apply the decision rule and record it explicitly in the measurement log:
   - **Route A** if, for **both** formulas, the rlimit values across draws agree within **5%** of
     their minimum. Rationale: identical work quantity under varying wall clock is the direct
     demonstration that the pass/fail boundary is measured in the wrong unit, and that an
@@ -339,9 +339,9 @@ decided it.
   - **Route B** also if Phase 2 hit its ceiling with fewer than 2 completed draws for either
     formula — an undersampled campaign cannot support a determinism claim, and asserting one
     anyway would be exactly the unmeasured move this task forbids.
-- [ ] Write the decision, the deciding numbers, and the excluded route into the log under a
+- [x] Write the decision, the deciding numbers, and the excluded route into the log under a
       "ROUTE DECISION" heading.
-- [ ] Update this plan file: mark the not-taken route's phase(s) `[COMPLETED WITH EXCLUSIONS]` and
+- [x] Update this plan file: mark the not-taken route's phase(s) `[COMPLETED WITH EXCLUSIONS]` and
       add a `#### Reasoned Exclusions` subsection under each, naming the Phase 3 measurement.
 
 **Timing**: 0.25 hours
@@ -486,11 +486,22 @@ measured basis and set a larger explicit value rather than adopting the constant
 
 ---
 
-### Phase 6: Route B — `unstable` marking on the existing machinery [NOT STARTED]
+### Phase 6: Route B — `unstable` marking on the existing machinery [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: If Phase 3 selects Route B, both tests become documented, watched, non-gating
 instabilities using the machinery that already exists — with the classifier actually able to
 recognize their failure signature, which a naive marking would not achieve.
+
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|---|---|---|
+| All of Phase 6 (Route B: `unstable` marking, classifier branch, TESTING_GUIDE.md 8.9 entry) | Phase 3's decision gate selected Route A, not Route B. Route B is defined as executing only "if Phase 3 selects Route B" — it did not. | `specs/167_flaky_testmixedformulas_failures/measurements/01_default-seed-probe.md`'s "ROUTE DECISION" section: both target formulas' rlimit values are bit-identical (0% spread) across 3 default-seed draws each, well under the 5% Route A/B threshold, with no ceiling event and no `<2`-draws shortfall -- neither Route B trigger condition applies. |
+
+This phase's tasks (classifier constants, `classify()` branch, `unstable` markers,
+`code/tests/ci/test_unstable_watch_classifier.py` tests, `TESTING_GUIDE.md` 8.9 update) were not
+executed. Route A (Phases 4-5) is executed instead. No file listed in this phase's "Files to
+modify" was touched.
 
 **Tasks** (TDD — classifier tests first):
 
