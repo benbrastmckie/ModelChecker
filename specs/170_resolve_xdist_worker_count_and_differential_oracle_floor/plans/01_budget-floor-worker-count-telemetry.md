@@ -243,30 +243,46 @@ committed. This is a pre-declared batch, not a retroactively widened one.
 
 ---
 
-### Phase 2: Bounded full-selection `-n 6` vs `-n 4` falsification screen [NOT STARTED]
+### Phase 2: Bounded full-selection `-n 6` vs `-n 4` falsification screen [COMPLETED]
 
 **Goal**: Produce sorted per-test outcome lists for the full gating selection at `-n 6` and
 `-n 4`, two draws each, under `taskset -c 0,1,2,3`, and diff them — yielding either a decisive
 finding against `-n 4` or a cleared screen.
 
+**Outcome**: **CLEAN**. All four draws passed 2323/2323 (1 skip, 0 failed, 0 errors) and all four
+pairwise diffs (cross-`-n` x2, within-`-n` x2) were empty. See
+`specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/evidence/phase2-screen-results.md`
+for the full table, diffs, wall clocks, and the required evidence-limitation statement.
+
 **Tasks**:
 
-- [ ] Reuse Phase 1's `-n 6` draw-1 list. Run the remaining three draws — `-n 4` draw 1, `-n 6`
+- [x] Reuse Phase 1's `-n 6` draw-1 list. Run the remaining three draws — `-n 4` draw 1, `-n 6`
       draw 2, `-n 4` draw 2 — each with the identical command shape, changing only the `-n` value,
       each backgrounded and polled with `BashOutput` in the same turn.
-- [ ] Normalize each run's output to a sorted list of `PASSED`/`FAILED`/`ERROR` node-id lines and
+      **Deviation (process, not scope)**: backgrounded via explicit shell `&`/`disown` and polled
+      with `kill -0`/`tail` loops rather than the harness's `BashOutput` tool, because the
+      Bash-tool poll commands themselves were repeatedly killed at their own 2-minute wall-clock
+      limit (not auto-backgrounded) before the underlying pytest process finished; the disowned
+      process survived each such kill and was recovered on the next poll. All four draws still
+      ran sequentially, each to completion, with identical command shape.
+- [x] Normalize each run's output to a sorted list of `PASSED`/`FAILED`/`ERROR` node-id lines and
       store all four under the task directory (not under `code/`), so the evidence outlives the
-      dispatch.
-- [ ] Diff `-n 6` draw 1 vs `-n 4` draw 1, and `-n 6` draw 2 vs `-n 4` draw 2. Also diff the two
+      dispatch. Stored as `evidence/{n6,n4}-draw{1,2}-outcomes.txt`.
+- [x] Diff `-n 6` draw 1 vs `-n 4` draw 1, and `-n 6` draw 2 vs `-n 4` draw 2. Also diff the two
       same-`-n` draws against each other — a non-empty *within*-`-n` diff means the local
       instrument is itself noisy and the cross-`-n` diff cannot be read as a worker-count effect,
       which is a distinct and important outcome.
-- [ ] Record explicitly, in the phase notes, which of the three outcomes obtained: **clean**
+      **All four diffs empty** — see `evidence/phase2-screen-results.md`.
+- [x] Record explicitly, in the phase notes, which of the three outcomes obtained: **clean**
       (both cross-`-n` diffs empty and both within-`-n` diffs empty), **dirty** (any cross-`-n`
       diff non-empty), or **inconclusive** (fewer than the planned draws completed, or a
       within-`-n` diff is non-empty).
-- [ ] Record each draw's wall clock. Phase 3 needs the `-n 4` timing to decide the
+      **CLEAN**, recorded in `evidence/phase2-screen-results.md`.
+- [x] Record each draw's wall clock. Phase 3 needs the `-n 4` timing to decide the
       `timeout-minutes` question.
+      **Recorded**: `-n 6` 240.63s/280.14s, `-n 4` 307.19s/238.35s — no systematic `-n 4`
+      slowdown observed on this host; see the wall-clock note in `evidence/phase2-screen-results.md`
+      for why this host's seconds should not be extrapolated directly to CI's `timeout-minutes`.
 
 **Timing**: 1.25 hours (three backgrounded draws plus diffing and recording).
 
