@@ -11,9 +11,9 @@ next_project_number: 171
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161,167,168,170 | -- | testing, semantics, release-engineering |
+| 1 | 152,160,161,167,170 | -- | testing, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
-| 3 | 154 | 153 | semantics |
+| 3 | 154,168 | 153,158 | semantics, release-engineering |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -33,7 +33,7 @@ next_project_number: 171
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 161 [BLOCKED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
-168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
+    └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ## Tasks
 
@@ -51,7 +51,7 @@ next_project_number: 171
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: release-engineering
-- **Dependencies**: None
+- **Dependencies**: Task 158
 
 **Description**: Build a systematic PyPI install and full-CLI verification CI pipeline: parameterize the pytest packaging suite's installed_venv fixture over install source (locally built wheel, TestPyPI, or PyPI), add a TestPyPI pre-publish gate and a post-publish PyPI confirmation matrix to release.yml, and add a dispatchable plus scheduled pypi-smoke.yml workflow with opt-in tmate SSH debugging so the published package can be verified end-to-end from a NixOS development host
 

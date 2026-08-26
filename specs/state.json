@@ -20,7 +20,15 @@
       "description": "Build a systematic PyPI install and full-CLI verification CI pipeline: parameterize the pytest packaging suite's installed_venv fixture over install source (locally built wheel, TestPyPI, or PyPI), add a TestPyPI pre-publish gate and a post-publish PyPI confirmation matrix to release.yml, and add a dispatchable plus scheduled pypi-smoke.yml workflow with opt-in tmate SSH debugging so the published package can be verified end-to-end from a NixOS development host",
       "topic": "release-engineering",
       "created": "2026-08-25T20:59:36Z",
-      "last_updated": "2026-08-25T20:59:36Z"
+      "last_updated": "2026-08-25T20:59:36Z",
+      "dependencies": [
+        158
+      ],
+      "file_scope": [
+        ".github/workflows/release.yml",
+        ".github/workflows/pypi-smoke.yml",
+        "code/tests/packaging/"
+      ]
     },
     {
       "project_number": 167,
