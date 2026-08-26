@@ -1,0 +1,20 @@
+{
+  "dispatch_seq": 2,
+  "phase": "plan",
+  "status": "planned",
+  "summary": "Six-phase TDD plan created for marking TestGatingConclusiveScan::test_known_conclusive_population_self_consistent unstable. The classifier fix the research flagged as mandatory is a first-class phase, preceded by extracting unstable-watch.yml's inline heredoc classifier into an importable, unit-tested module so TDD is actually possible. Two wiring gaps the research did not reach are also covered: oracle/run-oracle-suite.sh carries no unstable deselection, and the promotion streak is NEW-sensitive only so READY TO PROMOTE would fire after 20 TIMING-failing nights.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/plans/01_unstable-marker-and-watch-classifier.md",
+      "summary": "Six phases, ~6 hours, waves [1],[2],[3],[4,5],[6]; validator passes with 0 warnings."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "blockers": [],
+  "continuation_path": null,
+  "plan_markers_verified": true,
+  "next_action_hint": "Dispatch /implement 160. No user gate is required: every phase is local (source edits, unit tests, collect-only checks). No CI dispatch, no budget/floor change, and no re-verification run is planned or permitted.",
+  "sorry_inventory": []
+}

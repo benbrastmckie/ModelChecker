@@ -30,7 +30,7 @@ next_project_number: 171
 
 ### Release Engineering
 
-160 [RESEARCHED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
+160 [PLANNED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
 161 [BLOCKED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
     └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
@@ -119,11 +119,12 @@ FILE OVERLAP: this task and `harden_release_ci_testpypi_gate` both edit `.github
 ---
 
 ### 160. Verify bimodal oracle budget and watch unstable marker
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 159
 - **Research**: [160_verify_bimodal_oracle_budget_and_watch_unstable_marker/reports/01_gating-floor-unstable-marker-and-xdist-lead.md]
+- **Plan**: [160_verify_bimodal_oracle_budget_and_watch_unstable_marker/plans/01_unstable-marker-and-watch-classifier.md]
 
 **Description**: Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). That task's repair-first
 attempts did not fully close either defect: BM_CM_1 was quarantined (no available encoding fix),
