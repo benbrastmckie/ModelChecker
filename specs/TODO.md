@@ -6,12 +6,12 @@ next_project_number: 171
 
 ## Task Order
 
-*Updated 2026-08-25. Generated from state.json dependency graph.*
+*Updated 2026-08-26. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,160,161,167,168 | -- | testing, semantics, release-engineering |
+| 1 | 152,160,161,167,168,170 | -- | testing, semantics, release-engineering |
 | 2 | 153,158 | 152,161 | semantics, release-engineering |
 | 3 | 154 | 153 | semantics |
 
@@ -19,8 +19,8 @@ next_project_number: 171
 
 ### Testing
 
-170 [NOT STARTED] — Resolve the -n 6 xdist worker count and the differential oracle
 167 [NOT STARTED] — Fix flaky TestMixedFormulas failures in oracle/bimodal_logic/test
+170 [NOT STARTED] — Two open CI-budget questions left deliberately unresolved when th
 
 ### Semantics
 
@@ -31,7 +31,7 @@ next_project_number: 171
 ### Release Engineering
 
 160 [NOT STARTED] — Follow-up to task 159 (fix_bimodal_flake_and_unstable_category). 
-161 [NOT STARTED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
+161 [RESEARCHED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
   └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
@@ -68,10 +68,11 @@ next_project_number: 171
 ---
 
 ### 161. Fix testpypi trusted publisher
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
+- **Research**: [161_fix_testpypi_trusted_publisher/reports/01_fix-testpypi-trusted-publisher.md]
 
 **Description**: Make TestPyPI publishing succeed at all: fix the TestPyPI trusted-publisher registration and make future OIDC mismatches diagnosable in one glance. SCOPE IS DELIBERATELY NARROW -- this is the unblock prerequisite carved out of the larger release-CI hardening task (`harden_release_ci_testpypi_gate`), which now declares this task as a dependency. Everything about PROMOTING TestPyPI to a gate (dropping `continue-on-error`, adding a `verify-testpypi` install-and-smoke-test job, preflight assertions, human confirmation gates) belongs to that task and MUST NOT be done here.
 
