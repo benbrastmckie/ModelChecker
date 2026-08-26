@@ -152,7 +152,35 @@ jobs:
           # push past budget -- and a second, serial pass (no `-n` flag) runs exactly those
           # tests instead, so they keep gating coverage without the contention that made them
           # flake.
-          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread
+          #
+          # Python-3.12-only peak-RSS-per-worker telemetry (item D instrumentation; see
+          # `.github/scripts/worker_rss_sample.py`'s module docstring for the full contract).
+          # D's root cause is OPEN -- this does not fix or diagnose it, only makes the memory
+          # hypothesis checkable against data instead of log archaeology. Three live hypotheses:
+          # (1) memory exhaustion on the runner, (2) a Python-3.12-specific Z3/z3-solver ABI
+          # fault unrelated to memory, (3) an xdist/execnet worker-communication fault under
+          # load. Scoped to 3.12 only (the only leg the crash has been observed on) and
+          # deliberately non-gating: the sampler runs in the background alongside the parallel
+          # pass and its own failure (`|| true`) can never turn a green suite red; only the
+          # final `wait` on pytest's own PID determines this step's exit status, exactly as a
+          # plain foreground `pytest ...` invocation would. Removable in one piece once the
+          # hypothesis resolves: delete this file, its test module
+          # (`code/tests/ci/test_worker_rss_sampler.py`), and this conditional block.
+          #
+          # The parallel-pass `pytest ...` invocation below is backgrounded unconditionally
+          # (not only under 3.12) so this file keeps exactly one literal copy of that line --
+          # code/tests/ci/test_workflow_parity.py's extraction regex requires exactly one
+          # parallel-pass `pytest` line per file, and a python-version-conditional *duplicate*
+          # of the line (one copy per branch) would silently break that guard's "found 2"
+          # assertion. Backgrounding-then-`wait`ing is behaviorally identical to a foreground
+          # invocation for every non-3.12 leg (the sampler branch below is a no-op there); only
+          # the telemetry step itself is conditional, not the pytest invocation's own text.
+          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread &
+          PYTEST_PID=$!
+          if [ "${{ matrix.python-version }}" = "3.12" ]; then
+            python3 ../.github/scripts/worker_rss_sample.py --root-pid "$PYTEST_PID" --workers 4 --interval 2 --output /tmp/worker-rss-summary.json || true
+          fi
+          wait "$PYTEST_PID"
           pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread
 
   flake-check:

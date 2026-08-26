@@ -1,0 +1,220 @@
+"""Unit tests for `.github/scripts/worker_rss_sample.py`, the peak-RSS-per-xdist-worker
+telemetry sampler (see `code/docs/core/TESTING_GUIDE.md` section 8.11 for the D incident this
+instruments, and this module's own docstring for the instrumentation-only, root-cause-open
+framing).
+
+All tests here are hermetic: they drive the module's pure parsing/discovery/tracking logic
+against synthetic `/proc/<pid>/status`-shaped fixture files written under `tmp_path`, never
+against live processes -- so this suite runs identically on any host, including one where no
+process happens to be named the way a live-process test would need. Mirrors the extraction
+precedent in `.github/scripts/unstable_watch_classify.py` +
+`code/tests/ci/test_unstable_watch_classifier.py`: importing the sampler module has no side
+effects (no polling loop, no file writes, no `sys.exit`) until `main()` runs it under
+`if __name__ == "__main__":`.
+
+Skip guard mirrors `test_workflow_parity.py`'s `_MISSING_REPO_ROOT_FILES` block: under
+`nix flake check`'s `checks.default` derivation, `src = ./code` means the sandboxed build has no
+repo root at all, so `.github/` is structurally absent there.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import json
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+TESTS_YML = REPO_ROOT / ".github" / "workflows" / "tests.yml"
+FLAKE_NIX = REPO_ROOT / "flake.nix"
+SAMPLER_SCRIPT = REPO_ROOT / ".github" / "scripts" / "worker_rss_sample.py"
+
+_MISSING_REPO_ROOT_FILES = [p for p in (TESTS_YML, FLAKE_NIX) if not p.exists()]
+if _MISSING_REPO_ROOT_FILES:
+    pytest.skip(
+        "Repo-root files not present in this sandbox (expected under `nix flake check`'s "
+        "checks.default, whose `src = ./code` excludes the repo root): "
+        + ", ".join(str(p) for p in _MISSING_REPO_ROOT_FILES)
+        + ". This guard runs in .github/workflows/tests.yml's general-tests job instead, where "
+        "actions/checkout@v4 provides the full repository.",
+        allow_module_level=True,
+    )
+
+
+def _load_sampler():
+    """Load `.github/scripts/worker_rss_sample.py` by absolute path. Before the GREEN step
+    lands the script, this raises a clear FileNotFoundError naming the missing path at
+    collection time -- the correctly-named RED failure."""
+    spec = importlib.util.spec_from_file_location("worker_rss_sample", SAMPLER_SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+sampler = _load_sampler()
+
+
+def _write_proc_entry(proc_root: Path, pid: int, ppid: int, vm_rss_kb: int | None):
+    """Write a synthetic `/proc/<pid>/status` file. `vm_rss_kb=None` omits the VmRSS line
+    entirely (mirrors a zombie/kernel-thread process that has no resident memory line)."""
+    d = proc_root / str(pid)
+    d.mkdir(parents=True, exist_ok=True)
+    lines = [
+        f"Name:\tpytest\n",
+        f"Pid:\t{pid}\n",
+        f"PPid:\t{ppid}\n",
+    ]
+    if vm_rss_kb is not None:
+        lines.append(f"VmRSS:\t{vm_rss_kb} kB\n")
+    (d / "status").write_text("".join(lines))
+
+
+class TestParseVmRss:
+    def test_parses_standard_status_text(self):
+        text = "Name:\tpytest\nVmPeak:\t 200000 kB\nVmRSS:\t   123456 kB\nVmHWM:\t 130000 kB\n"
+        assert sampler.parse_vm_rss_kb(text) == 123456
+
+    def test_returns_none_when_no_vmrss_line(self):
+        text = "Name:\tpytest\nPid:\t42\n"
+        assert sampler.parse_vm_rss_kb(text) is None
+
+    def test_tolerates_extra_whitespace(self):
+        text = "VmRSS:      42   kB\n"
+        assert sampler.parse_vm_rss_kb(text) == 42
+
+
+class TestReadVmRssKb:
+    def test_reads_existing_pid(self, tmp_path):
+        _write_proc_entry(tmp_path, pid=100, ppid=1, vm_rss_kb=5000)
+        assert sampler.read_vm_rss_kb(tmp_path, 100) == 5000
+
+    def test_missing_pid_returns_none(self, tmp_path):
+        # No entry written for pid 999 -- simulates a worker that exited between discovery
+        # and read, a normal race this function must not raise on.
+        assert sampler.read_vm_rss_kb(tmp_path, 999) is None
+
+    def test_pid_with_no_vmrss_line_returns_none(self, tmp_path):
+        _write_proc_entry(tmp_path, pid=101, ppid=1, vm_rss_kb=None)
+        assert sampler.read_vm_rss_kb(tmp_path, 101) is None
+
+
+class TestDiscoverDescendantPids:
+    def test_finds_direct_children(self, tmp_path):
+        _write_proc_entry(tmp_path, pid=1, ppid=0, vm_rss_kb=1000)
+        _write_proc_entry(tmp_path, pid=2, ppid=1, vm_rss_kb=2000)
+        _write_proc_entry(tmp_path, pid=3, ppid=1, vm_rss_kb=3000)
+        found = sampler.discover_descendant_pids(tmp_path, root_pid=1)
+        assert found == {2, 3}
+
+    def test_finds_grandchildren(self, tmp_path):
+        _write_proc_entry(tmp_path, pid=1, ppid=0, vm_rss_kb=1000)
+        _write_proc_entry(tmp_path, pid=2, ppid=1, vm_rss_kb=2000)
+        _write_proc_entry(tmp_path, pid=4, ppid=2, vm_rss_kb=4000)
+        found = sampler.discover_descendant_pids(tmp_path, root_pid=1)
+        assert found == {2, 4}
+
+    def test_unrelated_process_not_included(self, tmp_path):
+        _write_proc_entry(tmp_path, pid=1, ppid=0, vm_rss_kb=1000)
+        _write_proc_entry(tmp_path, pid=2, ppid=1, vm_rss_kb=2000)
+        _write_proc_entry(tmp_path, pid=50, ppid=0, vm_rss_kb=9999)
+        found = sampler.discover_descendant_pids(tmp_path, root_pid=1)
+        assert found == {2}
+
+    def test_no_descendants_returns_empty_set(self, tmp_path):
+        _write_proc_entry(tmp_path, pid=1, ppid=0, vm_rss_kb=1000)
+        assert sampler.discover_descendant_pids(tmp_path, root_pid=1) == set()
+
+
+class TestSampleOnce:
+    def test_reads_rss_for_every_discovered_descendant(self, tmp_path):
+        _write_proc_entry(tmp_path, pid=1, ppid=0, vm_rss_kb=1000)
+        _write_proc_entry(tmp_path, pid=2, ppid=1, vm_rss_kb=50000)
+        _write_proc_entry(tmp_path, pid=3, ppid=1, vm_rss_kb=60000)
+        sample = sampler.sample_once(tmp_path, root_pid=1)
+        assert sample == {2: 50000, 3: 60000}
+
+    def test_skips_a_descendant_that_raced_away(self, tmp_path):
+        # discover_descendant_pids finds pid 2 via its status file, but sample_once's own
+        # read races a process exit for pid 3 (no status file at all) -- must not raise, and
+        # must simply omit pid 3 from the sample rather than recording a bogus 0.
+        _write_proc_entry(tmp_path, pid=1, ppid=0, vm_rss_kb=1000)
+        _write_proc_entry(tmp_path, pid=2, ppid=1, vm_rss_kb=50000)
+        d = tmp_path / "3"
+        d.mkdir()
+        (d / "status").write_text("Name:\tpytest\nPPid:\t1\n")  # discoverable, no VmRSS
+        sample = sampler.sample_once(tmp_path, root_pid=1)
+        assert sample == {2: 50000}
+
+
+class TestPeakTracker:
+    def test_tracks_per_pid_peak_across_samples(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({2: 1000, 3: 2000})
+        tracker.record({2: 1500, 3: 1800})
+        tracker.record({2: 900, 3: 2500})
+        assert tracker.per_pid_peak_kb == {2: 1500, 3: 2500}
+
+    def test_tracks_aggregate_peak_as_max_per_sample_total(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({2: 1000, 3: 2000})  # total 3000
+        tracker.record({2: 5000, 3: 100})  # total 5100 <- max
+        tracker.record({2: 1000, 3: 1000})  # total 2000
+        assert tracker.aggregate_peak_kb == 5100
+
+    def test_worker_replaced_mid_run_both_pids_contribute_to_per_pid_peak(self):
+        # This is exactly the D scenario: a worker dies and is replaced by a new pid. Both
+        # pids' peaks must be preserved, not overwritten -- the replacement is diagnostic
+        # data, not noise to discard.
+        tracker = sampler.PeakTracker()
+        tracker.record({10: 40000, 11: 30000})
+        tracker.record({10: 45000})  # pid 11 (the replacement worker) died
+        tracker.record({10: 46000, 12: 5000})  # a new worker pid 12 appeared
+        assert tracker.per_pid_peak_kb == {10: 46000, 11: 30000, 12: 5000}
+
+    def test_sample_count_increments(self):
+        tracker = sampler.PeakTracker()
+        assert tracker.sample_count == 0
+        tracker.record({2: 100})
+        tracker.record({2: 200})
+        assert tracker.sample_count == 2
+
+    def test_empty_sample_still_counts_and_does_not_crash(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({})
+        assert tracker.sample_count == 1
+        assert tracker.per_pid_peak_kb == {}
+        assert tracker.aggregate_peak_kb == 0
+
+    def test_summary_records_absolute_kb_not_a_ratio_and_no_16gb_threshold(self):
+        # Scope Hypothesis guard: the sampler must record absolute peak RSS (comparable
+        # against any ceiling a future task supplies) and must not itself encode any
+        # particular ceiling (e.g. 16GB) as a threshold or assertion.
+        tracker = sampler.PeakTracker()
+        tracker.record({2: 1000, 3: 2000})
+        summary = tracker.summary(workers=6, interval_s=2.0)
+        assert summary["aggregate_peak_kb"] == 3000
+        assert summary["per_worker_peak_kb"] == 2000
+        assert summary["workers"] == 6
+        assert summary["interval_s"] == 2.0
+        assert summary["sample_count"] == 1
+        assert summary["per_pid_peak_kb"] == {"2": 1000, "3": 2000}
+        # No threshold-shaped keys anywhere in the summary.
+        for key in summary:
+            assert "16" not in key and "ceiling" not in key.lower() and "limit" not in key.lower()
+
+    def test_summary_with_no_samples_is_well_formed(self):
+        tracker = sampler.PeakTracker()
+        summary = tracker.summary(workers=4, interval_s=1.0)
+        assert summary["aggregate_peak_kb"] == 0
+        assert summary["per_worker_peak_kb"] == 0
+        assert summary["sample_count"] == 0
+        assert summary["per_pid_peak_kb"] == {}
+
+    def test_summary_is_json_serializable(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({2: 1000, 3: 2000})
+        summary = tracker.summary(workers=6, interval_s=2.0)
+        # json.dumps requires string keys; the module's own summary() must already convert
+        # int pids to strings, or json.dumps must not raise here either way.
+        json.dumps(summary)

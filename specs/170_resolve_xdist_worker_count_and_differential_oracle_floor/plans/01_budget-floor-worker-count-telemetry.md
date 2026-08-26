@@ -405,7 +405,7 @@ comparison and rationale recorded in a comment (no systematic slowdown observed;
 
 ---
 
-### Phase 4: Peak-RSS-per-worker telemetry for the Python 3.12 job [NOT STARTED]
+### Phase 4: Peak-RSS-per-worker telemetry for the Python 3.12 job [COMPLETED]
 
 **Goal**: The Python 3.12 `general-tests` leg records peak RSS per xdist worker alongside the
 worker count, as an importable and unit-tested module, so a future task can decide D's memory
@@ -413,30 +413,54 @@ hypothesis on data. This phase adds instrumentation only — no fix, no claimed 
 
 **Tasks**:
 
-- [ ] **RED**: write `code/tests/ci/test_worker_rss_sampler.py` first, against the module's
+- [x] **RED**: write `code/tests/ci/test_worker_rss_sampler.py` first, against the module's
       intended interface, using synthetic `/proc/<pid>/status`-shaped fixtures written to
       `tmp_path` rather than live processes, so the tests are hermetic and run on any host.
       Confirm it fails on the missing module. Mirror the existing
       `test_unstable_watch_classifier.py` + `.github/scripts/unstable_watch_classify.py`
       structure — that pairing is the in-tree precedent for an importable, unit-tested CI helper
       and it should be followed rather than reinvented.
-- [ ] **GREEN**: implement the sampler as `.github/scripts/worker_rss_sample.py` — a small
+      **Confirmed RED**: `FileNotFoundError` naming the missing script path, at collection time.
+- [x] **GREEN**: implement the sampler as `.github/scripts/worker_rss_sample.py` — a small
       polling loop that discovers the pytest worker processes, samples `VmRSS` on an interval,
       tracks a per-worker peak, and emits a compact summary (per-worker peak, aggregate peak,
       worker count, sample count, interval). Prefer reading `/proc/<pid>/status` directly with a
       `psutil` path only if `psutil` genuinely buys something; a `/proc`-only implementation
       avoids adding a CI dependency at all, and the choice must be stated in the module docstring
       either way. If `psutil` is used, add it to the Python 3.12 leg's `pip install` line only.
-- [ ] Wire it into `.github/workflows/tests.yml` gated to the 3.12 matrix leg
+      **Implemented `/proc`-only** (choice stated in the module docstring); no new CI dependency.
+      20/20 unit tests green; live smoke-tested against a real `pytest -n 2` process (nonzero
+      per-worker RSS discovered correctly, e.g. 55424/55208 KB).
+- [x] Wire it into `.github/workflows/tests.yml` gated to the 3.12 matrix leg
       (`if: matrix.python-version == '3.12'`), running alongside the gating pass and printing its
       summary in a dedicated step. The step must be non-gating — a sampler failure must never
       turn a green suite red.
-- [ ] Record the effective `-n` worker count in the sampler's own output, so the data stays
+      **Deviation (documented, not silent)**: the sampler runs inline within the existing "Run
+      general test suite" step (bash-conditional on `${{ matrix.python-version }}`), not as a
+      separate GH Actions step, because true "alongside" execution requires the sampler and
+      pytest to share one shell/process tree — a separate step cannot observe a process
+      backgrounded by an earlier step without either not waiting for it (which would silently
+      stop that step from reflecting pytest's own pass/fail) or moving the pass/fail check into
+      the telemetry step (which would make the "non-gating" telemetry step gating in practice).
+      The parallel-pass `pytest ...` invocation is backgrounded unconditionally (not only under
+      3.12) specifically so the file keeps exactly **one** literal copy of that line —
+      duplicating it per branch was tried first and broke
+      `test_workflow_parity.py::test_parallel_pass_marker_expression_matches` /
+      `test_worker_count_matches` ("expected exactly one parallel (`-n`) pass, found 2"), exactly
+      the class of regression this phase's own Verification bullet warns is "a real finding, not
+      a test to adjust." Confirmed non-gating and gating-preserving by two smoke tests: a passing
+      `pytest -n 2` run's exit code 0 propagates through `wait`, and a deliberately failing run's
+      exit code 1 also propagates through `wait` unchanged by the sampler's `|| true`.
+- [x] Record the effective `-n` worker count in the sampler's own output, so the data stays
       diagnostic regardless of which value Phase 3 shipped. This is the mechanism by which the
       memory hypothesis can be confirmed or refuted even if `-n 4` makes the crash stop recurring.
-- [ ] Document in the workflow comment: what this is for, that D's root cause is **open**, the
+      **Done**: `--workers 4` passed explicitly (not inferred from live process count, which is
+      transiently unstable during worker replacement); recorded verbatim in the summary's
+      `workers` field.
+- [x] Document in the workflow comment: what this is for, that D's root cause is **open**, the
       three live hypotheses in one line each, and that this instrumentation is **removable** once
       the hypothesis resolves.
+      **Done**, in the new comment block above the (now-conditionally-sampled) parallel pass.
 
 **Timing**: 1.5 hours.
 
