@@ -1,5 +1,5 @@
 ---
-next_project_number: 174
+next_project_number: 175
 ---
 
 # TODO
@@ -11,9 +11,9 @@ next_project_number: 174
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,161,171,172,173 | -- | testing, semantics, release-engineering, ... |
-| 2 | 153,158 | 152,161 | semantics, release-engineering |
-| 3 | 154,168 | 153,158 | semantics, release-engineering |
+| 1 | 152,158,172 | -- | semantics, release-engineering, test-reliability |
+| 2 | 153,168,173 | 152,158,172 | testing, semantics, release-engineering |
+| 3 | 154,174 | 153,173 | semantics, test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -29,25 +29,62 @@ next_project_number: 174
 
 ### Release Engineering
 
-161 [BLOCKED] — Make TestPyPI publishing succeed at all: fix the TestPyPI trusted
-  └─ 158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
-    └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
-
-### Ci Verification
-
-171 [RESEARCHED] — Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction t
+158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
+  └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
 172 [NOT STARTED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
+
+### 174. Root cause xdist worker crash
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: Task 173
+
+**Description**: Find the root cause of the recurring xdist worker crash -- `[gw2] node down: Not properly terminated` -- which has now been observed THREE times across TWO Python versions with no explanation, and which no other task owns.
+
+WHY THIS TASK EXISTS. This is CI-budget item (D), carried forward from the worker-count task. That task's job was only to COLLECT telemetry, and it did; it explicitly declined to close item D. Nothing else in the backlog owns the root cause. A worker dying mid-run is not a timeout and is not a budget problem: no `max_time`, `max_rlimit`, or `timeout-minutes` value affects it, and the test named in the failure is whichever one the worker happened to be running, not necessarily the cause.
+
+THE INCIDENT RECORD (all three, with the evidence that distinguishes them):
+- Run 32897405646, Python 3.12: reached 94% progress, produced ZERO output for ~17 minutes, then was killed by the job-level `timeout-minutes: 20` backstop with orphaned pytest workers in the cleanup log. This is what motivated the `--timeout-method=thread` guard.
+- Run 32910478240, Python 3.12, at `-n 6`: `[gw2] node down`, on `test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_three_taskframe_axioms_present_in_frame_constraints`. CI logs show the replacement worker re-ran that test in 0.23s, confirming the named test as an innocent bystander. A silent gap of 123s preceded the detection.
+- Run 32996446859, Python 3.11, at `-n 4`: `[gw2] node down`, on `test_frame_class_mapping.py::TestFixtureSmoke::test_extract_world_histories_nonempty`. Final tally `1 failed, 2088 passed, 255 skipped in 342.19s`.
+
+WHAT THE THIRD INCIDENT CHANGED -- READ BEFORE FORMING A HYPOTHESIS. The three hypotheses on record were (1) memory exhaustion on the 16GB runner, (2) a Python-3.12-specific Z3/z3-solver ABI fault, (3) an xdist/execnet worker-communication fault under load. The 2026-08-26 incident moves all three and the prior ranking is no longer valid:
+- Hypothesis (2) is SUBSTANTIALLY WEAKENED. The crash is not 3.12-specific -- it occurred on 3.11. Every prior incident was 3.12, which is the only reason that hypothesis led.
+- Hypothesis (1) is WEAKENED, not strengthened. `-n 4` gives MORE memory headroom per worker than `-n 6`, and the crash occurred anyway. The first real-CI RSS telemetry measured aggregate peak 4,344,196 KB (~4.14 GiB) against a 16 GB runner -- roughly 26% -- with a striking asymmetry: one worker peaked at 3,766,144 KB (~3.59 GiB) while the other three peaked at 226 MB, 269 MB, and 380 MB.
+- Hypothesis (3) gains relative weight by elimination, but nothing yet confirms it directly.
+- IMPORTANT CAVEAT ON THE TELEMETRY: the sampler polls at a 2s interval, and an OOM kill or native-layer segfault follows a transient allocation spike -- exactly the shape a 2s sampler misses. The measurement bounds STEADY-STATE memory and does not refute a spike. Do not treat 26% as proof memory is uninvolved.
+
+LEADS WORTH PURSUING, in rough order of promise:
+(a) IDENTIFY THE 3.59 GiB WORKER. One worker holding ~10x its siblings is the most concrete lead item D has produced. The current telemetry records per-PID peaks but does NOT map PIDs to xdist test groups. Wiring that correlation is the obvious next instrumentation step and would narrow the search sharply. Check whether the heavy worker is consistently the one holding `theory_lib/bimodal`.
+(b) THE SAME-MODULE, SAME-WORKER PATTERN. Both confirmed `node down` incidents named `gw2` and both landed in `test_frame_class_mapping.py` -- different tests, different Python versions. The prior analysis concluded the named TEST is an innocent bystander, which the differing test names still support, but two-for-two on the same MODULE is a stronger signal than the bystander reading accounts for. Determine whether xdist's distribution consistently assigns that module to `gw2`, and whether its fixtures hold unusual native state. TWO INCIDENTS IS A THIN BASE -- treat this as a lead, not a finding, and do not over-fit to it.
+(c) TIGHTEN THE SAMPLING INTERVAL. Dropping from 2s to ~0.25s costs little on an already-non-gating step and materially improves the odds of catching a pre-crash excursion -- but only pays off on a run where the crash actually recurs.
+(d) THE CHEAP EXPERIMENT, now owned here rather than by the development-marker task: move `test_frame_class_mapping.py` to the serial pass via `@pytest.mark.xdist_serial` and observe whether removing it from the parallel pool stops the crash. This is off-label for a marker meant for wall-clock assertions, so if adopted it must be commented as a deliberate diagnostic rather than a semantic claim -- and RECORD THE RESULT EITHER WAY, since a crash that persists after serialization is itself strong evidence against leads (a) and (b).
+
+WHAT IS ALREADY DONE -- DO NOT REDO.
+- `.github/scripts/worker_rss_sample.py` exists (a /proc-only peak-RSS-per-worker sampler) with 20 hermetic unit tests in `code/tests/ci/test_worker_rss_sampler.py`.
+- The sampler is NO LONGER 3.12-gated. It was ungated on 2026-08-26 precisely because the 3.11 crash proved a matrix-scoped sampler cannot observe a failure whose leg distribution is the open question. `code/tests/ci/test_worker_rss_sampler.py::TestSamplerIsNotMatrixGated` keeps it ungated executably -- do not re-gate it.
+
+HARD CONSTRAINTS.
+- Do NOT revert `-n 4`. The crash predates it, occurred twice at `-n 6`, and the worker-count reduction was independently verified on real CI (no example flips, no systematic slowdown). Reverting would be cargo-culting against verified evidence.
+- Do NOT widen `timeout-minutes` to accommodate a crash. A dead worker is not a slow one.
+- Do NOT mark the crashed test `unstable` or `development` to make the red go green. The crash is NOT test-scoped -- two incidents killed two DIFFERENT tests in the same file, so a test-level marker cannot contain it and would give the appearance of a fix while leaving the failure rate untouched.
+- Treat "green on one run" as weak evidence throughout. Runs 32995122897 (all green) and 32996446859 (two failures) are CONSECUTIVE on near-identical trees. The failure RATE is the signal; measure it rather than reacting to the last result.
+
+EXIT CONDITION. Either a root cause identified with evidence and a fix that measurably reduces the crash rate, OR -- if the cause resists identification -- a written, honest record of which hypotheses were eliminated and by what evidence, plus whatever containment is defensible, so the next investigator starts from the frontier rather than from scratch. An indefinite open investigation with neither is the failure mode to avoid.
+
+---
 
 ### 173. Add development marker for in progress theories
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: testing
-- **Dependencies**: None
+- **Dependencies**: Task 158, Task 172
 
 **Description**: Add a `development` pytest marker so a theory still under active construction (bimodal today) can carry known-failing or contention-flaky tests without turning the whole package's CI red -- while keeping every such test observed rather than forgotten.
 
@@ -68,7 +105,11 @@ HARD CONSTRAINTS.
 - Do NOT mark the two failures from CI run 32996446859 as `development` on the way past. One is already fixed at the root (the bimodal iterate tests' timeout-vs-unsat discriminator, commit 75012389); the other is an xdist worker crash that is NOT test-scoped -- two incidents killed two DIFFERENT tests in `test_frame_class_mapping.py`, so a test-level marker cannot contain it and would give the appearance of a fix without changing the failure rate. That crash belongs to the open item-D investigation.
 - Any new gating pytest invocation must carry the deselection filter as a matter of course, per section 8.9's standing instruction.
 
-RELATED, SEPARATELY DECIDABLE. A cheap experiment worth recording either way: moving `test_frame_class_mapping.py` to the serial pass via `xdist_serial` to see whether removing it from the parallel pool stops the `[gw2] node down` crash. That is off-label for a marker meant for wall-clock assertions and is NOT part of this task's deliverable, but the result would inform item D. Decide explicitly whether to fold it in or leave it to the worker-crash investigation.
+RESOLVED, NOW OWNED ELSEWHERE -- DO NOT EXECUTE HERE. The `xdist_serial` experiment on `test_frame_class_mapping.py` (moving it to the serial pass to see whether that stops the `[gw2] node down` crash) is now owned by the worker-crash task `root_cause_xdist_worker_crash`, as its lead (d). Do not fold it in here; the two would edit the same module's markers.
+
+ORDERING AND CONCURRENCY. This task declares `harden_release_ci_testpypi_gate` and `fix_contention_flaky_soundness_regression_tests` as dependencies -- not because it needs their OUTPUT, but because all three edit the same pytest selection expressions and marker registry (`.github/workflows/tests.yml`, `.github/workflows/differential-tests.yml`, `flake.nix`, `code/pyproject.toml`, `code/tests/ci/`, `oracle/run-oracle-suite.sh`). Running them concurrently would produce conflicting edits to the same `-m` strings. Re-read all of those files fresh at start rather than working from any copy quoted in this description; both dependencies will have modified them.
+
+The worker-crash task in turn depends on THIS one, so the `development` marker exists before that investigation decides whether to use it.
 
 ---
 
@@ -111,11 +152,12 @@ CONSTRAINTS:
 ---
 
 ### 171. Verify xdist worker count on real ci
-- **Status**: [RESEARCHED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: ci-verification
 - **Dependencies**: None
 - **Research**: [171_verify_xdist_worker_count_on_real_ci/reports/01_verify-xdist-worker-count-ci.md]
+- **Summary**: [171_verify_xdist_worker_count_on_real_ci/summaries/01_verify-xdist-worker-count-ci-summary.md]
 
 **Description**: Verify on real CI the -n 6 -> -n 4 xdist worker-count reduction that landed for the CI-budget task, and close the deferred oracle-suite verification gates it left behind.
 
@@ -175,7 +217,7 @@ HARD CONSTRAINTS (carried forward, all previously verified by a git diff gate):
 ---
 
 ### 161. Fix testpypi trusted publisher
-- **Status**: [BLOCKED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
@@ -354,7 +396,11 @@ task_type: python. file_scope: the bimodal theory package
 
 (5) VERIFY PUBLICATION VIA THE JSON API, NOT THE SIMPLE INDEX. Post-publish, `pip index versions model-checker` still reported 1.2.12 as latest for a noticeable window while `https://pypi.org/pypi/model-checker/json` already showed 1.3.0 -- simple-index CDN caching. A verification step that polls the simple index will produce false negatives. Use the JSON API (with bounded retry) for any automated post-publish confirmation, and correct any documentation in `.github/RELEASE_SETUP.md` or the checklist template that recommends `pip index versions` as the authoritative check.
 
-(6) GITIGNORE THE ORCHESTRATOR RUNTIME FILES. `specs/.orchestrator-multi-state*.json` and `specs/.return-meta-multi-*.json` are ephemeral per-session runtime state but are NOT gitignored, so they accumulate as untracked files and dirty the working tree. This directly blocked `/tag`'s clean-tree precondition during the 1.3.0 release and forced a housekeeping commit (e6ab4868) between the rehearsal-evidence commit and the tag. Add them to `.gitignore` alongside the already-ignored `.orchestrator-loop-guard`. Confirm the exclusion set in `.claude/context/standards/orchestrator-runtime-files.md` agrees.
+(6) GITIGNORE THE ORCHESTRATOR RUNTIME FILES -- PREMISE CORRECTED 2026-08-26, RE-SCOPE BEFORE ACTING. The original text claimed `.orchestrator-multi-state*.json` and `.return-meta-multi-*.json` are NOT gitignored and instructed adding them "alongside the already-ignored `.orchestrator-loop-guard`". BOTH HALVES OF THAT ARE WRONG, verified against the tree on 2026-08-26:
+  - `.orchestrator-multi-state.json` and `.orchestrator-multi-state-sess_*.json` ARE already gitignored (`.gitignore` lines 36-37). That half of the item is DONE; do not re-add them.
+  - `.orchestrator-loop-guard` is NOT gitignored -- `.gitignore` contains no loop-guard entry at all, and SIX loop-guard files are currently TRACKED in git. The item's stated reference point does not exist.
+  So the actual open question is the opposite of the one written: decide whether `.orchestrator-loop-guard` should be gitignored (matching multi-state's treatment) or should remain tracked (its current de-facto state, and possibly deliberate -- a loop-guard records cycle counts that may be worth preserving across sessions). Check `.claude/context/standards/orchestrator-runtime-files.md` for the intended exclusion set and reconcile the tree against it, rather than assuming either direction. Also confirm whether `.return-meta-multi-*.json` needs an entry -- it was named in the original text but not separately verified.
+  The underlying motivation still stands: orchestrator runtime residue dirtied the working tree and blocked `/tag`'s clean-tree precondition during the 1.3.0 release (housekeeping commit e6ab4868), and did so again on 2026-08-26 before the v1.3.7 tag, forcing two more residue commits.
 
 (7) GUARD THE WORKFLOW-FILE ORDERING HAZARD. At tag time `.github/workflows/release.yml` had an uncommitted-then-unpushed fix (`pip install build twine` -> `... wheel`) while origin carried the older copy. Because Actions runs the workflow as it exists AT THE TAGGED COMMIT this resolved correctly, but only because the branch was pushed before the tag. Make the ordering explicit in `.github/RELEASE_SETUP.md`, and consider a preflight assertion (item 3) that the tagged commit's release.yml matches the default branch's.
 
@@ -367,7 +413,7 @@ AGENT CONSTRAINT: per .claude/rules/pr-prohibition.md, `git push`, `git tag`, `/
 
 The v1.3.0 tag push fired FOUR workflows over the same commit; two failed. Neither gated the release (Release itself concluded success and published cleanly), but both need treatment and one was already fixed.
 
-(9) ALREADY FIXED, VERIFY ONLY -- duplicate workflow runs on tag pushes. `tests.yml` and `packaging.yml` carried an unqualified `on: push`, and `differential-tests.yml`'s `paths` filter is NOT applied by GitHub to tag pushes, so a release tag re-ran the entire regression suite that `release.yml`'s own 3-OS x 3-Python `test-and-release` matrix had already run. Fixed in commit b3822ac7 by adding `tags-ignore: ['**']` to all three push triggers. This task should VERIFY the fix held on the next release tag (expect: only `Release` appears in the Actions list for a `v*` ref) and should NOT redo it.
+(9) DISCHARGED 2026-08-26 -- NO WORK REMAINS, DO NOT RE-VERIFY. The duplicate-workflow-run fix (adding `tags-ignore: ['**']` to the push triggers of `tests.yml`, `packaging.yml`, and `differential-tests.yml`, commit b3822ac7) was verified to hold on the `v1.3.7` tag push: querying the Actions list for that ref returns exactly ONE workflow, `Release` (conclusion success). The expected outcome the item names is confirmed. This item is closed; it is retained here only so a future reader does not re-open it.
 
 (10) HARDEN OR QUARANTINE THE Z3 DIVERGENT-DRAW FLAKE. `test_bimodal.py::test_example_cases[BM_CM_1-example_case7]` failed in the tag-triggered Tests run (1 failed, 1999 passed, 254 skipped) while PASSING in release.yml's own matrix on the identical commit and on the immediately preceding master push. Do NOT treat this as a budget miscalibration: `examples.py`'s BM_CM_1_settings comment already records a 15->60s recalibration and states explicitly that a divergent draw was measured undecided at 600s (~64x median) and that "the divergent-draw residual is accepted and recorded: no budget closes it". Raising `max_time` again is therefore known-ineffective. The fix belongs at the test/CI layer, not the budget layer. Options to evaluate: pin `smt/sat.random_seed` for this example in CI to make it deterministic (must select a known-decided seed, and costs draw diversity); adopt bounded automatic reruns for the known-divergent examples only (e.g. pytest-rerunfailures scoped by marker, never suite-wide); or mark it with an explicit flaky marker that keeps it visible but non-gating. Whichever is chosen must NOT silently hide a genuine future regression in this example -- the divergent tail is a solver property, an actual semantic break would look different and must still fail loudly.
 
@@ -384,7 +430,9 @@ Items (10), (11), and (12) above are SUPERSEDED by the bimodal-flake task (`fix_
 
 Item (9) is unaffected and remains verify-only (the duplicate-tag-trigger fix landed in commit b3822ac7).
 
-CONCURRENCY: this task and the bimodal-flake task overlap on `.github/workflows/tests.yml`, `.github/workflows/release.yml`, and `.github/workflows/differential-tests.yml`. They MUST NOT run concurrently -- both edit the same pytest selection expressions. Run one, then re-read its outcome before starting the other. This task's headline TestPyPI-gate work (items 1, 3-8) is otherwise fully independent of the bimodal defects and is the higher-priority half.
+CONCURRENCY -- UPDATED 2026-08-26. The bimodal-flake task named above (`fix_bimodal_flake_and_unstable_category`) is COMPLETED and archived; the warning against running concurrently with IT is moot. The hazard itself is not: this task edits pytest selection expressions in `.github/workflows/tests.yml`, `.github/workflows/differential-tests.yml`, `flake.nix`, and `code/pyproject.toml`'s marker registry, and the `development`-marker task (`add_development_marker_for_in_progress_theories`) edits the SAME expressions and the same marker registry. That task now declares this one as a dependency so the two are ordered rather than concurrent -- do not remove that edge. This task's headline TestPyPI-gate work (items 1, 3-8) remains fully independent of the marker work and is the higher-priority half.
+
+INPUT NOW SATISFIED (2026-08-26): item (2)'s prerequisite is met. `publish-testpypi` completed green on the real `v1.3.7` tag (Actions run 32996862484) against a correctly registered trusted publisher, and `model-checker 1.3.7` is live on test.pypi.org. A working TestPyPI upload is therefore a real input to item (1)(b)'s `verify-testpypi` job, not a hypothetical. Note that test.pypi.org also still carries a stale `0.1` release from a pre-CI manual upload -- any version-assertion in the new job must pin the tag version explicitly rather than reading "latest".
 
 === DEPENDENCY: fix_testpypi_trusted_publisher (see `dependencies` in state.json) ===
 

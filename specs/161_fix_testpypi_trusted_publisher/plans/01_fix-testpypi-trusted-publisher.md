@@ -1,7 +1,7 @@
 # Implementation Plan: Fix TestPyPI Trusted Publisher + One-Glance OIDC Diagnostics
 
 - **Task**: 161 - Fix TestPyPI trusted-publisher registration and make future OIDC mismatches diagnosable in one glance
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 1.25 hours (agent-side: 0.75h; user-side gates: 0.5h plus CI wall-clock)
 - **Dependencies**: None (this task BLOCKS `harden_release_ci_testpypi_gate`, which declares it as a dependency)
 - **Research Inputs**: specs/161_fix_testpypi_trusted_publisher/reports/01_fix-testpypi-trusted-publisher.md
@@ -247,7 +247,7 @@ as `null` rather than failing, so the step degrades visibly rather than breaking
 
 ---
 
-### Phase 2: USER GATE - Register the trusted publisher on test.pypi.org [NOT STARTED]
+### Phase 2: USER GATE - Register the trusted publisher on test.pypi.org [COMPLETED]
 
 **Goal**: A GitHub Actions trusted publisher for `model-checker` exists on test.pypi.org with
 field values that exactly match this workflow's OIDC claims.
@@ -345,7 +345,7 @@ estimate no longer holds.
 
 ---
 
-### Phase 3: USER GATE - Verify on a real `v*` tag push [NOT STARTED]
+### Phase 3: USER GATE - Verify on a real `v*` tag push [COMPLETED]
 
 **Goal**: The `publish-testpypi` job goes green on a real release run, and the diagnostic step's
 printed claims are confirmed to match the registered publisher fields.
@@ -427,3 +427,35 @@ and 3 both blocked), the diagnostic step remains independently valuable — it m
 legible — and the `publish-testpypi` job continues to soft-fail exactly as it does today, since
 the job-level `continue-on-error: true` on line 147 is deliberately left in place by this task.
 Escalate the ownership question to the user rather than working around it.
+
+---
+
+## Completion Record (2026-08-26)
+
+Both user gates were discharged by the user on 2026-08-26.
+
+**Phase 2** — the GitHub Actions trusted publisher was registered on test.pypi.org for the
+existing `model-checker` project (which already held a stale `0.1` manual upload, so the
+project-settings route applied rather than the pending-publisher route the plan's fallback
+ladder describes).
+
+**Phase 3** — verified on the real `v1.3.7` tag push, Actions run `32996862484`:
+
+- `Publish to TestPyPI` concluded **success** — the first green in this job's history.
+- The Phase 1 diagnostic step ran and printed exactly its four whitelisted claims, matching
+  the registration:
+  ```
+  OIDC audience: testpypi
+  { "sub": "repo:benbrastmckie/ModelChecker:environment:testpypi",
+    "repository": "benbrastmckie/ModelChecker",
+    "workflow_ref": ".../release.yml@refs/tags/v1.3.7",
+    "environment": "testpypi" }
+  ```
+- Redaction held: neither `ACTIONS_ID_TOKEN_REQUEST_TOKEN` nor the minted JWT appears anywhere
+  in the job log.
+- `model-checker 1.3.7` is live on test.pypi.org.
+
+DONE MEANS, as stated in the task: publish-testpypi green on a real tag, the diagnostic step in
+place and redacting correctly, and the dependent hardening task unblocked. All three hold.
+TestPyPI is still NOT a gate — `continue-on-error: true` remains at `release.yml:147`, exactly
+as this task's scope requires, and promoting it belongs to the dependent task.
