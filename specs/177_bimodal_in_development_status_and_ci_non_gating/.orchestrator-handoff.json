@@ -1,26 +1,19 @@
 {
-  "status": "researched",
-  "summary": "Verified every factual claim in the task against the tree: it is 7 gating pytest invocations, not 6 (7 files/lines named needing the fix). Confirmed GAP 1 (differential-tests.yml's CI-gate step is a genuine soundness check with no continue-on-error) should stay gating by design; recommend a new test asserting that. GAP 2: addopts change already correctly rejected historically; recommend a --markers passthrough on run_tests.py instead (needs new TDD test file, none exists today). GAP 3 needs only one new unstable-watch.yml step -- the classifier already defaults to reading /tmp/watch-development.xml, zero script changes needed. Task 173's stale Phase 6 criterion is already reconciled at its canonical source (TESTING_GUIDE.md); recommend not editing task 173's own plan file.",
+  "dispatch_seq": 2,
+  "phase": "plan",
+  "status": "planned",
+  "summary": "Created a six-phase TDD implementation plan built on the research report's verified ground truth: keep the oracle soundness gate and pin it with three new assertions (GAP 1), wire run_tests.py's dead TestConfig.markers field through argparse with a new test module while leaving addopts untouched (GAP 2), add the -m development producing step to unstable-watch.yml with zero classifier changes (GAP 3), and correct the seven-not-six invocation count plus the .github/workflows/README.md and tests.yml false claims. Phases 1, 4, 5 are unblocked; 2 depends on 1, 3 on 2, 6 on all.",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/177_bimodal_in_development_status_and_ci_non_gating/reports/01_bimodal-ci-gating-ground-truth.md",
-      "summary": "Ground-truth inventory, GAP 1-3 recommendations, and corrected correctness-debt anchor list."
+      "type": "plan",
+      "path": "specs/177_bimodal_in_development_status_and_ci_non_gating/plans/01_bimodal-in-development-ci-non-gating.md",
+      "summary": "Six-phase TDD plan, 7h estimated, dependency waves [[1,4,5],[2],[3],[6]]."
     }
   ],
   "phases_completed": 0,
-  "phases_total": 0,
+  "phases_total": 6,
   "blockers": [],
-  "next_action_hint": "plan",
-  "files_modified": [
-    "specs/177_bimodal_in_development_status_and_ci_non_gating/reports/01_bimodal-ci-gating-ground-truth.md"
-  ],
-  "decisions_made": [
-    "Recommend keeping oracle/bimodal_logic differential and soundness tests unconditionally gating (GAP 1) -- enforce via a new test asserting no continue-on-error and TestCIGate presence in differential-tests.yml's gate step",
-    "Recommend NOT adding an addopts -m default (already correctly rejected historically); instead add a --markers passthrough option to run_tests.py (GAP 2), requiring a new TDD test file since none exists for run_tests.py today",
-    "GAP 3 requires only a new unstable-watch.yml step; unstable_watch_classify.py needs zero changes since main() already defaults dev_junit_path to /tmp/watch-development.xml",
-    "Do not edit task 173's plan file to fix its stale Phase 6 exit criterion -- it is already reconciled at the canonical source (TESTING_GUIDE.md section 8.14), consistent with task 153's own precedent of not rewriting another task's plan"
-  ],
-  "dead_ends": [],
-  "dispatch_seq": 1
+  "plan_markers_verified": true,
+  "continuation_path": null,
+  "next_action_hint": "Dispatch /implement 177 starting at Phase 1 (executable gating-invocation count and six->seven corrections)."
 }
