@@ -1,7 +1,7 @@
 # Implementation Plan: Assert Seriality and Interpolation in BimodalSemantics
 
 - **Task**: 153 - Assert missing frame axioms in bimodal semantics
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 9 hours
 - **Dependencies**: 152 (audit ledger + regression baseline)
 - **Research Inputs**: `specs/153_assert_missing_frame_axioms_in_bimodal_semantics/reports/01_seriality-interpolation-encoding.md`

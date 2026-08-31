@@ -314,7 +314,7 @@
     {
       "project_number": 153,
       "project_name": "assert_missing_frame_axioms_in_bimodal_semantics",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "z3",
       "topic": "semantics",
       "priority": "high",
@@ -341,14 +341,14 @@
         {
           "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/summaries/01_seriality-interpolation-axioms-summary.md",
           "type": "summary",
-          "summary": "Full implementation summary: what was built, the Phase 2 reachability measurement, the BM_CM_4/BM_CM_1 blocker with all evidence, plan deviations, and follow-ups."
+          "summary": "Landing decision, the non-gating work, the task-caused CLI regression with measurements, full test results table, plan deviations, and flagged follow-ups."
         }
       ],
       "blockers": null,
       "created": "2026-08-11T23:11:53Z",
-      "last_updated": "2026-08-31T19:25:08Z",
+      "last_updated": "2026-08-31T21:39:35Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1788198229_79cf9f_153"
+      "session_id": "sess_1788210833_14a473"
     },
     {
       "project_number": 152,

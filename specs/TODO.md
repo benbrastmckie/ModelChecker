@@ -11,10 +11,10 @@ next_project_number: 177
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 153,176 | -- | semantics, test-reliability |
-| 2 | 154,172 | 153,176 | semantics, test-reliability |
+| 1 | 154,176 | -- | semantics, test-reliability |
+| 2 | 172 | 176 | test-reliability |
 | 3 | 173 | 172 | testing |
-| 4 | 174 | 153,173 | test-reliability |
+| 4 | 174 | 173 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -24,8 +24,7 @@ next_project_number: 177
 
 ### Semantics
 
-153 [IMPLEMENTING] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
-  └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
+154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Test Reliability
 
@@ -578,7 +577,7 @@ DEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the ex
 ---
 
 ### 153. Assert missing frame axioms in bimodal semantics
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 152
