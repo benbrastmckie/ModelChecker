@@ -258,34 +258,52 @@ reasoning shapes Phase 3's `verify-testpypi` job-level `if:`, which explicitly c
 
 ---
 
-### Phase 3: Add the verify-testpypi job [NOT STARTED]
+### Phase 3: Add the verify-testpypi job [COMPLETED]
 
 **Goal**: `publish-pypi` runs only after the just-uploaded TestPyPI artifact has been installed
 from the index and smoke-tested.
 
 **Tasks**:
-- [ ] Re-read `.github/workflows/release.yml` after Phase 2's edits
-- [ ] Add a `verify-testpypi` job with `needs: [test-and-release, build, publish-testpypi]`,
+- [x] Re-read `.github/workflows/release.yml` after Phase 2's edits
+- [x] Add a `verify-testpypi` job with `needs: [test-and-release, build, publish-testpypi]`,
       `runs-on: ubuntu-latest`, and no added permissions (it only installs from an index; no OIDC)
-- [ ] Re-derive the version locally with `VERSION=${GITHUB_REF#refs/tags/v}`, matching the
+- [x] Re-derive the version locally with `VERSION=${GITHUB_REF#refs/tags/v}`, matching the
       existing pattern in `test-and-release`'s "Get version from tag" step. Do not introduce a
       cross-job `outputs:` block -- this repo's workflows have no precedent for one and
       re-deriving is the lower-diff choice
-- [ ] Install with BOTH indexes, pinned to the exact version:
+- [x] Install with BOTH indexes, pinned to the exact version:
       `pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ "model-checker==${VERSION}"`.
       Never a bare install: test.pypi.org still carries a stale `0.1` release from a pre-CI
       manual upload
-- [ ] Wrap the install in a bounded retry for index propagation lag -- a
+- [x] Wrap the install in a bounded retry for index propagation lag -- a
       `for i in $(seq 1 10); do ... && break; sleep 15; done` loop plus a final exit-code check
       that fails the step if the last attempt also failed. There is no existing retry idiom in
       this repo's workflows or `code/scripts/*.sh` to reuse; match the repo's bash style
       (`set -uo pipefail`, no external retry actions)
-- [ ] Smoke test at the minimum bar: import the package, assert `model_checker.__version__`
+- [x] Smoke test at the minimum bar: import the package, assert `model_checker.__version__`
       equals `${VERSION}`, and run `model-checker --help`
-- [ ] Repoint `publish-pypi`'s `needs:` from `[build, publish-testpypi]` to
+- [x] Repoint `publish-pypi`'s `needs:` from `[build, publish-testpypi]` to
       `[build, verify-testpypi]` (the direct `publish-testpypi` edge is redundant --
       `verify-testpypi` already depends on it)
-- [ ] Record out-of-scope flag E (golden-path extension) in the summary rather than implementing it
+- [x] Record out-of-scope flag E (golden-path extension) in the summary rather than implementing it
+
+**Additional design work beyond the literal task list**: repointing `publish-pypi`'s `needs:` to
+`verify-testpypi` alone is not sufficient for `skip_testpypi` to actually work end-to-end, because
+of the same custom-`if:`-replaces-implicit-`success()` mechanics documented under Phase 2's
+deviation note. When `skip_testpypi` is true, `publish-testpypi` is skipped (by its own `if:`),
+and GitHub Actions' default `if: success()` treats a skipped `needs:` job the same as a failed
+one -- so `verify-testpypi`, if left with no `if:` of its own, would also default-skip, which
+would then cascade to skip `publish-pypi` too and silently defeat the whole point of the escape
+hatch. `verify-testpypi` therefore carries its own explicit `if:` (quoted in the job comment
+above) that (a) still requires `test-and-release`/`build` to have actually succeeded, and (b)
+treats "`publish-testpypi` succeeded" and "`publish-testpypi` was skipped because
+`skip_testpypi` was deliberately set" as the two legitimate ways to proceed. Each verification
+step inside the job additionally carries its own `if: ${{ inputs.skip_testpypi != true }}`, so
+in the escape-hatch case the job runs but every step no-ops -- reporting overall job success
+without attempting to verify an artifact that was never uploaded -- which lets `publish-pypi`'s
+own default `if: success()` check on `needs: [build, verify-testpypi]` pass through unmodified.
+This is why `publish-pypi` itself needed no `if:` change at all, matching the plan's directive
+that only its `needs:` edge changes in this phase.
 
 **Timing**: 1.5 hours
 

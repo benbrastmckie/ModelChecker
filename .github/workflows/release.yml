@@ -215,9 +215,87 @@ jobs:
         repository-url: https://test.pypi.org/legacy/
         skip-existing: true
 
+  verify-testpypi:
+    name: Verify TestPyPI install
+    needs: [test-and-release, build, publish-testpypi]
+    runs-on: ubuntu-latest
+    # This job's own if: replaces the implicit if: success() default (see the note on
+    # publish-testpypi's if: above), so the upstream success check is spelled out explicitly
+    # here rather than relied on implicitly.
+    #
+    # Runs when either (a) publish-testpypi actually published (the normal path -- install and
+    # smoke-test what was just uploaded), or (b) publish-testpypi was itself skipped because a
+    # human set the skip_testpypi escape hatch (nothing was uploaded, so there is nothing to
+    # verify; the steps below no-op via their own per-step `if:` so this job still reports
+    # success and does not block publish-pypi). If publish-testpypi genuinely failed, or
+    # test-and-release/build failed, none of these disjuncts hold and this job is skipped,
+    # which correctly blocks publish-pypi below via its own default if: success() check.
+    if: >-
+      ${{ always() && needs.test-and-release.result == 'success' &&
+          needs.build.result == 'success' &&
+          (needs.publish-testpypi.result == 'success' ||
+           (needs.publish-testpypi.result == 'skipped' && inputs.skip_testpypi == true)) }}
+
+    steps:
+    - name: Get version from tag
+      id: version
+      if: ${{ inputs.skip_testpypi != true }}
+      shell: bash
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "Version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Install from TestPyPI (retry for index propagation lag)
+      if: ${{ inputs.skip_testpypi != true }}
+      shell: bash
+      run: |
+        set -uo pipefail
+        VERSION="${{ steps.version.outputs.version }}"
+
+        # Both indexes are required: TestPyPI does not mirror dependencies (z3-solver would
+        # otherwise fail to resolve), so PyPI proper is the extra index for everything except
+        # the package under test. Pinned to the exact tag version: test.pypi.org still carries
+        # a stale 0.1 release from a pre-CI manual upload, so a bare/unpinned install would
+        # silently resolve that instead of the artifact this run just published.
+        success=0
+        for i in $(seq 1 10); do
+          if pip install \
+              --index-url https://test.pypi.org/simple/ \
+              --extra-index-url https://pypi.org/simple/ \
+              "model-checker==${VERSION}"; then
+            success=1
+            break
+          fi
+          echo "Install attempt ${i}/10 failed (TestPyPI index propagation lag); retrying in 15s..."
+          sleep 15
+        done
+
+        if [ "${success}" -ne 1 ]; then
+          echo "ERROR: failed to install model-checker==${VERSION} from TestPyPI after 10 attempts"
+          exit 1
+        fi
+
+    - name: Smoke test the installed artifact
+      if: ${{ inputs.skip_testpypi != true }}
+      shell: bash
+      run: |
+        set -uo pipefail
+        VERSION="${{ steps.version.outputs.version }}"
+
+        INSTALLED_VERSION=$(python -c "import model_checker; print(model_checker.__version__)")
+        if [ "${INSTALLED_VERSION}" != "${VERSION}" ]; then
+          echo "ERROR: TestPyPI-installed version (${INSTALLED_VERSION}) doesn't match tag (${VERSION})"
+          exit 1
+        fi
+
+        python -m model_checker --help
+
+        echo "✓ TestPyPI artifact installed and importable (version ${INSTALLED_VERSION})"
+
   publish-pypi:
     name: Publish to PyPI
-    needs: [build, publish-testpypi]
+    needs: [build, verify-testpypi]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
