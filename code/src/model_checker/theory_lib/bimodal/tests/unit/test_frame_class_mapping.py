@@ -393,6 +393,120 @@ class TestForwardCompPostHoc:
 
 
 # ============================================================================
+# TaskFrame Axiom 4: Seriality
+# ============================================================================
+
+
+class TestSerialityPostHoc:
+    """Post-hoc validation of the seriality axiom in extracted countermodels.
+
+    Seriality: for every world state w and every valid non-negative duration
+    x, both a successor u (task_rel(w, x, u)) and a predecessor v
+    (task_rel(v, x, w)) exist.
+
+    Validates: for every state s appearing as a source or target in the
+    extracted pairs and every valid non-negative duration x, some successor
+    and some predecessor pair is present.
+    """
+
+    def test_seriality_holds_for_all_states_and_durations(self, solved_model):
+        """For every state and every valid non-negative duration, some
+        successor and some predecessor should be present in the extracted
+        model.
+
+        Checks the seriality axiom post-hoc over the full (small) state and
+        duration space, reporting violations in the same violations[:5]
+        style as the other post-hoc checks.
+        """
+        semantics, z3_model = solved_model
+        pairs = extract_task_rel_pairs(semantics, z3_model)
+        num_states = 2 ** semantics.N
+        M = semantics.M
+        non_neg_durations = range(0, M)
+
+        violations = []
+        for s in range(num_states):
+            for x in non_neg_durations:
+                has_successor = any(
+                    source == s and dur == x
+                    for (source, dur, target) in pairs
+                )
+                has_predecessor = any(
+                    target == s and dur == x
+                    for (source, dur, target) in pairs
+                )
+                if not has_successor:
+                    violations.append(
+                        f"seriality violated: no successor found for "
+                        f"task_rel({s}, {x}, _)"
+                    )
+                if not has_predecessor:
+                    violations.append(
+                        f"seriality violated: no predecessor found for "
+                        f"task_rel(_, {x}, {s})"
+                    )
+
+        assert violations == [], (
+            f"seriality axiom violated in {len(violations)} case(s):\n" +
+            "\n".join(violations[:5])
+        )
+
+
+# ============================================================================
+# TaskFrame Axiom 5: Interpolation
+# ============================================================================
+
+
+class TestInterpolationPostHoc:
+    """Post-hoc validation of the interpolation axiom in extracted
+    countermodels.
+
+    Interpolation (the -> half of Compositionality): for every (w, d1+d2, v)
+    present with d1, d2, d1+d2 all within valid duration bounds, some
+    intermediate state u exists with task_rel(w, d1, u) and
+    task_rel(u, d2, v).
+
+    Validates: for every (w, d_sum, v) in the extracted pairs and every
+    decomposition d_sum = d1 + d2 with d1, d2 both within valid duration
+    bounds, some intermediate state is present in the extracted pairs.
+    """
+
+    def test_interpolation_holds_for_all_pairs(self, solved_model):
+        """For every (w, d_sum, v) in the model and every valid
+        decomposition d_sum = d1 + d2, some intermediate state should be
+        present.
+
+        Mirrors TestForwardCompPostHoc's structure but checks the reverse
+        direction: decomposing a task rather than composing two.
+        """
+        semantics, z3_model = solved_model
+        pairs = extract_task_rel_pairs(semantics, z3_model)
+        M = semantics.M
+        valid_dur = range(-M + 1, M)
+
+        violations = []
+        for (w, d_sum, v) in pairs:
+            for d1 in valid_dur:
+                d2 = d_sum - d1
+                if d2 not in valid_dur:
+                    continue
+                has_intermediate = any(
+                    source == w and dur == d1 and (target, d2, v) in pairs
+                    for (source, dur, target) in pairs
+                )
+                if not has_intermediate:
+                    violations.append(
+                        f"task_rel({w},{d_sum},{v}) present but no "
+                        f"intermediate state found for d1={d1}, d2={d2}"
+                    )
+
+        assert violations == [], (
+            f"interpolation axiom violated in {len(violations)} case(s):\n" +
+            "\n".join(violations[:5])
+        )
+
+
+# ============================================================================
 # Lawful History Property
 # ============================================================================
 

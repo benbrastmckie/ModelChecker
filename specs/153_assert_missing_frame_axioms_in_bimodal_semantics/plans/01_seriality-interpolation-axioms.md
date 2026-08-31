@@ -251,7 +251,7 @@ cannot be expressed at all in this form, that is itself a recorded no-go with re
 
 ---
 
-### Phase 3: Failing tests for Seriality and Interpolation (RED) [NOT STARTED]
+### Phase 3: Failing tests for Seriality and Interpolation (RED) [COMPLETED]
 
 **Goal**: Write the tests before the implementation, per the project's mandatory TDD requirement.
 All new tests fail at the end of this phase because the constraint builders do not yet exist.
