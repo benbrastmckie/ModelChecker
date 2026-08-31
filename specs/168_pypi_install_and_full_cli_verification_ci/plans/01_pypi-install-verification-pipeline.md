@@ -1,7 +1,7 @@
 # Implementation Plan: PyPI Install and Full-CLI Verification Pipeline
 
 - **Task**: 168 - Pypi install and full cli verification ci
-- **Status**: [IMPLEMENTING]
+- **Status**: COMPLETED
 - **Effort**: 8 hours
 - **Dependencies**: Task 158 (completed -- `release.yml`'s 7-job post-158 topology is the baseline this plan extends)
 - **Research Inputs**: specs/168_pypi_install_and_full_cli_verification_ci/reports/01_pypi-install-full-cli-verification-ci.md
@@ -449,7 +449,7 @@ suite, with the opt-in tmate shape of D6.
 
 ---
 
-### Phase 6: End-to-end verification from the NixOS host [NOT STARTED]
+### Phase 6: End-to-end verification from the NixOS host [COMPLETED]
 
 **Goal**: Prove the whole pipeline on the development host and confirm no default-path
 regression anywhere, then write the summary.
