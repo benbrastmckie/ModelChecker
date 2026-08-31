@@ -23,28 +23,29 @@ next_project_number: 176
 
 ### Semantics
 
-152 [NOT STARTED] — AUDIT ONLY -- no semantics change, no constraint change, no examp
+152 [RESEARCHED] — AUDIT ONLY -- no semantics change, no constraint change, no examp
   └─ 153 [NOT STARTED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
     └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Release Engineering
 
-158 [NOT STARTED] — Harden the release CI pipeline so TestPyPI becomes a real verific
+158 [RESEARCHED] — Harden the release CI pipeline so TestPyPI becomes a real verific
   └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
-172 [NOT STARTED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
-175 [NOT STARTED] — Fix the unstable-watch classifier's laundering guard, which produ
+172 [RESEARCHED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+175 [RESEARCHED] — Fix the unstable-watch classifier's laundering guard, which produ
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
 
 ### 175. Fix unstable watch classifier laundering guard
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
+- **Research**: [175_fix_unstable_watch_classifier_laundering_guard/reports/01_laundering-guard-fix-design.md]
 
 **Description**: Fix the unstable-watch classifier's laundering guard, which produces a FALSE POSITIVE on every genuine gating-floor failure and has turned the nightly Unstable Watch workflow red on five consecutive runs. The tests are NOT failing in a new way -- the classifier is misreading them.
 
@@ -191,10 +192,11 @@ CORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the m
 ---
 
 ### 172. Fix contention flaky soundness regression tests
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
+- **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md]
 
 **Description**: Three tests in oracle/bimodal_logic/tests/test_soundness_regression.py fail deterministically under the gating suite's parallel pass but pass in isolation. They are CPU-contention casualties of a tight solve budget, and they were invisible to every narrowed verification gate run to date because no recent task touched their file.
 
@@ -441,10 +443,11 @@ task_type: python. file_scope: the bimodal theory package
 ---
 
 ### 158. Harden release ci testpypi gate
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 161
+- **Research**: [158_harden_release_ci_testpypi_gate/reports/01_harden-testpypi-gate.md]
 
 **Description**: Harden the release CI pipeline so TestPyPI becomes a real verification gate before production PyPI, and close the friction points observed during the 1.3.0 release run (2026-08-12, Actions run 31628414655). The 1.3.0 publish SUCCEEDED -- this task is about making the next one safer and less manual, not about fixing a broken release.
 
@@ -572,10 +575,11 @@ DEPENDENCIES. The bimodal frame-class audit (baseline and ledger) and BimodalLog
 ---
 
 ### 152. Audit bimodal frame class and verdict dependence
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
+- **Research**: [152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md]
 
 **Description**: AUDIT ONLY -- no semantics change, no constraint change, no examples change. Produce the soundness ledger and the regression baseline that the two follow-on tasks need, because both alter the frame class the solver searches and neither can be landed safely without knowing which existing verdicts depend on what.
 
