@@ -393,6 +393,115 @@ class BimodalSemantics(SemanticDefaults):
             ]
         )
 
+    def build_seriality_constraint(self):
+        """Build seriality constraint: every world state has a successor and
+        a predecessor at every valid non-negative duration.
+
+        For every world state w and every valid non-negative duration x,
+        both a successor u (task_rel(w, x, u)) and a predecessor v
+        (task_rel(v, x, w)) exist.
+
+        Skolemized encoding: two Skolem functions (serial_succ, serial_pred)
+        eliminate the two existentials ("some successor"/"some predecessor")
+        inside a single top-level ForAll([w, x]) -- no nested Exists. This
+        mirrors capped_skolem_abundance_constraint's existential-elimination
+        idiom (core.py, Skolem function for "some shifted world exists")
+        rather than introducing a new technique. A literal nested
+        ForAll/Exists reading was benchmarked and ruled out for
+        Interpolation below (measured BM_TH_3/BM_TH_4 regression at M=2);
+        Seriality uses the same Skolemized form for consistency and because
+        it is the only form measured to carry no regression.
+
+        ProofChecker Alignment: Matches TaskFrame.Serial from TaskFrame.lean
+        -- consumed at Extension/Constraint.lean:43-55.
+
+        Returns:
+            Z3 ForAll formula asserting that, under the duration guard
+            (x >= 0 and is_valid_duration(x)), task_rel(w, x, serial_succ(w, x))
+            and task_rel(serial_pred(w, x), x, w) both hold, for all world
+            states w : BitVec[N] and durations x : Int.
+        """
+        serial_succ = z3.Function(
+            'serial_succ', self.WorldStateSort, self.TimeSort, self.WorldStateSort
+        )
+        serial_pred = z3.Function(
+            'serial_pred', self.WorldStateSort, self.TimeSort, self.WorldStateSort
+        )
+        w = z3.BitVec('serial_w', self.N)
+        x = z3.Int('serial_x')
+
+        guard = z3.And(x >= 0, self.is_valid_duration(x))
+
+        return z3.ForAll(
+            [w, x],
+            z3.Implies(
+                guard,
+                z3.And(
+                    self.task_rel(w, x, serial_succ(w, x)),
+                    self.task_rel(serial_pred(w, x), x, w),
+                )
+            )
+        )
+
+    def build_interpolation_constraint(self):
+        """Build interpolation constraint: the missing right-to-left half of
+        Compositionality.
+
+        If task_rel(w, d1+d2, v) holds under the duration guards, an
+        intermediate state u exists with task_rel(w, d1, u) and
+        task_rel(u, d2, v) -- together with build_forward_comp_constraint
+        (the left-to-right half), this completes Compositionality as a
+        biconditional over decomposable durations.
+
+        Skolemized encoding: one Skolem witness function (interp_witness)
+        eliminates the existential ("some intermediate state exists")
+        inside a single top-level ForAll([w, v, d1, d2]) -- no nested
+        Exists. This is MANDATED, not a style preference: a literal nested
+        ForAll/Exists reading was benchmarked and regresses BM_TH_3 and
+        BM_TH_4 (both at M=2) from a decided 0.03-0.10s `match` to a 10s
+        MBQI timeout (`inconclusive`); the Skolemized reading preserves the
+        baseline verdict and timing on all six examples benchmarked. See
+        the research report (specs/153_.../reports/01_seriality-interpolation-encoding.md,
+        Section 3) for the full measurement.
+
+        ProofChecker Alignment: Matches TaskFrame.Interpolates from
+        TaskFrame.lean -- consumed at Extension/Constraint.lean:43-55,
+        217-244.
+
+        Returns:
+            Z3 ForAll formula asserting that, under the duration guards
+            (is_valid_duration(d1), is_valid_duration(d2),
+            is_valid_duration(d1 + d2)) plus the premise
+            task_rel(w, d1 + d2, v), task_rel(w, d1, interp_witness(w, d1, d2, v))
+            and task_rel(interp_witness(w, d1, d2, v), d2, v) both hold, for
+            all world states w, v : BitVec[N] and durations d1, d2 : Int.
+        """
+        interp_witness = z3.Function(
+            'interp_witness', self.WorldStateSort, z3.IntSort(),
+            z3.IntSort(), self.WorldStateSort, self.WorldStateSort
+        )
+        w = z3.BitVec('interp_w', self.N)
+        v = z3.BitVec('interp_v', self.N)
+        d1 = z3.Int('interp_d1')
+        d2 = z3.Int('interp_d2')
+        u = interp_witness(w, d1, d2, v)
+
+        return z3.ForAll(
+            [w, v, d1, d2],
+            z3.Implies(
+                z3.And(
+                    self.is_valid_duration(d1),
+                    self.is_valid_duration(d2),
+                    self.is_valid_duration(d1 + d2),
+                    self.task_rel(w, d1 + d2, v)
+                ),
+                z3.And(
+                    self.task_rel(w, d1, u),
+                    self.task_rel(u, d2, v)
+                )
+            )
+        )
+
     def ForAllTime(self, world, time_var, body):
         """Universal quantification over all valid times in domain D.
 
@@ -691,6 +800,10 @@ class BimodalSemantics(SemanticDefaults):
         converse = self.build_converse_constraint()
         # forward_comp: compositionality -- if task_rel(w,d1,v) and task_rel(v,d2,u) then task_rel(w,d1+d2,u)
         forward_comp = self.build_forward_comp_constraint()
+        # seriality: every world state has a successor and predecessor at every valid non-negative duration
+        seriality = self.build_seriality_constraint()
+        # interpolation: the missing right-to-left half of Compositionality
+        interpolation = self.build_interpolation_constraint()
 
         # 8. All valid time-shifted worlds exist (depth-aware)
         # Task 114 Fix: When temporal_depth is explicitly set via settings:
@@ -852,6 +965,8 @@ class BimodalSemantics(SemanticDefaults):
             nullity_identity,
             converse,
             forward_comp,
+            seriality,
+            interpolation,
             *skolem_abundance,    # list of constraints (1 for M=2, multiple for M>=3)
             world_uniqueness,
             # MAYBE (not yet enabled, preserved for future experimentation):

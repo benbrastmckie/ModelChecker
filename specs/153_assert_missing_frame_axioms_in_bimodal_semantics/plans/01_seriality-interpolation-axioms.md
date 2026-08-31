@@ -301,7 +301,26 @@ checks against the extracted relation, record which and why rather than dropping
 
 ---
 
-### Phase 4: Implement and wire the two Skolemized constraints (GREEN) [NOT STARTED]
+### Phase 4: Implement and wire the two Skolemized constraints (GREEN) [COMPLETED]
+
+**Deviation (recorded, not silently absorbed)**: the "Run the full bimodal unit suite to catch
+collateral breakage" verification item surfaced a genuine, fully-characterized regression outside
+its stated exclusions (`KNOWN_TIMEOUT_EXAMPLES`, `BM_CM_1`): `BM_CM_4` (a countermodel example,
+N=2, M=2, not M>=3) goes from a clean 4.07s decided `match` (pre-Phase-4, and consistent with the
+task 152 baseline's 18.26s) to `inconclusive` at its own 120s `max_time` budget with **both** new
+axioms present. Isolation (both axioms tested individually against the same example) shows neither
+Seriality alone (~9.27s, still decided `match`) nor Interpolation alone (~6.33s, still decided
+`match`) is individually responsible -- the cost is superlinear in their *combination*, consistent
+with cross-instantiation between the two new Skolem witness functions under MBQI. One mitigation
+(an explicit single-term pattern anchoring Interpolation to its premise's ground `task_rel` term,
+mirroring `forward_comp`'s existing `MultiPattern` convention) was tried and did not recover a
+decided result (still `inconclusive` at 40s on the smaller probe budget). This is a **cost**
+regression (`inconclusive`, not a decided flip to `unsat`) -- Seriality and Interpolation have not
+been shown to eliminate `BM_CM_4`'s countermodel, only to make it undecided within budget. See
+Phase 7 for the full-baseline accounting of this finding and the implementation summary for the
+recorded remedy options (including this plan's own rollback section, which anticipated exactly
+this failure mode and names "land Seriality alone, defer Interpolation" as the safe fallback --
+not applied here without the user's decision, since it would silently narrow the shipped scope).
 
 **Goal**: Add `build_seriality_constraint` and `build_interpolation_constraint` to `core.py` in the
 Skolemized form the research measured, wire both into `build_frame_constraints`, and turn Phase 3's
@@ -309,26 +328,26 @@ tests green.
 
 **Tasks**:
 
-- [ ] Add `build_seriality_constraint` near the other frame-axiom builders (after
+- [x] Add `build_seriality_constraint` near the other frame-axiom builders (after
       `build_forward_comp_constraint`, `core.py:344`). Two Skolem functions `serial_succ`/
       `serial_pred` over `(WorldStateSort, TimeSort) -> WorldStateSort`, one top-level `ForAll([w, x])`,
       guard `z3.And(x >= 0, self.is_valid_duration(x))`, body
       `z3.And(task_rel(w, x, serial_succ(w, x)), task_rel(serial_pred(w, x), x, w))`. **No nested
       `Exists`.**
-- [ ] Add `build_interpolation_constraint` immediately after it. One Skolem function
+- [x] Add `build_interpolation_constraint` immediately after it. One Skolem function
       `interp_witness` over `(WorldStateSort, IntSort, IntSort, WorldStateSort) -> WorldStateSort`,
       one top-level `ForAll([w, v, d1, d2])`, guards `is_valid_duration(d1)`, `is_valid_duration(d2)`,
       `is_valid_duration(d1 + d2)` plus the premise `task_rel(w, d1 + d2, v)`, body
       `z3.And(task_rel(w, d1, u), task_rel(u, d2, v))` with `u = interp_witness(w, d1, d2, v)`.
       **No nested `Exists`** — the nested reading is a measured regression on `BM_TH_3`/`BM_TH_4`.
-- [ ] Give both builders docstrings matching the existing house style: statement of the axiom, the
+- [x] Give both builders docstrings matching the existing house style: statement of the axiom, the
       "ProofChecker Alignment" paragraph citing the BimodalLogic predicate (`TaskFrame.Serial`,
       `TaskFrame.Interpolates`), and a `Returns:` block.
-- [ ] Call both from `build_frame_constraints` and insert them into the returned list in the frame-
+- [x] Call both from `build_frame_constraints` and insert them into the returned list in the frame-
       axiom block after `forward_comp` and before `*skolem_abundance`, preserving the list's
       documented MBQI-ordering rationale (`core.py:841`-`844`).
-- [ ] Run the two Phase 3 test files; confirm GREEN.
-- [ ] Run the full bimodal unit suite to catch collateral breakage.
+- [x] Run the two Phase 3 test files; confirm GREEN.
+- [x] Run the full bimodal unit suite to catch collateral breakage.
 
 **Timing**: 1.5 hours
 

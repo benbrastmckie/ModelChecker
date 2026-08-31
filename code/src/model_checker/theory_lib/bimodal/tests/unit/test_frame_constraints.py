@@ -49,6 +49,42 @@ def semantics():
     return BimodalSemantics(settings)
 
 
+@pytest.fixture
+def semantics_m3():
+    """Create BimodalSemantics instance with M=3 (time domain -3 to 3).
+
+    TestInterpolation needs a decomposition d1=d2=1 (sum=2) to remain within
+    is_valid_duration's guard; M=2's window (-2, 2) excludes duration 2
+    entirely (valid durations are only {-1, 0, 1}), which would make
+    build_interpolation_constraint's premise vacuously false for any
+    non-trivial (both d1, d2 nonzero) decomposition. M=3 widens the window
+    to {-2, -1, 0, 1, 2}, admitting d1=d2=1.
+
+    Sets temporal_depth=0 to skip capped_skolem_abundance_constraint.
+    Verified independently (both against this task's new builders and
+    against the pre-existing, unmodified tree at the commit before this
+    task's Phase 4) that checking bare frame_constraints satisfiability at
+    M=3 with the abundance constraint active and no problem-specific
+    ground terms to seed MBQI instantiation is already pathological
+    (60s+, pre-existing, unrelated to Seriality/Interpolation) --
+    temporal_depth=0 sidesteps that pre-existing issue and is not a
+    workaround for anything this task's constraints introduce. With
+    temporal_depth=0, the same positive/negative Interpolation checks
+    below resolve in well under a second.
+    """
+    settings = {
+        'N': 2,
+        'M': 3,
+        'contingent': False,
+        'disjoint': False,
+        'max_time': 1,
+        'expectation': True,
+        'iterate': 1,
+        'temporal_depth': 0,
+    }
+    return BimodalSemantics(settings)
+
+
 class TestNullityIdentity:
     """Tests for the nullity_identity constraint: task_rel(w, 0, u) <-> w == u.
 
@@ -286,11 +322,15 @@ class TestInterpolation:
     (the nested reading is a measured BM_TH_3/BM_TH_4 regression at M=2).
     """
 
-    def test_intermediate_state_exists(self, semantics):
+    def test_intermediate_state_exists(self, semantics_m3):
         """Given task_rel(w, 2, v) under valid duration guards (d1=d2=1),
         an intermediate state u with task_rel(w,1,u) and task_rel(u,1,v)
         should be derivable (satisfiable) -- Interpolation's positive case.
+
+        Uses the semantics_m3 fixture (M=3) so that d1=d2=1 (sum=2) is
+        within is_valid_duration's guard; M=2's window excludes duration 2.
         """
+        semantics = semantics_m3
         solver = z3.Solver()
         solver.add(semantics.frame_constraints)
 
@@ -315,11 +355,15 @@ class TestInterpolation:
             "d1=1, d2=1' should be jointly satisfiable given Interpolation"
         )
 
-    def test_no_intermediate_state_unsat(self, semantics):
+    def test_no_intermediate_state_unsat(self, semantics_m3):
         """Asserting task_rel(w, 2, v) while denying every possible
         intermediate state (over the full, small state space) at d1=d2=1
         should be unsatisfiable given Interpolation.
+
+        Uses the semantics_m3 fixture (M=3); see test_intermediate_state_exists
+        for why M=2's guard window would make this vacuous.
         """
+        semantics = semantics_m3
         solver = z3.Solver()
         solver.add(semantics.frame_constraints)
 
