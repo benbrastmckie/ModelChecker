@@ -1,7 +1,7 @@
 # Implementation Plan: Add `development` pytest marker for in-progress theories
 
 - **Task**: 173 - Add development marker for in progress theories
-- **Status**: [IMPLEMENTING]
+- **Status**: [PARTIAL]
 - **Effort**: 6.5 hours
 - **Dependencies**: Task 158, Task 172, Task 175 (all landed; their edits to the four `-m` drivers and to `unstable_watch_classify.py` are the baseline this plan builds on)
 - **Research Inputs**: `specs/173_add_development_marker_for_in_progress_theories/reports/01_development-marker-design.md`
@@ -485,7 +485,7 @@ number and reconcile rather than overwriting.
 
 ---
 
-### Phase 6: Full-gate verification and deferred-item record [NOT STARTED]
+### Phase 6: Full-gate verification and deferred-item record [PARTIAL]
 
 **Goal**: The whole change set is verified together against the real gates, and every deliberate
 omission is recorded where the next reader will find it.
@@ -521,6 +521,59 @@ omission is recorded where the next reader will find it.
 - Identical collected-test counts with and without the new filter.
 - Zero tests collected under `-m development`.
 - The four deferred/flagged items are present in the summary.
+
+#### Findings (honest partial record)
+
+Established (verified, green):
+- `cd code && PYTHONPATH=src pytest tests/ci/ -v` -- all 83 tests pass.
+- `pytest --collect-only -m development -q` -- collects 0 tests.
+- Collection-level equivalence, confirmed two ways: `--collect-only -q` reports identical
+  `2392/2527 collected (135 deselected)` with and without `and not development`, AND a full
+  sorted diff of the two `--collect-only -q` outputs (3055 lines each) is byte-identical (empty
+  diff). This is the direct answer to "does this task's `-m` filter deselect anything it
+  shouldn't": no -- it deselects exactly nothing beyond the pre-existing four filters, because no
+  test carries `development` yet.
+- All four deferred/flagged items are recorded in the implementation summary (see below).
+
+NOT established -- a clean full-suite execution run:
+- `PYTHONPATH=src pytest tests/ src/model_checker -m "... and not development" -n 4 -q
+  --timeout=300 --timeout-method=thread` was run twice under a 580s `timeout` wrapper and both
+  times exited **124** (killed at the bound), not a clean pass. The first attempt's tail showed,
+  around 93-96% collected: `F` x4 and an xdist worker crash
+  (`[gw0] node down: Not properly terminated`, `replacing crashed worker gw0`). This run shares
+  the working tree with tasks 153 and 168, both committing/mid-flight concurrently during the
+  window (153 landed `b7bc19c3` "task 153 phase 3: failing tests for Seriality and Interpolation
+  (RED)" -- four intentionally-red test classes in
+  `bimodal/tests/unit/test_frame_constraints.py` and `test_frame_class_mapping.py` -- and had
+  further UNCOMMITTED changes to `bimodal/semantic/core.py` and `test_frame_constraints.py` in
+  the shared tree at verification time).
+- A targeted, bounded rerun scoped to exactly those two bimodal files was launched to isolate the
+  failures, but that run is itself confounded by task 153's in-flight, uncommitted `core.py`
+  changes (same files, same session): a `TestInterpolation` test was mid-execution, taking well
+  over 400s per node (Skolemized-constraint Z3 solves), when it was killed rather than attributed.
+  No failure in this task's own scope (marker registration, six `-m` edits, the classifier) was
+  observed or is plausible given the collection-equivalence result above -- but a genuinely clean,
+  unconfounded full-suite green run was **not obtained** in this dispatch.
+- **xdist worker crash evidence for task 174** (`root_cause_xdist_worker_crash`, not_started):
+  exact log excerpt, captured verbatim from the first full-suite attempt
+  (`pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and
+  not xdist_serial and not development" -n 4 -q --timeout=300 --timeout-method=thread`, run
+  under `timeout 580`):
+  ```
+  ................................F..................................[gw0] node down: Not properly terminated
+  F
+  replacing crashed worker gw0
+  ..FF
+  ```
+  This is offered as evidence for task 174, not investigated or fixed here -- it is outside this
+  task's `file_scope` and, per the collection-equivalence finding above, not attributable to the
+  `development` marker.
+
+**Continuation condition**: a clean, unconfounded full-suite gating run (Phase 6's second
+verification bullet) is blocked on task 153 landing its in-flight `bimodal/semantic/core.py` work
+(or otherwise vacating the shared tree). Re-running once that lands, and confirming the F's/crash
+either resolve or are independently attributable to task 174's known xdist issue, is the remaining
+work to close this phase.
 
 ## Testing & Validation
 
