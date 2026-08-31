@@ -53,7 +53,7 @@ class TestConfig:
     verbose: bool
     failfast: bool
     coverage: bool
-    markers: List[str]
+    markers: Optional[str]
     pytest_args: List[str]
     force_theory: bool = False  # Force targets as theories
     force_component: bool = False  # Force targets as components
@@ -130,7 +130,7 @@ class TestConfig:
             verbose=args.verbose,
             failfast=args.failfast,
             coverage=getattr(args, 'coverage', False),
-            markers=getattr(args, 'markers', []),
+            markers=getattr(args, 'markers', None),
             pytest_args=[],
             force_theory=args.theory,
             force_component=args.component
@@ -303,6 +303,20 @@ class TestConfigValidator:
             raise ValueError(f"Unknown components: {invalid}. Available: {available_str}")
 
 
+def _normalize_markers_deselection_exit_code(returncode: int, markers: Optional[str]) -> int:
+    """Pytest exits 5 ("no tests ran") when a run collects tests but its `-m` expression
+    deselects every one of them -- e.g. `pytest bimodal/tests -m "not development"` reports
+    "313 deselected" and exits 5, since every bimodal test carries `development`. When the
+    caller explicitly supplied `--markers`, that full-deselection result is the intended
+    selection outcome (reproducing a gating pass finds zero in-scope tests, or an
+    in-development selection finds none), not a failure -- normalize it to 0. Exit 5 with no
+    markers supplied is left unmodified, since it then signals a genuine "nothing collected"
+    problem (e.g. an empty or misnamed test directory)."""
+    if markers and returncode == 5:
+        return 0
+    return returncode
+
+
 class ExampleTestRunner:
     """Runs integration tests from examples.py files."""
     
@@ -344,11 +358,13 @@ class ExampleTestRunner:
             # Build command for subtheory examples
             command = ["pytest", str(subtheory_test_dir)]
             command.extend(["-k", "example"])  # Only example tests (matches both "examples" and "example_cases")
-            
+
             if config.verbose:
                 command.append("-v")
             if config.failfast:
                 command.append("-x")
+            if config.markers:
+                command.extend(["-m", config.markers])
             
             # Execute tests and measure time
             env = self._setup_environment()
@@ -356,13 +372,16 @@ class ExampleTestRunner:
             try:
                 result = subprocess.run(command, cwd=self.code_dir, env=env)
                 elapsed_time = time.time() - start_time
-                
+                returncode = _normalize_markers_deselection_exit_code(
+                    result.returncode, config.markers
+                )
+
                 # Record timing if results object provided
                 if results:
                     results.add_subtheory_timing("logos", subtheory, elapsed_time)
-                
-                if result.returncode != 0:
-                    overall_exit_code = result.returncode
+
+                if returncode != 0:
+                    overall_exit_code = returncode
                     if config.failfast:
                         break
             except Exception as e:
@@ -394,17 +413,19 @@ class ExampleTestRunner:
         # Build pytest command
         command = ["pytest", str(test_dir)]
         command.extend(["-k", "example"])  # Only example tests (matches both "examples" and "example_cases")
-        
+
         if config.verbose:
             command.append("-v")
         if config.failfast:
             command.append("-x")
-        
+        if config.markers:
+            command.extend(["-m", config.markers])
+
         # Set up environment and execute
         env = self._setup_environment()
         try:
             result = subprocess.run(command, cwd=self.code_dir, env=env)
-            return result.returncode
+            return _normalize_markers_deselection_exit_code(result.returncode, config.markers)
         except Exception as e:
             print(f"    Error running example tests for {theory}: {e}")
             return 1
@@ -513,17 +534,19 @@ class UnitTestRunner:
             if patterns:
                 filter_expr = f"({' or '.join(patterns)})"
                 command.extend(["-k", filter_expr])
-        
+
         if config.verbose:
             command.append("-v")
         if config.failfast:
             command.append("-x")
-        
+        if config.markers:
+            command.extend(["-m", config.markers])
+
         # Execute tests
         env = self._setup_environment()
         try:
             result = subprocess.run(command, cwd=self.code_dir, env=env)
-            return result.returncode
+            return _normalize_markers_deselection_exit_code(result.returncode, config.markers)
         except Exception as e:
             print(f"    Error running unit tests for logos: {e}")
             return 1
@@ -539,17 +562,19 @@ class UnitTestRunner:
         # Build pytest command
         command = ["pytest", str(test_dir)]
         command.extend(["-k", "not example"])  # Exclude example tests
-        
+
         if config.verbose:
             command.append("-v")
         if config.failfast:
             command.append("-x")
-        
+        if config.markers:
+            command.extend(["-m", config.markers])
+
         # Set up environment and execute
         env = self._setup_environment()
         try:
             result = subprocess.run(command, cwd=self.code_dir, env=env)
-            return result.returncode
+            return _normalize_markers_deselection_exit_code(result.returncode, config.markers)
         except Exception as e:
             print(f"    Error running unit tests for {theory}: {e}")
             return 1
@@ -595,7 +620,7 @@ class PackageTestRunner:
         # Execute tests
         try:
             result = subprocess.run(command, cwd=self.code_dir, env=env)
-            return result.returncode
+            return _normalize_markers_deselection_exit_code(result.returncode, config.markers)
         except Exception as e:
             print(f"    Error running package tests for {component}: {e}")
             return 1
@@ -609,7 +634,9 @@ class PackageTestRunner:
             command.append("-v")
         if config.failfast:
             command.append("-x")
-        
+        if config.markers:
+            command.extend(["-m", config.markers])
+
         return command
     
     def _setup_environment(self) -> Dict[str, str]:
@@ -948,6 +975,12 @@ Examples:
   # Explicit type specification
   %(prog)s --theory parser          Force targets as theories
   %(prog)s --component iterate      Force targets as components
+
+  # Marker passthrough (reproduce or select the CI gating drivers' -m selection)
+  %(prog)s bimodal --markers "not development"   Reproduce the gate: excludes bimodal's
+                                                  in-development tests, as every gating
+                                                  driver's -m expression does
+  %(prog)s bimodal --markers development         Explicitly select the in-development set
         """
     )
     
@@ -1014,7 +1047,20 @@ Examples:
         action="store_true",
         help="Stop after first failure"
     )
-    
+    parser.add_argument(
+        "--markers", "-m",
+        type=str,
+        default=None,
+        metavar="MARKER_EXPR",
+        help=(
+            "Pass a pytest -m marker expression through to every invoked pytest command "
+            '(e.g. --markers "not development" to reproduce a gating run\'s selection '
+            'locally, or --markers development to select only the in-development set). '
+            "No default -- omitting this flag emits no -m token at all, so a bare "
+            "invocation still runs the full, unfiltered suite."
+        )
+    )
+
     return parser
 
 

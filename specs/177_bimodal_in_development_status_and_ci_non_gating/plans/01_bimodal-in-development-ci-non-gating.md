@@ -320,7 +320,7 @@ and recording the actual number — assert what you observe, not 313.
 
 ---
 
-### Phase 4: `run_tests.py --markers`/`-m` passthrough with a new TDD test module (GAP 2) [IN PROGRESS]
+### Phase 4: `run_tests.py --markers`/`-m` passthrough with a new TDD test module (GAP 2) [COMPLETED]
 
 **Goal**: The unified runner can reproduce the gating selection and explicitly select the
 in-development set, with the dead `TestConfig.markers` field finally wired — and with the
