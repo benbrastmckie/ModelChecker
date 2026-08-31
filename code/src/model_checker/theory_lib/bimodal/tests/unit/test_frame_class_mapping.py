@@ -1,15 +1,15 @@
 """Post-hoc validation tests for Z3 frame class axiom mapping.
 
 This module validates that countermodels extracted from the Z3 oracle
-satisfy the three TaskFrame axioms (nullity_identity, converse, forward_comp)
-and the lawful history property. It documents and tests the correspondence
+satisfy the five TaskFrame axioms (nullity_identity, converse, forward_comp,
+seriality, interpolation) and the lawful history property. It documents and tests the correspondence
 between the Z3 oracle's "Base" frame class claim and BimodalLogic's TaskFrame
 structure.
 
 Purpose:
 --------
 The Z3 oracle declares `supported_frame_classes = frozenset({"Base"})`, meaning
-the oracle's frame satisfies the three TaskFrame axioms. This test suite performs
+the oracle's frame satisfies the five TaskFrame axioms. This test suite performs
 post-hoc validation: after extracting a satisfying assignment (countermodel) from
 the Z3 solver, it enumerates all task_rel pairs in the model and checks that the
 TaskFrame axioms hold exactly as documented for the external Z3 oracle provider
@@ -564,7 +564,7 @@ class TestFrameClassDeclarationConsistency:
     """Tests verifying the oracle's 'Base' frame class claim is justified.
 
     The oracle declares supported_frame_classes = frozenset({"Base"}), meaning
-    the Z3 frame satisfies the three TaskFrame axioms. This class verifies the
+    the Z3 frame satisfies the five TaskFrame axioms. This class verifies the
     axioms hold against the in-package `BimodalSemantics.frame_constraints`.
 
     Note: the sibling test that verifies the oracle class itself declares
@@ -576,19 +576,20 @@ class TestFrameClassDeclarationConsistency:
     "Base" terminology disambiguation.
     """
 
-    def test_three_taskframe_axioms_present_in_frame_constraints(self, semantics):
-        """The frame constraints should include all three TaskFrame axioms.
+    def test_five_taskframe_axioms_present_in_frame_constraints(self, semantics):
+        """The frame constraints should include all five TaskFrame axioms.
 
         Verifies that build_frame_constraints() produces constraints that
-        enforce nullity_identity, converse, and forward_comp by checking the
-        frame is satisfiable (consistent) and the axioms reduce the solution space.
+        enforce nullity_identity, converse, forward_comp, seriality, and
+        interpolation by checking the frame is satisfiable (consistent) and
+        the axioms reduce the solution space.
         """
         solver = z3.Solver()
         solver.add(semantics.frame_constraints)
 
         # Verify frame constraints are satisfiable (internally consistent)
         assert solver.check() == z3.sat, (
-            "Frame constraints including all three TaskFrame axioms should be "
+            "Frame constraints including all five TaskFrame axioms should be "
             "satisfiable (internally consistent)"
         )
 

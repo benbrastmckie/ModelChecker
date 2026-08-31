@@ -373,29 +373,29 @@ record the actual before/after numbers for use in Phase 5's docstring correction
 
 ---
 
-### Phase 5: Correct the `build_frame_constraints` docstring and the stale three-axiom test naming [NOT STARTED]
+### Phase 5: Correct the `build_frame_constraints` docstring and the stale three-axiom test naming [COMPLETED]
 
 **Goal**: Leave exactly one account of the frame class in `core.py`, and remove the now-false
 "three TaskFrame axioms" language from the declaration-consistency tests.
 
 **Tasks**:
 
-- [ ] Rewrite the "**TaskFrame Axioms (items 7-9)**" block in `build_frame_constraints`'s docstring
+- [x] Rewrite the "**TaskFrame Axioms (items 7-9)**" block in `build_frame_constraints`'s docstring
       (`core.py:554`-`560`) to enumerate the asserted axioms including Seriality and Interpolation,
       with their new item numbers, and to state that *Limit* and *Spherical* are discharged at the
       sort level and deliberately not asserted.
-- [ ] Update the docstring's total-constraint count and the numbered summary lists further down the
+- [x] Update the docstring's total-constraint count and the numbered summary lists further down the
       same docstring (the "This method constructs 11 constraints total" line and the "7-9. Frame
       axioms" line) so the two enumerations inside one docstring do not contradict each other.
       Use the actual counts recorded by Phase 4's scope confirmation.
-- [ ] Update the `supported_frame_classes = frozenset({"Base"})` justification sentence to reflect
+- [x] Update the `supported_frame_classes = frozenset({"Base"})` justification sentence to reflect
       the widened axiom set, and add a one-line pointer to `ARCHITECTURE.md`'s new
       `### Frame-Class Axioms` subsection as the fuller account.
-- [ ] Update the "task_restriction (DISABLED)" note's closing sentence, which currently says the
+- [x] Update the "task_restriction (DISABLED)" note's closing sentence, which currently says the
       post-hoc suite "validates the three TaskFrame axioms".
-- [ ] Rename `TestFrameClassDeclarationConsistency.test_three_taskframe_axioms_present_in_frame_constraints`
+- [x] Rename `TestFrameClassDeclarationConsistency.test_three_taskframe_axioms_present_in_frame_constraints`
       and correct its docstring and the class docstring's "the three TaskFrame axioms" phrasing.
-- [ ] Correct `test_frame_constraints.py`'s module docstring, which enumerates "three new frame
+- [x] Correct `test_frame_constraints.py`'s module docstring, which enumerates "three new frame
       constraint builder methods" (already extended in Phase 3 — verify it was, and finish it here
       if not).
 

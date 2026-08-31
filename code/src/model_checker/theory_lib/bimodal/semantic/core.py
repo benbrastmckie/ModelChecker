@@ -658,17 +658,34 @@ class BimodalSemantics(SemanticDefaults):
 
         ## Frame Hierarchy and TaskFrame Axiom Mapping
 
-        This method constructs 11 constraints total, split into two categories:
+        This method constructs 13 constraints total at M<=2 (item 12, skolem_abundance,
+        contributes more than one constraint at M>=3 -- see its own dispatch below), split
+        into two categories. Task 153 widened the asserted TaskFrame axiom set from three to
+        five (adding Seriality and Interpolation) to match the paper's `def:frame`; see
+        ARCHITECTURE.md's "Frame-Class Axioms" subsection for the full asserted/free ledger
+        with citations.
 
-        **TaskFrame Axioms (items 7-9)** -- correspond directly to BimodalLogic's
+        **TaskFrame Axioms (items 7-11)** -- correspond directly to BimodalLogic's
         `TaskFrame` structure fields in Frame.lean. These are the semantic guarantees
-        that justify `supported_frame_classes = frozenset({"Base"})` in the oracle:
+        that justify `supported_frame_classes = frozenset({"Base"})` in the oracle --
+        widened from three to five asserted axioms by Task 153. See ARCHITECTURE.md's
+        "Frame-Class Axioms" subsection for the fuller asserted/free account with
+        citations:
 
-          7. nullity_identity  -> TaskFrame.nullity:  task_rel(w, 0, u) ↔ w = u
-          8. converse          -> TaskFrame.converse: task_rel(w, d, u) ↔ task_rel(u, -d, w)
-          9. forward_comp      -> TaskFrame.compose:  task_rel(w,d1,v) ∧ task_rel(v,d2,u) → task_rel(w,d1+d2,u)
+          7.  nullity_identity -> TaskFrame.nullity:      task_rel(w, 0, u) ↔ w = u
+          8.  converse         -> TaskFrame.converse:     task_rel(w, d, u) ↔ task_rel(u, -d, w)
+          9.  forward_comp     -> TaskFrame.compose:      task_rel(w,d1,v) ∧ task_rel(v,d2,u) → task_rel(w,d1+d2,u)
+          10. seriality        -> TaskFrame.Serial:       ∀w,x>=0. ∃u,v. task_rel(w,x,u) ∧ task_rel(v,x,w)
+          11. interpolation    -> TaskFrame.Interpolates: task_rel(w,d1+d2,v) → ∃u. task_rel(w,d1,u) ∧ task_rel(u,d2,v)
 
-        **Model-building constraints (items 1-6, 8-9)** -- not TaskFrame axioms; these
+        Not asserted here: *Limit* and *Spherical* are discharged at the sort level rather
+        than by a Z3 constraint -- `WorldStateSort = BitVecSort(N)` is finite (discharges
+        Spherical's `[Finite W]` hypothesis) and `nullity_identity` above is unconditional
+        over `TimeSort = IntSort()` (discharges Limit's `SuccOrder`/`NoMaxOrder` hypotheses).
+        See ARCHITECTURE.md's "Frame-Class Axioms" subsection for the re-verification and
+        citations; nothing added by items 10-11 touches either sort.
+
+        **Model-building constraints (items 1-6, 12-13)** -- not TaskFrame axioms; these
         structure the Z3 search space to produce well-formed countermodels:
 
           1. valid_main_world      - main_world is a valid world ID
@@ -677,17 +694,18 @@ class BimodalSemantics(SemanticDefaults):
           4. convex_world_ordering - world IDs form a contiguous sequence
           5. world_interval        - each world has exactly one valid time interval
           6. lawful                - consecutive world-states connected via task_rel(s, 1, s')
-          8. skolem_abundance      - time-shifted world copies exist (ShiftClosed alignment)
-          9. world_uniqueness      - distinct world IDs map to distinct histories
+          12. skolem_abundance     - time-shifted world copies exist (ShiftClosed alignment)
+          13. world_uniqueness     - distinct world IDs map to distinct histories
 
-        **Disabled constraint (item 10)** -- task_restriction is preserved but not active:
+        **Disabled constraint** -- task_restriction is preserved but not active (not
+        included in the numbered list above since it contributes no item when disabled):
 
-         10. task_restriction (DISABLED) - would ground every task_rel pair in a world
+          task_restriction (DISABLED) - would ground every task_rel pair in a world
              history; disabled due to solver performance (nested ForAll/Exists causes
              MBQI timeouts). See the soundness analysis comment near the disabled
              constraint for a full explanation of why this is sound for countermodel
              generation. The post-hoc test suite (test_frame_class_mapping.py)
-             validates the three TaskFrame axioms hold in extracted countermodels.
+             validates the five TaskFrame axioms hold in extracted countermodels.
 
         This method constructs the fundamental constraints that define the behavior of the model:
         1. Time constraints - Ensures main_time is within valid range
@@ -696,7 +714,8 @@ class BimodalSemantics(SemanticDefaults):
         4. World interval constraint - Ensures each world has a valid time interval
         5. Abundance constraint - Ensures time-shifted worlds exist for all valid shifts (capped Skolem)
         6. World uniqueness - Each world ID maps to a distinct world history
-        7-9. Frame axioms - TaskFrame constraints (nullity, converse, compositionality)
+        7-11. Frame axioms - TaskFrame constraints (nullity, converse, compositionality via
+              forward_comp + interpolation, seriality)
 
         The abundance constraint (item 5) uses capped_skolem_abundance_constraint which
         provides time-shifted world copies for all shift amounts that keep the shifted
@@ -891,7 +910,8 @@ class BimodalSemantics(SemanticDefaults):
         #   If the oracle returns SAT (countermodel found), the countermodel may contain
         #   "phantom" task_rel pairs -- pairs (s, d, u) where task_rel(s,d,u) holds but
         #   no world w with w(t)=s and w(t+d)=u exists. Importantly:
-        #   1. The three TaskFrame axioms (nullity, converse, forward_comp) still hold.
+        #   1. The five TaskFrame axioms (nullity, converse, forward_comp, seriality,
+        #      interpolation) still hold.
         #   2. BimodalLogic's modal/temporal operators are evaluated over world histories
         #      (world_function arrays), not over task_rel pairs directly. Phantom pairs
         #      do not affect operator truth values.
@@ -910,7 +930,7 @@ class BimodalSemantics(SemanticDefaults):
         #
         # Post-hoc mitigation:
         #   The test_frame_class_mapping.py test suite validates that extracted
-        #   countermodels satisfy the three TaskFrame axioms post-hoc, confirming the
+        #   countermodels satisfy the five TaskFrame axioms post-hoc, confirming the
         #   oracle's frame guarantees are intact even without task_restriction.
         some_state = z3.BitVec('task_restrict_some_state', self.N)
         some_duration = z3.Int('task_restrict_duration')
