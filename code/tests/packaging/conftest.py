@@ -26,20 +26,38 @@ before every session build (and again afterward, so the repository is left as it
 this is test-fixture hygiene for our own build's correctness, not the "clean up `code/dist/`
 for the user" non-goal (see the plan's Non-Goals): `code/dist/` itself is never touched here,
 since `--outdir` already keeps the build's actual output out of it.
+
+**Install-source selection (`installed_venv` parameterization)**: two env vars select what
+`installed_venv` installs, resolved by the helpers below (D1/D2/D3 of
+`specs/168_pypi_install_and_full_cli_verification_ci/plans/01_pypi-install-verification-pipeline.md`):
+
+- `MODEL_CHECKER_PACKAGING_INSTALL_SOURCE` -- `local` (default when unset), `testpypi`, or
+  `pypi`. Any other value fails loudly via `pytest.fail`, naming the offending value -- never a
+  silent fallback to `local`.
+- `MODEL_CHECKER_PACKAGING_INSTALL_VERSION` -- unset (default) pins to the exact version parsed
+  from `code/pyproject.toml` (correct immediately after a release tag); the sentinel `latest`
+  resolves via the PyPI/TestPyPI JSON API (correct on any commit with no tag context); any other
+  literal is used verbatim with no network call (an explicit-version escape hatch).
+
+The default (both unset) path is `local` with no version resolution at all -- byte-for-byte the
+pre-existing `installed_venv` behavior.
 """
 
 from __future__ import annotations
 
 import functools
+import json
 import os
 import shutil
 import subprocess
 import sys
 import tarfile
+import urllib.error
+import urllib.request
 import venv
 import zipfile
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Optional
 
 import pytest
 
@@ -265,6 +283,133 @@ def sdist_member_set(built_artifacts: Dict[str, Path]) -> frozenset:
     """Session-scoped, normalized (leading `{name}-{version}/` stripped) member-path listing
     of the built sdist."""
     return normalize_sdist(sdist_members(built_artifacts["sdist"]))
+
+
+# --- Install-source selection and version resolution (D1/D2/D3) ----------------------------
+#
+# Pure helpers, no fixture wiring here (see this module's docstring subsection above for the
+# contract). `installed_venv` below consumes them; `test_install_source_selection.py` pins their
+# behavior directly with no venv/network/subprocess involved.
+
+MODEL_CHECKER_PACKAGING_INSTALL_SOURCE = "MODEL_CHECKER_PACKAGING_INSTALL_SOURCE"
+MODEL_CHECKER_PACKAGING_INSTALL_VERSION = "MODEL_CHECKER_PACKAGING_INSTALL_VERSION"
+
+_VALID_INSTALL_SOURCES = ("local", "testpypi", "pypi")
+
+# The JSON API's `info.version` sentinel that requests latest-from-index resolution (D2.2),
+# distinct from an explicit literal version (D2.3) or the unset/exact-pin default (D2.1).
+_LATEST_VERSION_SENTINEL = "latest"
+
+_PYPI_JSON_API_URLS = {
+    "pypi": "https://pypi.org/pypi/model-checker/json",
+    "testpypi": "https://test.pypi.org/pypi/model-checker/json",
+}
+
+
+def _resolve_install_source() -> str:
+    """Resolve `MODEL_CHECKER_PACKAGING_INSTALL_SOURCE` -- unset means `local`.
+
+    `pytest.fail`s, naming the offending value, on anything outside the closed
+    `_VALID_INSTALL_SOURCES` set -- never a silent fallback to `local`.
+    """
+    raw = os.environ.get(MODEL_CHECKER_PACKAGING_INSTALL_SOURCE)
+    if raw is None:
+        return "local"
+    if raw not in _VALID_INSTALL_SOURCES:
+        pytest.fail(
+            f"Unrecognized {MODEL_CHECKER_PACKAGING_INSTALL_SOURCE}={raw!r}; must be one of "
+            f"{_VALID_INSTALL_SOURCES}"
+        )
+    return raw
+
+
+def _pyproject_version() -> str:
+    """Parse `version = "..."` from `code/pyproject.toml` -- the same literal `preflight` (in
+    `.github/workflows/release.yml`) already treats as ground truth. Fails loudly if absent."""
+    pyproject_path = CODE_ROOT / "pyproject.toml"
+    text = pyproject_path.read_text(encoding="utf-8")
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("version"):
+            key, _, value = stripped.partition("=")
+            if key.strip() != "version":
+                continue
+            return value.strip().strip('"').strip("'")
+    pytest.fail(f"No 'version = \"...\"' line found in {pyproject_path}")
+    raise AssertionError("unreachable")  # pragma: no cover -- pytest.fail always raises
+
+
+def _pypi_json_api_url(source: str) -> str:
+    """Return the PyPI/TestPyPI JSON API URL for `model-checker` given a non-`local` source."""
+    return _PYPI_JSON_API_URLS[source]
+
+
+def _latest_published_version(source: str) -> str:
+    """Query the JSON API and return `info.version` -- the latest published version for `source`.
+
+    Bounded timeout; a loud failure naming the URL on any non-200 status or unparseable body.
+    Not called for the unset-default or explicit-literal version-resolution paths (D2.1/D2.3) --
+    only for the `latest` sentinel (D2.2).
+    """
+    url = _pypi_json_api_url(source)
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            body = response.read()
+    except (urllib.error.URLError, TimeoutError) as exc:
+        pytest.fail(f"Failed to query {url} for the latest published version: {exc}")
+        raise AssertionError("unreachable")  # pragma: no cover
+    try:
+        payload = json.loads(body)
+        return payload["info"]["version"]
+    except (ValueError, KeyError) as exc:
+        pytest.fail(f"Could not parse a version out of {url}'s response: {exc}")
+        raise AssertionError("unreachable")  # pragma: no cover
+
+
+def _resolve_install_version(source: str) -> str:
+    """Resolve `MODEL_CHECKER_PACKAGING_INSTALL_VERSION` for the given `source` (D2).
+
+    - Unset (default): the exact literal parsed from `code/pyproject.toml` (D2.1).
+    - The `latest` sentinel: resolved via `_latest_published_version` against `source`'s JSON
+      API (D2.2). `source` must be `testpypi` or `pypi` for this path to make sense; `local`
+      never resolves a version at all (see `installed_venv`).
+    - Any other literal: used verbatim, no network call (D2.3).
+    """
+    raw = os.environ.get(MODEL_CHECKER_PACKAGING_INSTALL_VERSION)
+    if raw is None:
+        return _pyproject_version()
+    if raw == _LATEST_VERSION_SENTINEL:
+        return _latest_published_version(source)
+    return raw
+
+
+def _pip_install_args(
+    source: str, version: str, wheel_path: Optional[Path] = None
+) -> List[str]:
+    """Return the argument list to append after `pip install --no-user` for `source` (D3).
+
+    - `local`: the built wheel's path (`wheel_path` is required for this branch).
+    - `testpypi`: both index URLs (TestPyPI does not mirror `z3-solver`/`networkx`), pinned
+      with `==` -- test.pypi.org still carries a stale `0.1` release that an unpinned install
+      would otherwise resolve.
+    - `pypi`: the default index, pinned with `==`.
+    """
+    if source == "local":
+        if wheel_path is None:
+            pytest.fail("_pip_install_args('local', ...) requires wheel_path")
+        return [str(wheel_path)]
+    if source == "testpypi":
+        return [
+            "--index-url",
+            "https://test.pypi.org/simple/",
+            "--extra-index-url",
+            "https://pypi.org/simple/",
+            f"model-checker=={version}",
+        ]
+    if source == "pypi":
+        return [f"model-checker=={version}"]
+    pytest.fail(f"Unrecognized install source {source!r} in _pip_install_args")
+    raise AssertionError("unreachable")  # pragma: no cover
 
 
 # --- Real console-script harness --------------------------------------------------------------

@@ -265,7 +265,7 @@ state rather than assuming green.
 
 ---
 
-### Phase 2: Implement the selector and version-resolution helpers [NOT STARTED]
+### Phase 2: Implement the selector and version-resolution helpers [COMPLETED]
 
 **Goal**: Turn Phase 1 GREEN by adding the pure helper functions to
 `code/tests/packaging/conftest.py`. No fixture is rewired in this phase.
