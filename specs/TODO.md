@@ -29,7 +29,7 @@ next_project_number: 176
 
 ### Release Engineering
 
-158 [PLANNING] — Harden the release CI pipeline so TestPyPI becomes a real verific
+158 [PLANNED] — Harden the release CI pipeline so TestPyPI becomes a real verific
   └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
@@ -443,11 +443,12 @@ task_type: python. file_scope: the bimodal theory package
 ---
 
 ### 158. Harden release ci testpypi gate
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 161
 - **Research**: [158_harden_release_ci_testpypi_gate/reports/01_harden-testpypi-gate.md]
+- **Plan**: [158_harden_release_ci_testpypi_gate/plans/01_harden-testpypi-gate.md]
 
 **Description**: Harden the release CI pipeline so TestPyPI becomes a real verification gate before production PyPI, and close the friction points observed during the 1.3.0 release run (2026-08-12, Actions run 31628414655). The 1.3.0 publish SUCCEEDED -- this task is about making the next one safer and less manual, not about fixing a broken release.
 

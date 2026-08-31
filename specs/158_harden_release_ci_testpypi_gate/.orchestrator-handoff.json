@@ -1,19 +1,19 @@
 {
-  "status": "researched",
-  "phase": "research",
-  "dispatch_seq": 2,
-  "summary": "Research complete for task 158. Dependency task 161 confirmed satisfied (publish-testpypi green on v1.3.4-v1.3.7). Verified all 11 numbered items against the current tree with concrete file/line findings; item 3's flake.nix drift claim is stale (fixed by commit 8252fe74) and item 6 surfaced an adjacent .gitignore discrepancy not in the original text. Full findings and recommended plan sequencing are in the report.",
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 6,
+  "summary": "Plan created for task 158: 8 phases, ~8 hours, 5 dependency waves. Sequencing follows the research recommendation: non-interactive CLI + drop continue-on-error + gitignore + release-verify (wave 1, parallel) -> verify-testpypi job -> preflight job -> RELEASE_SETUP.md docs -> full gate run. Six out-of-scope items and user decision points are surfaced in a dedicated plan section rather than silently resolved or silently widened.",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/158_harden_release_ci_testpypi_gate/reports/01_harden-testpypi-gate.md",
-      "summary": "Item-by-item verification of the 11-item task description: confirmed findings with exact file/line references for the release.yml continue-on-error gate, the non-interactive CLI defect, the gitignore/tracked-file state for orchestrator runtime files, and release-verify.sh's evidence-commit gap; flagged stale/out-of-scope premises and one newly discovered .gitignore discrepancy."
+      "type": "plan",
+      "path": "specs/158_harden_release_ci_testpypi_gate/plans/01_harden-testpypi-gate.md",
+      "summary": "Eight-phase implementation plan with dependency wave table, per-phase verification tiers, scope hypotheses, and an explicit out-of-scope flag table."
     }
   ],
   "phases_completed": 0,
-  "phases_total": 0,
+  "phases_total": 8,
   "blockers": [],
-  "plan_markers_verified": null,
+  "plan_markers_verified": true,
   "continuation_path": null,
-  "next_action_hint": "Proceed to /plan for task 158 using the report's recommended sequencing: (4) non-interactive CLI -> (1a) drop continue-on-error + skip flag -> (1b) verify-testpypi job -> (3) preflight job (corrected 2-literal check + CHANGELOG + tag-ancestry, optionally folding in item 7's workflow-file-match check) -> (6) gitignore + untrack -> (7) doc addition -> (8) evidence-commit recording. Surface item (1c) environment protection, item (3)'s CHANGELOG-gap consequence, item (5)'s file_scope gap, and item (6)'s adjacent .return-meta.json discrepancy as explicit user decision points rather than silently resolving them."
+  "next_action_hint": "Proceed to /implement 158. Wave 1 (phases 1, 2, 5, 7) touches four disjoint file sets and can run in parallel; waves 2-4 exist solely to serialize the three phases that all edit .github/workflows/release.yml. Surface out-of-scope flags A-F from the plan's 'Out-of-Scope Flags and User Decision Points' section to the user -- especially flag B (the new CHANGELOG preflight gate will block the next tagged release until an entry is written for it) and flag F (Phase 1's TDD tests live in files not listed in the declared file_scope)."
 }
