@@ -1,7 +1,7 @@
 # Implementation Plan: Fix contention-flaky soundness regression tests
 
 - **Task**: 172 - fix_contention_flaky_soundness_regression_tests
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md
@@ -94,7 +94,23 @@ No `roadmap_path` was provided in the delegation context; ROADMAP.md was not con
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Confirm the at-risk call-site inventory [NOT STARTED]
+### Phase 1: Confirm the at-risk call-site inventory [COMPLETED]
+
+**Inventory result**: Enumerated all 25 `find_countermodel(` call sites in the file. Exactly
+four are unmarked, bare-default (no `timeout_ms`), `temporal_depth>=1` formula calls with no
+`pytest.raises(OracleTimeoutError)` guard — matching the plan's four-test hypothesis exactly:
+`TestBoundaryVacuity::test_depth1_boundary_safe_is_true` (L401),
+`TestBoundaryVacuity::test_depth1_countermodel_has_required_fields` (L450),
+`TestGuardedCompositionality::test_forward_comp_with_temporal_formula_output` (L632),
+`TestGuardedCompositionality::test_nullity_with_temporal_formula_output` (L651). Every remaining
+call site falls into: depth-0 formula (`ATOM_A`/`TAUTOLOGY`), a class already carrying
+`@pytest.mark.xdist_serial` (`TestStateIsolationRegression` L664, the L1092 precedent),
+`pytest.raises(OracleTimeoutError)` (`TestKnownBoundaryUnsafe`'s `GG_P`/`GF_P`/`FF_P`/compound
+tests, `test_gg_p_returns_none`), or a fourth bucket not literally named in the plan text but
+consistent with the research report: three `FG_P`-based tests (L443, L871, L1149) resolve via
+fast structural boundary-vacuity UNSAT (the negation is unsatisfiable by construction at the
+domain boundary, decided without an expensive search), matching why none of the three appear in
+the measured failure list despite ordinary CI load. No discrepancy with the four-test hypothesis.
 
 **Goal**: Confirm, before editing, that exactly four tests in
 `oracle/bimodal_logic/tests/test_soundness_regression.py` are unmarked, bare-default,
