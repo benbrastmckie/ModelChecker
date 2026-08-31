@@ -404,7 +404,7 @@ other job names `publish-pypi`, include it in the edit.
 
 ---
 
-### Phase 5: New `pypi-smoke.yml` workflow [NOT STARTED]
+### Phase 5: New `pypi-smoke.yml` workflow [COMPLETED]
 
 **Goal**: Add the scheduled + dispatchable smoke workflow as a thin wrapper around the same
 suite, with the opt-in tmate shape of D6.

@@ -1,0 +1,97 @@
+name: PyPI Smoke
+
+# NON-GATING CONTRACT: this workflow answers "is the currently published model-checker
+# artifact still installable and runnable today", independent of any release event. It must
+# NEVER gate anything -- it must never appear in another workflow's `needs:`, and must never be
+# added to branch protection required checks. Triggers are deliberately limited to `schedule`
+# and `workflow_dispatch` -- no `push`, no `pull_request`, no `tags`. Mirrors the non-gating
+# contract and trigger shape of unstable-watch.yml (this repository's only other `schedule:`
+# workflow), for the trigger block only -- the body below is unrelated (this checks a published
+# PyPI artifact, not `unstable`-marked tests).
+on:
+  schedule:
+    # Daily, deliberately offset from unstable-watch.yml's '0 5 * * *' so the two scheduled
+    # workflows do not contend for runners at the same minute.
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: >-
+          Exact model-checker version to install and verify (e.g. 1.3.7). Leave empty to
+          resolve the latest version published on PyPI via the JSON API (the same resolution
+          MODEL_CHECKER_PACKAGING_INSTALL_VERSION=latest performs -- see
+          code/tests/packaging/conftest.py).
+        type: string
+        default: ''
+      debug_tmate:
+        description: >-
+          Open an interactive tmate SSH session on failure. Defaults to false so a scheduled
+          run can never hang waiting for a human who is not there -- see the tmate step below
+          for the two independent guards that enforce this.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  pypi-smoke:
+    name: Verify published PyPI artifact is installable and runnable
+    runs-on: ubuntu-latest
+    # A single OS/Python leg answers "is today's published artifact still good" -- the
+    # cross-platform breadth (3 OS x 3 Python) belongs to release.yml's verify-pypi matrix,
+    # which runs once per release rather than daily. 3.12 is the newest Python version this
+    # project supports (see requires-python in code/pyproject.toml).
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install packaging test dependencies
+      run: pip install pytest build wheel
+
+    - name: Resolve and echo the version under test
+      # Echoed before the pytest step so a failure report names the version under test without
+      # needing to expand the pytest step's log. Mirrors MODEL_CHECKER_PACKAGING_INSTALL_VERSION's
+      # own resolution contract (D2 of the task's plan) in words, for log readability only --
+      # the actual resolution happens inside the fixture, not here.
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.version }}" ]; then
+          echo "Resolved version (explicit input): ${{ inputs.version }}"
+        else
+          echo "Resolved version: latest (resolved via the PyPI JSON API inside the fixture)"
+        fi
+
+    - name: Run packaging contract tests against the published PyPI artifact
+      # version left empty on both the schedule trigger (no inputs at all) and an unfilled
+      # workflow_dispatch default -> the `|| 'latest'` fallback below feeds the fixture's
+      # `latest` sentinel (D2.2), which resolves via the live JSON API -- correct on any commit
+      # with no tag context, which is exactly this workflow's situation. An explicit
+      # workflow_dispatch version input is used verbatim (D2.3), with no network lookup.
+      # "and not unstable" matches release.yml's build/verify-pypi jobs (D7).
+      shell: bash
+      env:
+        MODEL_CHECKER_PACKAGING_INSTALL_SOURCE: pypi
+        MODEL_CHECKER_PACKAGING_INSTALL_VERSION: ${{ inputs.version || 'latest' }}
+      run: |
+        cd code
+        python -m pytest tests/packaging/ -v -m "packaging and not unstable"
+
+    - name: Debug via tmate on failure (opt-in only)
+      # Both guards are required for a schedule: run to never hang waiting on a human who is
+      # not there: failure() alone would still be reachable on every scheduled failure, and
+      # inputs.debug_tmate alone is never even defined on a schedule: trigger (workflow_dispatch
+      # inputs are the ONLY place inputs.* is populated) -- but relying on that undefined-ness
+      # implicitly would be fragile, so debug_tmate's own `default: false` plus this explicit
+      # `&& inputs.debug_tmate` conjunct make the intent explicit rather than accidental.
+      # Mirrors release.yml's skip_testpypi off-by-default gating shape.
+      if: ${{ failure() && inputs.debug_tmate }}
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 15
