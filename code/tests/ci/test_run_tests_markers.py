@@ -36,6 +36,16 @@ against real, already-existing test directories in this repository (no tmp-dir f
 `logos/subtheories/modal/tests`, `bimodal/tests`, `logos/tests` all exist today) with
 `subprocess.run` monkeypatched to a command-capturing stub, so no real pytest subprocess is ever
 spawned by this module.
+
+**Patching `subprocess.run` safely.** `run_tests.py` does a plain `import subprocess`, so
+`run_tests_mod.subprocess` is the SAME global `subprocess` module object every other test module
+in this session also imports -- it is not a private copy. Every test below therefore patches it
+via pytest's `monkeypatch` fixture (`monkeypatch.setattr(run_tests_mod.subprocess, "run", ...)`),
+never by hand-assigning `run_tests_mod.subprocess.run = ...` and restoring it in a `finally`
+block: a hand-rolled restore that re-reads `subprocess.run` *after* already overwriting it
+captures the stand-in, not the original, and leaves the real global `subprocess.run` permanently
+patched for the rest of the pytest session -- exactly the kind of cross-test corruption
+`monkeypatch`'s guaranteed teardown exists to prevent.
 """
 
 from __future__ import annotations
@@ -140,17 +150,15 @@ class TestMarkersThreadedIntoEveryCommandBuildingSite:
     appends `-m <expr>` when markers are supplied, and appends no `-m` token at all when they
     are not."""
 
-    def test_logos_example_tests_site(self):
+    def test_logos_example_tests_site(self, monkeypatch):
         runner = run_tests_mod.ExampleTestRunner(CODE_DIR)
         capture = _CapturingRun()
-        run_tests_mod.subprocess.run = capture
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            runner._run_logos_example_tests(["modal"], with_markers)
-            without_markers = _base_config(run_tests_mod, markers=None)
-            runner._run_logos_example_tests(["modal"], without_markers)
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", capture)
+
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        runner._run_logos_example_tests(["modal"], with_markers)
+        without_markers = _base_config(run_tests_mod, markers=None)
+        runner._run_logos_example_tests(["modal"], without_markers)
 
         assert len(capture.calls) == 2
         with_cmd, without_cmd = capture.calls
@@ -158,17 +166,15 @@ class TestMarkersThreadedIntoEveryCommandBuildingSite:
         assert with_cmd[with_cmd.index("-m") + 1] == MARKER_EXPR
         assert "-m" not in without_cmd, f"expected no -m token in {without_cmd!r}"
 
-    def test_standard_example_tests_site(self):
+    def test_standard_example_tests_site(self, monkeypatch):
         runner = run_tests_mod.ExampleTestRunner(CODE_DIR)
         capture = _CapturingRun()
-        run_tests_mod.subprocess.run = capture
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            runner._run_standard_example_tests("bimodal", with_markers)
-            without_markers = _base_config(run_tests_mod, markers=None)
-            runner._run_standard_example_tests("bimodal", without_markers)
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", capture)
+
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        runner._run_standard_example_tests("bimodal", with_markers)
+        without_markers = _base_config(run_tests_mod, markers=None)
+        runner._run_standard_example_tests("bimodal", without_markers)
 
         assert len(capture.calls) == 2
         with_cmd, without_cmd = capture.calls
@@ -176,17 +182,15 @@ class TestMarkersThreadedIntoEveryCommandBuildingSite:
         assert with_cmd[with_cmd.index("-m") + 1] == MARKER_EXPR
         assert "-m" not in without_cmd, f"expected no -m token in {without_cmd!r}"
 
-    def test_logos_unit_tests_site(self):
+    def test_logos_unit_tests_site(self, monkeypatch):
         runner = run_tests_mod.UnitTestRunner(CODE_DIR)
         capture = _CapturingRun()
-        run_tests_mod.subprocess.run = capture
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            runner._run_logos_unit_tests([], with_markers)
-            without_markers = _base_config(run_tests_mod, markers=None)
-            runner._run_logos_unit_tests([], without_markers)
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", capture)
+
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        runner._run_logos_unit_tests([], with_markers)
+        without_markers = _base_config(run_tests_mod, markers=None)
+        runner._run_logos_unit_tests([], without_markers)
 
         assert len(capture.calls) == 2
         with_cmd, without_cmd = capture.calls
@@ -194,17 +198,15 @@ class TestMarkersThreadedIntoEveryCommandBuildingSite:
         assert with_cmd[with_cmd.index("-m") + 1] == MARKER_EXPR
         assert "-m" not in without_cmd, f"expected no -m token in {without_cmd!r}"
 
-    def test_standard_unit_tests_site(self):
+    def test_standard_unit_tests_site(self, monkeypatch):
         runner = run_tests_mod.UnitTestRunner(CODE_DIR)
         capture = _CapturingRun()
-        run_tests_mod.subprocess.run = capture
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            runner._run_standard_unit_tests("bimodal", with_markers)
-            without_markers = _base_config(run_tests_mod, markers=None)
-            runner._run_standard_unit_tests("bimodal", without_markers)
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", capture)
+
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        runner._run_standard_unit_tests("bimodal", with_markers)
+        without_markers = _base_config(run_tests_mod, markers=None)
+        runner._run_standard_unit_tests("bimodal", without_markers)
 
         assert len(capture.calls) == 2
         with_cmd, without_cmd = capture.calls
@@ -242,57 +244,47 @@ class TestExitCodeFiveNormalizedOnlyWhenMarkersSupplied:
     every subprocess-executing site; an exit 5 with no markers supplied is left as a genuine
     failure signal."""
 
-    def test_logos_example_tests_site(self):
+    def test_logos_example_tests_site(self, monkeypatch):
         runner = run_tests_mod.ExampleTestRunner(CODE_DIR)
-        run_tests_mod.subprocess.run = _ReturnCode5Run()
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            assert runner._run_logos_example_tests(["modal"], with_markers) == 0
-            without_markers = _base_config(run_tests_mod, markers=None)
-            assert runner._run_logos_example_tests(["modal"], without_markers) == 5
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", _ReturnCode5Run())
 
-    def test_standard_example_tests_site(self):
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        assert runner._run_logos_example_tests(["modal"], with_markers) == 0
+        without_markers = _base_config(run_tests_mod, markers=None)
+        assert runner._run_logos_example_tests(["modal"], without_markers) == 5
+
+    def test_standard_example_tests_site(self, monkeypatch):
         runner = run_tests_mod.ExampleTestRunner(CODE_DIR)
-        run_tests_mod.subprocess.run = _ReturnCode5Run()
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            assert runner._run_standard_example_tests("bimodal", with_markers) == 0
-            without_markers = _base_config(run_tests_mod, markers=None)
-            assert runner._run_standard_example_tests("bimodal", without_markers) == 5
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", _ReturnCode5Run())
 
-    def test_logos_unit_tests_site(self):
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        assert runner._run_standard_example_tests("bimodal", with_markers) == 0
+        without_markers = _base_config(run_tests_mod, markers=None)
+        assert runner._run_standard_example_tests("bimodal", without_markers) == 5
+
+    def test_logos_unit_tests_site(self, monkeypatch):
         runner = run_tests_mod.UnitTestRunner(CODE_DIR)
-        run_tests_mod.subprocess.run = _ReturnCode5Run()
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            assert runner._run_logos_unit_tests([], with_markers) == 0
-            without_markers = _base_config(run_tests_mod, markers=None)
-            assert runner._run_logos_unit_tests([], without_markers) == 5
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", _ReturnCode5Run())
 
-    def test_standard_unit_tests_site(self):
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        assert runner._run_logos_unit_tests([], with_markers) == 0
+        without_markers = _base_config(run_tests_mod, markers=None)
+        assert runner._run_logos_unit_tests([], without_markers) == 5
+
+    def test_standard_unit_tests_site(self, monkeypatch):
         runner = run_tests_mod.UnitTestRunner(CODE_DIR)
-        run_tests_mod.subprocess.run = _ReturnCode5Run()
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            assert runner._run_standard_unit_tests("bimodal", with_markers) == 0
-            without_markers = _base_config(run_tests_mod, markers=None)
-            assert runner._run_standard_unit_tests("bimodal", without_markers) == 5
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", _ReturnCode5Run())
 
-    def test_package_component_tests_site(self):
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        assert runner._run_standard_unit_tests("bimodal", with_markers) == 0
+        without_markers = _base_config(run_tests_mod, markers=None)
+        assert runner._run_standard_unit_tests("bimodal", without_markers) == 5
+
+    def test_package_component_tests_site(self, monkeypatch):
         runner = run_tests_mod.PackageTestRunner(CODE_DIR)
-        run_tests_mod.subprocess.run = _ReturnCode5Run()
-        try:
-            with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
-            assert runner.run_component_tests("iterate", with_markers) == 0
-            without_markers = _base_config(run_tests_mod, markers=None)
-            assert runner.run_component_tests("iterate", without_markers) == 5
-        finally:
-            run_tests_mod.subprocess.run = __import__("subprocess").run
+        monkeypatch.setattr(run_tests_mod.subprocess, "run", _ReturnCode5Run())
+
+        with_markers = _base_config(run_tests_mod, markers=MARKER_EXPR)
+        assert runner.run_component_tests("iterate", with_markers) == 0
+        without_markers = _base_config(run_tests_mod, markers=None)
+        assert runner.run_component_tests("iterate", without_markers) == 5

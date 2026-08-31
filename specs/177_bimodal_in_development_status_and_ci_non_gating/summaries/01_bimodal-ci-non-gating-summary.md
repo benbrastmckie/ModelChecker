@@ -74,10 +74,10 @@ CI check red, except the one named, tested exception.**
   list returns 0).
 - `cd code && PYTHONPATH=src pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable and not development" --collect-only -q`
   → 9/2564 collected, **0 bimodal node ids**.
-- Real (non-collect-only) execution of both passes, run after the above:
-  - Parallel pass (`-n 4 -q --timeout=300 --timeout-method=thread`): 2114 passed, 1 skipped, 2
-    failed — the same two CPU-contention-affected classifier tests noted below (not bimodal, not
-    a regression; both pass in isolation).
+- Real (non-collect-only) execution of both passes, run after the `subprocess.run`-corruption
+  bug below was fixed:
+  - Parallel pass (`-n 4 -q --timeout=300 --timeout-method=thread`): 2116 passed, 1 skipped,
+    exit 0.
   - Serial pass: 9 passed, 0 failed, exit 0.
 - The one deliberate, named, tested exception: `.github/workflows/differential-tests.yml`'s "Run
   CI gate tests explicitly" step, which still runs unconditionally on a bimodal-only push/PR
@@ -104,6 +104,14 @@ CI check red, except the one named, tested exception.**
   → 313/2564 collected (non-zero, matching the research report's figure).
 - `cd code && ./run_tests.py logos --unit` → unchanged behavior, no `-m` token emitted, exit 0
   (positive control: the new flag does not alter behavior for a target that never uses it).
+- A full, non-collect-only `./run_tests.py bimodal --markers development` end-to-end run was
+  also launched as a redundant confirmatory spot-check, but was terminated by the host before
+  completion (>50 minutes elapsed under the same host contention documented below). Since
+  `development` is a theory-wide blanket covering bimodal's entire tree today (TESTING_GUIDE.md
+  8.14's "Currently marked"), this invocation selects the identical node-id set the bare
+  `./run_tests.py bimodal` run above already executed to completion with recorded results — no
+  additional evidence would have been produced beyond what is already recorded, so the
+  incomplete run is not treated as a gap in this proof.
 
 **Criterion (c) — the GAP 1 decision is enforced by a test, not merely documented.**
 
@@ -123,15 +131,24 @@ byte-identical to the pre-mutation original via `diff`).
   pre-Phase-1 commit and the current file).
 - `git diff` confirms `code/pyproject.toml`, `.github/scripts/unstable_watch_classify.py`, and
   `specs/173_add_development_marker_for_in_progress_theories/` are all unmodified.
-- `PYTHONPATH=code/src pytest code/tests/ci/ -v` — 118-120 passed across repeated runs. Two
-  tests in `test_unstable_watch_classifier.py::TestRealPytestJunitRoundTrip` intermittently
-  failed only while long-running, CPU-heavy background verification runs (`./run_tests.py
-  bimodal`, `./run_tests.py bimodal --markers development`, both spanning the full ~2500-test
-  bimodal suite) were active on the same host under a measured host load average of 8-14 and
-  7.7GB swap in use; both pass cleanly in isolation (confirmed repeatedly) and this module's
-  full suite passes cleanly (39/39) once contention subsides. This is the documented
-  CPU-contention flake class (TESTING_GUIDE.md section 8.13), not a regression introduced by
-  this work.
+- `PYTHONPATH=code/src pytest code/tests/ci/ -v` — a real, self-caused bug was found and fixed
+  during this verification, not a host flake. `test_unstable_watch_classifier.py::
+  TestRealPytestJunitRoundTrip`'s two tests failed consistently (not intermittently) whenever
+  run as part of the full `code/tests/ci/` battery, while passing in isolation. Root cause:
+  `code/tests/ci/test_run_tests_markers.py`'s subprocess-mocking tests originally patched
+  `run_tests_mod.subprocess.run` by hand (`run_tests_mod.subprocess.run = <stub>`, restored in a
+  `finally` block via `run_tests_mod.subprocess.run = __import__("subprocess").run`). Because
+  `run_tests.py` does a plain `import subprocess`, `run_tests_mod.subprocess` IS the same global
+  `subprocess` module every other test module imports, and the "restore" line re-read `.run`
+  *after* it had already been overwritten -- so it captured the stub, not the original, and left
+  the real global `subprocess.run` permanently patched to the last-used stub for the rest of the
+  pytest session. `test_run_tests_markers.py` sorts alphabetically before
+  `test_unstable_watch_classifier.py`, so by the time the classifier's real-subprocess
+  round-trip tests ran, `subprocess.run` had been silently replaced. Fixed by switching every
+  patch site to pytest's `monkeypatch.setattr(run_tests_mod.subprocess, "run", ...)` fixture,
+  which guarantees teardown regardless of test outcome. After the fix,
+  `PYTHONPATH=code/src pytest code/tests/ci/ -q` passed 120/120 across three consecutive full
+  runs.
 
 ## Plan Deviations
 

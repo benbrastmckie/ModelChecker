@@ -30,16 +30,18 @@
   (classifier untouched and its own contract still green).
 - `git diff .github/scripts/unstable_watch_classify.py` — empty.
 
-## Note on transient CI-suite flakes observed during this phase
+## Note on a self-caused CI-suite bug discovered and fixed during this session
 
 Two unrelated tests in `test_unstable_watch_classifier.py`
 (`TestRealPytestJunitRoundTrip::test_real_pytest_floor_failure_classifies_timing` and
-`test_real_pytest_disagreement_failure_still_classifies_new`) intermittently failed when run as
-part of the full `code/tests/ci/` battery while two long-running, CPU-heavy
-`./run_tests.py bimodal` background verification runs (see Phase 4 handoff) were active on the
-same host. Both pass cleanly in isolation and as part of the full suite once those background
-runs finished. This is the documented CPU-contention flake class (TESTING_GUIDE.md section
-8.13), not a regression from this phase's changes.
+`test_real_pytest_disagreement_failure_still_classifies_new`) initially appeared to fail only
+under host CPU contention from concurrent background verification runs. That diagnosis was
+wrong. The real cause, found and fixed in Phase 4/6's verification pass: Phase 4's new
+`code/tests/ci/test_run_tests_markers.py` patched the global `subprocess.run` by hand and
+restored it incorrectly (see the Phase 6 summary's Plan Deviations / bug-fix note), leaving
+`subprocess.run` permanently corrupted for the rest of the pytest session. Fixed by switching to
+`monkeypatch.setattr`. See the implementation summary for the full root-cause account and the
+post-fix clean-run confirmation (120/120 in `code/tests/ci/`, three consecutive runs).
 
 ## Deviations from plan
 

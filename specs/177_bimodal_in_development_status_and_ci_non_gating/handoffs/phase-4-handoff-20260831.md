@@ -58,7 +58,35 @@
   markers-caused, fully-deselected 5 to 0 — it never suppresses a real test failure (a mixed
   pass/fail run still exits with pytest's real non-zero code).
 
+## Post-hoc correction: a real bug in this phase's own test module
+
+During Phase 6's verification pass, `code/tests/ci/test_unstable_watch_classifier.py::
+TestRealPytestJunitRoundTrip`'s two tests were found failing consistently whenever run as part
+of the full `code/tests/ci/` battery, though passing in isolation. Root cause traced to this
+phase's `test_run_tests_markers.py`: its subprocess-mocking tests patched
+`run_tests_mod.subprocess.run` by hand-assignment and attempted to restore it in a `finally`
+block via `run_tests_mod.subprocess.run = __import__("subprocess").run`. Since `run_tests.py`
+does a plain `import subprocess`, `run_tests_mod.subprocess` is the exact same global
+`subprocess` module every other test module imports — not a private copy — so that "restore"
+line re-read `.run` *after* it had already been overwritten, capturing the stand-in rather than
+the original, and left the real global `subprocess.run` permanently patched to the
+last-used stub for the remainder of the pytest session. `test_run_tests_markers.py` sorts
+alphabetically before `test_unstable_watch_classifier.py`, so the corruption was always in place
+by the time the classifier's real-subprocess round-trip tests ran.
+
+**Fixed** by switching every patch site (9 methods across
+`TestMarkersThreadedIntoEveryCommandBuildingSite` and
+`TestExitCodeFiveNormalizedOnlyWhenMarkersSupplied`) to pytest's
+`monkeypatch.setattr(run_tests_mod.subprocess, "run", ...)` fixture, which guarantees teardown
+regardless of test outcome. Re-verified: `test_run_tests_markers.py` itself still 15/15 green,
+and `PYTHONPATH=code/src pytest code/tests/ci/ -q` passed 120/120 across three consecutive full
+runs post-fix.
+
 ## Next phase
 
-Phase 6 depends on Phases 1-5 (all complete). Its criterion-(b) proof should record the final
-results of the two long-running background bimodal runs once they complete.
+Phase 6 depends on Phases 1-5 (all complete). Its criterion-(b) proof records the final results
+of the bare `./run_tests.py bimodal` background run (completed: real non-zero exit, 5 known
+failures visible). The equivalent `--markers development` confirmatory run was terminated by the
+host before completion; since `development` covers bimodal's entire tree today, it would have
+selected the identical node-id set already exercised by the bare run, so no additional evidence
+is missing.
