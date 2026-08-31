@@ -391,7 +391,7 @@ a direct dependent to rebuild.
 
 ---
 
-### Phase 5: Correct the false claims in .github/workflows/README.md and tests.yml [NOT STARTED]
+### Phase 5: Correct the false claims in .github/workflows/README.md and tests.yml [COMPLETED]
 
 **Goal**: The workflow documentation states the real filter expression and the real worker count, and
 `tests.yml`'s comment block no longer contradicts its own filter.

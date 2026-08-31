@@ -20,11 +20,14 @@ The release pipeline is documented in [RELEASE_SETUP.md](../RELEASE_SETUP.md).
   jobs:
   - `general-tests`: a `ubuntu-latest` x Python `['3.10', '3.11', '3.12']` matrix that installs
     the PyPI `z3-solver` toolchain and runs `code/tests/` plus the full `code/src/model_checker`
-    suite (bimodal included), filtered by `-m "not packaging"`, at `-n 6`.
+    suite (bimodal included), filtered by
+    `-m "not packaging and not performance and not unstable and not xdist_serial and not development"`,
+    at `-n 4`.
   - `flake-check`: a single job (no matrix -- the flake pins its own Python) that installs Nix and
     runs `nix flake check`, exercising `flake.nix`'s `checks.default` output, which itself now
-    covers the same broadened scope (`src/model_checker tests -m "not packaging"`) inside the
-    nixpkgs-packaged toolchain.
+    covers the same broadened scope
+    (`src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial and not development"`)
+    inside the nixpkgs-packaged toolchain.
 
 ### Scoping rationale
 
@@ -38,7 +41,7 @@ The release pipeline is documented in [RELEASE_SETUP.md](../RELEASE_SETUP.md).
 - **Why `tests.yml`'s general gate excludes the `packaging` marker**: for the same reason above
   (the xdist build race) and because `packaging.yml` and `release.yml`'s `build` job already cover
   that suite on every relevant trigger -- including it again in `tests.yml` would be pure
-  duplication as well as unsafe under `-n 6`.
+  duplication as well as unsafe under `-n 4`.
 - **Why the general gate uses a narrower matrix than the release pipeline**: `release.yml`'s
   9-combination `os x python-version` matrix answers "does the published wheel install and import
   on every platform we claim to support" -- a release-time concern. `tests.yml`'s `general-tests`
@@ -46,11 +49,14 @@ The release pipeline is documented in [RELEASE_SETUP.md](../RELEASE_SETUP.md).
   so it runs `ubuntu-latest` only across the three supported Python versions. Cross-OS
   packaging/install breakage is caught at release time by `release.yml` and, more cheaply and on
   every push, by `packaging.yml`'s wheel/sdist contract checks.
-- **Why `-n 6` and never xdist's auto worker-count mode**: the `theory_lib/bimodal` suite has a
-  documented CPU-contention flake under that mode
+- **Why a fixed `-n` worker count and never xdist's auto worker-count mode**: the
+  `theory_lib/bimodal` suite has a documented CPU-contention flake under that mode
   (`test_bimodal.py::test_example_cases[BM_CM_1-example_case7]`), corroborated by a measured
-  ~1.8x slowdown of the bimodal suite under concurrent host load. `-n 6` is used literally, in both
-  `tests.yml` and `flake.nix`'s `checks.default`.
+  ~1.8x slowdown of the bimodal suite under concurrent host load. `-n 4` is used literally, in
+  both `tests.yml` and `flake.nix`'s `checks.default` -- changed from an earlier `-n 6` on
+  measured evidence documented in `tests.yml`'s own comment above its "Run general test suite"
+  step, not a safety proof; see `code/tests/ci/test_workflow_parity.py::test_worker_count_matches`
+  for the executable contract that keeps both files' worker counts equal.
 - **Why bimodal is covered by both the plain-Python job and the flake check (not redundant)**:
   `general-tests` exercises the PyPI `z3-solver` wheel that end users actually install via `pip`,
   while `flake-check` exercises the nixpkgs-packaged Z3/Python toolchain via `flake.nix`. These are
@@ -58,5 +64,6 @@ The release pipeline is documented in [RELEASE_SETUP.md](../RELEASE_SETUP.md).
   cross-toolchain coverage, not duplicated work.
 
 `checks.default` in `flake.nix` is no longer bimodal-scoped: it now runs
-`src/model_checker tests -m "not packaging" -n 6 -q`, the same broadened selection `tests.yml`'s
-`general-tests` job runs (against the PyPI toolchain), matching this README.
+`src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial and not development" -n 4 -q --timeout=300 --timeout-method=thread`,
+the same broadened selection `tests.yml`'s `general-tests` job runs (against the PyPI toolchain),
+matching this README.

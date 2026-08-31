@@ -106,11 +106,15 @@ jobs:
           # code/docs/core/TESTING_GUIDE.md section 8.9) and deselected below via
           # `not unstable`; it is separately observed on its own by the non-gating
           # unstable-watch.yml workflow so it stays visible rather than silently dropped.
-          # -n 4 is the value flake.nix's checks.default also uses, and this job deliberately does
-          # NOT exclude bimodal even though `nix flake check` (see the flake-check job below) also
-          # covers it: this job exercises the PyPI z3-solver wheel users actually install, while
-          # the flake check exercises the nixpkgs-packaged Z3/Python toolchain -- deliberate
-          # cross-toolchain coverage of the same tests, not redundant duplication.
+          # -n 4 is the value flake.nix's checks.default also uses. bimodal's tests still execute
+          # and report here -- they are not filtered out of collection -- but they are
+          # gating-excluded via the `development` marker (see code/docs/core/TESTING_GUIDE.md
+          # section 8.14 and code/tests/ci/test_unstable_deselection_wiring.py), so a bimodal
+          # regression does not fail this job. This job and `nix flake check` (see the
+          # flake-check job below) both still collect bimodal: this job exercises the PyPI
+          # z3-solver wheel users actually install, while the flake check exercises the
+          # nixpkgs-packaged Z3/Python toolchain -- deliberate cross-toolchain coverage of the
+          # same tests, not redundant duplication.
           #
           # Changed from -n 6 to -n 4 on measured evidence, not a safety proof. A local
           # falsification screen (taskset -c 0,1,2,3, two draws each at -n 6 and -n 4 over the
