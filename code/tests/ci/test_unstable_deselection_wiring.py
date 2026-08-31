@@ -269,3 +269,66 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
         text = unstable_watch_yml.read_text()
         matches = re.findall(r'pytest\s+\S.*?-m\s+unstable\b', text)
         assert len(matches) == 2
+
+
+def _gate_step_block(text: str) -> str:
+    """Return the text of differential-tests.yml's "Run CI gate tests explicitly" step, from
+    its `- name:` line up to (but not including) the next `- name:` line or end of file. Regex/
+    text extraction, not `yaml.safe_load`, per this module's own docstring: PyYAML is not an
+    installed dependency in either CI toolchain."""
+    match = re.search(
+        r"- name: Run CI gate tests explicitly\n(?P<block>(?:.*\n)*?)(?=\n\s*- name:|\Z)",
+        text,
+    )
+    assert match is not None, "could not locate the 'Run CI gate tests explicitly' step block"
+    return match.group("block")
+
+
+def _trigger_block(text: str, trigger: str) -> str:
+    """Return the text of a top-level `on:` trigger block (`push:` or `pull_request:`), from
+    its own line up to the next same-or-lower-indentation top-level key or end of the `on:`
+    section."""
+    match = re.search(
+        rf"^  {trigger}:\n(?P<block>(?:    .*\n|\n)*)",
+        text,
+        re.MULTILINE,
+    )
+    assert match is not None, f"could not locate the top-level `{trigger}:` trigger block"
+    return match.group("block")
+
+
+class TestOracleSoundnessGateStaysUnconditionallyGating:
+    """Pins the decision, recorded in `differential-tests.yml`'s own comment block and in
+    `code/docs/core/TESTING_GUIDE.md` section 8.14, that the "Run CI gate tests explicitly"
+    step stays unconditionally gating for bimodal edits BY DESIGN: it is a soundness check
+    (TestCIGate::test_oracle_baseline_agreement fails only on a real semantic disagreement,
+    never on a timeout), distinct from the `development` blanket that quarantines only
+    completeness claims. Three properties, each independently falsifiable by a single
+    targeted mutation (see this task's RED-evidence transcript): no `continue-on-error`, the
+    `TestCIGate` node id still present, and the `paths:` trigger unnarrowed on both `push` and
+    `pull_request`."""
+
+    def test_gate_step_has_no_continue_on_error(self):
+        block = _gate_step_block(DIFFERENTIAL_TESTS_YML.read_text())
+        assert "continue-on-error" not in block, (
+            "the 'Run CI gate tests explicitly' step must never gain `continue-on-error` -- "
+            "see code/docs/core/TESTING_GUIDE.md section 8.14"
+        )
+
+    def test_gate_step_still_selects_test_ci_gate(self):
+        block = _gate_step_block(DIFFERENTIAL_TESTS_YML.read_text())
+        assert "::TestCIGate" in block, (
+            "the 'Run CI gate tests explicitly' step must keep node-id-selecting TestCIGate -- "
+            "it is the soundness assertion this gate exists to enforce"
+        )
+
+    @pytest.mark.parametrize("trigger", ["push", "pull_request"])
+    def test_paths_trigger_unnarrowed(self, trigger):
+        block = _trigger_block(DIFFERENTIAL_TESTS_YML.read_text(), trigger)
+        assert "oracle/bimodal_logic/**" in block, (
+            f"the `{trigger}:` trigger's `paths:` must still include `oracle/bimodal_logic/**`"
+        )
+        assert "code/src/model_checker/theory_lib/bimodal/**" in block, (
+            f"the `{trigger}:` trigger's `paths:` must still include "
+            f"`code/src/model_checker/theory_lib/bimodal/**`"
+        )

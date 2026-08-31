@@ -1381,6 +1381,25 @@ file's own "keep in sync with `code/pyproject.toml`" convention on purpose (see
 test can register or claim `development` -- the differential/soundness harness stays
 categorically, unconditionally gating.
 
+**Why a bimodal-only edit can still legitimately gate on `differential-tests.yml`.** That
+workflow's "Run CI gate tests explicitly" step keeps running unconditionally on every bimodal
+change, with no `-m` filter of any kind, and this is not an oversight left over from before the
+`development` marker existed -- it is a deliberate, permanent exception, now recorded in a comment
+directly above that step and enforced by three assertions in
+`code/tests/ci/test_unstable_deselection_wiring.py::TestOracleSoundnessGateStaysUnconditionallyGating`.
+The `development` marker quarantines only *completeness* claims about the `code/`-tree
+implementation -- "this behaviour is not implemented yet." `TestCIGate::test_oracle_baseline_agreement`
+asserts something categorically different: a *soundness* claim, that the `code/`-tree
+implementation's verdict on a formula agrees with the independent reference oracle's verdict. It
+fails only on a real semantic disagreement (resolved-and-wrong), never on a timeout or an
+unresolved formula -- so widening `development`'s reach to this step would not merely track a
+known incompleteness, it would let a genuine correctness regression in bimodal's semantics ship
+unnoticed. Read narrowly, then, criterion (a) ("a bimodal-only change cannot turn any *required*
+CI check red") is scoped to completeness checks: the oracle soundness gate is the one deliberate,
+named, tested exception that stays gating by design, and it must never gain
+`continue-on-error`, lose its `::TestCIGate` node-id selection, or have its `paths:` trigger
+narrowed.
+
 **Where the deselection is wired.** All four gating drivers carry `and not development` in their
 `-m` expression: `.github/workflows/tests.yml`'s parallel and serial passes,
 `.github/workflows/differential-tests.yml`'s first invocation, `flake.nix`'s `checks.default`

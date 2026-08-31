@@ -77,6 +77,21 @@ jobs:
         env:
           PYTHONPATH: code/src
 
+      # This step is UNCONDITIONALLY GATING for bimodal edits, BY DESIGN. It is a soundness
+      # check, not a completeness check: TestCIGate::test_oracle_baseline_agreement fails only
+      # on a real semantic disagreement between the code/-tree implementation and the
+      # reference oracle (resolved-and-wrong), never on a timeout or an unresolved formula.
+      # It is distinct from the `development` marker's blanket elsewhere in this repository's
+      # gating drivers, which quarantines only completeness claims about the code/-tree
+      # implementation (see code/docs/core/TESTING_GUIDE.md section 8.14) -- a bimodal-only
+      # change can turn the *completeness* gate non-gating via `development`, but it can never
+      # turn this *soundness* gate non-gating, and it must not: it is the one deliberate, named,
+      # tested exception a bimodal edit cannot silently opt out of.
+      #
+      # This step must NEVER gain `continue-on-error`, lose the `::TestCIGate` node id, or have
+      # its `paths:` trigger (above) narrowed. All three are enforced by
+      # `code/tests/ci/test_unstable_deselection_wiring.py::
+      # TestOracleSoundnessGateStaysUnconditionallyGating`.
       - name: Run CI gate tests explicitly
         run: |
           PYTHONPATH=code/src pytest \

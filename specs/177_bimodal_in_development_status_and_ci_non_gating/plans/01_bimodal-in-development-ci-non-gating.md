@@ -191,7 +191,7 @@ of the four scanned drivers directly, not by trusting this plan's number.
 
 ---
 
-### Phase 2: Record and enforce the retained oracle soundness gate (GAP 1) [NOT STARTED]
+### Phase 2: Record and enforce the retained oracle soundness gate (GAP 1) [COMPLETED]
 
 **Goal**: The decision that `differential-tests.yml` stays unconditionally gating for bimodal edits
 is stated where a reader of that workflow will see it, and is enforced by three assertions that fail
@@ -320,7 +320,7 @@ and recording the actual number — assert what you observe, not 313.
 
 ---
 
-### Phase 4: `run_tests.py --markers`/`-m` passthrough with a new TDD test module (GAP 2) [NOT STARTED]
+### Phase 4: `run_tests.py --markers`/`-m` passthrough with a new TDD test module (GAP 2) [IN PROGRESS]
 
 **Goal**: The unified runner can reproduce the gating selection and explicitly select the
 in-development set, with the dead `TestConfig.markers` field finally wired — and with the
