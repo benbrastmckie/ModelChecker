@@ -337,6 +337,11 @@
           "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/plans/01_seriality-interpolation-axioms.md",
           "type": "plan",
           "summary": "Seven-phase implementation plan with dependency waves, per-phase verification tiers, and scope hypotheses."
+        },
+        {
+          "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/summaries/01_seriality-interpolation-axioms-summary.md",
+          "type": "summary",
+          "summary": "Full implementation summary: what was built, the Phase 2 reachability measurement, the BM_CM_4/BM_CM_1 blocker with all evidence, plan deviations, and follow-ups."
         }
       ],
       "blockers": null,

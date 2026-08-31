@@ -584,6 +584,7 @@ DEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the ex
 - **Dependencies**: Task 152
 - **Research**: [153_assert_missing_frame_axioms_in_bimodal_semantics/reports/01_seriality-interpolation-encoding.md]
 - **Plan**: [153_assert_missing_frame_axioms_in_bimodal_semantics/plans/01_seriality-interpolation-axioms.md]
+- **Summary**: [153_assert_missing_frame_axioms_in_bimodal_semantics/summaries/01_seriality-interpolation-axioms-summary.md]
 
 **Description**: Bring `BimodalSemantics`'s frame class up to the JPL paper's `def:frame`, so that `thm:extension` becomes applicable to its countermodels. Today it is not: `thm:extension`'s proof chain consumes all four of the paper's `def:frame` axioms (Seriality, Interpolation, Limit, Spherical), but only two -- Seriality and Interpolation -- must actually be newly asserted in ModelChecker. The other two, Limit and Spherical, are already free: each is discharged by a citable BimodalLogic lemma (`TaskFrame.limit_of_succOrder`, `TaskFrame.spherical_of_finite`) whose hypotheses ModelChecker's existing encoding already satisfies, confirmed against the current tree by the preceding audit task rather than merely cited (see `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md`, Section 1.2a). This corrects the task's original premise that two of four axioms are simply "missing" -- Deliverable 3 below already anticipated this corrected direction and stands unchanged.
 
