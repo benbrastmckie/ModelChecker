@@ -1,19 +1,19 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 6,
-  "summary": "Plan created for task 158: 8 phases, ~8 hours, 5 dependency waves. Sequencing follows the research recommendation: non-interactive CLI + drop continue-on-error + gitignore + release-verify (wave 1, parallel) -> verify-testpypi job -> preflight job -> RELEASE_SETUP.md docs -> full gate run. Six out-of-scope items and user decision points are surfaced in a dedicated plan section rather than silently resolved or silently widened.",
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 10,
+  "summary": "Implemented all 8 phases of the TestPyPI-gate hardening plan: hard TestPyPI gate with skip_testpypi escape hatch, verify-testpypi install/smoke job, fail-fast preflight job, non-interactive project generation (-y/--project_name), orchestrator loop-guard gitignore/untrack, RELEASE_SETUP.md documentation, and release-verify.sh evidence-commit recording. Full test suite green (566 passed, 5 skipped, 0 failed). No git push/tag/merge/twine action taken.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/158_harden_release_ci_testpypi_gate/plans/01_harden-testpypi-gate.md",
-      "summary": "Eight-phase implementation plan with dependency wave table, per-phase verification tiers, scope hypotheses, and an explicit out-of-scope flag table."
+      "type": "summary",
+      "path": "specs/158_harden_release_ci_testpypi_gate/summaries/01_harden-testpypi-gate-summary.md",
+      "summary": "Implementation summary with all six out-of-scope flags, unrehearsable blind spots, locally-exercised results, and plan deviations."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 8,
   "phases_total": 8,
   "blockers": [],
   "plan_markers_verified": true,
   "continuation_path": null,
-  "next_action_hint": "Proceed to /implement 158. Wave 1 (phases 1, 2, 5, 7) touches four disjoint file sets and can run in parallel; waves 2-4 exist solely to serialize the three phases that all edit .github/workflows/release.yml. Surface out-of-scope flags A-F from the plan's 'Out-of-Scope Flags and User Decision Points' section to the user -- especially flag B (the new CHANGELOG preflight gate will block the next tagged release until an entry is written for it) and flag F (Phase 1's TDD tests live in files not listed in the declared file_scope)."
+  "next_action_hint": "none -- task ready for user review. The next real tag push is the first live exercise of the hardened gate; watch the skip_testpypi expression's runtime behavior and verify-testpypi's TestPyPI-propagation-lag retry, neither of which could be rehearsed by the implementer."
 }
