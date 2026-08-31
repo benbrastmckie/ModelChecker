@@ -333,33 +333,40 @@ If that is false, the smoke test must depend on Phase 1's flag and the phase wid
 
 ---
 
-### Phase 4: Add the fail-fast preflight job [NOT STARTED]
+### Phase 4: Add the fail-fast preflight job [COMPLETED]
+
+**Local exercise results (recorded per the phase's verification requirement)**: run by hand
+against the current tree (tag `v1.3.7`, `code/pyproject.toml` at `1.3.7`, `code/CHANGELOG.md`'s
+newest entry `## [1.3.2]`): the tag-vs-pyproject.toml comparison reports a MATCH (both `1.3.7`);
+the CHANGELOG check reports a MISS (no `## [1.3.7]` heading) -- expected and correct, this is
+out-of-scope flag B firing exactly as designed, not a defect. `flake.nix` confirmed unmodified
+via `git diff --name-only`.
 
 **Goal**: Tag/source-of-truth mismatches fail within seconds, before the 9-job matrix and the
 build run.
 
 **Tasks**:
-- [ ] Re-read `.github/workflows/release.yml` after Phase 3's edits
-- [ ] Add a `preflight` job with `needs: []` (runs first), `runs-on: ubuntu-latest`, no matrix,
+- [x] Re-read `.github/workflows/release.yml` after Phase 3's edits
+- [x] Add a `preflight` job with `needs: []` (runs first), `runs-on: ubuntu-latest`, no matrix,
       and `actions/checkout@v4` with `fetch-depth: 0` -- full history and tags are required by
       both the CHANGELOG grep and the tag-ancestry check
-- [ ] Assert the tag version equals `code/pyproject.toml`'s `version =` (currently line 11).
+- [x] Assert the tag version equals `code/pyproject.toml`'s `version =` (currently line 11).
       **Two literals, not three** -- see Overview finding 1: `flake.nix:21` derives its version
       from the same TOML file by construction and cannot drift. Do not add a `flake.nix` check;
       it would re-read the identical file and is redundancy, not defense in depth
-- [ ] Assert `code/CHANGELOG.md` has a non-empty entry for the version being released. The
+- [x] Assert `code/CHANGELOG.md` has a non-empty entry for the version being released. The
       failure message MUST name the file and the version explicitly -- this gate will fire on the
       next release (out-of-scope flag B), and the message is the user's only guidance at that
       moment
-- [ ] Assert the tag is annotated and reachable from the default branch:
+- [x] Assert the tag is annotated and reachable from the default branch:
       `git cat-file -t "$GITHUB_REF_NAME"` reports `tag` (not `commit`, which means a lightweight
       tag) and `git merge-base --is-ancestor "$GITHUB_REF_NAME" origin/master` exits 0. Confirm
       the default branch name is `master` at implementation time rather than assuming it
-- [ ] Fold in item 7's mechanical backstop: assert the tagged commit's
+- [x] Fold in item 7's mechanical backstop: assert the tagged commit's
       `.github/workflows/release.yml` matches the default branch's copy. `fetch-depth: 0` is
       already set for the checks above, so this is a low-incremental-cost addition to the same
       job rather than a new one
-- [ ] Add `preflight` to `test-and-release`'s `needs:` so the expensive matrix never starts before
+- [x] Add `preflight` to `test-and-release`'s `needs:` so the expensive matrix never starts before
       these assertions pass
 
 **Timing**: 1.5 hours

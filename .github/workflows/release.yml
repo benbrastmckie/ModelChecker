@@ -27,8 +27,105 @@ permissions:
   contents: read
 
 jobs:
+  preflight:
+    name: Preflight (tag/version/CHANGELOG checks)
+    needs: []
+    runs-on: ubuntu-latest
+    # Seconds-cheap: fails fast on a tag/source-of-truth mismatch before the 9-job matrix and
+    # the build run start. No matrix, no dependencies.
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # Full history and tags are required by both the CHANGELOG-vs-git-history reasoning
+        # below and the tag-ancestry / workflow-file-match checks, which diff the tagged
+        # commit against origin/master.
+        fetch-depth: 0
+
+    - name: Assert tag version matches code/pyproject.toml
+      shell: bash
+      run: |
+        set -uo pipefail
+        TAG_VERSION="${GITHUB_REF_NAME#v}"
+        PYPROJECT_VERSION=$(grep -m1 '^version = ' code/pyproject.toml | sed -E 's/version = "(.*)"/\1/')
+
+        # Exactly two independent version literals exist: the tag and code/pyproject.toml.
+        # flake.nix derives its version from the same TOML file via builtins.fromTOML (see
+        # flake.nix's own comment above that line) and so cannot drift from it by construction
+        # -- a third check here would be redundant, not defense in depth.
+        if [ "${TAG_VERSION}" != "${PYPROJECT_VERSION}" ]; then
+          echo "ERROR: tag version (${TAG_VERSION}) does not match code/pyproject.toml's" \
+               "version (${PYPROJECT_VERSION})"
+          exit 1
+        fi
+        echo "✓ tag version ${TAG_VERSION} matches code/pyproject.toml"
+
+    - name: Assert CHANGELOG.md has a non-empty entry for this version
+      shell: bash
+      run: |
+        set -uo pipefail
+        VERSION="${GITHUB_REF_NAME#v}"
+        CHANGELOG=code/CHANGELOG.md
+
+        if ! grep -q "^## \[${VERSION}\]" "${CHANGELOG}"; then
+          echo "ERROR: ${CHANGELOG} has no '## [${VERSION}]' heading. Add a CHANGELOG entry" \
+               "for ${VERSION} before tagging -- see .github/RELEASE_SETUP.md."
+          exit 1
+        fi
+
+        SECTION=$(awk -v ver="${VERSION}" '
+          $0 ~ "^## \\[" ver "\\]" { found=1; next }
+          found && /^## / { exit }
+          found { print }
+        ' "${CHANGELOG}")
+
+        if [ -z "$(printf '%s' "${SECTION}" | tr -d '[:space:]')" ]; then
+          echo "ERROR: ${CHANGELOG}'s '## [${VERSION}]' entry is empty. Add release notes for" \
+               "${VERSION} before tagging -- see .github/RELEASE_SETUP.md."
+          exit 1
+        fi
+        echo "✓ ${CHANGELOG} has a non-empty entry for ${VERSION}"
+
+    - name: Assert the tag is annotated and reachable from origin/master
+      shell: bash
+      run: |
+        set -uo pipefail
+        TAG_TYPE=$(git cat-file -t "${GITHUB_REF_NAME}")
+        if [ "${TAG_TYPE}" != "tag" ]; then
+          echo "ERROR: ${GITHUB_REF_NAME} is a ${TAG_TYPE}, not an annotated tag. Create it" \
+               "with 'git tag -a' (or -s), not 'git tag'."
+          exit 1
+        fi
+
+        if ! git merge-base --is-ancestor "${GITHUB_REF_NAME}" origin/master; then
+          echo "ERROR: ${GITHUB_REF_NAME} is not reachable from origin/master. Push (or" \
+               "/merge) the branch BEFORE creating and pushing the tag -- see" \
+               ".github/RELEASE_SETUP.md."
+          exit 1
+        fi
+        echo "✓ ${GITHUB_REF_NAME} is an annotated tag reachable from origin/master"
+
+    - name: Assert the tagged release.yml matches origin/master's copy
+      shell: bash
+      # Mechanical backstop for the workflow-file-ordering hazard documented in
+      # .github/RELEASE_SETUP.md: Actions executes this workflow file as it exists AT THE
+      # TAGGED COMMIT, not as it exists on the default branch. fetch-depth: 0 above already
+      # gives this job full history, so this is a low-incremental-cost addition to the same
+      # job rather than a new one.
+      run: |
+        set -uo pipefail
+        if ! git diff --quiet "${GITHUB_REF_NAME}" origin/master -- .github/workflows/release.yml; then
+          echo "ERROR: .github/workflows/release.yml at ${GITHUB_REF_NAME} differs from" \
+               "origin/master's copy. Push (or /merge) the branch with the workflow change" \
+               "BEFORE creating and pushing the tag -- see .github/RELEASE_SETUP.md."
+          exit 1
+        fi
+        echo "✓ .github/workflows/release.yml at ${GITHUB_REF_NAME} matches origin/master"
+
   test-and-release:
     name: Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    needs: preflight
     runs-on: ${{ matrix.os }}
 
     strategy:
