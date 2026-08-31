@@ -1,0 +1,140 @@
+{
+  "BM_TH_1": {
+    "N": 2,
+    "M": 3,
+    "baseline": {
+      "model_found": false,
+      "timeout": true,
+      "check_result": "inconclusive",
+      "z3_model_status": false,
+      "solving_time": 30.16,
+      "error": null
+    },
+    "reachability": {
+      "model_found": false,
+      "timeout": true,
+      "check_result": "inconclusive",
+      "z3_model_status": false,
+      "solving_time": 30.17,
+      "error": null
+    },
+    "baseline_wall_s": 30.16,
+    "reachability_wall_s": 30.17,
+    "elapsed_since_start_s": 60.33
+  },
+  "BM_TH_2": {
+    "N": 2,
+    "M": 3,
+    "baseline": {
+      "model_found": false,
+      "timeout": true,
+      "check_result": "inconclusive",
+      "z3_model_status": false,
+      "solving_time": 30.19,
+      "error": null
+    },
+    "reachability": {
+      "model_found": false,
+      "timeout": true,
+      "check_result": "inconclusive",
+      "z3_model_status": false,
+      "solving_time": 30.19,
+      "error": null
+    },
+    "baseline_wall_s": 30.19,
+    "reachability_wall_s": 30.2,
+    "elapsed_since_start_s": 120.72
+  },
+  "BM_TH_3": {
+    "N": 2,
+    "M": 2,
+    "baseline": {
+      "model_found": false,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": false,
+      "solving_time": 0.11,
+      "error": null
+    },
+    "reachability": {
+      "model_found": false,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": false,
+      "solving_time": 0.05,
+      "error": null
+    },
+    "baseline_wall_s": 0.11,
+    "reachability_wall_s": 0.05,
+    "elapsed_since_start_s": 120.88
+  },
+  "BM_TH_4": {
+    "N": 2,
+    "M": 2,
+    "baseline": {
+      "model_found": false,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": false,
+      "solving_time": 0.04,
+      "error": null
+    },
+    "reachability": {
+      "model_found": false,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": false,
+      "solving_time": 0.05,
+      "error": null
+    },
+    "baseline_wall_s": 0.04,
+    "reachability_wall_s": 0.05,
+    "elapsed_since_start_s": 120.97
+  },
+  "EX_CM_1": {
+    "N": 2,
+    "M": 1,
+    "baseline": {
+      "model_found": true,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": true,
+      "solving_time": 0.05,
+      "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'"
+    },
+    "reachability": {
+      "model_found": true,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": true,
+      "solving_time": 0.03,
+      "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'"
+    },
+    "baseline_wall_s": 0.05,
+    "reachability_wall_s": 0.04,
+    "elapsed_since_start_s": 121.05
+  },
+  "EX_TH_1": {
+    "N": 2,
+    "M": 1,
+    "baseline": {
+      "model_found": false,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": false,
+      "solving_time": 0.03,
+      "error": null
+    },
+    "reachability": {
+      "model_found": false,
+      "timeout": false,
+      "check_result": "match",
+      "z3_model_status": false,
+      "solving_time": 0.03,
+      "error": null
+    },
+    "baseline_wall_s": 0.04,
+    "reachability_wall_s": 0.03,
+    "elapsed_since_start_s": 121.12
+  }
+}

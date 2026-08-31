@@ -198,7 +198,7 @@ the 152 README's figures, record the actual number and investigate before procee
 
 ---
 
-### Phase 2: Time-boxed measurement of the definitional-reachability alternative [NOT STARTED]
+### Phase 2: Time-boxed measurement of the definitional-reachability alternative [COMPLETED]
 
 **Goal**: Produce the honest before/after measurement the task's Deliverable 2 demands for the
 "define `task_rel` as bounded reachability of a unit relation `R`" alternative, so the question is
