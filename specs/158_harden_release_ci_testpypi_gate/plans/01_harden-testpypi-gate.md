@@ -398,23 +398,28 @@ two-literal scope in the summary.
 
 ---
 
-### Phase 5: Gitignore and untrack orchestrator loop-guard files [NOT STARTED]
+### Phase 5: Gitignore and untrack orchestrator loop-guard files [COMPLETED]
 
 **Goal**: `.orchestrator-loop-guard` files stop dirtying the working tree before a tag, matching
 `.claude/context/standards/orchestrator-runtime-files.md`'s ephemeral (must-ignore) class.
 
 **Tasks**:
-- [ ] Confirm the current tracked set with `git ls-files | grep orchestrator-loop-guard`
-- [ ] Add `**/.orchestrator-loop-guard` to `.gitignore`, adjacent to the existing orchestrator
+- [x] Confirm the current tracked set with `git ls-files | grep orchestrator-loop-guard`
+- [x] Add `**/.orchestrator-loop-guard` to `.gitignore`, adjacent to the existing orchestrator
       runtime entries (currently lines 33-37)
-- [ ] `git rm --cached` each tracked loop-guard path. Use `--cached` only -- working-tree copies
+- [x] `git rm --cached` each tracked loop-guard path. Use `--cached` only -- working-tree copies
       must survive
-- [ ] Confirm-and-close, without editing: `.orchestrator-multi-state.json` /
+- [x] Confirm-and-close, without editing: `.orchestrator-multi-state.json` /
       `.orchestrator-multi-state-sess_*.json` (lines 36-37) and `.return-meta-multi.json` /
       `.return-meta-multi-sess_*.json` (lines 34-35) are ALREADY covered. The task's open question
       about `.return-meta-multi-*` is answered; do not re-add either pair
-- [ ] Do NOT touch `.gitignore:33`'s `**/.return-meta.json`. It contradicts the standard (see
+- [x] Do NOT touch `.gitignore:33`'s `**/.return-meta.json`. It contradicts the standard (see
       out-of-scope flag D) but reversing it is a user decision -- record it, leave it
+
+**Confirmed count**: exactly 6 tracked `.orchestrator-loop-guard` files at implementation time
+(one under `specs/161_fix_testpypi_trusted_publisher/`, five under `specs/archive/`), matching
+the scope hypothesis exactly. All six untracked via `git rm --cached`; working-tree copies
+confirmed to survive with `ls`.
 
 **Timing**: 30 minutes
 

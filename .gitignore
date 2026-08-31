@@ -35,6 +35,7 @@ code/scaling_results.json
 **/.return-meta-multi-sess_*.json
 **/.orchestrator-multi-state.json
 **/.orchestrator-multi-state-sess_*.json
+**/.orchestrator-loop-guard
 **/specs/tmp/
 /.claude
 /.claude-extensions.json
