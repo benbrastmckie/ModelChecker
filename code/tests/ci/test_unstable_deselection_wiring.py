@@ -270,6 +270,45 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
         matches = re.findall(r'pytest\s+\S.*?-m\s+unstable\b', text)
         assert len(matches) == 2
 
+    def test_watch_development_step_selects_development_and_writes_junit(self):
+        """The producing step for the classifier's DEV_STATUS path (8.14's GAP 3): a third
+        watch step, alongside `watch_code` and `watch_oracle`, that selects `-m development`,
+        writes `/tmp/watch-development.xml` (`DEFAULT_DEV_JUNIT_PATH` in
+        `.github/scripts/unstable_watch_classify.py`), is `continue-on-error: true`, and
+        tolerates exit codes 0 and 5 exactly like its two siblings.
+
+        Uses a narrow, dedicated extraction (split on `- name:` step boundaries, not
+        `_extract_pytest_invocations`) for the same reason
+        `test_unstable_watch_workflow_is_deliberately_excluded_and_selects_unstable` does:
+        this workflow's classify step embeds Python prose the general extractor
+        false-positives on."""
+        unstable_watch_yml = REPO_ROOT / ".github" / "workflows" / "unstable-watch.yml"
+        text = unstable_watch_yml.read_text()
+        steps = re.split(r"\n(?=      - name:)", text)
+        matches = [s for s in steps if "id: watch_development" in s]
+        assert len(matches) == 1, (
+            f"expected exactly one step carrying `id: watch_development`, found {len(matches)}"
+        )
+        step = matches[0]
+
+        assert "continue-on-error: true" in step, (
+            "the watch_development step must be continue-on-error: true, like watch_code and "
+            "watch_oracle"
+        )
+        assert re.search(r"-m\s+development\b", step) is not None, (
+            "the watch_development step must select `-m development`"
+        )
+        assert "--junitxml=/tmp/watch-development.xml" in step, (
+            "the watch_development step must write /tmp/watch-development.xml, the classifier's "
+            "DEFAULT_DEV_JUNIT_PATH"
+        )
+        assert re.search(
+            r'\[\s*"\$code"\s*-eq\s*0\s*\]\s*\|\|\s*\[\s*"\$code"\s*-eq\s*5\s*\]', step
+        ) is not None, (
+            "the watch_development step must tolerate exit codes 0 and 5, like watch_code and "
+            "watch_oracle"
+        )
+
 
 def _gate_step_block(text: str) -> str:
     """Return the text of differential-tests.yml's "Run CI gate tests explicitly" step, from

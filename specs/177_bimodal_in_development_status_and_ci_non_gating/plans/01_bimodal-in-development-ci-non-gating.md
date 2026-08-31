@@ -259,7 +259,7 @@ changed, assert the shape actually present rather than the shape this plan names
 
 ---
 
-### Phase 3: Wire the `-m development` producing step in unstable-watch.yml (GAP 3) [NOT STARTED]
+### Phase 3: Wire the `-m development` producing step in unstable-watch.yml (GAP 3) [COMPLETED]
 
 **Goal**: `/tmp/watch-development.xml` is produced, so the already-implemented `DEV_STATUS`
 classifier path receives real input and bimodal regressions become visible-but-non-gating in the

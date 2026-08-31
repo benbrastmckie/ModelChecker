@@ -88,6 +88,29 @@ jobs:
           fi
           exit "$code"
 
+      - name: Run development-marked tests (bimodal blanket)
+        id: watch_development
+        continue-on-error: true
+        run: |
+          cd code
+          set +e
+          PYTHONPATH=src pytest tests/ src/model_checker -m development -v \
+            --junitxml=/tmp/watch-development.xml
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          # Exit code 5 ("no tests collected") is tolerated for the same reason it is in
+          # watch_code/watch_oracle above, but here it would only ever fire if bimodal's
+          # theory-wide `development` blanket (code/src/model_checker/theory_lib/bimodal/
+          # tests/conftest.py's pytest_collection_modifyitems hook) were removed without a
+          # replacement marking left behind -- see code/docs/core/TESTING_GUIDE.md section
+          # 8.14's "Exit path for this blanket" for that graduation trigger. Any other
+          # non-zero code is a genuine pytest-level problem and is left for the
+          # classification step below to interpret.
+          if [ "$code" -eq 0 ] || [ "$code" -eq 5 ]; then
+            exit 0
+          fi
+          exit "$code"
+
       - name: Classify results and build the trend report
         id: classify
         env:
