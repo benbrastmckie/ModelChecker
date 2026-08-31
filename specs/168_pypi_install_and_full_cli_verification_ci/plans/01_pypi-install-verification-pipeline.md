@@ -1,7 +1,7 @@
 # Implementation Plan: PyPI Install and Full-CLI Verification Pipeline
 
 - **Task**: 168 - Pypi install and full cli verification ci
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 8 hours
 - **Dependencies**: Task 158 (completed -- `release.yml`'s 7-job post-158 topology is the baseline this plan extends)
 - **Research Inputs**: specs/168_pypi_install_and_full_cli_verification_ci/reports/01_pypi-install-full-cli-verification-ci.md
@@ -216,7 +216,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Baseline capture and RED tests for the source selector [NOT STARTED]
+### Phase 1: Baseline capture and RED tests for the source selector [COMPLETED]
 
 **Goal**: Record the current packaging-suite baseline, then write failing tests that pin the
 env-var contract (D1) and both version-resolution paths (D2) before any fixture code exists.
