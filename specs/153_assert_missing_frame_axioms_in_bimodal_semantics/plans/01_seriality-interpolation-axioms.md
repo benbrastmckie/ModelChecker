@@ -1,7 +1,7 @@
 # Implementation Plan: Assert Seriality and Interpolation in BimodalSemantics
 
 - **Task**: 153 - Assert missing frame axioms in bimodal semantics
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 9 hours
 - **Dependencies**: 152 (audit ledger + regression baseline)
 - **Research Inputs**: `specs/153_assert_missing_frame_axioms_in_bimodal_semantics/reports/01_seriality-interpolation-encoding.md`
@@ -147,7 +147,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Regression harness and pre-change reference run [NOT STARTED]
+### Phase 1: Regression harness and pre-change reference run [COMPLETED]
 
 **Goal**: Stand up a re-runnable 52-example harness under this task's own `baselines/` directory
 and capture a pre-change reference run on this host, so Phase 7's post-change diff has both the
