@@ -165,6 +165,114 @@ def test_bare_save_yields_markdown_and_json(monkeypatch, tmp_path):
     assert config.formats == ['markdown', 'json']
 
 
+def test_project_name_flag_registered_with_short_alias():
+    """--project_name/-y is registered and mapped in _short_to_long."""
+    flags = ParseFileFlags()
+    option_strings = set(flags.parser._option_string_actions.keys())
+    assert '--project_name' in option_strings
+    assert '-y' in option_strings
+
+
+def test_project_name_absent_defaults_to_none(monkeypatch, tmp_path):
+    """Without -y/--project_name, module_flags.project_name is None (opt-in only)."""
+    from model_checker import registry
+
+    example_file = tmp_path / "example.py"
+    example_file.write_text("semantic_theories = {}\nexample_range = {}\n")
+
+    monkeypatch.setattr(
+        sys, 'argv',
+        ['model-checker', '--load_theory', registry.get_registered()[0], str(example_file)],
+    )
+    flags = ParseFileFlags()
+    module_flags, _ = flags.parse()
+    assert module_flags.project_name is None
+
+
+def test_non_interactive_project_generation_no_prompt(monkeypatch, tmp_path):
+    """`-l <theory> -y <name>` generates a project with no stdin read (EOFError-safe).
+
+    Uses the CLI subprocess with stdin closed (input='') to prove main() never
+    calls input() on this path -- the RED-defining scenario for non-interactive
+    project generation.
+    """
+    from model_checker import registry
+
+    theory_name = registry.get_registered()[0]
+    project_name = "cli_noninteractive_test"
+
+    result = run_cli_command(
+        ['--load_theory', theory_name, '--project_name', project_name, str(tmp_path)],
+        check=False,
+        input='',
+    )
+
+    assert result.returncode == 0, (result.stdout, result.stderr)
+    assert 'EOFError' not in (result.stderr or '')
+    created = tmp_path / f"project_{project_name}"
+    assert created.exists() and created.is_dir()
+
+
+def test_non_interactive_honors_destination_directory(tmp_path):
+    """The positional file_path argument is honored as the destination directory,
+    not silently discarded, when combined with --load_theory --project_name."""
+    from model_checker import registry
+
+    theory_name = registry.get_registered()[0]
+    project_name = "cli_dest_test"
+    dest_dir = tmp_path / "chosen_destination"
+    dest_dir.mkdir()
+
+    result = run_cli_command(
+        ['--load_theory', theory_name, '--project_name', project_name, str(dest_dir)],
+        check=False,
+        input='',
+    )
+
+    assert result.returncode == 0, (result.stdout, result.stderr)
+    created = dest_dir / f"project_{project_name}"
+    assert created.exists() and created.is_dir()
+    # Confirm it was NOT created in the cwd instead (destination honored, not discarded).
+    assert not (tmp_path / f"project_{project_name}").exists()
+
+
+def test_non_interactive_missing_name_exits_nonzero_with_clear_message():
+    """`-l <theory> -y` (flag present, name omitted) exits non-zero with a clear,
+    actionable message rather than raising or silently prompting."""
+    from model_checker import registry
+
+    theory_name = registry.get_registered()[0]
+
+    result = run_cli_command(
+        ['--load_theory', theory_name, '--project_name'],
+        check=False,
+        input='',
+    )
+
+    assert result.returncode != 0
+    combined_output = (result.stdout or '') + (result.stderr or '')
+    assert 'Traceback' not in combined_output
+    assert 'project_name' in combined_output or '-y' in combined_output
+
+
+def test_interactive_path_unchanged_when_flag_absent(tmp_path):
+    """--load_theory without --project_name still reaches the interactive
+    ask_generate() path (answering 'n' to the first prompt exits cleanly)."""
+    from model_checker import registry
+
+    theory_name = registry.get_registered()[0]
+
+    result = run_cli_command(
+        ['--load_theory', theory_name],
+        check=False,
+        input='n\n',
+        cwd=tmp_path,
+    )
+
+    assert result.returncode == 0, (result.stdout, result.stderr)
+    assert 'Would you like to generate a new' in (result.stdout or '')
+
+
 def test_sequential_flag_exits_cleanly_without_traceback(tmp_path):
     """--sequential exits non-zero with a one-line error, no Python traceback.
 

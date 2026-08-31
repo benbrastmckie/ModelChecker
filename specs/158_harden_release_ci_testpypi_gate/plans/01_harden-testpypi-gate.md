@@ -1,7 +1,7 @@
 # Implementation Plan: Task #158
 
 - **Task**: 158 - Harden release CI / TestPyPI gate
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 8 hours
 - **Dependencies**: 161 (`fix_testpypi_trusted_publisher`) - COMPLETED and verified green on the
   `v1.3.7` tag push (Actions run 32996862484). Input satisfied; safe to land the hard gate.
@@ -146,33 +146,33 @@ Waves 2-4 exist to serialize the three phases that all edit `release.yml`.
 
 ---
 
-### Phase 1: Non-interactive project generation [NOT STARTED]
+### Phase 1: Non-interactive project generation [COMPLETED]
 
 **Goal**: `model-checker -l <theory>` can create a project with no `input()` call and exits
 non-zero when required information is missing, instead of dying with `EOFError`.
 
 **Tasks**:
-- [ ] Read `code/tests/unit/test_main_cli.py` and
+- [x] Read `code/tests/unit/test_main_cli.py` and
       `code/src/model_checker/builder/tests/unit/test_project.py` for existing conventions
-- [ ] RED: add failing tests covering (a) `-l <theory> -y <name>` generating a project with no
+- [x] RED: add failing tests covering (a) `-l <theory> -y <name>` generating a project with no
       prompt, (b) the destination directory being honored rather than discarded, (c) a non-zero
       exit when a name is required under the non-interactive flag but absent, (d) the existing
       interactive path still reaching `ask_generate()` when the flag is absent
-- [ ] Add the non-interactive flag to `_create_parser()` in
+- [x] Add the non-interactive flag to `_create_parser()` in
       `code/src/model_checker/__main__.py`, following the file's existing long-name +
       single-letter-alias convention (compare `--load_theory/-l`, `--contingent/-c`) and adding
       the letter to the `_short_to_long` map in `parse()`
-- [ ] Decide and implement how the project name and destination are supplied. The existing
+- [x] Decide and implement how the project name and destination are supplied. The existing
       positional `file_path` (`nargs='?'`) is already bound by argparse when `-l THEORY DIR` is
       passed but is never read by the `--load_theory` branch; either read it, or add an explicit
       name argument. Record the choice and its rationale in the summary
-- [ ] In `main()`, branch to `builder.generate(name, destination_dir)` directly (it is already
+- [x] In `main()`, branch to `builder.generate(name, destination_dir)` directly (it is already
       fully non-interactive) instead of `ask_generate()` when the flag is set, and `sys.exit(1)`
       -- not bare `return` -- when required information is missing
-- [ ] Make `_handle_example_script()`'s prompt (`project.py:706`) skippable under the same flag,
+- [x] Make `_handle_example_script()`'s prompt (`project.py:706`) skippable under the same flag,
       via a threaded `run_example: bool = False` parameter or an unconditional
       "you can test your project by running" message
-- [ ] GREEN: run the new tests plus the existing builder and CLI suites
+- [x] GREEN: run the new tests plus the existing builder and CLI suites
 
 **Timing**: 1.5 hours
 

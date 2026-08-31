@@ -697,12 +697,21 @@ please include additional references here.
                     sub_prefix = "    │   └── " if i < len(dirs) - 1 else "        └── "
                 print(f"{sub_prefix}{subitem}")
     
-    def _handle_example_script(self, project_dir: str) -> None:
+    def _handle_example_script(self, project_dir: str, interactive: bool = True) -> None:
         """Handle running the example script if requested.
-        
+
         Args:
             project_dir: Path to the project directory
+            interactive: When False, skip the input() prompt entirely (never reads
+                stdin) and print the "how to run" message unconditionally. Used by
+                the non-interactive CLI generation path, which cannot rely on stdin
+                being available. Defaults to True, which preserves the prior
+                always-prompt behavior for the interactive ask_generate() path.
         """
+        if not interactive:
+            print(f"\nYou can test your project by running:\n\nmodel-checker <path-to-example-file>\n")
+            return
+
         result = input("Would you like to test an example in your project? (y/n): ")
         if result.lower() not in {'yes', 'ye', 'y'}:
             print(f"\nYou can test your project by running:\n\nmodel-checker <path-to-example-file>\n")

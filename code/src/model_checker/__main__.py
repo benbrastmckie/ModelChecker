@@ -82,6 +82,18 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
             choices=theories,
             help=f"Load semantic theory: {', '.join(theories)}."
         )
+        theory_group.add_argument(
+            '--project_name',
+            '-y',
+            nargs='?',
+            const='',
+            default=None,
+            type=str,
+            metavar='NAME',
+            help='Generate a new project non-interactively with this name (used with '
+                 '--load_theory; no prompts, no stdin reads). The optional positional '
+                 'file_path argument, if given, is used as the destination directory.'
+        )
 
         # Model constraints group
         model_group = parser.add_argument_group('model constraints', 'Control proposition behavior')
@@ -219,7 +231,8 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
             'v': 'version',
             'u': 'upgrade',
             'z': 'print_z3',
-            'a': 'align_vertically'
+            'a': 'align_vertically',
+            'y': 'project_name'
         }
         
         # Store the original command line arguments
@@ -288,6 +301,28 @@ def main():
     if module_flags.load_theory:
         semantic_theory_name = module_flags.load_theory
         builder = BuildProject(semantic_theory_name)
+        if module_flags.project_name is not None:
+            # -y/--project_name was passed: non-interactive generation, no stdin reads.
+            project_name = module_flags.project_name
+            if not project_name:
+                print(
+                    "Error: --project_name/-y requires a non-empty project name for "
+                    "non-interactive generation, e.g. -l "
+                    f"{semantic_theory_name} -y my_project"
+                )
+                sys.exit(1)
+            # The positional file_path argument, when given alongside --load_theory, is
+            # otherwise unused by this branch -- honor it as the destination directory
+            # rather than discarding it.
+            destination_dir = module_flags.file_path
+            try:
+                project_dir = builder.generate(project_name, destination_dir)
+            except Exception as e:
+                print(f"Error creating project: {e}")
+                sys.exit(1)
+            builder._print_success_message(project_dir)
+            builder._handle_example_script(project_dir, interactive=False)
+            return
         builder.ask_generate()
         return
     

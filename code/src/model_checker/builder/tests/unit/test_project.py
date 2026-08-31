@@ -440,5 +440,54 @@ class TestBuildProjectManifestFilterPycache(unittest.TestCase):
         self.assertIn('WARNING', stray_warnings[0])
 
 
+class TestHandleExampleScriptInteractiveFlag(unittest.TestCase):
+    """Test _handle_example_script()'s interactive/non-interactive behavior.
+
+    Non-interactive project generation needs a way to skip the "Would you like
+    to test an example?" prompt without raising EOFError when stdin is closed.
+    The `interactive` parameter defaults to True so the existing interactive
+    path (called from ask_generate()) is unchanged.
+    """
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.addCleanup(lambda: self._cleanup_temp_dir())
+
+    def _cleanup_temp_dir(self):
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    def test_default_interactive_true_still_calls_input(self):
+        """Default behavior (interactive=True) is unchanged: input() is called."""
+        from model_checker import registry
+
+        builder = BuildProject(registry.get_registered()[0])
+        with patch('builtins.input', return_value='n') as mock_input:
+            builder._handle_example_script(self.temp_dir)
+        mock_input.assert_called_once()
+
+    def test_non_interactive_skips_prompt_without_eof(self):
+        """interactive=False never calls input(), even with no example files present."""
+        from model_checker import registry
+
+        builder = BuildProject(registry.get_registered()[0])
+        with patch('builtins.input', side_effect=EOFError("stdin closed")) as mock_input:
+            # Must not raise EOFError: input() must not be called at all.
+            builder._handle_example_script(self.temp_dir, interactive=False)
+        mock_input.assert_not_called()
+
+    def test_non_interactive_prints_run_instructions(self):
+        """interactive=False prints the 'how to run' message unconditionally."""
+        from model_checker import registry
+
+        builder = BuildProject(registry.get_registered()[0])
+        with patch('builtins.input', side_effect=EOFError("stdin closed")):
+            with patch('builtins.print') as mock_print:
+                builder._handle_example_script(self.temp_dir, interactive=False)
+
+        printed = "\n".join(str(call.args[0]) for call in mock_print.call_args_list if call.args)
+        self.assertIn("model-checker <path-to-example-file>", printed)
+
+
 if __name__ == "__main__":
     unittest.main()
