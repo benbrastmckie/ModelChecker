@@ -1,7 +1,7 @@
 # Implementation Plan: Fix contention-flaky soundness regression tests
 
 - **Task**: 172 - fix_contention_flaky_soundness_regression_tests
-- **Status**: [IMPLEMENTING]
+- **Status**: [PARTIAL]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md
@@ -209,7 +209,64 @@ tests confirmed in Phase 1, matching the in-file precedent's style exactly.
 
 ---
 
-### Phase 3: Full two-pass verification via the real driver [NOT STARTED]
+### Phase 3: Full two-pass verification via the real driver [PARTIAL]
+
+**Verification results (two independent full runs, both against current HEAD after tasks
+152/158/175 landed their commits)**:
+
+- **Run 1** (`bash oracle/run-oracle-suite.sh`, detached, log at scratchpad `oracle-suite-post.log`):
+  Pass 1 (`-n 6`, 622 items): `1 failed, 615 passed, 2 skipped, 4 xfailed in 705.05s (0:11:45)`.
+  Pass 2 (serial, 19 items): `19 passed in 790.92s (0:13:10)` — inside the 1800s budget. Script
+  summary: `pass 1: FAILED (exit 1)`, `pass 2: PASSED`.
+- **Run 2** (pass-1-only rerun, full unnarrowed selection `pytest oracle -n 6 -m "not xdist_serial
+  and not slow and not unstable" -rs`, log at scratchpad `oracle-pass1-rerun.log`, launched to
+  test reproducibility): `1 failed, 615 passed, 2 skipped, 4 xfailed in 718.15s (0:11:58)` —
+  identical counts, identical single failure.
+
+**None of the four target tests marked in Phase 2 appear in either run's failure list.** The
+Phase 2 remedy is fully verified: `TestBoundaryVacuity::test_depth1_boundary_safe_is_true`,
+`test_depth1_countermodel_has_required_fields`, `TestGuardedCompositionality::test_forward_comp_with_temporal_formula_output`,
+and `test_nullity_with_temporal_formula_output` are absent from both pass-1 failure lists and
+present and green in pass 2 (which grew from 15 to 19 tests exactly as predicted). Pass 2's
+790.92s wall clock is comfortably inside the 1800s budget.
+
+**A fifth, reproducible failure was discovered, outside this plan's approved remedy**:
+`TestShiftClosure::test_shift_closure_on_extracted_worlds_m3` failed identically in both runs —
+`AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance` at
+`oracle/bimodal_logic/tests/test_soundness_regression.py:541` (`structure.z3_model_status` is
+`False`). Two independent full-selection pass-1 runs failing on the same assertion is evidence
+of a reproducible failure, not the contention-flake class this task addresses — this
+characterization supersedes an earlier, retracted "possible contention blip" hypothesis. This
+test never calls `find_countermodel()`; it constructs `BimodalStructure` directly with its own
+`max_time: 15.0` setting, bypassing the `timeout_ms=5000`/`OracleTimeoutError` mechanism this
+plan's remedy targets entirely, so it was correctly outside Phase 1's `find_countermodel(`-scoped
+inventory. `git log` on tasks 152/158/175's landed commits (`2a2c4906`, `1b735197`, and others in
+that range) shows no change to any bimodal semantic/solver code this test depends on — the
+failure is not attributable to tree drift from concurrent tasks. Historical baselines
+(`specs/archive/108_soundness_regression_test_suite/`, `specs/archive/114_skolem_abundance_overconstrain_fix/`)
+show this exact test was previously `xfail`'d for "M=3 solver over-constraint" and has run 2-8s
+against its 15s internal budget across past measurements — consistent with a near-budget solve,
+but its current reproducible-not-flaky failure reads as a semantic/solver-budget issue rather
+than a scheduling one. **In scope by file** (`oracle/bimodal_logic/tests/test_soundness_regression.py`
+is this task's target file) **but out of scope by remedy** (it shares no mechanism with the four
+`find_countermodel`/`timeout_ms` tests this plan addresses, and fixing it would require
+investigating the solver/constraint layer, not test scheduling).
+
+Per the Risks & Mitigations row "The full two-pass run surfaces a different pass-1 failure...
+Do not widen scope. Record any new failure with its file and error... note it as a follow-up
+candidate rather than fixing it in this task," this failure was NOT fixed in this dispatch. It is
+recorded as a `/spawn` follow-up candidate in the Phase 4 summary, now with two-run reproducibility
+evidence attached — a stronger case than a suspected flake.
+
+**Why this phase closes `[PARTIAL]` rather than `[COMPLETED]`**: the phase's own stated
+Verification criteria ("Pass 1: zero failures"; "The script's own end-of-run summary reports
+success for both passes") are not met — pass 1 reports `FAILED (exit 1)` in both runs, due
+entirely to this out-of-remedy, pre-existing defect. The four-test remedy itself is fully
+verified and will not need to be revisited; what remains open is the unrelated defect, which
+requires a separate task (this plan's Non-Goals forbid fixing it here) before a fully green
+`oracle/run-oracle-suite.sh` pass 1 can be obtained. Do not re-run with a narrowed `-k` or
+single-file selection to force a green result — none was attempted here.
+
 
 **Goal**: Confirm pass 1 drops from three failures to zero and pass 2 stays green inside its 1800s
 budget, using the unmodified two-pass driver rather than a narrowed selection.
@@ -255,7 +312,69 @@ Phase 1 inventory rather than as an accepted result.
 
 ---
 
-### Phase 4: Record decisions and close out [NOT STARTED]
+### Phase 4: Record decisions and close out [COMPLETED]
+
+**Note on sequencing**: this phase's content (decision record, measured figures, follow-up
+candidate) is fully completable independent of Phase 3's `[PARTIAL]` outcome — the five-condition
+`[COMPLETED WITH EXCLUSIONS]` test does not apply to Phase 3 itself (a `/spawn` follow-up is a
+genuine residual, so Phase 3 is honestly `[PARTIAL]`, not exclusion-closed), but Phase 4's own
+scoped goal (record decisions, confirm file purity) has no such residual and is closed here per
+explicit orchestrator direction, given the dependency is informational (measured figures) rather
+than a blocking precondition.
+
+**Decision 1 (max_rlimit): evaluated and deliberately not used.** `code/docs/core/TESTING_GUIDE.md`
+section 8.13 already worked through this exact tradeoff for the `CL_TH_12`/`CL_TH_13` flake: an
+rlimit bound can only ever cause an inconclusive result, never prevent one. Once a test is in the
+serial pass it is no longer competing with five sibling workers, so there is no residual
+wall-clock risk left for `max_rlimit` to address; adding it would supply a second independent way
+to fail with no correctness benefit. 8.13 warrants `max_rlimit` only where a wall-clock budget
+cannot be widened far enough to be safe, which is not this case.
+
+**Decision 2 (AST floor guard): not added to `code/tests/ci/test_example_budget_floor.py`.** That
+guard works because its risk is a per-call-site `'max_time': N` dict literal, raisable
+independently per site. Here the risk is a shared function default
+(`Z3OracleProvider.find_countermodel`'s `timeout_ms=5000`), whose value cannot be raised without
+changing behavior for the many callers that already pass deliberate explicit budgets. The actual
+risk factor is (unmarked bare call) x (formula with `temporal_depth>=1`), and `temporal_depth` is
+not statically readable from the call site without resolving a module-level formula argument, so
+an AST scan cannot distinguish a genuinely at-risk site from a `TestKnownBoundaryUnsafe`-style
+call that expects a timeout. `test_example_budget_floor.py` needs no code change.
+
+**Follow-up candidate 1 (pre-existing, out of `file_scope`)**:
+`oracle/bimodal_logic/tests/test_oracle_provider.py::test_future_sat_returns_dict` calls
+`find_countermodel(FUTURE_SAT_JSON)` (`some_future(atom A)`, `temporal_depth=1`) at the bare
+default and is unmarked — same risk class as the four tests fixed here, outside this task's
+`file_scope`. Suggest a narrowly scoped follow-up via `/spawn`.
+
+**Follow-up candidate 2 (newly discovered in Phase 3, reproducible)**:
+`oracle/bimodal_logic/tests/test_soundness_regression.py::TestShiftClosure::test_shift_closure_on_extracted_worlds_m3`
+fails deterministically across two independent full pass-1 runs with
+`AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance`
+(`z3_model_status` is `False`) at line 541. In scope by file, out of scope by remedy: it bypasses
+`find_countermodel()` entirely, constructing `BimodalStructure` directly with its own
+`max_time: 15.0` budget, so no `xdist_serial` marker or oracle-provider-focused fix applies. Not
+attributable to tree drift from concurrently-landed tasks 152/158/175 (`git log --stat` on their
+commits touches no bimodal semantic/solver code this test depends on). Historically `xfail`'d for
+"M=3 solver over-constraint" (`specs/archive/108_soundness_regression_test_suite/`,
+`specs/archive/114_skolem_abundance_overconstrain_fix/`) with measured 2-8s runtimes against its
+15s budget. Reproducible-across-2-runs evidence makes this a stronger `/spawn` case than a
+suspected flake: recommend a dedicated task to investigate why the M=3 depth-bounded-abundance
+solve no longer reliably finds SAT for `atom('p')`, rather than folding it into this task.
+
+**Measured before/after figures (from Phase 3)**:
+
+| Metric | Before (task description baseline) | After (this task, Run 1 / Run 2) |
+|--------|--------------------------------------|-----------------------------------|
+| Pass 1 failures | 3 (the reported tests) | 1 (unrelated, reproducible; zero of the four target tests) |
+| Pass 1 wall clock | not recorded in baseline | 705.05s / 718.15s (budget 1300s) |
+| Pass 2 test count | 15 | 19 (both runs) |
+| Pass 2 wall clock | 677.08s | 790.92s (Run 1; Run 2 was pass-1-only) |
+| Pass 2 result | green | green (both runs), inside 1800s budget |
+
+**File-scope purity confirmed**: `git diff --stat` against this task's commits shows only
+`oracle/bimodal_logic/tests/test_soundness_regression.py` changed outside `specs/`; `provider.py`
+and `code/tests/ci/test_example_budget_floor.py` are absent from the diff — both non-goals held.
+
 
 **Goal**: Record the two negative decisions with their reasons and the one out-of-scope follow-up
 candidate, and confirm the two untouched `file_scope` files are genuinely untouched.
