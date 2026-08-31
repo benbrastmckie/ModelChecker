@@ -320,6 +320,57 @@ the interpolation/seriality follow-on work will incidentally close.
 | Lean: `lem:step`, sole `Spherical` application site | `FormalSystem/Semantics/Extension/Step.lean:10`–`43`, `129` |
 | Lean: `thm:extension` / `cor:occurrence` chain and inputs | `FormalSystem/Semantics/Extension/Extension.lean:19`–`99` |
 
+### 4.1 Verification provenance (re-checked 2026-08-31 for this audit)
+
+Every row above was opened and its cited line(s) compared against the current tree, both
+repositories. **Result: no drift.** All 21 rows resolve to exactly the cited symbol at exactly
+the cited line(s), with one non-drift annotation recorded below.
+
+**ModelChecker-side rows (11 of 11 confirmed unchanged):** `build_frame_constraints`
+(`core.py:537`), `build_nullity_identity_constraint` (`core.py:280`), `build_converse_constraint`
+(`core.py:305`), `build_forward_comp_constraint` (`core.py:344`), the disabled `task_restriction`
+constraint and its soundness-analysis comment (`core.py:747`–`835`, confirmed as the exact span
+from the `# 10. Task relation...` comment header through the constraint's closing `)`),
+`capped_skolem_abundance_constraint` (`core.py:1447`), `depth_bounded_skolem_abundance_constraint`
+(`core.py:1530`), `build_task_minimization_constraint` (`core.py:1628`), `is_valid_duration` /
+`is_valid_time` (`core.py:242`, `core.py:862`), `ForAllTime` / `ExistsTime` (`core.py:396`,
+`core.py:469`), `is_world` / `max_world_id` (`core.py:201`, `core.py:208`),
+`NecessityOperator.true_at` / `false_at` (`operators.py:508`, `562`), `FutureOperator.true_at`
+(`operators.py:691`), `PastOperator.true_at` (`operators.py:862`), `unit_tests` /
+`test_example_range` (`examples.py:1422`, `1426`), `example_range` (`examples.py:1435`–`1478`,
+closing brace confirmed at line 1478), and `KNOWN_TIMEOUT_EXAMPLES` / `UNSTABLE_EXAMPLES`
+(`test_bimodal.py:44`–`95`). The `BM_TH_1`/`BM_TH_2` inline comments (`# Has countermodel`) were
+independently confirmed at `examples.py:1473`–`1474` exactly as cited in Section 2.2's table.
+
+**The re-run grep** (Section 1.2's negative claim that Seriality is asserted nowhere in
+`semantic/`):
+```
+$ grep -rn "serial" code/src/model_checker/theory_lib/bimodal/semantic/
+(no output — exit code 1)
+```
+Confirms the report's claim unchanged: no occurrence of "serial" (case-sensitive) anywhere in
+`semantic/`, including comments.
+
+**Lean-side rows (10 of 10 confirmed unchanged, one annotation):** `TaskFrame.lean:74`–`75`,
+`108`–`109`, `466`–`469` (four-axiom list and `nullity_identity` design-question note); `Serial`
+(`:377`), `Interpolates` (`:395`), `Spherical` (`:362`), `cone` (`:231`); `Constraint.lean:43`–`55`
+(the three-input enumeration) and `:217`–`244` (`nonempty_fib_of_serial`,
+`nonempty_seg_of_interpolates`); `Admissible.lean:285`–`319` (the "new time twice" case invoking
+`TaskFrame.nullity_of_serial_limit F.serial F.limit u`, confirmed verbatim); `Step.lean:10`–`43`
+(the sole-`Spherical`-site claim) and `:129` (`F.spherical (Constraints τ z) hdir ...`, confirmed);
+`Extension.lean:44`–`58` (the two-input proof: Zorn plus `lem:step`) and `:97`–`99`
+(`cor:occurrence`'s `TaskRel w 0 w` discharge by `TaskFrame.nullity_identity`, confirmed verbatim).
+
+**Annotation, not drift**: `Extension.lean:19`–`21`'s printed chain now reads
+`def:constraints → lem:constraint → lem:fibers (RETIRED anchor; see below) → lem:admissible →
+lem:step → ...`, one node longer than Section 1.2's simplified inline diagram
+(`def:constraints -> lem:constraint -> lem:admissible -> lem:step -> thm:extension -> cor:occurrence`).
+The added node is a documentation artifact of a prior anchor rename/retirement in the Lean
+source, not an additional proof obligation or a fourth axiom-consuming step — `lem:constraint`'s
+three inputs (Section 1.2) and `lem:step`'s sole-`Spherical`-site status are both unchanged by it.
+Section 1.2's diagram is accurate as a reader-facing summary and is left as-is; this note records
+the fuller citation for a reader who opens the Lean file directly and finds the extra label.
+
 ## 5. Non-Goals Respected
 
 No change was made to `core.py`, `operators.py`, or `examples.py` in the ModelChecker tree. The

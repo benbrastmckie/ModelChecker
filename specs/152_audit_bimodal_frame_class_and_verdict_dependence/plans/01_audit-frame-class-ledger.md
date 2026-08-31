@@ -1,7 +1,7 @@
 # Implementation Plan: Audit bimodal frame class and verdict dependence
 
 - **Task**: 152 - Audit bimodal frame class and verdict dependence
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md`
@@ -119,7 +119,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Re-resolve the ledger's reference table [NOT STARTED]
+### Phase 1: Re-resolve the ledger's reference table [COMPLETED]
 
 - **Goal:** Confirm every code and Lean reference the ledger asserts still resolves to what the
   ledger claims it does, and correct any drift in place. The report itself flags its references as
