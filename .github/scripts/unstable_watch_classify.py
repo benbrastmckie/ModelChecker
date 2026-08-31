@@ -233,6 +233,53 @@ def compute_promotion_streak(this_run_had_any_failure, past_run_successes):
     return streak, streak >= 20
 
 
+def compute_per_test_promotion_streak(nodeid, this_run_classification, past_run_classifications):
+    """Return (streak, ready_to_promote) for a SINGLE node id, computed from that node id's own
+    classification history rather than the whole run's `any_failure` boolean.
+
+    Unlike `compute_promotion_streak` above, this function's history component is
+    classification-ACCURATE: `past_run_classifications` comes from parsing each prior run's own
+    uploaded `unstable-watch-record-<run_id>` JSONL artifact (see `fetch_past_classifications`),
+    which records the real per-nodeid `classification` value ("TIMING", "NEW", or "N/A" for a
+    passing/non-failing testcase) -- not `gh run list`'s job-level conclusion, which is
+    NEW-sensitive only. The residual limitation `compute_promotion_streak`'s own docstring and
+    the module docstring record for the per-run path does NOT apply here.
+
+    `nodeid`: the node id this streak is being computed for. Not consulted in the arithmetic
+    below (the caller has already scoped `this_run_classification`/`past_run_classifications` to
+    this one node id) -- carried in the signature so a caller and a test failure message can
+    both name which node id a given streak belongs to, and so two node ids' streaks are always
+    computed by two separate calls rather than one call silently averaging across node ids.
+
+    `this_run_classification` / each entry of `past_run_classifications`: the recorded
+    `classification` string for this node id in that run ("TIMING", "NEW", "N/A"), or `None` if
+    that run has no record for this node id at all (the artifact could not be fetched, or the
+    node id was not collected in that run for any other reason).
+
+    Honesty rule, matching `compute_promotion_streak`'s: a run counts toward the streak ONLY when
+    this node id was recorded in it AND that recorded classification is neither `TIMING` nor
+    `NEW` -- ANY failure classification (of either kind) for THIS node id zeroes THIS node id's
+    streak, exactly as `compute_promotion_streak` treats any failure as zeroing the (single,
+    global) streak it computes. A run with NO record for this node id is treated
+    CONSERVATIVELY -- as breaking the streak, not extending it -- because a missing record means
+    the outcome cannot be confirmed, and assuming success on missing data would let a fetch
+    failure silently manufacture progress toward `READY TO PROMOTE`.
+    """
+    def _is_clean(classification):
+        return classification is not None and classification not in ("TIMING", "NEW")
+
+    conclusions = [_is_clean(this_run_classification)] + [
+        _is_clean(c) for c in past_run_classifications
+    ]
+    streak = 0
+    for ok in conclusions:
+        if ok:
+            streak += 1
+        else:
+            break
+    return streak, streak >= 20
+
+
 def run(
     code_junit_path=DEFAULT_CODE_JUNIT_PATH,
     oracle_junit_path=DEFAULT_ORACLE_JUNIT_PATH,

@@ -489,3 +489,76 @@ class TestRealPytestJunitRoundTrip:
         assert outcome == "failed"
         assert "Self-comparison produced 3 disagreements" in failure_text
         assert classify_mod.classify(nodeid, duration, failure_text) == "NEW"
+
+
+# ---------------------------------------------------------------------------
+# Per-node-id promotion streak (Phase 3): a pure, network-free primitive
+# alongside compute_promotion_streak, computed from ONE node id's own
+# classification history rather than the whole run's any_failure boolean --
+# the defect this fixes is two marked node ids' promotion paths being coupled
+# through a single shared streak.
+# ---------------------------------------------------------------------------
+
+
+class TestPerTestPromotionStreak:
+    def test_clean_20_run_history_reaches_ready_to_promote(self):
+        streak, ready = classify_mod.compute_per_test_promotion_streak(
+            "BM_CM_1-example_case7",
+            this_run_classification="N/A",
+            past_run_classifications=["N/A"] * 19,
+        )
+        assert streak == 20
+        assert ready is True
+
+    def test_single_timing_in_window_zeroes_the_streak(self):
+        # this_run ("N/A") plus the two leading "N/A" past entries count (streak=3), then the
+        # "TIMING" entry breaks the run of clean entries -- the remaining "N/A" entries past it
+        # are never reached, matching compute_promotion_streak's own break-on-first-failure walk.
+        streak, ready = classify_mod.compute_per_test_promotion_streak(
+            "BM_CM_1-example_case7",
+            this_run_classification="N/A",
+            past_run_classifications=["N/A", "N/A", "TIMING", "N/A"] + ["N/A"] * 16,
+        )
+        assert streak == 3
+        assert ready is False
+
+    def test_single_new_in_window_zeroes_the_streak(self):
+        streak, ready = classify_mod.compute_per_test_promotion_streak(
+            "test_known_conclusive_population_self_consistent",
+            this_run_classification="NEW",
+            past_run_classifications=["N/A"] * 19,
+        )
+        assert streak == 0
+        assert ready is False
+
+    def test_missing_record_breaks_the_streak_conservatively(self):
+        """A run with no record for this node id (artifact fetch failure, or the node id was
+        not collected) must not be assumed clean -- it breaks the streak just like a real
+        failure, rather than being silently skipped or treated as success."""
+        streak, ready = classify_mod.compute_per_test_promotion_streak(
+            "BM_CM_1-example_case7",
+            this_run_classification="N/A",
+            past_run_classifications=["N/A", "N/A", None, "N/A"] + ["N/A"] * 16,
+        )
+        assert streak == 3
+        assert ready is False
+
+    def test_two_nodeids_with_divergent_histories_yield_divergent_streaks(self):
+        """THE DEFECT THIS FIXES: two marked node ids' promotion paths must be independent. A
+        clean BM_CM_1 history reaches its own streak/readiness regardless of the gating test's
+        own (here, currently-failing) history, and vice versa -- neither call's result may
+        depend on the other's classifications."""
+        bm_cm_1_streak, bm_cm_1_ready = classify_mod.compute_per_test_promotion_streak(
+            "BM_CM_1-example_case7",
+            this_run_classification="N/A",
+            past_run_classifications=["N/A"] * 19,
+        )
+        gating_streak, gating_ready = classify_mod.compute_per_test_promotion_streak(
+            "test_known_conclusive_population_self_consistent",
+            this_run_classification="TIMING",
+            past_run_classifications=["TIMING"] * 19,
+        )
+        assert bm_cm_1_streak == 20
+        assert bm_cm_1_ready is True
+        assert gating_streak == 0
+        assert gating_ready is False

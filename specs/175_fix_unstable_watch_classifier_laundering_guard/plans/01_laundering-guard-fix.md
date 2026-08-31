@@ -258,24 +258,24 @@ this phase rather than deferring it.
 
 ---
 
-### Phase 3: Per-node-id streak core (pure function + tests) [NOT STARTED]
+### Phase 3: Per-node-id streak core (pure function + tests) [COMPLETED]
 
 **Goal**: Add a network-free, per-node-id streak computation alongside the existing per-run
 `compute_promotion_streak`, with tests, before any artifact-download plumbing exists.
 
 **Tasks**:
-- [ ] Add `compute_per_test_promotion_streak(nodeid, this_run_classification, past_run_classifications)`
+- [x] Add `compute_per_test_promotion_streak(nodeid, this_run_classification, past_run_classifications)`
       (or equivalent signature) returning `(streak, ready_to_promote)` for a single node id.
       Apply the same honesty rule the per-run function already implements: ANY failure
       classification (`TIMING` or `NEW`) for THAT node id zeroes THAT node id's streak; a run with
       no record for the node id is treated as breaking the streak (conservative), not extending it.
-- [ ] Leave `compute_promotion_streak`'s signature and semantics untouched — it remains the
+- [x] Leave `compute_promotion_streak`'s signature and semantics untouched — it remains the
       per-run primitive and its existing tests must pass unmodified.
-- [ ] Add a docstring stating that this function's history component is now
+- [x] Add a docstring stating that this function's history component is now
       classification-accurate (derived from the per-run JSONL records), unlike
       `compute_promotion_streak`'s job-conclusion-derived, NEW-sensitive-only history — the
       residual limitation the module docstring records for the per-run path does not apply here.
-- [ ] Add a `class TestPerTestPromotionStreak` covering: a clean 20-run history reaching
+- [x] Add a `class TestPerTestPromotionStreak` covering: a clean 20-run history reaching
       `ready_to_promote`; a single `TIMING` in the window zeroing the streak; a single `NEW`
       zeroing it; a missing record breaking it; and two node ids with divergent histories yielding
       divergent streaks (the defect this fixes).
