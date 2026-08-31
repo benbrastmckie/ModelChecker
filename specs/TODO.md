@@ -1,5 +1,5 @@
 ---
-next_project_number: 176
+next_project_number: 177
 ---
 
 # TODO
@@ -11,9 +11,10 @@ next_project_number: 176
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 153,168,172 | -- | semantics, release-engineering, test-reliability |
-| 2 | 154,173 | 153,172 | testing, semantics |
-| 3 | 174 | 153,173 | test-reliability |
+| 1 | 153,168,176 | -- | semantics, release-engineering, test-reliability |
+| 2 | 154,172 | 153,176 | semantics, test-reliability |
+| 3 | 173 | 172 | testing |
+| 4 | 174 | 153,173 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -23,19 +24,38 @@ next_project_number: 176
 
 ### Semantics
 
-153 [NOT STARTED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
+153 [RESEARCHING] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
   └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Release Engineering
 
-168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
+168 [RESEARCHING] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
-172 [IMPLEMENTING] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+176 [RESEARCHED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
+  └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
+
+### 176. Fix m3 shift closure sat regression
+- **Effort**: 3-5 hours
+- **Status**: [RESEARCHED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: None
+- **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/02_spawn-analysis.md]
+
+**Description**: TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at oracle/bimodal_logic/tests/test_soundness_regression.py:541 fails deterministically with `AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance` (structure.z3_model_status is False). Reproduced 2/2 across two independent full pass-1 oracle runs (bash oracle/run-oracle-suite.sh, 705.05s and 718.15s, both '1 failed, 615 passed, 2 skipped, 4 xfailed'). This is a DETERMINISTIC, reproducible failure -- not a contention flake -- discovered while verifying task 172 (fix_contention_flaky_soundness_regression_tests), which cannot fix it: the test constructs BimodalStructure directly with its own max_time: 15.0 budget, a different code path from the find_countermodel()/timeout_ms=5000/OracleTimeoutError mechanism task 172's xdist_serial remedy targets. In scope by file, out of scope by remedy.
+
+HISTORICAL CONTEXT. This test's docstring cites 'Task 114 fix: uses temporal_depth=1 for bounded shift closure at M=3' -- the archived task-114 summary (specs/archive/114_skolem_abundance_overconstrain_fix/) shows task 114 (2026-06-01) introduced BimodalSemantics.depth_bounded_skolem_abundance_constraint(max_shift) specifically so this test would find SAT at M=3, and removed a prior xfail. specs/archive/108_soundness_regression_test_suite/ and specs/archive/114's own records show this test historically ran 2-8s against its 15s max_time budget -- 2-7x headroom, not a near-budget shape, so this does not look like a scheduling/timeout regression on its face (confirm structure.timeout's actual value as a first step, do not assume). Three later commits (task 144 phases 2-4, 2026-08-11, oracle-solve-cost-reduction) experimented with alternative Z3 trigger/grounding strategies for the same depth_bounded_skolem_abundance_constraint quantifier, but each commit message records it as reverted/tested-and-rejected -- verify the current encoding is genuinely byte-identical to the post-task-114 baseline rather than assuming the revert was clean. code/pyproject.toml pins z3-solver only as '>=4.8.0' (unpinned upper bound); the currently installed version is 4.16.0 -- check whether a drifted Z3 version altered solver behavior on this exact quantifier shape (MBQI/E-matching heuristics are version-sensitive). git log --stat on tasks 152/158/175's landed commits touches no bimodal semantic/solver code this test depends on, ruling out same-window tree drift as the cause.
+
+WHAT TO DO. (1) Confirm whether the failure is a genuine solver UNSAT/inconclusive result within budget or a mislabeled timeout -- read structure.timeout directly. (2) Bisect or otherwise determine what changed since task 114 landed (Z3 version, an incomplete revert of the task-144 experiments, or something else) that turned a previously-SAT-finding encoding into a non-SAT one for this exact formula (atom 'p', M=3, temporal_depth=1, max_shift=1). (3) Fix the constraint/solver-layer defect if one is found, OR -- only if a genuine fix is not found -- mark the test `unstable` per code/docs/core/TESTING_GUIDE.md section 8.9, which requires ALL FOUR of: a documented failure mechanism with measurements, demonstrable non-semantic-ness, a genuine fix attempt recorded with why it failed, and a concrete written exit criterion. Do not weaken or remove the test's assertions to reach green.
+
+CONSTRAINTS. Do not touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS. Do not widen this test's max_time budget merely to force green -- widening past the 15s value only masks a genuine UNSAT result and contradicts the 2-8s historical measurement showing budget was never the constraint. Verify the fix via a full `bash oracle/run-oracle-suite.sh` run (not a narrowed selection), confirming pass 1 reports zero failures. After this task lands, task 172 (fix_contention_flaky_soundness_regression_tests) should be re-verified and closed with /implement 172.
+
+---
 
 ### 175. Fix unstable watch classifier laundering guard
 - **Status**: [COMPLETED]
@@ -191,10 +211,10 @@ CORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the m
 ---
 
 ### 172. Fix contention flaky soundness regression tests
-- **Status**: [IMPLEMENTING]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: test-reliability
-- **Dependencies**: None
+- **Dependencies**: Task 176
 - **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md]
 - **Plan**: [172_fix_contention_flaky_soundness_regression_tests/plans/01_mark-flaky-tests-xdist-serial.md]
 - **Summary**: [172_fix_contention_flaky_soundness_regression_tests/summaries/01_mark-flaky-tests-xdist-serial-summary.md]
@@ -274,7 +294,7 @@ HARD CONSTRAINTS (carried forward, all previously verified by a git diff gate):
 ---
 
 ### 168. Pypi install and full cli verification ci
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 158
@@ -556,7 +576,7 @@ DEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the ex
 ---
 
 ### 153. Assert missing frame axioms in bimodal semantics
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 152

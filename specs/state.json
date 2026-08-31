@@ -1,5 +1,5 @@
 {
-  "next_project_number": 176,
+  "next_project_number": 177,
   "active_projects": [
     {
       "project_number": 175,
@@ -124,12 +124,12 @@
     {
       "project_number": 168,
       "project_name": "pypi_install_and_full_cli_verification_ci",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "python",
       "description": "Build a systematic PyPI install and full-CLI verification CI pipeline: parameterize the pytest packaging suite's installed_venv fixture over install source (locally built wheel, TestPyPI, or PyPI), add a TestPyPI pre-publish gate and a post-publish PyPI confirmation matrix to release.yml, and add a dispatchable plus scheduled pypi-smoke.yml workflow with opt-in tmate SSH debugging so the published package can be verified end-to-end from a NixOS development host",
       "topic": "release-engineering",
       "created": "2026-08-25T20:59:36Z",
-      "last_updated": "2026-08-25T20:59:36Z",
+      "last_updated": "2026-08-31T19:08:10Z",
       "dependencies": [
         158
       ],
@@ -137,7 +137,8 @@
         ".github/workflows/release.yml",
         ".github/workflows/pypi-smoke.yml",
         "code/tests/packaging/"
-      ]
+      ],
+      "session_id": "sess_1788198229_79cf9f_168"
     },
     {
       "project_number": 167,
@@ -278,7 +279,7 @@
     {
       "project_number": 153,
       "project_name": "assert_missing_frame_axioms_in_bimodal_semantics",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "z3",
       "topic": "semantics",
       "priority": "high",
@@ -294,9 +295,9 @@
       "artifacts": [],
       "blockers": null,
       "created": "2026-08-11T23:11:53Z",
-      "last_updated": "2026-08-11T23:11:53Z",
+      "last_updated": "2026-08-31T19:08:09Z",
       "next_artifact_number": 1,
-      "session_id": "sess_manual_153"
+      "session_id": "sess_1788198229_79cf9f_153"
     },
     {
       "project_number": 152,
@@ -401,19 +402,21 @@
     {
       "project_number": 172,
       "project_name": "fix_contention_flaky_soundness_regression_tests",
-      "status": "implementing",
+      "status": "blocked",
       "task_type": "python",
       "description": "Three tests in oracle/bimodal_logic/tests/test_soundness_regression.py fail deterministically under the gating suite's parallel pass but pass in isolation. They are CPU-contention casualties of a tight solve budget, and they were invisible to every narrowed verification gate run to date because no recent task touched their file.\n\nTHE THREE TESTS:\n- TestBoundaryVacuity::test_depth1_countermodel_has_required_fields\n- TestGuardedCompositionality::test_forward_comp_with_temporal_formula_output\n- TestGuardedCompositionality::test_nullity_with_temporal_formula_output\n\nMEASURED EVIDENCE (2026-08-26, full two-pass run of oracle/run-oracle-suite.sh on the 24-core dev host):\n- Pass 1 (626 tests, -n 6, \"not xdist_serial and not slow and not unstable\"): 3 failed, 617 passed, 2 skipped, 4 xfailed in 770.33s. The three failures above are the only ones.\n- All three fail identically with OracleTimeoutError at the provider default timeout_ms=5000, temporal_depth=1, time_bound M=3, raised at oracle/bimodal_logic/provider.py:292.\n- Run SERIALLY at the same commit, all three pass in 4.53s TOTAL (~1.5s each) -- roughly 3x contention inflation against the 5000ms budget under six workers.\n- Pass 2 (15 tests, serial): 15 passed in 677.08s, clean.\n\nRULED OUT -- NOT A REGRESSION. The max_rlimit plumbing added to Z3OracleProvider.find_countermodel() is genuinely default-off: `timeout_ms: int = 5000` is unchanged and `max_rlimit` is only inserted into the settings dict when truthy (`if max_rlimit:`), mirroring ModelDefaults.solve()'s own guard. All three of these tests call find_countermodel(F_P) with no keyword arguments, so their code path is byte-for-byte identical to before that change. Do not spend time re-investigating this.\n\nWHY THEY ARE NOT ALREADY HANDLED. These three tests are NOT marked @pytest.mark.xdist_serial, so they land in pass 1 under -n 6 rather than in the serial pass that exists precisely to eliminate this contention class. This is the same hazard the logos max_time floor corrected and that the CI-budget task addressed for example settings dicts -- but on a DIFFERENT constant: the oracle provider's own timeout_ms default, which no floor guard currently covers.\n\nWHAT TO DO. Choose a remedy backed by measurement, not by pattern-matching:\n(a) Route the three to the serial pass with @pytest.mark.xdist_serial -- the precedent already used for test_mixed_and_box_next and the BM_CM_4 parametrizations, and the fix the two-pass split was designed for. Cheapest and most consistent, but it lengthens pass 2 (currently 677s against an 1800s budget, so there is headroom -- confirm it stays inside).\n(b) Pass max_rlimit alongside timeout_ms at these call sites -- Z3's load-INDEPENDENT resource-unit budget, already plumbed end-to-end and blessed by code/docs/core/TESTING_GUIDE.md section 8.6. Measure the rlimit for each of the three formulas first and set the budget over the measured worst draw with headroom, following the ~2x-to-3x-of-worst convention used elsewhere in this tree. This addresses the root cause (wrong unit) rather than rescheduling around it.\n(c) Both -- (a) for immediate green, (b) for durability.\n\nAlso consider, and decide explicitly with reasons recorded: whether the oracle provider's timeout_ms=5000 default deserves a floor guard analogous to code/tests/ci/test_example_budget_floor.py, since nothing currently prevents another test from being written against a budget that only holds when the machine is idle. Survey the other call sites before deciding -- a floor is only worth adding if the population justifies it.\n\nCONSTRAINTS:\n- Do NOT weaken any assertion to reach green.\n- Do NOT edit GATING_RECHECK_SOLVE_TIMEOUT_MS (stays 40000) or MIN_CONCLUSIVE_GATING_FORMULAS (stays 100).\n- Verify via the real two-pass driver `bash oracle/run-oracle-suite.sh`, NOT a narrowed single-file selection -- narrowed gates are exactly what hid this defect. Budget ~25 minutes for a full run (pass 1 ~13 min at -n 6, pass 2 ~11 min serial).\n- Note for the implementer: long runs are reaped by the harness if launched as ordinary background tasks. Use `setsid nohup ... &` to detach, then poll.",
       "topic": "test-reliability",
       "created": "2026-08-26T15:09:54Z",
-      "last_updated": "2026-08-31T18:01:24Z",
-      "dependencies": [],
+      "last_updated": "2026-08-31T19:13:33Z",
+      "dependencies": [
+        176
+      ],
       "file_scope": [
         "oracle/bimodal_logic/tests/test_soundness_regression.py",
         "oracle/bimodal_logic/provider.py",
         "code/tests/ci/test_example_budget_floor.py"
       ],
-      "session_id": "sess_1788198229_79cf9f_172",
+      "session_id": "sess_1788203384_4ed6ea",
       "artifacts": [
         {
           "path": "specs/172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md",
@@ -429,6 +432,33 @@
           "path": "specs/172_fix_contention_flaky_soundness_regression_tests/summaries/01_mark-flaky-tests-xdist-serial-summary.md",
           "type": "summary",
           "summary": "Four-test remedy fully verified; reproducible unrelated fifth failure recorded as follow-up candidate."
+        }
+      ],
+      "previous_status": "implementing"
+    },
+    {
+      "project_number": 176,
+      "project_name": "fix_m3_shift_closure_sat_regression",
+      "status": "researched",
+      "task_type": "python",
+      "description": "TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at oracle/bimodal_logic/tests/test_soundness_regression.py:541 fails deterministically with `AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance` (structure.z3_model_status is False). Reproduced 2/2 across two independent full pass-1 oracle runs (bash oracle/run-oracle-suite.sh, 705.05s and 718.15s, both '1 failed, 615 passed, 2 skipped, 4 xfailed'). This is a DETERMINISTIC, reproducible failure -- not a contention flake -- discovered while verifying task 172 (fix_contention_flaky_soundness_regression_tests), which cannot fix it: the test constructs BimodalStructure directly with its own max_time: 15.0 budget, a different code path from the find_countermodel()/timeout_ms=5000/OracleTimeoutError mechanism task 172's xdist_serial remedy targets. In scope by file, out of scope by remedy.\n\nHISTORICAL CONTEXT. This test's docstring cites 'Task 114 fix: uses temporal_depth=1 for bounded shift closure at M=3' -- the archived task-114 summary (specs/archive/114_skolem_abundance_overconstrain_fix/) shows task 114 (2026-06-01) introduced BimodalSemantics.depth_bounded_skolem_abundance_constraint(max_shift) specifically so this test would find SAT at M=3, and removed a prior xfail. specs/archive/108_soundness_regression_test_suite/ and specs/archive/114's own records show this test historically ran 2-8s against its 15s max_time budget -- 2-7x headroom, not a near-budget shape, so this does not look like a scheduling/timeout regression on its face (confirm structure.timeout's actual value as a first step, do not assume). Three later commits (task 144 phases 2-4, 2026-08-11, oracle-solve-cost-reduction) experimented with alternative Z3 trigger/grounding strategies for the same depth_bounded_skolem_abundance_constraint quantifier, but each commit message records it as reverted/tested-and-rejected -- verify the current encoding is genuinely byte-identical to the post-task-114 baseline rather than assuming the revert was clean. code/pyproject.toml pins z3-solver only as '>=4.8.0' (unpinned upper bound); the currently installed version is 4.16.0 -- check whether a drifted Z3 version altered solver behavior on this exact quantifier shape (MBQI/E-matching heuristics are version-sensitive). git log --stat on tasks 152/158/175's landed commits touches no bimodal semantic/solver code this test depends on, ruling out same-window tree drift as the cause.\n\nWHAT TO DO. (1) Confirm whether the failure is a genuine solver UNSAT/inconclusive result within budget or a mislabeled timeout -- read structure.timeout directly. (2) Bisect or otherwise determine what changed since task 114 landed (Z3 version, an incomplete revert of the task-144 experiments, or something else) that turned a previously-SAT-finding encoding into a non-SAT one for this exact formula (atom 'p', M=3, temporal_depth=1, max_shift=1). (3) Fix the constraint/solver-layer defect if one is found, OR -- only if a genuine fix is not found -- mark the test `unstable` per code/docs/core/TESTING_GUIDE.md section 8.9, which requires ALL FOUR of: a documented failure mechanism with measurements, demonstrable non-semantic-ness, a genuine fix attempt recorded with why it failed, and a concrete written exit criterion. Do not weaken or remove the test's assertions to reach green.\n\nCONSTRAINTS. Do not touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS. Do not widen this test's max_time budget merely to force green -- widening past the 15s value only masks a genuine UNSAT result and contradicts the 2-8s historical measurement showing budget was never the constraint. Verify the fix via a full `bash oracle/run-oracle-suite.sh` run (not a narrowed selection), confirming pass 1 reports zero failures. After this task lands, task 172 (fix_contention_flaky_soundness_regression_tests) should be re-verified and closed with /implement 172.",
+      "effort": "3-5 hours",
+      "parent_task": 172,
+      "topic": "test-reliability",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/bimodal_logic/tests/test_soundness_regression.py",
+        "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+        "code/docs/core/TESTING_GUIDE.md"
+      ],
+      "created": "2026-08-31T19:13:41Z",
+      "last_updated": "2026-08-31T19:13:41Z",
+      "session_id": "sess_1788203384_4ed6ea",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": "specs/172_fix_contention_flaky_soundness_regression_tests/reports/02_spawn-analysis.md",
+          "summary": "Spawn analysis from parent task"
         }
       ]
     }
@@ -446,7 +476,8 @@
     "architecture",
     "testing",
     "semantics",
-    "release-engineering"
+    "release-engineering",
+    "test-reliability"
   ],
   "deployment_versions": {
     "last_deployed": "v1.3.7",
