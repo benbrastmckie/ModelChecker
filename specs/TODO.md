@@ -34,7 +34,7 @@ next_project_number: 176
 
 ### Test Reliability
 
-172 [PLANNING] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+172 [PLANNED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
 175 [PLANNING] — Fix the unstable-watch classifier's laundering guard, which produ
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
@@ -192,11 +192,12 @@ CORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the m
 ---
 
 ### 172. Fix contention flaky soundness regression tests
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
 - **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md]
+- **Plan**: [172_fix_contention_flaky_soundness_regression_tests/plans/01_mark-flaky-tests-xdist-serial.md]
 
 **Description**: Three tests in oracle/bimodal_logic/tests/test_soundness_regression.py fail deterministically under the gating suite's parallel pass but pass in isolation. They are CPU-contention casualties of a tight solve budget, and they were invisible to every narrowed verification gate run to date because no recent task touched their file.
 
