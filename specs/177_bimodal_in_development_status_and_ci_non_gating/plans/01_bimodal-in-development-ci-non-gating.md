@@ -448,7 +448,7 @@ the four listed.
 
 ---
 
-### Phase 6: Document the canonical invocations and prove criteria (a), (b), (c) [NOT STARTED]
+### Phase 6: Document the canonical invocations and prove criteria (a), (b), (c) [COMPLETED]
 
 **Goal**: The two `run_tests.py` invocations are documented alongside the existing raw-pytest ones,
 and each of the three verification criteria has a recorded proof.

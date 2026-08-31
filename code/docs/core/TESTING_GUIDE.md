@@ -1505,6 +1505,27 @@ changes what the *gating drivers* select and nothing about a local run's default
 gating run's selection locally, pass the filter explicitly:
 `PYTHONPATH=src pytest tests src/model_checker -m "not development"`.
 
+**Supported local reproduction: `run_tests.py --markers`/`-m`.** The unified runner's
+`--markers`/`-m` passthrough (added alongside this documentation) threads a marker expression
+into every pytest command it builds, so it can reproduce or select the same expressions above
+without dropping to raw `pytest`:
+
+```bash
+# Reproduce the gate: excludes bimodal's in-development tests, as every gating driver's -m
+# expression does. Selects zero bimodal tests and exits 0.
+./run_tests.py bimodal --markers "not development"
+
+# Explicitly select the in-development set (equivalent to a bare `./run_tests.py bimodal`,
+# since bimodal's blanket currently covers its entire tree).
+./run_tests.py bimodal --markers development
+```
+
+This is the supported, documented way to reproduce the gating drivers' selection locally via the
+unified runner; the raw-`pytest` form above remains equally valid for anyone working outside
+`run_tests.py`. With no `--markers` flag at all, `run_tests.py` emits no `-m` token and keeps
+running the full, unfiltered suite for every target -- `./run_tests.py bimodal` still runs
+bimodal's known failures visibly rather than silently filtering them out.
+
 *Exit path for this blanket.* Delete the `pytest_collection_modifyitems` hook from
 `code/src/model_checker/theory_lib/bimodal/tests/conftest.py` when bimodal is no longer in
 development. Nothing else needs to change — the registration, the seven gating `-m` expressions,

@@ -52,6 +52,16 @@ anything outside bimodal — deselect this suite the way CI does:
 
 ```bash
 PYTHONPATH=src pytest tests src/model_checker -m "not development"
+
+# Equivalent, via the unified runner's --markers/-m passthrough
+./run_tests.py bimodal --markers "not development"
+```
+
+To explicitly select only the in-development set (equivalent to the whole-suite run above, but
+via the same `--markers` flag used to reproduce the gate):
+
+```bash
+./run_tests.py bimodal --markers development
 ```
 
 ## Directory Structure
