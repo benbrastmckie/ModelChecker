@@ -1,5 +1,5 @@
 ---
-next_project_number: 177
+next_project_number: 178
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 177
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176 | -- | semantics, test-reliability |
+| 1 | 154,176,177 | -- | semantics, release-engineering, test-reliability |
 | 2 | 172 | 176 | test-reliability |
 | 3 | 173 | 172 | testing |
 | 4 | 174 | 173 | test-reliability |
@@ -26,6 +26,10 @@ next_project_number: 177
 
 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
+### Release Engineering
+
+177 [NOT STARTED] — Give bimodal a coherent, first-class in-development status: fully
+
 ### Test Reliability
 
 176 [RESEARCHED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
@@ -33,6 +37,39 @@ next_project_number: 177
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
+
+### 177. Bimodal in development status and ci non gating
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: release-engineering
+- **Dependencies**: None
+
+**Description**: Give bimodal a coherent, first-class in-development status: fully runnable and iterable locally, fully non-gating in CI. The `development` marker work already landed covers the `code/` tree, but three real gaps remain and several load-bearing statements in the tree are now false.
+
+MOTIVATION. The theory owner's declaration is explicit: bimodal is under active construction, is not part of the release, and must not gate CI until it is complete and integrated -- while staying fully runnable so work on it can continue. A path-scoped `pytest_collection_modifyitems` hook in `code/src/model_checker/theory_lib/bimodal/tests/conftest.py` now applies `@pytest.mark.development` to all 313 tests in that tree, and the marker is registered at `code/pyproject.toml:97`. That is necessary but not sufficient.
+
+GAP 1 -- THE ACTUAL CI HOLE, and the reason this task exists. `.github/workflows/differential-tests.yml` triggers on `paths: oracle/bimodal_logic/**` AND `code/src/model_checker/theory_lib/bimodal/**`, so editing bimodal fires it. Its second step, "Run CI gate tests explicitly" (lines 82-90), passes NO `-m` expression at all and runs six node-id-selected classes from `oracle/bimodal_logic/tests/test_cross_oracle_differential.py`, with no `continue-on-error`. Its first step (line 75) does carry `-m "not slow and not differential and not unstable and not development"`, but that filter is a no-op on the oracle tree by construction: `development` is deliberately unregistered in `oracle/conftest.py`, and the bimodal `code/`-tree conftest is not an ancestor of the oracle tree, so nothing there can carry the marker. Net effect: bimodal work still turns CI red.
+
+Decide this deliberately and record the decision -- it is a genuine design question, not a cleanup. The `oracle/` differential and soundness tests are the one thing `code/docs/core/TESTING_GUIDE.md` section 8.14 currently claims stays gating ("no semantic claim about bimodal correctness can be quarantined -- only completeness claims about the code/-tree implementation"), and that bound is the main thing making the theory-wide blanket defensible. Weakening it is a real trade. If soundness is to remain gating, the fix is to make that intent true and legible -- and to state plainly why bimodal edits legitimately gate on it -- not to silently drop it.
+
+GAP 2 -- BARE LOCAL AND UNIFIED-RUNNER ERGONOMICS. `code/pyproject.toml:87` `addopts` is `--durations=0 -v --import-mode=importlib` and carries no `-m`, so a bare `pytest` from `code/` still collects bimodal and can fail. `code/run_tests.py` is entirely unaware of the marker: `TestConfig.markers` (line 56) is populated at line 133 but never read, argparse defines no `--markers`/`-m` option, and only `-k` is ever emitted -- so `./run_tests.py bimodal` runs all bimodal tests with a real exit code.
+
+Do NOT "fix" this reflexively. The current behavior is arguably CORRECT for the stated goal, since bimodal must stay runnable, and an `addopts` default would create exactly the silent-green mode 8.14 exists to prevent: `pytest <bimodal path>` would collect zero tests and report success. Resolve it as an explicit ergonomics decision -- for example by teaching `run_tests.py` about the marker, and/or giving the local gating-reproduction command first-class documented status -- and record the reasoning either way.
+
+GAP 3 -- THE OBSERVABILITY PATH IS INERT. `.github/workflows/unstable-watch.yml` has no `-m development` step, so `/tmp/watch-development.xml` (`.github/scripts/unstable_watch_classify.py:55`, `DEFAULT_DEV_JUNIT_PATH`) is never produced and the entire `DEV_STATUS` classifier path never runs -- despite being fully implemented and covered by `code/tests/ci/test_unstable_watch_classifier.py:693-1036`. This is the mechanism that lets bimodal regressions stay VISIBLE while non-gating, which is precisely what makes a non-gating theory safe rather than merely quiet. Adding the step requires extending `code/tests/ci/test_unstable_deselection_wiring.py:156-173`, which asserts `unstable-watch.yml` contains exactly 2 matches of the `-m unstable` pattern; TESTING_GUIDE 8.14 lines 1412-1414 already names this as the required follow-up.
+
+CORRECTNESS DEBT -- statements in the tree that are now false. Fix each, or delete it:
+- `.github/workflows/README.md` lines 22-23, 26, 54-58, 60-62 claim the general job and flake check run the full suite "bimodal included", filtered by `-m "not packaging"`, at `-n 6`. All three claims are wrong: the real expressions carry five `not` clauses including `not development`, and the worker count is `-n 4`.
+- `.github/workflows/tests.yml` comments at lines 102-113 still assert the job "deliberately does NOT exclude bimodal", contradicting line 187's own filter.
+- The "six release-gating invocations" count is wrong -- there are SEVEN (`tests.yml` x2, `flake.nix` x2, `differential-tests.yml` x1, `oracle/run-oracle-suite.sh` x2). Repeated at TESTING_GUIDE.md:1388, :1391, :1487, :972; `bimodal/tests/conftest.py:25`; `bimodal/tests/README.md:10`; `code/tests/ci/test_development_marker_application.py:13`. No executable test asserts the number, which is why it drifted; consider making it executable.
+- The `development` marker's owning task recorded a Phase 6 exit criterion -- `pytest --collect-only -m development -q` collects zero tests -- which is now false by design. A prior dispatch correctly declined to rewrite another task's plan and updated TESTING_GUIDE's "Currently marked" paragraph instead. Reconcile the stale criterion properly.
+- `oracle/run-oracle-suite.sh` is invoked by NO workflow (it is a manual `nix develop` driver, per its own header at line 58). Two of the seven counted gating invocations therefore never run in CI. Verify whether that is intended.
+
+SCOPE BOUNDARY. Do not change bimodal's semantics or its frame-class constraints. Do not weaken, skip, or deselect any logos, exclusion, imposition, or core test. Do not remove the existing containment tests (`code/tests/ci/test_development_marker_application.py`, `test_unstable_deselection_wiring.py`, `test_workflow_parity.py`) -- extend them. Bimodal stays in `AVAILABLE_THEORIES` and stays shipped in the wheel; this is a test-gating and CI concern only. Per the project's mandatory TDD requirement, every behavioral change needs a failing test written first.
+
+VERIFICATION. The non-bimodal suite must stay green and fully gating. Prove executably that: (a) a change touching only `code/src/model_checker/theory_lib/bimodal/**` cannot turn any required CI check red; (b) bimodal remains runnable and its failures remain visible to a developer working on it; (c) whatever soundness guarantee is decided in GAP 1 is enforced by a test, not merely documented.
+
+---
 
 ### 176. Fix m3 shift closure sat regression
 - **Effort**: 3-5 hours
