@@ -20,11 +20,11 @@ next_project_number: 177
 
 ### Testing
 
-173 [RESEARCHED] — Add a `development` pytest marker so a theory still under active 
+173 [PLANNING] — Add a `development` pytest marker so a theory still under active 
 
 ### Semantics
 
-153 [PLANNING] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
+153 [PLANNED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
   └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Release Engineering
@@ -167,7 +167,7 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 ---
 
 ### 173. Add development marker for in progress theories
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 158, Task 172, Task 175
@@ -578,11 +578,12 @@ DEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the ex
 ---
 
 ### 153. Assert missing frame axioms in bimodal semantics
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 152
 - **Research**: [153_assert_missing_frame_axioms_in_bimodal_semantics/reports/01_seriality-interpolation-encoding.md]
+- **Plan**: [153_assert_missing_frame_axioms_in_bimodal_semantics/plans/01_seriality-interpolation-axioms.md]
 
 **Description**: Bring `BimodalSemantics`'s frame class up to the JPL paper's `def:frame`, so that `thm:extension` becomes applicable to its countermodels. Today it is not: `thm:extension`'s proof chain consumes all four of the paper's `def:frame` axioms (Seriality, Interpolation, Limit, Spherical), but only two -- Seriality and Interpolation -- must actually be newly asserted in ModelChecker. The other two, Limit and Spherical, are already free: each is discharged by a citable BimodalLogic lemma (`TaskFrame.limit_of_succOrder`, `TaskFrame.spherical_of_finite`) whose hypotheses ModelChecker's existing encoding already satisfies, confirmed against the current tree by the preceding audit task rather than merely cited (see `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md`, Section 1.2a). This corrects the task's original premise that two of four axioms are simply "missing" -- Deliverable 3 below already anticipated this corrected direction and stands unchanged.
 
