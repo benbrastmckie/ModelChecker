@@ -416,28 +416,28 @@ diffing to prove every changed hunk lies inside a `#` comment region.
 
 ---
 
-### Phase 6: TESTING_GUIDE.md section 8.9 targeted edits [NOT STARTED]
+### Phase 6: TESTING_GUIDE.md section 8.9 targeted edits [COMPLETED]
 
 **Goal**: Update the two identified paragraphs in section 8.9 to match what Phases 2-4 actually
 landed, and record the generalizable rendered-vs-source lesson.
 
 **Tasks**:
-- [ ] Rewrite the "Promotion-streak limitation" paragraph (currently beginning
+- [x] Rewrite the "Promotion-streak limitation" paragraph (currently beginning
       "`unstable-watch.yml`'s step-summary streak counter's historical component...") to describe
       the per-node-id mechanism Phase 4 built: history is now derived from the per-run
       `unstable-watch-record-<run_id>` JSONL artifacts and is classification-accurate rather than
       job-conclusion-derived; each marked test's streak is independent; `READY TO PROMOTE` names
       only the test that earned it. State the residual bounds honestly: the 25-run window, GitHub's
       artifact retention, and a fetch failure conservatively breaking a streak.
-- [ ] Add a one- or two-sentence caution near the existing "The classifier lives in an importable
+- [x] Add a one- or two-sentence caution near the existing "The classifier lives in an importable
       module, not YAML" paragraph, for whoever adds a third `unstable` marking: a negative/guard
       signature must match the *rendered* failure text (a regex anchored to a concrete rendered
       shape, or a `<system-out>`-only structured line), never a bare substring that could appear
       verbatim in the assertion's own source listing when a JUnit `<failure>` echoes a function
       body containing more than one assertion — and the test proving it must drive real pytest
       output, not a synthetic string.
-- [ ] Touch no other subsection (8.6, 8.8, 8.10, 8.11 are unrelated).
-- [ ] Use durable anchors only — no task-number references (this file is outside `specs/**`).
+- [x] Touch no other subsection (8.6, 8.8, 8.10, 8.11 are unrelated).
+- [x] Use durable anchors only — no task-number references (this file is outside `specs/**`).
 
 **Timing**: 45 minutes
 

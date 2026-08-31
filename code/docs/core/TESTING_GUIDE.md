@@ -974,18 +974,35 @@ invokes `.github/scripts/unstable_watch_classify.py`, unit-tested by
 `code/tests/ci/test_unstable_watch_classifier.py`. Adding a third `unstable` marking means
 extending that module (a new signature branch in `classify()`, following the pattern the
 `GATING_FLOOR_NODEID_FRAGMENT`/`GATING_FLOOR_SIGNATURE` constants establish, plus tests) — not
-editing workflow YAML.
+editing workflow YAML. A negative/guard signature (one that must be ABSENT for a classification to
+hold, as opposed to a positive confirmation signature) must match the *rendered* failure text — a
+regex anchored to a concrete rendered shape (e.g. a literal digit where a value is interpolated),
+or a `<system-out>`-only structured line — never a bare substring that could also appear verbatim
+in the assertion function's own source listing: pytest's `<failure>` body for a failure at the
+*second* of two sequential asserts in the same function embeds the *first* assert's own f-string
+source, unrendered, and a bare-substring guard cannot tell that source listing apart from a real
+rendered failure. The test proving the new signature discriminates correctly must drive real
+pytest output (a `subprocess.run([sys.executable, "-m", "pytest", ...])` invocation, not a
+hand-typed string) for at least the case this incident's own root cause shows a synthetic string
+cannot express.
 
-**Promotion-streak limitation.** `unstable-watch.yml`'s step-summary streak counter's historical
-component (prior runs, via `gh run list` job conclusions) is `NEW`-sensitive only: a run whose
-marked test failed `TIMING`-style still exits 0, so that run's job conclusion reads as success.
-This run's own contribution to the streak is honesty-corrected (`compute_promotion_streak` zeroes
-it on ANY failure, `TIMING` or `NEW`), but the historical component cannot be retroactively
-corrected without downloading and re-parsing every prior run's `unstable-watch-record.jsonl`
-artifact — out of scope for the mechanism as it stands. The reported streak is therefore an
-UPPER BOUND on the true zero-failure streak. Evaluating a per-test exit criterion (above) for a
-test expected to fail `TIMING`-style with any regularity requires checking the uploaded per-run
-`unstable-watch-record.jsonl` artifacts directly, not just the step-summary number.
+**Promotion-streak mechanism.** The step-summary streak is computed per marked node id, not
+globally: `.github/scripts/unstable_watch_classify.py`'s `compute_per_test_promotion_streak`
+combines this run's own per-nodeid classification with each marked node id's classification
+history, extracted by `fetch_past_classifications` from the last ~25 completed runs' uploaded
+`unstable-watch-record-<run_id>` JSONL artifacts (via `gh run download`). Unlike the legacy
+per-run streak (still computed and shown in the step summary, relabelled as a job-level upper
+bound, but no longer driving promotion), this history is classification-accurate rather than
+job-conclusion-derived: it reflects a marked test's own `TIMING`/`NEW`/clean outcome in each prior
+run, not just whether that run's overall job exited 0. Each marked test's streak is therefore
+independent of every other marked test's failures — `READY TO PROMOTE` names only the node id(s)
+that individually reached 20, not the whole marked set. Residual bounds, stated honestly: the
+history window is the same last-25-completed-runs `gh run list` already uses; it is limited by
+GitHub's artifact retention (an artifact past its retention period cannot be fetched); and a
+per-run fetch failure (network, rate limit, an expired individual artifact) conservatively
+*breaks* that node id's streak for that run rather than extending it, emitting a `::warning::` in
+the workflow log — none of this affects the classify step's own exit code, which the non-gating
+contract keeps driven solely by whether a `NEW` classification was recorded this run.
 
 **Currently marked.**
 - `test_example_cases[BM_CM_1-example_case7]` in
