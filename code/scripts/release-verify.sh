@@ -57,6 +57,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "$REPO_ROOT"
 
+# Commit SHA the evidence set below is captured against, so "has code/src changed since this
+# evidence was recorded?" is answerable later. See print_help()'s "Evidence freshness" note for
+# why the companion check (`git log <this-SHA>..HEAD -- code/src`) is a manual step, not one this
+# script runs itself.
+COMMIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo 'unknown')"
+
 # --- Argument parsing (plain while/case, no getopts -- matches verify-refactor.sh's style) ---
 
 REF="1.2.12"
@@ -75,6 +81,22 @@ Evidence files written to <out>/ (11 total):
   build.log, twine-check.txt, wheel-contents.txt, new-wheel-files.txt,
   ref-<REF>-wheel-files.txt, wheel-files-diff.txt, top-level-dir-diff.txt,
   pip-download-<REF>.log, sha256sums.txt, parity-diff.md, summary.txt
+
+Evidence freshness (manual step -- this script does not run it):
+  summary.txt's COMMIT= line (and parity-diff.md's "Commit" field) record the
+  commit SHA this evidence set was captured against. Before trusting a prior
+  run's evidence as still representative of the current tree, confirm nothing
+  release-relevant has changed since:
+
+    git log <evidence-commit>..HEAD -- code/src
+
+  should print nothing. This check is manual, not automated by this script or
+  by release.yml's preflight job, because the evidence directory (<out>, /tmp
+  by default) is outside version control -- there is nowhere durable for an
+  automated check to read the evidence commit back from. Fully automating this
+  would first require deciding where that record persists past the ephemeral
+  output directory; that is a design decision for a future change, not made
+  here.
 
 Exit codes:
   0 -- all hard gates green
@@ -178,6 +200,7 @@ record_step() {
   echo "started (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "REF=${REF}"
   echo "OUT_DIR=${OUT_DIR}"
+  echo "COMMIT=${COMMIT_SHA}"
   echo
 } >> "${OUT_DIR}/summary.txt"
 
@@ -444,6 +467,8 @@ generate_parity_diff() {
     echo "# Wheel Parity Diff: model_checker ${new_version} vs. published model-checker ${REF}"
     echo
     echo "**Run date (UTC)**: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    echo "**Commit**: \`${COMMIT_SHA}\` -- the tree state this evidence set was captured"
+    echo "against. See \`summary.txt\`'s \`COMMIT=\` line for the same value."
     echo "**Environment**: \`nix develop\` (flake devShell) with an isolated venv created in"
     echo "\`\$TMPDIR\`, provisioned from \`code/scripts/release-tools-requirements.txt\`;"
     echo "\`flake.nix\` was not modified."

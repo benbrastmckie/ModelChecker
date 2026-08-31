@@ -496,23 +496,33 @@ another).
 
 ---
 
-### Phase 7: Record the rehearsal-evidence commit [NOT STARTED]
+### Phase 7: Record the rehearsal-evidence commit [COMPLETED]
 
 **Goal**: `release-verify.sh` output identifies the tree state it was captured against, so the
 "has `code/src` changed since?" check becomes answerable.
 
 **Tasks**:
-- [ ] Add the commit SHA to `summary.txt`'s header block (currently lines 176-182, alongside the
+- [x] Add the commit SHA to `summary.txt`'s header block (currently lines 176-182, alongside the
       existing `started (UTC)` / `REF` / `OUT_DIR` lines) via `git rev-parse HEAD`
-- [ ] Stamp the same SHA into `parity-diff.md`'s header block (currently lines 443-455), for the
+- [x] Stamp the same SHA into `parity-diff.md`'s header block (currently lines 443-455), for the
       same reason the other identity fields live there
-- [ ] Document the companion freshness check as a manual step in the script's own help/comment
+- [x] Document the companion freshness check as a manual step in the script's own help/comment
       output: `git log <evidence-commit>..HEAD -- code/src` must be empty. State plainly WHY it is
       manual: the script's output goes to `/tmp` or a user-chosen `--out DIR`, both outside
       version control, so preflight has nothing to read the evidence commit from
-- [ ] Record the discoverability gap for the user: full automation of item 8 requires first
+- [x] Record the discoverability gap for the user: full automation of item 8 requires first
       deciding where the evidence-commit record persists past the ephemeral output directory.
-      That is a design decision, not an implementation detail, and is not made here
+      That is a design decision, not an implementation detail, and is not made here (recorded
+      here and in the implementation summary)
+
+**Real-run verification (beyond the plan's "narrowest invocation" floor)**: ran the full script
+end to end (`RELEASE_VERIFY_IN_SHELL=1` to skip the `nix develop` re-exec, since the pinned tool
+set was already resolvable from the ambient environment) rather than only the narrowest
+summary.txt-producing invocation. Result: exit 0, `FAILURES=0`, all hard gates green.
+`summary.txt`'s `COMMIT=` line and `parity-diff.md`'s `**Commit**` field both showed
+`2414f30929c446181e88149e839bba855ab36f4e`, matching `git rev-parse HEAD` exactly. A second
+consecutive run against the same unchanged tree also exited 0, confirming the script's prior
+exit-status behavior is preserved.
 
 **Timing**: 45 minutes
 
