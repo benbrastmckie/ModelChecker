@@ -474,7 +474,7 @@ not to edit it.
 
 ---
 
-### Phase 7: Full regression run, flip accounting, and final gate [NOT STARTED]
+### Phase 7: Full regression run, flip accounting, and final gate [IN PROGRESS]
 
 **Goal**: Re-run the full 52-example baseline against the new constraint set, explain every verdict
 flip individually per the 152 comparison procedure, and confirm the full bimodal suite is green.
