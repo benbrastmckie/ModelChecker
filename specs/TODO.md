@@ -11,9 +11,9 @@ next_project_number: 176
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,158,172,175 | -- | semantics, release-engineering, test-reliability |
-| 2 | 153,168,173 | 152,158,172,175 | testing, semantics, release-engineering |
-| 3 | 154,174 | 153,173 | semantics, test-reliability |
+| 1 | 153,168,172 | -- | semantics, release-engineering, test-reliability |
+| 2 | 154,173 | 153,172 | testing, semantics |
+| 3 | 174 | 153,173 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -23,30 +23,28 @@ next_project_number: 176
 
 ### Semantics
 
-152 [IMPLEMENTING] — AUDIT ONLY -- no semantics change, no constraint change, no examp
-  └─ 153 [NOT STARTED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
-    └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
+153 [NOT STARTED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
+  └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Release Engineering
 
-158 [IMPLEMENTING] — Harden the release CI pipeline so TestPyPI becomes a real verific
-  └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
+168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
 172 [IMPLEMENTING] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
-175 [IMPLEMENTING] — Fix the unstable-watch classifier's laundering guard, which produ
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
 
 ### 175. Fix unstable watch classifier laundering guard
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
 - **Research**: [175_fix_unstable_watch_classifier_laundering_guard/reports/01_laundering-guard-fix-design.md]
 - **Plan**: [175_fix_unstable_watch_classifier_laundering_guard/plans/01_laundering-guard-fix.md]
+- **Summary**: [175_fix_unstable_watch_classifier_laundering_guard/summaries/01_laundering-guard-fix-summary.md]
 
 **Description**: Fix the unstable-watch classifier's laundering guard, which produces a FALSE POSITIVE on every genuine gating-floor failure and has turned the nightly Unstable Watch workflow red on five consecutive runs. The tests are NOT failing in a new way -- the classifier is misreading them.
 
@@ -199,6 +197,7 @@ CORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the m
 - **Dependencies**: None
 - **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md]
 - **Plan**: [172_fix_contention_flaky_soundness_regression_tests/plans/01_mark-flaky-tests-xdist-serial.md]
+- **Summary**: [172_fix_contention_flaky_soundness_regression_tests/summaries/01_mark-flaky-tests-xdist-serial-summary.md]
 
 **Description**: Three tests in oracle/bimodal_logic/tests/test_soundness_regression.py fail deterministically under the gating suite's parallel pass but pass in isolation. They are CPU-contention casualties of a tight solve budget, and they were invisible to every narrowed verification gate run to date because no recent task touched their file.
 
@@ -445,12 +444,13 @@ task_type: python. file_scope: the bimodal theory package
 ---
 
 ### 158. Harden release ci testpypi gate
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 161
 - **Research**: [158_harden_release_ci_testpypi_gate/reports/01_harden-testpypi-gate.md]
 - **Plan**: [158_harden_release_ci_testpypi_gate/plans/01_harden-testpypi-gate.md]
+- **Summary**: [158_harden_release_ci_testpypi_gate/summaries/01_harden-testpypi-gate-summary.md]
 
 **Description**: Harden the release CI pipeline so TestPyPI becomes a real verification gate before production PyPI, and close the friction points observed during the 1.3.0 release run (2026-08-12, Actions run 31628414655). The 1.3.0 publish SUCCEEDED -- this task is about making the next one safer and less manual, not about fixing a broken release.
 
@@ -582,7 +582,7 @@ DEPENDENCIES. The bimodal frame-class audit (baseline and ledger) and BimodalLog
 ---
 
 ### 152. Audit bimodal frame class and verdict dependence
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None

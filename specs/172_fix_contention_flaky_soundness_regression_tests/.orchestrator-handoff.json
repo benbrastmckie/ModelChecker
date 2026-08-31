@@ -1,28 +1,42 @@
 {
-  "dispatch_seq": 7,
-  "phase": "plan",
-  "status": "planned",
-  "summary": "4-phase plan implementing research remedy (a) only: add @pytest.mark.xdist_serial plus inline rationale comments to four tests in oracle/bimodal_logic/tests/test_soundness_regression.py (the three reported failures plus TestBoundaryVacuity::test_depth1_boundary_safe_is_true, the in-scope sibling with an identical risk profile), matching the in-file precedent at line 1092. Phases: read-only call-site inventory, marker application, full two-pass verification via the real oracle/run-oracle-suite.sh driver, decision record. Estimated 2 hours, fully sequential.",
+  "dispatch_seq": 11,
+  "phase": "implement",
+  "status": "partial",
+  "summary": "Marked the four target tests @pytest.mark.xdist_serial (Phase 1-2); verified via two independent full oracle/run-oracle-suite.sh pass-1 runs that none of the four fail and pass 2 is green with the expected +4 growth inside budget (Phase 3 core remedy verified). A reproducible, out-of-remedy fifth failure (TestShiftClosure::test_shift_closure_on_extracted_worlds_m3, z3_model_status False at M=3) blocks a clean pass-1-zero-failures close; recorded as a /spawn follow-up (Phase 4 complete).",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/172_fix_contention_flaky_soundness_regression_tests/plans/01_mark-flaky-tests-xdist-serial.md",
-      "summary": "4-phase plan marking four contention-flaky oracle tests xdist_serial with full two-pass verification."
+      "type": "summary",
+      "path": "specs/172_fix_contention_flaky_soundness_regression_tests/summaries/01_mark-flaky-tests-xdist-serial-summary.md",
+      "summary": "Four-test remedy fully verified; reproducible unrelated fifth failure recorded as follow-up candidate."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 2,
   "phases_total": 4,
-  "blockers": [],
-  "next_action_hint": "implement",
-  "files_modified": [],
-  "decisions_made": [
-    "INCLUDE the Finding 4 sibling: TestBoundaryVacuity::test_depth1_boundary_safe_is_true is marked alongside the three reported failures -- same file, same class, same F_P call, same unmodified timeout_ms=5000 default; its absence from the measured failure list reflects probabilistic scheduling noise, not safety",
-    "Per-method decorators only, never a class-level marker -- both enclosing classes hold fast depth-0 and exception-path methods that must stay in pass 1",
-    "No max_rlimit at these call sites (TESTING_GUIDE 8.13): xdist_serial removes the contention entirely, so max_rlimit would add a second independent failure mode with no correctness benefit. Recorded in plan Phase 4",
-    "No AST floor guard in code/tests/ci/test_example_budget_floor.py: the risk is a shared function default crossed with per-formula temporal_depth, not a per-call-site dict literal, so that guard's scan shape cannot distinguish at-risk sites from raises-timeout-on-purpose sites. Recorded in plan Phase 4",
-    "provider.py and test_example_budget_floor.py are explicit non-goals and must show zero diff",
-    "Verification is the full detached `bash oracle/run-oracle-suite.sh` two-pass run (setsid nohup, poll the log), never a narrowed -k selection",
-    "test_oracle_provider.py::test_future_sat_returns_dict carries the same risk but is outside file_scope -- recorded as a /spawn follow-up candidate, not pulled in"
+  "blockers": [
+    {
+      "phase": 3,
+      "target": "bash oracle/run-oracle-suite.sh reports pass 1 with zero failures",
+      "verbatim_goal": "Confirm pass 1 reports zero failures, and specifically that none of the four target tests appears in pass 1's selection.",
+      "what_was_tried": "Two independent full (unnarrowed) pass-1 runs against current HEAD; both confirm none of the four target tests fail, but both also show one reproducible unrelated failure (TestShiftClosure::test_shift_closure_on_extracted_worlds_m3).",
+      "why_it_failed": "That test bypasses find_countermodel() entirely (direct BimodalStructure construction with its own max_time budget), so it is outside this plan's approved remedy mechanism and Non-Goals forbid fixing it in this task; requires a separate follow-up task."
+    }
   ],
-  "dead_ends": []
+  "next_action_hint": "spawn",
+  "files_modified": [
+    "oracle/bimodal_logic/tests/test_soundness_regression.py",
+    "specs/172_fix_contention_flaky_soundness_regression_tests/plans/01_mark-flaky-tests-xdist-serial.md",
+    "specs/172_fix_contention_flaky_soundness_regression_tests/summaries/01_mark-flaky-tests-xdist-serial-summary.md",
+    "specs/172_fix_contention_flaky_soundness_regression_tests/handoffs/phase-3-handoff-20260831-120514.md"
+  ],
+  "decisions_made": [
+    "max_rlimit deliberately not used at the four call sites (TESTING_GUIDE 8.13 tradeoff)",
+    "No AST floor guard added to test_example_budget_floor.py (shared-default risk shape does not fit that guard's per-call-site literal scan)",
+    "Phase 3 closed [PARTIAL], not [COMPLETED WITH EXCLUSIONS]: the fifth failure has a genuine residual (a /spawn follow-up), failing the five-condition exclusion test's 'no residual work' clause",
+    "Reproducibility evidence (2/2 identical failures) supersedes an earlier, retracted 'possible contention blip' characterization of the fifth failure"
+  ],
+  "dead_ends": [
+    "Initial background-monitor notification for the first two-pass run was not observed by the orchestrator's own process/log check; re-verification confirmed the run had in fact completed successfully on disk -- treated as a monitoring gap, not a run failure"
+  ],
+  "continuation_path": "specs/172_fix_contention_flaky_soundness_regression_tests/handoffs/phase-3-handoff-20260831-120514.md",
+  "plan_markers_verified": true
 }
