@@ -32,6 +32,7 @@ module must report clearly, not something to skip past.
 from __future__ import annotations
 
 import importlib.util
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -685,3 +686,247 @@ class TestRunPerTestStreakWiring:
         # A TIMING-only failure must never fail the job -- the non-gating contract, unaffected
         # by the per-test streak/notice wiring.
         assert exit_code == 0
+
+
+# ---------------------------------------------------------------------------
+# Phase 3: DEV_STATUS classification path -- a third, optional JUnit input of
+# `development`-marked results. Every dev-input testcase is recorded with
+# classification == "DEV_STATUS" and its true outcome, regardless of pass/fail/error,
+# and NEVER feeds any_new or any_failure (see run()'s dev_junit_path parameter and the
+# module docstring's DEV_STATUS contract paragraph). A missing dev JUnit file is
+# tolerated exactly like a missing code/oracle file.
+# ---------------------------------------------------------------------------
+
+_DEV_JUNIT_FAILING = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="test_bimodal_future" name="test_frame_axiom_not_yet_implemented" time="0.02">
+      <failure message="AssertionError: frame axiom not yet enforced">traceback text</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
+"""
+
+_DEV_JUNIT_PASSING = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="test_bimodal_future" name="test_frame_axiom_now_passes" time="0.03"></testcase>
+  </testsuite>
+</testsuites>
+"""
+
+_DEV_JUNIT_ERROR = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="test_bimodal_future" name="test_collection_broken" time="0.0">
+      <error message="ImportError: cannot import name 'not_yet_defined'">traceback text</error>
+    </testcase>
+  </testsuite>
+</testsuites>
+"""
+
+# Deliberately shares BM_CM_1's currently_unstable fragment in its node id, to drive the
+# overlap test below -- a real workflow would never mark the same test both `unstable` and
+# `development`, but the classifier must defend against a dev record's node id happening to
+# contain a currently-unstable fragment regardless.
+_DEV_JUNIT_OVERLAPPING_FRAGMENT = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="test_bimodal" name="test_example_cases[BM_CM_1-example_case7]" time="0.01"></testcase>
+  </testsuite>
+</testsuites>
+"""
+
+_CODE_JUNIT_A_CLEAN_PASS = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="test_unrelated" name="test_something_fine" time="0.01"></testcase>
+  </testsuite>
+</testsuites>
+"""
+
+
+def _five_successful_past_runs(repo, current_run_id):
+    return [
+        {
+            "databaseId": 100 + i,
+            "conclusion": "success",
+            "createdAt": f"2026-07-{i + 1:02d}T05:00:00Z",
+            "status": "completed",
+        }
+        for i in range(5)
+    ]
+
+
+def _fake_fetch_no_history(repo, nodeids, past_run_ids):
+    return {nodeid: [None] * len(past_run_ids) for nodeid in nodeids}
+
+
+class TestDevStatusClassification:
+    def test_failing_dev_test_yields_dev_status_record_and_exit_code_zero(self, tmp_path):
+        dev_xml = tmp_path / "dev.xml"
+        dev_xml.write_text(_DEV_JUNIT_FAILING)
+        record_path = tmp_path / "record.jsonl"
+
+        exit_code = classify_mod.run(
+            code_junit_path=str(tmp_path / "missing-code.xml"),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(dev_xml),
+            record_path=str(record_path),
+            repo="acme/repo",
+            current_run_id="900",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        assert exit_code == 0
+        records = [json.loads(line) for line in record_path.read_text().splitlines()]
+        assert len(records) == 1
+        assert records[0]["classification"] == "DEV_STATUS"
+        assert records[0]["outcome"] == "failed"
+
+    def test_failing_dev_test_does_not_set_any_new(self, tmp_path, capsys):
+        dev_xml = tmp_path / "dev.xml"
+        dev_xml.write_text(_DEV_JUNIT_FAILING)
+        record_path = tmp_path / "record.jsonl"
+
+        classify_mod.run(
+            code_junit_path=str(tmp_path / "missing-code.xml"),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(dev_xml),
+            record_path=str(record_path),
+            repo="acme/repo",
+            current_run_id="901",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        captured = capsys.readouterr()
+        assert "UNSTABLE-WATCH: NEW FAILURE MODE" not in captured.out
+
+    def test_failing_dev_test_does_not_feed_any_failure_via_legacy_streak(self, tmp_path):
+        """A failing development test must not zero an unstable test's streak via
+        `any_failure`. A clean code/oracle run (no failures there) plus a failing dev test
+        must leave the legacy per-run streak exactly as if the dev test did not exist -- the
+        dev parse loop must never set `any_failure`, matching this module's own DEV_STATUS
+        contract that it never gates and is never signature-matched."""
+        code_xml = tmp_path / "code.xml"
+        code_xml.write_text(_CODE_JUNIT_A_CLEAN_PASS)
+        dev_xml = tmp_path / "dev.xml"
+        dev_xml.write_text(_DEV_JUNIT_FAILING)
+        record_path = tmp_path / "record.jsonl"
+        summary_path = tmp_path / "summary.md"
+
+        exit_code = classify_mod.run(
+            code_junit_path=str(code_xml),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(dev_xml),
+            record_path=str(record_path),
+            summary_path=str(summary_path),
+            repo="acme/repo",
+            current_run_id="902",
+            past_runs_fn=_five_successful_past_runs,
+            fetch_past_classifications_fn=_fake_fetch_no_history,
+        )
+        assert exit_code == 0
+        summary_text = summary_path.read_text()
+        assert "Legacy global streak" in summary_text
+        # This clean run (any_failure must be False despite the dev failure) plus 5 clean
+        # past runs == 6. If the dev loop wrongly set any_failure, this would read 0.
+        assert "**6** / 20" in summary_text
+
+    def test_missing_dev_junit_file_is_tolerated(self, tmp_path):
+        record_path = tmp_path / "record.jsonl"
+        exit_code = classify_mod.run(
+            code_junit_path=str(tmp_path / "missing-code.xml"),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(tmp_path / "does-not-exist-dev.xml"),
+            record_path=str(record_path),
+            repo="acme/repo",
+            current_run_id="903",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        assert exit_code == 0
+        assert record_path.read_text() == ""
+
+    def test_passing_dev_test_is_recorded_with_dev_status_classification(self, tmp_path):
+        dev_xml = tmp_path / "dev.xml"
+        dev_xml.write_text(_DEV_JUNIT_PASSING)
+        record_path = tmp_path / "record.jsonl"
+
+        classify_mod.run(
+            code_junit_path=str(tmp_path / "missing-code.xml"),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(dev_xml),
+            record_path=str(record_path),
+            repo="acme/repo",
+            current_run_id="904",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        records = [json.loads(line) for line in record_path.read_text().splitlines()]
+        assert len(records) == 1
+        assert records[0]["outcome"] == "passed"
+        assert records[0]["classification"] == "DEV_STATUS"
+
+    def test_error_outcome_dev_test_is_recorded_as_dev_status(self, tmp_path):
+        dev_xml = tmp_path / "dev.xml"
+        dev_xml.write_text(_DEV_JUNIT_ERROR)
+        record_path = tmp_path / "record.jsonl"
+
+        classify_mod.run(
+            code_junit_path=str(tmp_path / "missing-code.xml"),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(dev_xml),
+            record_path=str(record_path),
+            repo="acme/repo",
+            current_run_id="905",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        records = [json.loads(line) for line in record_path.read_text().splitlines()]
+        assert len(records) == 1
+        assert records[0]["outcome"] == "error"
+        assert records[0]["classification"] == "DEV_STATUS"
+
+    def test_dev_nodeid_overlapping_unstable_fragment_does_not_corrupt_streak_matching(
+        self, tmp_path
+    ):
+        """A dev record whose node id happens to contain a currently_unstable fragment must
+        never be allowed to supply that fragment's this-run classification for streak
+        purposes: 'development wins' for the dev record's OWN classification (recorded as
+        DEV_STATUS), but the unstable node id's own streak-relevant classification must come
+        only from the code/oracle loop, and no double-counting occurs -- both records are
+        written, never merged into one. A TIMING failure on BM_CM_1 this run must break its
+        streak to 0 regardless of a same-fragment dev record."""
+        code_xml = tmp_path / "code.xml"
+        code_xml.write_text(_CODE_JUNIT_BM_CM_1_TIMING_FAILURE)
+        dev_xml = tmp_path / "dev.xml"
+        dev_xml.write_text(_DEV_JUNIT_OVERLAPPING_FRAGMENT)
+        record_path = tmp_path / "record.jsonl"
+        summary_path = tmp_path / "summary.md"
+
+        exit_code = classify_mod.run(
+            code_junit_path=str(code_xml),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(dev_xml),
+            record_path=str(record_path),
+            summary_path=str(summary_path),
+            repo="acme/repo",
+            current_run_id="906",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=lambda repo, nodeids, past_run_ids: {
+                nodeid: (["N/A"] * len(past_run_ids)) for nodeid in nodeids
+            },
+        )
+        assert exit_code == 0
+        summary_text = summary_path.read_text()
+        # BM_CM_1's own row must show a broken (0) streak -- if the dev record's DEV_STATUS
+        # classification incorrectly overwrote the code loop's TIMING classification for
+        # this fragment, the streak would wrongly read as clean (up to 20) instead of 0.
+        assert "`BM_CM_1-example_case7` | 0 / 20" in summary_text
+        # Two records were written -- the code-loop TIMING record and the dev-loop
+        # DEV_STATUS record -- never merged/deduplicated into one.
+        records = [json.loads(line) for line in record_path.read_text().splitlines()]
+        classifications = {r["classification"] for r in records}
+        assert "TIMING" in classifications
+        assert "DEV_STATUS" in classifications

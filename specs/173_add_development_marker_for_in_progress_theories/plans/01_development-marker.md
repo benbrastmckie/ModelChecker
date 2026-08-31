@@ -274,7 +274,7 @@ states are expected red and must not be committed individually.
 
 ---
 
-### Phase 3: Classifier `DEV_STATUS` classification path [NOT STARTED]
+### Phase 3: Classifier `DEV_STATUS` classification path [COMPLETED]
 
 **Goal**: `.github/scripts/unstable_watch_classify.py` can read a third, optional JUnit input of
 `development`-marked results, classify each as `DEV_STATUS`, and record it — without ever

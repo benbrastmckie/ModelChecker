@@ -16,6 +16,19 @@ happens only under `if __name__ == "__main__":`, via `main()`.
 
 Stdlib only -- the watch job installs no PyYAML and no third-party parsing dependency, and none
 may be added here.
+
+**`DEV_STATUS` contract**: a third, optional JUnit input (`dev_junit_path`) carries results from
+tests marked `@pytest.mark.development` (see code/pyproject.toml and TESTING_GUIDE.md section
+8.14) -- a theory still under active construction, whose failures are expected and tracked
+rather than a possible regression. Every testcase collected from this input is recorded with
+`classification == "DEV_STATUS"` and its true `outcome` ("passed", "failed", "error", or
+"skipped"), regardless of pass/fail. This path is NEVER gating (it never sets `any_new`, so it
+can never fail the job) and NEVER signature-matched (it never sets `any_failure`, and it is
+excluded from the `currently_unstable` fragment-matching loop that feeds `unstable`'s own
+per-test promotion streaks) -- unlike TIMING/NEW, a development-marked failure has no stable
+signature by construction, because the theory's implementation is still changing underneath it.
+Its own progress is tracked separately, by pass rate rather than failure signature (see
+`compute_dev_pass_rate` and the `## Development Watch` step-summary section).
 """
 
 from __future__ import annotations
@@ -34,6 +47,12 @@ import xml.etree.ElementTree as ET
 # against `tmp_path` fixtures without touching `/tmp` or the cwd.
 DEFAULT_CODE_JUNIT_PATH = "/tmp/watch-code.xml"
 DEFAULT_ORACLE_JUNIT_PATH = "/tmp/watch-oracle.xml"
+# Produced by a workflow step that DOES NOT EXIST YET: a third `unstable-watch.yml` watch step,
+# mirroring the existing `watch_code` step but selecting `-m development` and writing this
+# path, is a deferred follow-up (see TESTING_GUIDE.md section 8.14's observability paragraph).
+# `parse_junit` already returns nothing for a missing file, so this path is inert -- no
+# `development`-marked test's results reach this classifier -- until that step lands.
+DEFAULT_DEV_JUNIT_PATH = "/tmp/watch-development.xml"
 DEFAULT_RECORD_PATH = "unstable-watch-record.jsonl"
 
 # Per-test max_time, used by the TIMING classification rule below. Keyed by a substring of the
@@ -376,6 +395,7 @@ def _default_past_runs(repo, current_run_id):
 def run(
     code_junit_path=DEFAULT_CODE_JUNIT_PATH,
     oracle_junit_path=DEFAULT_ORACLE_JUNIT_PATH,
+    dev_junit_path=DEFAULT_DEV_JUNIT_PATH,
     record_path=DEFAULT_RECORD_PATH,
     summary_path=None,
     repo="",
@@ -390,7 +410,8 @@ def run(
     per-test promotion-streak wiring below without a real `gh` CLI or network access. Returns
     the exit code: 0 unless a NEW-classified failure was found (1) -- the workflow's non-gating
     contract (a TIMING failure must never fail the job); this return value is driven solely by
-    `any_new` and is unaffected by anything in the per-test streak wiring below."""
+    `any_new` and is unaffected by anything in the per-test streak wiring below, or by the
+    `dev_junit_path` results (see the module docstring's `DEV_STATUS` contract)."""
     records = []
     any_new = False
     any_failure = False
@@ -425,6 +446,24 @@ def run(
             })
             summary_rows.append((nodeid, outcome, duration, classification))
 
+    # DEV_STATUS path: every testcase from the (optional, today-inert) dev JUnit input is
+    # recorded with its true outcome and classification == "DEV_STATUS" -- never gating
+    # (any_new untouched), never signature-matched (any_failure untouched). Node ids seen
+    # here are tracked separately so the currently_unstable fragment-matching loop below can
+    # exclude them by construction (see that loop's own comment).
+    dev_nodeids_this_run = []
+    for nodeid, outcome, duration, failure_text in parse_junit(dev_junit_path):
+        dev_nodeids_this_run.append(nodeid)
+        records.append({
+            "run_id": current_run_id,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "nodeid": nodeid,
+            "outcome": outcome,
+            "duration_s": duration,
+            "classification": "DEV_STATUS",
+        })
+        summary_rows.append((nodeid, outcome, duration, "DEV_STATUS"))
+
     with open(record_path, "w") as fh:
         for rec in records:
             fh.write(json.dumps(rec) + "\n")
@@ -452,9 +491,15 @@ def run(
     # This run's own per-node-id classification, from the `records` this loop already built
     # above -- matched by the same `fragment in nodeid` substring style `classify()` uses, since
     # `records[i]["nodeid"]` is a full pytest node id and `currently_unstable` entries are short
-    # fragments.
+    # fragments. Dev records are excluded by construction: a `development`-marked test's node id
+    # could coincidentally contain an `unstable` fragment substring, and a dev record must never
+    # be allowed to supply that fragment's this-run classification (see the module docstring's
+    # `DEV_STATUS` contract -- never signature-matched).
+    dev_nodeid_set = set(dev_nodeids_this_run)
     this_run_classification_by_nodeid = {nodeid: None for nodeid in currently_unstable}
     for rec in records:
+        if rec["nodeid"] in dev_nodeid_set:
+            continue
         for nodeid in currently_unstable:
             if nodeid in rec["nodeid"]:
                 this_run_classification_by_nodeid[nodeid] = rec["classification"]
