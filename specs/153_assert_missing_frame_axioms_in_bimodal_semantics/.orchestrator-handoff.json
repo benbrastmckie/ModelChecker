@@ -1,0 +1,24 @@
+{
+  "dispatch_seq": 13,
+  "phase": "research",
+  "status": "researched",
+  "summary": "Re-verified Limit/Spherical freeness against the current core.py encoding (unchanged from task 152). Recommends Skolemized encodings for both Seriality and Interpolation, following the codebase's existing capped_skolem_abundance_constraint precedent. Empirically benchmarked three configurations against 6 examples: a literal nested ForAll/Exists Interpolation reading regresses BM_TH_3/BM_TH_4 from a decided 0.03-0.1s match to a 10s timeout at M=2 -- a live regression risk below the M>=3 threshold the task text anticipates -- while the Skolemized encoding preserves both verdict and speed on all 6 examples. Report also resolves the ARCHITECTURE.md 'four ASSERTED axioms' table-row ambiguity and gives ready-to-transcribe table content.",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/reports/01_seriality-interpolation-encoding.md",
+      "summary": "Seriality/Interpolation encoding recommendations, benchmark data, ARCHITECTURE.md table, and planning guidance."
+    }
+  ],
+  "blockers": [],
+  "files_modified": [
+    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/reports/01_seriality-interpolation-encoding.md"
+  ],
+  "decisions_made": [
+    "Prefer the Skolemized encoding for both Seriality and Interpolation over a literal nested ForAll/Exists reading; the nested Interpolation reading is a confirmed regression on BM_TH_3/BM_TH_4 at M=2.",
+    "The definitional-reachability alternative (task_rel as bounded reachability of a unit relation) was evaluated only qualitatively, not benchmarked -- it is a materially larger redesign (nullity_identity/converse/forward_comp become derived rather than asserted) that the report recommends prototyping and measuring separately during planning, not substituting blind.",
+    "Resolved the task's 'four ASSERTED axioms vs two FREE ones' table-row ambiguity: the count only lands cleanly on a per-Z3-constraint-row basis (nullity_identity, converse, forward_comp, Interpolation = 4 rows; Limit, Spherical = 2 rows), not on the paper's own four-axiom family (of which only two end up asserted)."
+  ],
+  "next_action_hint": "Run /plan 153 to create an implementation plan using the report's Section 9 recommendations.",
+  "continuation_path": null
+}
