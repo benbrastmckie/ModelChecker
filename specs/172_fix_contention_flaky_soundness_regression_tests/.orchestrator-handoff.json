@@ -1,0 +1,25 @@
+{
+  "dispatch_seq": 3,
+  "phase": "research",
+  "status": "researched",
+  "summary": "Traced the 3 flaky tests to F_P (depth-1) calls against provider.py's unmodified timeout_ms=5000 default, ~3.3x measured headroom eroded by -n 6 contention -- same class as the existing xdist_serial precedent at test_soundness_regression.py:1092. Recommends remedy (a) only (xdist_serial marking); explicitly rejects max_rlimit per TESTING_GUIDE 8.13's prior reasoning; rejects adding a floor-guard test. Flags one additional in-scope sibling test with identical risk.",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md",
+      "summary": "Contention-flaky-test research: recommends xdist_serial marking, rejects max_rlimit and a new floor guard, with reasons recorded."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 0,
+  "blockers": [],
+  "next_action_hint": "plan",
+  "files_modified": [],
+  "decisions_made": [
+    "Remedy (a) -- mark the three named tests @pytest.mark.xdist_serial, matching the existing test_oracle_m_formula_depth1_boundary_safe precedent's per-method style",
+    "Remedy (b)/(c) -- do NOT pass max_rlimit at these call sites; TESTING_GUIDE.md 8.13 already rejected max_rlimit for this exact flake class since xdist_serial alone removes the contention entirely",
+    "Do NOT add an AST floor guard to test_example_budget_floor.py for oracle timeout_ms call sites; the risk shape (shared function default x per-formula temporal_depth) does not fit that guard's per-call-site-literal scan pattern",
+    "test_depth1_boundary_safe_is_true (same file, same F_P call, same unmarked default) has an identical risk profile to the 3 reported failures and is a candidate for the same fix, left for the plan stage to decide"
+  ],
+  "dead_ends": []
+}
