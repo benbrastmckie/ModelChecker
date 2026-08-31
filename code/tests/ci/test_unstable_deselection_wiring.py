@@ -43,6 +43,74 @@ RUN_ORACLE_SUITE_SH = REPO_ROOT / "oracle" / "run-oracle-suite.sh"
 
 _SCANNED_FILES = [TESTS_YML, FLAKE_NIX, DIFFERENTIAL_TESTS_YML, RUN_ORACLE_SUITE_SH]
 
+# The true aggregate count of `-m`-bearing gating invocations across all four scanned drivers:
+# tests.yml (2) + flake.nix (2) + differential-tests.yml (1, since its "Run CI gate tests
+# explicitly" step node-id-selects with no `-m` at all) + run-oracle-suite.sh (2) = 7. This was
+# undercounted as "six" in seven documentation anchors before this constant existed to enforce it
+# executably -- see test_total_gating_marker_expression_count_is_seven below.
+EXPECTED_GATING_MARKER_INVOCATIONS = 7
+
+# Documentation/docstring anchors that state the aggregate gating-invocation count in prose.
+# Each tuple is (path, must_contain, must_not_contain): the corrected "seven" phrasing that must
+# be present, and the exact stale "six" phrasing that must no longer appear.
+TESTING_GUIDE_MD = REPO_ROOT / "code" / "docs" / "core" / "TESTING_GUIDE.md"
+BIMODAL_CONFTEST_PY = (
+    REPO_ROOT
+    / "code"
+    / "src"
+    / "model_checker"
+    / "theory_lib"
+    / "bimodal"
+    / "tests"
+    / "conftest.py"
+)
+BIMODAL_TESTS_README_MD = (
+    REPO_ROOT / "code" / "src" / "model_checker" / "theory_lib" / "bimodal" / "tests" / "README.md"
+)
+TEST_DEVELOPMENT_MARKER_APPLICATION_PY = (
+    REPO_ROOT / "code" / "tests" / "ci" / "test_development_marker_application.py"
+)
+
+_SEVEN_COUNT_ANCHORS = [
+    (
+        TESTING_GUIDE_MD,
+        "wired through the same seven invocations",
+        "wired through the same six invocations",
+    ),
+    (
+        TESTING_GUIDE_MD,
+        "Seven invocations in total.",
+        "Six invocations in total.",
+    ),
+    (
+        TESTING_GUIDE_MD,
+        "across all seven.",
+        "across all six.",
+    ),
+    (
+        TESTING_GUIDE_MD,
+        "the seven gating `-m` expressions,",
+        "the six gating `-m` expressions,",
+    ),
+    (
+        BIMODAL_CONFTEST_PY,
+        "All seven release-gating pytest invocations already carry",
+        "All six release-gating pytest invocations already carry",
+    ),
+    (
+        BIMODAL_TESTS_README_MD,
+        "all seven release-gating pytest invocations across the repository's CI drivers deselect "
+        "it with",
+        "all six release-gating pytest invocations across the repository's CI drivers deselect it "
+        "with",
+    ),
+    (
+        TEST_DEVELOPMENT_MARKER_APPLICATION_PY,
+        "all seven gating invocations already carry",
+        "all six gating invocations already carry",
+    ),
+]
+
 _MISSING_REPO_ROOT_FILES = [p for p in _SCANNED_FILES if not p.exists()]
 if _MISSING_REPO_ROOT_FILES:
     pytest.skip(
@@ -143,6 +211,36 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
         assert len(_invocations_for(FLAKE_NIX)) == 2
         assert len(_invocations_for(DIFFERENTIAL_TESTS_YML)) == 2
         assert len(_invocations_for(RUN_ORACLE_SUITE_SH)) == 2
+
+    def test_total_gating_marker_expression_count_is_seven(self):
+        """The aggregate count of `-m`-bearing gating invocations across all four scanned
+        drivers is fixed at EXPECTED_GATING_MARKER_INVOCATIONS. An uncaught drift here is
+        exactly how "six" went stale across seven documentation anchors with no test ever
+        catching it -- see test_seven_count_anchor_is_corrected below for the docs half."""
+        total = sum(
+            1
+            for path in _SCANNED_FILES
+            for inv in _invocations_for(path)
+            if _MARKER_EXPR_RE.search(inv) is not None
+        )
+        assert total == EXPECTED_GATING_MARKER_INVOCATIONS, (
+            f"expected {EXPECTED_GATING_MARKER_INVOCATIONS} `-m`-bearing gating invocations "
+            f"across {[str(p) for p in _SCANNED_FILES]}, found {total}"
+        )
+
+    @pytest.mark.parametrize("path, must_contain, must_not_contain", _SEVEN_COUNT_ANCHORS)
+    def test_seven_count_anchor_is_corrected(self, path, must_contain, must_not_contain):
+        """Each documentation/docstring anchor that states the aggregate gating-invocation
+        count must state seven, not six. This is genuinely RED before the corresponding prose
+        edit lands -- it is not a guard against a hypothetical future regression, it is the
+        contract that the "six" -> "seven" correction actually happened."""
+        text = path.read_text()
+        assert must_not_contain not in text, (
+            f"{path}: stale six-count claim {must_not_contain!r} still present"
+        )
+        assert must_contain in text, (
+            f"{path}: expected corrected seven-count claim {must_contain!r} not found"
+        )
 
     def test_differential_tests_yml_gate_step_has_no_marker_expression(self):
         """Documents, explicitly, WHY differential-tests.yml's second invocation is allowed

@@ -7,7 +7,7 @@ operators, witness constraints, and frame constraints.
 
 **The bimodal theory is under active construction and is deliberately not part of what a release
 run must pass.** Every test collected from this directory carries the `development` marker, and
-all six release-gating pytest invocations across the repository's CI drivers deselect it with
+all seven release-gating pytest invocations across the repository's CI drivers deselect it with
 `-m "... and not development"`. A failing bimodal test therefore does not turn a gating run red.
 
 The marker is applied by the `pytest_collection_modifyitems` hook in this directory's

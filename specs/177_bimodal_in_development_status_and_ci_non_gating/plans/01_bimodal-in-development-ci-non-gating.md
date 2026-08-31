@@ -1,7 +1,7 @@
 # Implementation Plan: Task #177
 
 - **Task**: 177 - Bimodal in-development status and CI non-gating
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 7 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/177_bimodal_in_development_status_and_ci_non_gating/reports/01_bimodal-ci-gating-ground-truth.md
@@ -122,7 +122,7 @@ no logical dependency beyond that shared file territory.
 
 ---
 
-### Phase 1: Make the gating-invocation count executable and correct "six" to "seven" [NOT STARTED]
+### Phase 1: Make the gating-invocation count executable and correct "six" to "seven" [COMPLETED]
 
 **Goal**: The aggregate count of `-m`-bearing gating invocations is asserted by a real test, and
 every documentation site that states the number states seven.
