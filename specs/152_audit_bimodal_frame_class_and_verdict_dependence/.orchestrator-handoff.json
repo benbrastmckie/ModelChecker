@@ -1,0 +1,16 @@
+{
+  "dispatch_seq": 5,
+  "status": "planned",
+  "task_number": 152,
+  "operation": "plan",
+  "session_id": "sess_1788198229_79cf9f_152",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/plans/01_audit-frame-class-ledger.md"
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "next_steps": "Run /implement 152 to execute the plan"
+}

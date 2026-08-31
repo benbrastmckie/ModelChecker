@@ -23,25 +23,25 @@ next_project_number: 176
 
 ### Semantics
 
-152 [RESEARCHED] — AUDIT ONLY -- no semantics change, no constraint change, no examp
+152 [PLANNED] — AUDIT ONLY -- no semantics change, no constraint change, no examp
   └─ 153 [NOT STARTED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
     └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Release Engineering
 
-158 [RESEARCHED] — Harden the release CI pipeline so TestPyPI becomes a real verific
+158 [PLANNING] — Harden the release CI pipeline so TestPyPI becomes a real verific
   └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
-172 [RESEARCHED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
-175 [RESEARCHED] — Fix the unstable-watch classifier's laundering guard, which produ
+172 [PLANNING] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+175 [PLANNING] — Fix the unstable-watch classifier's laundering guard, which produ
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
 
 ### 175. Fix unstable watch classifier laundering guard
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
@@ -192,7 +192,7 @@ CORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the m
 ---
 
 ### 172. Fix contention flaky soundness regression tests
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
@@ -443,7 +443,7 @@ task_type: python. file_scope: the bimodal theory package
 ---
 
 ### 158. Harden release ci testpypi gate
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 161
@@ -575,11 +575,12 @@ DEPENDENCIES. The bimodal frame-class audit (baseline and ledger) and BimodalLog
 ---
 
 ### 152. Audit bimodal frame class and verdict dependence
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md]
+- **Plan**: [152_audit_bimodal_frame_class_and_verdict_dependence/plans/01_audit-frame-class-ledger.md]
 
 **Description**: AUDIT ONLY -- no semantics change, no constraint change, no examples change. Produce the soundness ledger and the regression baseline that the two follow-on tasks need, because both alter the frame class the solver searches and neither can be landed safely without knowing which existing verdicts depend on what.
 
