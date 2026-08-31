@@ -132,12 +132,12 @@
     {
       "project_number": 168,
       "project_name": "pypi_install_and_full_cli_verification_ci",
-      "status": "planning",
+      "status": "planned",
       "task_type": "python",
       "description": "Build a systematic PyPI install and full-CLI verification CI pipeline: parameterize the pytest packaging suite's installed_venv fixture over install source (locally built wheel, TestPyPI, or PyPI), add a TestPyPI pre-publish gate and a post-publish PyPI confirmation matrix to release.yml, and add a dispatchable plus scheduled pypi-smoke.yml workflow with opt-in tmate SSH debugging so the published package can be verified end-to-end from a NixOS development host",
       "topic": "release-engineering",
       "created": "2026-08-25T20:59:36Z",
-      "last_updated": "2026-08-31T19:18:50Z",
+      "last_updated": "2026-08-31T19:25:06Z",
       "dependencies": [
         158
       ],
@@ -152,6 +152,11 @@
           "path": "specs/168_pypi_install_and_full_cli_verification_ci/reports/01_pypi-install-full-cli-verification-ci.md",
           "type": "report",
           "summary": ""
+        },
+        {
+          "path": "specs/168_pypi_install_and_full_cli_verification_ci/plans/01_pypi-install-verification-pipeline.md",
+          "type": "plan",
+          "summary": "Six-phase plan: installed_venv source parameterization, release.yml verify-pypi matrix, new pypi-smoke.yml, NixOS end-to-end verification."
         }
       ]
     },

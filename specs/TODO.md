@@ -29,7 +29,7 @@ next_project_number: 177
 
 ### Release Engineering
 
-168 [PLANNING] — Build a systematic PyPI install and full-CLI verification CI pipe
+168 [PLANNED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
@@ -295,11 +295,12 @@ HARD CONSTRAINTS (carried forward, all previously verified by a git diff gate):
 ---
 
 ### 168. Pypi install and full cli verification ci
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 158
 - **Research**: [168_pypi_install_and_full_cli_verification_ci/reports/01_pypi-install-full-cli-verification-ci.md]
+- **Plan**: [168_pypi_install_and_full_cli_verification_ci/plans/01_pypi-install-verification-pipeline.md]
 
 **Description**: Build a systematic PyPI install and full-CLI verification CI pipeline: parameterize the pytest packaging suite's installed_venv fixture over install source (locally built wheel, TestPyPI, or PyPI), add a TestPyPI pre-publish gate and a post-publish PyPI confirmation matrix to release.yml, and add a dispatchable plus scheduled pypi-smoke.yml workflow with opt-in tmate SSH debugging so the published package can be verified end-to-end from a NixOS development host
 
