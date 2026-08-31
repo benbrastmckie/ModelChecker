@@ -35,6 +35,7 @@ _COVERED_FLAGS = {
     'upgrade',
     'sequential',
     'load_theory',
+    'project_name',
 }
 # No exclusions: -l/--load_theory dispatches to BuildProject.ask_generate(), which blocks on
 # input() -- but run_cli_command's existing `input=` parameter pipes answers through the
@@ -415,3 +416,30 @@ def test_load_theory_does_not_hang_with_closed_stdin(tmp_path):
         ['-l', 'bimodal'], input="", cwd=tmp_path, timeout=30, check=False
     )
     assert result.returncode != 0
+
+
+# ---------------------------------------------------------------------------------------------
+# --project_name / -y -- non-interactive project generation, no stdin reads at all. Deeper
+# scenario coverage (missing-name error message, destination-directory honoring, interactive
+# path left unchanged) lives in code/tests/unit/test_main_cli.py; this file's own dispatch
+# test exists for _COVERED_FLAGS bookkeeping parity with every other registered flag.
+# ---------------------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("flag", ["--project_name", "-y"])
+def test_project_name_generates_project_non_interactively(tmp_path, flag):
+    """-l/--load_theory combined with -y/--project_name generates a project with stdin
+    closed (input="") -- no prompt is ever read, unlike the plain --load_theory path above."""
+    result = run_cli_command(
+        ['--load_theory', 'bimodal', flag, 'gen_project_flag_matrix'],
+        input="",
+        cwd=tmp_path,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, (
+        f"non-interactive generation failed: stdout={result.stdout!r} stderr={result.stderr!r}"
+    )
+    assert 'Error creating project' not in result.stdout
+    assert 'Traceback' not in result.stdout and 'Traceback' not in (result.stderr or '')
+    assert (tmp_path / 'project_gen_project_flag_matrix').is_dir()

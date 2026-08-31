@@ -107,13 +107,13 @@ def test_parse_stamps_short_to_long_and_parsed_args(monkeypatch, tmp_path):
     assert package_name == flags.parser.prog
 
 
-def test_short_to_long_has_fourteen_entries():
-    """Scope Hypothesis: _short_to_long is asserted to have 14 entries
-    (c,d,e,l,m,n,p,q,s,i,v,u,z,a), read from __main__.py:208-223. Asserted via len(...) rather
-    than trusting the prose count alone, so a future addition/removal fails loudly here instead
-    of silently shrinking the equivalence sweep below.
+def test_short_to_long_has_fifteen_entries():
+    """Scope Hypothesis: _short_to_long is asserted to have 15 entries
+    (c,d,e,l,m,n,p,q,s,i,v,u,z,a,y), read from __main__.py's `_short_to_long` map. Asserted via
+    len(...) rather than trusting the prose count alone, so a future addition/removal fails
+    loudly here instead of silently shrinking the equivalence sweep below.
     """
-    assert len(_fresh_short_to_long()) == 14
+    assert len(_fresh_short_to_long()) == 15
 
 
 # ---------------------------------------------------------------------------------------------
@@ -149,9 +149,12 @@ _EXIT_FLAGS = {'v'}            # action='version': parsing '-v'/'--version' call
 _REQUIRED_VALUE_FLAGS = {'l'}  # requires a theory-name value and short-circuits main() before
                                 # settings ever merge; equivalence covered by
                                 # tests/unit/test_main_cli.py's registry-derived choices test
-_SPECIALLY_HANDLED_FLAGS = {'s', 'u'}  # save (nargs='*', no settings key) and upgrade (no
-                                        # settings key) -- asserted below with bespoke checks
-                                        # rather than the generic settings-equality loop
+_SPECIALLY_HANDLED_FLAGS = {'s', 'u', 'y'}  # save (nargs='*', no settings key), upgrade (no
+                                        # settings key), and project_name (nargs='?' with
+                                        # const='', no settings key -- short-circuits main()
+                                        # before settings ever merge, like -l) -- asserted below
+                                        # with bespoke checks rather than the generic
+                                        # settings-equality loop
 _GENERIC_SWEEP_FLAGS = ('c', 'd', 'e', 'm', 'n', 'p', 'q', 'i', 'z', 'a')
 
 
@@ -253,6 +256,30 @@ def test_upgrade_short_and_long_equivalent(monkeypatch, tmp_path):
 
     assert _upgrade_value('-u') is True
     assert _upgrade_value('--upgrade') is True
+
+
+def test_project_name_short_and_long_equivalent(monkeypatch):
+    """-y and --project_name both stamp module_flags.project_name with the given value.
+
+    'project_name' is nargs='?' with const='' and no settings key -- like -l, it short-circuits
+    main() before settings ever merge (see __main__.py's --load_theory branch), so there is
+    nothing to assert via the merged-settings equality path used by the generic sweep.
+    """
+    def _project_name_value(flag, value=None):
+        argv = ['model-checker', '--load_theory', 'bimodal', flag]
+        if value is not None:
+            argv.append(value)
+        monkeypatch.setattr(sys, 'argv', argv)
+        flags = ParseFileFlags()
+        module_flags, _ = flags.parse()
+        return module_flags.project_name
+
+    assert _project_name_value('-y', 'my_project') == 'my_project'
+    assert _project_name_value('--project_name', 'my_project') == 'my_project'
+    # The bare flag (no value) yields const='', distinct from the flag being entirely absent
+    # (None) -- this is what lets main() tell "forgot the name" apart from "flag not used".
+    assert _project_name_value('-y') == ''
+    assert _project_name_value('--project_name') == ''
 
 
 # ---------------------------------------------------------------------------------------------

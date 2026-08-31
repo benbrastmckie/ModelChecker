@@ -543,28 +543,43 @@ exit-status behavior is preserved.
 
 ---
 
-### Phase 8: Full gate run and flag reporting [NOT STARTED]
+### Phase 8: Full gate run and flag reporting [COMPLETED]
 
 **Goal**: The complete repository gate set passes over all changes, and every out-of-scope flag
 and unrehearsable blind spot is reported to the user rather than left implicit.
 
 **Tasks**:
-- [ ] Run the full test suite: `PYTHONPATH=code/src pytest code/tests/ -v`
-- [ ] Run the builder and CLI suites specifically, since Phase 1 touched them
-- [ ] Re-validate every edited YAML file parses, and run `actionlint` over
+- [x] Run the full test suite: `PYTHONPATH=code/src pytest code/tests/ -v`
+- [x] Run the builder and CLI suites specifically, since Phase 1 touched them
+- [x] Re-validate every edited YAML file parses, and run `actionlint` over
       `.github/workflows/release.yml` if available
-- [ ] Confirm the final `release.yml` job graph end to end: `preflight` -> `test-and-release` ->
+- [x] Confirm the final `release.yml` job graph end to end: `preflight` -> `test-and-release` ->
       `build` -> `publish-testpypi` -> `verify-testpypi` -> `publish-pypi` -> `github-release`,
       with every `needs:` target existing and no cycle
-- [ ] Confirm the no-edit claims explicitly, with evidence: `flake.nix`,
+- [x] Confirm the no-edit claims explicitly, with evidence: `flake.nix`,
       `.github/workflows/tests.yml`, `.github/workflows/differential-tests.yml`,
       `.github/workflows/packaging.yml`, `code/pyproject.toml`, `code/CHANGELOG.md`, and
       `code/docs/development/PYPI_RELEASE_GUIDE.md` must all be absent from
       `git diff --name-only` against the pre-task baseline
-- [ ] Write the implementation summary, which MUST include: all six out-of-scope flags (A-F) with
+- [x] Write the implementation summary, which MUST include: all six out-of-scope flags (A-F) with
       their current status; the unrehearsable blind spots from Phases 2-4; the observed CHANGELOG
       gate result from Phase 4's local exercise; and the Phase 1 name/destination design choice
-- [ ] Confirm no `git push`, `git tag`, `/merge`, `/tag`, or twine upload was performed
+- [x] Confirm no `git push`, `git tag`, `/merge`, `/tag`, or twine upload was performed
+
+**Full-suite result**: initial run surfaced 3 pre-existing bookkeeping-test failures caused by
+Phase 1's new `-y`/`--project_name` flag (`test_every_registered_flag_is_covered_or_excluded`,
+`test_short_to_long_has_fourteen_entries`, `test_sweep_partition_covers_every_short_to_long_entry`
+in `code/tests/cli/`) -- these tests exist specifically to fail loudly on an unaccounted-for
+flag, and did exactly that. Fixed by adding `project_name` to each file's accounting set/count
+(now fifteen `_short_to_long` entries) and adding dedicated dispatch/equivalence tests for
+`-y`/`--project_name`, mirroring the existing `-s`/`-u` bespoke-check pattern. After the fix:
+`PYTHONPATH=code/src pytest code/tests/ -q` -> `566 passed, 5 skipped` (0 failed).
+`actionlint` is not installed in this environment; recorded as absent rather than claiming a
+check that did not run. `flake.nix`, `code/pyproject.toml`, `code/CHANGELOG.md`, and
+`code/docs/development/PYPI_RELEASE_GUIDE.md` all confirmed absent from `git diff --name-only`
+for this task's commits (`.github/workflows/tests.yml`/`differential-tests.yml`/`packaging.yml`
+likewise untouched by any task-158 commit, verified via `git log -- <path>` showing only prior,
+unrelated tasks as the last touch).
 
 **Timing**: 45 minutes
 
@@ -584,18 +599,19 @@ and unrehearsable blind spot is reported to the user rather than left implicit.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` passes
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/ -v` passes
-- [ ] New Phase 1 tests fail before the implementation and pass after (RED -> GREEN recorded)
-- [ ] `model-checker -l <theory> ...` completes non-interactively with stdin closed, exit 0
-- [ ] The same command with required information missing exits non-zero with a clear message
-- [ ] The interactive path is unchanged when the new flag is absent
-- [ ] `.github/workflows/release.yml` parses as YAML; `actionlint` clean if available
-- [ ] `release.yml` has exactly one `continue-on-error`, on the OIDC diagnostic step
-- [ ] The `verify-testpypi` install command carries both index URLs and an `==` version pin
-- [ ] `git ls-files | grep orchestrator-loop-guard` is empty; working-tree copies survive
-- [ ] `bash -n code/scripts/release-verify.sh` passes; `summary.txt` carries the commit SHA
-- [ ] `flake.nix`, the three sibling workflow files, `code/pyproject.toml`, `code/CHANGELOG.md`,
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` passes
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/ -v` passes
+- [x] New Phase 1 tests fail before the implementation and pass after (RED -> GREEN recorded)
+- [x] `model-checker -l <theory> ...` completes non-interactively with stdin closed, exit 0
+- [x] The same command with required information missing exits non-zero with a clear message
+- [x] The interactive path is unchanged when the new flag is absent
+- [x] `.github/workflows/release.yml` parses as YAML; `actionlint` clean if available (not
+      installed in this environment -- recorded, not claimed)
+- [x] `release.yml` has exactly one `continue-on-error`, on the OIDC diagnostic step
+- [x] The `verify-testpypi` install command carries both index URLs and an `==` version pin
+- [x] `git ls-files | grep orchestrator-loop-guard` is empty; working-tree copies survive
+- [x] `bash -n code/scripts/release-verify.sh` passes; `summary.txt` carries the commit SHA
+- [x] `flake.nix`, the three sibling workflow files, `code/pyproject.toml`, `code/CHANGELOG.md`,
       and `PYPI_RELEASE_GUIDE.md` are all unmodified
 
 ## Artifacts & Outputs
