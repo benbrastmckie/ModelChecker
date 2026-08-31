@@ -94,6 +94,7 @@ markers = [
     "packaging: Tests that build and inspect wheel/sdist artifacts -- slower than unit tests, requires a build toolchain",
     "unstable: Tests with a documented, investigated non-semantic instability (e.g. a heavy-tailed solver draw). Deselected from release-gating runs with `-m \"not unstable\"`; run on their own by the unstable-watch workflow so they stay observed rather than forgotten.",
     "xdist_serial: Tests with a real wall-clock timing assertion that has adequate headroom under normal conditions, but which CPU contention under pytest-xdist's -n worker pool can push past budget. Deselected from the parallel `-n` pass; run in a serial second CI pass with no `-n` flag instead (see code/docs/core/TESTING_GUIDE.md's marker taxonomy documentation). Mirrors oracle/conftest.py's identically-named marker for the oracle suite's own parallel/serial split.",
+    "development: Tests belonging to a theory still under active construction (e.g. bimodal), whose current failure is expected and tracked rather than a regression. Deselected from gating runs with `-m \"not development\"`. Distinct from `unstable` (an investigated, non-semantic instability in an otherwise-complete theory) and from `xdist_serial` (a routine contention classification). See code/docs/core/TESTING_GUIDE.md section 8.14. Deliberately NOT mirrored into oracle/conftest.py, unlike xdist_serial -- no oracle-tree test can claim it, so the differential/soundness harness stays fully gating.",
 ]
 filterwarnings = [
     # Ignore deprecation warning from z3's use of pkg_resources

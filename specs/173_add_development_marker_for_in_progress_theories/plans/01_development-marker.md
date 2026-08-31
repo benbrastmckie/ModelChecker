@@ -1,7 +1,7 @@
 # Implementation Plan: Add `development` pytest marker for in-progress theories
 
 - **Task**: 173 - Add development marker for in progress theories
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6.5 hours
 - **Dependencies**: Task 158, Task 172, Task 175 (all landed; their edits to the four `-m` drivers and to `unstable_watch_classify.py` are the baseline this plan builds on)
 - **Research Inputs**: `specs/173_add_development_marker_for_in_progress_theories/reports/01_development-marker-design.md`
@@ -165,7 +165,7 @@ Phase 1 owns `code/pyproject.toml`; Phase 3 owns `.github/scripts/unstable_watch
 
 ---
 
-### Phase 1: Register the `development` marker [NOT STARTED]
+### Phase 1: Register the `development` marker [COMPLETED]
 
 **Goal**: `code/pyproject.toml` declares `development` with semantics that distinguish it from
 `unstable` and `xdist_serial`, and records the deliberate oracle non-mirroring at the one in-scope
