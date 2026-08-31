@@ -410,9 +410,54 @@ jobs:
       with:
         skip-existing: true
 
+  verify-pypi:
+    name: Verify PyPI install (${{ matrix.os }} / Python ${{ matrix.python-version }})
+    needs: [publish-pypi]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    # Why this job exists: before this, nothing verified the artifact that publish-pypi just
+    # published to production PyPI -- verify-testpypi (above) only ever confirmed the TestPyPI
+    # rehearsal upload, on a single OS. This job runs the same code/tests/packaging/ suite that
+    # Phases 1-3 of this task parameterized over install source, against the real PyPI-published
+    # release, across the same 3x3 OS/Python matrix test-and-release already uses -- rather than
+    # a fourth hand-rolled shell smoke script (see the retry-loop/index-mode logic centralized
+    # in code/tests/packaging/conftest.py's installed_venv fixture instead of duplicated here).
+    # Cost: 9 post-publish legs per release, only on the v*.*.* tag path (zero added cost per
+    # push -- packaging.yml and release.yml's build job are unaffected by this job).
+    strategy:
+      fail-fast: false  # one leg's failure should not hide the other 8 legs' signal
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.10', '3.11', '3.12']  # matches test-and-release's matrix
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install packaging test dependencies
+      run: pip install pytest build wheel
+
+    - name: Run packaging contract tests against the published PyPI artifact
+      # MODEL_CHECKER_PACKAGING_INSTALL_SOURCE=pypi with MODEL_CHECKER_PACKAGING_INSTALL_VERSION
+      # left unset resolves to the exact version parsed from code/pyproject.toml (D2.1 of the
+      # task's plan) -- correct on this tag path, where that version was just published above.
+      # "and not unstable" matches build's own invocation (D7) so this release-gating path can
+      # never gate on a quarantined test.
+      shell: bash
+      env:
+        MODEL_CHECKER_PACKAGING_INSTALL_SOURCE: pypi
+      run: |
+        cd code
+        python -m pytest tests/packaging/ -v -m "packaging and not unstable"
+
   github-release:
     name: Create GitHub Release
-    needs: publish-pypi
+    needs: [publish-pypi, verify-pypi]
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Needed to create releases

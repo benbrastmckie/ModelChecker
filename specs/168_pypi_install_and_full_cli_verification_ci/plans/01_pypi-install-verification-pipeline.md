@@ -357,7 +357,7 @@ collection hook rather than the test file.
 
 ---
 
-### Phase 4: Post-publish PyPI confirmation matrix in `release.yml` [NOT STARTED]
+### Phase 4: Post-publish PyPI confirmation matrix in `release.yml` [COMPLETED]
 
 **Goal**: Add a `verify-pypi` job after `publish-pypi` that runs the parameterized suite across
 the OS/Python matrix, and gate `github-release` on it (D5).
