@@ -23,25 +23,25 @@ next_project_number: 176
 
 ### Semantics
 
-152 [PLANNED] — AUDIT ONLY -- no semantics change, no constraint change, no examp
+152 [IMPLEMENTING] — AUDIT ONLY -- no semantics change, no constraint change, no examp
   └─ 153 [NOT STARTED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
     └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Release Engineering
 
-158 [PLANNED] — Harden the release CI pipeline so TestPyPI becomes a real verific
+158 [IMPLEMENTING] — Harden the release CI pipeline so TestPyPI becomes a real verific
   └─ 168 [NOT STARTED] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
-172 [PLANNED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
-175 [PLANNED] — Fix the unstable-watch classifier's laundering guard, which produ
+172 [IMPLEMENTING] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+175 [IMPLEMENTING] — Fix the unstable-watch classifier's laundering guard, which produ
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
 
 ### 175. Fix unstable watch classifier laundering guard
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
@@ -193,7 +193,7 @@ CORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the m
 ---
 
 ### 172. Fix contention flaky soundness regression tests
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
@@ -445,7 +445,7 @@ task_type: python. file_scope: the bimodal theory package
 ---
 
 ### 158. Harden release ci testpypi gate
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 161
@@ -549,6 +549,8 @@ DELIVERABLE 3 -- MEASURE IT. The claim here is a performance claim as well as a 
 
 DELIVERABLE 4 -- SURFACE THE CERTIFICATE. A user who gets a bimodal countermodel should be able to see the extension witness, not just the bounded window. Fit this to the existing output conventions rather than inventing a new output channel.
 
+REGRESSION PROCEDURE. Use `specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/README.md` for the concrete re-run/diff procedure against the audit's baseline; the `task_restriction` soundness comment this task's Deliverable 1 replaces the prose assurance of is assessed standalone in `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/02_task-restriction-verdict.md` (verdict: independent gap, not subsumed by the frame-axiom task).
+
 DEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the extension theorem does not apply at all), the audit task (baseline), and BimodalLogic 441 (the lasso construction and the agreement lemma, including its explicit statement of what does not transfer).
 
 ---
@@ -559,7 +561,7 @@ DEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the ex
 - **Topic**: semantics
 - **Dependencies**: Task 152
 
-**Description**: Bring `BimodalSemantics`'s frame class up to the JPL paper's `def:frame`, so that `thm:extension` becomes applicable to its countermodels. Today it is not: two of the paper's four frame axioms are missing, and they are precisely the two the extension proof consumes.
+**Description**: Bring `BimodalSemantics`'s frame class up to the JPL paper's `def:frame`, so that `thm:extension` becomes applicable to its countermodels. Today it is not: `thm:extension`'s proof chain consumes all four of the paper's `def:frame` axioms (Seriality, Interpolation, Limit, Spherical), but only two -- Seriality and Interpolation -- must actually be newly asserted in ModelChecker. The other two, Limit and Spherical, are already free: each is discharged by a citable BimodalLogic lemma (`TaskFrame.limit_of_succOrder`, `TaskFrame.spherical_of_finite`) whose hypotheses ModelChecker's existing encoding already satisfies, confirmed against the current tree by the preceding audit task rather than merely cited (see `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md`, Section 1.2a). This corrects the task's original premise that two of four axioms are simply "missing" -- Deliverable 3 below already anticipated this corrected direction and stands unchanged.
 
 DELIVERABLE 1 -- *SERIALITY*. Assert that for every world state `w` and every valid non-negative duration `x` there exist `u` and `v` with `task_rel(w, x, u)` and `task_rel(v, x, w)`. Over the finite state space `BitVec[N]` this is a bounded obligation. PREFER a grounded or Skolemized encoding over a nested `ForAll`/`Exists`: the source comment on the disabled `task_restriction` documents that `ForAll`/`Exists` alternation causes MBQI timeouts at `M >= 3`, and that lesson applies directly here. Benchmark before and after; do not land an encoding that reintroduces the timeout the disabled constraint was disabled for.
 
@@ -573,12 +575,14 @@ DELIVERABLE 4 -- THE DURATION-DOMAIN HONESTY ITEM. The paper requires $\D$ to be
 
 VERIFICATION. The full bimodal suite must stay green, and the baseline from the preceding audit must be used to detect verdict flips. A verdict flip is NOT automatically a regression here -- adding a missing frame axiom legitimately shrinks the frame class and can turn a SAT into an UNSAT -- but every flip must be explained individually in the summary, never absorbed silently.
 
+REGRESSION PROCEDURE. Use `specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/README.md` for the concrete re-run/diff procedure against the audit's baseline (`BM_TH_1`-`BM_TH_4` are the cells that must be explained if their verdict changes); see `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/02_task-restriction-verdict.md` for the standalone `task_restriction` verdict (an independent gap, not addressed by this task's axioms).
+
 DEPENDENCIES. The bimodal frame-class audit (baseline and ledger) and BimodalLogic 440 (the citation backing Deliverable 3).
 
 ---
 
 ### 152. Audit bimodal frame class and verdict dependence
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None

@@ -349,23 +349,34 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 6: Propagate corrected premises and write the summary [NOT STARTED]
+### Phase 6: Propagate corrected premises and write the summary [COMPLETED]
 
 - **Goal:** Ensure neither follow-on task inherits a premise this audit superseded, and close the
   task with a summary that states what the audit settled and what it deliberately left open.
 - **Tasks:**
-  - [ ] Update the follow-on frame-axiom task's description in `specs/TODO.md` and the matching
+  - [x] Update the follow-on frame-axiom task's description in `specs/TODO.md` and the matching
         `specs/state.json` entry: its opening premise says two of four axioms are missing; replace
         it with the Phase 2 consumed/asserted/free finding and point at the ledger. Leave its own
         Deliverable 3 (the free-axiom citations and the ARCHITECTURE.md table) intact — Phase 2
-        confirms that deliverable's direction rather than replacing it.
-  - [ ] Update the certification follow-on task's description where it names the missing axioms, so
-        its dependency rationale matches the corrected finding.
-  - [ ] Add pointers in both follow-on entries to `baselines/README.md` as the concrete regression
+        confirms that deliverable's direction rather than replacing it. Task 153 updated; grep
+        confirms `specs/TODO.md`/`specs/state.json` no longer contain the superseded "two of the
+        paper's four frame axioms are missing" phrasing anywhere.
+  - [x] Update the certification follow-on task's description where it names the missing axioms, so
+        its dependency rationale matches the corrected finding. Task 154 did not carry the
+        superseded phrasing itself (its "without Seriality and interpolation the extension theorem
+        does not apply at all" framing was already accurate and needed no correction); updated its
+        `task_restriction` cross-reference instead (next item).
+  - [x] Add pointers in both follow-on entries to `baselines/README.md` as the concrete regression
         procedure, and to `reports/02_task-restriction-verdict.md` for the `task_restriction`
         question.
-  - [ ] Confirm `specs/TODO.md` and `specs/state.json` agree after the edits.
-  - [ ] Write `summaries/01_audit-frame-class-ledger-summary.md`: what the audit settled (the
+  - [x] Confirm `specs/TODO.md` and `specs/state.json` agree after the edits. `TODO.md` was
+        regenerated from `state.json` via `generate-todo.sh` (per `state-management.md`'s rule
+        against hand-editing `TODO.md` directly); a diff-by-project-number check confirms only
+        tasks 153/154 had their `description` field changed by this edit (tasks 152/158/172/175
+        also differ from HEAD, but only in `status`/`last_updated` — concurrent sibling-agent
+        preflight transitions already present in the shared working tree before this edit, not
+        touched by it).
+  - [x] Write `summaries/01_audit-frame-class-ledger-summary.md`: what the audit settled (the
         asserted-vs-free split, the decided baseline cells, the `task_restriction` verdict), what it
         deliberately left open (the duration-domain gap, the interpretation error, the `BM_CM_1`
         flake), and what the follow-on tasks must do with the baseline.
