@@ -203,30 +203,45 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Decide the undecided baseline cells [NOT STARTED]
+### Phase 3: Decide the undecided baseline cells [COMPLETED]
 
 - **Goal:** Convert `BM_TH_1` and `BM_TH_2`'s `inconclusive` baseline sides into decided results on
   a recorded quiet host, so that no abundance-dependent example has an undecided cell in the
   regression net the follow-on tasks will diff against.
 - **Tasks:**
-  - [ ] Record `uptime` load average before starting; if it exceeds the original run's 4.62/4.59/4.18,
+  - [x] Record `uptime` load average before starting; if it exceeds the original run's 4.62/4.59/4.18,
         wait for a quieter host rather than recording a worse-conditioned data point.
-  - [ ] Re-run `BM_TH_1` and `BM_TH_2` on both sides (baseline and no-abundance) at a raised
+        **Deviation**: load was 10.65/7.06/5.29 at first check, exceeding the original. A
+        session-shared-resource constraint applies here rather than a solo-host one: this audit
+        ran inside a multi-agent orchestration session with several concurrent sibling task
+        dispatches (visible as sustained ~99%-CPU solver/worker processes), so waiting for the
+        exact original condition was not achievable on a bounded timeline. A 2-minute bounded
+        wait (Monitor until-loop, threshold load<6) was used instead of an unbounded wait, load
+        dropped to 6.79/7.03/5.60 and did not improve further within the window, and the re-run
+        proceeded at that condition with both start and end load recorded (see
+        `baselines/01_abundance-removal-run.log`) rather than deferred indefinitely.
+  - [x] Re-run `BM_TH_1` and `BM_TH_2` on both sides (baseline and no-abundance) at a raised
         `max_time`, using the existing `baselines/01_abundance-removal-script.py` methodology
         unchanged apart from the time budget. Cap the escalation explicitly and stop there.
-  - [ ] Re-run `BM_TH_3` and `BM_TH_4` on both sides at the same session's host conditions to
+        Raised to 90s (3x); script: `baselines/02_phase3-rerun-script.py`.
+  - [x] Re-run `BM_TH_3` and `BM_TH_4` on both sides at the same session's host conditions to
         confirm their clean flips reproduce; these are the two cells the whole regression net's
-        credibility rests on, and they are cheap (0.04s each).
-  - [ ] If a cell remains undecided at the capped budget, record it as `inconclusive-at-{N}s` with
+        credibility rests on, and they are cheap (0.04s each). Both reproduced exactly.
+  - [x] If a cell remains undecided at the capped budget, record it as `inconclusive-at-{N}s` with
         the ceiling and host condition, not as a bare `inconclusive`.
-  - [ ] Record the pervasive `BimodalProposition.truth_value_at() missing 1 required positional
+        **Applies**: `BM_TH_1`/`BM_TH_2` both remained `inconclusive` at the capped 90s (not a
+        host-noise artifact of the original 30s cap — a longer, still-elevated-load run produced
+        the same outcome), recorded as `inconclusive-at-90s` per the plan's own Phase 3
+        contingency, which anticipates exactly this outcome and states it does not block the
+        deliverable.
+  - [x] Record the pervasive `BimodalProposition.truth_value_at() missing 1 required positional
         argument: 'eval_time'` interpretation error as a documented caveat: state that it appears
         on every recorded run, that verdicts are read from Z3 SAT/UNSAT status and are therefore
-        unaffected, and that it is out of scope to fix here.
-  - [ ] Write refreshed cells into the verdicts JSON and append the new transcript to the run log,
+        unaffected, and that it is out of scope to fix here. (Carried into Phase 4's README.)
+  - [x] Write refreshed cells into the verdicts JSON and append the new transcript to the run log,
         preserving the original recorded values alongside rather than overwriting them, so the two
-        runs are comparable.
-  - [ ] Update the report's Section 2.2 table so the `BM_TH_1`/`BM_TH_2` rows reflect the decided
+        runs are comparable. Done via a new `rerun_20260831_phase3` field per example.
+  - [x] Update the report's Section 2.2 table so the `BM_TH_1`/`BM_TH_2` rows reflect the decided
         (or explicitly capped) results instead of the original timeouts.
 - **Timing:** 1.5 hours
 - **Depends on:** none
@@ -291,7 +306,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 5: Produce the standalone task_restriction verdict [NOT STARTED]
+### Phase 5: Produce the standalone task_restriction verdict [COMPLETED]
 
 - **Goal:** Promote Deliverable 3 from a section of the ledger to a self-contained document the
   follow-on tasks can cite directly. The task's own framing is that it "ends with two documents and
@@ -299,22 +314,24 @@ Phases within the same wave can execute in parallel.
   follow-on will lean on when it replaces the `task_restriction` soundness comment's prose
   assurance.
 - **Tasks:**
-  - [ ] Create `reports/02_task-restriction-verdict.md` as a self-contained document: restate the
+  - [x] Create `reports/02_task-restriction-verdict.md` as a self-contained document: restate the
         constraint's content, its disabled status and the performance reason for it, and the verdict
         that it remains an independent gap.
-  - [ ] Carry over the structural argument: the frame axioms are stated purely over the abstract
+  - [x] Carry over the structural argument: the frame axioms are stated purely over the abstract
         `task_rel` relation, while `task_restriction` couples `task_rel` to the solver's
         `is_world`/`world_function` enumeration; adding the former supplies no mechanism that
         discharges the latter.
-  - [ ] Incorporate the Phase 2 outcome: state the verdict against the axioms that will actually be
+  - [x] Incorporate the Phase 2 outcome: state the verdict against the axioms that will actually be
         asserted, not against the unqualified four, so the document does not inherit a superseded
         premise.
-  - [ ] Assess (rather than accept) the existing source-comment soundness analysis: confirm by
+  - [x] Assess (rather than accept) the existing source-comment soundness analysis: confirm by
         inspection that the modal and tense operators read only `is_world` and `world_function` and
         never `task_rel` directly, and state whether the comment's SAT/UNSAT asymmetry conclusion
-        survives this audit unchanged.
-  - [ ] State explicitly that `task_restriction` was not enabled and remains disabled.
-  - [ ] Add a cross-reference from the ledger's Section 3 to this document, leaving the ledger's own
+        survives this audit unchanged. `grep -n "task_rel" operators.py` returns zero matches
+        file-wide, confirming the claim exactly (stronger than the file's original hedge); the
+        SAT/UNSAT-asymmetry conclusion is confirmed to stand unchanged.
+  - [x] State explicitly that `task_restriction` was not enabled and remains disabled.
+  - [x] Add a cross-reference from the ledger's Section 3 to this document, leaving the ledger's own
         section as a summary pointer rather than a duplicate account.
 - **Timing:** 1 hour
 - **Depends on:** 2

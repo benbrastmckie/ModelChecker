@@ -122,7 +122,32 @@
     },
     "verdict_flipped": false,
     "baseline_wall_s": 30.16,
-    "no_abundance_wall_s": 0.1
+    "no_abundance_wall_s": 0.1,
+    "rerun_20260831_phase3": {
+      "host_load_start": "6.79/7.03/5.60",
+      "host_load_end": "6.35/6.91/5.81",
+      "original_run_host_load_for_comparison": "4.62/4.59/4.18",
+      "max_time_baseline_side": 90,
+      "baseline": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 90.32,
+        "error": null
+      },
+      "no_abundance": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "mismatch",
+        "z3_model_status": true,
+        "solving_time": 0.18,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'"
+      },
+      "verdict_flipped": false,
+      "baseline_wall_s": 90.32,
+      "no_abundance_wall_s": 0.19
+    }
   },
   "BM_TH_2": {
     "expectation": false,
@@ -147,7 +172,32 @@
     },
     "verdict_flipped": false,
     "baseline_wall_s": 30.15,
-    "no_abundance_wall_s": 0.1
+    "no_abundance_wall_s": 0.1,
+    "rerun_20260831_phase3": {
+      "host_load_start": "6.79/7.03/5.60",
+      "host_load_end": "6.35/6.91/5.81",
+      "original_run_host_load_for_comparison": "4.62/4.59/4.18",
+      "max_time_baseline_side": 90,
+      "baseline": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 90.35,
+        "error": null
+      },
+      "no_abundance": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "mismatch",
+        "z3_model_status": true,
+        "solving_time": 0.24,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'"
+      },
+      "verdict_flipped": false,
+      "baseline_wall_s": 90.35,
+      "no_abundance_wall_s": 0.24
+    }
   },
   "BM_TH_3": {
     "expectation": false,
@@ -172,7 +222,32 @@
     },
     "verdict_flipped": true,
     "baseline_wall_s": 0.04,
-    "no_abundance_wall_s": 0.04
+    "no_abundance_wall_s": 0.04,
+    "rerun_20260831_phase3": {
+      "host_load_start": "6.79/7.03/5.60",
+      "host_load_end": "6.35/6.91/5.81",
+      "original_run_host_load_for_comparison": "4.62/4.59/4.18",
+      "max_time_baseline_side": 10,
+      "baseline": {
+        "model_found": false,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": false,
+        "solving_time": 0.05,
+        "error": null
+      },
+      "no_abundance": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "mismatch",
+        "z3_model_status": true,
+        "solving_time": 0.07,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'"
+      },
+      "verdict_flipped": true,
+      "baseline_wall_s": 0.06,
+      "no_abundance_wall_s": 0.08
+    }
   },
   "BM_TH_4": {
     "expectation": false,
@@ -197,7 +272,32 @@
     },
     "verdict_flipped": true,
     "baseline_wall_s": 0.04,
-    "no_abundance_wall_s": 0.04
+    "no_abundance_wall_s": 0.04,
+    "rerun_20260831_phase3": {
+      "host_load_start": "6.79/7.03/5.60",
+      "host_load_end": "6.35/6.91/5.81",
+      "original_run_host_load_for_comparison": "4.62/4.59/4.18",
+      "max_time_baseline_side": 10,
+      "baseline": {
+        "model_found": false,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": false,
+        "solving_time": 0.07,
+        "error": null
+      },
+      "no_abundance": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "mismatch",
+        "z3_model_status": true,
+        "solving_time": 0.05,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'"
+      },
+      "verdict_flipped": true,
+      "baseline_wall_s": 0.07,
+      "no_abundance_wall_s": 0.06
+    }
   },
   "BX10P_SINCE_P_TH": {
     "expectation": false,

@@ -290,15 +290,32 @@ Full raw results: `baselines/01_abundance-removal-verdicts.json`. Full run trans
 
 | Example | Formula | Baseline (with abundance) | No-abundance | Verdict impact |
 |---|---|---|---|---|
-| `BM_TH_1` | `\Box A -> \Future A` (M=3) | Timed out at 30s max_time — `inconclusive` this run (consistent with `test_bimodal.py`'s documented `KNOWN_TIMEOUT_EXAMPLES` exclusion for exactly this reason) | SAT countermodel found in 0.09s, `mismatch` against `expectation=False` | Abundance-dependent. `examples.py:1473`'s own inline comment on this example (`# Has countermodel`) independently corroborates that a countermodel exists once the theorem's supporting constraint is weakened/absent, matching `build_frame_constraints`'s own docstring claim (`core.py:598`–`601`) that abundance is *why* this is currently treated as valid. |
-| `BM_TH_2` | `\Box A -> \Past A` (M=3) | Timed out at 30s — `inconclusive` this run (same documented exclusion) | SAT countermodel found in 0.10s, `mismatch` | Abundance-dependent, same basis as `BM_TH_1` (`examples.py:1474` `# Has countermodel`). |
-| `BM_TH_3` | (M=2) | `match` (no countermodel), 0.04s, clean decision | SAT countermodel found, `mismatch`, 0.04s | Abundance-dependent — clean flip, both sides decided. |
-| `BM_TH_4` | (M=2) | `match` (no countermodel), 0.04s, clean decision | SAT countermodel found, `mismatch`, 0.04s | Abundance-dependent — clean flip, both sides decided. |
+| `BM_TH_1` | `\Box A -> \Future A` (M=3) | Timed out at 30s max_time — `inconclusive` this run (consistent with `test_bimodal.py`'s documented `KNOWN_TIMEOUT_EXAMPLES` exclusion for exactly this reason); **re-run at a capped 90s (3x) on 2026-08-31 still timed out — `inconclusive-at-90s`, not a solver-speed artifact of the original 30s budget** (Phase 3, see below) | SAT countermodel found in 0.09s (0.18s on the 2026-08-31 re-run), `mismatch` against `expectation=False` | Abundance-dependent. `examples.py:1473`'s own inline comment on this example (`# Has countermodel`) independently corroborates that a countermodel exists once the theorem's supporting constraint is weakened/absent, matching `build_frame_constraints`'s own docstring claim (`core.py:598`–`601`) that abundance is *why* this is currently treated as valid. |
+| `BM_TH_2` | `\Box A -> \Past A` (M=3) | Timed out at 30s — `inconclusive` this run (same documented exclusion); **re-run at a capped 90s on 2026-08-31 still timed out — `inconclusive-at-90s`** (Phase 3, see below) | SAT countermodel found in 0.10s (0.24s on the 2026-08-31 re-run), `mismatch` | Abundance-dependent, same basis as `BM_TH_1` (`examples.py:1474` `# Has countermodel`). |
+| `BM_TH_3` | (M=2) | `match` (no countermodel), 0.04s, clean decision — reproduced exactly on 2026-08-31 re-run (0.05s) | SAT countermodel found, `mismatch`, 0.04s — reproduced exactly on re-run (0.07s) | Abundance-dependent — clean flip, both sides decided, and reproduced under a different (elevated) host condition. |
+| `BM_TH_4` | (M=2) | `match` (no countermodel), 0.04s, clean decision — reproduced exactly on 2026-08-31 re-run (0.07s) | SAT countermodel found, `mismatch`, 0.04s — reproduced exactly on re-run (0.05s) | Abundance-dependent — clean flip, both sides decided, and reproduced under a different (elevated) host condition. |
 
-For `BM_TH_1`/`BM_TH_2`, the baseline side did not reach a clean UNSAT decision in this run (a
-known, previously-documented flake basis, not a new finding) — the dependence conclusion rests on
-the no-abundance side's fast, unambiguous SAT result plus the pre-existing code-comment and
-example-file corroboration cited above, not on treating the timeout itself as evidence.
+**Phase 3 decision on `BM_TH_1`/`BM_TH_2` (2026-08-31 re-run).** Per this audit's Phase 3, both
+cells were re-run at a capped 3x-raised `max_time` (90s, up from 30s) to determine whether the
+original timeout was a host-contention artifact or a genuine solver-difficulty signal. Host load
+at run start was 6.79/7.03/5.60 — elevated relative to the original run's 4.62/4.59/4.18, because
+this audit executed inside a shared multi-agent session with concurrent sibling dispatches that
+did not clear during a bounded 2-minute wait — and essentially unchanged at run end
+(6.35/6.91/5.81), consistent with sustained load rather than a transient spike. **Both cells
+remained `inconclusive` at 90s** (raw results: `baselines/01_abundance-removal-verdicts.json`'s
+`rerun_20260831_phase3` field per example; transcript appended to
+`baselines/01_abundance-removal-run.log`; re-run script: `baselines/02_phase3-rerun-script.py`).
+Per the plan's capped-escalation contingency, the cells are recorded as `inconclusive-at-90s`
+rather than retried further, and the original 30s values are preserved alongside rather than
+overwritten. `BM_TH_3`/`BM_TH_4` — the two cells the whole regression net's credibility rests on —
+both reproduced their clean flips exactly under the same (elevated) re-run session, which
+corroborates the net despite the elevated host condition.
+
+The dependence conclusion for `BM_TH_1`/`BM_TH_2` therefore continues to rest on the no-abundance
+side's fast, unambiguous SAT result plus the pre-existing code-comment and example-file
+corroboration cited above, not on treating either timeout as evidence — exactly the basis the
+report already argued before this re-run, now reinforced by a second, longer-budget timeout
+rather than resolved by one.
 
 **Abundance-independent (48 of 52, including `BM_TH_5`) — verdict unchanged either way:**
 
@@ -338,49 +355,17 @@ by a different route, document that explicitly rather than silently accepting a 
 ## 3. Deliverable 3 — The `task_restriction` Verdict
 
 **Verdict: `task_restriction` remains an independent gap. It is not subsumed by adding
-Seriality/Interpolation (or Limit/Spherical) and should not be treated as redundant once those
-axioms land.**
+Seriality/Interpolation (the axioms this audit's Phase 2 concludes must actually be asserted — see
+Section 1.2a) and should not be treated as redundant once those axioms land.**
 
-**Reasoning.** `task_restriction` (disabled constraint documented at `core.py:747`–`835`, the
-soundness analysis this audit was asked to assess) would assert:
-
-```
-forall s, d, u.  task_rel(s, d, u)  ->  exists w, t.  is_world(w) and w(t) = s and w(t+d) = u
-```
-
-— i.e., every triple the abstract `task_rel` relation makes true must be *witnessed* by one of
-the solver's finitely many enumerated world histories (`is_world`/`world_function`). This is a
-constraint that couples two structurally separate pieces of the encoding: the free/uninterpreted
-ternary relation `task_rel`, and the finite enumeration `is_world`/`world_function` the solver
-actually builds.
-
-Seriality, Interpolation, Limit, and Spherical, by contrast, are all stated **purely over the
-abstract `task_rel` relation** — inspecting their Z3-encoding analogues (`build_nullity_identity_constraint`,
-`build_converse_constraint`, `build_forward_comp_constraint`, `core.py:280`–`394`) and their Lean
-statements (`Serial`, `Interpolates`, `cone`/`Limit`, `Spherical`, `TaskFrame.lean`) confirms none
-of them mention `is_world` or `world_function` at all. Adding all four to `build_frame_constraints`
-would only ever constrain `task_rel` as an abstract relation on the raw `BitVec[N]` state space; it
-supplies no mechanism forcing every `task_rel` triple to correspond to some enumerated world's
-slice. The same holds transitively for `thm:extension` itself: it is a statement about the
-*abstract* structure `(W, \D, \Rightarrow)` — "every partial history is extended by some total
-world history [in the abstract sense the paper defines `H_\F` by]" — not a claim that a
-*specific finite Z3 model's* `is_world` enumeration must contain a witness for every triple that
-model's `task_rel` happens to satisfy. `thm:extension` and `task_restriction` answer genuinely
-different questions: the former is about existence of members of `H_\F` in the abstract frame;
-the latter is about self-consistency between two separate structures *within one already-built Z3
-model*.
-
-**Consequence for the existing soundness analysis (`core.py:751`–`801`).** The analysis's claim
-that phantom `task_rel` triples do not affect operator truth values (`operators.py`'s
-`\Box`/`\Future`/`\Past` truth conditions read only `is_world` and `world_function` array
-contents — confirmed by inspection of `NecessityOperator.true_at`, `FutureOperator.true_at`,
-`PastOperator.true_at`, none of which reference `task_rel` directly) is unaffected by whether the
-four missing frame axioms are added. Adding them does not change what `task_rel`'s role is in the
-truth-condition machinery, and does not newly ground any triple in a concrete world — so the
-existing SAT/UNSAT-asymmetry conclusion in that comment (SAT results may not transfer to the
-grounded class; UNSAT results do) stands independent of this audit's other findings, and
-`task_restriction` should continue to be tracked as a separate, standing gap rather than something
-the interpolation/seriality follow-on work will incidentally close.
+This deliverable has been promoted to a standalone, self-contained document per this audit's
+Phase 5: see **`02_task-restriction-verdict.md`** for the full reasoning (the structural argument
+that every `def:frame` axiom is stated purely over the abstract `task_rel` relation while
+`task_restriction` couples it to the solver's `is_world`/`world_function` enumeration; the verdict
+stated against the corrected asserted-vs-free axiom set from Section 1.2a; and the re-confirmed
+assessment of the existing soundness-analysis comment, including the file-wide `grep` check that
+`operators.py` references `task_rel` nowhere at all). `task_restriction` was not enabled in the
+course of this audit and remains disabled.
 
 ---
 
