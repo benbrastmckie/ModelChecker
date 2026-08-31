@@ -967,7 +967,9 @@ carry `not unstable`; the `build` job's packaging-contract invocation already ca
 author adding a new gating pytest invocation anywhere in this repository should include the same
 filter as a matter of course, not rediscover the need for it —
 `code/tests/ci/test_unstable_deselection_wiring.py` enforces this contract executably across
-`tests.yml`, `flake.nix`, `differential-tests.yml`, and `run-oracle-suite.sh`.
+`tests.yml`, `flake.nix`, `differential-tests.yml`, and `run-oracle-suite.sh`. `unstable` is not
+the only quarantine-style marker deselected this way -- see 8.14 for the sibling `development`
+marker, wired through the same six invocations and the same contract test.
 
 **The classifier lives in an importable module, not YAML.** `unstable-watch.yml`'s classify step
 invokes `.github/scripts/unstable_watch_classify.py`, unit-tested by
@@ -1312,6 +1314,108 @@ appears, restores `-n 6` in both files, enforced two-sided by
 the screen's `-n 4` draws averaged only ~5% slower than `-n 6` (272.8s vs. 260.4s), well inside
 the ~70s draw-to-draw spread, with the single fastest draw overall actually an `-n 4` draw -- no
 systematic slowdown to project against the backstop.
+
+### 8.14 The `development` Marker
+
+**What it means.** Registered in `code/pyproject.toml`: "Tests belonging to a theory still under
+active construction (e.g. bimodal), whose current failure is expected and tracked rather than a
+regression. Deselected from gating runs with `-m \"not development\"`." Unlike 8.9's `unstable`
+(an investigated, non-semantic instability in an otherwise-complete theory) and 8.12's
+`xdist_serial` (a routine contention classification applied to a test that already passes),
+`development` covers a test whose behaviour genuinely does not exist yet -- its failure is the
+expected, honest state of an incomplete implementation, not a defect being quarantined pending
+repair. `unstable` and `xdist_serial` both certify "this test is correct but noisy";
+`development` certifies nothing about correctness at all -- it just keeps an incomplete test
+observed instead of either failing the build or being silently skipped.
+
+**Granularity: per-test, not per-module or per-theory.** Apply `@pytest.mark.development` to
+individual test functions, never as a module-level `pytestmark` or a theory-wide blanket. A
+module- or theory-level blanket would silently deselect every test in the theory forever,
+including the ones that already pass today -- and it is the version of this marker most capable
+of hiding a real regression, since a newly-broken, already-implemented test would vanish into the
+same blanket exemption as the genuinely-incomplete ones. When many tests in a theory need
+marking, follow the application ergonomics `bimodal`'s own test file already established for
+`unstable` -- a `DEVELOPMENT_EXAMPLES`-style set-membership check (see
+`code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py`'s `UNSTABLE_EXAMPLES` set
+and its use in `pytest.param(..., marks=[pytest.mark.unstable] if name in UNSTABLE_EXAMPLES else
+[])`), not a blanket decorator.
+
+**Entry criteria.** Deliberately lighter than 8.9's four-point quarantine bar -- this is a
+completeness tracker, not an investigated-defect quarantine -- but not a rubber stamp:
+
+1. The behaviour genuinely is not implemented yet, rather than being a workaround for a fixable
+   bug elsewhere in an otherwise-complete theory (a fixable bug belongs to ordinary debugging, or
+   to 8.9's `unstable` if it is a non-semantic instability, not to this marker).
+2. A one-line comment at the marking site names what is missing.
+
+**What it must not hide.** `development` must never be used for differential or
+soundness-oracle tests, or for any test whose pass/fail state encodes a semantic claim about the
+theory's correctness rather than its completeness. This is enforced structurally, not just by
+convention: the marker is **deliberately not mirrored** into `oracle/conftest.py`, breaking that
+file's own "keep in sync with `code/pyproject.toml`" convention on purpose (see
+`oracle/conftest.py`'s docstring and the marker's own `pyproject.toml` entry), so no oracle-tree
+test can register or claim `development` -- the differential/soundness harness stays
+categorically, unconditionally gating.
+
+**Where the deselection is wired.** All four gating drivers carry `and not development` in their
+`-m` expression: `.github/workflows/tests.yml`'s parallel and serial passes,
+`.github/workflows/differential-tests.yml`'s first invocation, `flake.nix`'s `checks.default`
+parallel and serial passes, and `oracle/run-oracle-suite.sh`'s two passes (defensive there today,
+since the marker is unregistered in the oracle tree by design -- see above). Six invocations in
+total. `code/tests/ci/test_unstable_deselection_wiring.py` -- the same executable contract 8.9
+names, extended rather than duplicated -- enforces both `not unstable` and `not development`
+across all six. A future author adding a new gating pytest invocation anywhere in this repository
+should carry the same filter as a matter of course, exactly as 8.9 already states for `unstable`.
+
+**Observability.** `.github/scripts/unstable_watch_classify.py` (8.9's classifier module) accepts
+a third, optional JUnit input (`dev_junit_path`, default `/tmp/watch-development.xml`). Every
+testcase collected from it is recorded with `classification == "DEV_STATUS"` and its true
+outcome -- non-gating by construction (it never sets `any_new`, so it can never fail the job) and
+never signature-matched (it never sets `any_failure`, and it is excluded from the fragment-matching
+loop that feeds `unstable`'s own per-test promotion streaks, so a `development`-marked test can
+never corrupt an `unstable` test's streak). Its own progress is tracked separately: a
+`## Development Watch` step-summary section reports each dev node id's pass rate over the current
+run plus its observed history (via `fetch_past_classifications`, generalized with a `field`
+selector so it serves both `unstable`'s classification history and this pass-rate history without
+duplicating the fetch machinery) -- deliberately not using `READY TO PROMOTE` wording or the
+20-run framing, since a pass rate is a progress observation, not a claim that an instability
+resolved.
+
+**The producing workflow step does not exist yet.** `unstable-watch.yml` has no step today that
+runs `-m development` and writes `/tmp/watch-development.xml` -- `parse_junit` returns nothing for
+a missing file, so this entire path is inert in production until a future workflow change adds a
+third watch step (mirroring the existing `watch_code` step, selecting `-m development`, tolerating
+pytest exit codes 0 and 5 exactly like its siblings) and extends
+`test_unstable_deselection_wiring.py`'s `unstable-watch.yml`-shape assertion to account for the
+third step. The classifier-side mechanism (parsing, `DEV_STATUS` classification, the record
+schema, and trend reporting) is fully implemented and unit-tested independently of that deferred
+step.
+
+**Exit path.** Per-test: mechanical and immediate -- the marker comes off the moment the
+behaviour is implemented and the test passes, with no waiting window. This is a deliberate
+divergence from 8.9's 20-run promotion wait: `unstable` waits because it is *certifying* that an
+observed instability has genuinely resolved, which takes repeated observation to trust;
+`development` never made an instability claim in the first place, so there is nothing to wait
+out. Theory-level: "no longer in development" means zero remaining `development`-marked tests in
+the theory's test tree, checkable with `grep -rn "pytest.mark.development"` or
+`pytest --collect-only -m development -q`. The 8.9 standing-rule analogue still applies, with its
+own deliberate difference: a stalled marking is escalated against the theory's own milestone
+rather than a fixed two-month calendar window, because "still incomplete after two months" is
+unsurprising for a from-scratch theory the way "still flaky after two months" (8.9's actual
+trigger) is not.
+
+**Marker-choice decision table.**
+
+| Marker | Meaning | When to use |
+|---|---|---|
+| `development` | A theory still under active construction; the test's failure is expected and tracked, not a regression | A behaviour genuinely not implemented yet, in a theory still being built out |
+| `unstable` | A documented, investigated non-semantic instability in an otherwise-complete theory | A real, already-implemented test with a heavy-tailed or budget-driven failure that survived a genuine repair attempt |
+| `xdist_serial` | A routine contention classification for a real wall-clock assertion | A passing test whose timing assertion has adequate headroom alone but not under `-n`-pool contention |
+| `performance` | A budget too tight for any shared CI runner (sub-10ms class) | A wall-clock assertion that cannot tolerate any shared-runner scheduling variance, parallel or serial |
+
+**Currently marked.** No test carries `development` today. The category was registered and wired
+through the full gating/observability/documentation stack above without being applied to any
+`theory_lib` test -- the category exists, but nothing currently claims it.
 
 ---
 

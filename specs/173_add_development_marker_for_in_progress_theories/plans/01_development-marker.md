@@ -406,7 +406,7 @@ machinery rather than duplicating it.
 
 ---
 
-### Phase 5: TESTING_GUIDE.md section 8.14 [NOT STARTED]
+### Phase 5: TESTING_GUIDE.md section 8.14 [COMPLETED]
 
 **Goal**: A reader can tell what `development` means, what it must never hide, where its
 deselection is wired, how it is observed, how it is retired, and how to choose between it and the
