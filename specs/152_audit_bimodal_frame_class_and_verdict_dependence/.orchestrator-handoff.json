@@ -1,16 +1,47 @@
 {
-  "dispatch_seq": 5,
-  "status": "planned",
+  "dispatch_seq": 9,
+  "status": "completed",
   "task_number": 152,
-  "operation": "plan",
+  "operation": "implement",
   "session_id": "sess_1788198229_79cf9f_152",
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/plans/01_audit-frame-class-ledger.md"
+    },
+    {
+      "type": "report",
+      "path": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md"
+    },
+    {
+      "type": "report",
+      "path": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/02_task-restriction-verdict.md"
+    },
+    {
+      "type": "summary",
+      "path": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/summaries/01_audit-frame-class-ledger-summary.md"
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
-  "next_steps": "Run /implement 152 to execute the plan"
+  "modified_files": [
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/plans/01_audit-frame-class-ledger.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/02_task-restriction-verdict.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/01_abundance-removal-verdicts.json",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/01_abundance-removal-run.log",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/02_phase3-rerun-script.py",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/README.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/summaries/01_audit-frame-class-ledger-summary.md",
+    "specs/TODO.md",
+    "specs/state.json"
+  ],
+  "non_goals_respected": {
+    "core_py_operators_py_examples_py_unmodified": true,
+    "task_restriction_not_enabled": true,
+    "task_restriction_disabled_verified": true,
+    "architecture_md_frame_class_table_not_written": true
+  },
+  "known_deviation": "BM_TH_1/BM_TH_2's baseline side remained inconclusive at the capped 90s re-run (recorded as inconclusive-at-90s per the plan's own pre-written Phase 3 contingency), not a blocking failure.",
+  "next_steps": "Task 152 is fully implemented (all 6 phases complete, all commits landed). Tasks 153 (assert Seriality/Interpolation; Deliverable 3's free-axiom citations left intact) and 154 (extension-certified search) now carry corrected premises and pointers to baselines/README.md and reports/02_task-restriction-verdict.md."
 }

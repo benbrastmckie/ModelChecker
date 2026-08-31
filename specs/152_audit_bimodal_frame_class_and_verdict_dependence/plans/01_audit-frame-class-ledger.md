@@ -1,7 +1,7 @@
 # Implementation Plan: Audit bimodal frame class and verdict dependence
 
 - **Task**: 152 - Audit bimodal frame class and verdict dependence
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md`
