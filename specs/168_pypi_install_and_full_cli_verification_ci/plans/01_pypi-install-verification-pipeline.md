@@ -302,7 +302,7 @@ state rather than assuming green.
 
 ---
 
-### Phase 3: Parameterize `installed_venv` and gate the byte-level tests [NOT STARTED]
+### Phase 3: Parameterize `installed_venv` and gate the byte-level tests [COMPLETED]
 
 **Goal**: Wire the helpers into `installed_venv` with a retry loop, make the local build lazy,
 and skip byte-level artifact tests in index mode (D4) -- with the default path provably

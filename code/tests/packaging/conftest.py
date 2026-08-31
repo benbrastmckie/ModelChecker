@@ -52,6 +52,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
 import urllib.error
 import urllib.request
 import venv
@@ -430,13 +431,25 @@ def _venv_bin_dir(venv_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def installed_venv(built_artifacts: Dict[str, Path], tmp_path_factory: pytest.TempPathFactory) -> Dict[str, object]:
-    """Create a fresh venv under a pytest temp dir and install the built wheel into it.
+def installed_venv(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> Dict[str, object]:
+    """Create a fresh venv under a pytest temp dir and install `model_checker` into it, from
+    the source selected by `MODEL_CHECKER_PACKAGING_INSTALL_SOURCE` (D1) -- local wheel
+    (default, unset), TestPyPI, or PyPI, at the version resolved by `_resolve_install_version`
+    for non-local sources (D2).
 
     Session-scoped: the venv is built exactly once per test session and shared by every test
     in `tests/packaging/` that requests it (directly or transitively).
+
+    The `local` branch requests `built_artifacts` **lazily**, via
+    `request.getfixturevalue("built_artifacts")`, so a non-local source never triggers a local
+    `python -m build` (D4) -- this fixture's own signature deliberately does not declare
+    `built_artifacts` as a direct parameter.
     """
     import venv
+
+    source = _resolve_install_source()
 
     venv_dir = tmp_path_factory.mktemp("pkgentryvenv")
     try:
@@ -457,22 +470,84 @@ def installed_venv(built_artifacts: Dict[str, Path], tmp_path_factory: pytest.Te
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     env["PIP_USER"] = "0"
     # Make the venv's pip-installed `z3-solver` able to resolve its own bundled shared
-    # libraries on a non-FHS host. Inert on a standard FHS Linux runner (CI included). This is
-    # set before the install so the single returned `env` covers both provisioning and every
-    # later console-script/`python -m` invocation that consumes `installed_venv["env"]`.
+    # libraries on a non-FHS host. Inert on a standard FHS Linux runner (CI included). Kept on
+    # EVERY branch (local/testpypi/pypi), before the install, so the single returned `env`
+    # covers both provisioning and every later console-script/`python -m` invocation that
+    # consumes `installed_venv["env"]` -- this is the NixOS repair clause; do not duplicate or
+    # reimplement it, and do not gate it on `source`.
     _add_cxx_runtime_to_env(env)
-    result = subprocess.run(
-        [str(interp), "-m", "pip", "install", "--no-user", str(built_artifacts["wheel"])],
-        env=env,
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        _provisioning_failure(
-            f"Failed to install built wheel into venv (exit {result.returncode}):\n"
-            f"{result.stderr[-2000:]}"
+
+    resolved_version: Optional[str] = None
+
+    if source == "local":
+        built_artifacts: Dict[str, Path] = request.getfixturevalue("built_artifacts")
+        install_args = _pip_install_args(source, version="", wheel_path=built_artifacts["wheel"])
+        result = subprocess.run(
+            [str(interp), "-m", "pip", "install", "--no-user", *install_args],
+            env=env,
+            capture_output=True,
+            text=True,
         )
-        raise RuntimeError("unreachable")  # pragma: no cover
+        if result.returncode != 0:
+            _provisioning_failure(
+                f"Failed to install built wheel into venv (exit {result.returncode}):\n"
+                f"{result.stderr[-2000:]}"
+            )
+            raise RuntimeError("unreachable")  # pragma: no cover
+    else:
+        # testpypi/pypi: resolve the version (D2), then install through a bounded retry loop
+        # that absorbs index propagation lag -- mirrors verify-testpypi's 10-attempt/15s loop
+        # in .github/workflows/release.yml (D3).
+        resolved_version = _resolve_install_version(source)
+        install_args = _pip_install_args(source, resolved_version)
+        print(
+            f"installed_venv: installing model-checker=={resolved_version} from {source} "
+            f"(pip args: {install_args})"
+        )
+        success = False
+        last_result: Optional[subprocess.CompletedProcess] = None
+        for attempt in range(1, 11):
+            last_result = subprocess.run(
+                [str(interp), "-m", "pip", "install", "--no-user", *install_args],
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+            if last_result.returncode == 0:
+                success = True
+                break
+            print(
+                f"installed_venv: install attempt {attempt}/10 of model-checker=="
+                f"{resolved_version} from {source} failed (index propagation lag?); "
+                "retrying in 15s..."
+            )
+            if attempt < 10:
+                time.sleep(15)
+
+        if not success:
+            assert last_result is not None  # loop body always assigns it at least once
+            _provisioning_failure(
+                f"Failed to install model-checker=={resolved_version} from {source} into venv "
+                f"after 10 attempts (last exit {last_result.returncode}):\n"
+                f"{last_result.stderr[-2000:]}"
+            )
+            raise RuntimeError("unreachable")  # pragma: no cover
+
+    if resolved_version is not None:
+        # A stale index (or a resolution bug) must never pass silently -- confirm the venv's
+        # installed version actually matches what was resolved and requested.
+        version_check = subprocess.run(
+            [str(interp), "-c", "import model_checker; print(model_checker.__version__)"],
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        installed_version = version_check.stdout.strip()
+        assert installed_version == resolved_version, (
+            f"installed model_checker.__version__ ({installed_version!r}) does not match the "
+            f"resolved {source} version ({resolved_version!r}) -- stale index install? "
+            f"(stderr: {version_check.stderr[-500:]})"
+        )
 
     return {"venv_dir": venv_dir, "bin_dir": bin_dir, "python": interp, "env": env}
 
@@ -486,3 +561,38 @@ def _console_script_path(installed_venv: Dict[str, object]) -> Path:
     """
     script_name = "model-checker.exe" if os.name == "nt" else "model-checker"
     return installed_venv["bin_dir"] / script_name
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list) -> None:
+    """Skip byte-level artifact tests as not-applicable when the install source is non-local
+    (D4).
+
+    `test_build_smoke.py`, `test_parity.py`, `test_inclusions.py`, and `test_exclusions.py`
+    consume `wheel_member_set`/`sdist_member_set` (i.e. transitively `built_artifacts`), not
+    `installed_venv` -- they assert on the *local build's* bytes, which a non-local source never
+    builds. This is a correct-by-design not-applicable skip, distinct from
+    `_provisioning_failure`'s CI-gated skip/fail policy, which is unchanged. `local` (the
+    default) is unaffected -- this hook is a no-op in that case.
+
+    Deliberately reads the raw env var here instead of calling `_resolve_install_source()`:
+    `pytest.fail()` is meant to be raised from inside a test/fixture, not a collection hook --
+    calling it here would surface as a pytest `INTERNALERROR` instead of a normal red test.
+    Strict validation (and the loud, offending-value-naming failure) stays solely in
+    `_resolve_install_source()`, which every `installed_venv`-consuming test still exercises at
+    fixture-setup time; an invalid value only silently affects this hook's skip/no-skip choice
+    (treated as "non-local"), never bypasses that validation for a test that actually needs the
+    venv.
+    """
+    raw_source = os.environ.get(MODEL_CHECKER_PACKAGING_INSTALL_SOURCE)
+    source = raw_source if raw_source is not None else "local"
+    if source == "local":
+        return
+    skip_marker = pytest.mark.skip(
+        reason=(
+            f"not applicable for install source {source!r}: this test asserts on the local "
+            "build's wheel/sdist bytes, which are not built when installing from an index"
+        )
+    )
+    for item in items:
+        if "built_artifacts" in item.fixturenames:
+            item.add_marker(skip_marker)
