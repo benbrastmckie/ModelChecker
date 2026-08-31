@@ -1,7 +1,7 @@
 # Implementation Plan: Fix unstable watch classifier laundering guard
 
 - **Task**: 175 - Fix unstable watch classifier laundering guard
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 8 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/175_fix_unstable_watch_classifier_laundering_guard/reports/01_laundering-guard-fix-design.md
@@ -130,14 +130,14 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Real-pytest regression test (RED) [NOT STARTED]
+### Phase 1: Real-pytest regression test (RED) [COMPLETED]
 
 **Goal**: Add the non-negotiable real-pytest-subprocess regression test to
 `code/tests/ci/test_unstable_watch_classifier.py`, covering both directions, and confirm it fails
 against the *current* (unfixed) guard for the documented reason.
 
 **Tasks**:
-- [ ] Add a helper that writes a self-contained fixture module into `tmp_path` reproducing
+- [x] Add a helper that writes a self-contained fixture module into `tmp_path` reproducing
       `_assert_scan_report`'s exact two-assertion shape: a passing
       `assert report["disagreements"] == 0, f"Self-comparison produced {report['disagreements']} disagreements among ..."`
       followed by a failing floor assert carrying the verbatim
@@ -146,23 +146,23 @@ against the *current* (unfixed) guard for the documented reason.
       Copy both assertion strings verbatim from `oracle/bimodal_logic/tests/test_cross_oracle_differential.py`'s
       `_assert_scan_report` (line ~748), following this module's existing verbatim-copy convention.
       Do NOT import `oracle`, `bimodal_logic`, or `z3` from the fixture.
-- [ ] Add a helper that runs `subprocess.run([sys.executable, "-m", "pytest", str(fixture),
+- [x] Add a helper that runs `subprocess.run([sys.executable, "-m", "pytest", str(fixture),
       "-o", "junit_logging=system-out", f"--junitxml={xml}", "-p", "no:cacheprovider"], ...)`,
       asserts the returncode is 1, and returns the XML path.
-- [ ] Test A (`test_real_pytest_floor_failure_classifies_timing`): name the fixture's test
+- [x] Test A (`test_real_pytest_floor_failure_classifies_timing`): name the fixture's test
       function so the parsed nodeid contains `GATING_FLOOR_NODEID_FRAGMENT`; drive
       `parse_junit` -> `classify`; first assert the source-listing echo IS present in the parsed
       `failure_text` (so a fixture that fails to reproduce the echo fails distinctly), then assert
       `classify(...) == "TIMING"`.
-- [ ] Test B (`test_real_pytest_disagreement_failure_still_classifies_new`): a second fixture
+- [x] Test B (`test_real_pytest_disagreement_failure_still_classifies_new`): a second fixture
       variant where the FIRST (disagreements) assert is the one that fails, with a rendered
       non-zero count; assert `classify(...) == "NEW"`.
-- [ ] Group both under a new `class TestRealPytestJunitRoundTrip` with a docstring stating why a
+- [x] Group both under a new `class TestRealPytestJunitRoundTrip` with a docstring stating why a
       synthetic-string test cannot express this defect.
-- [ ] Run `PYTHONPATH=code/src pytest code/tests/ci/test_unstable_watch_classifier.py -v` and
+- [x] Run `PYTHONPATH=code/src pytest code/tests/ci/test_unstable_watch_classifier.py -v` and
       record the RED state: Test A fails asserting `TIMING` but receiving `"NEW"`; Test B passes
       (the guard is already correct in that direction).
-- [ ] Confirm the 16 pre-existing tests are untouched and still pass in the same run.
+- [x] Confirm the 16 pre-existing tests are untouched and still pass in the same run.
 
 **Timing**: 1.5 hours
 

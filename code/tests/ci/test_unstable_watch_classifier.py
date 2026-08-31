@@ -32,6 +32,8 @@ module must report clearly, not something to skip past.
 from __future__ import annotations
 
 import importlib.util
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -322,3 +324,150 @@ class TestPromotionStreakHonesty:
         )
         assert streak == 3
         assert ready is False
+
+
+# ---------------------------------------------------------------------------
+# Real-pytest regression test (Phase 1 of the laundering-guard fix): a
+# synthetic-string test -- everything above this point -- can only ever assert
+# against a hand-typed failure_text. It cannot express the actual defect, which
+# is a property of how pytest ITSELF renders a two-assertion function's
+# <failure> body: a failure at the SECOND of two sequential asserts embeds the
+# FIRST (passing) assert's own f-string SOURCE verbatim (the literal
+# `{report['disagreements']}` placeholder, never a rendered digit). Only a real
+# `subprocess.run([sys.executable, "-m", "pytest", ...])` invocation, parsed
+# through the real parse_junit + classify, can catch a laundering-guard
+# regression that a hand-typed string would never reproduce.
+# ---------------------------------------------------------------------------
+
+_FIXTURE_MODULE_TEMPLATE = '''
+def _assert_scan_report(report, min_conclusive):
+    """Copied verbatim (shape and messages) from
+    oracle/bimodal_logic/tests/test_cross_oracle_differential.py:748 --
+    _assert_scan_report -- with no import of oracle/bimodal_logic/z3."""
+    conclusive = report["total_formulas"] - report["timeout_count"]
+    print(
+        f"scan report: agreements={report['agreements']} "
+        f"disagreements={report['disagreements']} "
+        f"timeout_count={report['timeout_count']} "
+        f"conclusive={conclusive}/{report['total_formulas']}"
+    )
+    assert report["disagreements"] == 0, (
+        f"Self-comparison produced {report['disagreements']} disagreements among "
+        f"conclusive results: []"
+    )
+    assert conclusive >= min_conclusive, (
+        f"Only {conclusive} of {report['total_formulas']} formulas were conclusive "
+        f"(floor={min_conclusive}); this is a "
+        "budget/performance regression to investigate, not a semantic one."
+    )
+
+
+def NODEID_NAME():
+    report = REPORT_DICT
+    _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE)
+'''
+
+
+def _write_gating_fixture(
+    tmp_path, *, agreements, disagreements, timeout_count, total_formulas, min_conclusive
+):
+    """Write a self-contained fixture module into tmp_path reproducing
+    _assert_scan_report's exact two-assertion shape. Plain string substitution (not
+    str.format()/an f-string) on the template above, so the template's own literal `{...}`
+    f-string braces need no doubling. The generated report dict values determine which
+    assertion fails first: `disagreements=0` lets the first assert pass and the floor assert
+    fail (or pass, if `conclusive >= min_conclusive`); a nonzero `disagreements` makes the
+    first assert fail immediately, before the floor assert is ever reached."""
+    report_dict = (
+        "{"
+        f'"agreements": {agreements}, '
+        f'"disagreements": {disagreements}, '
+        f'"timeout_count": {timeout_count}, '
+        f'"total_formulas": {total_formulas}'
+        "}"
+    )
+    source = (
+        _FIXTURE_MODULE_TEMPLATE
+        .replace("NODEID_NAME", f"test_{classify_mod.GATING_FLOOR_NODEID_FRAGMENT}")
+        .replace("REPORT_DICT", report_dict)
+        .replace("MIN_CONCLUSIVE", str(min_conclusive))
+    )
+    fixture_path = tmp_path / "test_gating_floor_fixture.py"
+    fixture_path.write_text(source)
+    return fixture_path
+
+
+def _run_pytest_and_get_junit(fixture_path, tmp_path):
+    """Run the fixture module under a real pytest subprocess with
+    `junit_logging=system-out`, mirroring unstable-watch.yml's oracle-tree invocation. `cwd` and
+    `--rootdir` are both pinned to `tmp_path` and `-p no:cacheprovider` is passed so no repo-root
+    `pytest.ini`/`pyproject.toml` addopts or rootdir `conftest.py` can leak in and change
+    behavior between a local run and CI. Asserts the subprocess actually ran and exactly one
+    test failed (returncode 1) before returning the JUnit XML path -- any other returncode (e.g.
+    a collection error) means the fixture itself is broken, not that the guard defect was
+    reproduced, and must fail loudly rather than being parsed anyway."""
+    xml_path = tmp_path / "junit.xml"
+    result = subprocess.run(
+        [
+            sys.executable, "-m", "pytest", str(fixture_path),
+            "-o", "junit_logging=system-out",
+            f"--junitxml={xml_path}",
+            "-p", "no:cacheprovider",
+            f"--rootdir={tmp_path}",
+        ],
+        cwd=str(tmp_path),
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1, (
+        f"expected the fixture's real pytest subprocess to run and fail exactly one test "
+        f"(returncode 1), got {result.returncode}\n"
+        f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    return xml_path
+
+
+class TestRealPytestJunitRoundTrip:
+    """A synthetic-string test cannot express this defect -- see the module-level comment
+    above this class. Both directions are covered here through a real pytest subprocess."""
+
+    def test_real_pytest_floor_failure_classifies_timing(self, tmp_path):
+        """The documented false positive: disagreements=0 (first assert passes), conclusive
+        96 < floor 100 (second/floor assert fails). Before the Phase 2 fix, the first assert's
+        source-listing echo makes this misclassify NEW; after the fix, TIMING."""
+        fixture_path = _write_gating_fixture(
+            tmp_path,
+            agreements=96, disagreements=0, timeout_count=7, total_formulas=103,
+            min_conclusive=100,
+        )
+        xml_path = _run_pytest_and_get_junit(fixture_path, tmp_path)
+        results = list(classify_mod.parse_junit(str(xml_path)))
+        assert len(results) == 1
+        nodeid, outcome, duration, failure_text = results[0]
+        assert outcome == "failed"
+        assert classify_mod.GATING_FLOOR_NODEID_FRAGMENT in nodeid
+        # Confirm the fixture actually reproduces the source-listing echo first -- a fixture
+        # that fails to reproduce it fails HERE, with a distinct message, rather than the
+        # classification assertion below passing or failing for the wrong reason.
+        assert "Self-comparison produced" in failure_text, (
+            "fixture did not reproduce the source-listing echo; construction error, not the "
+            "documented defect"
+        )
+        assert classify_mod.classify(nodeid, duration, failure_text) == "TIMING"
+
+    def test_real_pytest_disagreement_failure_still_classifies_new(self, tmp_path):
+        """The laundering guard's positive direction, driven through real pytest: a genuine
+        disagreements != 0 failure (first assert fails, rendered "3 disagreements") must still
+        classify NEW -- a real soundness bug must never launder into TIMING."""
+        fixture_path = _write_gating_fixture(
+            tmp_path,
+            agreements=96, disagreements=3, timeout_count=7, total_formulas=103,
+            min_conclusive=100,
+        )
+        xml_path = _run_pytest_and_get_junit(fixture_path, tmp_path)
+        results = list(classify_mod.parse_junit(str(xml_path)))
+        assert len(results) == 1
+        nodeid, outcome, duration, failure_text = results[0]
+        assert outcome == "failed"
+        assert "Self-comparison produced 3 disagreements" in failure_text
+        assert classify_mod.classify(nodeid, duration, failure_text) == "NEW"
