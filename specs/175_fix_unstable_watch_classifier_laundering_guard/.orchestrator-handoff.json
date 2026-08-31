@@ -1,0 +1,17 @@
+{
+  "status": "researched",
+  "phase": "research",
+  "dispatch_seq": 4,
+  "summary": "Confirmed the source-listing-echo false positive empirically against the current classifier; recommends the minimal anchored-regex remedy (not the structured-signature remedy) with reasons, designs the real-pytest-subprocess regression test, recommends fixing the per-test promotion streak, and locates the xdist_serial-closure and TESTING_GUIDE.md edit sites.",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/175_fix_unstable_watch_classifier_laundering_guard/reports/01_laundering-guard-fix-design.md",
+      "summary": "Fix-design research report for the unstable-watch classifier laundering guard."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 0,
+  "blockers": [],
+  "continuation_path": null
+}
