@@ -1,7 +1,7 @@
 # Implementation Plan: Task #158
 
 - **Task**: 158 - Harden release CI / TestPyPI gate
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 8 hours
 - **Dependencies**: 161 (`fix_testpypi_trusted_publisher`) - COMPLETED and verified green on the
   `v1.3.7` tag push (Actions run 32996862484). Input satisfied; safe to land the hard gate.
