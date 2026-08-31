@@ -202,7 +202,7 @@ site.
 
 ---
 
-### Phase 2: Wire `and not development` into every gating invocation [NOT STARTED]
+### Phase 2: Wire `and not development` into every gating invocation [COMPLETED]
 
 **Goal**: Every `-m`-bearing gating pytest invocation deselects `development`, and the existing
 executable contract enforces it.

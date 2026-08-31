@@ -1,7 +1,7 @@
 """Executable contract: every gating pytest invocation across the repository's CI drivers
-carries `and not unstable` in its `-m` marker expression, so a test marked
-`@pytest.mark.unstable` is deselected from every release-gating run rather than merely from
-the ones an author remembered to update by hand.
+carries `and not unstable` AND `and not development` in its `-m` marker expression, so a test
+marked `@pytest.mark.unstable` or `@pytest.mark.development` is deselected from every
+release-gating run rather than merely from the ones an author remembered to update by hand.
 
 Four drivers are in scope: `.github/workflows/tests.yml`, `flake.nix`,
 `.github/workflows/differential-tests.yml`, and `oracle/run-oracle-suite.sh`. This is the
@@ -92,13 +92,14 @@ def _invocations_for(path: Path) -> list[str]:
     return _extract_pytest_invocations(path.read_text())
 
 
-class TestGatingInvocationsDeselectUnstable:
-    """Every invocation carrying an `-m` expression must include `not unstable`."""
+class TestGatingInvocationsDeselectQuarantineMarkers:
+    """Every invocation carrying an `-m` expression must include both `not unstable` and
+    `not development`."""
 
     @pytest.mark.parametrize(
         "path", [TESTS_YML, FLAKE_NIX, DIFFERENTIAL_TESTS_YML, RUN_ORACLE_SUITE_SH]
     )
-    def test_every_marker_expression_excludes_unstable(self, path):
+    def test_every_marker_expression_excludes_unstable_and_development(self, path):
         invocations = _invocations_for(path)
         assert invocations, f"expected at least one pytest invocation in {path}, found none"
 
@@ -116,6 +117,11 @@ class TestGatingInvocationsDeselectUnstable:
                 f"{path}: pytest invocation's -m expression {marker_expr!r} does not "
                 f"exclude `unstable` -- an unstable-marked test would run in this gating "
                 f"invocation. Full invocation: {invocation!r}"
+            )
+            assert "not development" in marker_expr, (
+                f"{path}: pytest invocation's -m expression {marker_expr!r} does not "
+                f"exclude `development` -- a development-marked test would run in this "
+                f"gating invocation. Full invocation: {invocation!r}"
             )
 
         if path in (TESTS_YML, FLAKE_NIX, RUN_ORACLE_SUITE_SH):

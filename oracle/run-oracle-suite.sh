@@ -188,7 +188,7 @@ fi
 # reopen this same gap. Do not remove this filter as "redundant" without
 # re-reading this comment and TESTING_GUIDE.md section 8.9 first.
 ORACLE_SKIP_REPORT="$pass1_skip_report" timeout --kill-after=60s "$pass1_timeout" \
-  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow and not unstable" -rs \
+  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow and not unstable and not development" -rs \
     "${pass1_extra_args[@]}" "$@"
 pass1_status=$?
 
@@ -196,7 +196,7 @@ pass1_status=$?
 # `unstable` -- see the comment above pass 1), with no other pytest workers
 # running at all -- no -n flag.
 ORACLE_SKIP_REPORT="$pass2_skip_report" timeout --kill-after=60s "$pass2_timeout" \
-  pytest "$repo_root/oracle" -m "xdist_serial and not slow and not unstable" -rs \
+  pytest "$repo_root/oracle" -m "xdist_serial and not slow and not unstable and not development" -rs \
     "${pass2_extra_args[@]}" "$@"
 pass2_status=$?
 

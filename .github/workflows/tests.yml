@@ -184,11 +184,11 @@ jobs:
           # assertion. Backgrounding-then-`wait`ing is behaviorally identical to a foreground
           # invocation; the sampler simply attaches to the backgrounded PID. Keeping exactly
           # one literal copy of the pytest line remains required by that guard.
-          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread &
+          pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial and not development" -n 4 -q --timeout=300 --timeout-method=thread &
           PYTEST_PID=$!
           python3 ../.github/scripts/worker_rss_sample.py --root-pid "$PYTEST_PID" --workers 4 --interval 2 --output /tmp/worker-rss-summary.json || true
           wait "$PYTEST_PID"
-          pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread
+          pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable and not development" -q --timeout=300 --timeout-method=thread
 
   flake-check:
     name: nix flake check

@@ -176,8 +176,8 @@
             # specs/archive/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md
             # lines 134, 143, 359). Kept identical across both files so
             # code/tests/ci/test_workflow_parity.py has something to actually assert equal.
-            pytest src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread
-            pytest src/model_checker tests -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread
+            pytest src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial and not development" -n 4 -q --timeout=300 --timeout-method=thread
+            pytest src/model_checker tests -m "xdist_serial and not packaging and not unstable and not development" -q --timeout=300 --timeout-method=thread
             runHook postCheck
           '';
 
