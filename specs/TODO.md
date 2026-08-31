@@ -11,7 +11,7 @@ next_project_number: 177
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 153,168,176 | -- | semantics, release-engineering, test-reliability |
+| 1 | 153,176 | -- | semantics, test-reliability |
 | 2 | 154,172 | 153,176 | semantics, test-reliability |
 | 3 | 173 | 172 | testing |
 | 4 | 174 | 153,173 | test-reliability |
@@ -20,16 +20,12 @@ next_project_number: 177
 
 ### Testing
 
-173 [PLANNED] — Add a `development` pytest marker so a theory still under active 
+173 [IMPLEMENTING] — Add a `development` pytest marker so a theory still under active 
 
 ### Semantics
 
 153 [IMPLEMENTING] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
   └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
-
-### Release Engineering
-
-168 [IMPLEMENTING] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
@@ -167,7 +163,7 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 ---
 
 ### 173. Add development marker for in progress theories
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 158, Task 172, Task 175
@@ -296,12 +292,13 @@ HARD CONSTRAINTS (carried forward, all previously verified by a git diff gate):
 ---
 
 ### 168. Pypi install and full cli verification ci
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 158
 - **Research**: [168_pypi_install_and_full_cli_verification_ci/reports/01_pypi-install-full-cli-verification-ci.md]
 - **Plan**: [168_pypi_install_and_full_cli_verification_ci/plans/01_pypi-install-verification-pipeline.md]
+- **Summary**: [168_pypi_install_and_full_cli_verification_ci/summaries/01_pypi-install-verification-pipeline-summary.md]
 
 **Description**: Build a systematic PyPI install and full-CLI verification CI pipeline: parameterize the pytest packaging suite's installed_venv fixture over install source (locally built wheel, TestPyPI, or PyPI), add a TestPyPI pre-publish gate and a post-publish PyPI confirmation matrix to release.yml, and add a dispatchable plus scheduled pypi-smoke.yml workflow with opt-in tmate SSH debugging so the published package can be verified end-to-end from a NixOS development host
 
