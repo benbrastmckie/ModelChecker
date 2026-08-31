@@ -30,6 +30,7 @@
   - [Iterator Functionality](#iterator-functionality)
   - [Difference Detection](#difference-detection)
 - [Frame Constraints](#frame-constraints)
+- [Development Status](#development-status)
 - [Known Limitations](#known-limitations)
 - [References](#references)
 
@@ -898,6 +899,24 @@ Time Shift Relation Changes:
 
 These comprehensive differences help understand how the iterator explores the model space and what structural variations exist between models.
 
+## Development Status
+
+**This theory is under active construction and its test suite is non-gating.** Every test under
+`tests/` carries the `development` marker and is deselected from every release-gating CI run, so a
+failing bimodal test does not turn the repository's build red. The tests still run and are still
+maintained — they are quarantined from the gate, not silenced — and bimodal's soundness and
+differential-oracle tests in `oracle/bimodal_logic/tests/` remain fully gating regardless.
+
+Run the suite explicitly:
+
+```bash
+cd code && PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -v
+```
+
+See [`tests/README.md`](tests/README.md) for the full running guide, and
+[`code/docs/core/TESTING_GUIDE.md`](../../../../docs/core/TESTING_GUIDE.md) section 8.14 for the
+marker's contract, what this status accepts, and what retires it.
+
 ## Known Limitations
 
 - **Performance**: Models with many time points or complex formulas may run slowly
@@ -911,4 +930,4 @@ These comprehensive differences help understand how the iterator explores the mo
 For more information on bimodal logics and related topics, see:
 
 - The full ModelChecker documentation in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/README.md`
-- The test suite in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/test/`
+- The test suite in [`tests/`](tests/), documented in [`tests/README.md`](tests/README.md)

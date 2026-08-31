@@ -1328,17 +1328,41 @@ repair. `unstable` and `xdist_serial` both certify "this test is correct but noi
 `development` certifies nothing about correctness at all -- it just keeps an incomplete test
 observed instead of either failing the build or being silently skipped.
 
-**Granularity: per-test, not per-module or per-theory.** Apply `@pytest.mark.development` to
-individual test functions, never as a module-level `pytestmark` or a theory-wide blanket. A
+**Granularity: per-test by default; theory-wide only on an explicit, recorded declaration.** The
+default is per-test — apply `@pytest.mark.development` to individual test functions, not as a
+module-level `pytestmark` or a theory-wide blanket. The one authorized exception is a theory whose
+owner has explicitly declared *the theory as a whole* to be in development and outside what a
+release run must pass; bimodal is that theory today, and its blanket is recorded under "Currently
+marked" below with the risk it accepts. Nothing else may take a blanket without the same explicit
+declaration and the same written record. The reasoning behind the default still stands, and is
+exactly what makes the exception costly rather than free: a
 module- or theory-level blanket would silently deselect every test in the theory forever,
 including the ones that already pass today -- and it is the version of this marker most capable
 of hiding a real regression, since a newly-broken, already-implemented test would vanish into the
-same blanket exemption as the genuinely-incomplete ones. When many tests in a theory need
-marking, follow the application ergonomics `bimodal`'s own test file already established for
-`unstable` -- a `DEVELOPMENT_EXAMPLES`-style set-membership check (see
+same blanket exemption as the genuinely-incomplete ones. When *some* tests in a theory need
+marking but the theory as a whole is not declared in development, follow the application
+ergonomics `bimodal`'s own test file already established for `unstable` -- a
+`DEVELOPMENT_EXAMPLES`-style set-membership check (see
 `code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py`'s `UNSTABLE_EXAMPLES` set
 and its use in `pytest.param(..., marks=[pytest.mark.unstable] if name in UNSTABLE_EXAMPLES else
 [])`), not a blanket decorator.
+
+**If a blanket is authorized, apply it with a path-scoped collection hook, not a `pytestmark`.**
+The mechanism is a `pytest_collection_modifyitems` implementation in the theory's own
+`tests/conftest.py` (see bimodal's for the reference implementation). Two details are
+load-bearing:
+
+- **The path check is not optional, and its absence is not caught by an obvious test.** pytest
+  hands a `pytest_collection_modifyitems` implementation the *entire session's* item list once
+  its conftest has been loaded — it is not scoped to that conftest's directory. An unfiltered
+  `for item in items: item.add_marker(...)` therefore marks every test in the repository, and so
+  deselects the entire suite from every gating run. Crucially, this leak only manifests in a run
+  that collects the theory *and* something else — which is precisely the
+  `pytest tests src/model_checker` shape both `tests.yml` and `flake.nix` use, while a
+  single-root check (`pytest -m development <other-theory>`) never loads the theory's conftest and
+  stays green against a fully-leaking hook. Any containment test must include the mixed-root case.
+- **Prefer a marker over a skip.** The point is to keep the tests observed and runnable on demand
+  (`-m development`), not to silence them.
 
 **Entry criteria.** Deliberately lighter than 8.9's four-point quarantine bar -- this is a
 completeness tracker, not an investigated-defect quarantine -- but not a rubber stamp:
@@ -1397,8 +1421,10 @@ divergence from 8.9's 20-run promotion wait: `unstable` waits because it is *cer
 observed instability has genuinely resolved, which takes repeated observation to trust;
 `development` never made an instability claim in the first place, so there is nothing to wait
 out. Theory-level: "no longer in development" means zero remaining `development`-marked tests in
-the theory's test tree, checkable with `grep -rn "pytest.mark.development"` or
-`pytest --collect-only -m development -q`. The 8.9 standing-rule analogue still applies, with its
+the theory's test tree, checkable with `pytest --collect-only -m development -q` (a `grep -rn
+"pytest.mark.development"` is not sufficient on its own: a blanket applied by a collection hook
+is one grep hit covering the whole tree, so only a real collection reports the true count). The
+8.9 standing-rule analogue still applies, with its
 own deliberate difference: a stalled marking is escalated against the theory's own milestone
 rather than a fixed two-month calendar window, because "still incomplete after two months" is
 unsurprising for a from-scratch theory the way "still flaky after two months" (8.9's actual
@@ -1413,9 +1439,55 @@ trigger) is not.
 | `xdist_serial` | A routine contention classification for a real wall-clock assertion | A passing test whose timing assertion has adequate headroom alone but not under `-n`-pool contention |
 | `performance` | A budget too tight for any shared CI runner (sub-10ms class) | A wall-clock assertion that cannot tolerate any shared-runner scheduling variance, parallel or serial |
 
-**Currently marked.** No test carries `development` today. The category was registered and wired
-through the full gating/observability/documentation stack above without being applied to any
-`theory_lib` test -- the category exists, but nothing currently claims it.
+**Currently marked.** The **entire `bimodal` test tree** — every test collected under
+`code/src/model_checker/theory_lib/bimodal/tests/`, 313 items at the time of writing — carries
+`development`, applied by the path-scoped `pytest_collection_modifyitems` hook in that tree's own
+`conftest.py`. No other test in the repository carries the marker.
+
+*Why a blanket, and on whose authority.* This is the authorized theory-wide exception the
+"Granularity" paragraph above allows. The theory owner's declaration is explicit: the bimodal
+logic as a whole is in development and is not part of what a release run must pass. That is a
+statement about the theory, not about a list of individually-incomplete behaviours, so a
+per-test set-membership marking would misrepresent it and would need editing on every commit that
+adds a bimodal test.
+
+*What this accepts, stated plainly.* A bimodal test that regresses from passing to failing no
+longer turns any gating run red. That is a real loss of signal and it is the cost of the
+declaration, not an oversight. It is bounded three ways:
+
+- **Soundness stays gating.** Bimodal's differential and soundness-oracle tests live in
+  `oracle/bimodal_logic/tests/`, not in the `code/` tree, and `development` is deliberately
+  unregistered in `oracle/conftest.py` (see "What it must not hide" above). No semantic claim
+  about bimodal's correctness can be quarantined by this blanket — only completeness claims about
+  the `code/`-tree implementation.
+- **Containment is executable.** `code/tests/ci/test_development_marker_application.py` asserts
+  both that every bimodal test carries the marker and that no test outside that tree acquires it,
+  including in the mixed-root `pytest tests src/model_checker` collection where a leak would
+  otherwise be invisible.
+- **The tests stay runnable and visible**, per the opt-in path below.
+
+*Running bimodal on demand.* `-m development` is the opt-in:
+
+```bash
+# From code/ -- run the bimodal suite (or any subset of it)
+PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -m development -v
+
+# Every development-marked test in the repository
+PYTHONPATH=src pytest -m development -v
+```
+
+Note that a bare `PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/` still runs
+the suite: `code/pyproject.toml`'s `addopts` deliberately carries no `-m` filter, so the marker
+changes what the *gating drivers* select and nothing about a local run's default. To reproduce a
+gating run's selection locally, pass the filter explicitly:
+`PYTHONPATH=src pytest tests src/model_checker -m "not development"`.
+
+*Exit path for this blanket.* Delete the `pytest_collection_modifyitems` hook from
+`code/src/model_checker/theory_lib/bimodal/tests/conftest.py` when bimodal is no longer in
+development. Nothing else needs to change — the registration, the six gating `-m` expressions,
+and the classifier are shared infrastructure, not bimodal-specific. Removing the hook will fail
+`test_development_marker_application.py`, which is the intended signal to delete that contract in
+the same commit.
 
 ---
 
