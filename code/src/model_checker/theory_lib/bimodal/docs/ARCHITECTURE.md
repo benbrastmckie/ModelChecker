@@ -353,6 +353,48 @@ class BimodalSemantics(SemanticDefaults):
         ]
 ```
 
+### Frame-Class Axioms
+
+Unlike the illustrative pseudocode above (`generate_frame_constraints`, `_temporal_constraints`,
+`_modal_constraints` do not exist in `core.py`), this subsection is a factual reference to
+`build_frame_constraints` in
+`code/src/model_checker/theory_lib/bimodal/semantic/core.py`, naming its real method names and
+line anchors.
+
+The table below records every Z3 constraint that corresponds to a `TaskFrame` axiom in
+BimodalLogic's `Frame.lean`/`TaskFrame.lean`, whether it is asserted or free (discharged without a
+Z3 constraint), and its citation:
+
+| Constraint | Status | Paper `def:frame` axiom? | Z3 encoding site | Citation |
+|---|---|---|---|---|
+| `nullity_identity` | **Asserted** | No — the paper's own `lem:nullity` is *derived* (reflexivity only); ModelChecker's iff-form is strictly stronger, an intentional over-strong design choice | `build_nullity_identity_constraint`, `core.py:280` | `TaskFrame.lean:74-75, 108-109` (design-question note); over-sufficient for `cor:occurrence`'s `TaskRel w 0 w` discharge, `Extension.lean:97-99` |
+| `converse` | **Asserted** | No — definitional convention on the group structure, not an independent axiom | `build_converse_constraint`, `core.py:305` | `TaskFrame.lean` (`converse` as `AddCommGroup` inverse, not a `def:frame` field) |
+| `forward_comp` (Compositionality, `<-` half) | **Asserted** | Yes — half of *Compositionality* | `build_forward_comp_constraint`, `core.py:344` | `Frame.lean:112-114` (`Compositional.compose`) |
+| `interpolation` (Compositionality, `->` half) | **Asserted** | Yes — the other half of *Compositionality* | `build_interpolation_constraint`, `core.py` (immediately after `build_forward_comp_constraint`) | `TaskFrame.lean` `Interpolates` predicate; consumed at `Extension/Constraint.lean:43-55, 217-244` |
+| `seriality` | **Asserted** | Yes | `build_seriality_constraint`, `core.py` (immediately before `build_interpolation_constraint`) | `TaskFrame.lean` `Serial` predicate; consumed at `Extension/Constraint.lean:43-55` |
+| `Limit` | **Free** | Yes | discharged at the sort level, no Z3 assertion needed | `TaskFrame.limit_of_succOrder`, `TaskFrame.lean:730`; hypotheses `[SuccOrder D][NoMaxOrder D]` (Z3 `Int`) and `hnull` (`nullity_identity`, unguarded) |
+| `Spherical` | **Free** | Yes | discharged at the sort level, no Z3 assertion needed | `TaskFrame.spherical_of_finite`, `TaskFrame.lean:985`; hypothesis `[Finite W]` (Z3 `WorldStateSort = BitVecSort(N)`) |
+
+**On "asserted" counts**: this is a 7-row, per-constraint table (5 asserted, 2 free). Read against
+the paper's own four-axiom family (`{Compositionality, Seriality, Limit, Spherical}`), only **two**
+end up asserted, with both new rows added below (Compositionality — complete now that `forward_comp` and
+`interpolation` together cover both directions — and Seriality) and two remain free
+(Limit, Spherical): a **2 asserted / 2 free** count at the paper-axiom level. The two counts
+(5/2 at the Z3-constraint-row level, 2/2 at the paper-axiom level) differ because `nullity_identity`
+and `converse` are not independent `def:frame` axioms in their own right, and because
+`forward_comp`/`interpolation` are two Z3 rows implementing one paper axiom (Compositionality).
+Both counts are recorded here rather than forcing a single number that would misdescribe the table.
+
+**Duration-domain guard (open gap, recorded not resolved)**: every asserted row above is guarded by
+`is_valid_duration`, which restricts it to the bounded window `(-M, M)` — `is_valid_duration` is a
+*guard*, not a sort restriction (`task_rel`'s duration argument remains Z3 `Int`, i.e. `\Z`,
+throughout), so *Limit*/*Spherical* freeness is unaffected by any of the asserted rows' guards. But
+the resulting structure a countermodel run actually searches over is a `TaskFrame` restricted to
+`(-M, M)`, not literally `thm:extension`'s unbounded `TaskFrame \Z`. This embedding question is an
+open gap inherited from the predecessor audit
+(`specs/152_audit_bimodal_frame_class_and_verdict_dependence/`) and is load-bearing for future
+certification work; it is not resolved by this table or by adding Seriality/Interpolation.
+
 ## Integration Strategy
 
 ### Theory Comparison Support

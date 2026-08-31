@@ -660,7 +660,7 @@ class BimodalSemantics(SemanticDefaults):
 
         This method constructs 13 constraints total at M<=2 (item 12, skolem_abundance,
         contributes more than one constraint at M>=3 -- see its own dispatch below), split
-        into two categories. Task 153 widened the asserted TaskFrame axiom set from three to
+        into two categories. The asserted TaskFrame axiom set was widened from three to
         five (adding Seriality and Interpolation) to match the paper's `def:frame`; see
         ARCHITECTURE.md's "Frame-Class Axioms" subsection for the full asserted/free ledger
         with citations.
@@ -668,7 +668,7 @@ class BimodalSemantics(SemanticDefaults):
         **TaskFrame Axioms (items 7-11)** -- correspond directly to BimodalLogic's
         `TaskFrame` structure fields in Frame.lean. These are the semantic guarantees
         that justify `supported_frame_classes = frozenset({"Base"})` in the oracle --
-        widened from three to five asserted axioms by Task 153. See ARCHITECTURE.md's
+        widened from three to five asserted axioms. See ARCHITECTURE.md's
         "Frame-Class Axioms" subsection for the fuller asserted/free account with
         citations:
 

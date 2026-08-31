@@ -419,33 +419,33 @@ record the actual before/after numbers for use in Phase 5's docstring correction
 
 ---
 
-### Phase 6: ARCHITECTURE.md frame-class ledger (Deliverables 3 and 4) [NOT STARTED]
+### Phase 6: ARCHITECTURE.md frame-class ledger (Deliverables 3 and 4) [COMPLETED]
 
 **Goal**: Record the asserted/free frame-class split with per-row citations, plus the
 duration-domain honesty note, as a factual reference subsection in `ARCHITECTURE.md`.
 
 **Tasks**:
 
-- [ ] Add a new `### Frame-Class Axioms` subsection directly after `### Constraint Generation`
+- [x] Add a new `### Frame-Class Axioms` subsection directly after `### Constraint Generation`
       (`ARCHITECTURE.md:318`-`354`). Open it with a one-sentence note that, unlike the illustrative
       pseudocode above it, this subsection is a factual reference to `build_frame_constraints` in
       `code/src/model_checker/theory_lib/bimodal/semantic/core.py`, naming the real method names.
-- [ ] Transcribe the report's Section 4.2 table: columns *Constraint*, *Status*, *Paper `def:frame`
+- [x] Transcribe the report's Section 4.2 table: columns *Constraint*, *Status*, *Paper `def:frame`
       axiom?*, *Z3 encoding site*, *Citation*; rows `nullity_identity`, `converse`, `forward_comp`,
       `Interpolation`, `Seriality` (asserted) and `Limit`, `Spherical` (free).
-- [ ] Resolve the task text's "four ASSERTED axioms" language explicitly. Neither available reading
+- [x] Resolve the task text's "four ASSERTED axioms" language explicitly. Neither available reading
       yields four: per **Z3 constraint row** the split is **5 asserted / 2 free** (the report's own
       Section 4.1 arithmetic reaches "four asserted" only by omitting Seriality from its own Section
       4.2 table); per **paper axiom** it is 2 asserted (*Compositionality*, *Seriality*) / 2 free
       (*Limit*, *Spherical*). Carry the 7-row constraint-level table and add a short note stating
       both counts and why they differ, rather than forcing a number that misdescribes the table.
-- [ ] Add the Deliverable 4 footnote below the table: all asserted rows are guarded by
+- [x] Add the Deliverable 4 footnote below the table: all asserted rows are guarded by
       `is_valid_duration`, restricting them to the bounded window `(-M, M)`, whereas the paper's
       axioms are unconditional over `\Z`; `is_valid_duration` is a guard, not a sort restriction
       (`task_rel`'s duration argument remains Z3 `Int`), so *Limit*/*Spherical* freeness is
       unaffected; the embedding question is recorded as an open gap, not resolved here, and is
       load-bearing for the follow-on certification work.
-- [ ] Verify no existing `ARCHITECTURE.md` heading needs a Table of Contents entry change — the TOC
+- [x] Verify no existing `ARCHITECTURE.md` heading needs a Table of Contents entry change — the TOC
       lists `##`-level sections only, and this is a `###` subsection under an already-listed parent.
       Confirm rather than assume.
 
