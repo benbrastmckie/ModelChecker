@@ -202,25 +202,25 @@ widen the phase and say so rather than leaving a prompt reachable under the new 
 
 ---
 
-### Phase 2: Make TestPyPI a hard gate with an explicit escape [NOT STARTED]
+### Phase 2: Make TestPyPI a hard gate with an explicit escape [COMPLETED]
 
 **Goal**: A TestPyPI upload failure blocks the production publish, and the only way past it is a
 deliberate, visible `workflow_dispatch` opt-out.
 
 **Tasks**:
-- [ ] Re-read `.github/workflows/release.yml` in full before editing (dependency 161 landed the
+- [x] Re-read `.github/workflows/release.yml` in full before editing (dependency 161 landed the
       OIDC-claims diagnostic step in this same job; do not work from the report's line numbers)
-- [ ] Remove the job-level `continue-on-error: true` (currently line 147) and rewrite the comment
+- [x] Remove the job-level `continue-on-error: true` (currently line 147) and rewrite the comment
       block above it (currently lines 143-146) to state the new hard-gate posture and name the
       escape hatch. Do NOT remove the `continue-on-error: true` on the OIDC diagnostic step
       itself (currently line 162) -- that one is correctly scoped to a diagnostic
-- [ ] Add a `workflow_dispatch:` block to the `on:` section (currently `push: tags:` only) with a
+- [x] Add a `workflow_dispatch:` block to the `on:` section (currently `push: tags:` only) with a
       boolean input `skip_testpypi`, `default: false`, and a description naming the consequence
-- [ ] Gate the `publish-testpypi` job with a null-safe `if:` using the
+- [x] Gate the `publish-testpypi` job with a null-safe `if:` using the
       `${{ inputs.skip_testpypi != true }}` form. `inputs` is unpopulated under a `push` trigger,
       so an unguarded truthiness read is wrong in both directions -- verify the chosen expression
       by static review against GitHub's documented empty-context behavior
-- [ ] Leave `publish-pypi`'s `needs:` untouched in this phase (Phase 3 repoints it)
+- [x] Leave `publish-pypi`'s `needs:` untouched in this phase (Phase 3 repoints it)
 
 **Timing**: 45 minutes
 

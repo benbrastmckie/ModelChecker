@@ -5,6 +5,19 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'  # v1.0.0, v1.2.3, v1.0.1, etc.
+  # Manual dispatch, run against the tag being released, so the skip_testpypi escape hatch
+  # below is reachable only by deliberate human action -- never implicitly from a plain
+  # `git push --tags`. Intended for the rare case where TestPyPI itself is known-broken
+  # (e.g. an outage) and a release must proceed without the rehearsal gate.
+  workflow_dispatch:
+    inputs:
+      skip_testpypi:
+        description: >-
+          Skip the TestPyPI rehearsal gate and publish straight to PyPI. Only use this when
+          TestPyPI itself is unavailable -- it removes the "installable and importable" proof
+          this workflow otherwise requires before a production publish.
+        type: boolean
+        default: false
 
 # Default permissions are read-only; each job below grants only what it needs
 # (id-token: write for OIDC-based PyPI publishing, contents: write for the
@@ -140,11 +153,12 @@ jobs:
     environment: testpypi
     permissions:
       id-token: write  # Required for OIDC Trusted Publishing
-    # Non-fatal: this job is a rehearsal step. It is skipped/failed softly if
-    # the TestPyPI trusted publisher + "testpypi" GitHub Environment are not
-    # yet configured (see .github/RELEASE_SETUP.md), so an unconfigured
-    # TestPyPI rehearsal never blocks the production PyPI publish below.
-    continue-on-error: true
+    # Hard gate: a failure here blocks the production PyPI publish below (publish-pypi
+    # now needs verify-testpypi, which needs this job -- see that job for the chain). The
+    # only sanctioned bypass is the workflow_dispatch `skip_testpypi` input, which must be
+    # set deliberately by a human; it is never true under the normal `push: tags:` trigger.
+    # See .github/RELEASE_SETUP.md for the Trusted Publishing (OIDC) setup this relies on.
+    if: ${{ inputs.skip_testpypi != true }}
 
     steps:
     # Diagnostic only -- never a gate. Prints the OIDC claims test.pypi.org
