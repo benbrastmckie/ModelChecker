@@ -343,7 +343,7 @@ plus `grep -rn "unstable_watch_classify" --include=* .` across the repo.
 
 ---
 
-### Phase 4: Development trend reporting [NOT STARTED]
+### Phase 4: Development trend reporting [COMPLETED]
 
 **Goal**: The classifier reports, per `development`-marked node id, how many of the last N observed
 runs it passed — a progress signal, never a gate — reusing the existing cross-run artifact

@@ -617,7 +617,7 @@ def _fake_past_runs_20(repo, current_run_id):
     ]
 
 
-def _fake_fetch_clean_bm_cm1_dirty_gating(repo, nodeids, past_run_ids):
+def _fake_fetch_clean_bm_cm1_dirty_gating(repo, nodeids, past_run_ids, field="classification"):
     """BM_CM_1 has a spotless 19-run classification history; the gating test has been failing
     NEW on every prior run too (moot for this run's own gating result, which already fails NEW
     on its own current-run classification regardless of history)."""
@@ -758,7 +758,7 @@ def _five_successful_past_runs(repo, current_run_id):
     ]
 
 
-def _fake_fetch_no_history(repo, nodeids, past_run_ids):
+def _fake_fetch_no_history(repo, nodeids, past_run_ids, field="classification"):
     return {nodeid: [None] * len(past_run_ids) for nodeid in nodeids}
 
 
@@ -914,7 +914,7 @@ class TestDevStatusClassification:
             repo="acme/repo",
             current_run_id="906",
             past_runs_fn=_fake_past_runs_20,
-            fetch_past_classifications_fn=lambda repo, nodeids, past_run_ids: {
+            fetch_past_classifications_fn=lambda repo, nodeids, past_run_ids, field="classification": {
                 nodeid: (["N/A"] * len(past_run_ids)) for nodeid in nodeids
             },
         )
@@ -930,3 +930,125 @@ class TestDevStatusClassification:
         classifications = {r["classification"] for r in records}
         assert "TIMING" in classifications
         assert "DEV_STATUS" in classifications
+
+
+# ---------------------------------------------------------------------------
+# Phase 4: Development trend reporting -- per-`development`-marked-node-id pass rate over
+# the last N observed runs, reusing fetch_past_classifications (generalized with a `field`
+# selector) rather than duplicating its cross-run artifact machinery. A progress signal,
+# never a gate: no READY TO PROMOTE wording, no 20-run framing (those mean "the instability
+# resolved", a different claim than "the theory is progressing toward completion").
+# ---------------------------------------------------------------------------
+
+
+class TestFetchPastClassificationsFieldSelector:
+    def test_field_selector_returns_outcome_default_returns_classification_unchanged(
+        self, tmp_path, monkeypatch
+    ):
+        """The default (no `field` argument) path must stay byte-for-byte the existing
+        `classification`-returning behavior; the new `field="outcome"` path returns a
+        different value from the SAME underlying record."""
+        record_line = json.dumps(
+            {"nodeid": "some/test.py::test_x", "outcome": "passed", "classification": "N/A"}
+        )
+
+        def _fake_gh_run_download(cmd, capture_output, text, check):
+            dest_dir = Path(cmd[cmd.index("-D") + 1])
+            (dest_dir / classify_mod.DEFAULT_RECORD_PATH).write_text(record_line + "\n")
+            return subprocess.CompletedProcess(cmd, 0)
+
+        monkeypatch.setattr(classify_mod.subprocess, "run", _fake_gh_run_download)
+
+        default_result = classify_mod.fetch_past_classifications(
+            "acme/repo", ["some/test.py::test_x"], [111]
+        )
+        assert default_result == {"some/test.py::test_x": ["N/A"]}
+
+        outcome_result = classify_mod.fetch_past_classifications(
+            "acme/repo", ["some/test.py::test_x"], [111], field="outcome"
+        )
+        assert outcome_result == {"some/test.py::test_x": ["passed"]}
+
+
+class TestComputeDevPassRate:
+    def test_counts_only_runs_with_a_record(self):
+        passes, total = classify_mod.compute_dev_pass_rate(
+            "some/dev/test.py::test_x",
+            this_run_outcome="passed",
+            past_run_outcomes=["passed", "failed", None, "passed"],
+        )
+        # This run (passed) + 3 non-None past runs; the one None entry is excluded from
+        # both the numerator and the denominator.
+        assert total == 4
+        assert passes == 3
+
+    def test_this_run_always_counts(self):
+        passes, total = classify_mod.compute_dev_pass_rate(
+            "some/dev/test.py::test_x", this_run_outcome="failed", past_run_outcomes=[]
+        )
+        assert total == 1
+        assert passes == 0
+
+    def test_missing_past_records_excluded_from_both_numerator_and_denominator(self):
+        passes, total = classify_mod.compute_dev_pass_rate(
+            "some/dev/test.py::test_x",
+            this_run_outcome="passed",
+            past_run_outcomes=[None, None, None],
+        )
+        assert total == 1
+        assert passes == 1
+
+
+def _fake_fetch_all_passed(repo, nodeids, past_run_ids, field="classification"):
+    return {nodeid: (["passed"] * len(past_run_ids)) for nodeid in nodeids}
+
+
+class TestDevelopmentWatchSummary:
+    def test_summary_has_development_watch_section_with_pass_rate(self, tmp_path):
+        dev_xml = tmp_path / "dev.xml"
+        dev_xml.write_text(_DEV_JUNIT_PASSING)
+        record_path = tmp_path / "record.jsonl"
+        summary_path = tmp_path / "summary.md"
+
+        classify_mod.run(
+            code_junit_path=str(tmp_path / "missing-code.xml"),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(dev_xml),
+            record_path=str(record_path),
+            summary_path=str(summary_path),
+            repo="acme/repo",
+            current_run_id="950",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_all_passed,
+        )
+        summary_text = summary_path.read_text()
+        assert "## Development Watch" in summary_text
+        dev_section = summary_text.split("## Development Watch", 1)[1]
+        assert "test_frame_axiom_now_passes" in dev_section
+        # This run (passed) + 19 fake past "passed" runs from _fake_past_runs_20's window.
+        assert "20/20" in dev_section
+        assert "informational" in dev_section.lower()
+        assert "never gating" in dev_section.lower()
+        # Must not borrow the unstable-quarantine promotion vocabulary -- a different claim.
+        assert "READY TO PROMOTE" not in dev_section
+        assert "/ 20" not in dev_section
+
+    def test_no_dev_records_omits_development_watch_section(self, tmp_path):
+        record_path = tmp_path / "record.jsonl"
+        summary_path = tmp_path / "summary.md"
+
+        classify_mod.run(
+            code_junit_path=str(tmp_path / "missing-code.xml"),
+            oracle_junit_path=str(tmp_path / "missing-oracle.xml"),
+            dev_junit_path=str(tmp_path / "missing-dev.xml"),
+            record_path=str(record_path),
+            summary_path=str(summary_path),
+            repo="acme/repo",
+            current_run_id="951",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        summary_text = summary_path.read_text()
+        assert "## Development Watch" not in summary_text
+        # Nothing else in the summary changes -- the Unstable Watch section is unaffected.
+        assert "## Unstable Watch" in summary_text

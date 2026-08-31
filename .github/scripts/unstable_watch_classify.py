@@ -300,13 +300,46 @@ def compute_per_test_promotion_streak(nodeid, this_run_classification, past_run_
     return streak, streak >= 20
 
 
-def fetch_past_classifications(repo, nodeids, past_run_ids):
+def compute_dev_pass_rate(nodeid, this_run_outcome, past_run_outcomes):
+    """Return `(passes, total)` for a single `development`-marked node id's pass rate over
+    this run plus its observed past runs.
+
+    `nodeid`: not consulted in the arithmetic below, carried in the signature (matching
+    `compute_per_test_promotion_streak`'s own convention) so a caller and a test failure
+    message can both name which node id a given rate belongs to.
+
+    Missing-record rule: a run counts toward BOTH the numerator and the denominator only when
+    it has a recorded outcome (`this_run_outcome` or a `past_run_outcomes` entry is not
+    `None`); a run with no record is excluded from both, never manufacturing progress OR
+    regression from an outcome that was never actually observed. `this_run_outcome` in
+    practice is never `None` for a real caller -- it comes directly from this run's own JUnit
+    input, which is exactly why it always counts.
+
+    This differs deliberately from `compute_per_test_promotion_streak`'s conservative
+    streak-breaking rule, which treats a missing record as BREAKING the streak (a promotion
+    claim -- `unstable`'s 20-consecutive-green-runs -- must never be inflated by an unverified
+    gap). A pass rate is a progress OBSERVATION, not a promotion claim, and must not be
+    distorted in either direction by a gap in the artifact history -- so a missing record here
+    is dropped from consideration entirely rather than counted as a failure.
+    """
+    outcomes = [this_run_outcome] + list(past_run_outcomes)
+    observed = [o for o in outcomes if o is not None]
+    total = len(observed)
+    passes = sum(1 for o in observed if o == "passed")
+    return passes, total
+
+
+def fetch_past_classifications(repo, nodeids, past_run_ids, field="classification"):
     """For each of `past_run_ids` (already ordered newest-first by the caller), download that
     run's `unstable-watch-record-<run_id>` artifact via `gh run download`, parse its JSONL, and
-    extract each of `nodeids`' own `classification` value from it. Returns
-    `{nodeid: [classification_or_None, ...]}`, one entry per node id, each list ordered
-    newest-first in lockstep with `past_run_ids` -- directly consumable as
-    `compute_per_test_promotion_streak`'s `past_run_classifications` argument.
+    extract each of `nodeids`' own `field` value from it (default `"classification"`, this
+    function's original and still most common use -- directly consumable as
+    `compute_per_test_promotion_streak`'s `past_run_classifications` argument). Passing
+    `field="outcome"` instead extracts each record's raw pass/fail/error `outcome` value,
+    consumable as `compute_dev_pass_rate`'s `past_run_outcomes` argument -- the `development`
+    trend uses pass/fail history, not a classification label, since `DEV_STATUS` is the only
+    classification a dev record ever carries. Returns `{nodeid: [value_or_None, ...]}`, one
+    entry per node id, each list ordered newest-first in lockstep with `past_run_ids`.
 
     Bounded to `O(len(nodeids) * len(past_run_ids))` fetches -- today 2 marked node ids x the
     same 25-run window `gh run list` already uses, i.e. at most 50 `gh run download` calls per
@@ -350,7 +383,7 @@ def fetch_past_classifications(repo, nodeids, past_run_ids):
                         rec_nodeid = rec.get("nodeid", "")
                         for nodeid in nodeids:
                             if nodeid in rec_nodeid:
-                                classifications_this_run[nodeid] = rec.get("classification")
+                                classifications_this_run[nodeid] = rec.get(field)
         except Exception as exc:  # pragma: no cover -- network/CLI/filesystem dependent
             print(
                 f"::warning::could not fetch or parse {artifact_name} for run "
@@ -452,8 +485,10 @@ def run(
     # here are tracked separately so the currently_unstable fragment-matching loop below can
     # exclude them by construction (see that loop's own comment).
     dev_nodeids_this_run = []
+    dev_this_run_outcome_by_nodeid = {}
     for nodeid, outcome, duration, failure_text in parse_junit(dev_junit_path):
         dev_nodeids_this_run.append(nodeid)
+        dev_this_run_outcome_by_nodeid[nodeid] = outcome
         records.append({
             "run_id": current_run_id,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -533,6 +568,28 @@ def run(
             f"section 8.9's promotion path."
         )
 
+    # Development trend: pass rate over this run plus observed past runs, per dev node id.
+    # A progress signal only -- never gating, never using the unstable-quarantine promotion
+    # vocabulary (see compute_dev_pass_rate's docstring and this module's DEV_STATUS contract
+    # paragraph above). Reuses fetch_past_classifications_fn's same injection point (with
+    # field="outcome") so tests keep working without network, exactly like the per-test
+    # streak wiring above.
+    dev_past_outcomes_by_nodeid = (
+        fetch_past_classifications_fn(
+            repo, dev_nodeids_this_run, past_run_ids, field="outcome"
+        )
+        if dev_nodeids_this_run
+        else {}
+    )
+    dev_pass_rates = {
+        nodeid: compute_dev_pass_rate(
+            nodeid,
+            dev_this_run_outcome_by_nodeid.get(nodeid),
+            dev_past_outcomes_by_nodeid.get(nodeid, []),
+        )
+        for nodeid in dev_nodeids_this_run
+    }
+
     if summary_path:
         with open(summary_path, "a") as fh:
             fh.write("## Unstable Watch\n\n")
@@ -562,6 +619,21 @@ def run(
                     fh.write(f"| `{nodeid}` | {outcome} | {duration:.2f} | {classification} |\n")
             else:
                 fh.write("No `unstable`-marked tests were collected in either tree.\n")
+
+            if dev_nodeids_this_run:
+                fh.write("\n## Development Watch\n\n")
+                fh.write(
+                    "Informational only, never gating -- a completeness/progress signal for "
+                    "tests marked `development` (a theory still under active construction), "
+                    "distinct from `unstable`'s investigated-instability promotion path above. "
+                    "See TESTING_GUIDE.md section 8.14.\n\n"
+                )
+                fh.write("| Node ID | This run | Passed in last N |\n")
+                fh.write("|---|---|---|\n")
+                for nodeid in dev_nodeids_this_run:
+                    this_run_outcome = dev_this_run_outcome_by_nodeid[nodeid]
+                    passes, total = dev_pass_rates[nodeid]
+                    fh.write(f"| `{nodeid}` | {this_run_outcome} | {passes}/{total} |\n")
 
     return 1 if any_new else 0
 
