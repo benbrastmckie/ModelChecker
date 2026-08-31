@@ -23,11 +23,29 @@ import pytest
 # Minimal, deliberately tiny valid example module: one theory, one example, N=2. Modeled on the
 # module format used by code/tests/e2e/test_batch_output_real.py. Kept minimal so every flag
 # matrix invocation stays fast even though it forks a real Z3 solve.
+#
+# Uses logos rather than bimodal, for the same class of reason test_flag_matrix.py's
+# _CVC5_COMPATIBLE_EXAMPLE already documents for its own switch. Two reasons here:
+#
+# 1. **Cost.** This example's bimodal solve takes ~4.2s and rising as bimodal's frame class is
+#    filled in; the same example under logos takes ~0.001s. Every test below forks one or two
+#    real CLI subprocesses, so the bimodal cost was multiplied across the whole directory.
+#    Worse, bimodal's DEFAULT_EXAMPLE_SETTINGS max_time is 1s and this module set no explicit
+#    budget, so the solve did not merely run slowly -- it timed out, found no model, and left
+#    -p/-z/-i with nothing extra to print. `test_output_affecting_boolean_flag_changes_output`
+#    was reduced to comparing two timeout messages that differ only in a "Solver Run Time:
+#    1.000X seconds" float, passing or failing on microsecond jitter (it failed three ways under
+#    `-n 4`). See TESTING_GUIDE.md section 8.6 on inheriting a theory's default max_time.
+# 2. **Gating scope.** These are gating CLI-plumbing tests -- they assert that flags are
+#    accepted, change output, and write files. Nothing about them is bimodal-specific. Pinning
+#    them to the one theory that is under active construction and deliberately non-gating (see
+#    TESTING_GUIDE.md section 8.14) coupled the CLI gate to that theory's solver cost, which is
+#    exactly the coupling the `development` marker exists to remove.
 _TINY_EXAMPLE_CONTENT = '''"""Minimal example module for CLI flag-matrix testing."""
 
-from model_checker.theory_lib import bimodal
+from model_checker.theory_lib import logos
 
-theory = bimodal.get_theory()
+theory = logos.get_theory()
 semantic_theories = {"cli_test": theory}
 
 example_range = {
