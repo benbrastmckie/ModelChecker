@@ -9,13 +9,24 @@
 
 The oracle's `build_frame_constraints` currently asserts three of the JPL paper's `def:frame`
 axioms in some form (`nullity_identity`, `converse`, and the composition half of
-*Compositionality*, `forward_comp`) and **zero of the other three required by `thm:extension`'s
-own proof chain**: *Seriality*, the interpolation half of *Compositionality*, *Limit*, and
-*Spherical* are asserted nowhere in `core.py`. This is a **larger gap than a first pass over the
-axiom list suggests** — see Section 1.2 below, which traces `thm:extension`'s actual dependency
-chain in the BimodalLogic Lean formalization and finds it consumes not two but **four** absent
-axioms. `thm:extension` therefore cannot be invoked on a ModelChecker countermodel at all, for a
-more thoroughgoing reason than "two axioms are missing."
+*Compositionality*, `forward_comp`) and asserts nowhere in `core.py` the other four the paper's
+`def:frame` carries: *Seriality*, the interpolation half of *Compositionality*, *Limit*, and
+*Spherical*. Section 1.2 below traces `thm:extension`'s actual dependency chain in the
+BimodalLogic Lean formalization and finds the proof **consumes** all four of these — a larger
+consumption surface than a first pass over the axiom list suggests, since the naive count only
+spots the two the task's opening brief named (Seriality, Interpolation).
+
+**Consumed is not the same question as must-be-asserted, and this audit's Phase 2 settles the
+second question separately** (full three-way table in Section 1.2): of the four consumed axioms,
+two — *Seriality* and *Interpolation* — must genuinely be asserted in ModelChecker's setting,
+since nothing in the current encoding discharges them. The other two — *Limit* and *Spherical* —
+are **free**: each is discharged by a citable BimodalLogic lemma whose hypotheses ModelChecker's
+actual structure already satisfies (a finite world-state carrier for *Spherical*; the
+already-asserted, unconditional `nullity_identity` biconditional over a discrete duration type
+for *Limit*), with the hypothesis check carried out against ModelChecker's real encoding rather
+than merely cited. So `thm:extension` cannot currently be invoked on a ModelChecker countermodel
+— that conclusion is unchanged — but the corrected reason is "two axioms must be added, and two
+more that the chain consumes are already free," not "four axioms are missing."
 
 The regression baseline (Deliverable 2) shows the abundance-constraint approximation is load
 bearing for exactly four examples in `examples.py`'s canonical test dictionary — the
@@ -148,14 +159,95 @@ def:constraints -> lem:constraint -> lem:admissible -> lem:step (sole Spherical 
   place where ModelChecker's *stronger* choice actually pays off, since ModelChecker's iff-form
   `nullity_identity` already implies the paper's weaker derived fact.
 
-**Ledger conclusion for Deliverable 1**: to legitimately invoke `thm:extension` on a ModelChecker
-countermodel, the oracle would need to add **Seriality, Interpolation (the missing half of
-Compositionality), Limit, and Spherical** — not merely the two the task's opening brief named.
-`nullity_identity` and `converse` are already sufficient (indeed `nullity_identity` is
-over-sufficient) for what the chain needs from them. None of the four missing axioms would, by
-themselves, close the column-(b) universal-guarantee gap (Section 1.1) — they are a precondition
-for a different, existential result (`thm:extension`/`cor:occurrence`: some total history exists
-extending a partial one / some history occurs at a state and time), not a substitute for it.
+**Ledger conclusion for Deliverable 1 (consumed)**: `thm:extension`'s proof chain, traced above,
+**consumes** all four of **Seriality, Interpolation (the missing half of Compositionality),
+Limit, and Spherical** — not merely the two the task's opening brief named. `nullity_identity` and
+`converse` are already sufficient (indeed `nullity_identity` is over-sufficient) for what the
+chain needs from them. None of the four consumed axioms would, by themselves, close the
+column-(b) universal-guarantee gap (Section 1.1) — they are a precondition for a different,
+existential result (`thm:extension`/`cor:occurrence`: some total history exists extending a
+partial one / some history occurs at a state and time), not a substitute for it.
+
+### 1.2a Consumed vs. asserted vs. free (this audit's Phase 2)
+
+*Consumed* (the question Section 1.2 above answers) is a different question from *must be
+asserted in ModelChecker* (the question the follow-on frame-axiom task actually needs answered).
+This subsection settles the second question, with each "free" claim checked against
+ModelChecker's actual encoding rather than merely cited, per the task's own instruction not to
+re-derive but to re-verify.
+
+| Axiom | Consumed by `thm:extension` chain? | Status in ModelChecker | Discharging fact |
+|---|---|---|---|
+| *Seriality* | Yes (`lem:constraint`, Section 1.2) | **Must be asserted** | Nothing in `core.py` discharges it; `grep -rn "serial" semantic/` returns nothing (Section 4.1, re-run) |
+| *Interpolation* | Yes (`lem:constraint`, Section 1.2) | **Must be asserted** | Only the `←` (composition) half is asserted (`forward_comp`, `core.py:344`); the `→` half is absent |
+| *Limit* | Yes (`lem:admissible`, Section 1.2) | **Free** | `TaskFrame.limit_of_succOrder` (`TaskFrame.lean:730`) |
+| *Spherical* | Yes (`lem:step`, Section 1.2) | **Free** | `TaskFrame.spherical_of_finite` (`TaskFrame.lean:985`) |
+
+**Why *Spherical* is free — hypothesis checked, not cited.** `spherical_of_finite`'s statement is
+`theorem spherical_of_finite {W : Type} [Finite W] (R : W → D → W → Prop) : Spherical R`
+(`TaskFrame.lean:985`) — its *sole* hypothesis is `[Finite W]`, and (per the `omit
+[IsOrderedAddMonoid D] in` immediately above it) it is proved without using any ordered-group
+structure on the duration type `D` at all, for a relation `R` of *arbitrary* shape. ModelChecker's
+world-state carrier is `self.WorldStateSort = z3.BitVecSort(self.N)` (`core.py:153`) — a finite
+sort of exactly `2^N` elements — which discharges `[Finite W]` directly. Because the lemma is
+indifferent to `D`'s shape, none of the duration-bounding questions below bear on this discharge
+at all.
+
+**Why *Limit* is free — hypothesis checked, not cited.** `limit_of_succOrder`'s statement is
+`theorem limit_of_succOrder [SuccOrder D] [NoMaxOrder D] {W : Type} {R : W → D → W → Prop}
+(hnull : ∀ w u, R w 0 u ↔ w = u) : ∀ w u, (∀ x, 0 < x → ∃ y, |y| < x ∧ R w y u) → u = w`
+(`TaskFrame.lean:730`). Two hypotheses:
+1. `[SuccOrder D] [NoMaxOrder D]` — ModelChecker's duration argument to `task_rel` has Z3 sort
+   `Int`, i.e. `D` is literally the mathematical integers `\Z`, which carry `SuccOrder`/
+   `NoMaxOrder` instances as standard facts about the sort itself (`\Z` is a discrete linear order
+   with no maximum). This instance search is a fact about the *type*, independent of any bound a
+   particular constraint's quantifier might impose.
+2. `hnull : ∀ w u, R w 0 u ↔ w = u` — this is exactly `build_nullity_identity_constraint`
+   (`core.py:280`–`303`), confirmed by inspection to be **unguarded**: `z3.ForAll([w, u],
+   self.task_rel(w, z3.IntVal(0), u) == (w == u))`, with no `is_valid_duration` clause anywhere in
+   its body. It holds for every `w, u : BitVec[N]` unconditionally, exactly matching `hnull`'s
+   shape.
+
+The proof itself only ever instantiates the `Limit` hypothesis at `x = Order.succ 0 = 1`, which —
+`\Z` being discrete — forces the witness duration `y` to be exactly `0` (`|y| < 1 ⟹ y = 0`), and
+`hnull` at duration `0` closes the goal. So the discharge never reasons about `task_rel` at any
+duration outside `{0}`, which is why the duration-bounding question below does not block it.
+
+**Precedent for this exact configuration.** BimodalLogic's own `IntPresentation.toTaskFrame`
+(`FormalSystem/Metalogic/Decidability/IntPresentation.lean:118`–`129`) builds a `TaskFrame ℤ` over
+a finite world carrier (`Fin P.card`) and discharges *Spherical* via `spherical_of_finite` and
+*Limit* via `limit_of_succOrder` — the identical `(D, W)` shape as ModelChecker's `(Z3 Int,
+BitVec[N])`. Its own docstring states the consequence plainly: "bi-seriality is the sole frame
+obligation a presentation ever pays... the four `def:frame` axioms cost one obligation here, not
+four." This is not a novel derivation for ModelChecker's setting; it is an application of an
+already-proved, already-used discharge pattern in the same repository.
+
+**The duration-domain gap — recorded, not resolved, per the task's non-goals.** The paper requires
+`\D` to be a nontrivial totally ordered abelian **group**; ModelChecker's `is_valid_duration`
+(`core.py:242`) bounds durations to the open interval `(-M, M)`, which is not a group under
+addition (it is not closed: two in-bounds durations can sum to an out-of-bounds one).
+**`is_valid_duration` does not change this Phase 2 finding**: it is a value-level *guard*
+selectively applied inside specific constraints' quantifier bodies (`converse`, `forward_comp`,
+the disabled `task_restriction`) — it never restricts the Z3 *sort* of `task_rel`'s duration
+argument, which remains `Int` (`= \Z`) throughout, and `build_nullity_identity_constraint` in
+particular carries no such guard. So *Limit* and *Spherical* are free regardless of the
+duration-bounding question.
+
+But the gap is genuinely load-bearing **for the follow-on frame-axiom task**, in the opposite
+direction from what might be assumed: because *Limit* and *Spherical* are now settled as free at
+the sort level, the entire weight of "is this really an unbounded `TaskFrame \Z` in the sense
+`thm:extension`'s Lean statement needs" falls on how *Seriality* and *Interpolation* get encoded.
+`thm:extension`'s chain needs `F.serial`/`F.interpolates` (and the field `comp`/`forward_comp`) to
+hold as literal, unconditional `TaskFrame` fields — quantified over all of `\Z`, not merely within
+`(-M, M)`. If the follow-on task asserts Seriality/Interpolation guarded by `is_valid_duration`
+(the natural choice for solver performance, mirroring how `converse` and `forward_comp` are
+already guarded), the resulting structure would **not**, without further argument, be a genuine
+`TaskFrame \Z` in the sense the Lean theorem consumes — only a `TaskFrame` restricted to a bounded
+duration window, which is not literally what `Extension.lean`'s statement is over. This is
+precisely the embedding question the follow-on frame-axiom task's own Deliverable 4 anticipates
+("state and justify the embedding ... or record it explicitly as an open gap"); this audit
+confirms the question is real and load-bearing, and leaves it open for that task to resolve rather
+than resolving it here (out of this audit's scope, which is limited to Limit and Spherical).
 
 ---
 

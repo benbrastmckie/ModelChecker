@@ -153,7 +153,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Settle asserted-vs-free for Limit and Spherical [NOT STARTED]
+### Phase 2: Settle asserted-vs-free for Limit and Spherical [COMPLETED]
 
 - **Goal:** Resolve the tension between the report's "four missing axioms" conclusion and the
   follow-on frame-axiom task's standing premise that *Limit* and *Spherical* are free in
