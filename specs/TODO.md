@@ -109,7 +109,7 @@ task_type: python. file_scope: .github/scripts/unstable_watch_classify.py, code/
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: test-reliability
-- **Dependencies**: Task 173
+- **Dependencies**: Task 153, Task 158, Task 173
 
 **Description**: Find the root cause of the recurring xdist worker crash -- `[gw2] node down: Not properly terminated` -- which has now been observed THREE times across TWO Python versions with no explanation, and which no other task owns.
 
