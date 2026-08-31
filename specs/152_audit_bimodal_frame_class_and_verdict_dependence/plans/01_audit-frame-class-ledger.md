@@ -269,25 +269,25 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Document the baseline as a re-runnable regression net [NOT STARTED]
+### Phase 4: Document the baseline as a re-runnable regression net [COMPLETED]
 
 - **Goal:** Make the baseline executable by the follow-on tasks rather than merely readable. Both
   follow-on tasks are required to diff against this baseline, and neither can do so from a
   throwaway script with no invocation record.
 - **Tasks:**
-  - [ ] Write `baselines/README.md` documenting: what the baseline measures, how to invoke the
+  - [x] Write `baselines/README.md` documenting: what the baseline measures, how to invoke the
         script, what `PYTHONPATH` and working directory it needs, and roughly how long a full
         52-example run takes.
-  - [ ] Document the comparison procedure a follow-on task must follow: re-run against the new
+  - [x] Document the comparison procedure a follow-on task must follow: re-run against the new
         constraint set, diff `verdict_flipped` and `check_result` per example, and explain every
         flip individually rather than absorbing it.
-  - [ ] Name the four abundance-dependent examples explicitly as the cells that must be explained
+  - [x] Name the four abundance-dependent examples explicitly as the cells that must be explained
         if they change, and state plainly that the remaining examples are not informative for the
         abundance question.
-  - [ ] Record the known caveats: the pervasive interpretation error, the `BM_CM_1` timing flake and
+  - [x] Record the known caveats: the pervasive interpretation error, the `BM_CM_1` timing flake and
         its `unstable` marker, `TN_CM_2`'s separately documented timeout, and the fact that
         `MF_MODAL_FUTURE_TH` / `BM_TH_5` are already-known non-theorems and not regressions.
-  - [ ] State that a verdict flip after adding a genuine frame axiom is not automatically a
+  - [x] State that a verdict flip after adding a genuine frame axiom is not automatically a
         regression — narrowing the frame class legitimately turns SAT into UNSAT — but that every
         flip must be explained.
 - **Timing:** 0.5 hours
