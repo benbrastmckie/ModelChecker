@@ -104,6 +104,14 @@ FLOOR_MESSAGE = (
     + FLOOR_ASSERTION_MESSAGE
 )
 DISAGREEMENT_MESSAGE = "Self-comparison produced 3 disagreements among conclusive results: []"
+# The raw SOURCE-LISTING f-string _assert_scan_report's first assert carries, verbatim -- what
+# pytest embeds in a <failure> body for a failure at the SECOND (floor) assert, since the first
+# assert's own source is textually earlier in the same function. Note this has no literal digit
+# where a rendered failure would have one -- `{report['disagreements']}` is never interpolated
+# in a source listing, only in the rendered print()/assertion output.
+DISAGREEMENT_SOURCE_LISTING = (
+    "f\"Self-comparison produced {report['disagreements']} disagreements among \""
+)
 # code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases
 BM_CM_1_FAILURE_TEXT = "AssertionError: Test failed for example: BM_CM_1"
 
@@ -208,6 +216,16 @@ class TestClassifyGatingFloorSignature:
         large_duration_result = classify_mod.classify(GATING_NODEID, 5000.0, FLOOR_MESSAGE)
         assert small_duration_result == "TIMING"
         assert large_duration_result == "TIMING"
+
+    def test_disagreement_source_listing_does_not_match_anchored_pattern(self):
+        """Synthetic companion to TestRealPytestJunitRoundTrip: pins the discrimination
+        property directly against the classifier's own compiled pattern, independent of the
+        subprocess-pytest path. The raw source-listing f-string (no literal digit) must NOT
+        match DISAGREEMENT_SIGNATURE -- if it did, the laundering-guard defect this task fixes
+        would still be live."""
+        assert classify_mod.DISAGREEMENT_SIGNATURE.search(DISAGREEMENT_SOURCE_LISTING) is None
+        # Sanity check on the positive side: a rendered failure (a literal digit) does match.
+        assert classify_mod.DISAGREEMENT_SIGNATURE.search(DISAGREEMENT_MESSAGE) is not None
 
 
 # ---------------------------------------------------------------------------

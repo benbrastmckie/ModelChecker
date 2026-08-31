@@ -192,37 +192,37 @@ count is not load-bearing, only the "none of them regress" property is.
 
 ---
 
-### Phase 2: Fix the laundering guard (GREEN) [NOT STARTED]
+### Phase 2: Fix the laundering guard (GREEN) [COMPLETED]
 
 **Goal**: Replace the bare-substring negative guard with an anchored regex on the rendered
 message, tighten `has_zero_disagreements` alongside it, record the remedy decision and the
 `FAILURE_SIGNATURE` safety survey in-code, and turn Phase 1's RED test green.
 
 **Tasks**:
-- [ ] Add `import re` to `.github/scripts/unstable_watch_classify.py` (stdlib; permitted).
-- [ ] Convert `DISAGREEMENT_SIGNATURE` from a bare substring to an anchored pattern
+- [x] Add `import re` to `.github/scripts/unstable_watch_classify.py` (stdlib; permitted).
+- [x] Convert `DISAGREEMENT_SIGNATURE` from a bare substring to an anchored pattern
       `r"Self-comparison produced \d+ disagreements"` (keep the constant name; a precompiled
       `re.compile` at module level is preferred over a per-call `re.search` literal). Update
       `classify()`'s `has_disagreement_failure` to use it.
-- [ ] Tighten `has_zero_disagreements` to a `scan report:`-anchored regex matching the rendered
+- [x] Tighten `has_zero_disagreements` to a `scan report:`-anchored regex matching the rendered
       report line, validated against the real captured text from Phase 1's subprocess XML rather
       than a hand-typed string. If it cannot be made to match the real text, leave the bare
       substring in place and record that outcome in-code with its reason.
-- [ ] Rewrite the comment at `DISAGREEMENT_SIGNATURE`'s definition site: keep the existing
+- [x] Rewrite the comment at `DISAGREEMENT_SIGNATURE`'s definition site: keep the existing
       reasoning for WHY the guard exists (a `disagreements != 0` failure must never launder into
       TIMING) unchanged; replace only the HOW to describe matching the rendered count. Add a
       one-sentence note that remedy (b) (a machine-readable `UNSTABLE-SIGNATURE:` line from
       `_assert_scan_report`) was considered and declined on blast-radius grounds, pointing at
       `specs/175_fix_unstable_watch_classifier_laundering_guard/reports/01_laundering-guard-fix-design.md`.
-- [ ] Update `classify()`'s docstring's laundering-guard paragraph: the "mutually exclusive
+- [x] Update `classify()`'s docstring's laundering-guard paragraph: the "mutually exclusive
       outcomes" reasoning is true of BEHAVIOR and false of the TEXT, which is why the guard must
       match the rendered count.
-- [ ] Add a comment near `FAILURE_SIGNATURE`'s definition recording the survey result: it is the
+- [x] Add a comment near `FAILURE_SIGNATURE`'s definition recording the survey result: it is the
       last statement of a single-assertion test, pytest prints source only up to the failure
       point, and it is a positive confirmation signature rather than a negative guard against a
       co-located different failure mode — so it does not share this exposure and is deliberately
       left unchanged.
-- [ ] Add a synthetic companion test asserting the raw source-listing f-string
+- [x] Add a synthetic companion test asserting the raw source-listing f-string
       (`{report['disagreements']}`, no literal digit) does NOT match the new pattern, so the
       discrimination property is pinned independently of the subprocess path.
 

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -50,6 +51,17 @@ MAX_TIME_BY_NODEID_FRAGMENT = {
 
 FAILURE_SIGNATURE = "Test failed for example:"
 
+# Safety survey: FAILURE_SIGNATURE is the last statement of a *single*-assertion test
+# (`test_example_cases`'s `assert result, f"Test failed for example: {example_name}"` --
+# code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py) and pytest prints a
+# frame's source only up to the point of failure, never past it -- so there is no earlier,
+# textually-preceding sibling assertion whose source could leak this string into an unrelated
+# failure's <failure> body. This is a POSITIVE confirmation signature (its presence confirms
+# the expected failure), not a NEGATIVE guard against a co-located different failure mode --
+# the structural distinction that makes DISAGREEMENT_SIGNATURE below dangerous as a bare
+# substring and this one safe as one. Deliberately left unchanged; see the
+# laundering-guard-fix-design research report's section 2 for the full survey.
+
 # Gating-floor TIMING signature for
 # TestGatingConclusiveScan::test_known_conclusive_population_self_consistent (see
 # oracle/bimodal_logic/tests/test_cross_oracle_differential.py). Strings copied verbatim from
@@ -59,7 +71,35 @@ GATING_FLOOR_SIGNATURE = "budget/performance regression to investigate, not a se
 
 # Negative guard: a genuine disagreements != 0 failure on the gating node id is a real
 # soundness bug and must never launder into TIMING. See classify()'s gating branch below.
-DISAGREEMENT_SIGNATURE = "Self-comparison produced"
+#
+# Anchored on the RENDERED count, not a bare substring. `_assert_scan_report`'s own source
+# contains two sequential asserts; pytest's <failure> body for a failure at the SECOND (floor)
+# assert embeds the full frame source up to and including the failing line -- which includes
+# the FIRST (disagreements) assert's own f-string source verbatim:
+# `f"Self-comparison produced {report['disagreements']} disagreements among "`. A bare
+# substring match on "Self-comparison produced" matches that source listing even though no
+# disagreement ever occurred, misclassifying every genuine gating-floor TIMING failure as NEW.
+# Requiring a literal digit between "produced" and "disagreements" discriminates a RENDERED
+# failure ("...produced 3 disagreements...") from the source listing (which only ever contains
+# the unrendered `{report['disagreements']}` placeholder, never a literal digit) -- verified
+# empirically against both the source-listing text and a real rendered failure. Remedy (b) (a
+# machine-readable `UNSTABLE-SIGNATURE:` line emitted by `_assert_scan_report` itself) was
+# considered and declined: that helper is called from at least five other test groups that pin
+# its current message text, so changing what it prints has a much larger blast radius than
+# anchoring this classifier's own regex. See the laundering-guard-fix-design research report's
+# section 2 for the full comparison.
+DISAGREEMENT_SIGNATURE = re.compile(r"Self-comparison produced \d+ disagreements")
+
+# Tightened alongside DISAGREEMENT_SIGNATURE for consistency, NOT because it shares the same
+# defect: `_assert_scan_report`'s print() f-string source is
+# `f"disagreements={report['disagreements']} "` -- the literal substring "disagreements=0"
+# never appears in a source listing (the value is interpolated, not written literally), only in
+# the RENDERED <system-out> print() output. So the bare-substring form of this check was never
+# exposed to the DISAGREEMENT_SIGNATURE defect. It shared only the general brittleness of an
+# unanchored substring match (nothing pinned it to the "scan report:" line specifically), which
+# this anchors. Validated against the real captured text from a subprocess-pytest run (not a
+# hand-typed string) reproducing _assert_scan_report's exact shape.
+ZERO_DISAGREEMENTS_PATTERN = re.compile(r"scan report:.*?disagreements=0", re.DOTALL)
 
 
 def parse_junit(path):
@@ -121,12 +161,17 @@ def classify(nodeid, duration, failure_text):
     plays NO part in this branch -- the budget is per-formula across up to 103 formulas, so no
     single wall-clock threshold is meaningful (unlike BM_CM_1's single-solve max_time). Returns
     TIMING only when ALL of: the node id matches the gating fragment, the floor signature is
-    present, "disagreements=0" is present, AND the disagreement-failure signature is absent;
-    otherwise NEW. This is the laundering guard: `_assert_scan_report`'s two assertions fire in
-    order (disagreements first, floor second), so a genuine floor failure necessarily implies
-    the disagreements assertion already passed -- but a disagreements != 0 failure is a real
-    soundness bug and must never be classified TIMING just because it happens to also carry the
-    floor language somewhere in a longer captured text.
+    present, the rendered "disagreements=0" report line is present, AND the rendered
+    disagreement-failure signature is absent; otherwise NEW. This is the laundering guard:
+    `_assert_scan_report`'s two assertions fire in order (disagreements first, floor second), so
+    a genuine floor failure necessarily implies the disagreements assertion already passed --
+    that mutual-exclusivity is true of BEHAVIOR, but NOT of the TEXT pytest renders for the
+    failure: a failure at the second assert embeds the first (passing) assert's own f-string
+    SOURCE in the <failure> body, and that source contains the literal words "Self-comparison
+    produced" with no rendered count. This is why both signature checks below match against the
+    RENDERED count (a literal digit), not a bare substring -- matching the source listing would
+    misclassify every genuine floor failure as NEW, and a disagreements != 0 failure is a real
+    soundness bug that must never be classified TIMING regardless.
 
     TIMING (the documented BM_CM_1-style signature): the recorded duration is at least 0.8x the
     example's max_time AND the failure text carries the expected assertion message. A budget
@@ -138,8 +183,8 @@ def classify(nodeid, duration, failure_text):
     """
     if GATING_FLOOR_NODEID_FRAGMENT in nodeid:
         has_floor_signature = GATING_FLOOR_SIGNATURE in failure_text
-        has_zero_disagreements = "disagreements=0" in failure_text
-        has_disagreement_failure = DISAGREEMENT_SIGNATURE in failure_text
+        has_zero_disagreements = bool(ZERO_DISAGREEMENTS_PATTERN.search(failure_text))
+        has_disagreement_failure = bool(DISAGREEMENT_SIGNATURE.search(failure_text))
         if has_floor_signature and has_zero_disagreements and not has_disagreement_failure:
             return "TIMING"
         return "NEW"
