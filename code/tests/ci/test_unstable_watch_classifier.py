@@ -562,3 +562,126 @@ class TestPerTestPromotionStreak:
         assert bm_cm_1_ready is True
         assert gating_streak == 0
         assert gating_ready is False
+
+
+# ---------------------------------------------------------------------------
+# run()-level wiring (Phase 4): drives run() directly against tmp_path JUnit
+# fixtures with past_runs_fn/fetch_past_classifications_fn injected -- no
+# real `gh` CLI or network access -- confirming the per-test streak actually
+# reaches READY TO PROMOTE independently per node id, and that run()'s
+# return code is unaffected by any of this wiring.
+# ---------------------------------------------------------------------------
+
+_CODE_JUNIT_BM_CM_1_PASSED = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="test_bimodal" name="test_example_cases[BM_CM_1-example_case7]" time="45.0"></testcase>
+  </testsuite>
+</testsuites>
+"""
+
+_CODE_JUNIT_BM_CM_1_TIMING_FAILURE = f"""<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="test_bimodal" name="test_example_cases[BM_CM_1-example_case7]" time="60.94">
+      <failure message="{BM_CM_1_FAILURE_TEXT}">traceback text</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
+"""
+
+_ORACLE_JUNIT_GATING_ERROR_FAILURE = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="1">
+    <testcase classname="TestGatingConclusiveScan" name="test_known_conclusive_population_self_consistent" time="41.0">
+      <error message="OracleTimeoutError: solve exceeded timeout_ms=40000">traceback</error>
+    </testcase>
+  </testsuite>
+</testsuites>
+"""
+
+
+def _fake_past_runs_20(repo, current_run_id):
+    """19 fake prior COMPLETED runs. Job `conclusion` is irrelevant to the per-test streak
+    wiring under test here -- that streak is driven entirely by the injected
+    fetch_past_classifications_fn below, not by gh run list's job-level conclusions."""
+    return [
+        {
+            "databaseId": 9000 + i,
+            "conclusion": "success",
+            "createdAt": f"2026-07-{(i % 28) + 1:02d}T05:00:00Z",
+            "status": "completed",
+        }
+        for i in range(19)
+    ]
+
+
+def _fake_fetch_clean_bm_cm1_dirty_gating(repo, nodeids, past_run_ids):
+    """BM_CM_1 has a spotless 19-run classification history; the gating test has been failing
+    NEW on every prior run too (moot for this run's own gating result, which already fails NEW
+    on its own current-run classification regardless of history)."""
+    return {
+        nodeid: (
+            ["N/A"] * len(past_run_ids) if "BM_CM_1" in nodeid else ["NEW"] * len(past_run_ids)
+        )
+        for nodeid in nodeids
+    }
+
+
+class TestRunPerTestStreakWiring:
+    def test_clean_bm_cm1_and_failing_gating_yields_ready_for_bm_cm1_only(self, tmp_path, capsys):
+        """A clean BM_CM_1 history (this run passed, 19 prior clean runs) plus a gating test
+        that fails NEW this run must produce READY TO PROMOTE naming BM_CM_1 alone -- never
+        both, and never the gating test, which is nowhere close to its own streak."""
+        code_xml = tmp_path / "code.xml"
+        code_xml.write_text(_CODE_JUNIT_BM_CM_1_PASSED)
+        oracle_xml = tmp_path / "oracle.xml"
+        oracle_xml.write_text(_ORACLE_JUNIT_GATING_ERROR_FAILURE)
+        record_path = tmp_path / "record.jsonl"
+
+        exit_code = classify_mod.run(
+            code_junit_path=str(code_xml),
+            oracle_junit_path=str(oracle_xml),
+            record_path=str(record_path),
+            repo="acme/repo",
+            current_run_id="777",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        captured = capsys.readouterr()
+        notice_lines = [
+            line for line in captured.out.splitlines()
+            if line.startswith("::notice title=READY TO PROMOTE::")
+        ]
+        assert len(notice_lines) == 1
+        notice = notice_lines[0]
+        assert "BM_CM_1-example_case7" in notice
+        assert "test_known_conclusive_population_self_consistent" not in notice
+        # The gating test's own current-run failure classifies NEW -- run()'s return code is
+        # driven solely by any_new, unaffected by the per-test streak/notice wiring above.
+        assert exit_code == 1
+
+    def test_failing_bm_cm1_yields_no_ready_to_promote_notice(self, tmp_path, capsys):
+        """BM_CM_1 failing TIMING this run must not be READY TO PROMOTE (its own streak is
+        zeroed by this run's failure); with no gating testcase collected at all (oracle_junit_path
+        points at a file that does not exist -- the "no unstable test in this tree" case
+        parse_junit already handles), no notice should print at all."""
+        code_xml = tmp_path / "code.xml"
+        code_xml.write_text(_CODE_JUNIT_BM_CM_1_TIMING_FAILURE)
+        missing_oracle_xml = tmp_path / "does-not-exist.xml"
+        record_path = tmp_path / "record.jsonl"
+
+        exit_code = classify_mod.run(
+            code_junit_path=str(code_xml),
+            oracle_junit_path=str(missing_oracle_xml),
+            record_path=str(record_path),
+            repo="acme/repo",
+            current_run_id="778",
+            past_runs_fn=_fake_past_runs_20,
+            fetch_past_classifications_fn=_fake_fetch_clean_bm_cm1_dirty_gating,
+        )
+        captured = capsys.readouterr()
+        assert "READY TO PROMOTE" not in captured.out
+        # A TIMING-only failure must never fail the job -- the non-gating contract, unaffected
+        # by the per-test streak/notice wiring.
+        assert exit_code == 0

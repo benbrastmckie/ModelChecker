@@ -25,6 +25,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import xml.etree.ElementTree as ET
 
@@ -280,6 +281,98 @@ def compute_per_test_promotion_streak(nodeid, this_run_classification, past_run_
     return streak, streak >= 20
 
 
+def fetch_past_classifications(repo, nodeids, past_run_ids):
+    """For each of `past_run_ids` (already ordered newest-first by the caller), download that
+    run's `unstable-watch-record-<run_id>` artifact via `gh run download`, parse its JSONL, and
+    extract each of `nodeids`' own `classification` value from it. Returns
+    `{nodeid: [classification_or_None, ...]}`, one entry per node id, each list ordered
+    newest-first in lockstep with `past_run_ids` -- directly consumable as
+    `compute_per_test_promotion_streak`'s `past_run_classifications` argument.
+
+    Bounded to `O(len(nodeids) * len(past_run_ids))` fetches -- today 2 marked node ids x the
+    same 25-run window `gh run list` already uses, i.e. at most 50 `gh run download` calls per
+    nightly run. A future third `unstable` marking inherits this same bound automatically (it
+    scales with `len(nodeids)`, not a hard-coded constant). Every per-run fetch is wrapped in its
+    own try/except, following the existing `gh run list` pattern this module already uses: a
+    failure (expired artifact, network, rate limit, no artifact for that run, or a malformed
+    JSONL line) emits `::warning::` and leaves every node id's entry for that run `None`, which
+    `compute_per_test_promotion_streak` treats as breaking (not extending) that node id's streak
+    -- conservative by construction. This function raises nothing of its own; the classify
+    step's exit code stays driven solely by `any_new` in `run()`.
+
+    Node id matching uses the same `fragment in nodeid` substring style `classify()` and `run()`
+    already use elsewhere in this module, not an exact match -- a stored record's `nodeid` is a
+    full pytest node id (e.g. `path/to/test.py::Class::test_name[param]`), while `nodeids` here
+    are the short fragments this module tracks (`GATING_FLOOR_NODEID_FRAGMENT`,
+    `MAX_TIME_BY_NODEID_FRAGMENT` keys).
+    """
+    result = {nodeid: [] for nodeid in nodeids}
+    for run_id in past_run_ids:
+        artifact_name = f"unstable-watch-record-{run_id}"
+        classifications_this_run = {nodeid: None for nodeid in nodeids}
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                subprocess.run(
+                    [
+                        "gh", "run", "download", str(run_id),
+                        "--repo", repo,
+                        "-n", artifact_name,
+                        "-D", tmpdir,
+                    ],
+                    capture_output=True, text=True, check=True,
+                )
+                record_file = os.path.join(tmpdir, DEFAULT_RECORD_PATH)
+                with open(record_file) as fh:
+                    for line in fh:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        rec = json.loads(line)
+                        rec_nodeid = rec.get("nodeid", "")
+                        for nodeid in nodeids:
+                            if nodeid in rec_nodeid:
+                                classifications_this_run[nodeid] = rec.get("classification")
+        except Exception as exc:  # pragma: no cover -- network/CLI/filesystem dependent
+            print(
+                f"::warning::could not fetch or parse {artifact_name} for run "
+                f"{run_id}: {exc}"
+            )
+        for nodeid in nodeids:
+            result[nodeid].append(classifications_this_run[nodeid])
+    return result
+
+
+def _default_past_runs(repo, current_run_id):
+    """Query `gh run list` for this workflow's own run history, excluding the current
+    (still-in-progress) run and any non-completed run, newest-first. Wrapped in its own
+    try/except -- a fetch failure yields an empty history (conservatively: no promotion
+    progress from an unknown past), not a crash. Extracted from `run()`'s inline body so tests
+    can inject a fake `past_runs_fn` instead of depending on a real `gh` CLI / network call."""
+    try:
+        out = subprocess.run(
+            [
+                "gh", "run", "list",
+                "--repo", repo,
+                "--workflow", "unstable-watch.yml",
+                "--json", "conclusion,createdAt,databaseId,status",
+                "--limit", "25",
+            ],
+            capture_output=True, text=True, check=True,
+        )
+        history = json.loads(out.stdout)
+    except Exception as exc:  # pragma: no cover -- network/CLI dependent
+        print(f"::warning::could not query run history via gh run list: {exc}")
+        history = []
+
+    past = [
+        r for r in history
+        if str(r.get("databaseId")) != str(current_run_id)
+        and r.get("status") == "completed"
+    ]
+    past.sort(key=lambda r: r.get("createdAt", ""), reverse=True)
+    return past
+
+
 def run(
     code_junit_path=DEFAULT_CODE_JUNIT_PATH,
     oracle_junit_path=DEFAULT_ORACLE_JUNIT_PATH,
@@ -287,12 +380,17 @@ def run(
     summary_path=None,
     repo="",
     current_run_id="",
+    past_runs_fn=_default_past_runs,
+    fetch_past_classifications_fn=fetch_past_classifications,
 ):
     """The full classify-and-report pipeline, parameterized for testability (the workflow's
     `main()` supplies the real paths/env values; a test can drive this directly against
-    `tmp_path` fixtures). Behavior is otherwise identical to the original heredoc. Returns the
-    exit code: 0 unless a NEW-classified failure was found (1) -- the workflow's non-gating
-    contract (a TIMING failure must never fail the job)."""
+    `tmp_path` fixtures). `past_runs_fn`/`fetch_past_classifications_fn` default to the real
+    `gh`-CLI-backed implementations but can be injected with fakes so a test can drive the
+    per-test promotion-streak wiring below without a real `gh` CLI or network access. Returns
+    the exit code: 0 unless a NEW-classified failure was found (1) -- the workflow's non-gating
+    contract (a TIMING failure must never fail the job); this return value is driven solely by
+    `any_new` and is unaffected by anything in the per-test streak wiring below."""
     records = []
     any_new = False
     any_failure = False
@@ -332,63 +430,85 @@ def run(
             fh.write(json.dumps(rec) + "\n")
 
     # Cross-run trend via GitHub's own run history -- no committed state.
-    try:
-        out = subprocess.run(
-            [
-                "gh", "run", "list",
-                "--repo", repo,
-                "--workflow", "unstable-watch.yml",
-                "--json", "conclusion,createdAt,databaseId,status",
-                "--limit", "25",
-            ],
-            capture_output=True, text=True, check=True,
-        )
-        history = json.loads(out.stdout)
-    except Exception as exc:  # pragma: no cover -- network/CLI dependent
-        print(f"::warning::could not query run history via gh run list: {exc}")
-        history = []
+    past = past_runs_fn(repo, current_run_id)
 
-    # Exclude the current (still-in-progress) run from the historical list, and treat this
-    # run's own outcome (no NEW failure) as the most recent entry.
-    past = [
-        r for r in history
-        if str(r.get("databaseId")) != str(current_run_id)
-        and r.get("status") == "completed"
-    ]
-    past.sort(key=lambda r: r.get("createdAt", ""), reverse=True)
-
+    # Legacy, job-level, per-run streak -- kept for reference (its own tests, feeding directly
+    # from `gh run list` job conclusions, still exercise it), but no longer what drives READY TO
+    # PROMOTE below. Structurally an UPPER BOUND, and -- once any one marked test fails nightly
+    # with any regularity -- this global number can be permanently stuck near 0 even while every
+    # OTHER marked test is individually clean; see the per-test computation immediately below for
+    # the mechanism that actually drives promotion now.
     past_run_successes = [r.get("conclusion") == "success" for r in past]
-    streak, ready_to_promote = compute_promotion_streak(any_failure, past_run_successes)
+    legacy_streak, _legacy_ready = compute_promotion_streak(any_failure, past_run_successes)
 
     # Covers BOTH marked-test patterns -- the duration-based MAX_TIME_BY_NODEID_FRAGMENT
-    # entries and the duration-independent GATING_FLOOR_NODEID_FRAGMENT gating branch -- so a
-    # READY TO PROMOTE notice names every currently-marked test, not just the first pattern
-    # historically registered here.
+    # entries and the duration-independent GATING_FLOOR_NODEID_FRAGMENT gating branch -- so
+    # every currently-marked test gets its own streak computed below, not just the first
+    # pattern historically registered here.
     currently_unstable = sorted(
         set(MAX_TIME_BY_NODEID_FRAGMENT.keys()) | {GATING_FLOOR_NODEID_FRAGMENT}
     )
-    if ready_to_promote:
-        names = ", ".join(currently_unstable) if currently_unstable else "(none)"
+
+    # This run's own per-node-id classification, from the `records` this loop already built
+    # above -- matched by the same `fragment in nodeid` substring style `classify()` uses, since
+    # `records[i]["nodeid"]` is a full pytest node id and `currently_unstable` entries are short
+    # fragments.
+    this_run_classification_by_nodeid = {nodeid: None for nodeid in currently_unstable}
+    for rec in records:
+        for nodeid in currently_unstable:
+            if nodeid in rec["nodeid"]:
+                this_run_classification_by_nodeid[nodeid] = rec["classification"]
+
+    past_run_ids = [r.get("databaseId") for r in past]
+    past_classifications_by_nodeid = fetch_past_classifications_fn(
+        repo, currently_unstable, past_run_ids
+    )
+
+    per_test_streaks = {
+        nodeid: compute_per_test_promotion_streak(
+            nodeid,
+            this_run_classification_by_nodeid.get(nodeid),
+            past_classifications_by_nodeid.get(nodeid, []),
+        )
+        for nodeid in currently_unstable
+    }
+
+    # READY TO PROMOTE now names ONLY the node id(s) that individually reached 20 -- never the
+    # whole currently_unstable set just because ONE member earned it.
+    ready_nodeids = sorted(
+        nodeid for nodeid, (_streak, ready) in per_test_streaks.items() if ready
+    )
+    if ready_nodeids:
+        details = "; ".join(
+            f"{nodeid} ({per_test_streaks[nodeid][0]} consecutive green runs)"
+            for nodeid in ready_nodeids
+        )
         print(
-            f"::notice title=READY TO PROMOTE::{names} -- {streak} consecutive "
-            f"green unstable-watch runs. See TESTING_GUIDE.md section 8.9's "
-            f"promotion path."
+            f"::notice title=READY TO PROMOTE::{details}. See TESTING_GUIDE.md "
+            f"section 8.9's promotion path."
         )
 
     if summary_path:
         with open(summary_path, "a") as fh:
             fh.write("## Unstable Watch\n\n")
             fh.write(
-                f"Consecutive green streak: **{streak}** / 20 (promotion threshold). "
-                f"This run's own contribution reflects ANY failure (TIMING or NEW); the "
-                f"historical component beyond it is derived from `gh run list` job "
-                f"conclusions, which are NEW-sensitive only (a TIMING-failing run's job "
-                f"still exits 0) -- so this number is an UPPER BOUND on the true "
-                f"zero-failure streak. See TESTING_GUIDE.md section 8.9 and the uploaded "
-                f"per-run `unstable-watch-record.jsonl` artifacts for the authoritative "
-                f"per-test history.\n\n"
+                f"Legacy global streak (job-level, per-run, UPPER BOUND -- see "
+                f"TESTING_GUIDE.md section 8.9): **{legacy_streak}** / 20. This metric no "
+                f"longer drives promotion; see the per-test breakdown below, which is "
+                f"derived from each marked test's own classification history in the "
+                f"uploaded per-run `unstable-watch-record.jsonl` artifacts.\n\n"
             )
-            if ready_to_promote:
+            if currently_unstable:
+                fh.write("| Node ID | Streak | Ready |\n")
+                fh.write("|---|---|---|\n")
+                for nodeid in currently_unstable:
+                    node_streak, node_ready = per_test_streaks[nodeid]
+                    fh.write(
+                        f"| `{nodeid}` | {node_streak} / 20 | "
+                        f"{'READY TO PROMOTE' if node_ready else ''} |\n"
+                    )
+                fh.write("\n")
+            if ready_nodeids:
                 fh.write("**READY TO PROMOTE** -- see TESTING_GUIDE.md section 8.9.\n\n")
             if summary_rows:
                 fh.write("| Node ID | Outcome | Duration (s) | Classification |\n")

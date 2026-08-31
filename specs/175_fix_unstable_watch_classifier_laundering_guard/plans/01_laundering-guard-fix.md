@@ -299,38 +299,38 @@ this phase rather than deferring it.
 
 ---
 
-### Phase 4: Per-run artifact history and READY TO PROMOTE wiring [NOT STARTED]
+### Phase 4: Per-run artifact history and READY TO PROMOTE wiring [COMPLETED]
 
 **Goal**: Fetch prior runs' `unstable-watch-record-<run_id>` artifacts, derive per-node-id
 classification history from them, wire the per-test streak into `run()`, and make
 `READY TO PROMOTE` name only the node id(s) that individually earned it.
 
 **Tasks**:
-- [ ] Add a `fetch_past_classifications(repo, nodeids, past_run_ids)` helper that, for each past
+- [x] Add a `fetch_past_classifications(repo, nodeids, past_run_ids)` helper that, for each past
       run id, downloads `unstable-watch-record-<run_id>` via `gh run download <id> -n
       unstable-watch-record-<id> -D <tmpdir>` (or `gh api .../actions/artifacts` + zip extraction),
       parses the JSONL, and returns `{nodeid: [classification_or_None, ...]}` ordered
       newest-first.
-- [ ] Wrap every fetch in its own try/except following the existing `gh run list` pattern; on
+- [x] Wrap every fetch in its own try/except following the existing `gh run list` pattern; on
       failure emit `::warning::` and record `None` (streak-breaking) for that run rather than
       raising. The classify step's exit code must stay driven solely by `any_new`.
-- [ ] Bound the work explicitly: iterate only `currently_unstable` (the already-computed
+- [x] Bound the work explicitly: iterate only `currently_unstable` (the already-computed
       `set(MAX_TIME_BY_NODEID_FRAGMENT) | {GATING_FLOOR_NODEID_FRAGMENT}`) against the same 25-run
       window `gh run list` already uses; state the `O(marked_tests x 25)` bound in a comment so a
       future third marking inherits it.
-- [ ] Collect this run's own per-node-id classification from the `records` list `run()` already
+- [x] Collect this run's own per-node-id classification from the `records` list `run()` already
       builds (match by `GATING_FLOOR_NODEID_FRAGMENT`-style substring against each record's
       `nodeid`, consistent with how `classify()` matches).
-- [ ] Compute a per-node-id streak for each marked test; fire `READY TO PROMOTE` naming ONLY the
+- [x] Compute a per-node-id streak for each marked test; fire `READY TO PROMOTE` naming ONLY the
       node ids whose own streak reached 20, not the whole `currently_unstable` set.
-- [ ] Update the step-summary text: replace the single global "Consecutive green streak: N / 20"
+- [x] Update the step-summary text: replace the single global "Consecutive green streak: N / 20"
       plus its UPPER BOUND caveat with a per-test breakdown (one row or line per marked node id).
       Keep the per-run number only if it still carries meaning, clearly labelled as such.
-- [ ] Add tests driving `run()` directly against `tmp_path` JUnit fixtures with the artifact
+- [x] Add tests driving `run()` directly against `tmp_path` JUnit fixtures with the artifact
       fetch monkeypatched/injected, asserting: a clean BM_CM_1 history plus a failing gating test
       yields `READY TO PROMOTE` for BM_CM_1 alone (never both), and a failing BM_CM_1 yields no
       notice.
-- [ ] Confirm `run()` still returns 1 only when a `NEW` classification is present, unchanged.
+- [x] Confirm `run()` still returns 1 only when a `NEW` classification is present, unchanged.
 
 **Timing**: 2 hours
 
