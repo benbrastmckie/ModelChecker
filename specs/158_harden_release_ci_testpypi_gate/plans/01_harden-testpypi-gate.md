@@ -444,30 +444,40 @@ and untrack whatever that command actually returns -- the count may have moved s
 
 ---
 
-### Phase 6: Document the workflow-ordering hazard and the new gates [NOT STARTED]
+### Phase 6: Document the workflow-ordering hazard and the new gates [COMPLETED]
 
 **Goal**: `.github/RELEASE_SETUP.md`'s "Release Process" section states the push-before-tag
 ordering requirement and describes the new preflight/verify gates.
 
 **Tasks**:
-- [ ] Add an explicit note to the "Release Process" section (currently lines 74-90) that the
+- [x] Add an explicit note to the "Release Process" section (currently lines 74-90) that the
       branch must be pushed (or landed via `/merge`) BEFORE the tag is created and pushed,
       because Actions executes the workflow file **as it exists at the tagged commit**. Cite the
       1.3.0 incident concretely: an uncommitted-then-unpushed
       `pip install build twine` -> `... wheel` fix resolved correctly only by accident of push
       ordering
-- [ ] Cross-reference Phase 4's preflight workflow-file-match assertion as the mechanical backstop
-- [ ] Document the new gate topology: `preflight` -> matrix -> `build` -> `publish-testpypi` ->
+- [x] Cross-reference Phase 4's preflight workflow-file-match assertion as the mechanical backstop
+- [x] Document the new gate topology: `preflight` -> matrix -> `build` -> `publish-testpypi` ->
       `verify-testpypi` -> `publish-pypi` -> `github-release`, and the `skip_testpypi`
       `workflow_dispatch` escape and when it is legitimate to use
-- [ ] Note the CHANGELOG preflight requirement so the next releaser sees it before tagging rather
+- [x] Note the CHANGELOG preflight requirement so the next releaser sees it before tagging rather
       than at tag time (out-of-scope flag B)
-- [ ] Record out-of-scope flag A (environment protection rule) as a documented user option, with
+- [x] Record out-of-scope flag A (environment protection rule) as a documented user option, with
       the fact that both environments currently have empty `protection_rules`
-- [ ] Add a JSON-API-over-simple-index note (`https://pypi.org/pypi/model-checker/json`, bounded
+- [x] Add a JSON-API-over-simple-index note (`https://pypi.org/pypi/model-checker/json`, bounded
       retry) for post-publish confirmation. **Only in this file.** Do NOT edit
       `code/docs/development/PYPI_RELEASE_GUIDE.md:149`, where the actual stale
       `pip index versions` advice lives -- it is outside file_scope (out-of-scope flag C)
+
+**Beyond the literal task list**: also corrected two now-stale sections in the same file that
+still described the pre-Phase-2 soft-canary behavior (`continue-on-error: true`, five-job
+topology): the "2. TestPyPI Trusted Publisher" prerequisite section and the "Workflow Overview"
+section's job list, plus the "Common Issues" entries for `publish-testpypi`/`publish-pypi` and a
+new dry-run caveat noting `preflight` will (correctly) fail the existing `v999.999.999` dry-run
+tag recipe. These are within the single in-scope file and needed for internal consistency with
+the new gate topology documented elsewhere in this same phase -- leaving them unedited would
+have made the file self-contradictory (documenting a soft gate in one section and a hard gate in
+another).
 
 **Timing**: 45 minutes
 

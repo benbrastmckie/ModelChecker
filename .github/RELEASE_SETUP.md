@@ -23,14 +23,18 @@ long-lived API token to create, store, or rotate.
 4. Save. No token is generated or copied — PyPI now trusts OIDC tokens minted by the
    `release.yml` workflow when it runs under the `pypi` GitHub Environment.
 
-### 2. TestPyPI Trusted Publisher (Optional, for the TestPyPI rehearsal step)
+### 2. TestPyPI Trusted Publisher (Effectively required — see the hard-gate note below)
 
 1. Go to https://test.pypi.org and create/log in to an account.
 2. Register (or create) the `model-checker` project there, then add a trusted publisher the same
    way as above, but with **Environment name**: `testpypi`.
-3. If this is skipped, the workflow's `publish-testpypi` job still runs but fails gracefully
-   (`continue-on-error: true`) without blocking the production `publish-pypi` job — see
-   "Workflow Overview" below.
+3. **This is no longer a soft rehearsal step.** `publish-testpypi` is a hard gate: a failure
+   there blocks the production `publish-pypi` job (via `verify-testpypi`, which installs and
+   smoke-tests the artifact TestPyPI just received — see "Workflow Overview" below). If the
+   TestPyPI trusted publisher is not configured, every normal tag-push release will fail here.
+   The only sanctioned bypass is the `skip_testpypi` `workflow_dispatch` input, which must be
+   set deliberately for that one run (see "Release Process" below) — it is not a substitute for
+   configuring the trusted publisher.
 
 ### 3. GitHub Environments
 
@@ -43,28 +47,51 @@ matching the names configured on PyPI/TestPyPI above:
 - `testpypi` — used by the `publish-testpypi` job. Typically left unprotected since it only
   reaches TestPyPI.
 
+**User decision point — required-reviewer protection on `pypi`**: as of this writing, both the
+`pypi` and `testpypi` GitHub Environments have empty `protection_rules` (no required reviewers).
+Adding a required-reviewer rule to `pypi` is web-UI-only configuration no agent can perform; it
+is a genuine option worth considering now that `verify-testpypi` (see "Workflow Overview" below)
+already proves the artifact installs and imports correctly before `publish-pypi` runs — a human
+click may or may not still add value on top of that automated proof. This is left as an open
+choice for whoever administers the repository, not decided here.
+
 No repository secrets are required for either environment — Trusted Publishing uses the
 workflow's OIDC identity, not a stored credential.
 
 ## Workflow Overview
 
 There is a single workflow, `.github/workflows/release.yml`, triggered on push of a version tag
-(`v[0-9]+.[0-9]+.[0-9]+`, e.g. `v1.3.0`). It runs five jobs in this order:
+(`v[0-9]+.[0-9]+.[0-9]+`, e.g. `v1.3.0`) or manual `workflow_dispatch` (see "Release Process"
+below for the `skip_testpypi` escape hatch that dispatch trigger exists for). It runs seven jobs
+in this order:
 
-1. **`test-and-release`** — cross-platform test matrix (Ubuntu/macOS/Windows, Python 3.10, 3.11,
-   and 3.12): builds the package, installs the wheel, verifies the import and CLI work, and confirms
-   the installed version matches the pushed tag.
-2. **`build`** (needs `test-and-release`) — builds the wheel and sdist once on Ubuntu
+1. **`preflight`** — seconds-cheap, no matrix. Fails fast, before the 9-job matrix and the build
+   run, on: the tag version not matching `code/pyproject.toml`'s `version`; `code/CHANGELOG.md`
+   missing a non-empty entry for the release version; the tag not being annotated and reachable
+   from `origin/master`; or the tagged commit's `release.yml` differing from `origin/master`'s
+   copy (the mechanical backstop for the push-before-tag ordering hazard — see "Release Process").
+2. **`test-and-release`** (needs `preflight`) — cross-platform test matrix (Ubuntu/macOS/Windows,
+   Python 3.10, 3.11, and 3.12): builds the package, installs the wheel, verifies the import and
+   CLI work, and confirms the installed version matches the pushed tag.
+3. **`build`** (needs `test-and-release`) — builds the wheel and sdist once on Ubuntu
    (`python -m build` in `code/`), runs `twine check --strict dist/*`, and uploads the `dist/`
    contents as a workflow artifact named `dist`.
-3. **`publish-testpypi`** (needs `test-and-release`, `build`; environment `testpypi`) —
+4. **`publish-testpypi`** (needs `test-and-release`, `build`; environment `testpypi`) —
    downloads the `dist` artifact and publishes it to TestPyPI via
-   `pypa/gh-action-pypi-publish@release/v1` using OIDC. Runs with `continue-on-error: true` so an
-   unconfigured or already-published TestPyPI rehearsal never blocks the production publish.
-4. **`publish-pypi`** (needs `build`, `publish-testpypi`; environment `pypi`) — downloads the
+   `pypa/gh-action-pypi-publish@release/v1` using OIDC. **Hard gate**: a failure here blocks
+   `publish-pypi` below (via `verify-testpypi`). The only bypass is the `skip_testpypi`
+   `workflow_dispatch` input.
+5. **`verify-testpypi`** (needs `test-and-release`, `build`, `publish-testpypi`) — installs the
+   just-published artifact from TestPyPI (both `--index-url` and `--extra-index-url`, pinned to
+   the exact tag version, with a bounded retry for index propagation lag), then smoke-tests it:
+   import, `model_checker.__version__` equals the tag version, and `model-checker --help`. Proves
+   the uploaded artifact is installable and importable, not merely that bytes moved. When
+   `skip_testpypi` bypassed `publish-testpypi`, this job's steps no-op (nothing was uploaded to
+   verify) so it reports success without attempting a check that could not possibly pass.
+6. **`publish-pypi`** (needs `build`, `verify-testpypi`; environment `pypi`) — downloads the
    same `dist` artifact and publishes it to production PyPI via the same action, again using
    OIDC (`permissions: id-token: write`, no repository-url override).
-5. **`github-release`** (needs `publish-pypi`) — creates the GitHub Release for the tag via
+7. **`github-release`** (needs `publish-pypi`) — creates the GitHub Release for the tag via
    `gh release create`, linking to `code/CHANGELOG.md`.
 
 Top-level workflow permissions default to `contents: read`; each job grants only the additional
@@ -78,13 +105,47 @@ Releasing is a **user-only** sequence — see
 checklist. In outline:
 
 1. Confirm `code/pyproject.toml`'s `version` and the latest `code/CHANGELOG.md` entry agree on the
-   release version.
-2. Commit any final release-prep changes.
+   release version. **`preflight` now enforces both of these as hard gates** (see "Workflow
+   Overview" above) — write the `## [X.Y.Z]` `code/CHANGELOG.md` entry for the release *before*
+   tagging, not after; `preflight` fails within seconds if it is missing or empty, naming the
+   file and version in its failure message.
+2. Commit any final release-prep changes, and **push (or land via `/merge`) the branch BEFORE
+   creating and pushing the tag.** This ordering is required, not just conventional: GitHub
+   Actions executes `.github/workflows/release.yml` **as it exists at the tagged commit**, not
+   as it exists on `origin/master` at the time the workflow runs. A workflow-file change that is
+   committed but not yet pushed (or a tag created against a commit not yet on the default branch)
+   silently runs the *old* workflow file, or fails the `preflight` job's workflow-match
+   assertion below if the tagged commit's `release.yml` disagrees with `origin/master`'s copy.
+   This is the same class of failure the 1.3.0 release hit concretely: a workflow-file fix
+   (`pip install build twine` → `... wheel`) that had been committed but not yet pushed only
+   happened to resolve correctly by accident of push ordering, not by design. `preflight`'s
+   final assertion (`.github/workflows/release.yml` at the tagged commit must match
+   `origin/master`'s copy) is the mechanical backstop for this hazard, so a genuine ordering
+   mistake now fails fast instead of running a stale or unreviewed workflow file silently.
 3. Tag the release commit `vX.Y.Z` and push both the branch and the tag
    (`git push origin <branch>` then `git push origin vX.Y.Z`), or use `/merge` to land the branch
    first and tag afterward.
-4. Pushing the tag triggers `release.yml`: tests run, the distribution is built and checked, then
-   published to TestPyPI and PyPI via Trusted Publishing, then the GitHub Release is created.
+4. Pushing the tag triggers `release.yml`: `preflight` runs first (seconds-cheap tag/version/
+   CHANGELOG/workflow-match checks), then tests run across the matrix, the distribution is built
+   and checked, published to TestPyPI, verified installable and importable by `verify-testpypi`,
+   published to PyPI, and finally the GitHub Release is created. See "Workflow Overview" above
+   for the full seven-job topology.
+5. **After PyPI publish**, confirm the new version is visible via the JSON API rather than
+   `pip index versions model-checker` (deprecated/unstable output, not scripted anywhere in this
+   pipeline): `curl -s https://pypi.org/pypi/model-checker/json | jq -r '.info.version'`, with a
+   short bounded retry if PyPI's own index propagation lags. This is a manual post-publish
+   sanity check, not a workflow step — `verify-testpypi` (step 4 above) is what actually gates
+   the pipeline; this JSON-API check is for the human confirming production after the fact.
+
+**`skip_testpypi` escape hatch**: if TestPyPI itself is known to be unavailable (e.g. an outage)
+and a release must proceed without the rehearsal gate, dispatch `release.yml` manually
+(`gh workflow run release.yml --ref vX.Y.Z -f skip_testpypi=true`, or via the Actions UI, run
+against the tag being released) with `skip_testpypi` set to `true`. This is a deliberate,
+visible, human-only action — it is never true under a normal `git push --tags` release, and
+using it means `publish-pypi` runs without the "installable and importable" proof
+`verify-testpypi` otherwise provides. Only use it when TestPyPI is genuinely the blocker, and
+prefer writing the CHANGELOG entry or fixing the real defect over reaching for this escape when
+`preflight` or `verify-testpypi` fail for other reasons.
 
 No script automates step 3 for this repository; it is performed manually (or via `/merge`) by the
 user, per `.claude/rules/pr-prohibition.md` — agents never push branches or tags.
@@ -95,10 +156,22 @@ user, per `.claude/rules/pr-prohibition.md` — agents never push branches or ta
 
 - Go to https://github.com/benbrastmckie/ModelChecker/actions
 - Look for the "Release" workflow run triggered by the pushed tag
-- Check each job (`test-and-release`, `build`, `publish-testpypi`, `publish-pypi`,
-  `github-release`) for success/failure
+- Check each job (`preflight`, `test-and-release`, `build`, `publish-testpypi`,
+  `verify-testpypi`, `publish-pypi`, `github-release`) for success/failure
 
 ### Common Issues
+
+#### `preflight` fails
+
+**Symptom**: The workflow fails within seconds, before the test matrix ever starts.
+
+**Fix**: Read the failing step's message — it names the exact file and version involved. The
+four checks are: tag version vs. `code/pyproject.toml`'s `version`; a non-empty
+`## [X.Y.Z]` entry in `code/CHANGELOG.md` for the release version; the tag being annotated and
+reachable from `origin/master`; and the tagged commit's `.github/workflows/release.yml` matching
+`origin/master`'s copy. The CHANGELOG check in particular is expected to fire on the next
+release after this gate was added, until a `## [Unreleased]`/next-version entry is written — see
+"Release Process" above.
 
 #### `publish-pypi` fails with an OIDC / trusted-publisher error
 
@@ -109,13 +182,26 @@ upload as untrusted.
 (`release.yml`), and **Environment name** (`pypi`) exactly match this repository and workflow,
 and that the `pypi` GitHub Environment exists. See "Trusted Publishing (OIDC) Setup" above.
 
-#### `publish-testpypi` fails or is skipped
+#### `publish-testpypi` fails
 
-**Symptom**: The `publish-testpypi` job shows a failure or red X, but `publish-pypi` still runs.
+**Symptom**: The `publish-testpypi` job shows a failure or red X, and `publish-pypi` does not run.
 
-**Fix**: This is expected if the TestPyPI trusted publisher/environment is not configured — the
-job runs with `continue-on-error: true` specifically so it cannot block a production release.
-Configure the TestPyPI trusted publisher (optional, see above) if the rehearsal step should pass.
+**Fix**: This is now a hard gate (see "Workflow Overview" above) — a genuine `publish-testpypi`
+failure is expected to block the release. Most commonly this means the TestPyPI trusted
+publisher/environment is not configured; see "TestPyPI Trusted Publisher" above. If TestPyPI
+itself is the problem (e.g. an outage) rather than configuration, see the `skip_testpypi`
+escape hatch under "Release Process" above.
+
+#### `verify-testpypi` fails
+
+**Symptom**: `publish-testpypi` succeeded, but `verify-testpypi` fails and `publish-pypi` does
+not run.
+
+**Fix**: This means the artifact reached TestPyPI but could not be installed and imported back —
+a real problem with the artifact itself (or, less likely, that TestPyPI's index had not yet
+propagated the upload within the job's bounded retry window). Read the job's log: the install
+step's retries are logged individually, and the smoke-test step names exactly which assertion
+(version mismatch, import failure, `--help` failure) failed.
 
 #### Version Already Exists
 
@@ -208,6 +294,13 @@ evidence.
 
 To exercise the full workflow without an intended production publish, push a throwaway
 prerelease-style tag that will not collide with a real version, then delete it afterward:
+
+**Note**: `preflight` (see "Workflow Overview" above) will fail this dry run at the
+tag-vs-`code/pyproject.toml` version check, since `v999.999.999` will not match the real
+project version — this is expected and stops the run before any publish step, which is
+actually the safer outcome for a dry run. To exercise past `preflight`, temporarily point
+`code/pyproject.toml`'s `version` at the same throwaway value on a disposable branch, or accept
+that this dry run now only exercises `preflight` itself rather than the full downstream chain.
 
 ```bash
 git tag v999.999.999
