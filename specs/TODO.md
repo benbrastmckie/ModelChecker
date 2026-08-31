@@ -35,17 +35,18 @@ next_project_number: 176
 ### Test Reliability
 
 172 [PLANNED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
-175 [PLANNING] — Fix the unstable-watch classifier's laundering guard, which produ
+175 [PLANNED] — Fix the unstable-watch classifier's laundering guard, which produ
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
 
 ### 175. Fix unstable watch classifier laundering guard
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
 - **Research**: [175_fix_unstable_watch_classifier_laundering_guard/reports/01_laundering-guard-fix-design.md]
+- **Plan**: [175_fix_unstable_watch_classifier_laundering_guard/plans/01_laundering-guard-fix.md]
 
 **Description**: Fix the unstable-watch classifier's laundering guard, which produces a FALSE POSITIVE on every genuine gating-floor failure and has turned the nightly Unstable Watch workflow red on five consecutive runs. The tests are NOT failing in a new way -- the classifier is misreading them.
 
