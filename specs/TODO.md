@@ -20,16 +20,16 @@ next_project_number: 177
 
 ### Testing
 
-173 [RESEARCHING] — Add a `development` pytest marker so a theory still under active 
+173 [RESEARCHED] — Add a `development` pytest marker so a theory still under active 
 
 ### Semantics
 
-153 [RESEARCHED] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
+153 [PLANNING] — Bring `BimodalSemantics`'s frame class up to the JPL paper's `def
   └─ 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Release Engineering
 
-168 [RESEARCHED] — Build a systematic PyPI install and full-CLI verification CI pipe
+168 [PLANNING] — Build a systematic PyPI install and full-CLI verification CI pipe
 
 ### Test Reliability
 
@@ -167,10 +167,11 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 ---
 
 ### 173. Add development marker for in progress theories
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 158, Task 172, Task 175
+- **Research**: [173_add_development_marker_for_in_progress_theories/reports/01_development-marker-design.md]
 
 **Description**: Add a `development` pytest marker so a theory still under active construction (bimodal today) can carry known-failing or contention-flaky tests without turning the whole package's CI red -- while keeping every such test observed rather than forgotten.
 
@@ -294,7 +295,7 @@ HARD CONSTRAINTS (carried forward, all previously verified by a git diff gate):
 ---
 
 ### 168. Pypi install and full cli verification ci
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: Task 158
@@ -577,7 +578,7 @@ DEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the ex
 ---
 
 ### 153. Assert missing frame axioms in bimodal semantics
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 152
