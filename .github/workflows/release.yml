@@ -158,7 +158,13 @@ jobs:
     # only sanctioned bypass is the workflow_dispatch `skip_testpypi` input, which must be
     # set deliberately by a human; it is never true under the normal `push: tags:` trigger.
     # See .github/RELEASE_SETUP.md for the Trusted Publishing (OIDC) setup this relies on.
-    if: ${{ inputs.skip_testpypi != true }}
+    #
+    # NOTE: a job-level `if:` REPLACES the implicit `if: success()` default GitHub Actions
+    # applies to every job that declares `needs:` -- it does not layer on top of it. Writing
+    # only `${{ inputs.skip_testpypi != true }}` here would let this job attempt to run even
+    # after test-and-release/build failed, since that expression never inspects their result.
+    # `success()` is included explicitly to preserve the standard fail-fast chain.
+    if: ${{ success() && inputs.skip_testpypi != true }}
 
     steps:
     # Diagnostic only -- never a gate. Prints the OIDC claims test.pypi.org

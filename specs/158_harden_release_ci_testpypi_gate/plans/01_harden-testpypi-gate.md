@@ -222,6 +222,18 @@ deliberate, visible `workflow_dispatch` opt-out.
       by static review against GitHub's documented empty-context behavior
 - [x] Leave `publish-pypi`'s `needs:` untouched in this phase (Phase 3 repoints it)
 
+**Deviation from the plan's literal `if:` text**: the plan's task bullet names the exact form
+`${{ inputs.skip_testpypi != true }}`. Implemented as `${{ success() && inputs.skip_testpypi != true }}`
+instead. Rationale, confirmed by researching GitHub's documented (and community-confirmed)
+semantics: a job-level `if:` **replaces** the implicit `if: success()` GitHub Actions applies to
+every job with `needs:` -- it does not layer on top of it. The plan's literal form would let
+`publish-testpypi` attempt to run even after `test-and-release`/`build` failed, since that
+expression never inspects their result, directly undermining the phase's own Goal ("A TestPyPI
+upload failure blocks the production publish"). `success()` restores the standard fail-fast
+chain while keeping the null-safe `inputs.skip_testpypi != true` clause verbatim. The same
+reasoning shapes Phase 3's `verify-testpypi` job-level `if:`, which explicitly checks
+`needs.test-and-release.result` and `needs.build.result` for the same reason.
+
 **Timing**: 45 minutes
 
 **Depends on**: none
