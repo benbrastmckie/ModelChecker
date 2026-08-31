@@ -28,7 +28,7 @@ next_project_number: 178
 
 ### Release Engineering
 
-177 [NOT STARTED] — Give bimodal a coherent, first-class in-development status: fully
+177 [RESEARCHED] — Give bimodal a coherent, first-class in-development status: fully
 
 ### Test Reliability
 
@@ -39,10 +39,11 @@ next_project_number: 178
 ## Tasks
 
 ### 177. Bimodal in development status and ci non gating
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
+- **Research**: [177_bimodal_in_development_status_and_ci_non_gating/reports/01_bimodal-ci-gating-ground-truth.md]
 
 **Description**: Give bimodal a coherent, first-class in-development status: fully runnable and iterable locally, fully non-gating in CI. The `development` marker work already landed covers the `code/` tree, but three real gaps remain and several load-bearing statements in the tree are now false.
 
