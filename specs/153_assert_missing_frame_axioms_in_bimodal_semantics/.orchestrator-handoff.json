@@ -1,66 +1,59 @@
 {
-  "dispatch_seq": 19,
+  "dispatch_seq": 20,
   "phase": "implement",
-  "status": "partial",
-  "summary": "Both build_seriality_constraint and build_interpolation_constraint implemented (Skolemized, no z3.Exists), wired into build_frame_constraints, docstrings corrected, ARCHITECTURE.md ledger added, and the full 52-example regression run completed with every flip explained. Landing is blocked by a well-evidenced but not-fully-mechanistically-understood cost regression: BM_CM_4 (N=2,M=2 countermodel) goes from 4.07s decided match to inconclusive at its own max_time=120 with both axioms present, confirmed by four independent measurements against the real committed methods. BM_CM_1 shows the same before/after direction but its own isolation table is non-monotonic (its 'both' configuration is faster than 'neither'), which rules out asserting a single general interaction mechanism -- that hypothesis is explicitly not claimed as established. Full bimodal suite: 308 passed, 5 failed, all attributable to these two examples. The broader code/tests/ suite was not run in this session (recorded, not assumed clean). No axiom was dropped, no timeout raised, no test marked unstable, and no expected verdict adjusted to route around the finding -- per explicit team-lead guidance during implementation, both axioms remain in the code as specified pending the user's landing decision.",
+  "status": "completed",
+  "summary": "The user's decision closed both Phase 7 blockers as option 1: both axioms landed as-is. Neither axiom was dropped or weakened, no max_time was raised on any bimodal example, no expected verdict was adjusted, and no example definition was edited; the cost regression stays recorded with its mechanism explicitly unestablished. The substantive new work -- making bimodal non-gating -- did not need a new mechanism: a `development` marker was already registered, already carried by all six release-gating `-m` expressions, already enforced by test_unstable_deselection_wiring.py, and already documented as TESTING_GUIDE 8.14, whose own text said no test claimed it. Applying it is what took bimodal off the gate. All 313 bimodal tests now carry it via a path-scoped pytest_collection_modifyitems hook in bimodal/tests/conftest.py; both gating expressions collect 0 of 313, and `-m development` collects all 313. TDD followed: the contract test was written first and confirmed RED (3 failed/4 passed) before the hook existed, and it caught a real leak -- the first hook had no path check, and because pytest hands such a hook the ENTIRE session's item list, it marked all 2534 tests in the repo and the gating expression collected zero. That leak is invisible to per-root checks and only appears in the mixed-root `pytest tests src/model_checker` collection CI actually runs. Running the broader suites (which the previous dispatch recorded as not run) surfaced 3 genuine failures OUTSIDE the bimodal tree, caused by this task's own axioms: tests/cli/conftest.py's tiny CLI example used bimodal with no explicit max_time, and the axioms take that example from ~0.42s decided to ~4.2-4.7s, so it now always times out at the inherited 1s budget, finds no model, and leaves -p/-z/-i with nothing extra to print. Fixed by switching that fixture to logos (~0.001s), matching the precedent already documented in the same file -- not absorbed into the bimodal exclusion. Final: pytest tests/ 601 passed/5 skipped/0 failed; gating parallel pass 2088 passed/1 skipped/0 failed exit 0; gating serial pass 9 passed/2527 deselected exit 0; tests/ci 92 passed; tests/cli 90 passed/1 skipped. Bimodal itself unchanged at 308 passed/5 failed -- accepted and non-gating.",
   "artifacts": [
     {
       "type": "summary",
       "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/summaries/01_seriality-interpolation-axioms-summary.md",
-      "summary": "Full implementation summary: what was built, the Phase 2 reachability measurement, the BM_CM_4/BM_CM_1 blocker with all evidence, plan deviations, and follow-ups."
+      "summary": "Landing decision, the non-gating work, the task-caused CLI regression with measurements, full test results table, plan deviations, and flagged follow-ups."
     },
     {
-      "type": "baseline",
-      "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/README.md",
-      "summary": "Regression harness invocation, the with_new_axioms-arm harness-artifact correction note, and the full Phase 1/Phase 7 diff with per-flip accounting."
+      "type": "plan",
+      "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/plans/01_seriality-interpolation-axioms.md",
+      "summary": "Phase 8 added and marked COMPLETED; Testing & Validation checklist reconciled with actual state."
+    },
+    {
+      "type": "handoff",
+      "path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/handoffs/phase-8-handoff-20260831-143550.md",
+      "summary": "Phase 8 handoff with the two carry-forward findings and the open flagged items."
     },
     {
       "type": "code",
-      "path": "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
-      "summary": "build_seriality_constraint and build_interpolation_constraint added and wired into build_frame_constraints; docstrings corrected to five asserted TaskFrame axioms."
+      "path": "code/src/model_checker/theory_lib/bimodal/tests/conftest.py",
+      "summary": "Path-scoped development-marker application hook, with the whole-session-items trap documented at the site."
+    },
+    {
+      "type": "test",
+      "path": "code/tests/ci/test_development_marker_application.py",
+      "summary": "9 assertions: complete bimodal coverage, zero leakage per-root and mixed-root, opt-in path works, gating expression still collects >1000 tests."
     },
     {
       "type": "docs",
-      "path": "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
-      "summary": "New Frame-Class Axioms subsection: 7-row asserted/free ledger with citations and the duration-domain-guard footnote."
+      "path": "code/docs/core/TESTING_GUIDE.md",
+      "summary": "Section 8.14 granularity rule amended for the one authorized theory-wide blanket; Currently marked rewritten with accepted risk, bounds, opt-in, and exit path."
     }
   ],
-  "blockers": [
-    {
-      "description": "BM_CM_4 regresses from a clean, fast, decided countermodel (4.07s match pre-change) to inconclusive at its own max_time=120s with both new axioms present. Reproduced in 4 independent measurements against the real committed methods (pytest 120.78s FAILED; direct call 120.37s inconclusive; full-suite run 120.36s inconclusive; 40s-budget probe 40.21s inconclusive). Cost regression, not a shown soundness/verdict flip.",
-      "attempted_remediation": "Isolation shows neither axiom alone is responsible (both individually stay decided, ~2-3x baseline cost). One mitigation (explicit Z3 pattern anchoring Interpolation to its premise's ground term, mirroring forward_comp's existing MultiPattern) did not recover a decided result. Guard-tightening not attempted separately -- both guards are already as tight as their mathematical content allows.",
-      "user_decision_needed": "Accept the regression and land both axioms as-is; apply the plan's own documented fallback (land Seriality alone, defer Interpolation) even though isolation does not identify Interpolation alone as the cause; or spawn a follow-on task for a repeated-runs variance study before deciding."
-    },
-    {
-      "description": "BM_CM_1 shows the same before/after direction (match->inconclusive) but its own isolation table is non-monotonic and contradicts BM_CM_4's pattern (its 'both' configuration decides faster than 'neither'; its 'interpolation_only' configuration is the one that fails to decide). This rules out a single general 'superlinear interaction' mechanism claim across both examples.",
-      "attempted_remediation": "Not investigated further within this session's budget; BM_CM_1's own unstable marker and documented heavy-tail baseline (22.55s vs. its ~7-8s median in this very isolation run) mean this is corroboration of high solver-cost variance as much as an axiom-specific effect.",
-      "user_decision_needed": "Whether a repeated-runs variance study (out of this task's budget) is warranted to settle the mechanism before any landing decision."
-    }
-  ],
+  "blockers": [],
   "files_modified": [
-    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
-    "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
-    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/conftest.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+    "code/src/model_checker/theory_lib/bimodal/README.md",
+    "code/tests/ci/test_development_marker_application.py",
+    "code/tests/cli/conftest.py",
+    "code/docs/core/TESTING_GUIDE.md",
     "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/plans/01_seriality-interpolation-axioms.md",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/01_frame-axiom-regression-script.py",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/01_pre-change-verdicts.json",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/02_reachability_prototype_script.py",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/02_reachability-prototype-measurement.md",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/02_reachability-prototype-raw.json",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/03_post-change-verdicts.json",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/README.md",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/handoffs/phase-4-handoff-20260831-133525.md",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/handoffs/phase-6-handoff-20260831-133914.md",
-    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/summaries/01_seriality-interpolation-axioms-summary.md"
+    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/summaries/01_seriality-interpolation-axioms-summary.md",
+    "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/handoffs/phase-8-handoff-20260831-143550.md"
   ],
   "decisions_made": [
-    "Did not apply the plan's own documented rollback fallback (land Seriality alone, defer Interpolation) unilaterally: isolation shows neither axiom alone is individually responsible for BM_CM_4's regression, and dropping one axiom would silently narrow this task's shipped scope (both axioms asserted, per the task's own definition of done) without the user's decision.",
-    "Ran Phase 7's post-change regression using the harness's baseline arm (real committed core.py methods) rather than the with_new_axioms arm (a script-local inline reconstruction) after discovering the two diverge on BM_CM_4 due to Z3 MBQI sensitivity to symbol naming -- the inline reconstruction falsely showed no regression (4.56s match) while the real methods reproducibly time out (120s+).",
-    "Explicitly declined to state 'the two axioms interact superlinearly' as an established mechanism after BM_CM_1's isolation table contradicted BM_CM_4's monotonicity pattern -- reported as a corroborated-but-unsettled hypothesis instead, with the repeated-runs study needed to settle it named as a follow-on.",
-    "Did not raise BM_CM_4's or BM_CM_1's max_time, mark either test unstable/xdist_serial, adjust either example's expected verdict, or drop an axiom to restore a green suite -- all four were explicit standing constraints during implementation and are preserved in the final code.",
-    "Did not run the broader code/tests/ suite in this session given the time budget; recorded as an open item rather than assumed clean."
+    "Applied the development marker as a THEORY-WIDE blanket, which TESTING_GUIDE 8.14 otherwise forbids ('per-test, not per-module or per-theory'). The user's declaration is about the whole theory, not a list of incomplete behaviours, so a per-test set-membership marking would misrepresent it and need editing on every commit adding a bimodal test. 8.14 was amended to record this as the one authorized exception, with the accepted risk stated (a bimodal test regressing from passing to failing no longer gates) and three bounds on it.",
+    "Deliberately did NOT add `-m \"not development\"` to code/pyproject.toml's addopts. That would be a second exclusion mechanism parallel to the repo's established one (marker + gating-driver -m, enforced by test_unstable_deselection_wiring.py), and it would make `pytest <bimodal path>` and `./run_tests.py bimodal` collect zero tests and report success -- the silent-green failure mode 8.14 exists to prevent. CONSEQUENCE STATED RATHER THAN HIDDEN: a bare local `pytest` from code/ still collects and can still fail on bimodal. The team lead's requirement was phrased as 'the default/release test run'; the release and gating runs are structurally covered, the bare local run is not. If the bare local run was meant too, that is a one-line addopts change plus an ergonomics fix in run_tests.py and needs a deliberate decision.",
+    "Fixed the three tests/cli/test_flag_matrix.py failures at their root (the fixture's theory choice) rather than by raising a max_time or by extending the bimodal exclusion. Switching to logos matches the precedent and rationale _CVC5_COMPATIBLE_EXAMPLE already documents in the same file, and removes a gating CLI test's dependence on the deliberately-non-gating theory's solver cost.",
+    "Did NOT strengthen test_output_affecting_boolean_flag_changes_output to ignore the volatile Solver Run Time line, despite having direct evidence it currently passes vacuously for the print_constraints parameter. ModelStructure.print_constraints() has zero callers, so -p is a genuinely unwired flag; strengthening the assertion without wiring the flag would turn a currently-green gating suite red on a defect unrelated to this task. Flagged as a follow-up covering both halves.",
+    "Recorded, rather than silently accepted, that the development marker's owning task holds a Phase 6 exit criterion ('pytest --collect-only -m development -q collects zero tests') that this dispatch makes false by design. TESTING_GUIDE 8.14's 'Currently marked' paragraph, the one place that statement lived, was updated."
   ],
-  "next_action_hint": "Route to the user for a landing decision on the BM_CM_4/BM_CM_1 cost regression (accept, apply the Seriality-only fallback, or spawn a variance-study follow-on), then run code/tests/ -v before any final landing.",
+  "next_action_hint": "No blockers. Task 153 is ready to be marked complete. Five follow-ons are flagged in the summary and return-meta, none gating: the unwired -p CLI flag (with its vacuous test), the bare-local-pytest decision, the BM_CM_4/BM_CM_1 variance study, oracle/bimodal_logic/provider.py's stale three-axiom table, and the owning task's now-false exit criterion.",
   "continuation_path": "specs/153_assert_missing_frame_axioms_in_bimodal_semantics/summaries/01_seriality-interpolation-axioms-summary.md"
 }

@@ -2,8 +2,10 @@
 
 - **Task**: 153 - Assert missing frame axioms in bimodal semantics
 - **Plan**: `plans/01_seriality-interpolation-axioms.md`
-- **Status**: PARTIAL -- both axioms implemented, tested, and documented per plan; landing blocked
-  by an unresolved cost regression on two countermodel examples (`BM_CM_4`, `BM_CM_1`).
+- **Status**: COMPLETED -- both axioms implemented, tested, documented, and **landed as-is on the
+  user's explicit authority**. The `BM_CM_4`/`BM_CM_1` cost regression is accepted as a known,
+  recorded cost with its mechanism still unestablished; it is no longer a blocker. The bimodal
+  suite has been made non-gating for release runs (see "Landing decision" below).
 
 ## What was implemented
 
@@ -42,7 +44,30 @@ attempted here). Per the plan's scope call, this does not expand the task -- bot
 implemented against the Skolemized direct-fix regardless. **Recommended as a follow-on task** if
 the reachability redesign is pursued, with this measurement's scope caveat carried forward.
 
-## Blocker: BM_CM_4 cost regression, not resolved
+## Landing decision: both axioms accepted as-is, on the user's explicit authority
+
+The cost regression documented in the next section was raised to the user as two
+`user_decision_needed` blockers. The user answered:
+
+> "I don't want tests from bimodal logic to hang things up when the entire bimodal logic is in
+> development and shouldn't be considered part of the release to pass all tests."
+
+That resolves both blockers as **accept the cost regression and land both axioms as-is**. What
+this did and did not authorize, stated precisely:
+
+- **Both axioms stay in the code exactly as specified.** Neither was dropped, weakened, or
+  deferred. The plan's own "land Seriality alone, defer Interpolation" fallback was **not** taken.
+- **Nothing was engineered around the finding.** No `max_time` was raised on any bimodal example,
+  no expected verdict was adjusted, no test was marked `unstable` or `xdist_serial`, and
+  `BM_CM_4`'s and `BM_CM_1`'s example definitions were not edited.
+- **Accepting the cost is not explaining it.** The mechanism remains unestablished; the section
+  below is unchanged and stands as the honest record. The repeated-runs variance study needed to
+  settle it is still an open follow-on.
+
+The substantive work this authorized is making bimodal non-gating, recorded under "Making bimodal
+non-gating" below.
+
+## The accepted regression: BM_CM_4 cost, mechanism not established
 
 Full detail in `baselines/README.md`'s "Phase 7" section; summarized here.
 
@@ -95,8 +120,117 @@ was not applied here because (a) isolation shows neither axiom alone is responsi
 regression -- both individually stay decided at modest cost -- so dropping Interpolation alone
 would not obviously fix it and would also not obviously be necessary; and (b) it would silently
 narrow this task's shipped scope (both axioms asserted, per the task's own stated definition of
-done) without the user's decision. Both axioms remain in the implementation as specified; this is
-recorded as an open scope decision for the user, not resolved unilaterally.
+done) without the user's decision. The user subsequently decided in favour of landing both (see
+"Landing decision" above), so the fallback stays unapplied -- now by decision rather than by
+deferral.
+
+## Making bimodal non-gating (Phase 8)
+
+**The mechanism already existed; nothing claimed it.** A `development` pytest marker was already
+registered in `code/pyproject.toml`, already carried by all six release-gating `-m` expressions
+(`.github/workflows/tests.yml`'s two passes, `flake.nix`'s two, `differential-tests.yml`, and
+`oracle/run-oracle-suite.sh`), already enforced by `code/tests/ci/test_unstable_deselection_
+wiring.py`, already supported by `.github/scripts/unstable_watch_classify.py`, and already
+documented as `TESTING_GUIDE.md` section 8.14 -- whose own "Currently marked" paragraph read "No
+test carries `development` today." So no new exclusion mechanism was invented. The missing step
+was applying it.
+
+**What was done.** A path-scoped `pytest_collection_modifyitems` hook in
+`code/src/model_checker/theory_lib/bimodal/tests/conftest.py` applies `development` to all 313
+tests collected from that tree. Both gating expressions now collect **0 of 313** bimodal tests;
+`-m development` collects all 313, so the suite stays runnable on demand.
+
+**A real defect was found and fixed during implementation.** The first version of the hook looped
+over `items` without a path check. pytest hands a `pytest_collection_modifyitems` implementation
+the *entire session's* item list once its conftest has loaded -- it is not scoped to that
+conftest's directory. The unfiltered version marked all **2534** tests in the repository, and the
+gating parallel expression consequently collected **zero**. This leak is invisible to a per-root
+containment check (a subprocess collecting only `logos` never loads bimodal's conftest, so it
+passes against a fully-leaking hook); it only appears in a mixed-root collection, which is exactly
+the `pytest tests src/model_checker` shape both gating drivers invoke. A mixed-root assertion was
+added and is what catches it.
+
+**TDD.** `code/tests/ci/test_development_marker_application.py` was written first and confirmed
+RED (3 failed, 4 passed) before the hook existed. Final: 9 passed. It asserts complete coverage of
+bimodal, zero leakage against each non-bimodal root individually *and* in the mixed-root
+collection, that the opt-in path works, and that the gating expression still collects >1000 tests
+so a future leak surfaces as a collapsed count rather than a silent green.
+
+**Scope.** Bimodal only, enforced structurally. No logos, exclusion, imposition, or core test was
+skipped, deselected, or weakened. Bimodal's soundness and cross-oracle differential tests live in
+`oracle/bimodal_logic/tests/`, where `development` is deliberately unregistered, so they remain
+fully gating -- no semantic claim about bimodal's correctness is quarantined by this change.
+
+**Deliberately not done: no `addopts` default.** `code/pyproject.toml`'s `addopts` was **not**
+given an `-m "not development"` filter. That would be a second exclusion mechanism parallel to the
+repo's established one, and it would make `pytest <bimodal path>` and `./run_tests.py bimodal`
+collect zero tests and report success -- the silent-green failure mode section 8.14 exists to
+prevent. **Consequence, stated rather than hidden:** a bare local `pytest` from `code/` still
+collects and can still fail on bimodal. The gating-equivalent local invocation
+(`pytest tests src/model_checker -m "not development"`) is documented in 8.14 and in bimodal's
+`tests/README.md`. If the intent was for the bare local run to be green too, that is a one-line
+`addopts` change plus an ergonomics fix in `run_tests.py`, and it needs a deliberate decision.
+
+**Documentation.** Section 8.14's granularity rule was amended from "per-test, never theory-wide"
+to "per-test by default; theory-wide only on an explicit, recorded declaration", with bimodal as
+the one authorized blanket; its "Currently marked" paragraph now records the accepted risk (a
+bimodal test regressing from passing to failing no longer gates), the three bounds on it, the
+opt-in invocation, and the exit path. `bimodal/tests/README.md` was a 0-byte file and now carries
+the running guide and a per-file inventory. `bimodal/README.md` gains a Development Status section.
+
+**One cross-task consequence.** The `development` marker's owning task recorded a Phase 6 exit
+criterion "`pytest --collect-only -m development -q` collects zero tests". That is now false by
+design -- this is the first claim on the category. Section 8.14's "Currently marked" paragraph, the
+one place that statement lived, has been updated.
+
+## A regression this task caused outside the bimodal test tree, found and fixed
+
+Running the gating suite (which the previous dispatch had not done) surfaced three failures in
+`tests/cli/test_flag_matrix.py::test_output_affecting_boolean_flag_changes_output`
+(`print_constraints`, `print_z3`, `print_impossible`) under the `-n 4` parallel pass. They are
+**not** bimodal-test-tree failures, are **not** covered by the `development` marker, and were
+**caused by this task's axioms**:
+
+- `code/tests/cli/conftest.py`'s tiny CLI example module used **bimodal** with no explicit
+  `max_time`, inheriting `BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS`' 1-second default.
+- Measured directly: that example solves in **~0.42s** with `core.py` at `eb1639de` (pre-axiom,
+  3/3 runs) and **~4.2-4.7s** with both axioms present (3/3 runs at a 30s budget). It therefore now
+  always times out at 1s and finds no model.
+- With no model, `-p`/`-z`/`-i` have nothing extra to print, so the flagged and unflagged runs
+  produce byte-identical output except for a `Solver Run Time: 1.000X seconds` float. The test
+  passed serially only on microsecond jitter in that float and failed three ways under `-n 4`.
+
+**This is an independent, ~10x cost data point on the two axioms**, on a far simpler example than
+`BM_CM_4`/`BM_CM_1` (N=2, no premises, single conclusion `A`), and it corroborates the cost
+regression on a formula with no modal or temporal operator at all.
+
+**Fix**: the fixture was switched from bimodal to logos (~0.001s for the same example), matching
+the precedent and rationale `test_flag_matrix.py`'s `_CVC5_COMPATIBLE_EXAMPLE` already documents
+for its own switch. These are gating CLI-*plumbing* assertions -- flags accepted, output changed,
+files written -- and nothing in them is bimodal-specific; pinning them to the one deliberately
+non-gating theory coupled the CLI gate to that theory's solver cost. `tests/cli/`: 90 passed, 1
+skipped, 12.0s. The failure was **not** absorbed into the bimodal exclusion.
+
+## Test results
+
+| Run | Result |
+|---|---|
+| `pytest tests/` (the suite the previous dispatch recorded as not run) | **601 passed, 5 skipped, 0 failed** (198.66s) |
+| `pytest tests/ci/` (CI contract suite) | 92 passed |
+| `pytest tests/ci/test_development_marker_application.py` | 9 passed |
+| `pytest tests/cli/` | 90 passed, 1 skipped (12.0s) |
+| Gating parallel pass, `-n 4`, CI's own `-m` expression | **2088 passed, 1 skipped, 0 failed** (83.66s, exit 0) |
+| Gating serial pass, CI's own `xdist_serial` expression | **9 passed, 2527 deselected, 0 failed** (exit 0) |
+| Full bimodal suite (`-m development`) | 308 passed, 5 failed -- unchanged, accepted, non-gating |
+
+The 5 skips in `tests/` are pre-existing and unrelated: one CLI installed-mode guard (skipped in
+`source` mode by design) and four `test_inclusions.py` notebook-directory skips.
+
+Both gating passes are green, which is the release-relevant result: the parallel pass reproduces
+`.github/workflows/tests.yml`'s and `flake.nix`'s own `-m` expression and `-n 4` verbatim. The
+same two passes were run **before** the `tests/cli/conftest.py` fix and gave 3 failed / 2084
+passed; the delta is exactly the three flag-matrix cases discussed above.
+
 
 ## Plan Deviations
 
@@ -106,12 +240,20 @@ recorded as an open scope decision for the user, not resolved unilaterally.
   post-change run used the `baseline` arm against the post-Phase-4 tree instead.
 - Phase 7's "full bimodal suite green" verification item is not met: 5 failures (`BM_CM_1`,
   `BM_CM_4`, and 3 `test_bound_var_counter_isolation.py` parametrizations of `BM_CM_4`), all
-  attributable to the characterized cost regression, none new or unexplained.
-- The broader `code/tests/ -v` suite was not run in this session given the time budget -- recorded
-  as incomplete, not assumed clean.
-- No axiom was dropped, no example's `max_time` was raised, no test was marked `unstable` or
-  `xdist_serial`, and no expected verdict was adjusted to route around the regression. The
+  attributable to the characterized cost regression, none new or unexplained. **Accepted, not
+  resolved**, on the user's explicit authority; the suite is now non-gating, so these failures no
+  longer gate a release run. Still 5 failures, and not claimed otherwise.
+- The broader `code/tests/` suite, recorded as not run in the previous dispatch, was run in Phase
+  8: **601 passed, 5 skipped, 0 failed**.
+- No axiom was dropped, no bimodal example's `max_time` was raised, no test was marked `unstable`
+  or `xdist_serial`, and no expected verdict was adjusted to route around the regression. The
   regression is reported as found, not engineered away.
+- **Phase 8 was added after the plan was written**, to execute the user's landing decision. It is
+  not a deviation from a planned phase but an addition beyond the plan's original 7.
+- Phase 8 changed one file outside the plan's declared `file_scope`, `code/tests/cli/conftest.py`,
+  to repair a gating-test regression this task's own axioms caused (detailed above). Leaving it
+  would have meant shipping a red gate; absorbing it into the bimodal exclusion was explicitly
+  ruled out.
 
 ## Out-of-scope follow-ups (flagged, not fixed)
 
@@ -124,6 +266,18 @@ recorded as an open scope decision for the user, not resolved unilaterally.
   whether it is a genuine axiom interaction or Z3 search-cost sensitivity, or both.
 - The duration-domain gap (bounded window `(-M, M)` vs. the paper's unbounded `\Z`) remains
   recorded, not resolved, per Deliverable 4's own scope.
+- **`--print_constraints` / `-p` is an unwired CLI flag.** Found while diagnosing the flag-matrix
+  failures: `ModelStructure.print_constraints()` (`src/model_checker/models/structure.py:499`) has
+  **zero callers** anywhere in `src/model_checker`. With a model found and the fixture on logos,
+  `-p` changes the CLI's output by nothing at all except run-time floats, so
+  `test_output_affecting_boolean_flag_changes_output[print_constraints]` -- a test whose own
+  docstring says it exists to stop the flag matrix "passing vacuously for a no-op flag" -- is
+  itself passing vacuously for that parameter. `-z` (18 differing lines) and `-i` (2) are genuinely
+  wired. Pre-existing and unrelated to this task. Deliberately **not** fixed here: repairing the
+  test's assertion without repairing the flag would turn a currently-green gating suite red on an
+  unrelated defect. Needs its own task covering both halves.
+- **Whether the bare local `pytest` run should also exclude bimodal.** See "Deliberately not done"
+  above; it needs a decision, not just an edit.
 
 ## Artifacts
 
@@ -131,7 +285,12 @@ recorded as an open scope decision for the user, not resolved unilaterally.
   pre-change and post-change verdict JSON, reachability-alternative measurement, README with full
   Phase 7 diff and flip accounting.
 - `specs/153_assert_missing_frame_axioms_in_bimodal_semantics/handoffs/` -- per-phase handoffs.
-- Modified: `code/src/model_checker/theory_lib/bimodal/semantic/core.py`,
+- Modified (Phases 1-7): `code/src/model_checker/theory_lib/bimodal/semantic/core.py`,
   `code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md`,
   `code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py`,
   `code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py`.
+- Added (Phase 8): `code/tests/ci/test_development_marker_application.py`,
+  `code/src/model_checker/theory_lib/bimodal/tests/README.md` (was a 0-byte file).
+- Modified (Phase 8): `code/src/model_checker/theory_lib/bimodal/tests/conftest.py`,
+  `code/docs/core/TESTING_GUIDE.md`, `code/src/model_checker/theory_lib/bimodal/README.md`,
+  `code/tests/cli/conftest.py`.
