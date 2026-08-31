@@ -1,0 +1,15 @@
+{
+  "status": "researched",
+  "phase": "research",
+  "dispatch_seq": 14,
+  "summary": "Researched task 168 against the current (post-158) 7-job release.yml. Confirmed three concrete gaps: installed_venv (code/tests/packaging/conftest.py) has zero install-source parameterization (always installs the local built wheel); publish-pypi has no post-publish verification job at all (unlike publish-testpypi, which verify-testpypi now gates); pypi-smoke.yml does not exist, and neither schedule-triggered smoke workflows (only unstable-watch.yml precedent) nor tmate SSH debugging (zero precedent anywhere in the repo) have local patterns to copy beyond unstable-watch.yml's bare schedule+workflow_dispatch trigger shape. Recommends parameterizing installed_venv first so both the new release.yml PyPI confirmation matrix and pypi-smoke.yml can become thin wrappers around the existing entry-point/CLI-behavior/generate-then-execute packaging suite rather than duplicating shell-script smoke tests a third and fourth time.",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/168_pypi_install_and_full_cli_verification_ci/reports/01_pypi-install-full-cli-verification-ci.md"
+    }
+  ],
+  "blockers": [],
+  "continuation_path": "plan",
+  "next_action_hint": "Run /plan 168. Key open design decision to surface to the user: version-resolution contract for the testpypi/pypi installed_venv branches (exact-pin from code/pyproject.toml, valid only right after a release tag, vs. latest-from-PyPI-JSON-API, needed for pypi-smoke.yml's untied-to-a-tag schedule trigger) likely needs two distinct code paths behind one env-var-driven fixture, not one."
+}
