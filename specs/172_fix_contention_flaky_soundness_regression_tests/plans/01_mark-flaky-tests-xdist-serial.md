@@ -157,7 +157,12 @@ the three exempt buckets above; any call site that is unmarked, passes no `timeo
 
 ---
 
-### Phase 2: Apply xdist_serial markers to the four tests [NOT STARTED]
+### Phase 2: Apply xdist_serial markers to the four tests [COMPLETED]
+
+**Verification results**: `--collect-only -q -m xdist_serial` selects 9 tests (5 pre-existing +
+4 newly marked), no depth-0 or raises-timeout test present. `--collect-only -q` collects 30
+tests total, unchanged from before the edit. `git diff` on the target file shows only four
+added decorator+comment blocks (5 lines each) — no assertion, call, or docstring line touched.
 
 **Goal**: Add `@pytest.mark.xdist_serial` plus an inline rationale comment to each of the four
 tests confirmed in Phase 1, matching the in-file precedent's style exactly.

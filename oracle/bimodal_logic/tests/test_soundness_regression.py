@@ -393,6 +393,11 @@ class TestBoundaryVacuity:
         assert result["boundary_safe"] is True
         assert result["time_bound"] == 3
 
+    @pytest.mark.xdist_serial
+    # ~3.3x measured headroom over the default timeout_ms=5000, but CPU
+    # contention under pytest-xdist can still erode that margin (see
+    # code/docs/core/TESTING_GUIDE.md section 8.6): run serially, never
+    # under -n (oracle/run-oracle-suite.sh's second pass).
     def test_depth1_boundary_safe_is_true(self):
         """F(p) at M=max(1+2,3)=3: boundary_safe=(3>2)=True.
 
@@ -445,6 +450,11 @@ class TestBoundaryVacuity:
             f"F(G(p)) should return None (boundary validity). Got: {result}"
         )
 
+    @pytest.mark.xdist_serial
+    # ~3.3x measured headroom over the default timeout_ms=5000, but CPU
+    # contention under pytest-xdist can still erode that margin (see
+    # code/docs/core/TESTING_GUIDE.md section 8.6): run serially, never
+    # under -n (oracle/run-oracle-suite.sh's second pass).
     def test_depth1_countermodel_has_required_fields(self):
         """F(p) at M=3 returns countermodel with all required output fields."""
         result = self.provider.find_countermodel(F_P)
@@ -623,6 +633,11 @@ class TestGuardedCompositionality:
             + "\n".join(str(t) for t in out_of_range)
         )
 
+    @pytest.mark.xdist_serial
+    # ~3.3x measured headroom over the default timeout_ms=5000, but CPU
+    # contention under pytest-xdist can still erode that margin (see
+    # code/docs/core/TESTING_GUIDE.md section 8.6): run serially, never
+    # under -n (oracle/run-oracle-suite.sh's second pass).
     def test_forward_comp_with_temporal_formula_output(self):
         """Frame axioms hold in oracle output for a depth-1 temporal formula (F(p)).
 
@@ -642,6 +657,11 @@ class TestGuardedCompositionality:
         assert cv_violations == [], f"Converse violations for F(p): {cv_violations}"
         assert nl_violations == [], f"Nullity violations for F(p): {nl_violations}"
 
+    @pytest.mark.xdist_serial
+    # ~3.3x measured headroom over the default timeout_ms=5000, but CPU
+    # contention under pytest-xdist can still erode that margin (see
+    # code/docs/core/TESTING_GUIDE.md section 8.6): run serially, never
+    # under -n (oracle/run-oracle-suite.sh's second pass).
     def test_nullity_with_temporal_formula_output(self):
         """Nullity axiom holds in oracle output for a depth-1 temporal formula (F(p)).
 
