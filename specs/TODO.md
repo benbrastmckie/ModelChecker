@@ -169,6 +169,7 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 - **Dependencies**: Task 158, Task 172, Task 175
 - **Research**: [173_add_development_marker_for_in_progress_theories/reports/01_development-marker-design.md]
 - **Plan**: [173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md]
+- **Summary**: [173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md]
 
 **Description**: Add a `development` pytest marker so a theory still under active construction (bimodal today) can carry known-failing or contention-flaky tests without turning the whole package's CI red -- while keeping every such test observed rather than forgotten.
 

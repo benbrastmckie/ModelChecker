@@ -1,16 +1,24 @@
 {
-  "status": "planned",
-  "summary": "Six-phase plan written to plans/01_development-marker.md, validated by validate-artifact.sh. Applies the orchestrator scope ruling verbatim: file_scope widened by exactly one file (.github/scripts/unstable_watch_classify.py), recorded with reasoning in a Scope Decisions section; unstable-watch.yml, release.yml, and oracle/conftest.py explicitly NOT edited. The observability design was reshaped so it lands with zero YAML dependency: the classifier gains an optional third JUnit input (/tmp/watch-development.xml) that no workflow step produces today, so DEV_STATUS classification, record schema, and pass-trend reporting are fully implemented and unit-tested here while being inert in production. The deferred /spawn candidate is the workflow step that would produce that file, plus the test_unstable_deselection_wiring.py assertion (currently requiring exactly two '-m unstable' matches in unstable-watch.yml) that a third step would invalidate. Rejected the alternative one-line '-m \"unstable or development\"' widening because it requires a hand-maintained node-id registry that drifts against the actual decorators. Phases: (1) pyproject marker registration incl. the deliberate oracle-conftest non-mirroring note, (2) six -m edits + in-place extension of the deselection contract test, atomic-batch since the extended test is red until all drivers land, (3) DEV_STATUS classification path never touching any_new/any_failure/exit code, (4) pass-rate trend reporting reusing fetch_past_classifications via a defaulted field selector, (5) TESTING_GUIDE.md 8.14 kept section-scoped to avoid the task 176 collision, (6) full-gate verification plus a required summary record of all four deferred/flagged omissions. Waves: [1,3] -> [2,4] -> [5] -> [6]; wave 1 is territory-disjoint.",
+  "status": "partial",
+  "summary": "Phases 1-5 of the six-phase plan are implemented and verified green: the development marker is registered in code/pyproject.toml (with the deliberate oracle/conftest.py non-mirroring note); all six gating -m invocations across tests.yml, differential-tests.yml, flake.nix, and run-oracle-suite.sh carry 'and not development'; code/tests/ci/test_unstable_deselection_wiring.py was extended in place to enforce both markers (bite-confirmed by a temporary-revert check); unstable_watch_classify.py gained a third, optional dev_junit_path input producing DEV_STATUS-classified records that never feed any_new/any_failure and are excluded from the currently_unstable fragment-matching loop; fetch_past_classifications was generalized with a defaulted field selector and compute_dev_pass_rate feeds a new '## Development Watch' step-summary section; TESTING_GUIDE.md section 8.14 documents the whole category plus one appended sentence in 8.9. code/tests/ci/ is fully green (83 tests) and collection-level equivalence of the new filter is proven by an exact empty diff of --collect-only output (3055 lines each, with vs without 'and not development') -- definitive proof the filter deselects nothing today. Phase 6 (full-gate verification) is PARTIAL, not COMPLETED: the full gating execution command (pytest ... -n 4 with the new filter) was run twice under a 580s timeout bound and exited 124 both times (killed, not a clean pass), showing 4 F's and an xdist worker crash ('[gw0] node down: Not properly terminated', 'replacing crashed worker gw0') near 93-96% collected on the first attempt. A targeted rerun scoped to the two implicated bimodal files (test_frame_constraints.py, test_frame_class_mapping.py) was itself confounded: task 153 is concurrently mid-flight on those exact files plus uncommitted changes to bimodal/semantic/core.py in the shared working tree, and had already landed commit b7bc19c3 (four intentionally-red test classes) during this task's own Phase 6 window. No failure attributable to this task's own scope was observed or is plausible given the collection-equivalence proof; the worker-crash excerpt is recorded as evidence for task 174 (root_cause_xdist_worker_crash, not_started) rather than investigated here. The one-file file_scope widening (unstable_watch_classify.py), the deferred unstable-watch.yml third-step /spawn candidate, the flagged-not-done release.yml comment update, and the deliberate oracle/conftest.py non-mirroring are all recorded in the implementation summary as required.",
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md",
-      "summary": "Six-phase implementation plan, 6.5 hours estimated."
+      "summary": "Six-phase plan; phases 1-5 COMPLETED, phase 6 PARTIAL with a documented Findings section."
+    },
+    {
+      "type": "summary",
+      "path": "specs/173_add_development_marker_for_in_progress_theories/summaries/01_development-marker-summary.md",
+      "summary": "Implementation summary recording what was verified green, the Phase 6 deviation, and the task 174/153 continuation condition."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 5,
   "phases_total": 6,
-  "blockers": [],
-  "continuation_path": "/implement 173",
-  "dispatch_seq": 18
+  "blockers": [
+    "Phase 6's full-suite execution gate (pytest tests/ src/model_checker -m \"... and not development\" -n 4) cannot be run clean while task 153 holds uncommitted changes to bimodal/semantic/core.py and test_frame_constraints.py in the shared working tree -- re-run once 153 lands.",
+    "An xdist worker crash ('[gw0] node down: Not properly terminated') observed during the full-suite attempt is task 174's (root_cause_xdist_worker_crash) concern, not this task's; excerpt recorded in the plan's Phase 6 Findings and the implementation summary for that task to consume."
+  ],
+  "continuation_path": "/implement 173 (resume at Phase 6 once task 153 lands; re-run the full gating parallel-pass command and confirm clean, or reconcile any residual failure against task 174)",
+  "dispatch_seq": 21
 }

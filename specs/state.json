@@ -92,6 +92,11 @@
           "path": "specs/173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md",
           "type": "plan",
           "summary": "Six-phase implementation plan, 6.5 hours estimated."
+        },
+        {
+          "path": "specs/173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md",
+          "type": "summary",
+          "summary": "Six-phase plan; phases 1-5 COMPLETED, phase 6 PARTIAL with a documented Findings section."
         }
       ]
     },
