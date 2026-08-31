@@ -1,17 +1,21 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 8,
-  "summary": "7-phase implementation plan (8h, 4 waves) adopting research remedy (a): anchored-regex laundering-guard fix plus tightened zero-disagreements check, a real-pytest-subprocess regression test covering both directions, a per-node-id promotion streak built from the already-uploaded per-run JSONL artifacts, and the two narrow prose records (oracle GATING_RECHECK_SOLVE_TIMEOUT_MS comment block, TESTING_GUIDE.md section 8.9).",
+  "status": "implemented",
+  "summary": "All 7 phases complete: anchored-regex laundering-guard fix (GREEN against the new real-pytest-subprocess regression test, RED confirmed against the pre-fix classifier), per-node-id promotion streak wired via fetch_past_classifications/compute_per_test_promotion_streak, oracle zero-contention finding recorded, TESTING_GUIDE.md section 8.9 updated. code/tests/ci/ green (70 tests); 3 pre-existing code/tests/cli/ failures confirmed caused by a concurrent task's commit (74f578f6), outside this task's file_scope, documented in the summary and not fixed here. Final CI confirmation is user-only (no push/dispatch performed).",
   "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/175_fix_unstable_watch_classifier_laundering_guard/summaries/01_laundering-guard-fix-summary.md",
+      "summary": "Implementation summary covering all 7 phases, decisions, and the out-of-scope concurrent-task failures observed."
+    },
     {
       "type": "plan",
       "path": "specs/175_fix_unstable_watch_classifier_laundering_guard/plans/01_laundering-guard-fix.md",
-      "summary": "Implementation plan with 7 phases and dependency analysis."
+      "summary": "7-phase implementation plan, all phases marked [COMPLETED]."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 7,
   "phases_total": 7,
   "blockers": [],
-  "continuation_path": null
+  "continuation_path": null,
+  "dispatch_seq": 12
 }

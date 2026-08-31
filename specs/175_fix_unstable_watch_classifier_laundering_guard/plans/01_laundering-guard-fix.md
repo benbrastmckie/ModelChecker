@@ -466,27 +466,27 @@ paragraph is stale after Phases 2-4, edit it too and note the addition.
 
 ---
 
-### Phase 7: Full gate and consistency pass [NOT STARTED]
+### Phase 7: Full gate and consistency pass [COMPLETED]
 
 **Goal**: Run the complete gate set across the whole change, confirm the exit condition's
 locally-verifiable half, and confirm every hard constraint held.
 
 **Tasks**:
-- [ ] `PYTHONPATH=code/src pytest code/tests/ci/ -v` fully green.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -q` to confirm no wider regression in the general
+- [x] `PYTHONPATH=code/src pytest code/tests/ci/ -v` fully green.
+- [x] `PYTHONPATH=code/src pytest code/tests/ -q` to confirm no wider regression in the general
       test tree.
-- [ ] `PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_cross_oracle_differential.py --collect-only -q`
+- [x] `PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_cross_oracle_differential.py --collect-only -q`
       collects clean.
-- [ ] Re-verify the exit condition's locally-checkable half: check out the pre-Phase-2 classifier
+- [x] Re-verify the exit condition's locally-checkable half: check out the pre-Phase-2 classifier
       into a scratch copy, run the new real-pytest test against it, and confirm it fails `NEW`;
       then confirm it passes `TIMING` against the fixed module. Record both results.
-- [ ] Hard-constraint audit against the final diff: `MIN_CONCLUSIVE_GATING_FORMULAS` still 100;
+- [x] Hard-constraint audit against the final diff: `MIN_CONCLUSIVE_GATING_FORMULAS` still 100;
       `GATING_RECHECK_SOLVE_TIMEOUT_MS` still 40000; the `unstable` marker untouched; no
       `continue-on-error` added to any classify step; `.github/workflows/unstable-watch.yml`
       unmodified (`git diff --stat` names no workflow file); the classifier imports stdlib only;
       no existing test deleted or weakened.
-- [ ] Confirm the diff touches only the four `file_scope` paths plus `specs/**`.
-- [ ] State explicitly in the implementation summary that final CI confirmation is user-only: an
+- [x] Confirm the diff touches only the four `file_scope` paths plus `specs/**`.
+- [x] State explicitly in the implementation summary that final CI confirmation is user-only: an
       agent may author and commit but cannot push or `workflow_dispatch`, so the exit condition's
       last step lands on the next nightly run or a user-initiated dispatch.
 
@@ -511,20 +511,20 @@ locally-verifiable half, and confirm every hard constraint held.
 
 ## Testing & Validation
 
-- [ ] The new real-pytest-subprocess test fails with the literal classification `"NEW"` against
+- [x] The new real-pytest-subprocess test fails with the literal classification `"NEW"` against
       the unfixed guard and passes with `"TIMING"` against the fixed one (both recorded).
-- [ ] A genuine `disagreements != 0` failure driven through the same real-pytest path still
+- [x] A genuine `disagreements != 0` failure driven through the same real-pytest path still
       classifies `NEW`.
-- [ ] A synthetic test pins that the raw source-listing f-string does not match the new pattern.
-- [ ] All 16 pre-existing tests in `code/tests/ci/test_unstable_watch_classifier.py` pass,
+- [x] A synthetic test pins that the raw source-listing f-string does not match the new pattern.
+- [x] All 16 pre-existing tests in `code/tests/ci/test_unstable_watch_classifier.py` pass,
       unmodified.
-- [ ] Two marked node ids with divergent histories produce divergent streaks; `READY TO PROMOTE`
+- [x] Two marked node ids with divergent histories produce divergent streaks; `READY TO PROMOTE`
       names only the earner.
-- [ ] A simulated artifact-fetch failure warns, breaks the streak conservatively, and does not
+- [x] A simulated artifact-fetch failure warns, breaks the streak conservatively, and does not
       change `run()`'s return code.
-- [ ] `run()` returns 1 iff a `NEW` classification was recorded (non-gating contract preserved).
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -q` shows no regression.
-- [ ] The oracle differential module collects clean and both protected constants are unchanged.
+- [x] `run()` returns 1 iff a `NEW` classification was recorded (non-gating contract preserved).
+- [x] `PYTHONPATH=code/src pytest code/tests/ -q` shows no regression.
+- [x] The oracle differential module collects clean and both protected constants are unchanged.
 
 ## Artifacts & Outputs
 
