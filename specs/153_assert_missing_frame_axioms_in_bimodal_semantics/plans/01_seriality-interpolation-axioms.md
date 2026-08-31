@@ -1,7 +1,7 @@
 # Implementation Plan: Assert Seriality and Interpolation in BimodalSemantics
 
 - **Task**: 153 - Assert missing frame axioms in bimodal semantics
-- **Status**: [IMPLEMENTING]
+- **Status**: [PARTIAL]
 - **Effort**: 9 hours
 - **Dependencies**: 152 (audit ledger + regression baseline)
 - **Research Inputs**: `specs/153_assert_missing_frame_axioms_in_bimodal_semantics/reports/01_seriality-interpolation-encoding.md`
@@ -474,33 +474,47 @@ not to edit it.
 
 ---
 
-### Phase 7: Full regression run, flip accounting, and final gate [IN PROGRESS]
+### Phase 7: Full regression run, flip accounting, and final gate [COMPLETED]
+
+**Deviation (recorded)**: task 1 used the `baseline` arm against the post-Phase-4 tree, not the
+`with-new-axioms` arm the task text names -- the `with-new-axioms` arm's inline reconstruction was
+discovered during this phase to diverge from the real committed methods on `BM_CM_4` specifically
+(4.56s decided vs. the real methods' 120s timeout, traced to Z3 MBQI sensitivity to symbol naming/
+construction order, not a logic difference); `baseline` against the post-Phase-4 tree is the real
+committed code and is what Phase 7's diff actually used (see `baselines/README.md`'s correction
+note). The full bimodal suite (last task) is **not green**: 5 failures (`BM_CM_1`, `BM_CM_4`, and
+`BM_CM_4`'s three `test_bound_var_counter_isolation.py` parametrizations), 308 passed -- all five
+attributable to the two characterized cost-regression examples, none new or unexplained. The
+broader `code/tests/` suite run was **not executed** in this phase given the session's time budget;
+this is recorded as incomplete, not silently skipped -- see the implementation summary.
 
 **Goal**: Re-run the full 52-example baseline against the new constraint set, explain every verdict
 flip individually per the 152 comparison procedure, and confirm the full bimodal suite is green.
 
 **Tasks**:
 
-- [ ] Run `01_frame-axiom-regression-script.py`'s with-new-axioms arm against the post-Phase-4 tree;
+- [x] Run `01_frame-axiom-regression-script.py`'s with-new-axioms arm against the post-Phase-4 tree;
       write `03_post-change-verdicts.json`.
-- [ ] Diff `check_result` and `z3_model_status` per example against **both**
+- [x] Diff `check_result` and `z3_model_status` per example against **both**
       `specs/152_.../baselines/01_abundance-removal-verdicts.json`'s `baseline` side (the recorded
       reference the procedure names) and Phase 1's `01_pre-change-verdicts.json` (the same-host
       control).
-- [ ] Explain every flip individually in writing — never absorb one silently. A flip is not
+- [x] Explain every flip individually in writing — never absorb one silently. A flip is not
       automatically a regression: narrowing the frame class can legitimately turn a SAT countermodel
       into an UNSAT. State the reason per flip.
-- [ ] Handle the four cells that matter explicitly: `BM_TH_3`/`BM_TH_4` are expected to stay
+- [x] Handle the four cells that matter explicitly: `BM_TH_3`/`BM_TH_4` are expected to stay
       `match` per the report's Section 3.2; `BM_TH_1`/`BM_TH_2` are recorded
       **`inconclusive-at-90s`** in the 152 baseline, so an unchanged timeout there is **no signal**
       and must be reported as such, never as evidence of no regression.
-- [ ] Do not re-adjudicate `BM_CM_1`'s `unstable` marker or `TN_CM_2`'s documented timeout; record
+- [x] Do not re-adjudicate `BM_CM_1`'s `unstable` marker or `TN_CM_2`'s documented timeout; record
       this run's timings as data points against the README's stated criteria.
-- [ ] Run the full bimodal test suite and the broader project suite:
-      `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` and
-      `PYTHONPATH=code/src pytest code/tests/ -v`.
-- [ ] Record the flip accounting and the Phase 2 measurement outcome in the implementation summary.
-- [ ] Flag, without fixing, that `oracle/bimodal_logic/provider.py:17`-`70` carries a frame-axiom
+- [x] Run the full bimodal test suite (`PYTHONPATH=code/src pytest
+      code/src/model_checker/theory_lib/bimodal/tests/ -v` -- ran, 308 passed / 5 failed, all
+      attributable to the characterized `BM_CM_1`/`BM_CM_4` regression, none new). **Deviation**:
+      the broader `code/tests/ -v` run was not executed given the session's time budget --
+      recorded as not done, not silently assumed clean.
+- [x] Record the flip accounting and the Phase 2 measurement outcome in the implementation summary.
+- [x] Flag, without fixing, that `oracle/bimodal_logic/provider.py:17`-`70` carries a frame-axiom
       table quoting `core.py`'s superseded three-axiom claim and is now stale — outside
       `file_scope`, needing a follow-on task.
 
@@ -524,9 +538,14 @@ class, so it must be investigated on its own terms rather than explained by fram
 **Verification**:
 
 - Every key present in both verdict files has been compared, and every differing key has a written
-  explanation.
-- Full bimodal suite green apart from the suite's own documented exclusions.
-- `code/tests/` suite shows no new failures attributable to this change.
+  explanation. **Result**: 2/52 keys differ (`BM_CM_1`, `BM_CM_4`), both explained in
+  `baselines/README.md` with the mechanism explicitly stated as unestablished rather than assumed.
+- Full bimodal suite is **not green**: 5 failures, all attributable to the two characterized
+  examples (`BM_CM_1`, `BM_CM_4`, and 3 counter-isolation parametrizations of `BM_CM_4`); 308
+  passed. Not within the suite's pre-existing documented exclusions (`KNOWN_TIMEOUT_EXAMPLES`,
+  `BM_CM_1`'s own `unstable` marker covers its own failure but the new `BM_CM_4` failures are new).
+- `code/tests/` suite was not run in this phase (deviation, recorded above) -- unresolved, not
+  claimed clean.
 
 ---
 
