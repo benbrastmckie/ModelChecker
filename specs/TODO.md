@@ -1,18 +1,18 @@
 ---
-next_project_number: 175
+next_project_number: 176
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-08-26. Generated from state.json dependency graph.*
+*Updated 2026-08-31. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 152,158,172 | -- | semantics, release-engineering, test-reliability |
-| 2 | 153,168,173 | 152,158,172 | testing, semantics, release-engineering |
+| 1 | 152,158,172,175 | -- | semantics, release-engineering, test-reliability |
+| 2 | 153,168,173 | 152,158,172,175 | testing, semantics, release-engineering |
 | 3 | 154,174 | 153,173 | semantics, test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -35,9 +35,75 @@ next_project_number: 175
 ### Test Reliability
 
 172 [NOT STARTED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+175 [NOT STARTED] — Fix the unstable-watch classifier's laundering guard, which produ
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
+
+### 175. Fix unstable watch classifier laundering guard
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: None
+
+**Description**: Fix the unstable-watch classifier's laundering guard, which produces a FALSE POSITIVE on every genuine gating-floor failure and has turned the nightly Unstable Watch workflow red on five consecutive runs. The tests are NOT failing in a new way -- the classifier is misreading them.
+
+ROOT CAUSE -- VERIFIED, NOT HYPOTHESIZED. DO NOT RE-DERIVE THIS.
+`.github/scripts/unstable_watch_classify.py`'s `classify()` gating branch computes:
+
+    has_disagreement_failure = DISAGREEMENT_SIGNATURE in failure_text   # "Self-comparison produced"
+
+pytest's JUnit `<failure>` body embeds the full traceback INCLUDING THE SOURCE LISTING of `_assert_scan_report`. That source contains the *passing* first assertion's f-string literal verbatim:
+
+    f"Self-comparison produced {report['disagreements']} disagreements among "
+
+So the negative guard matches its own source code on every floor failure. Confirmed by importing the real module and feeding it the real CI failure text: floor signature present (True), "disagreements=0" present (True), disagreement guard fires (True, false positive) -> returns NEW. The guard's own comment reasons that a floor failure and a disagreements failure are "mutually exclusive outcomes of the same test." That is true of BEHAVIOR and false of the TEXT -- pytest prints both assertions' source regardless of which one fired.
+
+THE INCIDENT RECORD. Five consecutive nightly failures, all identical, all since the oracle test was marked `unstable`:
+- 33091941820 (2026-08-27), duration 761.61s
+- 33193518591 (2026-08-28)
+- 33250263772 (2026-08-29)
+- 33306220265 (2026-08-30), duration 898.78s
+- 33386925098 (2026-08-31), duration 808.64s
+
+On every one, BOTH pytest steps report green (they carry `continue-on-error: true`) and ONLY the `Classify results and build the trend report` step exits 1. The underlying test failure is exactly its documented TIMING shape:
+
+    AssertionError: Only 96 of 103 formulas were conclusive (floor=100); this is a
+    budget/performance regression to investigate, not a semantic one.
+    scan report: agreements=96 disagreements=0 timeout_count=7 conclusive=96/103
+
+WHY IT SHIPPED -- THIS IS THE REAL LESSON. All 16 tests in `code/tests/ci/test_unstable_watch_classifier.py` are built from hand-written synthetic strings (`FLOOR_MESSAGE`, `FLOOR_ASSERTION_MESSAGE`, `DISAGREEMENT_MESSAGE`). NOT ONE feeds the classifier a `<failure>` body that pytest actually produced. The defect lives precisely in the gap between the synthetic fixture and real pytest output, and no amount of additional synthetic cases would have caught it.
+
+WHAT TO DO.
+
+(1) FIX THE GUARD WITHOUT REOPENING THE LAUNDERING HOLE. Do NOT simply delete the disagreement guard -- it deliberately closes a soundness-laundering hole, and a genuine `disagreements != 0` failure must NEVER classify TIMING. Two candidate remedies; choose with reasons recorded:
+  (a) MINIMAL: match the RENDERED message rather than the source, e.g. `re.search(r"Self-comparison produced \d+ disagreements", failure_text)`. Verified to discriminate: it does NOT match the source-listing line (which carries the `{report['disagreements']}` placeholder) and DOES match a real rendered failure. Cheap and immediately correct.
+  (b) DURABLE: stop parsing prose entirely. Have `_assert_scan_report` emit one machine-readable line (e.g. `UNSTABLE-SIGNATURE: kind=floor disagreements=0 conclusive=96/103`) and classify off that. This retires the whole bug class -- "the traceback echoes the source" -- rather than one instance of it.
+  Note that `has_zero_disagreements = "disagreements=0" in failure_text` is fragile in the same way and must move with whichever remedy is chosen. The same hazard applies to `FAILURE_SIGNATURE` ("Test failed for example:") on the BM_CM_1 branch; survey it before concluding it is safe.
+
+(2) THE REGRESSION TEST MUST RUN REAL PYTEST. This is the non-negotiable half. Add a test that generates JUnit XML by actually invoking pytest in a subprocess against a fixture module reproducing `_assert_scan_report`'s TWO-ASSERTION shape (a passing `disagreements == 0` assert whose message contains the disagreement signature, followed by a failing floor assert), then drives `parse_junit` + `classify` over that XML and asserts TIMING. A synthetic-string test cannot express this defect and must not be treated as covering it. Keep the existing 16 tests -- they are still valid characterization -- but they are not sufficient.
+
+(3) MAKE THE PROMOTION STREAK PER-TEST. Second, independent defect surfaced by the same runs. `run()` sets `any_failure` globally across BOTH trees, and `compute_promotion_streak` is per-RUN, not per-TEST. The oracle gating test fails deterministically (96/103 every run), so one permanently-quarantined test now FREEZES THE PROMOTION PATH FOR EVERY OTHER MARKED TEST, forever. Concretely: BM_CM_1's documented exit criterion -- "20 consecutive unstable-watch runs record zero failures (nightly cadence, ~3 weeks)" -- is unreachable by construction, and `READY TO PROMOTE` names all marked tests at once rather than the one that earned it. The per-run `unstable-watch-record.jsonl` artifacts ALREADY carry per-test `classification`, so the per-test streak is derivable from them; the module docstring's "documented residual limitation" note about deriving history from job conclusions is now load-bearing rather than theoretical. Fix the streak or record explicitly why it stays per-run -- do not leave it unaddressed.
+
+(4) RECORD A FINDING THAT RETIRES AN OPEN LEAD. `unstable-watch.yml` runs the oracle test with plain `pytest` -- no `-n`, and pytest-xdist is not even installed (the run log's plugin line reads `plugins: timeout-2.4.0`). Single process, ZERO parallel contention, and it still returns 96/103 with 7 timeouts -- byte-identical to the `-n 6` result from differential-tests.yml. This retires the one untried remedy left open at the marker site ("this test is not `xdist_serial`-marked, so oracle/run-oracle-suite.sh's -n 6 pass runs it alongside five other workers... serial isolation is a distinct remedy from budget widening and has not been tried"). Serial isolation HAS now been tried, three nights running, and it changes nothing. Record this at `GATING_RECHECK_SOLVE_TIMEOUT_MS`'s comment block so the next investigator does not spend the experiment again. Also note the duration drift -- 761s, 808s, 898s -- against the job's `timeout-minutes: 20`; it has headroom today but the trend is worth a sentence, not a change.
+
+HARD CONSTRAINTS.
+- Do NOT edit `MIN_CONCLUSIVE_GATING_FORMULAS` (stays 100) or `GATING_RECHECK_SOLVE_TIMEOUT_MS` (stays 40000). Both carry standing do-not-touch instructions earned by measurement: the 20000 -> 40000ms widening bought exactly ZERO additional conclusive formulas (96/103, 7 timeouts, 0 disagreements, identical before and after). The floor encodes a real quality property and lowering it is the assertion-weakening the constant's own comment forbids.
+- Do NOT unmark the oracle test or remove its `unstable` marker to reach green. The marker is correct; the classifier is what is broken.
+- Do NOT "fix" this by making the classify step non-gating (e.g. `continue-on-error: true`). A NEW-classified failure SHOULD fail the job -- that is the workflow's entire purpose. The bug is that a TIMING failure is being called NEW.
+- Do NOT touch the workflow's non-gating contract: unstable-watch.yml must never appear in another workflow's `needs:`, never gain a `push`/`pull_request`/`tags` trigger, and never enter branch protection.
+- The classifier is stdlib-only by design (the watch job installs no third-party parsing dependency). `re` is stdlib and fine; PyYAML and friends are not.
+
+WHAT IS ALREADY RULED OUT -- DO NOT REDO.
+- This is NOT the failure archived under `unstable_watch_workflow_failures`. That one was a pytest COLLECTION crash from two unguarded module-level `from bimodal_harness...` imports, fixed by the shared guard in `oracle/bimodal_logic/tests/_bimodal_harness.py`. Collection is clean now (the run log shows `collected 644 items / 643 deselected / 1 selected`). Different defect, different layer.
+- The oracle floor shortfall itself is NOT in scope and is NOT a regression. It was investigated to a negative result and quarantining it under section 8.9's four entry criteria was the sanctioned outcome. This task fixes the OBSERVER, not the observed.
+- `junit_logging=system-out` is wired correctly and IS working. `<system-out>` is present in the XML and `parse_junit` folds it in -- verified locally against pytest's real output. Do not go looking there.
+
+EXIT CONDITION. The next scheduled Unstable Watch run classifies the gating-floor failure as TIMING and the job completes green while the test still fails, with a real-pytest-generated regression test in `code/tests/ci/test_unstable_watch_classifier.py` that fails against the current guard and passes after the fix. VERIFICATION IS USER-ONLY at the last step: an agent may author and commit the change but cannot push or trigger `workflow_dispatch`, so confirmation comes from the next nightly run or a user-initiated dispatch.
+
+task_type: python. file_scope: .github/scripts/unstable_watch_classify.py, code/tests/ci/test_unstable_watch_classifier.py, oracle/bimodal_logic/tests/test_cross_oracle_differential.py, code/docs/core/TESTING_GUIDE.md.
+
+---
 
 ### 174. Root cause xdist worker crash
 - **Status**: [NOT STARTED]
@@ -84,7 +150,7 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: testing
-- **Dependencies**: Task 158, Task 172
+- **Dependencies**: Task 158, Task 172, Task 175
 
 **Description**: Add a `development` pytest marker so a theory still under active construction (bimodal today) can carry known-failing or contention-flaky tests without turning the whole package's CI red -- while keeping every such test observed rather than forgotten.
 
@@ -110,6 +176,17 @@ RESOLVED, NOW OWNED ELSEWHERE -- DO NOT EXECUTE HERE. The `xdist_serial` experim
 ORDERING AND CONCURRENCY. This task declares `harden_release_ci_testpypi_gate` and `fix_contention_flaky_soundness_regression_tests` as dependencies -- not because it needs their OUTPUT, but because all three edit the same pytest selection expressions and marker registry (`.github/workflows/tests.yml`, `.github/workflows/differential-tests.yml`, `flake.nix`, `code/pyproject.toml`, `code/tests/ci/`, `oracle/run-oracle-suite.sh`). Running them concurrently would produce conflicting edits to the same `-m` strings. Re-read all of those files fresh at start rather than working from any copy quoted in this description; both dependencies will have modified them.
 
 The worker-crash task in turn depends on THIS one, so the `development` marker exists before that investigation decides whether to use it.
+REVISION 2026-08-31 -- THE CLASSIFIER YOU ARE TOLD TO EXTEND IS CURRENTLY BROKEN. Item (4) above instructs extending `.github/scripts/unstable_watch_classify.py` and its unit tests as the observability mechanism for `development`-marked tests. That module has a live, verified defect, and this task now declares `fix_unstable_watch_classifier_laundering_guard` as a dependency so the fix lands first.
+
+WHAT IS WRONG WITH IT, so the design here accounts for it rather than inheriting it. `classify()`'s negative guard does a plain substring test for "Self-comparison produced" against the JUnit `<failure>` body, which embeds pytest's traceback SOURCE LISTING -- and that listing contains the passing assertion's f-string literal verbatim. The guard therefore matches its own source code, and every genuine gating-floor failure has classified NEW since the marker landed. Unstable Watch has been red on five consecutive nightly runs (33091941820, 33193518591, 33250263772, 33306220265, 33386925098) for this reason alone, with both pytest steps reporting green.
+
+TWO CONSEQUENCES THAT BEAR DIRECTLY ON THIS TASK'S DESIGN:
+- DO NOT COPY THE PROSE-MATCHING PATTERN. Whatever surfacing mechanism `development` gets, do not classify by substring-matching assertion text out of a traceback. That is the defect. If the fix task adopts the machine-readable-signature route, follow it here; if it adopts the narrower regex route, understand why before reusing it.
+- DO NOT COPY THE SYNTHETIC-FIXTURE TEST METHODOLOGY. All 16 existing tests in `code/tests/ci/test_unstable_watch_classifier.py` build their inputs from hand-written strings, and not one feeds the classifier a `<failure>` body pytest actually produced -- which is exactly why the defect shipped. Any test this task adds for `development` observability must exercise real pytest-generated JUnit XML.
+
+ALSO RECONSIDER ITEM (4)'s SHARED-STREAK ASSUMPTION. `compute_promotion_streak` is per-RUN, not per-TEST: one permanently-failing marked test freezes the promotion path for every other marked test in the workflow. If `development`-marked tests are routed through the same job, a whole in-development theory would freeze `unstable` promotion for the entire repository. Decide explicitly whether `development` gets its own job, its own streak accounting, or is excluded from streak computation entirely -- and record the reason.
+
+CORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the marker's real benefit is "SIGNAL QUALITY on master and PR runs, not release unblocking." Verify that independently for unstable-watch.yml specifically: its triggers are `schedule` and `workflow_dispatch` ONLY -- deliberately no `push`, no `pull_request`, no `tags`, per its own non-gating contract comment. So extending THAT workflow does nothing for master or PR signal. The gating workflows (tests.yml, differential-tests.yml, packaging.yml) are where PR signal lives. Do not conflate the two.
 
 ---
 
