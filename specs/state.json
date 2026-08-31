@@ -60,12 +60,12 @@
     {
       "project_number": 173,
       "project_name": "add_development_marker_for_in_progress_theories",
-      "status": "planning",
+      "status": "planned",
       "task_type": "python",
       "description": "Add a `development` pytest marker so a theory still under active construction (bimodal today) can carry known-failing or contention-flaky tests without turning the whole package's CI red -- while keeping every such test observed rather than forgotten.\n\nMOTIVATION, AND THE ONE FACT THAT MUST GROUND THE DESIGN. The bimodal theory is genuinely in development; not all of its tests are expected to pass yet, and that must not read as \"the package is broken\". The existing `unstable` marker cannot serve this purpose: TESTING_GUIDE.md section 8.9 imposes four mandatory entry criteria (documented failure mechanism with measurements, demonstrably non-semantic, a genuine fix attempted AND its failure recorded, and a written concrete exit criterion), states that \"it failed once in CI never qualifies on its own\", and explicitly warns the category \"must not become a dumping ground\". A development-stage theory's ordinary in-progress failures meet none of those criteria, and forcing them under `unstable` would destroy that marker's meaning -- which is precisely what section 8.9 exists to prevent.\n\nCORRECT A LIKELY PREMISE BEFORE DESIGNING. Releases are ALREADY unaffected by bimodal test failures, and the design must not be justified on a false basis. `.github/workflows/release.yml`'s `test-and-release` job runs NO pytest suite at all (it builds the wheel, installs it, imports, runs `--help`, and checks the version matches the tag); the only pytest on the release path is the `build` job's `pytest tests/packaging/ -m \"packaging and not unstable\"`. The bimodal suite runs in tests.yml, packaging.yml, unstable-watch.yml, and differential-tests.yml -- none of which gate a tag push. v1.3.7 published to PyPI while Tests run 32996446859 was red. So the real benefit of this marker is SIGNAL QUALITY on master and PR runs, not release unblocking. Verify this independently before writing the plan; if it has changed, say so and design against what is actually true.\n\nWHAT TO DECIDE (each explicitly, with reasons recorded).\n(1) MARKER SEMANTICS. What `development` means, how it differs from `unstable` and from `xdist_serial`, and -- the hard question -- whether it is applied per-test, per-module, or per-theory. A theory-level application (e.g. a `pytestmark` in the bimodal test package, or a marker keyed off theory membership) is what the motivation actually calls for, but it is also the version most capable of hiding a real regression. Decide with the failure mode in view, not just the convenience.\n(2) WHAT IT MUST NOT HIDE. A development marker that silently swallows a genuine semantic regression is worse than a red suite. Determine which failure classes stay gating regardless -- soundness/differential-oracle failures are the obvious candidates -- and make that boundary executable rather than a comment.\n(3) DESELECTION WIRING. Where `and not development` must appear. `code/tests/ci/test_unstable_deselection_wiring.py` already enforces the analogous contract for `unstable` across tests.yml, flake.nix, differential-tests.yml, and run-oracle-suite.sh; extend that guard rather than writing a parallel one. Note release.yml's documented no-op comment about future pytest invocations needs the same treatment.\n(4) OBSERVABILITY -- THE \"DON'T FORGET\" HALF. The user's requirement is explicitly that quarantined tests remain learnable-from and fixable later, not merely silenced. Decide how development-marked tests get surfaced: extending unstable-watch.yml (whose classifier lives in `.github/scripts/unstable_watch_classify.py`, unit-tested by `code/tests/ci/test_unstable_watch_classifier.py` -- extend the module, never the workflow YAML), a separate job, or a periodic report. A marker with no watch mechanism fails the stated requirement.\n(5) EXIT PATH. What retires the marker for a theory -- what \"bimodal is no longer in development\" means concretely, and who decides. Section 8.9's standing rule (an indefinitely-quarantined test is itself a defect to escalate) should have an analogue here, or an explicit recorded reason why it does not apply.\n(6) DOCUMENTATION. TESTING_GUIDE.md section 8.9's marker taxonomy is the source of truth and must gain the new category, including how a reader chooses between `development`, `unstable`, `xdist_serial`, and `performance`.\n\nHARD CONSTRAINTS.\n- Do NOT weaken or widen the existing `unstable` marker to cover this case. It is a separate category with separate criteria.\n- Do NOT mark the two failures from CI run 32996446859 as `development` on the way past. One is already fixed at the root (the bimodal iterate tests' timeout-vs-unsat discriminator, commit 75012389); the other is an xdist worker crash that is NOT test-scoped -- two incidents killed two DIFFERENT tests in `test_frame_class_mapping.py`, so a test-level marker cannot contain it and would give the appearance of a fix without changing the failure rate. That crash belongs to the open item-D investigation.\n- Any new gating pytest invocation must carry the deselection filter as a matter of course, per section 8.9's standing instruction.\n\nRESOLVED, NOW OWNED ELSEWHERE -- DO NOT EXECUTE HERE. The `xdist_serial` experiment on `test_frame_class_mapping.py` (moving it to the serial pass to see whether that stops the `[gw2] node down` crash) is now owned by the worker-crash task `root_cause_xdist_worker_crash`, as its lead (d). Do not fold it in here; the two would edit the same module's markers.\n\nORDERING AND CONCURRENCY. This task declares `harden_release_ci_testpypi_gate` and `fix_contention_flaky_soundness_regression_tests` as dependencies -- not because it needs their OUTPUT, but because all three edit the same pytest selection expressions and marker registry (`.github/workflows/tests.yml`, `.github/workflows/differential-tests.yml`, `flake.nix`, `code/pyproject.toml`, `code/tests/ci/`, `oracle/run-oracle-suite.sh`). Running them concurrently would produce conflicting edits to the same `-m` strings. Re-read all of those files fresh at start rather than working from any copy quoted in this description; both dependencies will have modified them.\n\nThe worker-crash task in turn depends on THIS one, so the `development` marker exists before that investigation decides whether to use it.\nREVISION 2026-08-31 -- THE CLASSIFIER YOU ARE TOLD TO EXTEND IS CURRENTLY BROKEN. Item (4) above instructs extending `.github/scripts/unstable_watch_classify.py` and its unit tests as the observability mechanism for `development`-marked tests. That module has a live, verified defect, and this task now declares `fix_unstable_watch_classifier_laundering_guard` as a dependency so the fix lands first.\n\nWHAT IS WRONG WITH IT, so the design here accounts for it rather than inheriting it. `classify()`'s negative guard does a plain substring test for \"Self-comparison produced\" against the JUnit `<failure>` body, which embeds pytest's traceback SOURCE LISTING -- and that listing contains the passing assertion's f-string literal verbatim. The guard therefore matches its own source code, and every genuine gating-floor failure has classified NEW since the marker landed. Unstable Watch has been red on five consecutive nightly runs (33091941820, 33193518591, 33250263772, 33306220265, 33386925098) for this reason alone, with both pytest steps reporting green.\n\nTWO CONSEQUENCES THAT BEAR DIRECTLY ON THIS TASK'S DESIGN:\n- DO NOT COPY THE PROSE-MATCHING PATTERN. Whatever surfacing mechanism `development` gets, do not classify by substring-matching assertion text out of a traceback. That is the defect. If the fix task adopts the machine-readable-signature route, follow it here; if it adopts the narrower regex route, understand why before reusing it.\n- DO NOT COPY THE SYNTHETIC-FIXTURE TEST METHODOLOGY. All 16 existing tests in `code/tests/ci/test_unstable_watch_classifier.py` build their inputs from hand-written strings, and not one feeds the classifier a `<failure>` body pytest actually produced -- which is exactly why the defect shipped. Any test this task adds for `development` observability must exercise real pytest-generated JUnit XML.\n\nALSO RECONSIDER ITEM (4)'s SHARED-STREAK ASSUMPTION. `compute_promotion_streak` is per-RUN, not per-TEST: one permanently-failing marked test freezes the promotion path for every other marked test in the workflow. If `development`-marked tests are routed through the same job, a whole in-development theory would freeze `unstable` promotion for the entire repository. Decide explicitly whether `development` gets its own job, its own streak accounting, or is excluded from streak computation entirely -- and record the reason.\n\nCORRECT ONE MORE PREMISE WHILE HERE. This task's motivation section argues the marker's real benefit is \"SIGNAL QUALITY on master and PR runs, not release unblocking.\" Verify that independently for unstable-watch.yml specifically: its triggers are `schedule` and `workflow_dispatch` ONLY -- deliberately no `push`, no `pull_request`, no `tags`, per its own non-gating contract comment. So extending THAT workflow does nothing for master or PR signal. The gating workflows (tests.yml, differential-tests.yml, packaging.yml) are where PR signal lives. Do not conflate the two.",
       "topic": "testing",
       "created": "2026-08-26T18:21:12Z",
-      "last_updated": "2026-08-31T19:21:32Z",
+      "last_updated": "2026-08-31T19:28:07Z",
       "dependencies": [
         158,
         172,
@@ -87,6 +87,11 @@
           "path": "specs/173_add_development_marker_for_in_progress_theories/reports/01_development-marker-design.md",
           "type": "report",
           "summary": "Design research answering all six decision items plus the file_scope gap finding on observability."
+        },
+        {
+          "path": "specs/173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md",
+          "type": "plan",
+          "summary": "Six-phase implementation plan, 6.5 hours estimated."
         }
       ]
     },
@@ -132,12 +137,12 @@
     {
       "project_number": 168,
       "project_name": "pypi_install_and_full_cli_verification_ci",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "python",
       "description": "Build a systematic PyPI install and full-CLI verification CI pipeline: parameterize the pytest packaging suite's installed_venv fixture over install source (locally built wheel, TestPyPI, or PyPI), add a TestPyPI pre-publish gate and a post-publish PyPI confirmation matrix to release.yml, and add a dispatchable plus scheduled pypi-smoke.yml workflow with opt-in tmate SSH debugging so the published package can be verified end-to-end from a NixOS development host",
       "topic": "release-engineering",
       "created": "2026-08-25T20:59:36Z",
-      "last_updated": "2026-08-31T19:25:06Z",
+      "last_updated": "2026-08-31T19:25:09Z",
       "dependencies": [
         158
       ],
@@ -299,7 +304,7 @@
     {
       "project_number": 153,
       "project_name": "assert_missing_frame_axioms_in_bimodal_semantics",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "z3",
       "topic": "semantics",
       "priority": "high",
@@ -326,7 +331,7 @@
       ],
       "blockers": null,
       "created": "2026-08-11T23:11:53Z",
-      "last_updated": "2026-08-31T19:25:04Z",
+      "last_updated": "2026-08-31T19:25:08Z",
       "next_artifact_number": 1,
       "session_id": "sess_1788198229_79cf9f_153"
     },
