@@ -205,6 +205,24 @@ SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 #     membership churn at the margin open -- do not assert a same-7 claim; enabling that
 #     instrumentation is a possible future round, not attempted here.
 #
+# (3b) ZERO-CONTENTION RE-CONFIRMATION -- `unstable-watch.yml` installs no pytest-xdist and
+#      passes no `-n` flag at all to the oracle-tree pytest invocation, i.e. true single-process
+#      execution with zero sibling workers of any kind -- strictly *stronger* isolation than
+#      `@pytest.mark.xdist_serial` provides (that marker only isolates marked tests from *each
+#      other*; it does not prevent *other*, unmarked tests from running concurrently in sibling
+#      `-n` workers on the same runner). Five consecutive nightly unstable-watch runs
+#      (33091941820 / 2026-08-27, 33193518591 / 2026-08-28, 33250263772 / 2026-08-29,
+#      33306220265 / 2026-08-30, 33386925098 / 2026-08-31) reproduced the identical 96/103
+#      conclusive, 7-timeout, 0-disagreement result under this true single-process condition.
+#      This retires the sibling-worker-contention sub-hypothesis SPECIFICALLY (even the
+#      strongest possible worker isolation does not change the outcome); it leaves hypothesis
+#      (1)'s pure runner-hardware-capacity framing above untouched and unresolved -- do not
+#      re-open the xdist_serial investigation on the strength of this note. Observation only, no
+#      action: step duration drifted 761.61s (08-27) -> 898.78s (08-30) -> 808.64s (08-31)
+#      against the job's `timeout-minutes: 20` (1200s) -- real headroom today (worst case ~75%
+#      of budget), worth recording for the next investigator, not a change to any budget or
+#      timeout value.
+#
 # (4) EXIT CRITERION -- verbatim per TESTING_GUIDE.md section 8.9's default: the marker comes off
 #     when EITHER 20 consecutive unstable-watch runs record zero (TIMING-classified) failures
 #     (nightly cadence, ~3 weeks; verified against the uploaded per-run

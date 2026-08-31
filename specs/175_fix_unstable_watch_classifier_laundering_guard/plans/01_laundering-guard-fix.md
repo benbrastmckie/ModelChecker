@@ -364,14 +364,14 @@ shape differs, adjust the fetch helper to what is actually there.
 
 ---
 
-### Phase 5: Record the zero-contention finding at the oracle constant [NOT STARTED]
+### Phase 5: Record the zero-contention finding at the oracle constant [COMPLETED]
 
 **Goal**: Append a dated note to the `GATING_RECHECK_SOLVE_TIMEOUT_MS` comment block in
 `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` retiring the sibling-worker
 contention sub-hypothesis, so the next investigator does not repeat the experiment.
 
 **Tasks**:
-- [ ] Append a new item (after the existing item (3), e.g. as item (3b)) to the comment block
+- [x] Append a new item (after the existing item (3), e.g. as item (3b)) to the comment block
       above `GATING_RECHECK_SOLVE_TIMEOUT_MS` recording: `unstable-watch.yml` installs no
       pytest-xdist and passes no `-n`, i.e. true single-process execution with zero sibling
       workers — strictly stronger isolation than `@pytest.mark.xdist_serial` provides; five
@@ -380,11 +380,11 @@ contention sub-hypothesis, so the next investigator does not repeat the experime
       identical 96/103 conclusive, 7-timeout, 0-disagreement result; this retires the
       sibling-worker-contention sub-hypothesis specifically, leaving hypothesis (1)'s pure
       runner-hardware-capacity framing untouched and unresolved.
-- [ ] Add one sentence recording the duration drift as an observation only: 761.61s (08-27) ->
+- [x] Add one sentence recording the duration drift as an observation only: 761.61s (08-27) ->
       898.78s (08-30) -> 808.64s (08-31) against the job's `timeout-minutes: 20` (1200s) — real
       headroom today (worst case ~75% of budget), worth a sentence for the next investigator, not
       a change to any budget or timeout value.
-- [ ] Make no change to any constant value, assertion, or executable statement in this file.
+- [x] Make no change to any constant value, assertion, or executable statement in this file.
 
 **Timing**: 45 minutes
 
