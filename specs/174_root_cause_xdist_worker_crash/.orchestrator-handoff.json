@@ -1,18 +1,18 @@
 {
-  "phase": "research",
-  "dispatch_seq": 1,
-  "status": "researched",
-  "summary": "Root cause of the [gwN] node down xdist worker crash remains unidentified. Found that bimodal (the site of all confirmed incidents) is now incidentally, temporarily excluded from every gating pytest invocation by an unrelated task's development-marker quarantine -- real containment, not a fix. Verified pytest-xdist's actual load-scheduling algorithm and the PYTEST_XDIST_WORKER env var as a concrete pid-to-worker correlation mechanism. Weakened the fixed-worker-binding and 3.12-ABI hypotheses; proposed an untested chunk-contiguity memory-concentration hypothesis. Full hypothesis-elimination ledger and next-phase instrumentation recommendations are in the report.",
+  "dispatch_seq": 2,
+  "status": "planned",
+  "task_number": 174,
+  "session_id": "sess_1788245839_3b53f4",
+  "agent_type": "planner-agent",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/174_root_cause_xdist_worker_crash/reports/01_xdist-worker-crash-root-cause.md",
-      "summary": "Root-cause investigation of the recurring xdist worker crash: bimodal's incidental gating quarantine, verified xdist scheduling mechanics, PYTEST_XDIST_WORKER correlation mechanism, updated hypothesis table, and next-phase recommendations."
+      "type": "plan",
+      "path": "specs/174_root_cause_xdist_worker_crash/plans/01_xdist-crash-instrumentation-record.md",
+      "summary": "5-phase plan: TDD worker-id attribution in the RSS sampler, measured interval tightening, durable hypothesis-ledger record with containment-expiry note, full-gate constraint audit."
     }
   ],
-  "blockers": [],
-  "phases_completed": 0,
-  "phases_total": 0,
-  "next_action_hint": "Run /plan 174 to implement the recommended instrumentation (PYTEST_XDIST_WORKER correlation in worker_rss_sample.py, worker-side per-test logging, tightened sampling interval) and to record the containment-expiry note. Root cause is not yet identified; do not close item D.",
-  "continuation_path": null
+  "phase_count": 5,
+  "estimated_hours": 4,
+  "dependency_waves": [[1], [2], [3], [4], [5]],
+  "next_steps": "Run /implement 174 to execute the plan"
 }
