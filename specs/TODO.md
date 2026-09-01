@@ -1,5 +1,5 @@
 ---
-next_project_number: 180
+next_project_number: 181
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 180
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176 | -- | semantics, test-reliability |
+| 1 | 154,176,180 | -- | semantics, release-engineering, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -20,6 +20,10 @@ next_project_number: 180
 
 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
+### Release Engineering
+
+180 [NOT STARTED] — Diagnose the oracle gating conclusive-population shortfall that h
+
 ### Test Reliability
 
 176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
@@ -27,6 +31,28 @@ next_project_number: 180
   └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
 
 ## Tasks
+
+### 180. Diagnose oracle conclusive population shortfall
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: release-engineering
+- **Dependencies**: None
+
+**Description**: Diagnose the oracle gating conclusive-population shortfall that has failed the unstable-watch workflow every day since 2026-08-27.
+
+SYMPTOM. `oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` fails with "Only 97 of 103 formulas were conclusive (floor=100); this is a budget/performance regression to investigate, not a semantic one." Observed in the 2026-09-01 scheduled run at 788.74s for that single test (1 failed, 643 deselected in 789.44s). The unstable-watch classifier additionally reports: "failed in a way that does not match its documented timing signature (duration=788.74s, outcome=failed). Investigate before assuming this is the known instability -- see TESTING_GUIDE.md section 8.9." So the failure is NOT covered by the quarantine rationale that put the test under the `unstable` marker; the classifier is explicitly flagging that the observed signature has drifted from the documented one.
+
+WHY THIS TASK EXISTS SEPARATELY. The immediately preceding CI task closed with this note in its own scope boundary: "The 19 oracle failures observed at quarantine time were never diagnosed (overwhelmingly OracleTimeoutError, on a machine that was not idle); TESTING_GUIDE.md section 8.9's standing rule makes an indefinitely-quarantined test a defect to escalate, so that diagnosis deserves its own task rather than being folded into this one." This is that task. Do not re-derive the quarantine decision; diagnose the shortfall.
+
+SCOPE. Establish (a) which 6 formulas are failing to resolve and whether the shortfall set is stable across runs or varies; (b) whether the cause is genuinely budget/contention (OracleTimeoutError under a loaded scheduled runner) or a real cost regression in the oracle encoding or in the in-package semantics it compares against; (c) whether the failure predates or postdates the Skolemized Seriality/Interpolation frame axioms -- note those landed 2026-08-31, AFTER this watch began failing on 2026-08-27, so they are NOT the obvious cause and that ordering should be verified rather than assumed in either direction; (d) whether the documented timing signature in TESTING_GUIDE.md section 8.9 should be updated, or whether the drift itself indicates a real regression.
+
+HARD CONSTRAINTS. Do NOT widen GATING_RECHECK_SOLVE_TIMEOUT_MS. Do NOT lower MIN_CONCLUSIVE_GATING_FORMULAS (the floor=100 in the failure message). TESTING_GUIDE.md section 8.6 is explicit that a contended machine is fixed by re-running idle, never by widening a budget, and the preceding CI task carried the same constraint verbatim. Do not weaken or delete the assertion to reach green. Do not de-quarantine or re-quarantine the test as the primary remedy -- section 8.9 treats an indefinitely-quarantined test as a defect to escalate, so a diagnosis that concludes "leave it quarantined" must justify that against 8.9 explicitly.
+
+MEASUREMENT REQUIREMENT. Reproduce on an idle host and record the conclusive count and wall clock, so "contention" is a measured claim rather than an inference from the runner being busy. If the shortfall does not reproduce idle, that is itself the finding and should be recorded with the numbers.
+
+NON-GOALS. Do not change bimodal semantics or its frame-class constraints. Do not alter the oracle soundness core (the six classes the differential-tests workflow gate step names by node id) or its unconditional-gating property. This is a diagnosis task; any remediation beyond the diagnosis belongs to a follow-on task.
+
+---
 
 ### 179. Ci pipeline exclude bimodal until finished
 - **Status**: [COMPLETED]
