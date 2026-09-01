@@ -202,10 +202,10 @@ class LogosModelStructure(ModelDefaults):
         if diffs.get('world_changes', {}).get('added') or diffs.get('world_changes', {}).get('removed'):
             print(f"{BLUE}World Changes:{RESET}", file=output)
             for world in diffs.get('world_changes', {}).get('added', []):
-                world_str = bitvec_to_substates(world, self.N)
+                world_str = bitvec_to_substates(world, self.N, output)
                 print(f"  {GREEN}+ {world_str} (now a world){RESET}", file=output)
             for world in diffs.get('world_changes', {}).get('removed', []):
-                world_str = bitvec_to_substates(world, self.N)
+                world_str = bitvec_to_substates(world, self.N, output)
                 print(f"  {RED}- {world_str} (no longer a world){RESET}", file=output)
             print("", file=output)
 
@@ -213,10 +213,10 @@ class LogosModelStructure(ModelDefaults):
         if diffs.get('possible_changes', {}).get('added') or diffs.get('possible_changes', {}).get('removed'):
             print(f"{BLUE}Possible State Changes:{RESET}", file=output)
             for state in diffs.get('possible_changes', {}).get('added', []):
-                state_str = bitvec_to_substates(state, self.N)
+                state_str = bitvec_to_substates(state, self.N, output)
                 print(f"  {GREEN}+ {state_str} (now possible){RESET}", file=output)
             for state in diffs.get('possible_changes', {}).get('removed', []):
-                state_str = bitvec_to_substates(state, self.N)
+                state_str = bitvec_to_substates(state, self.N, output)
                 print(f"  {RED}- {state_str} (now impossible){RESET}", file=output)
             print("", file=output)
 
@@ -266,7 +266,7 @@ class LogosModelStructure(ModelDefaults):
             BLUE = "\033[34m"
             RESET = "\033[0m"
         print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N, output)}{RESET}\n",
             file=output,
         )
 
@@ -290,7 +290,7 @@ class LogosModelStructure(ModelDefaults):
         # Print formatted state space
         print("\nState Space:", file=output)
         for bit in self.all_states:
-            state = bitvec_to_substates(bit, self.N)
+            state = bitvec_to_substates(bit, self.N, output)
             bin_rep = binary_bitvector(bit)
             if bit == 0:
                 format_state(bin_rep, state, self.COLORS["initial"])

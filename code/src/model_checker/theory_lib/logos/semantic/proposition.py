@@ -5,6 +5,7 @@ This module contains LogosProposition, the proposition class with modular operat
 support, representing propositional content in the logos semantic framework.
 """
 
+import sys
 from typing import Any, List, Set, TYPE_CHECKING, Tuple, Union, cast
 
 from model_checker import z3_shim as z3
@@ -310,10 +311,13 @@ class LogosProposition(PropositionDefaults):
                 exists_falsifier = True
                 break
         if exists_verifier == exists_falsifier:
+            # NOTE (scope boundary): bare print() -- no file=output -- always
+            # targets the real sys.stdout; see TESTING_GUIDE.md's
+            # output-encoding section. Glyph resolved against sys.stdout.
             print( # NOTE: a warning is preferable to raising an error
-                f"WARNING: the world {bitvec_to_substates(eval_world, self.N)} contains both:\n "
-                f"  The verifier {bitvec_to_substates(ver_witness, self.N)}; and"
-                f"  The falsifier {bitvec_to_substates(fal_witness, self.N)}."
+                f"WARNING: the world {bitvec_to_substates(eval_world, self.N, sys.stdout)} contains both:\n "
+                f"  The verifier {bitvec_to_substates(ver_witness, self.N, sys.stdout)}; and"
+                f"  The falsifier {bitvec_to_substates(fal_witness, self.N, sys.stdout)}."
             )
         return exists_verifier
 
@@ -336,7 +340,12 @@ class LogosProposition(PropositionDefaults):
         N = self.model_structure.model_constraints.semantics.N
         eval_world = eval_point["world"]
         truth_value = self.truth_value_at(eval_world)
-        world_state = bitvec_to_substates(eval_world, N)
+        # NOTE (scope boundary): the print() call below is bare -- no
+        # file=output -- so it always targets the real sys.stdout regardless
+        # of the `output` stream `print_all`/`print_to` were given. See
+        # TESTING_GUIDE.md's output-encoding section. Glyph resolved against
+        # sys.stdout, the one stream this line reaches.
+        world_state = bitvec_to_substates(eval_world, N, sys.stdout)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
@@ -353,6 +362,14 @@ class LogosProposition(PropositionDefaults):
         Returns:
             str: A string of the form "< {verifiers}, {falsifiers} >" where each
                 set contains the binary representations of the states
+
+        KNOWN, DOCUMENTED SCOPE BOUNDARY: `__repr__` cannot receive an
+        `output` stream (it is invoked implicitly via `str(self)`/`f"{self}"`,
+        e.g. from `print_proposition`'s own bare `print()`). The
+        `bitvec_to_substates` calls below keep their default (`output=None`,
+        always Unicode) rather than being coupled to `sys.stdout` global
+        state. See `code/docs/core/TESTING_GUIDE.md`'s output-encoding
+        section for the full account.
         """
         # Guard against missing verifiers/falsifiers attribute (e.g., during error handling)
         if not hasattr(self, 'verifiers') or not hasattr(self, 'falsifiers'):

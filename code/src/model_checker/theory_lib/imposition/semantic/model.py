@@ -14,6 +14,7 @@ from model_checker import z3_shim as z3
 from model_checker.solver import is_true, is_false
 from model_checker.theory_lib.logos import LogosModelStructure
 from model_checker.utils import bitvec_to_substates
+from model_checker.utils.glyphs import glyph
 
 
 class ImpositionModelStructure(LogosModelStructure):
@@ -158,18 +159,18 @@ class ImpositionModelStructure(LogosModelStructure):
 
         # Print impositions grouped by world
         for world in sorted(impositions_by_world.keys(), key=lambda x: x if isinstance(x, int) else x.as_long()):
-            world_str = bitvec_to_substates(world, self.N)
+            world_str = bitvec_to_substates(world, self.N, output)
             world_color = get_state_color(world)
 
             for state, outcome in sorted(impositions_by_world[world], key=lambda x: (x[0] if isinstance(x[0], int) else x[0].as_long(), x[1] if isinstance(x[1], int) else x[1].as_long())):
-                state_str = bitvec_to_substates(state, self.N)
-                outcome_str = bitvec_to_substates(outcome, self.N)
+                state_str = bitvec_to_substates(state, self.N, output)
+                outcome_str = bitvec_to_substates(outcome, self.N, output)
 
                 state_color = get_state_color(state)
                 outcome_color = get_state_color(outcome)
 
                 # Print in format: a ->_w u (meaning: u is the outcome of imposing a on w)
-                print(f"  {state_color}{state_str}{RESET} →_{world_color}{world_str}{RESET} {outcome_color}{outcome_str}{RESET}", file=output)
+                print(f"  {state_color}{state_str}{RESET} {glyph('ARROW', output)}_{world_color}{world_str}{RESET} {outcome_color}{outcome_str}{RESET}", file=output)
 
     def extract_states(self) -> Dict[str, List[str]]:
         """Extract categorized states for output.
@@ -357,10 +358,10 @@ class ImpositionModelStructure(LogosModelStructure):
         if worlds.get('added') or worlds.get('removed'):
             print(f"{self.COLORS['world']}World Changes:{self.RESET}", file=output)
             for world in worlds.get('added', []):
-                world_str = bitvec_to_substates(world, self.N)
+                world_str = bitvec_to_substates(world, self.N, output)
                 print(f"  {self.COLORS['possible']}+ {world_str} (now a world){self.RESET}", file=output)
             for world in worlds.get('removed', []):
-                world_str = bitvec_to_substates(world, self.N)
+                world_str = bitvec_to_substates(world, self.N, output)
                 print(f"  {self.COLORS['impossible']}- {world_str} (no longer a world){self.RESET}", file=output)
             print(file=output)
 
@@ -369,10 +370,10 @@ class ImpositionModelStructure(LogosModelStructure):
         if possible.get('added') or possible.get('removed'):
             print(f"{self.COLORS['world']}Possible State Changes:{self.RESET}", file=output)
             for state in possible.get('added', []):
-                state_str = bitvec_to_substates(state, self.N)
+                state_str = bitvec_to_substates(state, self.N, output)
                 print(f"  {self.COLORS['possible']}+ {state_str} (now possible){self.RESET}", file=output)
             for state in possible.get('removed', []):
-                state_str = bitvec_to_substates(state, self.N)
+                state_str = bitvec_to_substates(state, self.N, output)
                 print(f"  {self.COLORS['impossible']}- {state_str} (now impossible){self.RESET}", file=output)
             print(file=output)
 
@@ -387,7 +388,7 @@ class ImpositionModelStructure(LogosModelStructure):
                 if changes.get('added'):
                     for state in changes['added']:
                         try:
-                            state_str = bitvec_to_substates(state, self.N)
+                            state_str = bitvec_to_substates(state, self.N, output)
                             print(f"    {self.COLORS['possible']}+ {state_str} now verifies {letter_name}{self.RESET}", file=output)
                         except:
                             print(f"    {self.COLORS['possible']}+ {state} now verifies {letter_name}{self.RESET}", file=output)
@@ -395,7 +396,7 @@ class ImpositionModelStructure(LogosModelStructure):
                 if changes.get('removed'):
                     for state in changes['removed']:
                         try:
-                            state_str = bitvec_to_substates(state, self.N)
+                            state_str = bitvec_to_substates(state, self.N, output)
                             print(f"    {self.COLORS['impossible']}- {state_str} no longer verifies {letter_name}{self.RESET}", file=output)
                         except:
                             print(f"    {self.COLORS['impossible']}- {state} no longer verifies {letter_name}{self.RESET}", file=output)
@@ -412,7 +413,7 @@ class ImpositionModelStructure(LogosModelStructure):
                 if changes.get('added'):
                     for state in changes['added']:
                         try:
-                            state_str = bitvec_to_substates(state, self.N)
+                            state_str = bitvec_to_substates(state, self.N, output)
                             print(f"    {self.COLORS['possible']}+ {state_str} now falsifies {letter_name}{self.RESET}", file=output)
                         except:
                             print(f"    {self.COLORS['possible']}+ {state} now falsifies {letter_name}{self.RESET}", file=output)
@@ -420,7 +421,7 @@ class ImpositionModelStructure(LogosModelStructure):
                 if changes.get('removed'):
                     for state in changes['removed']:
                         try:
-                            state_str = bitvec_to_substates(state, self.N)
+                            state_str = bitvec_to_substates(state, self.N, output)
                             print(f"    {self.COLORS['impossible']}- {state_str} no longer falsifies {letter_name}{self.RESET}", file=output)
                         except:
                             print(f"    {self.COLORS['impossible']}- {state} no longer falsifies {letter_name}{self.RESET}", file=output)
@@ -438,8 +439,8 @@ class ImpositionModelStructure(LogosModelStructure):
                         state1_bitvec = int(states[0])
                         state2_bitvec = int(states[1])
 
-                        state1_str = bitvec_to_substates(state1_bitvec, self.N)
-                        state2_str = bitvec_to_substates(state2_bitvec, self.N)
+                        state1_str = bitvec_to_substates(state1_bitvec, self.N, output)
+                        state2_str = bitvec_to_substates(state2_bitvec, self.N, output)
 
                         if change.get('new'):
                             print(f"  {self.COLORS['possible']}+ {state1_str} can now impose on {state2_str}{self.RESET}", file=output)

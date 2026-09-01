@@ -5,6 +5,7 @@ This module contains BimodalProposition, representing propositional content
 points in the bimodal semantic framework.
 """
 
+import sys
 import time
 from typing import cast
 
@@ -13,6 +14,7 @@ from model_checker import z3_shim as z3
 from model_checker.solver import is_true
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.utils import ForAll, Exists, bitvec_to_worldstate, pretty_set_print
+from model_checker.utils.glyphs import glyph
 
 
 class BimodalProposition(PropositionDefaults):
@@ -287,7 +289,17 @@ class BimodalProposition(PropositionDefaults):
         truth_value = self.truth_value_at(world_id, eval_time)
         
         # Get world state representation
-        world_state_repr = "∅"  # Default placeholder
+        # NOTE (scope boundary): this method's own `print()` call below is a
+        # bare `print()` with no `file=output` argument -- it always targets
+        # the real `sys.stdout` regardless of what `output` stream the caller
+        # (`models/structure.py`'s `recursive_print`) was given. Threading a
+        # real `output` parameter through `print_proposition` end-to-end
+        # would be a larger, separate architectural change; see
+        # `code/docs/core/TESTING_GUIDE.md`'s output-encoding section for the
+        # recorded boundary. Since this call always lands on `sys.stdout`
+        # regardless, the glyph is resolved against `sys.stdout` directly --
+        # the one stream this line can actually reach.
+        world_state_repr = glyph("EMPTY_SET", sys.stdout)  # Default placeholder
         
         # Try to get from world histories first (preferred path)
         if world_id in self.model_structure.world_histories:

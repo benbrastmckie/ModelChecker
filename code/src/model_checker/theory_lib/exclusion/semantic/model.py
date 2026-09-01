@@ -20,6 +20,7 @@ from model_checker.solver import is_true, is_false
 from model_checker.models.constraints import ModelConstraints
 from model_checker.models.structure import ModelDefaults
 from model_checker.utils import bitvec_to_substates, int_to_binary
+from model_checker.utils.glyphs import glyph
 
 # Local imports
 # Absolute import: see core.py's comment on the identical scaffolded-project depth defect.
@@ -374,7 +375,7 @@ class WitnessStructure(ModelDefaults):
         # Print formatted state space
         print("State Space", file=output)
         for bit in self.all_states:
-            state = bitvec_to_substates(bit, self.N)
+            state = bitvec_to_substates(bit, self.N, output)
             bin_rep = binary_bitvector(bit)
             if bit == 0:
                 format_state(bin_rep, state, self.COLORS["initial"])
@@ -420,8 +421,8 @@ class WitnessStructure(ModelDefaults):
             for bit_x, bit_y in filtered_conflicts:
                 color_x = get_state_color(bit_x)
                 color_y = get_state_color(bit_y)
-                x_state = bitvec_to_substates(bit_x, self.N)
-                y_state = bitvec_to_substates(bit_y, self.N)
+                x_state = bitvec_to_substates(bit_x, self.N, output)
+                y_state = bitvec_to_substates(bit_y, self.N, output)
                 print(f"  {color_x}{x_state}{RESET} conflicts with {color_y}{y_state}{RESET}", file=output)
 
         # Filter and print coherence
@@ -432,8 +433,8 @@ class WitnessStructure(ModelDefaults):
             for bit_x, bit_y in filtered_coheres:
                 color_x = get_state_color(bit_x)
                 color_y = get_state_color(bit_y)
-                x_state = bitvec_to_substates(bit_x, self.N)
-                y_state = bitvec_to_substates(bit_y, self.N)
+                x_state = bitvec_to_substates(bit_x, self.N, output)
+                y_state = bitvec_to_substates(bit_y, self.N, output)
                 print(f"  {color_x}{x_state}{RESET} coheres with {color_y}{y_state}{RESET}", file=output)
 
         # Filter and print negations
@@ -441,8 +442,8 @@ class WitnessStructure(ModelDefaults):
         if filtered_excludes:
             print("\nUnilateral Exclusion", file=output)
             for bit_x, bit_y in filtered_excludes:
-                state_x = bitvec_to_substates(bit_x, self.N)
-                state_y = bitvec_to_substates(bit_y, self.N)
+                state_x = bitvec_to_substates(bit_x, self.N, output)
+                state_y = bitvec_to_substates(bit_y, self.N, output)
                 color_x = get_state_color(bit_x)
                 color_y = get_state_color(bit_y)
                 print(f"  {color_x}{state_x}{RESET} excludes {color_y}{state_y}{RESET}", file=output)
@@ -521,9 +522,9 @@ class WitnessStructure(ModelDefaults):
                         continue
 
                     # Format the output
-                    input_state = bitvec_to_substates(state, self.N)
+                    input_state = bitvec_to_substates(state, self.N, output)
                     if z3.is_bv_value(result):
-                        output_state = bitvec_to_substates(result.as_long(), self.N)
+                        output_state = bitvec_to_substates(result.as_long(), self.N, output)
                         out_color = get_state_color(result.as_long())
                     else:
                         output_state = str(result)
@@ -533,7 +534,7 @@ class WitnessStructure(ModelDefaults):
                     in_color = get_state_color(state)
 
                     # Print in the required format with colors
-                    print(f"  {func.name()}: {in_color}{input_state}{RESET} → {out_color}{output_state}{RESET}", file=output)
+                    print(f"  {func.name()}: {in_color}{input_state}{RESET} {glyph('ARROW', output)} {out_color}{output_state}{RESET}", file=output)
                 except Exception:
                     # Skip if we can't evaluate this input
                     pass
@@ -548,7 +549,7 @@ class WitnessStructure(ModelDefaults):
             BLUE = "\033[34m"
             RESET = "\033[0m"
         print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N)}{RESET}\n",
+            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N, output)}{RESET}\n",
             file=output,
         )
 

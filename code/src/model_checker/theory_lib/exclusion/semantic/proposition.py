@@ -6,6 +6,8 @@ semantics -- moved here from semantic/__init__.py so that __init__.py can be re-
 per docs/THEORY_ARCHITECTURE.md's Theory Contract.
 """
 
+import sys
+
 from model_checker.solver import is_true
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.utils import bitvec_to_substates, pretty_set_print
@@ -65,7 +67,22 @@ class WitnessProposition(PropositionDefaults):
         self.print_proposition(eval_point, indent_num, use_colors)
 
     def __repr__(self):
-        """Return pretty-printed representation of verifiers."""
+        """Return pretty-printed representation of verifiers.
+
+        KNOWN, DOCUMENTED SCOPE BOUNDARY: `__repr__` cannot receive an
+        `output` stream through Python's string-formatting protocol (it is
+        invoked implicitly wherever `str(self)`/`f"{self}"` appears, e.g.
+        `print_proposition`'s own bare `print()`, `repr()` in test
+        assertions, or a debugger). The `bitvec_to_substates` calls below
+        therefore keep their pre-existing default (`output=None`, always
+        Unicode) rather than being coupled to `sys.stdout` -- a `__repr__`
+        should stay deterministic and not depend on ambient global state.
+        This means a verifier/falsifier set that includes the null state
+        can still render `□` here even when the enclosing `print_proposition`
+        call has otherwise been made encoding-safe. See
+        `code/docs/core/TESTING_GUIDE.md`'s output-encoding section for the
+        full account of this boundary and why it is not closed by this task.
+        """
 
         N = self.model_structure.semantics.N
         possible = self.model_structure.semantics.possible
@@ -95,7 +112,12 @@ class WitnessProposition(PropositionDefaults):
             truth_value = self.model_structure._evaluate_z3_boolean(self.model_structure.z3_model, z3_formula)
         else:
             truth_value = is_true(self.model_structure.z3_model.evaluate(z3_formula))
-        world_state = bitvec_to_substates(eval_point["world"], N)
+        # NOTE (scope boundary): the print() call below is bare -- no
+        # file=output argument -- so it always targets the real sys.stdout
+        # regardless of the `output` stream `print_all`/`print_to` were
+        # given. See TESTING_GUIDE.md's output-encoding section. The glyph
+        # is resolved against sys.stdout, the one stream this line reaches.
+        world_state = bitvec_to_substates(eval_point["world"], N, sys.stdout)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
