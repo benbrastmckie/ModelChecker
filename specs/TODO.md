@@ -20,7 +20,7 @@ next_project_number: 178
 
 ### Testing
 
-173 [IMPLEMENTING] — Add a `development` pytest marker so a theory still under active 
+173 [PARTIAL] — Add a `development` pytest marker so a theory still under active 
 
 ### Semantics
 
@@ -28,7 +28,7 @@ next_project_number: 178
 
 ### Test Reliability
 
-176 [RESEARCHED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
+176 [PLANNED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
   └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
@@ -72,11 +72,12 @@ VERIFICATION. The non-bimodal suite must stay green and fully gating. Prove exec
 
 ### 176. Fix m3 shift closure sat regression
 - **Effort**: 3-5 hours
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
 - **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/02_spawn-analysis.md]
+- **Plan**: [176_fix_m3_shift_closure_sat_regression/plans/01_m3-shift-closure-sat-regression.md]
 
 **Description**: TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at oracle/bimodal_logic/tests/test_soundness_regression.py:541 fails deterministically with `AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance` (structure.z3_model_status is False). Reproduced 2/2 across two independent full pass-1 oracle runs (bash oracle/run-oracle-suite.sh, 705.05s and 718.15s, both '1 failed, 615 passed, 2 skipped, 4 xfailed'). This is a DETERMINISTIC, reproducible failure -- not a contention flake -- discovered while verifying task 172 (fix_contention_flaky_soundness_regression_tests), which cannot fix it: the test constructs BimodalStructure directly with its own max_time: 15.0 budget, a different code path from the find_countermodel()/timeout_ms=5000/OracleTimeoutError mechanism task 172's xdist_serial remedy targets. In scope by file, out of scope by remedy.
 
@@ -198,7 +199,7 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 ---
 
 ### 173. Add development marker for in progress theories
-- **Status**: [IMPLEMENTING]
+- **Status**: [PARTIAL]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 158, Task 172, Task 175
