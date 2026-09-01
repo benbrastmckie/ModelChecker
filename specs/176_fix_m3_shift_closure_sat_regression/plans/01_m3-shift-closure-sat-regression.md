@@ -278,7 +278,7 @@ record that and fall back to `nix develop` with an overridden z3 input, or mark 
 
 ---
 
-### Phase 4: Attribute the Root Cause [IN PROGRESS]
+### Phase 4: Attribute the Root Cause [COMPLETED]
 
 **Goal**: Convert Phases 2 and 3's evidence into a single named cause (or an explicitly-stated
 multi-cause verdict), pinned to a commit and/or a z3 version.
@@ -326,7 +326,7 @@ revisions cannot import, narrow the bisect window and record the floor.
 
 ---
 
-### Phase 5: Implement the Constraint/Solver-Layer Fix [NOT STARTED]
+### Phase 5: Implement the Constraint/Solver-Layer Fix [IN PROGRESS]
 
 **Goal**: Restore SAT at `N=2, M=3, temporal_depth=1, max_shift=1` with the test's assertions and
 15.0s budget unchanged — or, failing that, produce the recorded failed-fix-attempt evidence that
