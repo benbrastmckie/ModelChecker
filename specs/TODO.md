@@ -1,5 +1,5 @@
 ---
-next_project_number: 179
+next_project_number: 180
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 179
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176 | -- | semantics, test-reliability |
+| 1 | 154,176,179 | -- | semantics, release-engineering, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
 | 3 | 173 | 172 | testing |
 | 4 | 174 | 173 | test-reliability |
@@ -26,18 +26,46 @@ next_project_number: 179
 
 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
+### Release Engineering
+
+179 [NOT STARTED] — Make the CI pipeline fast and fully green by excluding bimodal un
+
 ### Test Reliability
 
-176 [IMPLEMENTING] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
+176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
   └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
-  └─ 178 [NOT STARTED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
+  └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
 
+### 179. Ci pipeline exclude bimodal until finished
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: release-engineering
+- **Dependencies**: None
+
+**Description**: Make the CI pipeline fast and fully green by excluding bimodal until it is finished.
+
+GOAL. Every gating CI run (.github/workflows/tests.yml, .github/workflows/differential-tests.yml, flake.nix checks.default) must complete quickly and pass, with no bimodal-theory work on the critical path while bimodal remains under active construction. Measure actual wall-clock per workflow before and after; "fast" must be a recorded number, not an impression.
+
+WHAT IS ALREADY DONE -- DO NOT REDO IT. (1) code/src/model_checker/theory_lib/bimodal/tests (313 items) has carried a path-scoped `development` blanket via that tree's conftest.py since before this task; all gating -m expressions already carry `and not development`. (2) A second `development` blanket was added to oracle/conftest.py: 595 of 644 oracle items are now marked, exempting only the six soundness-core classes (_SOUNDNESS_CORE_CLASSES: TestCIGate, TestFormulaEnumerator, TestDifferentialInfrastructure, TestKnownFormulaBaseline, TestDifferentialComparison, TestDifferentialReport). This took `oracle/run-oracle-suite.sh` from ~40 minutes and 19 failures (3 in pass 1, 16 in pass 2) to 49 passed in 2:57, with pass 2 emptied entirely. Guard test code/tests/ci/test_oracle_development_marker_application.py (12 tests) and all 136 code/tests/ci tests pass. TESTING_GUIDE.md sections 8.8 and 8.14 and code/pyproject.toml's marker text were updated to match. Start from this state; verify it still holds rather than re-deriving it.
+
+WHAT REMAINS.
+(a) REDUNDANCY, already verified: differential-tests.yml's two pytest steps now select the byte-identical same 49 node ids -- the broad step's `-m "not slow and not differential and not unstable and not development"` collapsed onto exactly the soundness core that the explicit gate step already names. CI therefore runs the same 49 Z3 tests twice per triggering push/PR. Re-confirm with --collect-only, then collapse the redundancy without weakening the gate step, whose unconditional-gating property (no continue-on-error, keeps its ::TestCIGate node id, paths: trigger unnarrowed) is enforced by code/tests/ci/test_unstable_deselection_wiring.py::TestOracleSoundnessGateStaysUnconditionallyGating.
+(b) OPEN DECISION the task must resolve explicitly and record, never decide silently: whether the 49-test oracle soundness gate should keep running at all while bimodal is in development. Keeping it is what currently distinguishes "bimodal is incomplete" (quarantined) from "bimodal is wrong" (still caught); dropping it means no independent check that bimodal's semantics are correct, and would also require deleting the guard test named in (a), which exists precisely to prevent that happening by accident. The repo owner's stated intent is that bimodal be excluded until finished; reconcile that against the soundness rationale and record the decision with its rationale in TESTING_GUIDE.md section 8.14.
+(c) Measure and reduce total gating CI time: tests.yml runs a 3-version python matrix (3.10/3.11/3.12) plus a separate `nix flake check`. Establish where the time actually goes before changing anything.
+(d) unstable-watch.yml is schedule/workflow_dispatch only and never gating -- confirm it stays that way. It is not a CI-speed problem and must not be turned into one.
+
+CONSTRAINTS. Do not weaken or delete test assertions to reach green. Do not widen any solve budget, and do not touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS -- TESTING_GUIDE.md section 8.6 is explicit that a contended machine is fixed by re-running idle, never by widening. Preserve the `development` marker's documented exit path in both conftest hooks so bimodal can be re-admitted in one edit when it is finished. Any new gating pytest invocation must carry `and not development` (7 invocations today, enforced by test_unstable_deselection_wiring.py). Verify with --collect-only checks plus the code/tests/ci guard suite; do NOT gate any phase of this task on a full `bash oracle/run-oracle-suite.sh` run -- TESTING_GUIDE.md section 8.8 now explicitly forbids writing that into a task plan.
+
+RELATED, NOT IN SCOPE. Tasks 176 and 178 are parked as blocked pending bimodal leaving development. The 19 oracle failures observed at quarantine time were never diagnosed (overwhelmingly OracleTimeoutError, on a machine that was not idle); TESTING_GUIDE.md section 8.9's standing rule makes an indefinitely-quarantined test a defect to escalate, so that diagnosis deserves its own task rather than being folded into this one.
+
+---
+
 ### 178. Fix frame axiom solver cost regression
 - **Effort**: 4-8 hours
-- **Status**: [NOT STARTED]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: Task 176
@@ -94,7 +122,7 @@ VERIFICATION. The non-bimodal suite must stay green and fully gating. Prove exec
 
 ### 176. Fix m3 shift closure sat regression
 - **Effort**: 3-5 hours
-- **Status**: [IMPLEMENTING]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
