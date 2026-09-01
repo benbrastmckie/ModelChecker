@@ -326,7 +326,7 @@ revisions cannot import, narrow the bisect window and record the floor.
 
 ---
 
-### Phase 5: Implement the Constraint/Solver-Layer Fix [IN PROGRESS]
+### Phase 5: Implement the Constraint/Solver-Layer Fix [COMPLETED]
 
 **Goal**: Restore SAT at `N=2, M=3, temporal_depth=1, max_shift=1` with the test's assertions and
 15.0s budget unchanged — or, failing that, produce the recorded failed-fix-attempt evidence that
@@ -385,7 +385,7 @@ TESTING_GUIDE 8.9 criterion 3 requires.
 
 ---
 
-### Phase 6: Fallback — `unstable` Marking (CONDITIONAL) [NOT STARTED]
+### Phase 6: Fallback — `unstable` Marking (CONDITIONAL) [IN PROGRESS]
 
 **Goal**: Only if Phase 5 landed no fix, quarantine the test under the `unstable` marker with all
 four TESTING_GUIDE.md section 8.9 entry criteria recorded as separately identifiable items at the
