@@ -413,7 +413,7 @@ against the recorded baseline; a mismatch is a stop-and-reassess signal, not a n
 
 ---
 
-### Phase 6: Record the CI time budget and the remaining out-of-scope follow-up [NOT STARTED]
+### Phase 6: Record the CI time budget and the remaining out-of-scope follow-up [COMPLETED]
 
 **Goal**: Close item (c) with a recorded before/after table and an explicit statement of what only
 the repo owner can measure.

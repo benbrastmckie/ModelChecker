@@ -290,4 +290,88 @@ Per `code/docs/core/TESTING_GUIDE.md` section 8.8 (explicitly forbids gating a t
 `bash oracle/run-oracle-suite.sh` run) and this plan's own binding constraint, `oracle/run-oracle-suite.sh`
 was not run as a gate for this or any phase of this task.
 
-## (Phase 6 section appended below once that phase runs.)
+## Phase 6: Consolidated CI time budget and remaining out-of-scope follow-up
+
+### Consolidated before/after table
+
+| Driver | Before | After | Status |
+|---|---|---|---|
+| `tests.yml` — General Suite / Python 3.12 | 3m47s | unchanged (no edit made) | measured (before), no change expected |
+| `tests.yml` — General Suite / Python 3.11 | 3m46s | unchanged (no edit made) | measured (before), no change expected |
+| `tests.yml` — General Suite / Python 3.10 | 3m56s | unchanged (no edit made) | measured (before), no change expected |
+| `tests.yml` — `nix flake check` | 6m12s (checkPhase 5m46s within the job span measured this session) | unchanged (no edit made) | measured (before), no change expected |
+| **`tests.yml` workflow total** | **6m16s** (bounded by `nix flake check`) | **unchanged** | measured (before); this task made no edit to `tests.yml` or `flake.nix`, so no wall-clock change is expected here |
+| `differential-tests.yml` — step 1 (now deleted) | 4m56s | **N/A — step removed** | measured (before) |
+| `differential-tests.yml` — step 2 (soundness gate, unchanged) | 3m14s | ~3m14s (unchanged test population/code) | measured (before); after is derived, not measured post-push |
+| **`differential-tests.yml` job total** | **8m22s** | **~3m14s-3m30s (derived)** | before measured via `gh`; after derived from the per-step baseline, pending an actual post-push CI run for a real measurement |
+| `flake.nix` `checks.default` | tracked via `tests.yml`'s `nix flake check` job above (5m46s-6m12s) | unchanged (no edit made) | measured (before), no change expected |
+
+**Local guard-suite check** (`code/tests/ci/`, not a full CI workflow but the fastest available
+proxy for "is this task's own edit green"): 136 passed both before (Phase 1) and after (Phase 5),
+27.00s → 26.75s — no regression, no meaningful duration change (expected: Phase 4's edits were
+constant/assertion/prose changes, not solve-cost changes).
+
+**Broader local gating proxy** (`code/tests/ -m "not slow and not unstable and not development"`,
+Phase 5): 539 passed, 1 skipped, 110 deselected, 76.09s. Green.
+
+### Where `tests.yml`'s wall clock actually goes
+
+Stated plainly, per the research report's own measurement (section 3) and re-confirmed via `gh`
+in Phase 1 of this task: `tests.yml`'s workflow-level wall clock is **bounded by `nix flake
+check`** (6m12s, `checkPhase` itself ~5m14s-5m46s depending on measurement boundary), **not by the
+three-version Python matrix** (3m45s-3m56s per leg, which run concurrently with each other and
+with `nix flake check`). Reducing or optimizing the Python matrix legs would not reduce this
+workflow's total wall clock, because the matrix legs finish well before `nix flake check` does;
+`nix flake check` is the long pole. This task made no change to either `tests.yml` or `flake.nix`,
+so no before/after delta is claimed for this row -- it is recorded here because understanding
+where the time goes was itself one of this task's required deliverables (item (c) in the task
+description).
+
+### Out-of-scope follow-up, recorded but not investigated or fixed here
+
+`nix flake check`'s `checkPhase` runs the *same two pytest passes* as one `tests.yml` Python leg
+(byte-for-byte per `flake.nix`'s own comment, enforced by `code/tests/ci/test_workflow_parity.py`),
+yet takes roughly 50% longer (~5m14s-5m46s vs. ~3m25s-3m56s) for nominally the same test population
+and marker expression. Root cause is **not established** by this task. Candidates recorded by the
+research report: nixpkgs' Z3 build vs. the PyPI `z3-solver` wheel's performance characteristics,
+sandboxed-build CPU allocation differences, or cold-cache effects not fully absorbed by
+`magic-nix-cache-action`. **This must not be "fixed" by widening any timeout or budget** — per
+TESTING_GUIDE.md section 8.6's standing rule, a performance gap is investigated and fixed at its
+root cause, or left recorded as an open follow-up, never papered over by giving it more time. Both
+`general-tests` (20-minute `timeout-minutes`) and `flake-check` (30-minute `timeout-minutes`) have
+large headroom today (~3.5-4x and ~5x respectively over their measured wall clocks), so there is no
+pressure to touch either timeout regardless of this gap. This is recorded as an explicit
+out-of-scope follow-up for a future task, not attempted here.
+
+### Authoritative post-push capture procedure (for the repo owner)
+
+Agents must not push, tag, or open a pull request (repo-wide policy). Once these commits are
+pushed to `origin/master`, the repo owner can capture the real "after" numbers with:
+
+```bash
+# tests.yml
+gh run list --workflow tests.yml --limit 1
+gh run view <run-id> --json jobs
+
+# differential-tests.yml
+gh run list --workflow differential-tests.yml --limit 1
+gh run view <run-id> --json jobs
+```
+
+Compare the resulting job/step wall clocks against this file's "Before" column above. The
+`differential-tests.yml` row is the one genuinely expected to move (from ~8m22s toward the derived
+~3m14s-3m30s estimate); the `tests.yml` row is not expected to move, since this task made no edit
+to either `tests.yml` or `flake.nix`.
+
+### Working-tree and commit-history confirmation
+
+- `git status --short` at the start of Phase 6: only `specs/**` paths modified (baseline file,
+  plan file, plus normal repo-metrics files `specs/TODO.md`, `specs/state.json`,
+  `specs/events.jsonl`, `specs/.freshness-warn-streak.json` that update automatically alongside
+  every task commit) — no unexpected source-file drift outside what this task's phases
+  intentionally changed.
+- `git log --oneline origin/master..HEAD` at the start of Phase 6: **123 commits ahead of
+  `origin/master`**, all local. No `git push`, `git push --force`, `gh pr create`, or `/merge` was
+  run at any point in this task, per the repo-wide PR/push prohibition and this task's own binding
+  constraints.
+
