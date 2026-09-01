@@ -525,18 +525,25 @@ class TestShiftClosure:
     #     a fall-through UNSAT reading, so this assertion's failure can never represent
     #     a changed logical conclusion -- only a budget/resource outcome.
     #
-    # (3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED -- seven encoding-level
+    # (3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED -- eight encoding-level
     #     avenues were tried against the two newly-added frame axioms (explicit
     #     E-matching patterns individually and jointly, a corrected joint
     #     z3.MultiPattern matching the existing build_forward_comp_constraint
     #     precedent, reordering the axioms' position in build_frame_constraints'
-    #     returned list, and combinations thereof). Best measured result: rlimit-count
-    #     roughly halved (to ~11M-20M) relative to the unmodified baseline, still short
-    #     of the ~8M region needed to finish within budget. See the
-    #     "fix_m3_shift_closure_sat_regression" specs entry's fix-attempts record
-    #     (baselines/05_fix-attempts.md, active or archived) for the full per-avenue
-    #     measurements -- a future investigator should start from that frontier, not
-    #     re-try a closed avenue.
+    #     returned list, and combinations thereof). Best measured result (patterns +
+    #     reordering, re-measured cleanly under confirmed sole ownership of the
+    #     working tree after a mid-phase confound was identified and resolved): a
+    #     stable rlimit-count of 19.3M-21.4M across 5 clean runs -- a real,
+    #     reproducible ~2.2x reduction from the unmodified baseline (32M-46M) -- still
+    #     short of the ~8M region needed to finish within budget; every run remained
+    #     unknown/canceled. See the "fix_m3_shift_closure_sat_regression" specs
+    #     entry's fix-attempts record (baselines/05_fix-attempts.md, active or
+    #     archived) for the full per-avenue measurements -- a future investigator
+    #     should start from that frontier, not re-try a closed avenue. The underlying
+    #     ~4-6x solver-cost regression this axiom pair introduced is owned by a
+    #     dedicated follow-up task (fix_frame_axiom_solver_cost_regression, dependent
+    #     on this one), whose completion condition is this marker's own exit
+    #     criterion below.
     #
     # (4) EXIT CRITERION -- verbatim per TESTING_GUIDE.md section 8.9's default: the
     #     marker comes off when EITHER 20 consecutive unstable-watch runs record zero
