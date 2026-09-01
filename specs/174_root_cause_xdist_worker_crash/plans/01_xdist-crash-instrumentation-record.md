@@ -1,7 +1,7 @@
 # Implementation Plan: Task #174
 
 - **Task**: 174 - root_cause_xdist_worker_crash
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/174_root_cause_xdist_worker_crash/reports/01_xdist-worker-crash-root-cause.md
@@ -332,7 +332,9 @@ gating is incidental, temporary, and not a fix.
 - [x] Add an executable guard test to `code/tests/ci/test_worker_rss_sampler.py` asserting the
       sampler docstring still contains the containment-expiry note and an explicit
       root-cause-open statement, so a future edit cannot quietly downgrade the record to
-      "resolved". Implemented as `TestRecordIntegrityItemDStaysOpen` (7 tests): asserts the
+      "resolved". Implemented as `TestRecordIntegrityItemDStaysOpen` (6 tests; earlier text in
+      this checklist and in the phase-4 handoff miscounted this as 7 -- corrected here after
+      Phase 5's `--collect-only` cross-check made the exact count self-evident): asserts the
       root-cause-open statement and containment-expiry note in BOTH the sampler docstring and the
       `tests.yml` telemetry comment block (the hard constraint requires item D stay OPEN in every
       location the record touches, not just one), asserts the deferred-next-step note survives,
@@ -377,29 +379,59 @@ the four in-scope files before declaring the record complete.
 
 ---
 
-### Phase 5: Full-gate verification and hard-constraint audit [NOT STARTED]
+### Phase 5: Full-gate verification and hard-constraint audit [COMPLETED]
 
 **Goal**: Run the complete gate set and prove, mechanically, that none of the task's six hard
 constraints was violated anywhere in the diff.
 
 **Tasks**:
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` — full green.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ci/ -v` — the CI-guard suite specifically, green.
-- [ ] Reproduce both gating `--collect-only` invocations from the research report and confirm the
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` — full green: **666 passed, 5 skipped in
+      178.40s**, 0 failed.
+- [x] `PYTHONPATH=code/src pytest code/tests/ci/ -v` — the CI-guard suite specifically, green:
+      **157 passed**.
+- [x] Reproduce both gating `--collect-only` invocations from the research report and confirm the
       selected counts are unchanged from the pre-task baseline (the record edits must not have
-      altered selection).
-- [ ] Constraint audit against `git diff` for the whole task:
-      - `-n 4` present and unchanged in `tests.yml`; no reversion to `-n 6`.
-      - Every `timeout-minutes` value byte-identical; none widened.
+      altered selection). Baseline (research report): parallel pass `2133/2580 (447 deselected)`,
+      serial pass `9/2580 (2571 deselected)`. Reproduced now: parallel pass
+      **`2154/2601 (447 deselected)`**, serial pass **`9/2601 (2592 deselected)`**. Both
+      deselected-by-marker-shape counts on the parallel pass (447) and both selected counts on
+      the serial pass (9) are byte-identical to baseline; the +21 growth in both total-collected
+      (2580 -> 2601) and parallel-selected (2133 -> 2154) is exactly accounted for by the 21 new,
+      unmarked hermetic unit tests this task added to `code/tests/ci/test_worker_rss_sampler.py`
+      (14 in Phase 1 + 1 in Phase 3 + 6 in Phase 4 = 21), which the parallel pass's default
+      selection correctly picks up and the serial (`xdist_serial`-only) pass correctly excludes.
+      Selection was not altered by the record edits.
+- [x] Constraint audit against `git diff` for the whole task:
+      - `-n 4` present and unchanged in `tests.yml` (and `flake.nix`, checked for parity); no
+        reversion to `-n 6`. Confirmed via `grep -n "\-n 4\|\-n 6"` over both files.
+      - Every `timeout-minutes` value byte-identical (`20` at the general-tests job, `30` at
+        flake-check); none widened. Confirmed via `grep -n "timeout-minutes"`.
       - No `unstable` or `development` marker added to `test_frame_class_mapping.py` or any other
-        test.
+        test. Confirmed: `grep -c "development\|unstable"` on the bystander file is 0 (unchanged
+        before/after); `git diff` over the whole task's file scope contains zero added
+        `^\+.*@pytest\.mark\.(unstable|development)` lines.
       - No `matrix.python-version` gate around the sampler step;
-        `TestSamplerIsNotMatrixGated` passing.
-      - The sampler's 20 original tests all still present and passing (none rewritten or deleted).
+        `TestSamplerIsNotMatrixGated` passing. Confirmed: the only `matrix.python-version`
+        occurrences in `tests.yml` are the three pre-existing structural uses (job name, Python
+        setup step) — zero new occurrences, zero new conditional gates.
+      - The sampler's 22 original tests (the actual pre-task count; see Phase 1's Scope
+        Hypothesis deviation note for why 22 rather than the plan's assumed 20) all still present
+        and passing (none rewritten or deleted). Confirmed via per-class `--collect-only` counts
+        (3+3+4+2+8+2 = 22, matching exactly) and `git diff`'s line-level diff on the test file
+        containing **zero deletion lines** across the whole task (only additions) — nothing in
+        the original suite was rewritten or removed.
       - No speculative remediation in the diff: no worker-recycling flag, no
         `--max-worker-restart`, no memory cap, no retry wrapper, no scheduler/`--dist` change.
-- [ ] Confirm item D is stated as OPEN in every location the record touches, and that no artifact
-      produced by this task claims a root cause or a fix.
+        Confirmed via a case-insensitive grep for those tokens across the whole task's diff; the
+        only "scheduler" hits are prose describing the *existing, verified* xdist
+        `LoadScheduling` algorithm (hypothesis 1b's mechanism), not a configuration change.
+      - **File scope**: `git diff --stat` for the whole task (excluding `specs/**`) touches
+        exactly the four declared file-scope files and no others.
+- [x] Confirm item D is stated as OPEN in every location the record touches, and that no artifact
+      produced by this task claims a root cause or a fix. Confirmed executably by
+      `TestRecordIntegrityItemDStaysOpen` (6 tests, passing) covering both the sampler docstring
+      and the `tests.yml` telemetry comment block, plus a direct `grep` confirming the bystander
+      comment in `test_frame_class_mapping.py` also states "item D -- OPEN".
 
 **Timing**: 0.5 hours
 
@@ -419,16 +451,23 @@ constraints was violated anywhere in the diff.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/tests/ci/test_worker_rss_sampler.py -v` — original 20 tests
-      plus the new attribution, interval-guard, and record-integrity tests, all green.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` — full suite green.
-- [ ] `test_workflow_parity.py` and `test_unstable_deselection_wiring.py` green after every
-      `tests.yml` edit.
-- [ ] A real local `pytest -n 2` smoke run produces a JSON summary with at least one populated
+- [x] `PYTHONPATH=code/src pytest code/tests/ci/test_worker_rss_sampler.py -v` — original 22
+      tests (the actual pre-task count; see Phase 1's Scope Hypothesis deviation) plus the new
+      attribution, interval-guard, and record-integrity tests, all green: **43 passed**
+      (22 + 14 + 1 + 6).
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` — full suite green: **666 passed, 5 skipped**.
+- [x] `test_workflow_parity.py` and `test_unstable_deselection_wiring.py` green after every
+      `tests.yml` edit — run immediately after both the Phase 3 `--interval` edit and the
+      Phase 4 comment-block edit, not only at phase end.
+- [x] A real local `pytest -n 2` smoke run produces a JSON summary with at least one populated
       `gwN` tag — the mechanism is verified against a live `/proc`, not only synthetic fixtures.
-- [ ] `test_frame_class_mapping.py`'s collected test count and marker set are unchanged.
-- [ ] Sampler overhead at the chosen interval measured and recorded (a number, not an assurance).
-- [ ] TDD order honored: Phase 1 RED committed before Phase 2 GREEN.
+      Confirmed in Phase 2 (25 of 27 observed pids tagged `gw0`/`gw1`; the 2 untagged pids were
+      the pytest controller's own pre-fork gateway processes, correctly degrading to `null`).
+- [x] `test_frame_class_mapping.py`'s collected test count and marker set are unchanged: 14
+      tests before and after, `grep -c "development\|unstable"` is 0 before and after.
+- [x] Sampler overhead at the chosen interval measured and recorded (a number, not an
+      assurance): 0.25s = 6.375% of one core (chosen-against); 0.5s = 3.28% of one core (chosen).
+- [x] TDD order honored: Phase 1 RED committed (`f5b6b190`) before Phase 2 GREEN (`c8aa4670`).
 
 ## Artifacts & Outputs
 
