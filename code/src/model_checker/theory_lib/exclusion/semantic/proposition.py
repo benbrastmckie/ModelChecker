@@ -69,19 +69,20 @@ class WitnessProposition(PropositionDefaults):
     def __repr__(self):
         """Return pretty-printed representation of verifiers.
 
-        KNOWN, DOCUMENTED SCOPE BOUNDARY: `__repr__` cannot receive an
-        `output` stream through Python's string-formatting protocol (it is
-        invoked implicitly wherever `str(self)`/`f"{self}"` appears, e.g.
-        `print_proposition`'s own bare `print()`, `repr()` in test
-        assertions, or a debugger). The `bitvec_to_substates` calls below
-        therefore keep their pre-existing default (`output=None`, always
-        Unicode) rather than being coupled to `sys.stdout` -- a `__repr__`
-        should stay deterministic and not depend on ambient global state.
-        This means a verifier/falsifier set that includes the null state
-        can still render `□` here even when the enclosing `print_proposition`
-        call has otherwise been made encoding-safe. See
-        `code/docs/core/TESTING_GUIDE.md`'s output-encoding section for the
-        full account of this boundary and why it is not closed by this task.
+        `__repr__` cannot receive an `output` stream through Python's
+        string-formatting protocol -- it is invoked implicitly wherever
+        `str(self)`/`f"{self}"` appears, which in this codebase is
+        exclusively `print_proposition`'s own bare `print()` (confirmed via
+        `grep -rn '__repr__\\|f"{self}"' theory_lib/exclusion`). Since that
+        one reachable call site always targets `sys.stdout` (bare `print()`,
+        no `file=output`), the glyph is resolved against `sys.stdout`
+        directly here too -- the same pattern `print_proposition` already
+        uses for `world_state`, not a new precedent. This was corrected
+        after the end-to-end cp1252 packaging leg caught a real
+        `UnicodeEncodeError` here (a verifier/falsifier set containing the
+        null state raised even though every OTHER print site had already
+        been fixed) -- see `code/docs/core/TESTING_GUIDE.md`'s
+        output-encoding section for the full account.
         """
 
         N = self.model_structure.semantics.N
@@ -90,13 +91,13 @@ class WitnessProposition(PropositionDefaults):
         # Use the model structure's _evaluate_z3_boolean method if available
         if hasattr(self.model_structure, '_evaluate_z3_boolean'):
             ver_states = {
-                bitvec_to_substates(bit, N)
+                bitvec_to_substates(bit, N, sys.stdout)
                 for bit in self.verifiers
                 if self.model_structure._evaluate_z3_boolean(z3_model, possible(bit)) or self.settings.get('print_impossible', False)
             }
         else:
             ver_states = {
-                bitvec_to_substates(bit, N)
+                bitvec_to_substates(bit, N, sys.stdout)
                 for bit in self.verifiers
                 if is_true(z3_model.evaluate(possible(bit))) or self.settings.get('print_impossible', False)
             }

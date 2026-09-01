@@ -363,13 +363,20 @@ class LogosProposition(PropositionDefaults):
             str: A string of the form "< {verifiers}, {falsifiers} >" where each
                 set contains the binary representations of the states
 
-        KNOWN, DOCUMENTED SCOPE BOUNDARY: `__repr__` cannot receive an
-        `output` stream (it is invoked implicitly via `str(self)`/`f"{self}"`,
-        e.g. from `print_proposition`'s own bare `print()`). The
-        `bitvec_to_substates` calls below keep their default (`output=None`,
-        always Unicode) rather than being coupled to `sys.stdout` global
-        state. See `code/docs/core/TESTING_GUIDE.md`'s output-encoding
-        section for the full account.
+        `__repr__` cannot receive an `output` stream through Python's
+        string-formatting protocol -- it is invoked implicitly via
+        `str(self)`/`f"{self}"`, which in this codebase (and imposition's,
+        which reuses this class) is exclusively `print_proposition`'s own
+        bare `print()`. Since that one reachable call site always targets
+        `sys.stdout` (no `file=output`), the glyph is resolved against
+        `sys.stdout` directly here too, matching what `print_proposition`
+        already does for `world_state`. This was corrected after the
+        end-to-end cp1252 packaging leg (`code/tests/packaging/
+        test_generate_then_execute.py::test_generate_then_execute_cp1252`)
+        caught a real `UnicodeEncodeError` here -- a verifier/falsifier set
+        containing the null state raised even though every OTHER print site
+        had already been fixed. See `code/docs/core/TESTING_GUIDE.md`'s
+        output-encoding section for the full account.
         """
         # Guard against missing verifiers/falsifiers attribute (e.g., during error handling)
         if not hasattr(self, 'verifiers') or not hasattr(self, 'falsifiers'):
@@ -382,12 +389,12 @@ class LogosProposition(PropositionDefaults):
         possible = self.model_structure.model_constraints.semantics.possible
         z3_model = self.model_structure.z3_model
         ver_states = {
-            bitvec_to_substates(bit, N)
+            bitvec_to_substates(bit, N, sys.stdout)
             for bit in self.verifiers
             if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
         }
         fal_states = {
-            bitvec_to_substates(bit, N)
+            bitvec_to_substates(bit, N, sys.stdout)
             for bit in self.falsifiers
             if z3_model.evaluate(possible(bit)) or self.settings['print_impossible']
         }

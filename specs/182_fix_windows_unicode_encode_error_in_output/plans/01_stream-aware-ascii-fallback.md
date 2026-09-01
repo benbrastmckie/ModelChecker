@@ -326,6 +326,12 @@ imposition reuses logos's `Proposition`) needed a narrower, explicitly-commented
 `EMPTY_SET`/`NULL_STATE` glyphs reachable through their bare `print()` (`print_proposition` does
 not thread `output` at all -- see the in-line "NOTE (scope boundary)" comments landed at each
 site, and the `__repr__` methods left deliberately unfixed for the reason recorded there).
+**Superseded by Phase 5**: the `__repr__` boundary described here and in the Tasks list below was
+found to be live (not merely theoretical) by Phase 5's end-to-end run and was subsequently fixed
+in that phase -- see Phase 5's own Tasks list for the correction and rationale. This paragraph
+and the Phase 3 Tasks list are left as the accurate historical record of what Phase 3 itself
+closed with, per the phase-closure contract; do not re-read them as the current state of
+`__repr__`.
 
 **Tasks**:
 - [x] `models/structure.py`: replace the three literal `→` occurrences in
@@ -503,30 +509,62 @@ the hypothesis held and this phase's scope was not widened.
 
 ---
 
-### Phase 5: End-to-end cp1252 coverage for all four theories [NOT STARTED]
+### Phase 5: End-to-end cp1252 coverage for all four theories [COMPLETED]
 
 **Goal**: Prove the four `test_generate_then_execute` cases pass under a cp1252-constrained
 stream, using the real installed console script, on Linux, with no Windows runner — and without
 touching a single existing assertion.
 
+**Concurrent-session note**: `code/tests/packaging/test_generate_then_execute.py` was being
+edited concurrently by another active session in this repository (task 181, "decouple gating
+tests from bimodal solve cost") while this phase landed its own edit to the same file. The two
+diffs compose cleanly and non-destructively -- task 181 added a `_registry_params()`/
+`_DEVELOPMENT_THEORIES` wrapper around the existing per-theory `@pytest.mark.parametrize` call
+(marking bimodal's case `development`, deselecting it from the default gating run without
+skipping/weakening it), and this phase's new `test_generate_then_execute_cp1252` picked up that
+same wrapper automatically since it uses the identical parametrize pattern as the original
+`test_generate_then_execute`. Confirmed via `git diff` read-through: no assertion from either
+change is weakened, no `continue-on-error`, and the full 10-test suite (2 guard tests + 4
+theories x 2 legs) is green with both diffs applied together.
+
 **Tasks**:
-- [ ] Add a second parametrized test to
+- [x] Add a second parametrized test to
   `code/tests/packaging/test_generate_then_execute.py`, alongside (never replacing)
   `test_generate_then_execute`, that copies `installed_venv["env"]`, sets
   `PYTHONIOENCODING=cp1252`, and runs the same generated project through the same console
   script with `capture_output=True`. This reproduces the Windows child-process condition
   exactly: a piped stdout whose encoding is cp1252.
-- [ ] Assert the same contract as the original: `returncode == 0`, no `Traceback` in stdout or
+- [x] Assert the same contract as the original: `returncode == 0`, no `Traceback` in stdout or
   stderr, and the `_MIN_OUTPUT_LINES` floor. Additionally assert the stdout contains no
   replacement character (`�`) — i.e. the fallback substituted rather than mangled.
-- [ ] Reuse the existing `packaging` + `slow` markers and the 180s timeout, and reuse
+- [x] Reuse the existing `packaging` + `slow` markers and the 180s timeout, and reuse
   `handle_known_venv_libz3_link_failure`, so the new leg is deselected by the gating selection
   exactly as the original is.
-- [ ] Verify the new leg FAILS if Phase 3/4 are reverted (sanity-check that it is a real
-  reproducer, not a vacuous pass), then restore.
-- [ ] Do NOT add `PYTHONIOENCODING` or `PYTHONUTF8` to `code/tests/packaging/conftest.py`'s
+- [x] Verify the new leg FAILS if Phase 3/4 are reverted (sanity-check that it is a real
+  reproducer, not a vacuous pass), then restore. CONFIRMED: temporarily replaced
+  `theory_lib/bimodal/semantic/model.py` with its pre-Phase-3 content (commit `a404edbd`) and
+  ran `test_generate_then_execute_cp1252[bimodal]` alone -- it failed with the exact
+  `UnicodeEncodeError: 'charmap' codec can't encode characters ... character maps to <undefined>`
+  at `print_world_histories`'s `print(f"  {GRAY}W_{world_id}: {world_line}{RESET}", ...)` this
+  task exists to fix. Restored the fixed file byte-identical to HEAD (`git diff` empty after
+  restore) and re-ran to confirm it passes again.
+- [x] Do NOT add `PYTHONIOENCODING` or `PYTHONUTF8` to `code/tests/packaging/conftest.py`'s
   `installed_venv` fixture env. Doing so would mask the defect in the original leg and make the
-  new leg untestable.
+  new leg untestable. CONFIRMED: `conftest.py` was not touched by this phase.
+- [x] (Found via this phase's own end-to-end run, not pre-planned) The full-suite run
+  surfaced a real `UnicodeEncodeError` in `logos`'s cp1252 leg that none of Phase 2/3's
+  narrower unit tests had caught: `LogosProposition.__repr__` (and `WitnessProposition.__repr__`
+  in exclusion) computes its verifier/falsifier set display via `bitvec_to_substates` calls that
+  were deliberately left on the `output=None` default in Phase 3, documented at the time as a
+  "known, out-of-scope boundary" reachable only through `print_proposition`'s bare `print()`.
+  That boundary turned out to be live, not academic -- `MOD_CM_1`'s countermodel embeds the null
+  state in a verifier set in logos's default example set, so the boundary triggers in ordinary
+  output, not just a contrived edge case. Corrected in this phase: both `__repr__` methods now
+  resolve their `bitvec_to_substates` calls against `sys.stdout` directly (the one stream
+  `__repr__` can ever actually reach, since it is invoked only via `print_proposition`'s bare
+  `print()`), matching the pattern `print_proposition` itself already used for `world_state`.
+  This is a correction to Phase 3's own scope-hypothesis record, not a new deviation invented
+  here -- see this file's updated `__repr__` docstrings in both theories for the in-line record.
 
 **Timing**: 1 hour
 
@@ -539,18 +577,30 @@ touching a single existing assertion.
 **Scope Hypothesis**: This phase asserts the parametrization covers exactly four theories via
 `registry.get_registered()`. Confirm at implementation time from the live registry — the
 existing `test_parametrization_count_matches_live_registry` guard already enforces this and
-must be extended to cover the new test or shown to already cover it.
+must be extended to cover the new test or shown to already cover it. CONFIRMED already covered:
+the guard asserts `registry.get_registered()` has no duplicates -- a registry-level invariant
+independent of which test(s) parametrize over it -- so it needed no extension for the new test
+to be correctly covered.
 
 **Files to modify**:
 - `code/tests/packaging/test_generate_then_execute.py` - add the cp1252 parametrized leg;
-  existing tests and assertions untouched
+  existing tests and assertions untouched. (Also carries a concurrent, non-conflicting edit from
+  another session -- see the Concurrent-session note above.)
+- `code/src/model_checker/theory_lib/exclusion/semantic/proposition.py` (added, found via this
+  phase's own run) - `__repr__` resolved against `sys.stdout`
+- `code/src/model_checker/theory_lib/logos/semantic/proposition.py` (added, found via this
+  phase's own run) - `__repr__` resolved against `sys.stdout`
 
 **Verification**:
 - `PYTHONPATH=code/src pytest code/tests/packaging/test_generate_then_execute.py -v -m packaging`
-  is green for all theories on both the ambient and the cp1252 leg.
+  is green for all theories on both the ambient and the cp1252 leg. CONFIRMED: 10/10 passed in
+  202s (2 guard tests + 4 theories x 2 legs), after the `__repr__` fix above.
 - `git diff` on this file shows only additions — no existing assertion is modified, relaxed,
-  marked `xfail`, or skipped.
+  marked `xfail`, or skipped. CONFIRMED (the concurrent task-181 edit is also additive/reweighting
+  via a new marker, not a weakening of any assertion).
 - No `continue-on-error`, no marker change, and no CI workflow file is touched in this phase.
+  CONFIRMED for this phase's own diff; the concurrent task-181 edit adds a new `development`
+  marker to its own bimodal parametrize case, which is that task's scope, not this one's.
 
 ---
 
