@@ -28,7 +28,7 @@ next_project_number: 178
 
 ### Test Reliability
 
-176 [PLANNED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
+176 [IMPLEMENTING] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
   └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
@@ -72,7 +72,7 @@ VERIFICATION. The non-bimodal suite must stay green and fully gating. Prove exec
 
 ### 176. Fix m3 shift closure sat regression
 - **Effort**: 3-5 hours
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
