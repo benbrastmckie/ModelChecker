@@ -58,7 +58,7 @@ jobs:
         run: pip install pytest build wheel
 
       - name: Run packaging contract tests
-        run: cd code && python -m pytest tests/packaging/ -v -m packaging
+        run: cd code && python -m pytest tests/packaging/ -v -m "packaging and not unstable and not development"
         # GitHub Actions runners already export CI=true, which the packaging_toolchain and
         # installed_venv fixtures rely on to fail (rather than skip) on toolchain-provisioning
         # failure -- no explicit env: block needed here.

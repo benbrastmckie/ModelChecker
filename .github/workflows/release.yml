@@ -247,7 +247,7 @@ jobs:
       run: |
         cd code
         pip install pytest
-        python -m pytest tests/packaging/ -v -m "packaging and not unstable"
+        python -m pytest tests/packaging/ -v -m "packaging and not unstable and not development"
 
     - name: Upload distribution artifact
       uses: actions/upload-artifact@v4
@@ -466,7 +466,7 @@ jobs:
         MODEL_CHECKER_PACKAGING_INSTALL_SOURCE: pypi
       run: |
         cd code
-        python -m pytest tests/packaging/ -v -m "packaging and not unstable"
+        python -m pytest tests/packaging/ -v -m "packaging and not unstable and not development"
 
   github-release:
     name: Create GitHub Release

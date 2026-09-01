@@ -430,7 +430,17 @@ construct-only) before the phase closes.
 
 ---
 
-### Phase 5: Bring the three packaging workflows under the gating-selector contract [NOT STARTED]
+### Phase 5: Bring the three packaging workflows under the gating-selector contract [COMPLETED]
+
+Scope Hypothesis confirmed empirically: ran `_invocations_for()` directly against the three edited
+workflow files -- `packaging.yml` 1, `release.yml` 2, `pypi-smoke.yml` 1 -- for 4 new invocations,
+bringing `EXPECTED_GATING_MARKER_INVOCATIONS` from 6 to **10** exactly as hypothesized (no
+discrepancy). `pytest tests/ci/test_unstable_deselection_wiring.py -v` passes in full (23 tests);
+`pytest tests/ci/ -v` passes in full (160 tests); `test_unstable_watch_workflow_is_deliberately_excluded_and_selects_unstable`
+still passes. All four workflow invocations verified quoted (`grep -n 'pytest tests/packaging/'`)
+in the double-quoted `-m "packaging and not unstable and not development"` form. YAML syntax of
+all three edited workflow files validated with `yaml.safe_load`. Landed as a single atomic-batch
+commit per this phase's declared `Commit Mode`.
 
 **Goal**: Give all four packaging-suite gating invocations an `and not unstable and not development`
 selector in the quoted form the wiring contract can see, and extend that contract to scan them — so

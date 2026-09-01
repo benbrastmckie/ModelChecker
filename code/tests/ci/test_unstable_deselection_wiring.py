@@ -3,12 +3,18 @@ carries `and not unstable` AND `and not development` in its `-m` marker expressi
 marked `@pytest.mark.unstable` or `@pytest.mark.development` is deselected from every
 release-gating run rather than merely from the ones an author remembered to update by hand.
 
-Four drivers are in scope: `.github/workflows/tests.yml`, `flake.nix`,
-`.github/workflows/differential-tests.yml`, and `oracle/run-oracle-suite.sh`. This is the
-first oracle-tree `unstable` marking (see `oracle/bimodal_logic/tests/
-test_cross_oracle_differential.py::TestGatingConclusiveScan`), so `run-oracle-suite.sh` is a
-newly in-scope driver that TESTING_GUIDE.md section 8.9's "Where the deselection is wired"
-paragraph did not previously need to name.
+Seven drivers are in scope: `.github/workflows/tests.yml`, `flake.nix`,
+`.github/workflows/differential-tests.yml`, `oracle/run-oracle-suite.sh`,
+`.github/workflows/packaging.yml`, `.github/workflows/release.yml`, and
+`.github/workflows/pypi-smoke.yml`. This is the first oracle-tree `unstable` marking (see
+`oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan`), so
+`run-oracle-suite.sh` is a newly in-scope driver that TESTING_GUIDE.md section 8.9's "Where the
+deselection is wired" paragraph did not previously need to name. `packaging.yml`, `release.yml`,
+and `pypi-smoke.yml` are newly in scope: all three run `code/tests/packaging/` gated on
+`packaging`, and neither their selector nor this contract's scanned-file list previously accounted
+for the `development` marker applied to `test_generate_then_execute[bimodal]` (see
+`code/tests/packaging/test_generate_then_execute.py`) -- without this extension, that marking
+would be inert against these three drivers.
 
 `.github/workflows/unstable-watch.yml` is DELIBERATELY EXCLUDED from the files scanned below:
 it selects `-m unstable` by design (it is the non-gating observer, not a gating run) and must
@@ -40,26 +46,44 @@ TESTS_YML = REPO_ROOT / ".github" / "workflows" / "tests.yml"
 FLAKE_NIX = REPO_ROOT / "flake.nix"
 DIFFERENTIAL_TESTS_YML = REPO_ROOT / ".github" / "workflows" / "differential-tests.yml"
 RUN_ORACLE_SUITE_SH = REPO_ROOT / "oracle" / "run-oracle-suite.sh"
+PACKAGING_YML = REPO_ROOT / ".github" / "workflows" / "packaging.yml"
+RELEASE_YML = REPO_ROOT / ".github" / "workflows" / "release.yml"
+PYPI_SMOKE_YML = REPO_ROOT / ".github" / "workflows" / "pypi-smoke.yml"
 
-_SCANNED_FILES = [TESTS_YML, FLAKE_NIX, DIFFERENTIAL_TESTS_YML, RUN_ORACLE_SUITE_SH]
+_SCANNED_FILES = [
+    TESTS_YML,
+    FLAKE_NIX,
+    DIFFERENTIAL_TESTS_YML,
+    RUN_ORACLE_SUITE_SH,
+    PACKAGING_YML,
+    RELEASE_YML,
+    PYPI_SMOKE_YML,
+]
 
-# The true aggregate count of `-m`-bearing gating invocations across all four scanned drivers:
+# The true aggregate count of `-m`-bearing gating invocations across all seven scanned drivers:
 # tests.yml (2) + flake.nix (2) + differential-tests.yml (0, since its former broad `-m` step was
 # removed as a proven-duplicate of the node-id "Run CI gate tests explicitly" step -- both
 # selected the byte-identical same 49 node ids, confirmed by a `--collect-only` diff) +
-# run-oracle-suite.sh (2) = 6. This constant has drifted stale in BOTH directions across this
-# repository's history: it was once undercounted as "six" in seven documentation anchors before
-# this constant existed to enforce it executably (that regression is what originally motivated
-# this constant and the anchors below); it is now legitimately six again, following differential-
-# tests.yml's real invocation removal -- do not "correct" it back to seven on the theory that six
-# looks like the old undercount, since this time the undercount is not a bug. See
+# run-oracle-suite.sh (2) + packaging.yml (1) + release.yml (2) + pypi-smoke.yml (1) = 10. This
+# constant has drifted stale in multiple directions across this repository's history: it was once
+# undercounted as "six" in seven documentation anchors before this constant existed to enforce it
+# executably; it was corrected to six (from seven) once differential-tests.yml's redundant `-m`
+# step was removed; it is now ten, following the addition of packaging.yml, release.yml (both
+# packaging-suite steps), and pypi-smoke.yml to the scanned set, each newly carrying
+# `and not development` so the marking applied to
+# `test_generate_then_execute[bimodal]` (`code/tests/packaging/test_generate_then_execute.py`) is
+# not inert against these three drivers. See
 # test_total_gating_marker_expression_count_matches_constant below.
-EXPECTED_GATING_MARKER_INVOCATIONS = 6
+EXPECTED_GATING_MARKER_INVOCATIONS = 10
 
 # Documentation/docstring anchors that state the aggregate gating-invocation count in prose.
-# Each tuple is (path, must_contain, must_not_contain): the corrected "six" phrasing that must
-# be present, and the stale "seven" phrasing that must no longer appear now that
-# differential-tests.yml's redundant `-m`-bearing step has been removed.
+# Each tuple is (path, must_contain, must_not_contain): the corrected "ten" phrasing that must
+# be present, and the stale "six" phrasing that must no longer appear now that packaging.yml,
+# release.yml, and pypi-smoke.yml have joined the scanned set. The "six" -> "ten" direction is
+# itself layered on an earlier "seven" -> "six" correction (differential-tests.yml's redundant
+# `-m`-bearing step being removed as a proven duplicate) -- that older history is preserved in
+# this file's own module docstring and EXPECTED_GATING_MARKER_INVOCATIONS comment rather than
+# deleted, so a future reader does not "correct" either count back to a stale prior value.
 TESTING_GUIDE_MD = REPO_ROOT / "code" / "docs" / "core" / "TESTING_GUIDE.md"
 BIMODAL_CONFTEST_PY = (
     REPO_ROOT
@@ -81,40 +105,40 @@ TEST_DEVELOPMENT_MARKER_APPLICATION_PY = (
 _INVOCATION_COUNT_ANCHORS = [
     (
         TESTING_GUIDE_MD,
+        "wired through the same ten invocations",
         "wired through the same six invocations",
-        "wired through the same seven invocations",
     ),
     (
         TESTING_GUIDE_MD,
+        "Ten invocations in total.",
         "Six invocations in total.",
-        "Seven invocations in total.",
     ),
     (
         TESTING_GUIDE_MD,
+        "across all ten.",
         "across all six.",
-        "across all seven.",
     ),
     (
         TESTING_GUIDE_MD,
+        "the ten gating `-m` expressions,",
         "the six gating `-m` expressions,",
-        "the seven gating `-m` expressions,",
     ),
     (
         BIMODAL_CONFTEST_PY,
+        "All ten release-gating pytest invocations already carry",
         "All six release-gating pytest invocations already carry",
-        "All seven release-gating pytest invocations already carry",
     ),
     (
         BIMODAL_TESTS_README_MD,
-        "all six release-gating pytest invocations across the repository's CI drivers deselect "
+        "all ten release-gating pytest invocations across the repository's CI drivers deselect "
         "it with",
-        "all seven release-gating pytest invocations across the repository's CI drivers deselect "
+        "all six release-gating pytest invocations across the repository's CI drivers deselect "
         "it with",
     ),
     (
         TEST_DEVELOPMENT_MARKER_APPLICATION_PY,
+        "all ten gating invocations already carry",
         "all six gating invocations already carry",
-        "all seven gating invocations already carry",
     ),
 ]
 
@@ -172,7 +196,16 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
     `not development`."""
 
     @pytest.mark.parametrize(
-        "path", [TESTS_YML, FLAKE_NIX, DIFFERENTIAL_TESTS_YML, RUN_ORACLE_SUITE_SH]
+        "path",
+        [
+            TESTS_YML,
+            FLAKE_NIX,
+            DIFFERENTIAL_TESTS_YML,
+            RUN_ORACLE_SUITE_SH,
+            PACKAGING_YML,
+            RELEASE_YML,
+            PYPI_SMOKE_YML,
+        ],
     )
     def test_every_marker_expression_excludes_unstable_and_development(self, path):
         invocations = _invocations_for(path)
@@ -199,10 +232,19 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
                 f"gating invocation. Full invocation: {invocation!r}"
             )
 
-        if path in (TESTS_YML, FLAKE_NIX, RUN_ORACLE_SUITE_SH):
-            # These three drivers run exactly two `-m`-bearing passes each (parallel +
-            # serial). A file with zero `-m`-bearing invocations found means the
-            # extraction itself broke, not that the file legitimately has none.
+        if path in (
+            TESTS_YML,
+            FLAKE_NIX,
+            RUN_ORACLE_SUITE_SH,
+            PACKAGING_YML,
+            RELEASE_YML,
+            PYPI_SMOKE_YML,
+        ):
+            # These six drivers are known to carry at least one `-m`-bearing invocation
+            # (tests.yml/flake.nix/run-oracle-suite.sh each run exactly two -- parallel +
+            # serial; packaging.yml and pypi-smoke.yml one each; release.yml two). A file
+            # with zero `-m`-bearing invocations found means the extraction itself broke,
+            # not that the file legitimately has none.
             assert checked_any_marker_expr, (
                 f"{path}: found pytest invocation(s) but none carried an -m expression -- "
                 f"extraction likely broke, since this driver is known to use -m"
@@ -218,13 +260,15 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
         assert len(_invocations_for(FLAKE_NIX)) == 2
         assert len(_invocations_for(DIFFERENTIAL_TESTS_YML)) == 1
         assert len(_invocations_for(RUN_ORACLE_SUITE_SH)) == 2
+        assert len(_invocations_for(PACKAGING_YML)) == 1
+        assert len(_invocations_for(RELEASE_YML)) == 2
+        assert len(_invocations_for(PYPI_SMOKE_YML)) == 1
 
     def test_total_gating_marker_expression_count_matches_constant(self):
-        """The aggregate count of `-m`-bearing gating invocations across all four scanned
+        """The aggregate count of `-m`-bearing gating invocations across all seven scanned
         drivers is fixed at EXPECTED_GATING_MARKER_INVOCATIONS. An uncaught drift here is
         exactly how "six" went stale across seven documentation anchors before this constant
-        existed, and how those same anchors could just as easily go stale again in the other
-        direction now that the count has legitimately dropped back to six -- see
+        existed, and how those same anchors could just as easily go stale again -- see
         test_invocation_count_anchor_is_current below for the docs half."""
         total = sum(
             1

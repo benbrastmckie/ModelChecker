@@ -82,7 +82,7 @@ jobs:
         MODEL_CHECKER_PACKAGING_INSTALL_VERSION: ${{ inputs.version || 'latest' }}
       run: |
         cd code
-        python -m pytest tests/packaging/ -v -m "packaging and not unstable"
+        python -m pytest tests/packaging/ -v -m "packaging and not unstable and not development"
 
     - name: Debug via tmate on failure (opt-in only)
       # Both guards are required for a schedule: run to never hang waiting on a human who is
