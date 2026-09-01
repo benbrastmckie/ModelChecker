@@ -4,12 +4,30 @@
     {
       "project_number": 179,
       "project_name": "ci_pipeline_exclude_bimodal_until_finished",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "description": "Make the CI pipeline fast and fully green by excluding bimodal until it is finished.\n\nGOAL. Every gating CI run (.github/workflows/tests.yml, .github/workflows/differential-tests.yml, flake.nix checks.default) must complete quickly and pass, with no bimodal-theory work on the critical path while bimodal remains under active construction. Measure actual wall-clock per workflow before and after; \"fast\" must be a recorded number, not an impression.\n\nWHAT IS ALREADY DONE -- DO NOT REDO IT. (1) code/src/model_checker/theory_lib/bimodal/tests (313 items) has carried a path-scoped `development` blanket via that tree's conftest.py since before this task; all gating -m expressions already carry `and not development`. (2) A second `development` blanket was added to oracle/conftest.py: 595 of 644 oracle items are now marked, exempting only the six soundness-core classes (_SOUNDNESS_CORE_CLASSES: TestCIGate, TestFormulaEnumerator, TestDifferentialInfrastructure, TestKnownFormulaBaseline, TestDifferentialComparison, TestDifferentialReport). This took `oracle/run-oracle-suite.sh` from ~40 minutes and 19 failures (3 in pass 1, 16 in pass 2) to 49 passed in 2:57, with pass 2 emptied entirely. Guard test code/tests/ci/test_oracle_development_marker_application.py (12 tests) and all 136 code/tests/ci tests pass. TESTING_GUIDE.md sections 8.8 and 8.14 and code/pyproject.toml's marker text were updated to match. Start from this state; verify it still holds rather than re-deriving it.\n\nWHAT REMAINS.\n(a) REDUNDANCY, already verified: differential-tests.yml's two pytest steps now select the byte-identical same 49 node ids -- the broad step's `-m \"not slow and not differential and not unstable and not development\"` collapsed onto exactly the soundness core that the explicit gate step already names. CI therefore runs the same 49 Z3 tests twice per triggering push/PR. Re-confirm with --collect-only, then collapse the redundancy without weakening the gate step, whose unconditional-gating property (no continue-on-error, keeps its ::TestCIGate node id, paths: trigger unnarrowed) is enforced by code/tests/ci/test_unstable_deselection_wiring.py::TestOracleSoundnessGateStaysUnconditionallyGating.\n(b) OPEN DECISION the task must resolve explicitly and record, never decide silently: whether the 49-test oracle soundness gate should keep running at all while bimodal is in development. Keeping it is what currently distinguishes \"bimodal is incomplete\" (quarantined) from \"bimodal is wrong\" (still caught); dropping it means no independent check that bimodal's semantics are correct, and would also require deleting the guard test named in (a), which exists precisely to prevent that happening by accident. The repo owner's stated intent is that bimodal be excluded until finished; reconcile that against the soundness rationale and record the decision with its rationale in TESTING_GUIDE.md section 8.14.\n(c) Measure and reduce total gating CI time: tests.yml runs a 3-version python matrix (3.10/3.11/3.12) plus a separate `nix flake check`. Establish where the time actually goes before changing anything.\n(d) unstable-watch.yml is schedule/workflow_dispatch only and never gating -- confirm it stays that way. It is not a CI-speed problem and must not be turned into one.\n\nCONSTRAINTS. Do not weaken or delete test assertions to reach green. Do not widen any solve budget, and do not touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS -- TESTING_GUIDE.md section 8.6 is explicit that a contended machine is fixed by re-running idle, never by widening. Preserve the `development` marker's documented exit path in both conftest hooks so bimodal can be re-admitted in one edit when it is finished. Any new gating pytest invocation must carry `and not development` (7 invocations today, enforced by test_unstable_deselection_wiring.py). Verify with --collect-only checks plus the code/tests/ci guard suite; do NOT gate any phase of this task on a full `bash oracle/run-oracle-suite.sh` run -- TESTING_GUIDE.md section 8.8 now explicitly forbids writing that into a task plan.\n\nRELATED, NOT IN SCOPE. Tasks 176 and 178 are parked as blocked pending bimodal leaving development. The 19 oracle failures observed at quarantine time were never diagnosed (overwhelmingly OracleTimeoutError, on a machine that was not idle); TESTING_GUIDE.md section 8.9's standing rule makes an indefinitely-quarantined test a defect to escalate, so that diagnosis deserves its own task rather than being folded into this one.",
       "topic": "release-engineering",
       "created": "2026-09-01T05:50:33Z",
-      "last_updated": "2026-09-01T05:50:33Z"
+      "last_updated": "2026-09-01T06:33:12Z",
+      "session_id": "sess_1788242074_de2867",
+      "artifacts": [
+        {
+          "path": "specs/179_ci_pipeline_exclude_bimodal_until_finished/reports/01_ci-pipeline-bimodal-exclusion-research.md",
+          "type": "report",
+          "summary": "research report for task 179 CI pipeline bimodal exclusion"
+        },
+        {
+          "path": "specs/179_ci_pipeline_exclude_bimodal_until_finished/plans/01_ci-fast-green-bimodal-excluded.md",
+          "type": "plan",
+          "summary": "Six-phase plan to collapse the differential-tests.yml redundancy as one atomic batch, record the keep-the-soundness-gate decision and repair TESTING_GUIDE 8.14's stale passages, and record measured before/after gating-CI wall clocks."
+        },
+        {
+          "path": "specs/179_ci_pipeline_exclude_bimodal_until_finished/summaries/01_ci-fast-green-bimodal-excluded-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: differential-tests.yml redundancy collapsed as one atomic commit, soundness-gate decision recorded and stale TESTING_GUIDE 8.14 passages repaired, and measured before/after gating-CI wall clocks recorded, all 6 plan phases COMPLETED."
+        }
+      ]
     },
     {
       "project_number": 177,

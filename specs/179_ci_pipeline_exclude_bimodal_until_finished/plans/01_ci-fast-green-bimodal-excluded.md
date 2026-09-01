@@ -1,7 +1,7 @@
 # Implementation Plan: Task #179
 
 - **Task**: 179 - Make the CI pipeline fast and fully green by excluding bimodal until it is finished
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/179_ci_pipeline_exclude_bimodal_until_finished/reports/01_ci-pipeline-bimodal-exclusion-research.md

@@ -11,7 +11,7 @@ next_project_number: 180
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,179 | -- | semantics, release-engineering, test-reliability |
+| 1 | 154,176 | -- | semantics, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
 | 3 | 173 | 172 | testing |
 | 4 | 174 | 173 | test-reliability |
@@ -26,10 +26,6 @@ next_project_number: 180
 
 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
-### Release Engineering
-
-179 [NOT STARTED] — Make the CI pipeline fast and fully green by excluding bimodal un
-
 ### Test Reliability
 
 176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
@@ -40,10 +36,13 @@ next_project_number: 180
 ## Tasks
 
 ### 179. Ci pipeline exclude bimodal until finished
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
+- **Research**: [179_ci_pipeline_exclude_bimodal_until_finished/reports/01_ci-pipeline-bimodal-exclusion-research.md]
+- **Plan**: [179_ci_pipeline_exclude_bimodal_until_finished/plans/01_ci-fast-green-bimodal-excluded.md]
+- **Summary**: [179_ci_pipeline_exclude_bimodal_until_finished/summaries/01_ci-fast-green-bimodal-excluded-summary.md]
 
 **Description**: Make the CI pipeline fast and fully green by excluding bimodal until it is finished.
 

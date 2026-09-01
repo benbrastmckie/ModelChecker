@@ -4,6 +4,11 @@
 - **Research**: `specs/179_ci_pipeline_exclude_bimodal_until_finished/reports/01_ci-pipeline-bimodal-exclusion-research.md`
 - **Baseline**: `specs/179_ci_pipeline_exclude_bimodal_until_finished/baselines/ci-wallclock-baseline.md`
 - **Status**: All 6 phases COMPLETED
+- **Task**: 179 — Make the CI pipeline fast and fully green by excluding bimodal until it is finished
+- **Started**: 2026-09-01T05:50:33Z
+- **Completed**: 2026-09-01T06:33:43Z
+- **Artifacts**: research report, implementation plan, CI wall-clock baseline, this summary (all under `specs/179_ci_pipeline_exclude_bimodal_until_finished/`)
+- **Standards**: `code/docs/core/TESTING_GUIDE.md` sections 8.6, 8.8, 8.9, 8.14; `code/docs/core/CODE_STANDARDS.md`
 
 ## What Was Done
 
