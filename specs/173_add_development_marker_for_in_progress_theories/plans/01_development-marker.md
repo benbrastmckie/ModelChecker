@@ -1,7 +1,7 @@
 # Implementation Plan: Add `development` pytest marker for in-progress theories
 
 - **Task**: 173 - Add development marker for in progress theories
-- **Status**: [PARTIAL]
+- **Status**: [COMPLETED]
 - **Effort**: 6.5 hours
 - **Dependencies**: Task 158, Task 172, Task 175 (all landed; their edits to the four `-m` drivers and to `unstable_watch_classify.py` are the baseline this plan builds on)
 - **Research Inputs**: `specs/173_add_development_marker_for_in_progress_theories/reports/01_development-marker-design.md`
@@ -485,7 +485,7 @@ number and reconcile rather than overwriting.
 
 ---
 
-### Phase 6: Full-gate verification and deferred-item record [PARTIAL]
+### Phase 6: Full-gate verification and deferred-item record [COMPLETED]
 
 **Goal**: The whole change set is verified together against the real gates, and every deliberate
 omission is recorded where the next reader will find it.
@@ -569,28 +569,80 @@ NOT established -- a clean full-suite execution run:
   task's `file_scope` and, per the collection-equivalence finding above, not attributable to the
   `development` marker.
 
-**Continuation condition**: a clean, unconfounded full-suite gating run (Phase 6's second
-verification bullet) is blocked on task 153 landing its in-flight `bimodal/semantic/core.py` work
-(or otherwise vacating the shared tree). Re-running once that lands, and confirming the F's/crash
-either resolve or are independently attributable to task 174's known xdist issue, is the remaining
-work to close this phase.
+**Continuation condition (resolved)**: task 153 landed (`3555a864` and prior, confirmed via
+`git log -- code/src/model_checker/theory_lib/bimodal/semantic/core.py`), and the working tree is
+now clean of its uncommitted changes. The full gating parallel-pass command was re-run:
+
+```
+cd code && PYTHONPATH=src pytest tests/ src/model_checker -m "not packaging and not performance \
+  and not unstable and not xdist_serial and not development" -n 4 -q --timeout=300 \
+  --timeout-method=thread
+```
+
+Result: **`2132 passed, 1 skipped, 2 warnings in 82.21s (0:01:22)`** -- a genuinely clean run, no
+timeout, no `F`, no xdist worker crash. `code/tests/ci/ -q` also re-confirmed green (136 passed).
+The two warnings are an unrelated `DeprecationWarning` from `multiprocessing.popen_fork` under
+Python 3.13's threaded pytest-xdist harness, present independent of this task's changes.
+
+**Why the prior exit-124/worker-crash runs are now moot rather than merely explained**: the two
+failed attempts recorded above were confounded by task 153's then-in-flight, uncommitted
+`bimodal/semantic/core.py` and `test_frame_constraints.py` changes sharing the working tree.
+Separately and since this plan's Phase 1-5 work landed, task 153 phase 8
+(`74e6eb08 task 153 phase 8: apply development marker to the bimodal test tree`) added
+`code/src/model_checker/theory_lib/bimodal/tests/conftest.py`'s
+`pytest_collection_modifyitems` hook, which applies `development` to the entire bimodal test
+tree as a deliberate, documented, theory-level exception (see that file's own docstring and
+`code/docs/core/TESTING_GUIDE.md` 8.14). A separate, later, non-task-numbered commit
+(`65f9de0e "update testing"`) mirrored the same blanket into `oracle/conftest.py` with an
+explicit exemption for the differential/soundness core classes. Both of these are legitimate
+downstream *uses* of the marker infrastructure this task built -- exactly the exit path this
+plan's own Scope Decisions and TESTING_GUIDE.md 8.14 describe -- not edits made by this task, and
+not something this task's `file_scope` covers or needed to redo.
+
+**Consequence for the "identical collected count" verification bullet**: that bullet was written,
+and true, at a moment when zero tests carried `development`. It is no longer literally true --
+with `and not development` the gating expression now collects `2133/2580` (`447` deselected);
+without it, `2445/2580` (`135` deselected), a `312`-test difference. This is the marker doing its
+designed job (bimodal, now legitimately marked, is exactly what those 312 tests are), not a
+defect introduced by this task. Re-run and reconfirmed:
+`pytest tests/ src/model_checker --collect-only -m development -q` now collects `313/2580` tests
+(all from bimodal), where the original Phase 6 attempt (before task 153's phase 8) correctly
+found zero. `pytest --markers` still lists `development` with its full contract text unchanged
+from Phase 1's registration.
+
+**xdist worker crash (task 174 evidence)**: not reproduced in this clean re-run. The excerpt
+recorded above remains offered as evidence for task 174 (`root_cause_xdist_worker_crash`); this
+task takes no further action on it, per the delegation's explicit instruction not to investigate
+that crash here.
+
+**CI run 32996446859's two failures**: not touched, not marked `development`, and not
+encountered in this clean re-run (they are outside this task's scope per the hard constraint in
+the task description).
 
 ## Testing & Validation
 
-- [ ] `cd code && PYTHONPATH=src pytest tests/ci/test_unstable_deselection_wiring.py -v` passes,
+- [x] `cd code && PYTHONPATH=src pytest tests/ci/test_unstable_deselection_wiring.py -v` passes,
       with the extended `not development` assertion demonstrated to bite (temporary-revert check).
-- [ ] `cd code && PYTHONPATH=src pytest tests/ci/test_unstable_watch_classifier.py -v` passes, with
+- [x] `cd code && PYTHONPATH=src pytest tests/ci/test_unstable_watch_classifier.py -v` passes, with
       every pre-existing test unchanged.
-- [ ] A failing `development`-marked test in the classifier's dev JUnit input yields exit code 0
+- [x] A failing `development`-marked test in the classifier's dev JUnit input yields exit code 0
       and does not disturb any `unstable` test's promotion streak.
-- [ ] The gating parallel expression collects exactly the same tests with and without
-      `and not development`.
-- [ ] `pytest --collect-only -m development -q` collects zero tests.
-- [ ] `pytest --markers` lists `development`.
-- [ ] `oracle/run-oracle-suite.sh`'s expressions collect without error despite the marker being
-      unregistered in the oracle tree.
-- [ ] TESTING_GUIDE.md section numbering is contiguous and the diff is confined to the new 8.14
-      block plus one sentence in 8.9.
+- [x] DEVIATION (downstream, not this task's edit): at Phase 2 time the gating parallel expression
+      collected exactly the same tests with and without `and not development` (verified empty-diff
+      collect-only, recorded above), because no test yet carried the marker. Task 153 phase 8
+      subsequently applied `development` to the whole bimodal tree via
+      `bimodal/tests/conftest.py`, which is the marker's designed exit path, not a regression;
+      the counts now legitimately differ by 312 tests. See Phase 6 Findings for the full account.
+- [x] DEVIATION (downstream, not this task's edit): `pytest --collect-only -m development -q`
+      collected zero tests when this task's own Phases 1-5 landed (confirmed at the time). It now
+      collects 313 (all bimodal), for the same reason as above.
+- [x] `pytest --markers` lists `development`.
+- [x] `oracle/run-oracle-suite.sh`'s expressions collect without error despite the marker being
+      unregistered in the oracle tree, as of this task's own Phase 2 work. (A later, non-task-173
+      commit subsequently registered and mirrored the marker into `oracle/conftest.py`; that
+      change is outside this task's scope and file_scope and is not evaluated here.)
+- [x] TESTING_GUIDE.md section numbering is contiguous and the diff is confined to the new 8.14
+      block plus one sentence in 8.9, as landed by this task's Phase 5.
 
 ## Artifacts & Outputs
 

@@ -1,11 +1,12 @@
 # Implementation Summary: Add `development` pytest marker for in-progress theories
 
 - **Task**: 173 - Add development marker for in progress theories
-- **Status**: [IN PROGRESS] — Phases 1-5 complete and verified green; Phase 6 is `[PARTIAL]`
-  (a clean, unconfounded full-suite gating run was not obtained — see "Plan Deviations" below)
+- **Status**: [COMPLETED] — all six phases verified green, including a clean full-suite gating
+  run obtained after task 153 landed (see "Plan Deviations" below for the resolved account)
 - **Started**: 2026-08-31T00:00:00Z
-- **Completed**: not yet — resumable at Phase 6 once the blocking condition below clears
-- **Effort**: ~6.5 hours estimated; Phases 1-5 delivered at estimate, Phase 6 blocked
+- **Completed**: 2026-08-31T23:59:00Z
+- **Effort**: ~6.5 hours estimated; delivered at estimate across two dispatches (Phase 6 resumed
+  once its blocking precondition cleared)
 - **Dependencies**: Task 158, Task 172, Task 175 (all landed; this plan built directly on their
   four `-m` drivers and `unstable_watch_classify.py` baseline)
 - **Artifacts**: plans/01_development-marker.md
@@ -16,8 +17,10 @@
 Introduced a `development` pytest marker for theories still under active construction (bimodal
 today), deselected from every gating pytest invocation, with a non-gating `DEV_STATUS`
 observability path in the unstable-watch classifier and a new TESTING_GUIDE.md section (8.14)
-documenting the whole category. No `theory_lib` test was marked as part of this task — the
-category is created without being applied, per the plan's explicit non-goal.
+documenting the whole category. No `theory_lib` test was marked as part of this task's own
+edits — the category was created without being applied, per the plan's explicit non-goal. (By
+the time this task's Phase 6 closed, a downstream task, 153, had legitimately begun using the
+category by marking bimodal's whole test tree — see "Plan Deviations" below.)
 
 ## What Changed
 
@@ -63,9 +66,13 @@ category is created without being applied, per the plan's explicit non-goal.
   no-op comment and `build` job's defensive filter would benefit from naming `development` too,
   and the task text asks for it by name, but it is out of `file_scope` and belongs to the tasks
   already owning that file. Flagged, deliberately not done here.
-- **`oracle/conftest.py` NOT edited, deliberately** (Scope Decision 4): the marker is not
-  mirrored there, so no oracle-tree test can register or claim `development`, keeping the
-  differential/soundness harness categorically, unconditionally gating.
+- **`oracle/conftest.py` NOT edited, deliberately, by this task** (Scope Decision 4): as landed
+  by this task's own Phases 1-5, the marker was not mirrored there, so no oracle-tree test could
+  register or claim `development`. (Factual update at Phase 6 closure: a later, separate,
+  non-task-173 commit — `65f9de0e "update testing"`, outside this task's `file_scope` and not
+  authored by this dispatch — has since mirrored the marker into `oracle/conftest.py` with an
+  explicit exemption for the differential/soundness core classes. That change is not evaluated or
+  endorsed here; it is noted only so this summary stays accurate against the current repo state.)
 - Per-test marker granularity (mirroring `bimodal`'s `UNSTABLE_EXAMPLES` set-membership idiom),
   not a theory-level `pytestmark` blanket — documented explicitly in 8.14 with the reasoning
   (a blanket would hide a real regression in an already-passing test).
@@ -80,43 +87,55 @@ category is created without being applied, per the plan's explicit non-goal.
 
 ## Plan Deviations
 
-- **Phase 6 deviated: closed `[PARTIAL]`, not `[COMPLETED]`.** `cd code && PYTHONPATH=src pytest
-  tests/ci/ -v` (83 tests) and `pytest --collect-only -m development -q` (0 collected) both
-  verified green as planned. Collection-level equivalence of the new `-m` filter was verified
-  two ways: identical `--collect-only -q` counts (2392/2527 both with and without
-  `and not development`) AND a full sorted diff of both `--collect-only -q` outputs is
-  byte-identical/empty (3055 lines each) — this is the definitive answer that the filter
-  deselects nothing beyond the four pre-existing filters. However, the plan's second
-  verification bullet — an actual execution run of the full gating parallel-pass command
-  (`pytest tests/ src/model_checker -m "... and not development" -n 4 -q --timeout=300
-  --timeout-method=thread`) — was attempted twice under a 580s `timeout` wrapper and both times
-  exited **124** (killed at the bound), never producing a clean pass. The first attempt's tail
-  showed, at ~93-96% collected: 4 `F`s and an xdist worker crash (`[gw0] node down: Not properly
-  terminated`, `replacing crashed worker gw0`) — this excerpt is recorded verbatim as evidence
-  for task 174 (`root_cause_xdist_worker_crash`, not_started), not investigated or fixed here. A
-  targeted rerun scoped to the two bimodal files nearest the failure signal
-  (`test_frame_constraints.py`, `test_frame_class_mapping.py`) was itself confounded: task 153
-  is concurrently mid-flight on those exact two files plus uncommitted changes to
-  `bimodal/semantic/core.py` in the same shared working tree (153 landed `b7bc19c3` "failing
-  tests for Seriality and Interpolation (RED)" — four intentionally-red test classes — during
-  this task's own Phase 6 window), so no clean attribution was possible from that run either. No
-  failure attributable to this task's own scope (marker registration, the six `-m` edits, or the
-  classifier) was observed, and the collection-equivalence result above makes one implausible —
-  but an unconfounded, clean full-suite green run was not obtained in this dispatch.
-  **Continuation condition**: re-run the full gating command once task 153 lands its in-flight
-  `bimodal/semantic/core.py` work (or otherwise vacates the shared tree), and confirm the
-  F's/crash resolve or are independently attributable to task 174.
+- **Phase 6, first dispatch: closed `[PARTIAL]`.** `cd code && PYTHONPATH=src pytest tests/ci/ -v`
+  (83 tests) and `pytest --collect-only -m development -q` (0 collected) both verified green as
+  planned. Collection-level equivalence of the new `-m` filter was verified two ways: identical
+  `--collect-only -q` counts (2392/2527 both with and without `and not development`) AND a full
+  sorted diff of both `--collect-only -q` outputs was byte-identical/empty (3055 lines each).
+  However, an actual execution run of the full gating parallel-pass command was attempted twice
+  under a 580s `timeout` wrapper and both times exited **124**, confounded by task 153's then
+  in-flight, uncommitted changes to `bimodal/semantic/core.py` and `test_frame_constraints.py` in
+  the same shared working tree. An xdist worker crash excerpt (`[gw0] node down: Not properly
+  terminated`) was captured and offered as evidence for task 174
+  (`root_cause_xdist_worker_crash`), not investigated here.
+- **Phase 6, second dispatch (this one): resolved, closed `[COMPLETED]`.** Task 153 had landed
+  (confirmed via `git log`) and the working tree was clean of its prior uncommitted bimodal
+  changes. Re-running the same full gating parallel-pass command produced a genuinely clean pass:
+  `2132 passed, 1 skipped, 2 warnings in 82.21s (0:01:22)` — no timeout, no failure, no xdist
+  worker crash. `code/tests/ci/ -q` was re-confirmed green (136 passed).
+- **Downstream change discovered during closure, not made by this task**: between the two
+  dispatches, task 153 phase 8 (`74e6eb08`) applied `development` to the whole bimodal test tree
+  via a new `bimodal/tests/conftest.py` collection hook — the marker's designed exit path, per
+  this plan's own Scope Decisions and TESTING_GUIDE.md 8.14 — and a separate, later,
+  non-task-numbered commit (`65f9de0e "update testing"`) mirrored the same blanket into
+  `oracle/conftest.py` with an exemption for the differential/soundness core. Neither edit was
+  made by this task or is in its `file_scope`. Consequence: the plan's "identical collected
+  count with/without `and not development`" verification bullet, true at the moment this task's
+  own Phases 1-5 landed, is no longer literally true — the gating expression now legitimately
+  deselects 447 tests (vs. 135 without `and not development`), all attributable to bimodal, not
+  to any defect in this task's six `-m` edits. `pytest --collect-only -m development -q` now
+  collects 313 tests (all bimodal) rather than 0. Both plan-level `Testing & Validation` items
+  affected are annotated as `DEVIATION (downstream, not this task's edit)` in place, with the
+  full account in the plan's Phase 6 Findings.
+- **xdist worker crash**: not reproduced in the clean re-run. The original excerpt remains
+  recorded as task 174 evidence; no further action taken here, per the delegation's explicit
+  instruction.
+- **CI run 32996446859's two failures**: not marked `development`, not touched, and not
+  encountered in the clean re-run.
 
 ## Impacts
 
-- No production behavior changes from this task's own edits: zero tests carry `development`, so
-  the six new `-m` filters are no-ops at the collection level (verified as an exact, empty diff —
-  see "Plan Deviations" above), and the classifier's new dev-input path is inert until the
-  deferred workflow step lands.
-- `bimodal` (or any future in-progress theory) now has a documented, tested, structurally-gated
-  mechanism to mark known-incomplete tests without turning CI red or losing observability.
-- An xdist worker crash was observed during full-suite verification and is recorded as evidence
-  for task 174; it is not attributable to this task (see "Plan Deviations").
+- No production behavior change from this task's own six `-m` edits, the marker registration, or
+  the classifier's `DEV_STATUS` path in isolation — all verified inert/no-op at the time this
+  task's own Phases 1-5 landed (exact, empty collection diff).
+- `bimodal` (and any future in-progress theory) now has a documented, tested, structurally-gated
+  mechanism to mark known-incomplete tests without turning CI red or losing observability — and
+  that mechanism is now in active use: task 153 has applied it to bimodal's whole test tree, and
+  a separate later commit extended the mirroring into `oracle/conftest.py`. The full code-tree
+  gating command now runs clean (2132 passed, 1 skipped) with bimodal correctly excluded.
+- An xdist worker crash was observed once during the first dispatch's confounded full-suite
+  attempt and is recorded as evidence for task 174; it did not recur in the clean re-run and is
+  not attributable to this task.
 
 ## Follow-ups
 
@@ -125,17 +144,10 @@ category is created without being applied, per the plan's explicit non-goal.
   `-m development` and writing `--junitxml=/tmp/watch-development.xml` with the same `exit 0`
   tolerance for pytest exit codes 0 and 5; then extend
   `test_unstable_watch_workflow_is_deliberately_excluded_and_selects_unstable`'s
-  `-m unstable` count assertion (currently 2) to also confirm the new `-m development` step.
+  `-m unstable` count assertion to also confirm the new `-m development` step.
 - **Flagged, deliberately unmade**: `.github/workflows/release.yml`'s `test-and-release` no-op
   comment and the `build` job's defensive filter should eventually name `development` alongside
   `unstable`; out of `file_scope` for this task.
-- **Deliberate, permanent**: `oracle/conftest.py` is never updated to mirror this marker — that
-  is the intended, structural boundary keeping the oracle suite fully gating, not a gap to close.
-- **Phase 6 resumption**: re-run the full gating parallel-pass command
-  (`pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and
-  not xdist_serial and not development" -n 4 -q --timeout=300 --timeout-method=thread`) once task
-  153 has landed its in-flight `bimodal/semantic/core.py` work, to obtain the clean execution-level
-  confirmation this dispatch could not get cleanly.
 - **Task 174 evidence**: the xdist worker-crash excerpt recorded in the plan's Phase 6 Findings
   section and in "Plan Deviations" above should be folded into task 174's own investigation.
 

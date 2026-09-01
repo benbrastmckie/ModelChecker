@@ -20,7 +20,7 @@ next_project_number: 180
 
 ### Testing
 
-173 [PARTIAL] — Add a `development` pytest marker so a theory still under active 
+173 [IMPLEMENTING] — Add a `development` pytest marker so a theory still under active 
 
 ### Semantics
 
@@ -248,7 +248,7 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 ---
 
 ### 173. Add development marker for in progress theories
-- **Status**: [PARTIAL]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 158, Task 172, Task 175
