@@ -1,18 +1,32 @@
 {
-  "dispatch_seq": 2,
-  "status": "planned",
+  "dispatch_seq": 3,
+  "status": "implemented",
   "task_number": 174,
   "session_id": "sess_1788245839_3b53f4",
-  "agent_type": "planner-agent",
+  "agent_type": "python-implementation-agent",
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/174_root_cause_xdist_worker_crash/plans/01_xdist-crash-instrumentation-record.md",
       "summary": "5-phase plan: TDD worker-id attribution in the RSS sampler, measured interval tightening, durable hypothesis-ledger record with containment-expiry note, full-gate constraint audit."
+    },
+    {
+      "type": "summary",
+      "path": "specs/174_root_cause_xdist_worker_crash/summaries/01_xdist-crash-instrumentation-record-summary.md",
+      "summary": "Implementation summary: worker-id attribution, 0.5s sampling interval, and the durable honest hypothesis-ledger record; root cause NOT identified, item D remains OPEN."
     }
   ],
   "phase_count": 5,
+  "phases_completed": 5,
+  "phases_total": 5,
+  "plan_markers_verified": true,
   "estimated_hours": 4,
   "dependency_waves": [[1], [2], [3], [4], [5]],
-  "next_steps": "Run /implement 174 to execute the plan"
+  "modified_files": [
+    ".github/scripts/worker_rss_sample.py",
+    ".github/workflows/tests.yml",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py",
+    "code/tests/ci/test_worker_rss_sampler.py"
+  ],
+  "next_steps": "Task complete. Item D remains OPEN. On the next [gwN] node down recurrence, read the sampler's pid_to_worker/per_worker_id_peak_kb fields first. When theory_lib/bimodal is re-admitted to gating, build the deferred worker-side pytest_runtest_logstart hook (outside this task's file scope) before or alongside that re-admission."
 }
