@@ -1019,16 +1019,6 @@ contract keeps driven solely by whether a `NEW` classification was recorded this
   soundness check; the closed `xdist_serial` isolation lead; the CI-verified 2x budget widening
   that bought zero additional conclusive formulas; the written 20-run-or-verified-fix exit
   criterion).
-- `TestShiftClosure::test_shift_closure_on_extracted_worlds_m3` in
-  `oracle/bimodal_logic/tests/test_soundness_regression.py` — see that method's own
-  entry-criteria comment block for the full record (a solver `unknown`/`canceled` wall-clock
-  cancellation at its 15.0s budget, never a decided `unsat`; a ~4-6x `rlimit-count` cost increase
-  isolated by single-commit bisection to the commit that widened the asserted TaskFrame axiom set
-  from three to five; seven closed encoding-tuning avenues; the written
-  20-run-or-verified-fix exit criterion). Its duration-based TIMING classification uses its own
-  bespoke failure-text signature — see `FAILURE_SIGNATURE_BY_NODEID_FRAGMENT` in
-  `.github/scripts/unstable_watch_classify.py`, not the shared BM_CM_1-style
-  `FAILURE_SIGNATURE` default.
 
 Neither record is duplicated here; each marker's own source-site comment block is the source of
 truth.

@@ -505,47 +505,6 @@ class TestShiftClosure:
         assert result["time_bound"] == 3
         assert result["boundary_safe"] is True
 
-    # Marked `unstable` per TESTING_GUIDE.md section 8.9. Each entry below satisfies
-    # one of the four mandatory criteria, recorded explicitly rather than implied.
-    #
-    # (1) WHAT FAILS AND WHY -- the solver's own check() result is `unknown`, with
-    #     reason_unknown() == "canceled", at wall_seconds == 15.0003-15.0070 against
-    #     this test's max_time == 15.0 budget: a wall-clock cancellation, not a
-    #     decided result. Deterministic across 5/5 isolated single-process runs.
-    #     rlimit-count (Z3's machine-load-independent resource metric) is
-    #     32.5M-46.5M at this commit, versus 7,850,279 -- exactly, byte-for-byte
-    #     identical across repeated runs -- one commit earlier, before the commit
-    #     that widened the asserted TaskFrame axiom set from three to five
-    #     (Seriality, Interpolation): a ~4-6x cost increase isolated by direct
-    #     single-commit bisection in a zero-contention environment.
-    #
-    # (2) DEMONSTRABLY NOT SEMANTIC -- the raw solver result is `unknown`, never
-    #     `unsat`, on every recorded run. `_process_solver_results` (models/structure.py)
-    #     treats any UNKNOWN outcome as an inconclusive timeout by construction, never
-    #     a fall-through UNSAT reading, so this assertion's failure can never represent
-    #     a changed logical conclusion -- only a budget/resource outcome.
-    #
-    # (3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED -- seven encoding-level
-    #     avenues were tried against the two newly-added frame axioms (explicit
-    #     E-matching patterns individually and jointly, a corrected joint
-    #     z3.MultiPattern matching the existing build_forward_comp_constraint
-    #     precedent, reordering the axioms' position in build_frame_constraints'
-    #     returned list, and combinations thereof). Best measured result: rlimit-count
-    #     roughly halved (to ~11M-20M) relative to the unmodified baseline, still short
-    #     of the ~8M region needed to finish within budget. See the
-    #     "fix_m3_shift_closure_sat_regression" specs entry's fix-attempts record
-    #     (baselines/05_fix-attempts.md, active or archived) for the full per-avenue
-    #     measurements -- a future investigator should start from that frontier, not
-    #     re-try a closed avenue.
-    #
-    # (4) EXIT CRITERION -- verbatim per TESTING_GUIDE.md section 8.9's default: the
-    #     marker comes off when EITHER 20 consecutive unstable-watch runs record zero
-    #     failures (nightly cadence, ~3 weeks), OR a genuine encoding fix is
-    #     demonstrated to close the rlimit-count gap (from the current ~11M-46M range
-    #     down to the pre-regression ~8M region) across a >= 20-seed re-verification
-    #     with no undecided draw at max_time == 15.0. A single green run never
-    #     qualifies.
-    @pytest.mark.unstable
     def test_shift_closure_on_extracted_worlds_m3(self):
         """Direct BimodalSemantics at M=3 with depth-bounded abundance (max_shift=1).
 
