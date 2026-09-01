@@ -341,40 +341,40 @@ widening silently.
 
 ---
 
-### Phase 4: Allocate the discriminating follow-up as a specified task [NOT STARTED]
+### Phase 4: Allocate the discriminating follow-up as a specified task [COMPLETED]
 
 **Goal**: Turn the report's open items 0a, 1, and 2 into one properly specified task, so the named
 follow-up is tracked rather than left in a report section.
 
 **Tasks**:
-- [ ] Create **one** task, not three. Items 1 (confirm `cfb9cb4a` reaches a real `unstable-watch` run
+- [x] Create **one** task, not three. Items 1 (confirm `cfb9cb4a` reaches a real `unstable-watch` run
       and classifies `TIMING`), 2 (re-measure at axiom-bearing HEAD on an uncontended runner), and 0a
       (discriminate axiom cost from host contention) all resolve on the same next observations of the
       same test and would otherwise block on each other. State that consolidation rationale in the
       task description.
-- [ ] Write the description to be self-contained — a future reader must not need this report to act.
+- [x] Write the description to be self-contained — a future reader must not need this report to act.
       It must carry: the six run IDs and their real counts; that `origin/master` was frozen at
       `98d3ad8d` and has since caught up; that `cfb9cb4a` has never executed in CI; the local
       `HEAD=9ce3b4ad` data point (93/103, 10 timeouts, 951.21s) with its non-idle-host caveat; the two
       undiscriminated explanations; and the two discriminating observations named in the report (same
       HEAD on a verifiably idle CI-class runner, or `98d3ad8d` under comparable local contention).
-- [ ] Carry the hard constraints into the new task's description verbatim: do not widen
+- [x] Carry the hard constraints into the new task's description verbatim: do not widen
       `GATING_RECHECK_SOLVE_TIMEOUT_MS`; do not lower `MIN_CONCLUSIVE_GATING_FORMULAS`; do not weaken,
       skip, or delete the assertion; do not de-quarantine or re-quarantine as the primary remedy; do
       not change bimodal semantics or the oracle soundness core.
-- [ ] Note in the description that `ORACLE_GATING_SCAN_OUT_DIR` (Phase 3) now exists and should be
+- [x] Note in the description that `ORACLE_GATING_SCAN_OUT_DIR` (Phase 3) now exists and should be
       used, so the per-formula timeout set is captured on the first observation rather than lost again.
-- [ ] Do **not** create a task to remediate the shortfall itself. 8.9's escalation trigger has not
+- [x] Do **not** create a task to remediate the shortfall itself. 8.9's escalation trigger has not
       fired: the marking is ~1 week old and active repair work is in progress. Creating a remediation
       task now would pre-empt the observation that decides whether one is warranted.
-- [ ] Allocate the number safely. Two other implementation agents are active in this session, so take
+- [x] Allocate the number safely. Two other implementation agents are active in this session, so take
       the commit/scope lock before touching `specs/state.json`:
       `bash .claude/scripts/task-lock.sh scope-acquire "$session_id"`, then read
       `.next_project_number`, append the `active_projects` entry (`project_number`, `project_name`,
       `status: "not_started"`, `task_type: "python"`, `description`, `topic`, `created`,
       `last_updated`), increment `next_project_number`, release the lock, and run
       `bash .claude/scripts/generate-todo.sh`. Never assign a number by guessing.
-- [ ] Cross-reference the new task number back into
+- [x] Cross-reference the new task number back into
       `reports/01_gating-conclusive-shortfall-diagnosis.md`'s "What remains open" section (inside
       `specs/**`, so task numbers are permitted there — C6 does not apply).
 

@@ -304,6 +304,8 @@ instruction that a "leave it quarantined" conclusion must be justified against 8
 
 ## What remains open (for a follow-on remediation task, not this one)
 
+**Cross-reference (added at task 180's closure):** items 0a, 1, and 2 below have been consolidated into task 183 ("discriminate_gating_shortfall_axiom_vs_contention"), which carries their full context and this diagnosis's hard constraints forward verbatim. Item 3 (the "(3b)" documentation gap) was closed directly by task 180's own plan, not deferred — see the corrected entry-criteria block in `test_cross_oracle_differential.py`. Item 4 (the marker's continued presence) is this diagnosis's own recorded conclusion and needs no further task.
+
 0. ~~Complete the idle-host measurement this task required.~~ **DONE, see (b).** A local run at
    axiom-bearing `HEAD=9ce3b4ad` completed in 951.21s with 93/103 conclusive (10 timeouts, 0
    disagreements) — the shortfall reproduced, and reproduced worse than every CI run. The host was

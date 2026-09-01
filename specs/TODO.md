@@ -1,5 +1,5 @@
 ---
-next_project_number: 183
+next_project_number: 184
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 183
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,180,181,182 | -- | packaging, semantics, release-engineering, ... |
+| 1 | 154,176,180,181,182,183 | -- | packaging, semantics, release-engineering, ... |
 | 2 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -26,7 +26,7 @@ next_project_number: 183
 
 ### Release Engineering
 
-180 [PLANNED] — Diagnose the oracle gating conclusive-population shortfall that h
+180 [IMPLEMENTING] — Diagnose the oracle gating conclusive-population shortfall that h
 181 [IMPLEMENTING] — Audit which gating tests outside the bimodal test tree still depe
 
 ### Test Reliability
@@ -34,8 +34,41 @@ next_project_number: 183
 176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
   └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
   └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
+183 [NOT STARTED] — Discriminate axiom-driven solver cost from host contention as the
 
 ## Tasks
+
+### 183. Discriminate gating shortfall axiom vs contention
+- **Effort**: 2-4 hours
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: None
+
+**Description**: Discriminate axiom-driven solver cost from host contention as the cause of the gating conclusive-population shortfall for TestGatingConclusiveScan::test_known_conclusive_population_self_consistent in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Consolidates report items 0a, 1, and 2 into one task because they resolve on the same next observations of the same test and would otherwise block on each other.
+
+BACKGROUND. Six consecutive unstable-watch runs (2026-08-27 -> 2026-09-01) all checked out the stale origin/master commit 98d3ad8d (frozen roughly five days): 33091941820 (98/103 conclusive, 5 timeouts, 761.61s), 33193518591 (96/103, 7, 824.89s), 33250263772 (98/103, 5, 749.10s), 33306220265 (96/103, 7, 898.78s), 33386925098 (96/103, 7, 808.64s), 33494135668 (97/103, 6, 788.74s). Zero disagreements on all six. origin/master has since caught up (no longer stale as of this task's creation).
+
+All six were falsely classified NEW (not TIMING) by .github/scripts/unstable_watch_classify.py's classify(), because its DISAGREEMENT_SIGNATURE was a bare substring that matched pytest's unrendered f-string traceback listing rather than a real rendered disagreement. Fixed in commit cfb9cb4a (2026-08-31), which is not an ancestor of 98d3ad8d and has therefore never executed in any real CI run to date.
+
+A local run at axiom-bearing HEAD=9ce3b4ad (which contains the 2026-08-31 Skolemized Seriality/Interpolation frame axioms, commit f9cc081e) recorded agreements=93 disagreements=0 timeout_count=10 conclusive=93/103, 951.21s -- worse on both axes than every one of the six CI runs above. The host was demonstrably NOT idle (load ~5.9 -> ~4.8 across 24 cores, 7.3GB of swap in use), so this single data point is confounded and does not discriminate between two live explanations:
+  1. Axiom-driven solver cost increase (a real, rlimit-confirmed 4-6x cost increase from the same two axioms was already measured in a different Z3 constraint context by a related, currently-blocked task).
+  2. Host contention alone.
+
+WHAT WOULD DISCRIMINATE. Either (i) the same test at the same HEAD=9ce3b4ad on a verifiably idle CI-class runner (load ~0, no swap), or (ii) the same test at the pre-axiom 98d3ad8d checkout on a comparably-loaded local host (~load 5-6), to see whether contention alone reproduces a 93/103-class shortfall without the axioms.
+
+CONSOLIDATED ITEMS (from the diagnosis report's "What remains open"):
+1. Confirm cfb9cb4a actually reaches a real unstable-watch run now that origin/master has caught up, and confirm the next run(s) classify TIMING rather than NEW.
+2. Re-measure this gating test's conclusive count once a real CI run executes the Skolemized Seriality/Interpolation axioms inside Z3OracleProvider's BimodalSemantics construction on an uncontended runner.
+0a. Discriminate axiom cost from host contention as the cause of the local 93/103, 951.21s result (see "WHAT WOULD DISCRIMINATE" above).
+
+INSTRUMENTATION NOW AVAILABLE. The ORACLE_GATING_SCAN_OUT_DIR environment variable (wired into this test's call site by a prior task) should be used on the first observation, so the per-formula timeout set is captured directly rather than lost again, as it was during the original 2026-08-27 -> 2026-09-01 investigation.
+
+HARD CONSTRAINTS (verbatim, carried forward -- binding on this task): do not widen GATING_RECHECK_SOLVE_TIMEOUT_MS; do not lower MIN_CONCLUSIVE_GATING_FORMULAS; do not weaken, skip, or delete the assertion; do not de-quarantine or re-quarantine the test as the primary remedy; do not change bimodal semantics or the oracle soundness core or its unconditional-gating property.
+
+NOT IN SCOPE: this is a discrimination/observation task, not a shortfall-remediation task. TESTING_GUIDE.md section 8.9's standing-rule escalation trigger (two review cycles, roughly two months, with no active repair work in progress) has not fired -- the marking is roughly one week old and repair work is actively in progress and partially landed. Do not treat this task as license to remediate the underlying shortfall itself; that decision is deferred until the discriminating observation this task produces exists.
+
+---
 
 ### 182. Fix windows unicode encode error in output
 - **Status**: [IMPLEMENTING]
@@ -104,7 +137,7 @@ VERIFICATION. Prove executably that no gating selection's wall clock depends on 
 ---
 
 ### 180. Diagnose oracle conclusive population shortfall
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
