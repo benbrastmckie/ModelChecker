@@ -756,6 +756,29 @@ def test_regression_issue_73_package_loading():
 so that routine, gating test runs stay fast while a full self-consistency sweep remains available
 on demand.
 
+**`run-oracle-suite.sh` is not a per-task gate. Do not write one into a task plan.** No CI
+workflow invokes it (confirmed across all seven workflows in `.github/workflows/`); it is a
+manual driver. Requiring "verify via a full `bash oracle/run-oracle-suite.sh` run" as a phase
+gate in an implementation plan is an anti-pattern with three concrete costs, all of them
+observed rather than hypothetical:
+
+- **It is slow enough to distort the work.** Even after 8.14's oracle `development` blanket cut
+  the gating selection to the 49-item soundness core, the *unfiltered* driver remains a
+  multi-pass, tens-of-minutes run. A task that changes no solver code — adding a marker, editing
+  a docstring — learns nothing from it.
+- **It is contention-sensitive, so a per-task run is often not even evidence.** 8.6 is explicit
+  that a loaded machine inflates Z3 solve times past budget and that the remedy is to re-run when
+  idle, never to widen a budget. A plan that gates a phase on a full run taken on whatever
+  machine happens to be free is gating on a coin flip.
+- **It invites the wrong conclusion.** A red full-suite run against an in-development theory
+  reads as "this task broke something" when it usually means "this theory is incomplete, which we
+  already knew and already recorded".
+
+Instead: scope a task's verification to the tests its own change can actually affect, plus a
+`--collect-only` check when the change is to marker or selection wiring. Reserve the full driver
+for pre-merge verification on an idle machine, run once — not once per phase, per task, or per
+dispatch.
+
 **The `not slow` gating default, and why `oracle/` must spell it out.** `oracle/run-oracle-suite.sh`
 runs two pytest passes, and both deselect the `slow` marker explicitly (and, since this tree's
 first `unstable` marking, `unstable` as well — see 8.9 below):
@@ -1414,7 +1437,7 @@ narrowed.
 `-m` expression: `.github/workflows/tests.yml`'s parallel and serial passes,
 `.github/workflows/differential-tests.yml`'s first invocation, `flake.nix`'s `checks.default`
 parallel and serial passes, and `oracle/run-oracle-suite.sh`'s two passes (defensive there today,
-since the marker is unregistered in the oracle tree by design -- see above). Seven invocations in total.
+now load-bearing there rather than defensive -- see "Currently marked" below). Seven invocations in total.
 Two of those seven live in `oracle/run-oracle-suite.sh`, which is invoked by no CI workflow -- it
 is a manual `nix develop --command bash oracle/run-oracle-suite.sh` driver, and those two carry
 the filter so a local gating-reproduction run does not get a false red from an in-development
@@ -1472,10 +1495,27 @@ trigger) is not.
 | `xdist_serial` | A routine contention classification for a real wall-clock assertion | A passing test whose timing assertion has adequate headroom alone but not under `-n`-pool contention |
 | `performance` | A budget too tight for any shared CI runner (sub-10ms class) | A wall-clock assertion that cannot tolerate any shared-runner scheduling variance, parallel or serial |
 
-**Currently marked.** The **entire `bimodal` test tree** — every test collected under
-`code/src/model_checker/theory_lib/bimodal/tests/`, 313 items at the time of writing — carries
-`development`, applied by the path-scoped `pytest_collection_modifyitems` hook in that tree's own
-`conftest.py`. No other test in the repository carries the marker.
+**Currently marked.** Two authorized blankets, both for bimodal, both applied by a path-scoped
+`pytest_collection_modifyitems` hook in the relevant tree's own `conftest.py`:
+
+1. The **entire `bimodal` test tree** — every test collected under
+   `code/src/model_checker/theory_lib/bimodal/tests/`, 313 items at the time of writing.
+2. The **oracle tree minus its soundness core** — 595 of the 644 items collected under
+   `oracle/bimodal_logic/tests/`, applied by the hook in `oracle/conftest.py`. The 49 exempt
+   items are the six classes listed in `_SOUNDNESS_CORE_CLASSES` there; see "Soundness stays
+   gating" below, which this exemption is what makes true.
+
+No other test in the repository carries the marker.
+
+*Why the oracle tree took a blanket too.* `oracle/` is bimodal in its entirety — every test file
+in it lives under `oracle/bimodal_logic/tests`, and there is nothing else in the tree. It is a
+separately implemented Z3 encoding used to differentially validate the in-package semantics. The
+same theory-owner declaration that authorizes blanket (1) applies to it: while bimodal is under
+construction, the harness's completeness claims are expected to fail and are tracked rather than
+gated. Concretely, this took `oracle/run-oracle-suite.sh`'s gating selection from 613 tests in
+pass 1 plus 18 in pass 2 (~40 minutes wall clock, and red — 19 failures, overwhelmingly
+`OracleTimeoutError` rather than semantic disagreement) down to the 49-item soundness core alone,
+with pass 2 emptied entirely.
 
 *Why a blanket, and on whose authority.* This is the authorized theory-wide exception the
 "Granularity" paragraph above allows. The theory owner's declaration is explicit: the bimodal
@@ -1488,15 +1528,22 @@ adds a bimodal test.
 longer turns any gating run red. That is a real loss of signal and it is the cost of the
 declaration, not an oversight. It is bounded three ways:
 
-- **Soundness stays gating.** Bimodal's differential and soundness-oracle tests live in
-  `oracle/bimodal_logic/tests/`, not in the `code/` tree, and `development` is deliberately
-  unregistered in `oracle/conftest.py` (see "What it must not hide" above). No semantic claim
-  about bimodal's correctness can be quarantined by this blanket — only completeness claims about
-  the `code/`-tree implementation.
-- **Containment is executable.** `code/tests/ci/test_development_marker_application.py` asserts
-  both that every bimodal test carries the marker and that no test outside that tree acquires it,
-  including in the mixed-root `pytest tests src/model_checker` collection where a leak would
-  otherwise be invisible.
+- **Soundness stays gating.** This is now preserved by an explicit *exemption* rather than by the
+  marker being unregistered in the oracle tree. `oracle/conftest.py`'s hook skips
+  `_SOUNDNESS_CORE_CLASSES` — the six classes `.github/workflows/differential-tests.yml`'s "Run
+  CI gate tests explicitly" step names by node id — so they carry no `development` marker and
+  survive every gating `-m` expression. Those classes fail only on a real semantic disagreement
+  between the `code/`-tree implementation and the reference oracle, never on a timeout or an
+  unresolved formula. No semantic claim about bimodal's correctness can be quarantined by either
+  blanket — only completeness claims. A theory being incomplete is a reason to stop gating on
+  *completeness*; it is not a reason to stop checking whether the theory is *wrong*.
+- **Containment is executable, for both blankets.**
+  `code/tests/ci/test_development_marker_application.py` covers blanket (1);
+  `code/tests/ci/test_oracle_development_marker_application.py` covers blanket (2), asserting all
+  three properties: complete coverage of the non-core oracle tree, zero leakage outside it
+  (including the mixed-root collection where a leak would otherwise be invisible), and — the one
+  that matters most here — that each of the six soundness-core classes is *not* marked and still
+  survives the gating expression.
 - **The tests stay runnable and visible**, per the opt-in path below.
 
 *Running bimodal on demand.* `-m development` is the opt-in:
