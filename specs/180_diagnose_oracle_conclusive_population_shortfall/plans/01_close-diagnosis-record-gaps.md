@@ -1,7 +1,7 @@
 # Implementation Plan: Close the oracle gating conclusive-population diagnosis
 
 - **Task**: 180 - Diagnose oracle conclusive-population shortfall (`unstable-watch`, 2026-08-27 -> 2026-09-01)
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 3.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md`
@@ -141,7 +141,7 @@ touch text Phase 1 rewrites (Phase 2 points at it; Phase 3 amends criterion (3)'
 
 ---
 
-### Phase 1: Correct and extend the marker's entry-criteria record [NOT STARTED]
+### Phase 1: Correct and extend the marker's entry-criteria record [COMPLETED]
 
 **Goal**: Make the `GATING_RECHECK_SOLVE_TIMEOUT_MS` comment block in
 `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` (roughly lines 97-234) agree with the
@@ -149,14 +149,14 @@ diagnosis. This block, not TESTING_GUIDE.md, is 8.9's designated source of truth
 so every substantive finding lands here.
 
 **Tasks**:
-- [ ] Extend criterion **(3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED** with the newly closed
+- [x] Extend criterion **(3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED** with the newly closed
       avenue: the Skolemized Seriality/Interpolation frame axioms (`f9cc081e`, authored
       2026-08-31) are ruled out as a cause of the 2026-08-27 -> 2026-09-01 `unstable-watch`
       failures, because `git merge-base --is-ancestor f9cc081e 98d3ad8d` fails and all six runs
       checked out `98d3ad8d`. State the exclusion's scope explicitly (C7): these six runs only, not
       HEAD. Follow the block's existing convention of recording *why* an avenue is closed so a future
       reader does not re-open it.
-- [ ] Correct the false claim in **(3b)**. It currently asserts the five listed runs "reproduced the
+- [x] Correct the false claim in **(3b)**. It currently asserts the five listed runs "reproduced the
       identical 96/103 conclusive, 7-timeout, 0-disagreement result". Replace with the real per-run
       figures and add the sixth run:
 
@@ -171,7 +171,7 @@ so every substantive finding lands here.
 
       Preserve every existing sentence that closes the `xdist_serial` lead — the correction is to the
       counts, not to the conclusion drawn from them.
-- [ ] Record in **(3b)** why the promotion streak reset on each of those six nights, which nothing in
+- [x] Record in **(3b)** why the promotion streak reset on each of those six nights, which nothing in
       the block currently explains: `origin/master` was frozen at `98d3ad8d` for roughly five days, so
       every run executed a classifier whose `DISAGREEMENT_SIGNATURE` was a bare substring
       (`"Self-comparison produced"`). Because `_assert_scan_report`'s two asserts fire in sequence and
@@ -181,23 +181,23 @@ so every substantive finding lands here.
       is not an ancestor of `98d3ad8d` and has therefore never executed in CI. All six runs classify
       `TIMING` under the fixed classifier. This is a measurement-mechanism artifact, not a behaviour
       change in the test.
-- [ ] Add the axiom-bearing local data point to the block, with its caveat stated in the same
+- [x] Add the axiom-bearing local data point to the block, with its caveat stated in the same
       sentence rather than in a footnote: at `HEAD=9ce3b4ad` (which does contain `f9cc081e`),
       `agreements=93 disagreements=0 timeout_count=10 conclusive=93/103`, 951.21s — worse on both axes
       than every one of the six CI runs, but measured on a host with load ~5.9 -> ~4.8 across 24 cores
       and 7.3GB of swap in use, i.e. demonstrably not idle. Record both live explanations (axiom cost;
       host contention) without collapsing them, and state the discriminating observation (same HEAD on
       a verifiably idle CI-class runner, or `98d3ad8d` under comparable local contention).
-- [ ] Add the one sentence the report's (d) calls for: the documented 96/103-class signature was last
+- [x] Add the one sentence the report's (d) calls for: the documented 96/103-class signature was last
       confirmed against **pre-axiom** code, so the first post-axiom real CI run must be checked against
       it explicitly rather than assumed to still hold.
-- [ ] Verify then correct the stale function reference in criterion **(4)**: it cites
+- [x] Verify then correct the stale function reference in criterion **(4)**: it cites
       `compute_promotion_streak`, but `.github/scripts/unstable_watch_classify.py` also defines
       `compute_per_test_promotion_streak`, which TESTING_GUIDE.md 8.9 describes as the function that
       now drives promotion (the legacy per-run streak being retained only as a job-level upper bound).
       Confirm both definitions and 8.9's description before editing; if confirmed, point (4) at the
       per-node-id function. If the confirmation does not hold, leave (4) unchanged and say so.
-- [ ] Re-read the edited block end to end and confirm no task number was introduced (C6).
+- [x] Re-read the edited block end to end and confirm no task number was introduced (C6).
 
 **Timing**: 0.75 hours
 

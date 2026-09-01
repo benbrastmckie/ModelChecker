@@ -205,30 +205,88 @@ SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 #     membership churn at the margin open -- do not assert a same-7 claim; enabling that
 #     instrumentation is a possible future round, not attempted here.
 #
+#     AXIOM AVENUE CLOSED (2026-09-01): the 2026-08-31 Skolemized Seriality/Interpolation frame
+#     axioms (commit `f9cc081e`) are ruled out as a cause of the 2026-08-27 -> 2026-09-01
+#     unstable-watch failures analyzed in (3b) below. `git merge-base --is-ancestor f9cc081e
+#     98d3ad8d` fails -- `f9cc081e` is not an ancestor of `98d3ad8d`, the commit all six of those
+#     runs checked out -- so the axiom code was structurally absent from every process that
+#     produced those six failures. This exclusion is SCOPED to those six runs at `98d3ad8d`
+#     only; it is NOT a claim that the axioms are excluded at HEAD, and does not extend to any
+#     run against a checkout that does contain `f9cc081e` (see the axiom-bearing local data
+#     point recorded in (3b) below, which remains open).
+#
 # (3b) ZERO-CONTENTION RE-CONFIRMATION -- `unstable-watch.yml` installs no pytest-xdist and
 #      passes no `-n` flag at all to the oracle-tree pytest invocation, i.e. true single-process
 #      execution with zero sibling workers of any kind -- strictly *stronger* isolation than
 #      `@pytest.mark.xdist_serial` provides (that marker only isolates marked tests from *each
 #      other*; it does not prevent *other*, unmarked tests from running concurrently in sibling
-#      `-n` workers on the same runner). Five consecutive nightly unstable-watch runs
+#      `-n` workers on the same runner). Six consecutive nightly unstable-watch runs
 #      (33091941820 / 2026-08-27, 33193518591 / 2026-08-28, 33250263772 / 2026-08-29,
-#      33306220265 / 2026-08-30, 33386925098 / 2026-08-31) reproduced the identical 96/103
-#      conclusive, 7-timeout, 0-disagreement result under this true single-process condition.
-#      This retires the sibling-worker-contention sub-hypothesis SPECIFICALLY (even the
-#      strongest possible worker isolation does not change the outcome); it leaves hypothesis
-#      (1)'s pure runner-hardware-capacity framing above untouched and unresolved -- do not
-#      re-open the xdist_serial investigation on the strength of this note. Observation only, no
-#      action: step duration drifted 761.61s (08-27) -> 898.78s (08-30) -> 808.64s (08-31)
-#      against the job's `timeout-minutes: 20` (1200s) -- real headroom today (worst case ~75%
-#      of budget), worth recording for the next investigator, not a change to any budget or
-#      timeout value.
+#      33306220265 / 2026-08-30, 33386925098 / 2026-08-31, 33494135668 / 2026-09-01) ran under
+#      this true single-process condition. THE ACTUAL PER-RUN SPREAD -- NOT an identical result:
+#
+#          Date (UTC)   Run ID         Conclusive   Timeouts   Duration (s)
+#          2026-08-27   33091941820    98/103       5          761.61
+#          2026-08-28   33193518591    96/103       7          824.89
+#          2026-08-29   33250263772    98/103       5          749.10
+#          2026-08-30   33306220265    96/103       7          898.78
+#          2026-08-31   33386925098    96/103       7          808.64
+#          2026-09-01   33494135668    97/103       6          788.74
+#
+#      i.e. 96-98/103 conclusive, 5-7 timeouts -- not the single "96/103, 7-timeout" figure this
+#      block previously asserted. Zero disagreements on every run. This retires the
+#      sibling-worker-contention sub-hypothesis SPECIFICALLY (even the strongest possible worker
+#      isolation does not change the outcome); it leaves hypothesis (1)'s pure
+#      runner-hardware-capacity framing above untouched and unresolved -- do not re-open the
+#      xdist_serial investigation on the strength of this note. Observation only, no action: step
+#      duration ranged 749.10s (08-29) to 898.78s (08-30) across all six runs, against the job's
+#      `timeout-minutes: 20` (1200s) -- real headroom today (worst case ~75% of budget), worth
+#      recording for the next investigator, not a change to any budget or timeout value.
+#
+#      WHY THE PER-NODE-ID PROMOTION STREAK RESET EVERY ONE OF THESE SIX NIGHTS: all six runs
+#      were classified `NEW`, not `TIMING`, by `.github/scripts/unstable_watch_classify.py`'s
+#      `classify()` -- falsely. `origin/master` was frozen at commit `98d3ad8d` for roughly five
+#      days spanning all six runs, so every one of them executed a classifier whose
+#      `DISAGREEMENT_SIGNATURE` was a bare substring (`"Self-comparison produced"`).
+#      `_assert_scan_report`'s two asserts fire in sequence, and pytest's traceback embeds the
+#      first (passing) assert's *unrendered* f-string source when the second (the floor
+#      assertion) fails; that source listing contains the bare substring verbatim, with no digit
+#      after "produced". The bare-substring guard could not tell that source listing apart from a
+#      real rendered disagreement, so it matched on every one of these floor-only failures and
+#      laundered each into a false `NEW FAILURE MODE` signal, resetting this node id's per-test
+#      promotion streak to zero every night regardless of the real classification. Fixed in
+#      commit `cfb9cb4a` (2026-08-31), which replaced the bare substring with a regex anchored to
+#      the rendered digit (`re.compile(r"Self-comparison produced \d+ disagreements")`) and is
+#      covered by 43 passing tests in `code/tests/ci/test_unstable_watch_classifier.py`.
+#      `cfb9cb4a` is NOT an ancestor of `98d3ad8d` -- the fix postdates the frozen checkout -- so
+#      it has never executed in any real CI run to date. Re-classifying all six runs' recorded
+#      failure text against the fixed `classify()` returns `TIMING` for every one of them. This is
+#      a measurement-mechanism artifact in the classifier, not a behaviour change in the test.
+#
+#      AXIOM-BEARING LOCAL DATA POINT (informational; not a CI run; NOT a claim that the axioms
+#      are excluded at HEAD -- see the AXIOM AVENUE CLOSED note in (3) above, which is scoped to
+#      the six runs in the table above only): at `HEAD=9ce3b4ad` (which does contain `f9cc081e`,
+#      unlike any of the six runs above), a local run recorded `agreements=93 disagreements=0
+#      timeout_count=10 conclusive=93/103`, 951.21s -- worse on both axes than every one of the
+#      six CI runs above -- but measured on a host with load ~5.9 -> ~4.8 across 24 cores and
+#      7.3GB of swap in use, i.e. demonstrably NOT an idle host. Both live explanations
+#      (axiom-driven solver cost; host contention) remain undiscriminated by this single
+#      confounded data point; the discriminating observation would be the same HEAD on a
+#      verifiably idle CI-class runner, or `98d3ad8d` under comparable local contention.
+#
+#      SIGNATURE CONFIRMED PRE-AXIOM: the 96-98/103-class signature recorded in the table above
+#      was last confirmed against checkouts that all predate `f9cc081e` in content (per the
+#      AXIOM AVENUE CLOSED note in (3) above); the first post-axiom real CI run of this test must
+#      be checked against it explicitly, not assumed to still hold.
 #
 # (4) EXIT CRITERION -- verbatim per TESTING_GUIDE.md section 8.9's default: the marker comes off
 #     when EITHER 20 consecutive unstable-watch runs record zero (TIMING-classified) failures
 #     (nightly cadence, ~3 weeks; verified against the uploaded per-run
 #     `unstable-watch-record.jsonl` artifacts, because unstable-watch.yml's step-summary streak
 #     counter is NEW-sensitive only and is an upper bound -- see
-#     `.github/scripts/unstable_watch_classify.py`'s `compute_promotion_streak`), OR a genuine
+#     `.github/scripts/unstable_watch_classify.py`'s `compute_per_test_promotion_streak`, which
+#     drives promotion per marked node id; the legacy job-level `compute_promotion_streak` is
+#     still computed and shown in the step summary but no longer drives promotion), OR a genuine
 #     fix (a CI-runner/harness change, NOT a further budget widening -- see (3) above)
 #     demonstrated to close the shortfall across a re-verification run with 103/103 conclusive
 #     and 0 disagreements. A single green run never qualifies.
