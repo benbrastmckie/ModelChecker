@@ -1,5 +1,5 @@
 ---
-next_project_number: 181
+next_project_number: 182
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 181
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,180 | -- | semantics, release-engineering, test-reliability |
+| 1 | 154,176,180,181 | -- | semantics, release-engineering, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -23,6 +23,7 @@ next_project_number: 181
 ### Release Engineering
 
 180 [NOT STARTED] — Diagnose the oracle gating conclusive-population shortfall that h
+181 [NOT STARTED] — Audit which gating tests outside the bimodal test tree still depe
 
 ### Test Reliability
 
@@ -31,6 +32,28 @@ next_project_number: 181
   └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
 
 ## Tasks
+
+### 181. Audit gating tests coupled to bimodal solve cost
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: release-engineering
+- **Dependencies**: None
+
+**Description**: Audit which gating tests outside the bimodal test tree still depend on bimodal solve cost, now that the Skolemized Seriality and Interpolation frame axioms have made bimodal solves substantially more expensive.
+
+BACKGROUND, ALREADY MEASURED -- DO NOT RE-DERIVE. The two new frame axioms landed 2026-08-31. A phase of the task that added them measured their cost directly on the tests/cli tiny example: "~0.42s decided ... to ~4.2s", i.e. roughly a tenfold increase, and that example then always timed out against its inherited 1s default. The remedy applied there was to switch that fixture from bimodal to logos (~0.001s), on the stated grounds that "these are gating CLI-plumbing assertions -- flags accepted, output changed, files written -- and nothing in them is bimodal-specific. Pinning them to the one theory that is deliberately non-gating coupled the CLI gate to that theory's solver cost." That fix was scoped to tests/cli/conftest.py only.
+
+THE GAP. The same coupling was not swept for elsewhere. The bimodal test tree itself carries a path-scoped `development` blanket and is deselected from every gating run, but tests that merely EXERCISE bimodal while living outside that tree inherit no such protection. One such test has already failed in CI: `code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel` failed on the Python 3.10 leg of the first Tests run containing the new axioms, while 3.11 and 3.12 passed on the identical selection. Its budget had already been widened once (10s -> 30s) for an earlier instance of the same pressure. A separate commit has since routed that test's inconclusive case to a skip via the documented timeout/unsat discriminator, so it no longer reports a false negative -- but a skip is an honest non-answer, not coverage, and the underlying coupling is untouched.
+
+SCOPE. Enumerate every test that (a) runs in a release-gating selection, (b) lives outside `code/src/model_checker/theory_lib/bimodal/tests`, and (c) constructs or solves a bimodal example. For each, decide and record one of: switch the fixture to a cheap theory where nothing in the assertion is bimodal-specific (the precedent above); keep bimodal and accept the cost with a justified budget; or move the test inside the bimodal tree so the existing `development` blanket covers it. Grep entry points include `get_theory` imports from `theory_lib.bimodal`, `"Bimodal"` semantic-theory keys, and example dictionaries with an explicit `max_time` written to accommodate bimodal.
+
+DECISION TO RECORD EXPLICITLY. Whether a test whose SUBJECT is genuinely bimodal (as opposed to one merely using bimodal as a convenient fixture) belongs in a gating selection at all while bimodal is in development. The builder test named above is the concrete instance: it asserts BuildExample integration, which is not bimodal-specific plumbing, but it does so specifically over the bimodal theory. Resolve it deliberately rather than by reflex, and record the reasoning.
+
+HARD CONSTRAINTS. Do not widen solve budgets as the remedy -- TESTING_GUIDE.md section 8.6 is explicit that budget widening is not how contention is fixed, and the builder test's own history (10s -> 30s, then failing anyway) is local evidence that widening does not converge. Do not weaken or delete assertions to reach green. Do not change bimodal's semantics or its frame-class constraints; the axioms are correct and are not in question here -- only which gating tests should be paying for them. Any new gating pytest invocation must carry `and not development`, a count currently enforced executably by code/tests/ci/test_unstable_deselection_wiring.py.
+
+VERIFICATION. Prove executably that no gating selection's wall clock depends on bimodal solve cost after the change, and that the non-bimodal suite stays green and fully gating. Record before/after wall clocks for the gating selections rather than asserting an improvement qualitatively.
+
+---
 
 ### 180. Diagnose oracle conclusive population shortfall
 - **Status**: [NOT STARTED]
