@@ -385,7 +385,7 @@ TESTING_GUIDE 8.9 criterion 3 requires.
 
 ---
 
-### Phase 6: Fallback — `unstable` Marking (CONDITIONAL) [IN PROGRESS]
+### Phase 6: Fallback — `unstable` Marking (CONDITIONAL) [COMPLETED]
 
 **Goal**: Only if Phase 5 landed no fix, quarantine the test under the `unstable` marker with all
 four TESTING_GUIDE.md section 8.9 entry criteria recorded as separately identifiable items at the
@@ -445,7 +445,7 @@ semantic defect that must not be quarantined.
 
 ---
 
-### Phase 7: Full Oracle Suite Verification [NOT STARTED]
+### Phase 7: Full Oracle Suite Verification [IN PROGRESS]
 
 **Goal**: Confirm pass 1 of the full gating oracle suite reports zero failures — the task's stated
 exit criterion and task 172's blocked one.
