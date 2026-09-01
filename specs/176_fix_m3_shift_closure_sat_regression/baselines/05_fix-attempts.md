@@ -161,6 +161,45 @@ as the final verdict). Clean and reproducible: rlimit_count is tightly clustered
 -- but still ~2.5x above the ~8M pre-regression target, and `unknown`/`canceled` in all 5 runs.
 No run reached SAT.
 
+**Exact diff reconstructing this measurement** (against committed HEAD's
+`code/src/model_checker/theory_lib/bimodal/semantic/core.py`), so task
+fix_frame_axiom_solver_cost_regression can start from this frontier without re-deriving it:
+
+```diff
+--- a/code/src/model_checker/theory_lib/bimodal/semantic/core.py
++++ b/code/src/model_checker/theory_lib/bimodal/semantic/core.py
+@@ build_seriality_constraint @@
+                 z3.And(
+                     self.task_rel(w, x, serial_succ(w, x)),
+                     self.task_rel(serial_pred(w, x), x, w),
+                 )
+-            )
++            ),
++            patterns=[z3.MultiPattern(serial_succ(w, x), serial_pred(w, x))],
+         )
+
+@@ build_interpolation_constraint @@
+                 z3.And(
+                     self.task_rel(w, d1, u),
+                     self.task_rel(u, d2, v)
+                 )
+-            )
++            ),
++            patterns=[u],
+         )
+
+@@ build_frame_constraints' returned list @@
+             nullity_identity,
+             converse,
+             forward_comp,
+-            seriality,
+-            interpolation,
+             *skolem_abundance,    # list of constraints (1 for M=2, multiple for M>=3)
+             world_uniqueness,
++            seriality,
++            interpolation,
+```
+
 The source edit underlying this measurement was reverted after recording it (core.py matches
 committed HEAD exactly; verified via `git diff` producing no output and the target test still
 failing with its original RED message) -- landing an unverified, insufficient, partial-benefit
