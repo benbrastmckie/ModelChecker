@@ -8,7 +8,7 @@ name = "model-checker"
 # from installed package metadata rather than redeclaring it. release.yml asserts this value
 # matches the pushed v*.*.* tag and fails the release if it does not -- so bump this in the
 # same commit that precedes the tag, never after.
-version = "1.3.8"
+version = "1.3.9"
 description = "A hyperintensional theorem prover for developing and exploring programmatic semantic theories."
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
