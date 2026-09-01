@@ -404,17 +404,17 @@ time; the number will have moved if a sibling agent allocated one first.
 
 ---
 
-### Phase 5: Closure gate [NOT STARTED]
+### Phase 5: Closure gate [COMPLETED]
 
 **Goal**: Prove mechanically that the hard constraints held and that nothing outside the intended
 surface changed, then close the task.
 
 **Tasks**:
-- [ ] Run the full fast gate:
+- [x] Run the full fast gate:
       `PYTHONPATH=code/src python3 -m pytest oracle/bimodal_logic/tests/ -m "not slow and not unstable" -q`
       and
       `PYTHONPATH=code/src python3 -m pytest code/tests/ci/ -q`.
-- [ ] Constraint diff gate over `git diff` for the whole task, asserting each explicitly:
+- [x] Constraint diff gate over `git diff` for the whole task, asserting each explicitly:
       - `GATING_RECHECK_SOLVE_TIMEOUT_MS = 40000` unchanged (C1);
       - `MIN_CONCLUSIVE_GATING_FORMULAS = 100` unchanged (C2);
       - no line inside `_assert_scan_report` changed, and no `assert` statement anywhere in
@@ -424,10 +424,10 @@ surface changed, then close the task.
       - `git diff --name-only` lists no file under `oracle/bimodal_logic/` other than
         `tests/test_cross_oracle_differential.py`, and nothing under
         `code/src/model_checker/theory_lib/bimodal/` (C5).
-- [ ] `bash .claude/scripts/check-task-references.sh` clean (C6).
-- [ ] Re-read the two edited prose regions once as a hostile reader: does any sentence claim the
+- [x] `bash .claude/scripts/check-task-references.sh` clean (C6).
+- [x] Re-read the two edited prose regions once as a hostile reader: does any sentence claim the
       axioms are excluded at HEAD? If so, fix it (C7).
-- [ ] Write the execution summary to
+- [x] Write the execution summary to
       `specs/180_diagnose_oracle_conclusive_population_shortfall/summaries/01_close-diagnosis-record-gaps-summary.md`,
       recording the scope judgment on the instrumentation gap and the follow-on task number.
 
