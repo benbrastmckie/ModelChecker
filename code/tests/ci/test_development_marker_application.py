@@ -48,6 +48,38 @@ NON_BIMODAL_ROOTS = [
     "tests",
 ]
 
+# Explicit, enumerated allowlist of node ids outside the bimodal tree that are authorized to
+# carry `development`, per TESTING_GUIDE.md section 8.14's per-test granularity (not a new
+# blanket). Each entry's subject is genuinely bimodal, but its claim is one of *completeness*
+# ("bimodal's example set runs to completion", "bimodal finds a countermodel within budget")
+# rather than *soundness* -- exactly the boundary 8.14 draws. Node ids (including parametrize
+# suffixes) were taken verbatim from a real `-m development` collection run, per this contract's
+# own Pre-Edit Verification Gate obligation, not hand-written.
+#
+# Three entries, not the two this task's plan initially hypothesized: a fourth file
+# (`test_generate_then_execute_cp1252`) was added by concurrent work in the same repository
+# between the plan being written and this phase landing, reusing the identical
+# parametrize-over-registry pattern and therefore requiring the identical marking -- recorded
+# here as the actual, confirmed scope rather than silently forced to match the original count.
+_AUTHORIZED_NON_BIMODAL_DEVELOPMENT = [
+    # Completeness claim: bimodal's full default generated examples.py runs to completion
+    # through the real installed console script. Measured 81.06s, the single most expensive
+    # bimodal-coupled gating test found in the audit.
+    "tests/packaging/test_generate_then_execute.py::test_generate_then_execute[bimodal]",
+    # Same claim, same theory, under the cp1252-constrained stdout-encoding leg added for
+    # Windows-encoding coverage (see test_generate_then_execute.py's own module docstring).
+    "tests/packaging/test_generate_then_execute.py::test_generate_then_execute_cp1252[bimodal]",
+    # Completeness claim: BuildExample finds a countermodel for bimodal within its (unchanged)
+    # 30s budget. Not a bimodal-specific semantic claim -- the task description's own framing
+    # already agrees the assertion is generic BuildExample-integration plumbing -- but the
+    # example's cost is genuinely bimodal-coupled while the frame-axiom cost is unsettled.
+    "src/model_checker/builder/tests/unit/test_example.py::"
+    "TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel",
+]
+
+# Set form, used by the containment assertions below for membership subtraction/comparison.
+_AUTHORIZED_SET = set(_AUTHORIZED_NON_BIMODAL_DEVELOPMENT)
+
 
 def _collect(*args: str) -> list[str]:
     """Return the collected node ids from `pytest --collect-only -q <args>`, run in a
@@ -132,15 +164,23 @@ class TestBimodalClaimsDevelopment:
 
 
 class TestDevelopmentMarkerIsContainedToBimodal:
-    """No tree outside bimodal claims `development`. A theory-level blanket must not leak."""
+    """No tree outside bimodal claims `development`, except an explicit, enumerated allowlist.
+
+    A theory-level blanket must not leak beyond bimodal -- and beyond the small, audited set of
+    per-test markings `_AUTHORIZED_NON_BIMODAL_DEVELOPMENT` above records. Every assertion below
+    subtracts that allowlist rather than asserting a bare empty set, but the allowlist itself is
+    pinned exactly (see test_authorized_allowlist_is_exactly_matched below) so it cannot silently
+    grow into a wider exemption.
+    """
 
     @pytest.mark.parametrize("root", NON_BIMODAL_ROOTS)
     def test_no_development_marked_tests_outside_bimodal(self, root):
-        leaked = _collect("-m", "development", root)
+        leaked = sorted(set(_collect("-m", "development", root)) - _AUTHORIZED_SET)
         assert leaked == [], (
             f"{len(leaked)} test(s) under {root} carry the `development` marker, which is "
-            f"reserved for theories under active construction (bimodal only, today). These "
-            f"would be silently dropped from every release-gating run: {leaked[:10]}"
+            f"reserved for theories under active construction (bimodal only, today) or the "
+            f"explicit _AUTHORIZED_NON_BIMODAL_DEVELOPMENT allowlist. These would be silently "
+            f"dropped from every release-gating run: {leaked[:10]}"
         )
 
     def test_no_leakage_when_bimodal_is_collected_alongside_the_rest_of_the_tree(self):
@@ -159,16 +199,36 @@ class TestDevelopmentMarkerIsContainedToBimodal:
         green.
         """
         marked = _collect("-m", "development", "tests", "src/model_checker")
-        outside = sorted(nodeid for nodeid in marked if not nodeid.startswith(BIMODAL_TESTS))
+        outside = sorted(
+            nodeid
+            for nodeid in marked
+            if not nodeid.startswith(BIMODAL_TESTS) and nodeid not in _AUTHORIZED_SET
+        )
         assert not outside, (
-            f"{len(outside)} test(s) outside the bimodal tree acquired the `development` "
-            f"marker in a mixed-root collection -- bimodal's conftest hook is marking items it "
-            f"does not own, silently removing them from every release-gating run. "
+            f"{len(outside)} test(s) outside the bimodal tree and outside the explicit "
+            f"_AUTHORIZED_NON_BIMODAL_DEVELOPMENT allowlist acquired the `development` marker "
+            f"in a mixed-root collection -- bimodal's conftest hook is marking items it does "
+            f"not own, silently removing them from every release-gating run. "
             f"First offenders: {outside[:10]}"
         )
         assert marked, (
             "the mixed-root collection found no development-marked tests at all, so this "
             "assertion proved nothing -- bimodal's conftest hook did not run"
+        )
+
+    def test_authorized_allowlist_is_exactly_matched(self):
+        """Every `_AUTHORIZED_NON_BIMODAL_DEVELOPMENT` entry is actually collected as
+        `development`-marked, and nothing outside bimodal is `development`-marked beyond exactly
+        this set -- so a stale allowlist entry (e.g. after a rename or an un-marking) fails
+        loudly instead of silently widening the exemption by no longer being checked against
+        anything real."""
+        marked = _collect("-m", "development", "tests", "src/model_checker")
+        outside = {nodeid for nodeid in marked if not nodeid.startswith(BIMODAL_TESTS)}
+        assert outside == _AUTHORIZED_SET, (
+            f"the non-bimodal `development`-marked set does not exactly match "
+            f"_AUTHORIZED_NON_BIMODAL_DEVELOPMENT.\n"
+            f"Missing from collection (stale allowlist entry): {sorted(_AUTHORIZED_SET - outside)}\n"
+            f"Collected but not allowlisted (new leak): {sorted(outside - _AUTHORIZED_SET)}"
         )
 
     def test_gating_expression_still_collects_the_non_bimodal_suite(self):

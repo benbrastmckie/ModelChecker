@@ -11,6 +11,8 @@ import os
 from io import StringIO
 from unittest.mock import Mock, patch
 
+import pytest
+
 from model_checker.builder.example import BuildExample
 from model_checker.builder.module import BuildModule
 from model_checker.builder.error_types import ValidationError
@@ -430,12 +432,22 @@ class TestBuildExampleIntegration(unittest.TestCase):
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
     
+    @pytest.mark.development
     def test_build_example_bimodal_theory_countermodel(self):
         """Test BuildExample with the bimodal theory, asserting a countermodel is found.
 
         `get_theory(config=None)` in the bimodal theory accepts but entirely ignores its
         `config` argument, so it always returns the full bimodal theory regardless of the
         value supplied -- no operator-restricted fragment is being loaded here.
+
+        Marked `development` per TESTING_GUIDE.md section 8.14 and this task's audit report
+        (`specs/181_.../reports/01_gating-tests-coupled-to-bimodal.md`): the subject is
+        BuildExample/countermodel-finding, which is not bimodal-specific plumbing, but the claim
+        is one of completeness ("bimodal finds a countermodel within budget") rather than
+        soundness, of exactly the kind the `development` marker exists to quarantine while
+        bimodal's frame-axiom cost is unsettled. Applied per-test (not a new blanket), stays
+        runnable via `-m development`. Its existing timeout-vs-unsat discriminator below and its
+        `max_time: 30` are both preserved unchanged.
         """
         content = """
 from model_checker.theory_lib.bimodal import get_theory

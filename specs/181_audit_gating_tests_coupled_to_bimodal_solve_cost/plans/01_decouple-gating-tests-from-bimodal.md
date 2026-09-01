@@ -524,7 +524,40 @@ land — intermediate per-file states are expected red and must not be committed
 
 ---
 
-### Phase 6: Apply per-test `development` markings and widen the containment contract [NOT STARTED]
+### Phase 6: Apply per-test `development` markings and widen the containment contract [COMPLETED]
+
+**Deviation record**: the plan's Scope Hypothesis anticipated exactly two non-bimodal
+`development`-marked node ids. The actual, empirically-collected count is **three**: concurrent
+work landed a second `registry.get_registered()`-parametrized test
+(`test_generate_then_execute_cp1252`, added for Windows stdout-encoding coverage) in the same file
+between plan authoring and this phase, reusing the identical bimodal-parametrize-cost pattern and
+requiring the identical marking. Confirmed via a real `-m development` collection run over `tests
+src/model_checker` (per this phase's own Scope Hypothesis obligation) before writing the allowlist
+-- node-id spellings taken verbatim from that output. `_AUTHORIZED_NON_BIMODAL_DEVELOPMENT` in
+`test_development_marker_application.py` enumerates all three.
+
+Genuine-RED demonstration performed and reverted: bimodal's `conftest.py` collection hook's path
+filter was temporarily removed (unfiltered `for item in items: item.add_marker(marker)`), and
+`pytest tests/ci/test_development_marker_application.py::TestDevelopmentMarkerIsContainedToBimodal`
+went RED on exactly the three assertions expected to catch a leak (`test_no_leakage_when_bimodal_is_collected_alongside_the_rest_of_the_tree`,
+the new `test_authorized_allowlist_is_exactly_matched`, and `test_gating_expression_still_collects_the_non_bimodal_suite`,
+the last showing a full collapse to 0 collected items) -- confirming the widened contract still
+catches a leaking blanket, not just a tautology. The mutation was reverted immediately
+(file restored from a pre-mutation copy; `git status --short` confirmed a clean diff against the
+already-committed version before continuing).
+
+Verified: `pytest tests/ci/test_development_marker_application.py -v` — 10 passed (was 9; the new
+exact-match test added a case), including the mixed-root leak assertion and the `>1000`
+collected-count floor. `pytest -o addopts=--import-mode=importlib --collect-only -q -m "not development" tests/packaging/`
+shows both `test_generate_then_execute[bimodal]` and `test_generate_then_execute_cp1252[bimodal]`
+absent, every other theory's case present. `pytest -o addopts=--import-mode=importlib --collect-only -q -m "not development" src/model_checker/builder/tests/unit/test_example.py`
+shows `test_build_example_bimodal_theory_countermodel` absent, the other 16 present.
+`pytest -m development src/model_checker/builder/tests/unit/test_example.py -v` still collects and
+runs the marked test (quarantined, not deleted). `pytest tests/ci/ -v` — 161 passed. No budget
+value increased (`git diff` reviewed; `timeout=180` and `max_time: 30` both verified unchanged at
+their original values).
+
+Landed as a single atomic-batch commit per this phase's declared `Commit Mode`.
 
 **Goal**: Quarantine the two completeness-claim tests from gating runs at per-test/per-parametrize
 granularity, and amend the containment contract to permit exactly those two — without weakening its
