@@ -12,6 +12,7 @@ from string import Template
 from typing import Dict, List, Tuple, Optional, Any, TextIO, Union, TYPE_CHECKING
 
 from model_checker.solver import create_solver, SolverResult, is_true
+from model_checker.utils.glyphs import glyph
 
 from .concurrency import guard_construction
 
@@ -759,7 +760,7 @@ class ModelDefaults:
         for letter, values in letter_diffs.items():
             try:
                 if 'old' in values and 'new' in values:
-                    print(f"  {letter}: {values['old']} → {values['new']}", file=output)
+                    print(f"  {letter}: {values['old']} {glyph('ARROW', output)} {values['new']}", file=output)
                 else:
                     print(f"  {letter}: changed from previous model", file=output)
             except (KeyError, TypeError):
@@ -778,7 +779,7 @@ class ModelDefaults:
             for input_val, change in values.items():
                 try:
                     if 'old' in change and 'new' in change:
-                        print(f"    Input {input_val}: {change['old']} → {change['new']}", file=output)
+                        print(f"    Input {input_val}: {change['old']} {glyph('ARROW', output)} {change['new']}", file=output)
                     else:
                         print(f"    Input {input_val}: changed from previous model", file=output)
                 except (KeyError, TypeError):
@@ -795,7 +796,7 @@ class ModelDefaults:
         for component, values in struct_diffs.items():
             try:
                 if 'old' in values and 'new' in values:
-                    print(f"  {component}: {values['old']} → {values['new']}", file=output)
+                    print(f"  {component}: {values['old']} {glyph('ARROW', output)} {values['new']}", file=output)
                 else:
                     print(f"  {component}: changed from previous model", file=output)
             except (KeyError, TypeError):
