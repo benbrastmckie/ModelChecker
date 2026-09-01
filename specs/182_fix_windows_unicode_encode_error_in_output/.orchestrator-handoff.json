@@ -1,0 +1,17 @@
+{
+  "status": "researched",
+  "summary": "Confirmed the crash is cp1252-piped-stdout (subprocess capture bypasses PEP-528 console UTF-8), inventoried 9 non-ASCII print-path sites across models/structure.py and bimodal/exclusion/imposition semantic/model.py (2 beyond the traceback's own list), and found the alignment math/comments already assume ASCII-width arrows. Recommends stream-encoding-aware ASCII fallback (probe output.encoding, substitute glyphs) over global UTF-8 reconfiguration or ASCII-only, since the required cp1252-TextIOWrapper test targets the output parameter, not sys.stdout. Also flagged an adjacent, currently non-triggering risk in output/progress/display.py's TerminalDisplay (isatty gate disabled).",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/182_fix_windows_unicode_encode_error_in_output/reports/01_windows-unicode-encode-error.md"
+    }
+  ],
+  "phase": "research",
+  "dispatch_seq": 3,
+  "phases_completed": 1,
+  "phases_total": 1,
+  "blockers": [],
+  "continuation_path": null,
+  "plan_markers_verified": false
+}
