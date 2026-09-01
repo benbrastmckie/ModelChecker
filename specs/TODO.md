@@ -18,7 +18,7 @@ next_project_number: 183
 
 ### Packaging
 
-182 [RESEARCHED] — Fix the UnicodeEncodeError that makes model output crash on Windo
+182 [PLANNED] — Fix the UnicodeEncodeError that makes model output crash on Windo
 
 ### Semantics
 
@@ -27,7 +27,7 @@ next_project_number: 183
 ### Release Engineering
 
 180 [RESEARCHING] — Diagnose the oracle gating conclusive-population shortfall that h
-181 [RESEARCHED] — Audit which gating tests outside the bimodal test tree still depe
+181 [PLANNED] — Audit which gating tests outside the bimodal test tree still depe
 
 ### Test Reliability
 
@@ -38,11 +38,12 @@ next_project_number: 183
 ## Tasks
 
 ### 182. Fix windows unicode encode error in output
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
 - **Research**: [182_fix_windows_unicode_encode_error_in_output/reports/01_windows-unicode-encode-error.md]
+- **Plan**: [182_fix_windows_unicode_encode_error_in_output/plans/01_stream-aware-ascii-fallback.md]
 
 **Description**: Fix the UnicodeEncodeError that makes model output crash on Windows, and give the codebase a deliberate policy on non-ASCII characters in printed output.
 
@@ -79,11 +80,12 @@ NON-GOALS. Do not change any theory's semantics or solver behavior. Do not remov
 ---
 
 ### 181. Audit gating tests coupled to bimodal solve cost
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
 - **Research**: [181_audit_gating_tests_coupled_to_bimodal_solve_cost/reports/01_gating-tests-coupled-to-bimodal.md]
+- **Plan**: [181_audit_gating_tests_coupled_to_bimodal_solve_cost/plans/01_decouple-gating-tests-from-bimodal.md]
 
 **Description**: Audit which gating tests outside the bimodal test tree still depend on bimodal solve cost, now that the Skolemized Seriality and Interpolation frame axioms have made bimodal solves substantially more expensive.
 
