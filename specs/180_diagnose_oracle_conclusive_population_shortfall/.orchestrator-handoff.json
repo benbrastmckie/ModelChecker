@@ -1,18 +1,23 @@
 {
-  "status": "researched",
-  "dispatch_seq": 4,
-  "phase": "research",
-  "summary": "Diagnosis complete, including the task's explicit idle-host MEASUREMENT REQUIREMENT, which this dispatch executed to completion. All six unstable-watch failures since 2026-08-27 are root-caused to a stale origin/master CI checkout (frozen at 98d3ad8d for ~5 days) compounded by an already-fixed classifier laundering-guard bug (cfb9cb4a) that never reached CI; the Skolemized Seriality/Interpolation axioms (f9cc081e) were structurally absent from every one of those six failing checkouts and are ruled out as their cause. This dispatch then ran test_known_conclusive_population_self_consistent to completion at current, axiom-bearing HEAD (9ce3b4ad): the shortfall reproduced, and reproduced worse than every historical CI run -- 93/103 conclusive, 10 timeouts, 0 disagreements, 951.21s wall clock, versus 96-98/103 and 749-899s across the six CI runs. The measurement host was explicitly documented as non-idle (load average ~5.9->~5.0 on 24 cores, 7.3GB swap in use, four-plus concurrent claude sessions), so the report states two live, undiscriminated candidate explanations for the worse local result -- axiom-driven solver cost increase (consistent with task 178's separately measured 4-6x cost increase from the same axioms) versus host contention -- rather than asserting either as confirmed, and names the specific follow-up run that would discriminate them.",
+  "dispatch_seq": 9,
+  "task_number": 180,
+  "session_id": "sess_1788263678_7f5c4a_180",
+  "stage": "plan",
+  "status": "planned",
+  "agent_type": "planner-agent",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md",
-      "summary": "Full diagnosis: stale-checkout + classifier-laundering-bug root cause with a per-run evidence table across all six CI failures, axiom-ordering verification for those six runs, the completed idle-host measurement at axiom-bearing HEAD (93/103, 10 timeouts, 0 disagreements, 951.21s) with honest non-idle load reporting and a two-explanation (axiom cost vs. contention) interpretation, TESTING_GUIDE.md 8.9 signature/quarantine analysis, and an updated open-items list."
+      "type": "plan",
+      "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md",
+      "summary": "5-phase closure plan for the diagnosis task: record corrections at the unstable-marker source site, TESTING_GUIDE 8.9 annotation, opt-in per-formula timeout instrumentation, and one allocated follow-on task."
     }
   ],
-  "phases_completed": 2,
-  "phases_total": 2,
-  "blockers": [],
-  "next_action_hint": "Diagnosis task is complete. A follow-on remediation task, if opened, should run the discriminating measurement named in the report's item 0a (same test/HEAD on a verifiably idle CI-class runner) before treating the axiom-cost risk flagged in (c) as confirmed, and should confirm the classifier fix (cfb9cb4a) reaches a real unstable-watch run.",
-  "continuation_path": "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md"
+  "modified_files": [
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md"
+  ],
+  "phase_count": 5,
+  "estimated_hours": 3.5,
+  "dependency_waves": [[1, 4], [2, 3], [5]],
+  "next_steps": "Run /implement 180 to execute the plan",
+  "notes": "Diagnosis is complete and is the primary deliverable; this plan closes the task only. Remediation is deliberately deferred to the follow-on task created in Phase 4. Hard constraints C1-C7 carried inline: no widening of GATING_RECHECK_SOLVE_TIMEOUT_MS, no lowering of MIN_CONCLUSIVE_GATING_FORMULAS, no assertion weakening, no marker change, no semantics or soundness-core change, no task-number references outside specs/**, and no claim that the axioms are excluded at HEAD. No new timing measurement is taken (host is contended)."
 }

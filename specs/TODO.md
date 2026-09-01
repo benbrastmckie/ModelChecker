@@ -26,7 +26,7 @@ next_project_number: 183
 
 ### Release Engineering
 
-180 [RESEARCHED] — Diagnose the oracle gating conclusive-population shortfall that h
+180 [PLANNED] — Diagnose the oracle gating conclusive-population shortfall that h
 181 [IMPLEMENTING] — Audit which gating tests outside the bimodal test tree still depe
 
 ### Test Reliability
@@ -104,11 +104,12 @@ VERIFICATION. Prove executably that no gating selection's wall clock depends on 
 ---
 
 ### 180. Diagnose oracle conclusive population shortfall
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
 - **Research**: [180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md]
+- **Plan**: [180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md]
 
 **Description**: Diagnose the oracle gating conclusive-population shortfall that has failed the unstable-watch workflow every day since 2026-08-27.
 
