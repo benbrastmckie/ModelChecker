@@ -180,7 +180,7 @@ attribution chain downstream changes.
 
 ---
 
-### Phase 2: Encoding-Drift Audit Against the Post-Task-114 Baseline [IN PROGRESS]
+### Phase 2: Encoding-Drift Audit Against the Post-Task-114 Baseline [COMPLETED]
 
 **Goal**: Determine whether the bimodal frame-constraint encoding reaching this test differs
 semantically from the post-task-114 baseline that made it pass — covering both the claimed-clean
@@ -236,7 +236,7 @@ the list above is a hypothesis from planning-time inspection of one directory, n
 
 ---
 
-### Phase 3: Z3 Version Sweep [NOT STARTED]
+### Phase 3: Z3 Version Sweep [IN PROGRESS]
 
 **Goal**: Answer whether `z3-solver` version drift — `code/pyproject.toml`'s `"z3-solver>=4.8.0"` has
 no upper bound, and 4.16.0 is installed — flips this formula's verdict, an axis git bisection
