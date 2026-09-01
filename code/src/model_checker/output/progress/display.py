@@ -64,6 +64,15 @@ class TerminalDisplay(ProgressDisplay):
         self.last_length = 0
         self.enabled = True  # Always enabled for testing
         # self.enabled = stream.isatty()  # Only show progress in terminal
+        # NOTE (deliberate scope boundary, not an oversight): re-enabling the
+        # isatty() gate above is a progress-display *behavior* change (it
+        # would stop showing progress in any non-terminal context, including
+        # existing tests that rely on "Always enabled for testing") with its
+        # own test-visibility consequences, unrelated to encoding safety.
+        # It is explicitly OUT of scope for the printed-output encoding fix
+        # this class's block-glyph substitution (see `_generate_bar` in
+        # `animated.py`) is part of. See `code/docs/core/TESTING_GUIDE.md`'s
+        # output-encoding section for the recorded policy and this boundary.
         
     def update(self, message: str) -> None:
         """Update progress with carriage return and padding."""

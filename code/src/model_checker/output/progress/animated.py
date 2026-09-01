@@ -11,6 +11,7 @@ import threading
 from typing import Optional
 from .core import ProgressBar
 from .display import ProgressDisplay
+from model_checker.utils.glyphs import glyph
 
 # Color constants for progress bars
 PROGRESS_COLOR = '\033[38;5;208m'  # Orange/amber (256-color)
@@ -207,19 +208,27 @@ class TimeBasedProgress(AnimatedProgressBar):
             progress: Fill fraction from 0.0 (empty) to 1.0 (full)
 
         Returns:
-            Formatted progress bar string like "[████████░░░░░░░░░░░░]"
+            Formatted progress bar string like "[████████░░░░░░░░░░░░]",
+            or its ASCII fallback "[##########----------]" when
+            `self.display.stream` cannot encode the block glyphs (e.g. a
+            cp1252-constrained Windows pipe). Both substitutes are exactly
+            one character, so `BAR_WIDTH` arithmetic is unaffected either
+            way -- no width recalculation is needed here, unlike bimodal's
+            double-arrow column budget.
         """
         filled = int(self.BAR_WIDTH * progress)
         remaining = self.BAR_WIDTH - filled
+        full_glyph = glyph('BLOCK_FULL', self.display.stream)
+        light_glyph = glyph('BLOCK_LIGHT', self.display.stream)
 
         if self.use_color:
             # Create colored progress bar
-            filled_bar = f"{PROGRESS_COLOR}{'█' * filled}{COLOR_RESET}"
-            empty_bar = '░' * remaining
+            filled_bar = f"{PROGRESS_COLOR}{full_glyph * filled}{COLOR_RESET}"
+            empty_bar = light_glyph * remaining
             return f"[{filled_bar}{empty_bar}]"
         else:
             # Non-colored version
-            return f"[{'█' * filled}{'░' * remaining}]"
+            return f"[{full_glyph * filled}{light_glyph * remaining}]"
     
     def _create_bar(self, progress: float, width: int = 20) -> str:
         """Create visual progress bar (legacy method, calls _generate_bar)."""

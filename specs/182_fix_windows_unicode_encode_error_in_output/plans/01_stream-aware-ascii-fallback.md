@@ -554,24 +554,28 @@ must be extended to cover the new test or shown to already cover it.
 
 ---
 
-### Phase 6: Progress-bar glyph sweep [NOT STARTED]
+### Phase 6: Progress-bar glyph sweep [COMPLETED]
 
 **Goal**: Close the same defect class in `output/progress` so the fix is not immediately
 re-broken by the first multi-model iteration a Windows user runs.
 
 **Tasks**:
-- [ ] Write the failing test first:
+- [x] Write the failing test first:
   `code/src/model_checker/output/tests/unit/test_progress_encoding.py`, constructing the
   progress display over a cp1252 `TextIOWrapper` and driving an update that renders a bar.
-  Assert no `UnicodeEncodeError` and that ASCII `#`/`-` appear.
-- [ ] `output/progress/animated.py`: resolve `█`/`░` in `_generate_bar` through
+  Assert no `UnicodeEncodeError` and that ASCII `#`/`-` appear. (RED confirmed: 3/6 failed with
+  `UnicodeEncodeError`/missing-ASCII-substitute against unmodified source before the edit below.)
+- [x] `output/progress/animated.py`: resolve `█`/`░` in `_generate_bar` through
   `glyph("BLOCK_FULL", ...)` / `glyph("BLOCK_LIGHT", ...)` keyed off the display's stream.
   Both substitutes are one character, so the `BAR_WIDTH` arithmetic is unaffected.
-- [ ] `output/progress/display.py`: expose the stream to the bar renderer if it is not already
-  reachable, keeping `TerminalDisplay.__init__`'s `stream=sys.stdout` default.
-- [ ] Leave `self.enabled = True` and the commented-out `stream.isatty()` line exactly as they
+- [x] `output/progress/display.py`: expose the stream to the bar renderer if it is not already
+  reachable, keeping `TerminalDisplay.__init__`'s `stream=sys.stdout` default. (Already reachable
+  via `self.display.stream` -- `_supports_color` already reads it -- so no plumbing change was
+  needed, only the `_generate_bar` glyph resolution above.)
+- [x] Leave `self.enabled = True` and the commented-out `stream.isatty()` line exactly as they
   are. Add a short comment marking the isatty question as deliberately out of this task's scope,
-  pointing at the policy section Phase 7 writes.
+  pointing at the policy section Phase 7 writes. (`git diff` on this file shows only added
+  comment lines; `self.enabled = True` itself is byte-identical to before.)
 
 **Timing**: 1 hour
 
@@ -588,11 +592,11 @@ re-broken by the first multi-model iteration a Windows user runs.
 - `code/src/model_checker/output/tests/unit/test_progress_encoding.py` - new
 
 **Verification**:
-- The new test is RED before the source edit and GREEN after.
+- The new test is RED before the source edit and GREEN after. CONFIRMED: 6/6 green after the edit.
 - `PYTHONPATH=code/src pytest code/src/model_checker/output -q` and
   `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/unit/test_progress.py code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py -q` are green — existing
-  progress tests still see the Unicode bar under `StringIO`.
-- `git diff` shows `TerminalDisplay.enabled` unchanged.
+  progress tests still see the Unicode bar under `StringIO`. CONFIRMED: 29/29 and 13/13 green.
+- `git diff` shows `TerminalDisplay.enabled` unchanged. CONFIRMED.
 
 ---
 
