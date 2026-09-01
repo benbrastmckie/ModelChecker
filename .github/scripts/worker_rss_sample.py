@@ -54,7 +54,7 @@ import time
 from pathlib import Path
 
 DEFAULT_PROC_ROOT = Path("/proc")
-DEFAULT_INTERVAL_S = 2.0
+DEFAULT_INTERVAL_S = 0.5
 
 _VM_RSS_RE = re.compile(r"^VmRSS:\s*(\d+)\s*kB", re.MULTILINE)
 _PPID_RE = re.compile(r"^PPid:\s*(\d+)", re.MULTILINE)

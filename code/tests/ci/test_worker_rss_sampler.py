@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -396,4 +397,37 @@ class TestSamplerIsNotMatrixGated:
         assert len(sampler_lines) == 1, (
             f"Expected exactly one sampler invocation line, found {len(sampler_lines)}. "
             "A per-leg duplicate would break test_workflow_parity.py's extraction regex."
+        )
+
+
+class TestSamplerIntervalIsSubSecond:
+    """The `--interval` on `tests.yml`'s sampler invocation must be `<= 0.5` seconds.
+
+    RATIONALE -- WHY THIS GUARD EXISTS. Both confirmed `node down` incidents' RSS traces were
+    sampled at the original `--interval 2` (a 2-second poll). A worker's peak resident-set size
+    can spike and be reclaimed well inside a 2-second window -- a coarse interval structurally
+    cannot see a transient spike, which is exactly what made those two traces uninformative about
+    whether memory pressure preceded the crash. This guard keeps the interval tightened so the
+    *next* incident's telemetry is fine-grained enough to actually inform the open hypothesis
+    ledger (see the sampler module's own docstring for the current ledger and the measured
+    overhead behind the chosen value).
+    """
+
+    def test_interval_argument_is_at_most_half_a_second(self):
+        text = TESTS_YML.read_text(encoding="utf-8")
+        sampler_lines = [
+            ln for ln in text.splitlines() if "worker_rss_sample.py" in ln and "--interval" in ln
+        ]
+        assert len(sampler_lines) == 1, (
+            f"Expected exactly one sampler invocation line carrying --interval, found "
+            f"{len(sampler_lines)}."
+        )
+        match = re.search(r"--interval\s+(\S+)", sampler_lines[0])
+        assert match is not None, f"No --interval value found on: {sampler_lines[0]!r}"
+        interval_value = float(match.group(1))
+        assert interval_value <= 0.5, (
+            f"tests.yml's sampler --interval is {interval_value}s, coarser than the 0.5s ceiling "
+            "this guard enforces. A coarse interval is what made the two confirmed incidents' "
+            "RSS traces uninformative -- do not widen it back without re-measuring the sampler's "
+            "own CPU overhead and updating this guard deliberately."
         )

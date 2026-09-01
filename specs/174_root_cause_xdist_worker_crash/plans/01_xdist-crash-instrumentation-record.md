@@ -219,29 +219,49 @@ stdlib-only, no-new-dependency approach the module already commits to.
 
 ---
 
-### Phase 3: Tighten the sampling interval, with the sampler's own overhead measured [NOT STARTED]
+### Phase 3: Tighten the sampling interval, with the sampler's own overhead measured [COMPLETED]
 
 **Goal**: Reduce the sampling interval from 2s to sub-second so a transient spike is no longer
 structurally invisible — but only after measuring that the sampler does not become a meaningful
 CPU competitor to the 4 workers it observes.
 
 **Tasks**:
-- [ ] Measure first: run the gating parallel command locally with the sampler attached at
+- [x] Measure first: run the gating parallel command locally with the sampler attached at
       `--interval 0.25`, and record the sampler process's own CPU time (`/usr/bin/time -v` or
       `ps -o cputime`) as a fraction of wall clock. Record the number in the commit message and
-      in the Phase 4 record.
-- [ ] Choose the interval on that measurement: `0.25` if the sampler's own CPU is a small
+      in the Phase 4 record. **Measurement note**: `/usr/bin/time` is not present on this host
+      (NixOS); measured instead via `resource.getrusage(RUSAGE_SELF)` deltas taken inside the
+      sampler's own Python process across a real local run of the gating `-n 4` parallel command
+      (`pytest tests/ src/model_checker -m "not packaging and not performance and not unstable
+      and not xdist_serial and not development" -n 4`). **Result at `--interval 0.25`: sampler
+      CPU = 6.134s (3.941s user + 2.193s sys) over a 96.207s wall run = 6.375% of one core**
+      (361 samples taken). This is well above the plan's ~2% target.
+- [x] Choose the interval on that measurement: `0.25` if the sampler's own CPU is a small
       fraction (target: under ~2% of one core); otherwise `0.5`. Record which was chosen and why
-      — an unmeasured choice is not acceptable here.
-- [ ] Update `DEFAULT_INTERVAL_S` in `.github/scripts/worker_rss_sample.py` to the chosen value.
-- [ ] Update the `--interval` argument on the single sampler invocation line in
+      — an unmeasured choice is not acceptable here. **Chosen: `0.5`**, per the plan's own
+      fallback, because 0.25's measured 6.375%-of-one-core overhead exceeds the ~2% target. For
+      comparison, `--interval 0.5` was also measured on an identical local run: sampler CPU =
+      2.749s (1.783s user + 0.966s sys) over an 83.782s wall run = **3.28% of one core** (163
+      samples) — smaller but still not clearly under 2% on this (shared, non-CI-dedicated) local
+      host; 0.5 is taken as the designated fallback per the plan's explicit two-value choice
+      rather than iteratively searched for a value that clears 2% on this particular host, whose
+      CPU contention does not necessarily represent the dedicated `ubuntu-latest` runner. Honest
+      framing carried into Phase 4's record: this is a measured, not assumed, choice, and the
+      absolute numbers are host-local, not CI-runner numbers.
+- [x] Update `DEFAULT_INTERVAL_S` in `.github/scripts/worker_rss_sample.py` to the chosen value.
+- [x] Update the `--interval` argument on the single sampler invocation line in
       `.github/workflows/tests.yml`. Change **only** that argument. Do not touch the `pytest`
-      lines, `-n 4`, the `-m` expressions, or `timeout-minutes`.
-- [ ] Add a guard test to `code/tests/ci/test_worker_rss_sampler.py` asserting the `--interval`
+      lines, `-n 4`, the `-m` expressions, or `timeout-minutes`. Verified via
+      `git diff .github/workflows/tests.yml`: exactly one line changed, `--interval 2` ->
+      `--interval 0.5`.
+- [x] Add a guard test to `code/tests/ci/test_worker_rss_sampler.py` asserting the `--interval`
       value in `tests.yml` is <= 0.5, with a docstring explaining that a coarse interval is what
       made the two confirmed incidents' RSS traces uninformative.
-- [ ] Run the full `code/tests/ci/` suite, especially `test_workflow_parity.py` and
-      `test_unstable_deselection_wiring.py`.
+- [x] Run the full `code/tests/ci/` suite, especially `test_workflow_parity.py` and
+      `test_unstable_deselection_wiring.py`. 151 passed (150 + the new interval guard);
+      `test_workflow_parity.py`'s `test_worker_count_matches` and
+      `test_parallel_pass_marker_expression_matches` confirm `-n 4` and both `-m` expressions are
+      byte-identical to before.
 
 **Timing**: 0.75 hours
 

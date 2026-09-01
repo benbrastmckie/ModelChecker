@@ -190,7 +190,7 @@ jobs:
           # one literal copy of the pytest line remains required by that guard.
           pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial and not development" -n 4 -q --timeout=300 --timeout-method=thread &
           PYTEST_PID=$!
-          python3 ../.github/scripts/worker_rss_sample.py --root-pid "$PYTEST_PID" --workers 4 --interval 2 --output /tmp/worker-rss-summary.json || true
+          python3 ../.github/scripts/worker_rss_sample.py --root-pid "$PYTEST_PID" --workers 4 --interval 0.5 --output /tmp/worker-rss-summary.json || true
           wait "$PYTEST_PID"
           pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable and not development" -q --timeout=300 --timeout-method=thread
 
