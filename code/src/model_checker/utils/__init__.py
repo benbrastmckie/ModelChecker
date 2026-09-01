@@ -24,6 +24,8 @@ from .formatting import pretty_set_print, not_implemented_string, flatten
 from .version import (
     get_model_checker_version, get_license_template
 )
+# Stream-encoding-aware glyph fallback (see .glyphs module docstring)
+from .glyphs import glyph, to_subscript, stream_can_encode
 # NOTE: get_theory_version() and check_theory_compatibility() moved to
 # model_checker.theory_lib.meta_data -- they are theory-aware (import a specific theory
 # module by name), which makes them a theory_lib concern, not a core one. No re-export shim
@@ -55,6 +57,10 @@ __all__ = [
     # Version Management
     'get_model_checker_version',
     'get_license_template',
+    # Stream-encoding-aware glyph fallback
+    'glyph',
+    'to_subscript',
+    'stream_can_encode',
     # API Functions
     'get_example',
     'get_theory',

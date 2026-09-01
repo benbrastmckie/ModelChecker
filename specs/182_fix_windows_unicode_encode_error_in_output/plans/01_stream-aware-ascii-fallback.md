@@ -1,7 +1,7 @@
 # Implementation Plan: Stream-Encoding-Aware ASCII Fallback for Printed Output
 
 - **Task**: 182 - Fix the Windows `UnicodeEncodeError` in model output and establish a deliberate non-ASCII output policy
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 9.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/182_fix_windows_unicode_encode_error_in_output/reports/01_windows-unicode-encode-error.md`
@@ -160,19 +160,19 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Shared glyph-fallback helper [NOT STARTED]
+### Phase 1: Shared glyph-fallback helper [COMPLETED]
 
 **Goal**: One shared, tested utility that decides whether a given stream can render a given
 glyph and returns the appropriate Unicode-or-ASCII string. No call site is modified in this
 phase.
 
 **Tasks**:
-- [ ] Write `code/src/model_checker/utils/tests/unit/test_glyphs.py` FIRST (RED), covering:
+- [x] Write `code/src/model_checker/utils/tests/unit/test_glyphs.py` FIRST (RED), covering:
   stream with `encoding="cp1252"` yields ASCII; stream with `encoding="utf-8"` yields Unicode;
   `io.StringIO` (no `.encoding` attribute) yields Unicode; an object whose `.encoding` is a
   bogus/unknown codec name yields ASCII rather than raising; `None` passed as the stream yields
   Unicode.
-- [ ] Create `code/src/model_checker/utils/glyphs.py` with:
+- [x] Create `code/src/model_checker/utils/glyphs.py` with:
   - A module-level substitution table mapping a semantic name to `(unicode, ascii)`:
     `DOUBLE_ARROW` (`⟹` / `=>`), `ARROW` (`→` / `->`), `DOWN_ARROW` (`↓` / `v`),
     `BLOCK_FULL` (`█` / `#`), `BLOCK_LIGHT` (`░` / `-`), and the subscript-digit map.
@@ -183,9 +183,9 @@ phase.
   - `to_subscript(n: int, output) -> str` — Unicode subscripts when encodable, plain ASCII
     digits (and `-`) otherwise. Both forms are exactly one character per digit, so this is
     width-neutral by construction.
-- [ ] Export the public names from `code/src/model_checker/utils/__init__.py` alongside the
+- [x] Export the public names from `code/src/model_checker/utils/__init__.py` alongside the
   existing `from .formatting import ...` line.
-- [ ] Confirm the new unit tests go GREEN.
+- [x] Confirm the new unit tests go GREEN.
 
 **Timing**: 1 hour
 
