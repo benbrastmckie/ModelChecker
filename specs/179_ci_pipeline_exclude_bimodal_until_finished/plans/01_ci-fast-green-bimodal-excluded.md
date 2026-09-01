@@ -167,7 +167,7 @@ to reassess rather than proceeding on the planned number.
 
 ---
 
-### Phase 2: Confirm unstable-watch.yml stays non-gating [NOT STARTED]
+### Phase 2: Confirm unstable-watch.yml stays non-gating [COMPLETED]
 
 **Goal**: Close item (d) with a recorded confirmation, and make explicit that this workflow must
 not become gating.
