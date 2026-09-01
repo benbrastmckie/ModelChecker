@@ -11,6 +11,7 @@ import string
 from typing import Any, Union, Optional, TYPE_CHECKING
 
 from model_checker.solver.expressions import BitVecVal
+from .glyphs import glyph
 
 if TYPE_CHECKING:
     # Import BitVecRef only for type hints - actual type checking uses duck typing
@@ -65,14 +66,29 @@ def index_to_substate(index: int) -> str:
     return ((number//26) + 1) * letter
 
 
-def bitvec_to_substates(bit_vec: Any, N: int) -> str:
-    '''converts bitvectors to fusions of atomic states.'''
+def bitvec_to_substates(bit_vec: Any, N: int, output: Any = None) -> str:
+    '''converts bitvectors to fusions of atomic states.
+
+    Args:
+        bit_vec: Z3 bitvector or integer value.
+        N: number of bits.
+        output: optional destination stream for the caller's eventual
+            `print(..., file=output)` call. When the null state (bit_vec
+            == 0) is rendered, its glyph is resolved via
+            `model_checker.utils.glyphs.glyph("NULL_STATE", output)`, so a
+            `cp1252`-constrained stream gets the ASCII fallback (`_`)
+            instead of the Unicode `□` it cannot encode. Callers that never
+            pass `output` (e.g. internal model-comparison/iteration logic
+            that does not print this string directly) keep today's
+            behavior unchanged -- `glyph(..., None)` always resolves to
+            Unicode.
+    '''
     # Safety check for non-BitVec objects
     if not hasattr(bit_vec, 'sexpr'):
         # Handle the case where we don't have a proper BitVec
         if hasattr(bit_vec, '__int__'):
             # If it can be converted to int, use that
-            return bitvec_to_substates(BitVecVal(int(bit_vec), N), N)
+            return bitvec_to_substates(BitVecVal(int(bit_vec), N), N, output)
         else:
             # Check if it's a Z3 QuantifierRef or other Z3 object
             if hasattr(bit_vec, 'ast') or hasattr(bit_vec, 'ctx'):
@@ -111,15 +127,15 @@ def bitvec_to_substates(bit_vec: Any, N: int) -> str:
     
     # If all zeros, return null state
     if all(b == '0' for b in bit_vec_backwards):
-        return "□"
-        
+        return glyph("NULL_STATE", output)
+
     for i, char in enumerate(bit_vec_backwards):
         if char == "1":
             state_repr += index_to_substate(i)
             state_repr += "."
-            
+
     # Remove trailing dot if present
-    return state_repr[:-1] if state_repr else "□"
+    return state_repr[:-1] if state_repr else glyph("NULL_STATE", output)
 
 
 def bitvec_to_worldstate(bit_vec: Any, N: Optional[int] = None) -> str:
