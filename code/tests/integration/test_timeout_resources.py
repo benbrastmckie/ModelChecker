@@ -285,6 +285,18 @@ class TestPerformanceDegradation:
         `max_time` cap itself, which is the same shape as the assertions that
         did fail intermittently. What is asserted now is that the attempt
         terminated, one way or the other.
+
+        Pinned to theory_name='bimodal' explicitly, for the same reason
+        TestExecutionPerformance.test_complex_model_performance in
+        test_performance.py is: N=10 with contingent/non_empty/non_null/
+        disjoint was calibrated against bimodal's own state representation.
+        `max_time` only bounds the Z3 solve call, not Python-side constraint
+        generation -- and under logos's eager 2^N state enumeration, this
+        setting was observed to drive the worker process into heavy
+        swapping (10+ GB RSS, uninterruptible-sleep I/O wait) well before
+        Z3 was ever invoked, which no `except Exception` clause can catch.
+        This is exactly the "call site that genuinely needs bimodal" carve-out
+        the shared helper's default-swap anticipates.
         """
         # Settings that create many constraints
         settings = {
@@ -297,7 +309,7 @@ class TestPerformanceDegradation:
         }
 
         try:
-            model = create_test_model(settings)
+            model = create_test_model(settings, theory_name='bimodal')
         except Exception:
             # Failing rather than completing is acceptable here
             return
@@ -332,7 +344,18 @@ class TestResourceRecovery:
     """Test resource recovery after errors."""
     
     def test_memory_released_after_error(self):
-        """Test memory is released after errors."""
+        """Test memory is released after errors.
+
+        Pinned to theory_name='bimodal' explicitly: this loops 10 real
+        constructions at N=10, and `max_time` bounds only the Z3 solve, not
+        the Python-side constraint generation that precedes it -- under
+        logos's eager 2^N state enumeration that generation alone measures
+        ~22s per call at N=10 (see test_z3_timeout_handling's sibling
+        comment in test_error_handling.py), which x10 iterations would turn
+        this object-count-growth check into a multi-minute, multi-GB
+        construction loop for no coverage benefit. bimodal's construction
+        stays cheap at N=10, which is what a x10 loop needs to stay cheap.
+        """
         import gc
 
         initial_objects = len(gc.get_objects())
@@ -344,7 +367,7 @@ class TestResourceRecovery:
         for _ in range(10):
             try:
                 settings = {'N': 10, 'max_time': 0.05}
-                model = create_test_model(settings)
+                model = create_test_model(settings, theory_name='bimodal')
                 del model
             except Exception:
                 pass

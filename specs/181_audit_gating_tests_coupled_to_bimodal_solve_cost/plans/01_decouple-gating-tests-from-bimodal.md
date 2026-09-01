@@ -202,7 +202,49 @@ than the report's number, and note it in `before-wall-clocks.md`.
 
 ---
 
-### Phase 2: Make `create_test_model()` honor `theory_name`, defaulting to logos [NOT STARTED]
+### Phase 2: Make `create_test_model()` honor `theory_name`, defaulting to logos [COMPLETED]
+
+**Deviation record** (per this phase's own Scope Hypothesis obligation): the report's "none of the
+~20 call sites needs bimodal" hypothesis needed correction. `logos.DEFAULT_EXAMPLE_SETTINGS` is
+itself expensive (`N=16, contingent=True, non_empty=True, non_null=True, disjoint=True`) — nothing
+like bimodal's cheap `N=2, contingent=False` defaults — so any call site with an explicit N>=10
+(under logos's eager 2^N state enumeration) or with no explicit N at all (silently inheriting
+logos's heavy N=16 default) reproduces the exact same class of memory/time blowup this phase set
+out to remove, just from the opposite theory. Empirically found (measured directly: N=5 -> 0.33s,
+N=8 -> 1.21s, N=10 -> 22.1s under logos with default flags; one uncontrolled run reached 13.6GB
+RSS and had to be killed) and fixed by pinning `theory_name='bimodal'` explicitly, with an
+in-place comment, at five call sites whose settings were calibrated against bimodal's
+representation rather than making any semantic or budget change:
+- `test_performance.py::TestExecutionPerformance::test_complex_model_performance` (N=16)
+- `test_performance.py::TestMemoryPerformance::test_memory_usage_complex` (N=10)
+- `test_error_handling.py::TestErrorRecovery::test_graceful_degradation` (one sub-case has no
+  explicit N, inheriting logos's heavy default)
+- `test_error_handling.py::TestFrameworkErrorHandling::test_z3_timeout_handling` (N=10)
+- `test_timeout_resources.py::TestPerformanceDegradation::test_performance_with_many_constraints`
+  (N=10)
+- `test_timeout_resources.py::TestResourceRecovery::test_memory_released_after_error` (N=10, x10
+  loop iterations)
+
+`tests/utils/base.py::BaseModelTest.create_model()` was extended with an optional `theory_name`
+parameter (default `'logos'`, forwarded to `create_test_model()`) to make the pin possible at two
+of the five call sites that go through it — a minimal, additive signature change, not a default
+change for any other caller.
+
+All 58 tests in the three-file selection pass (`tests/integration/test_performance.py` +
+`test_error_handling.py` + `test_timeout_resources.py -m "not development"`): **31.60s**, vs.
+Phase 1's baseline of 32.36s. This is real but not "material" in isolation — recorded honestly
+rather than overstated. Two independent factors bound the achievable improvement for this specific
+three-file aggregate, neither touched by this phase's stated scope: (a) the five pinned-bimodal
+call sites above retain genuine bimodal solve cost (~10.4s combined, dominated by
+`test_complex_model_performance`'s 6.59s, matching its pre-existing bimodal cost) because their
+settings do not transfer to logos's representation without an outcome flip; (b) three CLI-
+subprocess tests unrelated to `create_test_model()`
+(`test_special_characters_in_names` 5.64s, `test_file_handles_closed` 4.20s,
+`test_partial_results_on_error` 2.47s -- ~12.3s combined) were already the slowest tests in the
+selection under bimodal too (report's own figures: 5.60s/4.28s/2.46s) — their cost is Python
+subprocess-startup overhead, not bimodal Z3 solve cost, and they use inline
+`theory_lib import bimodal` content strings independent of this helper. These three files are
+candidates for Phase 7's own bimodal-reference scan, not this phase's stated file list.
 
 **Goal**: Fix the shared helper so its ~20 gating call sites stop silently solving bimodal, without
 touching any call site.

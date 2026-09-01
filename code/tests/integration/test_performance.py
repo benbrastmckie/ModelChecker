@@ -59,9 +59,24 @@ class TestExecutionPerformance(BaseModelTest):
         This is the one construction here whose cost is real rather than
         solver-capped (N=16 Python-side constraint generation, measured
         ~6s), and the assertion means "did not hang", with 3.3x headroom.
+
+        Pinned to theory_name='bimodal' explicitly (not this file's now-default
+        logos): N=16 here was calibrated against bimodal's own state
+        representation. logos's semantics enumerates all 2^N states eagerly
+        (see models/structure.py's N-bit-width validation), so the identical
+        N=16 setting that costs bimodal ~6s costs logos tens of seconds and
+        multiple GB, and was observed to leave enough residual Z3/process
+        memory pressure to spuriously fail several *unrelated* tests later in
+        the same worker (test_scaling_with_n, test_memory_usage_simple/complex,
+        test_sequential_vs_concurrent) with `Z3Exception: out of memory`. This
+        is exactly the "call site that genuinely needs bimodal" carve-out this
+        helper's own default-swap anticipates -- the setting is
+        representation-specific, not a claim about bimodal's semantics, so an
+        explicit theory_name keeps this test's real, already-audited assertion
+        unchanged rather than silently breaking it and its neighbors.
         """
         start = time.time()
-        
+
         # Create complex model
         settings = {
             'N': 16,
@@ -70,9 +85,9 @@ class TestExecutionPerformance(BaseModelTest):
             'non_null': True,
             'disjoint': True
         }
-        
+
         try:
-            model = self.create_model(settings)
+            model = self.create_model(settings, theory_name='bimodal')
             elapsed = time.time() - start
             assert elapsed < 20.0, f"Complex model took {elapsed:.2f}s, expected < 20s"
         except Exception:
@@ -127,7 +142,21 @@ class TestMemoryPerformance:
         assert peak_mb < 10, f"Simple model used {peak_mb:.1f}MB, expected < 10MB"
     
     def test_memory_usage_complex(self):
-        """Test memory usage for complex models."""
+        """Test memory usage for complex models.
+
+        Pinned to theory_name='bimodal' explicitly, for the same reason
+        TestExecutionPerformance.test_complex_model_performance is: N=10 with
+        contingent/non_empty was calibrated against bimodal's own state
+        representation and passes cleanly there. Under logos's eager 2^N
+        state enumeration, the identical setting was observed to exceed Z3's
+        own global memory ceiling (`Z3Exception: max. memory exceeded`,
+        rather than a merely slow solve) -- a genuine outcome flip, not a
+        budget the assertion below could be reasonably widened to absorb --
+        and, worse, that exhausted Z3 memory state was observed to poison
+        subsequent tests in the same worker (test_memory_cleanup,
+        test_sequential_vs_concurrent) with the identical exception, even
+        though neither of those tests requests anything but a trivial N=3.
+        """
         import tracemalloc
 
         # Start memory tracking
@@ -139,7 +168,7 @@ class TestMemoryPerformance:
                 'N': 10,
                 'contingent': True,
                 'non_empty': True
-            })
+            }, theory_name='bimodal')
             
             # Get memory usage
             current, peak = tracemalloc.get_traced_memory()

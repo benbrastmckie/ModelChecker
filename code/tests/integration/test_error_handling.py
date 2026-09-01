@@ -134,7 +134,17 @@ class TestFrameworkErrorHandling:
                 pass
     
     def test_z3_timeout_handling(self):
-        """Test Z3 solver timeout handling."""
+        """Test Z3 solver timeout handling.
+
+        Pinned to theory_name='bimodal' explicitly: `max_time` only bounds
+        the Z3 solve call itself, not the Python-side constraint generation
+        that happens first. logos's eager 2^N state enumeration (across its
+        default four subtheories) makes that Python-side step alone take
+        ~22s at N=10, independent of `max_time` -- measured 0.34s at N=5 and
+        1.2s at N=8 for comparison, so the cost is non-linear in N, not a
+        fixed per-call overhead. bimodal's construction stays cheap at N=10,
+        which is what this timeout-handling test actually needs to exercise.
+        """
         # Create a model with very short timeout
         settings = {
             'N': 10,
@@ -143,7 +153,7 @@ class TestFrameworkErrorHandling:
 
         # This should handle timeout gracefully
         # Note: Actual implementation depends on how timeouts are handled
-        model = create_test_model(settings)
+        model = create_test_model(settings, theory_name='bimodal')
         # Model should indicate timeout occurred
     
     def test_memory_limit_handling(self):
@@ -217,7 +227,17 @@ example_range = {
                 assert not file.match(pattern), f"Temporary file left: {file}"
     
     def test_graceful_degradation(self):
-        """Test system degrades gracefully under errors."""
+        """Test system degrades gracefully under errors.
+
+        Pinned to theory_name='bimodal' explicitly: the third case below
+        supplies no 'N' at all, so it inherits the selected theory's own
+        DEFAULT_EXAMPLE_SETTINGS. logos's defaults are N=16 with
+        contingent/non_empty/non_null/disjoint all True (its
+        DEFAULT_EXAMPLE_SETTINGS, unlike bimodal's cheap N=2/contingent=False
+        defaults) -- exactly the expensive combination
+        test_complex_model_performance's sibling comment documents. bimodal's
+        cheap defaults are what this generic degradation check actually needs.
+        """
         # Test with settings that might cause issues
         problematic_settings = [
             {'N': 1, 'contingent': True},  # Minimum N with contingent
@@ -227,7 +247,7 @@ example_range = {
 
         for settings in problematic_settings:
             try:
-                model = create_test_model(settings)
+                model = create_test_model(settings, theory_name='bimodal')
                 # Should either work or fail gracefully
             except Exception as e:
                 # Check error is informative

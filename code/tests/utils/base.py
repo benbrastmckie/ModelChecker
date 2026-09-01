@@ -133,11 +133,17 @@ class BaseModelTest:
     Provides helper methods for creating and validating models.
     """
     
-    def create_model(self, settings: Optional[Dict[str, Any]] = None):
+    def create_model(self, settings: Optional[Dict[str, Any]] = None,
+                     theory_name: str = 'logos'):
         """Create a model with given settings.
 
         Args:
             settings: Optional settings dictionary
+            theory_name: Name of the theory to use (defaults to 'logos',
+                matching create_test_model()'s own default -- see that
+                function's docstring). Callers that genuinely need a
+                specific theory's semantics should pass this explicitly
+                rather than relying on the default.
 
         Returns:
             ModelDefaults: Created model instance
@@ -147,7 +153,7 @@ class BaseModelTest:
         if settings is None:
             settings = {'N': 3}
 
-        return create_test_model(settings)
+        return create_test_model(settings, theory_name=theory_name)
     
     def assert_model_valid(self, model):
         """Assert model is valid and satisfiable.

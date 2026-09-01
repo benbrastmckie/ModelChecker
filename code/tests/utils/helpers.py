@@ -298,7 +298,7 @@ def compare_outputs(output1: str, output2: str,
 def create_test_model(settings: Optional[Dict[str, Any]] = None,
                      premises: Optional[List[str]] = None,
                      conclusions: Optional[List[str]] = None,
-                     theory_name: str = 'bimodal'):
+                     theory_name: str = 'logos'):
     """Create a test model with proper API usage.
 
     This helper function creates a ModelDefaults instance using the correct
@@ -317,10 +317,18 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
     from model_checker.syntactic import Syntax
     from model_checker.models import ModelDefaults
     from model_checker.models.constraints import ModelConstraints
-    from model_checker.theory_lib import bimodal
+    from model_checker.api import get_theory
 
-    # Get theory components
-    theory = bimodal.get_theory()
+    # Get theory components. Defaults to logos rather than bimodal: this
+    # helper's ~20 gating call sites (tests/integration/test_performance.py,
+    # test_error_handling.py, test_timeout_resources.py) assert only generic
+    # ModelDefaults/error/timing behavior, never bimodal-specific semantics,
+    # so pinning them to the one theory under active construction (see
+    # TESTING_GUIDE.md section 8.14) coupled their wall clock to that
+    # theory's frame-axiom solve cost for no coverage benefit. A caller that
+    # genuinely needs bimodal's semantics should pass theory_name='bimodal'
+    # explicitly.
+    theory = get_theory(theory_name)
     semantics_class = theory['semantics']
     proposition_class = theory['proposition']
     operators = theory['operators']
