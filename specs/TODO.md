@@ -1,5 +1,5 @@
 ---
-next_project_number: 178
+next_project_number: 179
 ---
 
 # TODO
@@ -12,7 +12,7 @@ next_project_number: 178
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 154,176 | -- | semantics, test-reliability |
-| 2 | 172 | 176 | test-reliability |
+| 2 | 172,178 | 176 | test-reliability |
 | 3 | 173 | 172 | testing |
 | 4 | 174 | 173 | test-reliability |
 
@@ -30,9 +30,31 @@ next_project_number: 178
 
 176 [IMPLEMENTING] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
   └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+  └─ 178 [NOT STARTED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
 174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
+
+### 178. Fix frame axiom solver cost regression
+- **Effort**: 4-8 hours
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: Task 176
+
+**Description**: Fix the 4-6x solver-cost regression that commit f9cc081e introduced into BimodalSemantics.build_frame_constraints, which currently keeps TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 quarantined under the `unstable` marker instead of passing.
+
+WHAT IS ESTABLISHED. This is not an open investigation -- the root cause is already bisected and recorded. Commit f9cc081e (2026-08-31 13:35) added build_seriality_constraint() and build_interpolation_constraint() to build_frame_constraints. Isolated single-process git-worktree bisection with a standalone repro produced: at f9cc081e^, rlimit_count = 7,850,279 (byte-for-byte identical across repeated runs) and the solver returns SAT; at f9cc081e, rlimit_count = 29,028,028 and the solver returns unknown/canceled at wall_seconds 15.0004 against the test's 15.0s max_time. At HEAD the range is 32.5M-46.5M, unknown/canceled on 5/5 runs. The effect is on Z3's machine-load-independent resource metric, so it is not a contention artifact. Full evidence: the specs entry for the M=3 shift-closure regression, baselines/01_head-classification.json through 04_attribution.md (active or archived).
+
+START FROM THE RECORDED FRONTIER, DO NOT REDO IT. Seven encoding-level avenues were already tried and each failed to reach budget: explicit E-matching patterns on each new axiom individually and jointly; a corrected joint z3.MultiPattern following the existing build_forward_comp_constraint precedent; reordering the two axioms' position in build_frame_constraints' returned list; and combinations. Best measured result roughly halved the cost, to ~11M-20M rlimit_count, still short of the ~8M region needed to finish inside the budget. Per-avenue measurements are in that task's baselines/05_fix-attempts.md. Read it first and start past it rather than re-walking those seven.
+
+WHAT SUCCESS LOOKS LIKE. Close the rlimit_count gap from the current ~11M-46M range down to the pre-regression ~8M region while keeping both new axioms' logical content intact, verified across a >= 20-seed re-verification with no undecided draw at max_time == 15.0. That is verbatim the exit criterion recorded at the `unstable` marker site in oracle/bimodal_logic/tests/test_soundness_regression.py, so satisfying it is what retires the marker. Removing the `unstable` marker is part of this task's completion, not a separate follow-up.
+
+CONSTRAINTS. Do NOT revert the two axioms -- the task that added them deferred that decision deliberately, and reverting would drop asserted TaskFrame axioms from five back to three. Do NOT widen the test's 15.0s max_time budget. Do NOT weaken or remove the test's assertions. Do NOT touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS. A single green run is never sufficient evidence -- the marker's own exit criterion requires the >= 20-seed re-verification above.
+
+WHY THIS EXISTS AS ITS OWN TASK. The quarantine task fixed the symptom (the red suite) and explicitly did not fix the cause. Nothing else in the backlog owns this cost regression, and an indefinitely-quarantined test is itself a defect to escalate per TESTING_GUIDE.md section 8.9's standing rule. This task is that escalation's owner.
+
+---
 
 ### 177. Bimodal in development status and ci non gating
 - **Status**: [COMPLETED]
