@@ -1408,13 +1408,17 @@ completeness tracker, not an investigated-defect quarantine -- but not a rubber 
 **What it must not hide.** `development` must never be used for differential or
 soundness-oracle tests, or for any test whose pass/fail state encodes a semantic claim about the
 theory's correctness rather than its completeness. This is enforced structurally, not just by
-convention: the marker is **deliberately not mirrored** into `oracle/conftest.py`, breaking that
-file's own "keep in sync with `code/pyproject.toml`" convention on purpose (see
-`oracle/conftest.py`'s docstring and the marker's own `pyproject.toml` entry), so no oracle-tree
-test can register or claim `development` -- the differential/soundness harness stays
-categorically, unconditionally gating.
+convention: `development` **is** registered and applied as a blanket in `oracle/conftest.py`
+(kept in sync with `code/pyproject.toml`'s `markers` list, per that file's own docstring), but the
+blanket **exempts exactly the six `_SOUNDNESS_CORE_CLASSES`** -- the differential/soundness core
+-- so no soundness-oracle test can register or claim `development`, and the differential/soundness
+harness stays categorically, unconditionally gating.
 
-**Why a bimodal-only edit can still legitimately gate on `differential-tests.yml`.** That
+**Why a bimodal-only edit can still legitimately gate on `differential-tests.yml`.** The repo
+owner's directive to exclude bimodal until it is finished is honored in full for *completeness*
+claims -- both `development` blankets quarantine exactly those -- and is deliberately **not**
+extended to this one *soundness* check: "bimodal is incomplete" and "bimodal is wrong" are
+different claims, and only the first is what the exclusion directive is about. That
 workflow's "Run CI gate tests explicitly" step keeps running unconditionally on every bimodal
 change, with no `-m` filter of any kind, and this is not an oversight left over from before the
 `development` marker existed -- it is a deliberate, permanent exception, now recorded in a comment
@@ -1461,15 +1465,15 @@ duplicating the fetch machinery) -- deliberately not using `READY TO PROMOTE` wo
 20-run framing, since a pass rate is a progress observation, not a claim that an instability
 resolved.
 
-**The producing workflow step does not exist yet.** `unstable-watch.yml` has no step today that
-runs `-m development` and writes `/tmp/watch-development.xml` -- `parse_junit` returns nothing for
-a missing file, so this entire path is inert in production until a future workflow change adds a
-third watch step (mirroring the existing `watch_code` step, selecting `-m development`, tolerating
-pytest exit codes 0 and 5 exactly like its siblings) and extends
-`test_unstable_deselection_wiring.py`'s `unstable-watch.yml`-shape assertion to account for the
-third step. The classifier-side mechanism (parsing, `DEV_STATUS` classification, the record
-schema, and trend reporting) is fully implemented and unit-tested independently of that deferred
-step.
+**The producing workflow step is implemented.** `unstable-watch.yml` has a third watch step,
+`watch_development` (mirroring `watch_code`: selects `-m development`, writes
+`/tmp/watch-development.xml`, is `continue-on-error: true`, and tolerates pytest exit codes 0 and
+5 exactly like its siblings), so this path is live in production, not inert. Its shape is asserted
+by `test_unstable_deselection_wiring.py::TestGatingInvocationsDeselectQuarantineMarkers::
+test_watch_development_step_selects_development_and_writes_junit`, which passes. The
+classifier-side mechanism (parsing, `DEV_STATUS` classification, the record schema, and trend
+reporting) is fully implemented and unit-tested as well, so both the producing step and its
+consumer are complete.
 
 **Exit path.** Per-test: mechanical and immediate -- the marker comes off the moment the
 behaviour is implemented and the test passes, with no waiting window. This is a deliberate
@@ -1536,7 +1540,11 @@ declaration, not an oversight. It is bounded three ways:
   between the `code/`-tree implementation and the reference oracle, never on a timeout or an
   unresolved formula. No semantic claim about bimodal's correctness can be quarantined by either
   blanket — only completeness claims. A theory being incomplete is a reason to stop gating on
-  *completeness*; it is not a reason to stop checking whether the theory is *wrong*.
+  *completeness*; it is not a reason to stop checking whether the theory is *wrong*. The rejected
+  alternative, recorded so the record shows it was weighed: dropping this gate would require
+  deleting `test_unstable_deselection_wiring.py::TestOracleSoundnessGateStaysUnconditionallyGating`,
+  which exists precisely to prevent that happening by accident, and would leave no independent
+  check that bimodal's semantics are correct while it is under construction.
 - **Containment is executable, for both blankets.**
   `code/tests/ci/test_development_marker_application.py` covers blanket (1);
   `code/tests/ci/test_oracle_development_marker_application.py` covers blanket (2), asserting all

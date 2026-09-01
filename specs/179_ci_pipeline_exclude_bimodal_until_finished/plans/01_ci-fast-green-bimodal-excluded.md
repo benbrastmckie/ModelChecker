@@ -202,7 +202,7 @@ not become gating.
 
 ---
 
-### Phase 3: Record the soundness-gate decision and repair section 8.14's stale passages [NOT STARTED]
+### Phase 3: Record the soundness-gate decision and repair section 8.14's stale passages [COMPLETED]
 
 **Goal**: Resolve item (b) explicitly on the record — the 49-test oracle soundness gate **keeps
 running** — and fix the two factually stale passages in the same section, without touching any
