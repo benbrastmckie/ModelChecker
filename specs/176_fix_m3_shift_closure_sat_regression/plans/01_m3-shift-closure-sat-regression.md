@@ -326,7 +326,7 @@ revisions cannot import, narrow the bisect window and record the floor.
 
 ---
 
-### Phase 5: Implement the Constraint/Solver-Layer Fix [COMPLETED]
+### Phase 5: Implement the Constraint/Solver-Layer Fix [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: Restore SAT at `N=2, M=3, temporal_depth=1, max_shift=1` with the test's assertions and
 15.0s budget unchanged — or, failing that, produce the recorded failed-fix-attempt evidence that
@@ -383,9 +383,16 @@ TESTING_GUIDE 8.9 criterion 3 requires.
   test's `max_time: 15.0` are untouched
 - Or: `05_fix-attempts.md` records a documented failure with per-avenue measurements
 
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|------|--------|----------|
+| Restoring SAT within the 15.0s budget via a constraint/solver-layer encoding fix | Eight avenues were tried against the two commit-`f9cc081e`-added frame axioms (Seriality, Interpolation): explicit E-matching patterns individually and jointly, a corrected joint `z3.MultiPattern` matching the existing `build_forward_comp_constraint` precedent, reordering the axioms' position in `build_frame_constraints`' returned list, and combinations thereof, re-measured cleanly under confirmed sole ownership of the working tree after a mid-phase concurrent-editing confound was identified and resolved. The best combination (patterns + reordering) yields a real, reproducible ~2.2x `rlimit_count` reduction (32-46M -> a stable 19.3M-21.4M across 5 clean runs) but never reaches the ~8M pre-regression region needed to finish within budget; every run remained `unknown`/`canceled` at 15.0s. | `specs/176_fix_m3_shift_closure_sat_regression/baselines/05_fix-attempts.md` (all 8 avenues and measurements, Avenue 8 being the authoritative clean re-measurement) |
+| Landing the best-measured partial mitigation (patterns + reordering) in `core.py` | The mitigation is real but insufficient on its own terms (does not fix the target test), was not run through its own full regression gate (`test_soundness_regression.py` + bimodal unit tree) as a standalone change, and trades against `f9cc081e`'s asserted TaskFrame axiom set in a way this phase's Non-Goals explicitly decline to decide unilaterally (reverting or altering the Seriality/Interpolation axioms is a deferred user/task-153 decision). Landing a source change that does not solve the problem it was measured for, without that regression pass or that decision, is escalated rather than merged. `core.py` was left matching committed HEAD exactly. | `specs/176_fix_m3_shift_closure_sat_regression/baselines/05_fix-attempts.md`'s Avenue 8 section; `git diff code/src/model_checker/theory_lib/bimodal/semantic/core.py` produces no output at phase close |
+
 ---
 
-### Phase 6: Fallback — `unstable` Marking (CONDITIONAL) [IN PROGRESS]
+### Phase 6: Fallback — `unstable` Marking (CONDITIONAL) [NOT STARTED]
 
 **Goal**: Only if Phase 5 landed no fix, quarantine the test under the `unstable` marker with all
 four TESTING_GUIDE.md section 8.9 entry criteria recorded as separately identifiable items at the

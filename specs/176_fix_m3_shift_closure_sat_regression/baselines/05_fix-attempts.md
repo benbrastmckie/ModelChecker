@@ -3,6 +3,8 @@
 **Status as of this writing**: no candidate has reached green (SAT within the 15.0s budget) for
 `TestShiftClosure::test_shift_closure_on_extracted_worlds_m3`. This file records every avenue
 tried and its measurement, per the plan's requirement, whether or not a fix ultimately lands.
+Phase closed `[COMPLETED WITH EXCLUSIONS]` -- see the Reasoned Exclusions in
+`07_decision-record.md` and the escalated Phase 6 decision recorded there.
 
 ## Diagnostic: How Much Headroom Is Needed
 
@@ -130,19 +132,58 @@ regression (doubling independent top-level quantifiers). Combined-state runs inc
 variant (Avenue 5 above) did not reach green either. Not independently isolated as its own
 single-variable measurement within this phase's budget.
 
+## Avenue 8: Clean Sole-Owner Re-Measurement (Patterns + Reordering, 5 Runs)
+
+Earlier avenues in this phase were measured while a second, independently-dispatched agent was
+concurrently editing this same file without either agent's knowledge (a dispatch-tracking error
+on the orchestrating side, since corrected) -- flagged, investigated, and resolved mid-phase (see
+this task's session record). Once sole ownership of the working tree was confirmed, the single
+best-performing candidate from the earlier (confounded) measurements -- Avenue 6's corrected
+`z3.MultiPattern(serial_succ(w, x), serial_pred(w, x))` on seriality, `patterns=[u]` on
+interpolation, PLUS Avenue 4's reordering (`seriality, interpolation` moved to after
+`*skolem_abundance, world_uniqueness` instead of immediately before `*skolem_abundance`) -- was
+re-applied cleanly and re-measured over 5 consecutive runs with no other process touching the
+file:
+
+| Run | rlimit_count | wall_seconds | verdict |
+|---|---|---|---|
+| 1 | 21,012,534 | 15.0011 | unknown/canceled |
+| 2 | 21,430,782 | 15.0009 | unknown/canceled |
+| 3 | 19,303,774 | 15.0010 | unknown/canceled |
+| 4 | 21,191,737 | 15.0012 | unknown/canceled |
+| 5 | 20,338,491 | 15.0007 | unknown/canceled |
+
+**This is the phase's authoritative measurement**, superseding the noisier, possibly
+cross-contaminated numbers recorded during the concurrent-editing window (Avenues 5-7 above,
+which ranged more widely, 11M-26M, and are retained here only as a record of what was tried, not
+as the final verdict). Clean and reproducible: rlimit_count is tightly clustered at
+19.3M-21.4M -- a real, stable, ~2.2x reduction from the unmodified-HEAD baseline (32-46M, Phase 1)
+-- but still ~2.5x above the ~8M pre-regression target, and `unknown`/`canceled` in all 5 runs.
+No run reached SAT.
+
+The source edit underlying this measurement was reverted after recording it (core.py matches
+committed HEAD exactly; verified via `git diff` producing no output and the target test still
+failing with its original RED message) -- landing an unverified, insufficient, partial-benefit
+encoding change without its own full regression-gate pass and without a deliberate decision on
+what it trades against (task-153's axioms are explicitly out of scope to revert; see the plan's
+Non-Goals) is not a call this phase makes unilaterally. See `07_decision-record.md` for the
+escalation.
+
 ## Summary
 
-Seven avenues tried (six independently measured, one combined-and-observed). Best measured
-result: ~11M rlimit_count (Avenue 5, combined interpolation pattern + seriality patterns +
-reordering) against a ~8M target, roughly halving the post-regression cost (32-46M baseline) but
-not reaching the pre-regression floor. No candidate reached SAT within the 15.0s budget in any
-run across all avenues. Task-144's precedent (a well-tuned, already-shared axiom family that
-resists further trigger tuning without starving other formulas) appears to extend to this new
-axiom pair as well: pattern/ordering tuning yields real, measurable, but insufficient
-improvement, and the mechanism (an MBQI/E-matching cost increase from widening the asserted
-TaskFrame axiom set, compounded by a latent order-sensitivity in the constraint-construction
-pipeline) resists a clean single-lever fix within this phase's scope.
+Eight avenues tried (six independently measured under a since-corrected concurrent-editing
+confound, one combined-and-observed, and one clean, authoritative sole-owner re-measurement).
+Best measured result: a stable ~19.3M-21.4M rlimit_count (Avenue 8, combined interpolation
+pattern + seriality `MultiPattern` + reordering) against a ~8M target -- a real, reproducible
+~2.2x reduction from the unmodified baseline (32-46M), but not reaching the pre-regression floor.
+No candidate reached SAT within the 15.0s budget in any run across all avenues. Task-144's
+precedent (a well-tuned, already-shared axiom family that resists further trigger tuning without
+starving other formulas) appears to extend to this new axiom pair as well: pattern/ordering
+tuning yields real, measurable, but insufficient improvement, and the mechanism (an MBQI/
+E-matching cost increase from widening the asserted TaskFrame axiom set, compounded by a latent
+order-sensitivity in the constraint-construction pipeline that concurrent-editing noise had
+partly obscured) resists a clean single-lever fix within this phase's scope.
 
 No source file was left modified with an unreverted, non-working experimental state by this
-avenue-tracking; see the phase's final state note in `07_decision-record.md` for what (if
-anything) was ultimately merged versus reverted.
+avenue-tracking; `core.py` matches committed HEAD exactly at the close of this phase. See
+`07_decision-record.md` for the escalated Phase 6 decision.
