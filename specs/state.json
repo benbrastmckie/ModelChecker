@@ -1,17 +1,30 @@
 {
-  "next_project_number": 184,
+  "next_project_number": 185,
   "active_projects": [
+    {
+      "project_number": 184,
+      "project_name": "refactor_bimodal_theory_tests_green_and_paper_lean_aligned",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "semantics",
+      "effort": "large",
+      "description": "Refactor the bimodal theory so its full test suite passes quickly, and so its semantics align with the paper in ~/Projects/TenseModality/PossibleWorlds.pdf and the Lean formalization in ~/Projects/BimodalLogic/ (FormalSystem/).\n\nSEQUENCING GATE. This task is the refactor-first gate for all bimodal work. Every other bimodal task waits on it; none of them should be researched, planned, or implemented until this lands. The dependent tasks are 154 (extension_certified_search_over_small_bimodal_models), 172 (fix_contention_flaky_soundness_regression_tests), 176 (fix_m3_shift_closure_sat_regression), 178 (fix_frame_axiom_solver_cost_regression), and 183 (discriminate_gating_shortfall_axiom_vs_contention). The rationale is that each of those is a point-fix against the CURRENT bimodal axiomatization, and this refactor may change or remove the very constraints they are chasing -- so fixing them first risks work that the refactor discards.\n\nTWO AIMS, BOTH BINDING.\n\n(1) TESTS GREEN AND FAST. The bimodal suite must pass in full, and solve cost must come down enough that bimodal is no longer the reason CI is slow or flaky. Recent completed work established the current holding pattern rather than a fix: bimodal was given in-development status and made CI non-gating, and the CI pipeline now excludes bimodal until it is finished. This task is what ends that holding pattern. Prior measurements to carry in as context: a 4-6x rlimit-confirmed solve-cost increase attributed to the Skolemized Seriality/Interpolation frame axioms (commit f9cc081e), and a gating conclusive-population shortfall (93-98 of 103 formulas conclusive, with 5-10 timeouts per run) on TestGatingConclusiveScan::test_known_conclusive_population_self_consistent in oracle/bimodal_logic/tests/test_cross_oracle_differential.py.\n\n(2) SEMANTIC ALIGNMENT WITH THE TWO REFERENCE SOURCES. The Python semantics in code/src/model_checker/theory_lib/bimodal/semantic/ must agree with the paper's semantics (PossibleWorlds.pdf) and with the Lean formal system (BimodalLogic/FormalSystem/). Where the three disagree, the disagreement must be identified and resolved deliberately, with the chosen source of truth recorded -- not silently patched on one side. The Lean development is the executable check on the paper; the Python theory is what must be brought into line.\n\nSCOPE NOTES. The frame-axiom work is expected to be revisited as part of this refactor rather than preserved as-is; do not treat the current Skolemized Seriality/Interpolation encoding as fixed. The differential oracle (oracle/bimodal_logic/) is the measurement instrument for semantic agreement and should be used as such, but its own soundness core and unconditional-gating property are not in scope for modification.\n\nSTARTING POINTS. code/src/model_checker/theory_lib/bimodal/ (semantic/, operators.py, iterate.py, examples.py, tests/), oracle/bimodal_logic/, ~/Projects/BimodalLogic/FormalSystem/ and its specs/, and ~/Projects/TenseModality/PossibleWorlds.pdf.",
+      "artifacts": [],
+      "created": "2026-09-01T16:35:55Z",
+      "last_updated": "2026-09-01T16:35:55Z"
+    },
     {
       "project_number": 154,
       "project_name": "extension_certified_search_over_small_bimodal_models",
-      "status": "not_started",
+      "status": "blocked",
       "task_type": "python",
       "topic": "semantics",
       "priority": "high",
       "description": "THE PAYOFF, and the one task in this group where OVER-CLAIMING is the principal risk. With the frame axioms in place, the paper's `thm:extension` becomes applicable to bimodal countermodels: every partial history the solver finds is a fragment of a genuine total world history in $H_\\F$. Use that to move work out of the solver -- but only the half the theorem actually covers.\n\nWHAT THE THEOREM BUYS. Today the solver is made to approximate totality inside the search: `world_interval_constraint` gives each world a time interval, `lawful` chains unit steps across it, and the `capped_skolem_abundance_constraint` / `depth_bounded_skolem_abundance_constraint` family manufactures time-shifted copies. The extension theorem says the interval-and-shift scaffolding is not needed in order to KNOW that a found history is realizable: any partial assignment consistent with the frame axioms already lies inside some total history. So the solver may search genuinely small partial structures -- fewer worlds, narrower windows, no shift closure -- with totality discharged afterwards.\n\nWHAT IT DOES NOT BUY. This must be stated in the code and in the summary, not only here. `thm:extension` is EXISTENTIAL. It certifies that a witness exists; it says nothing about universal obligations. Truth of `\\Box \\phi` quantifies over all of $H_\\F$, and truth of `\\Future \\phi` and `\\Past \\phi` over all of $\\D$, whereas `NecessityOperator.true_at` currently quantifies over the solver's finite world set and the tense operators over the bounded window. The abundance constraints approximate that second column and the extension theorem DOES NOT REPLACE THEM. Any design that drops abundance wholesale and cites `thm:extension` as cover is wrong. The preceding audit's baseline records exactly which examples this bites; use it.\n\nDELIVERABLE 1 -- POST-HOC CERTIFICATION. After extraction, take the countermodel's partial histories and produce the finite lasso witness of BimodalLogic 441 (prefix plus cycle, forward and backward), verify that it satisfies the frame axioms and agrees with the extracted window, and attach it to the model structure. This is the concrete, checkable form of the claim \"this bounded history is a fragment of a possible world\", and it replaces the prose assurance currently carried in the `task_restriction` soundness comment.\n\nDELIVERABLE 2 -- SPLIT THE CONSTRAINT SET BY POLARITY. Formulas whose falsification obligations are purely existential -- no `\\Box` or universal tense operator in a verifying position -- need no abundance closure and can be searched at smaller `M` with fewer worlds. Formulas carrying universal obligations keep the current treatment. Drive this off the EXISTING `temporal_depth` machinery, which already performs depth-aware abundance selection, rather than adding a second parallel mechanism beside it.\n\nDELIVERABLE 3 -- MEASURE IT. The claim here is a performance claim as well as a soundness claim. Report solve times against the audit baseline for the examples in each polarity class, and report honestly if the win turns out to be small or absent. A correct-but-slower result is a legitimate outcome and should be reported as such rather than tuned until it looks good.\n\nDELIVERABLE 4 -- SURFACE THE CERTIFICATE. A user who gets a bimodal countermodel should be able to see the extension witness, not just the bounded window. Fit this to the existing output conventions rather than inventing a new output channel.\n\nREGRESSION PROCEDURE. Use `specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/README.md` for the concrete re-run/diff procedure against the audit's baseline; the `task_restriction` soundness comment this task's Deliverable 1 replaces the prose assurance of is assessed standalone in `specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/02_task-restriction-verdict.md` (verdict: independent gap, not subsumed by the frame-axiom task).\n\nDEPENDENCIES. The frame-axiom task (without *Seriality* and interpolation the extension theorem does not apply at all), the audit task (baseline), and BimodalLogic 441 (the lasso construction and the agreement lemma, including its explicit statement of what does not transfer).",
       "dependencies": [
         152,
-        153
+        153,
+        184
       ],
       "file_scope": [
         "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
@@ -20,9 +33,9 @@
         "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"
       ],
       "artifacts": [],
-      "blockers": null,
+      "blockers": "GATED ON TASK 184 (bimodal refactor, user decision 2026-09-01): all bimodal work waits on the refactor that makes the bimodal suite pass quickly and aligns its semantics with PossibleWorlds.pdf and the BimodalLogic Lean formalization. This task point-fixes the current bimodal axiomatization, which the refactor may change or remove.",
       "created": "2026-08-11T23:11:53Z",
-      "last_updated": "2026-08-11T23:11:53Z",
+      "last_updated": "2026-09-01T16:36:52Z",
       "next_artifact_number": 1,
       "session_id": "sess_manual_154"
     },
@@ -34,9 +47,10 @@
       "description": "Three tests in oracle/bimodal_logic/tests/test_soundness_regression.py fail deterministically under the gating suite's parallel pass but pass in isolation. They are CPU-contention casualties of a tight solve budget, and they were invisible to every narrowed verification gate run to date because no recent task touched their file.\n\nTHE THREE TESTS:\n- TestBoundaryVacuity::test_depth1_countermodel_has_required_fields\n- TestGuardedCompositionality::test_forward_comp_with_temporal_formula_output\n- TestGuardedCompositionality::test_nullity_with_temporal_formula_output\n\nMEASURED EVIDENCE (2026-08-26, full two-pass run of oracle/run-oracle-suite.sh on the 24-core dev host):\n- Pass 1 (626 tests, -n 6, \"not xdist_serial and not slow and not unstable\"): 3 failed, 617 passed, 2 skipped, 4 xfailed in 770.33s. The three failures above are the only ones.\n- All three fail identically with OracleTimeoutError at the provider default timeout_ms=5000, temporal_depth=1, time_bound M=3, raised at oracle/bimodal_logic/provider.py:292.\n- Run SERIALLY at the same commit, all three pass in 4.53s TOTAL (~1.5s each) -- roughly 3x contention inflation against the 5000ms budget under six workers.\n- Pass 2 (15 tests, serial): 15 passed in 677.08s, clean.\n\nRULED OUT -- NOT A REGRESSION. The max_rlimit plumbing added to Z3OracleProvider.find_countermodel() is genuinely default-off: `timeout_ms: int = 5000` is unchanged and `max_rlimit` is only inserted into the settings dict when truthy (`if max_rlimit:`), mirroring ModelDefaults.solve()'s own guard. All three of these tests call find_countermodel(F_P) with no keyword arguments, so their code path is byte-for-byte identical to before that change. Do not spend time re-investigating this.\n\nWHY THEY ARE NOT ALREADY HANDLED. These three tests are NOT marked @pytest.mark.xdist_serial, so they land in pass 1 under -n 6 rather than in the serial pass that exists precisely to eliminate this contention class. This is the same hazard the logos max_time floor corrected and that the CI-budget task addressed for example settings dicts -- but on a DIFFERENT constant: the oracle provider's own timeout_ms default, which no floor guard currently covers.\n\nWHAT TO DO. Choose a remedy backed by measurement, not by pattern-matching:\n(a) Route the three to the serial pass with @pytest.mark.xdist_serial -- the precedent already used for test_mixed_and_box_next and the BM_CM_4 parametrizations, and the fix the two-pass split was designed for. Cheapest and most consistent, but it lengthens pass 2 (currently 677s against an 1800s budget, so there is headroom -- confirm it stays inside).\n(b) Pass max_rlimit alongside timeout_ms at these call sites -- Z3's load-INDEPENDENT resource-unit budget, already plumbed end-to-end and blessed by code/docs/core/TESTING_GUIDE.md section 8.6. Measure the rlimit for each of the three formulas first and set the budget over the measured worst draw with headroom, following the ~2x-to-3x-of-worst convention used elsewhere in this tree. This addresses the root cause (wrong unit) rather than rescheduling around it.\n(c) Both -- (a) for immediate green, (b) for durability.\n\nAlso consider, and decide explicitly with reasons recorded: whether the oracle provider's timeout_ms=5000 default deserves a floor guard analogous to code/tests/ci/test_example_budget_floor.py, since nothing currently prevents another test from being written against a budget that only holds when the machine is idle. Survey the other call sites before deciding -- a floor is only worth adding if the population justifies it.\n\nCONSTRAINTS:\n- Do NOT weaken any assertion to reach green.\n- Do NOT edit GATING_RECHECK_SOLVE_TIMEOUT_MS (stays 40000) or MIN_CONCLUSIVE_GATING_FORMULAS (stays 100).\n- Verify via the real two-pass driver `bash oracle/run-oracle-suite.sh`, NOT a narrowed single-file selection -- narrowed gates are exactly what hid this defect. Budget ~25 minutes for a full run (pass 1 ~13 min at -n 6, pass 2 ~11 min serial).\n- Note for the implementer: long runs are reaped by the harness if launched as ordinary background tasks. Use `setsid nohup ... &` to detach, then poll.",
       "topic": "test-reliability",
       "created": "2026-08-26T15:09:54Z",
-      "last_updated": "2026-08-31T19:13:33Z",
+      "last_updated": "2026-09-01T16:36:52Z",
       "dependencies": [
-        176
+        176,
+        184
       ],
       "file_scope": [
         "oracle/bimodal_logic/tests/test_soundness_regression.py",
@@ -61,7 +75,8 @@
           "summary": "Four-test remedy fully verified; reproducible unrelated fifth failure recorded as follow-up candidate."
         }
       ],
-      "previous_status": "implementing"
+      "previous_status": "implementing",
+      "blockers": "GATED ON TASK 184 (bimodal refactor, user decision 2026-09-01): all bimodal work waits on the refactor that makes the bimodal suite pass quickly and aligns its semantics with PossibleWorlds.pdf and the BimodalLogic Lean formalization. This task point-fixes the current bimodal axiomatization, which the refactor may change or remove."
     },
     {
       "project_number": 176,
@@ -72,14 +87,16 @@
       "effort": "3-5 hours",
       "parent_task": 172,
       "topic": "test-reliability",
-      "dependencies": [],
+      "dependencies": [
+        184
+      ],
       "file_scope": [
         "oracle/bimodal_logic/tests/test_soundness_regression.py",
         "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
         "code/docs/core/TESTING_GUIDE.md"
       ],
       "created": "2026-08-31T19:13:41Z",
-      "last_updated": "2026-09-01T04:56:00Z",
+      "last_updated": "2026-09-01T16:36:52Z",
       "session_id": "sess_1788235660_3d9a75",
       "artifacts": [
         {
@@ -93,7 +110,7 @@
           "summary": "8-phase plan to classify, attribute, and fix the deterministic M=3 depth-bounded shift-closure non-SAT regression"
         }
       ],
-      "blockers": "PARKED by user decision (2026-08-31): bimodal is still under active construction, so the oracle differential suite is being made non-gating via the development marker rather than fixed. Phase 7's full-suite verification found 19 failures (3 in pass 1, 16 in pass 2), overwhelmingly OracleTimeoutError rather than semantic disagreement, on a non-idle machine. Resume only after bimodal leaves development."
+      "blockers": "PARKED by user decision (2026-08-31): bimodal is still under active construction, so the oracle differential suite is being made non-gating via the development marker rather than fixed. Phase 7's full-suite verification found 19 failures (3 in pass 1, 16 in pass 2), overwhelmingly OracleTimeoutError rather than semantic disagreement, on a non-idle machine. Resume only after bimodal leaves development. GATED ON TASK 184 (bimodal refactor, user decision 2026-09-01): all bimodal work waits on the refactor that makes the bimodal suite pass quickly and aligns its semantics with PossibleWorlds.pdf and the BimodalLogic Lean formalization. This task point-fixes the current bimodal axiomatization, which the refactor may change or remove."
     },
     {
       "project_number": 178,
@@ -104,30 +121,35 @@
       "parent_task": 176,
       "topic": "test-reliability",
       "dependencies": [
-        176
+        176,
+        184
       ],
       "file_scope": [
         "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
         "oracle/bimodal_logic/tests/test_soundness_regression.py"
       ],
       "created": "2026-09-01T02:27:21Z",
-      "last_updated": "2026-09-01T04:56:01Z",
+      "last_updated": "2026-09-01T16:36:52Z",
       "session_id": "sess_1788235660_3d9a75",
       "description": "Fix the 4-6x solver-cost regression that commit f9cc081e introduced into BimodalSemantics.build_frame_constraints, which forces TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 to be quarantined under the `unstable` marker instead of passing. The quarantine is applied by the M=3 shift-closure task, which this task depends on; if that task's own marker phase is still in flight or was reverted when you read this, confirm the marker's actual presence at the test site rather than assuming it.\n\nWHAT IS ESTABLISHED. This is not an open investigation -- the root cause is already bisected and recorded. Commit f9cc081e (2026-08-31 13:35) added build_seriality_constraint() and build_interpolation_constraint() to build_frame_constraints. Isolated single-process git-worktree bisection with a standalone repro produced: at f9cc081e^, rlimit_count = 7,850,279 (byte-for-byte identical across repeated runs) and the solver returns SAT; at f9cc081e, rlimit_count = 29,028,028 and the solver returns unknown/canceled at wall_seconds 15.0004 against the test's 15.0s max_time. At HEAD the range is 32.5M-46.5M, unknown/canceled on 5/5 runs. The effect is on Z3's machine-load-independent resource metric, so it is not a contention artifact. Full evidence: the specs entry for the M=3 shift-closure regression, baselines/01_head-classification.json through 04_attribution.md (active or archived).\n\nSTART FROM THE RECORDED FRONTIER, DO NOT REDO IT. Seven encoding-level avenues were already tried and each failed to reach budget: explicit E-matching patterns on each new axiom individually and jointly; a corrected joint z3.MultiPattern following the existing build_forward_comp_constraint precedent; reordering the two axioms' position in build_frame_constraints' returned list; and combinations. Best measured result, re-measured cleanly by a sole owner across 5 runs, was rlimit_count 19.3M-21.4M -- a real and reproducible ~2.2x reduction from the unmodified 32-46M baseline, but still short of the ~8M region needed to finish inside the budget, with all 5 runs remaining unknown/canceled. That mitigation (E-matching patterns on both new axioms PLUS reordering them after skolem_abundance/world_uniqueness in build_frame_constraints' returned list) was deliberately NOT landed, to avoid banking a target-insufficient change without its own regression-gate pass. It is the frontier to start from, and it should be reconstructible from baselines/05_fix-attempts.md without re-deriving it. Per-avenue measurements are in that task's baselines/05_fix-attempts.md. Read it first and start past it rather than re-walking those seven.\n\nWHAT SUCCESS LOOKS LIKE. Close the rlimit_count gap from the current ~11M-46M range down to the pre-regression ~8M region while keeping both new axioms' logical content intact, verified across a >= 20-seed re-verification with no undecided draw at max_time == 15.0. That is verbatim the exit criterion recorded at the `unstable` marker site in oracle/bimodal_logic/tests/test_soundness_regression.py, so satisfying it is what retires the marker. Removing the `unstable` marker is part of this task's completion, not a separate follow-up.\n\nCONSTRAINTS. Do NOT revert the two axioms -- the task that added them deferred that decision deliberately, and reverting would drop asserted TaskFrame axioms from five back to three. Do NOT widen the test's 15.0s max_time budget. Do NOT weaken or remove the test's assertions. Do NOT touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS. A single green run is never sufficient evidence -- the marker's own exit criterion requires the >= 20-seed re-verification above.\n\nWHY THIS EXISTS AS ITS OWN TASK. The quarantine task fixed the symptom (the red suite) and explicitly did not fix the cause. Nothing else in the backlog owns this cost regression, and an indefinitely-quarantined test is itself a defect to escalate per TESTING_GUIDE.md section 8.9's standing rule. This task is that escalation's owner.",
       "artifacts": [],
-      "blockers": "PARKED by user decision (2026-08-31): bimodal is still under active construction, so the oracle differential suite is being made non-gating via the development marker rather than fixed. Phase 7's full-suite verification found 19 failures (3 in pass 1, 16 in pass 2), overwhelmingly OracleTimeoutError rather than semantic disagreement, on a non-idle machine. Resume only after bimodal leaves development."
+      "blockers": "PARKED by user decision (2026-08-31): bimodal is still under active construction, so the oracle differential suite is being made non-gating via the development marker rather than fixed. Phase 7's full-suite verification found 19 failures (3 in pass 1, 16 in pass 2), overwhelmingly OracleTimeoutError rather than semantic disagreement, on a non-idle machine. Resume only after bimodal leaves development. GATED ON TASK 184 (bimodal refactor, user decision 2026-09-01): all bimodal work waits on the refactor that makes the bimodal suite pass quickly and aligns its semantics with PossibleWorlds.pdf and the BimodalLogic Lean formalization. This task point-fixes the current bimodal axiomatization, which the refactor may change or remove."
     },
     {
       "project_number": 183,
       "project_name": "discriminate_gating_shortfall_axiom_vs_contention",
-      "status": "not_started",
+      "status": "blocked",
       "task_type": "python",
       "effort": "2-4 hours",
       "topic": "test-reliability",
       "description": "Discriminate axiom-driven solver cost from host contention as the cause of the gating conclusive-population shortfall for TestGatingConclusiveScan::test_known_conclusive_population_self_consistent in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Consolidates report items 0a, 1, and 2 into one task because they resolve on the same next observations of the same test and would otherwise block on each other.\n\nBACKGROUND. Six consecutive unstable-watch runs (2026-08-27 -> 2026-09-01) all checked out the stale origin/master commit 98d3ad8d (frozen roughly five days): 33091941820 (98/103 conclusive, 5 timeouts, 761.61s), 33193518591 (96/103, 7, 824.89s), 33250263772 (98/103, 5, 749.10s), 33306220265 (96/103, 7, 898.78s), 33386925098 (96/103, 7, 808.64s), 33494135668 (97/103, 6, 788.74s). Zero disagreements on all six. origin/master has since caught up (no longer stale as of this task's creation).\n\nAll six were falsely classified NEW (not TIMING) by .github/scripts/unstable_watch_classify.py's classify(), because its DISAGREEMENT_SIGNATURE was a bare substring that matched pytest's unrendered f-string traceback listing rather than a real rendered disagreement. Fixed in commit cfb9cb4a (2026-08-31), which is not an ancestor of 98d3ad8d and has therefore never executed in any real CI run to date.\n\nA local run at axiom-bearing HEAD=9ce3b4ad (which contains the 2026-08-31 Skolemized Seriality/Interpolation frame axioms, commit f9cc081e) recorded agreements=93 disagreements=0 timeout_count=10 conclusive=93/103, 951.21s -- worse on both axes than every one of the six CI runs above. The host was demonstrably NOT idle (load ~5.9 -> ~4.8 across 24 cores, 7.3GB of swap in use), so this single data point is confounded and does not discriminate between two live explanations:\n  1. Axiom-driven solver cost increase (a real, rlimit-confirmed 4-6x cost increase from the same two axioms was already measured in a different Z3 constraint context by a related, currently-blocked task).\n  2. Host contention alone.\n\nWHAT WOULD DISCRIMINATE. Either (i) the same test at the same HEAD=9ce3b4ad on a verifiably idle CI-class runner (load ~0, no swap), or (ii) the same test at the pre-axiom 98d3ad8d checkout on a comparably-loaded local host (~load 5-6), to see whether contention alone reproduces a 93/103-class shortfall without the axioms.\n\nCONSOLIDATED ITEMS (from the diagnosis report's \"What remains open\"):\n1. Confirm cfb9cb4a actually reaches a real unstable-watch run now that origin/master has caught up, and confirm the next run(s) classify TIMING rather than NEW.\n2. Re-measure this gating test's conclusive count once a real CI run executes the Skolemized Seriality/Interpolation axioms inside Z3OracleProvider's BimodalSemantics construction on an uncontended runner.\n0a. Discriminate axiom cost from host contention as the cause of the local 93/103, 951.21s result (see \"WHAT WOULD DISCRIMINATE\" above).\n\nINSTRUMENTATION NOW AVAILABLE. The ORACLE_GATING_SCAN_OUT_DIR environment variable (wired into this test's call site by a prior task) should be used on the first observation, so the per-formula timeout set is captured directly rather than lost again, as it was during the original 2026-08-27 -> 2026-09-01 investigation.\n\nHARD CONSTRAINTS (verbatim, carried forward -- binding on this task): do not widen GATING_RECHECK_SOLVE_TIMEOUT_MS; do not lower MIN_CONCLUSIVE_GATING_FORMULAS; do not weaken, skip, or delete the assertion; do not de-quarantine or re-quarantine the test as the primary remedy; do not change bimodal semantics or the oracle soundness core or its unconditional-gating property.\n\nNOT IN SCOPE: this is a discrimination/observation task, not a shortfall-remediation task. TESTING_GUIDE.md section 8.9's standing-rule escalation trigger (two review cycles, roughly two months, with no active repair work in progress) has not fired -- the marking is roughly one week old and repair work is actively in progress and partially landed. Do not treat this task as license to remediate the underlying shortfall itself; that decision is deferred until the discriminating observation this task produces exists.",
       "artifacts": [],
       "created": "2026-09-01T13:01:46Z",
-      "last_updated": "2026-09-01T13:01:46Z"
+      "last_updated": "2026-09-01T16:36:52Z",
+      "dependencies": [
+        184
+      ],
+      "blockers": "GATED ON TASK 184 (bimodal refactor, user decision 2026-09-01): all bimodal work waits on the refactor that makes the bimodal suite pass quickly and aligns its semantics with PossibleWorlds.pdf and the BimodalLogic Lean formalization. This task point-fixes the current bimodal axiomatization, which the refactor may change or remove."
     }
   ],
   "repository_health": {

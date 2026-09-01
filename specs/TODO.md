@@ -1,5 +1,5 @@
 ---
-next_project_number: 184
+next_project_number: 185
 ---
 
 # TODO
@@ -11,30 +11,56 @@ next_project_number: 184
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,183 | -- | semantics, test-reliability |
-| 2 | 172,178 | 176 | test-reliability |
+| 1 | 184 | -- | semantics |
+| 2 | 154,176,183 | 184 | semantics, test-reliability |
+| 3 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Semantics
 
-154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
+184 [NOT STARTED] — Refactor the bimodal theory so its full test suite passes quickly
+  └─ 154 [BLOCKED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
 ### Test Reliability
 
+172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
 176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
-  └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
+  └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi (see above)
   └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
-183 [NOT STARTED] — Discriminate axiom-driven solver cost from host contention as the
+183 [BLOCKED] — Discriminate axiom-driven solver cost from host contention as the
 
 ## Tasks
 
-### 183. Discriminate gating shortfall axiom vs contention
-- **Effort**: 2-4 hours
+### 184. Refactor bimodal theory tests green and paper lean aligned
+- **Effort**: large
 - **Status**: [NOT STARTED]
 - **Task Type**: python
-- **Topic**: test-reliability
+- **Topic**: semantics
 - **Dependencies**: None
+
+**Description**: Refactor the bimodal theory so its full test suite passes quickly, and so its semantics align with the paper in ~/Projects/TenseModality/PossibleWorlds.pdf and the Lean formalization in ~/Projects/BimodalLogic/ (FormalSystem/).
+
+SEQUENCING GATE. This task is the refactor-first gate for all bimodal work. Every other bimodal task waits on it; none of them should be researched, planned, or implemented until this lands. The dependent tasks are 154 (extension_certified_search_over_small_bimodal_models), 172 (fix_contention_flaky_soundness_regression_tests), 176 (fix_m3_shift_closure_sat_regression), 178 (fix_frame_axiom_solver_cost_regression), and 183 (discriminate_gating_shortfall_axiom_vs_contention). The rationale is that each of those is a point-fix against the CURRENT bimodal axiomatization, and this refactor may change or remove the very constraints they are chasing -- so fixing them first risks work that the refactor discards.
+
+TWO AIMS, BOTH BINDING.
+
+(1) TESTS GREEN AND FAST. The bimodal suite must pass in full, and solve cost must come down enough that bimodal is no longer the reason CI is slow or flaky. Recent completed work established the current holding pattern rather than a fix: bimodal was given in-development status and made CI non-gating, and the CI pipeline now excludes bimodal until it is finished. This task is what ends that holding pattern. Prior measurements to carry in as context: a 4-6x rlimit-confirmed solve-cost increase attributed to the Skolemized Seriality/Interpolation frame axioms (commit f9cc081e), and a gating conclusive-population shortfall (93-98 of 103 formulas conclusive, with 5-10 timeouts per run) on TestGatingConclusiveScan::test_known_conclusive_population_self_consistent in oracle/bimodal_logic/tests/test_cross_oracle_differential.py.
+
+(2) SEMANTIC ALIGNMENT WITH THE TWO REFERENCE SOURCES. The Python semantics in code/src/model_checker/theory_lib/bimodal/semantic/ must agree with the paper's semantics (PossibleWorlds.pdf) and with the Lean formal system (BimodalLogic/FormalSystem/). Where the three disagree, the disagreement must be identified and resolved deliberately, with the chosen source of truth recorded -- not silently patched on one side. The Lean development is the executable check on the paper; the Python theory is what must be brought into line.
+
+SCOPE NOTES. The frame-axiom work is expected to be revisited as part of this refactor rather than preserved as-is; do not treat the current Skolemized Seriality/Interpolation encoding as fixed. The differential oracle (oracle/bimodal_logic/) is the measurement instrument for semantic agreement and should be used as such, but its own soundness core and unconditional-gating property are not in scope for modification.
+
+STARTING POINTS. code/src/model_checker/theory_lib/bimodal/ (semantic/, operators.py, iterate.py, examples.py, tests/), oracle/bimodal_logic/, ~/Projects/BimodalLogic/FormalSystem/ and its specs/, and ~/Projects/TenseModality/PossibleWorlds.pdf.
+
+---
+
+### 183. Discriminate gating shortfall axiom vs contention
+- **Effort**: 2-4 hours
+- **Status**: [BLOCKED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: Task 184
 
 **Description**: Discriminate axiom-driven solver cost from host contention as the cause of the gating conclusive-population shortfall for TestGatingConclusiveScan::test_known_conclusive_population_self_consistent in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Consolidates report items 0a, 1, and 2 into one task because they resolve on the same next observations of the same test and would otherwise block on each other.
 
@@ -66,7 +92,7 @@ NOT IN SCOPE: this is a discrimination/observation task, not a shortfall-remedia
 - **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: test-reliability
-- **Dependencies**: Task 176
+- **Dependencies**: Task 176, Task 184
 
 **Description**: Fix the 4-6x solver-cost regression that commit f9cc081e introduced into BimodalSemantics.build_frame_constraints, which forces TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 to be quarantined under the `unstable` marker instead of passing. The quarantine is applied by the M=3 shift-closure task, which this task depends on; if that task's own marker phase is still in flight or was reverted when you read this, confirm the marker's actual presence at the test site rather than assuming it.
 
@@ -87,7 +113,7 @@ WHY THIS EXISTS AS ITS OWN TASK. The quarantine task fixed the symptom (the red 
 - **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: test-reliability
-- **Dependencies**: None
+- **Dependencies**: Task 184
 - **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/02_spawn-analysis.md]
 - **Plan**: [176_fix_m3_shift_closure_sat_regression/plans/01_m3-shift-closure-sat-regression.md]
 
@@ -105,7 +131,7 @@ CONSTRAINTS. Do not touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATI
 - **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: test-reliability
-- **Dependencies**: Task 176
+- **Dependencies**: Task 176, Task 184
 - **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/01_contention-flaky-tests.md]
 - **Plan**: [172_fix_contention_flaky_soundness_regression_tests/plans/01_mark-flaky-tests-xdist-serial.md]
 - **Summary**: [172_fix_contention_flaky_soundness_regression_tests/summaries/01_mark-flaky-tests-xdist-serial-summary.md]
@@ -143,10 +169,10 @@ CONSTRAINTS:
 ---
 
 ### 154. Extension certified search over small bimodal models
-- **Status**: [NOT STARTED]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: semantics
-- **Dependencies**: Task 152, Task 153
+- **Dependencies**: Task 152, Task 153, Task 184
 
 **Description**: THE PAYOFF, and the one task in this group where OVER-CLAIMING is the principal risk. With the frame axioms in place, the paper's `thm:extension` becomes applicable to bimodal countermodels: every partial history the solver finds is a fragment of a genuine total world history in $H_\F$. Use that to move work out of the solver -- but only the half the theorem actually covers.
 
