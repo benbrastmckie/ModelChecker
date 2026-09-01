@@ -1,5 +1,5 @@
 ---
-next_project_number: 182
+next_project_number: 183
 ---
 
 # TODO
@@ -11,10 +11,14 @@ next_project_number: 182
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,180,181 | -- | semantics, release-engineering, test-reliability |
+| 1 | 154,176,180,181,182 | -- | packaging, semantics, release-engineering, ... |
 | 2 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
+
+### Packaging
+
+182 [NOT STARTED] — Fix the UnicodeEncodeError that makes model output crash on Windo
 
 ### Semantics
 
@@ -32,6 +36,46 @@ next_project_number: 182
   └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
 
 ## Tasks
+
+### 182. Fix windows unicode encode error in output
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: packaging
+- **Dependencies**: None
+
+**Description**: Fix the UnicodeEncodeError that makes model output crash on Windows, and give the codebase a deliberate policy on non-ASCII characters in printed output.
+
+SYMPTOM. All three `Verify PyPI install (windows-latest / Python 3.10|3.11|3.12)` jobs failed in release run 33502990193 while every ubuntu and macOS leg passed. `tests/packaging/test_generate_then_execute.py` fails for all four theories (bimodal, logos, exclusion, imposition) with the generated project exiting 1 on:
+
+  UnicodeEncodeError: 'charmap' codec can't encode characters in position 28-29: character maps to <undefined>
+  File ".../encodings/cp1252.py", line 19, in encode
+
+reached from `builder/example.py:print_model` -> the theory's `semantic/model.py:print_to` -> `print_all` -> `print_world_histories` -> `print(f"  {GRAY}W_{world_id}: {world_line}{RESET}", file=output)`. Windows' console defaults to cp1252, which cannot encode the characters the renderer emits.
+
+ROOT CAUSE, ALREADY LOCATED -- DO NOT RE-DERIVE. Non-ASCII characters are written directly to stdout in at least these places:
+- `theory_lib/bimodal/semantic/model.py:210` and `:352` -- `⟹` (U+27F9) as the world-history transition arrow.
+- `theory_lib/bimodal/semantic/model.py:228-229` -- the `_to_subscript` table, subscript digits `₀`-`₉` (U+2080-U+2089) and `₋` (U+208B).
+- `theory_lib/bimodal/semantic/model.py:537` -- `↓` (U+2193) in the vertical renderer.
+- `models/structure.py:762`, `:781`, `:798` -- `→` (U+2192) in shared difference-reporting output. This file is theory-agnostic, which is why logos, exclusion and imposition fail too rather than bimodal alone.
+A repo-wide sweep is required; the list above is a starting point, not a complete inventory. `grep -rnP '[^\x00-\x7F]' code/src/model_checker --include='*.py'` returns roughly twenty files, though many hits are in docstrings and operator definitions rather than print paths, and those are not necessarily defects.
+
+THIS IS NOT A REGRESSION. The bug is latent and long-standing; what is new is the detection. The `Verify PyPI install` matrix that caught it was added on 2026-08-31 and v1.3.8 is the first tag to run it. Do not go looking for the commit that "broke" Windows -- there isn't one.
+
+WHY THE PRE-PUBLISH WINDOWS TESTS DID NOT CATCH IT. `Test on windows-latest` passes on all three Python versions in the same run. The difference is that the failing assertion lives in `tests/packaging/`, which carries the `packaging` marker and is deselected from the gating selection (`-m "not packaging and ..."`). Only the packaging e2e path generates a project and executes it through the real CLI, so only it renders model output to an actual Windows console. Any fix must be verified through that path; a green gating run proves nothing here.
+
+THE DESIGN DECISION TO MAKE AND RECORD. There are at least three coherent remedies and the task must choose deliberately rather than reach for the first one:
+(a) Force UTF-8 on the output stream (e.g. `reconfigure(encoding="utf-8")`, or PYTHONIOENCODING/PYTHONUTF8) -- keeps the glyphs, but writes into a console that may still render them as mojibake, and mutating a stream the caller owns has its own hazards.
+(b) ASCII fallback -- detect the stream's encoding and substitute ASCII equivalents (`=>`, `->`, `v`, plain digits) when the target codec cannot represent the preferred glyph. Preserves output on every console at the cost of two rendering paths to keep in step.
+(c) Go ASCII-only in printed output unconditionally, keeping Unicode in docstrings and source. Simplest and most portable; loses the typographic quality of the current bimodal renderer, whose aligned world histories are a deliberate presentation feature.
+Note that `print_world_histories` already branches on `output is sys.__stdout__` for ANSI colour, so a precedent for stream-sensitive rendering exists in exactly the function that crashes. Record the choice and its rationale in the theory's docs and in TESTING_GUIDE.md if it establishes a new convention.
+
+SCOPE. Fix the crash for all four theories. Sweep the printed-output paths rather than patching only the two functions named in the traceback -- the shared `models/structure.py` hits show the problem is not bimodal-specific. Add regression coverage that fails on the current code: an encoding-constrained test is runnable on Linux by writing to a stream opened with `encoding="cp1252"`, so this does NOT require a Windows runner to test, and the coverage must not depend on one.
+
+VERIFICATION. The four `test_generate_then_execute` cases must pass under a cp1252-constrained stream, and the packaging suite must stay green on Linux and macOS. Do not weaken or skip the packaging assertions to reach green, and do not mark the Windows legs `continue-on-error` -- the matrix was added precisely to surface this class of defect.
+
+NON-GOALS. Do not change any theory's semantics or solver behavior. Do not remove the aligned world-history renderer; if ASCII fallback is chosen, the alignment must survive it.
+
+---
 
 ### 181. Audit gating tests coupled to bimodal solve cost
 - **Status**: [NOT STARTED]
