@@ -6,6 +6,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.8] - 2026-09-01
+
+### Added
+- Non-interactive project generation: `--project_name`/`-y` on `model-checker`, used with
+  `--load_theory`, generates a project without prompting or reading stdin. The optional
+  positional `file_path` argument, when supplied, is honored as the destination directory.
+  This makes project generation usable from scripts and CI, where stdin is not available.
+- Bimodal frame constraints for Seriality and Interpolation, implemented in Skolemized form and
+  wired into the frame-class mapping. `bimodal/docs/ARCHITECTURE.md` gains a frame-class axioms
+  ledger recording which axioms each frame class contributes.
+- `run_tests.py` accepts `--markers`/`-m` and passes the expression through to pytest, so the
+  gating marker selections CI uses can be reproduced locally with a single command.
+
+### Changed
+- Bimodal is now marked as a theory under active construction. Its test tree carries the new
+  `development` pytest marker, and every release-gating pytest invocation across the CI drivers
+  deselects it with `not development`. This makes bimodal's known-incomplete completeness claims
+  non-gating while leaving its soundness claims fully gating -- in particular the oracle
+  differential suite's soundness core stays unconditionally gating, so a real semantic
+  disagreement between the in-package bimodal semantics and the reference oracle still fails the
+  build.
+- Corrected stale frame-class docstrings that described a three-axiom formulation the
+  implementation no longer uses.
+
+### Fixed
+- A Z3 timeout is now distinguished from a genuine unsat result in the bimodal iterate tests,
+  so an inconclusive solve is no longer reported as a definitive "no model exists".
+- `tests/ci/test_oracle_development_marker_application.py` skips at module level when the
+  repository root's `oracle/` tree is absent, which is the case inside `nix flake check`'s
+  `checks.default` derivation (its `src = ./code` excludes the repo root). The module
+  previously reported twelve failures there on a sandbox-layout artifact rather than on any
+  marker defect, while passing in the GitHub Actions general-tests job.
+- Fixed a `subprocess.run` output-corruption bug in `test_run_tests_markers.py`.
+
+### Testing and release infrastructure
+- The release workflow gains a fail-fast preflight job that checks tag/version agreement and the
+  presence of a non-empty CHANGELOG entry before any build or publish step runs.
+- TestPyPI publication is now a hard gate with an explicit documented escape, followed by a
+  TestPyPI install-verification job and a post-publish PyPI confirmation matrix. A new
+  `pypi-smoke.yml` workflow exercises the published artifact independently.
+- Peak-RSS sampling attributes memory to xdist workers via `PYTEST_XDIST_WORKER` rather than by
+  process tree, with the sampling interval tightened to 0.5s on measured overhead.
+- Contention-flaky tests with real wall-clock assertions are marked `xdist_serial` and run in a
+  serial second pass instead of under the parallel worker pool.
+- The unstable-watch workflow records per-node-id streaks and per-run artifact history, and
+  reports a "ready to promote" signal when a quarantined test stabilizes.
+
 ## [1.3.2] - 2026-08-12
 
 ### Documentation

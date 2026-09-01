@@ -48,6 +48,24 @@ CODE_SRC = REPO_ROOT / "code" / "src"
 ORACLE_TESTS = "oracle/bimodal_logic/tests"
 DIFFERENTIAL_MODULE = f"{ORACLE_TESTS}/test_cross_oracle_differential.py"
 
+# Every assertion in this file shells out to `pytest --collect-only ... oracle` rooted at the
+# repo root, so the oracle tree has to actually be on disk. Same sandbox gap, and same remedy,
+# as test_unstable_deselection_wiring.py's `_MISSING_REPO_ROOT_FILES` guard: `nix flake check`'s
+# checks.default sets `src = ./code`, which excludes the repo root and therefore `oracle/`
+# entirely, so `pytest oracle` there exits 4 ("file or directory not found") and every test in
+# this module fails on a sandbox-layout artifact rather than on a marker defect. Without this
+# guard the module reported 12 failures under `nix flake check` while passing in
+# .github/workflows/tests.yml, whose actions/checkout@v4 provides the full repository.
+_ORACLE_TREE = REPO_ROOT / ORACLE_TESTS
+if not _ORACLE_TREE.is_dir():
+    pytest.skip(
+        f"Oracle tree not present in this sandbox ({_ORACLE_TREE}) -- expected under "
+        "`nix flake check`'s checks.default, whose `src = ./code` excludes the repo root. "
+        "This guard runs in .github/workflows/tests.yml's general-tests job instead, where "
+        "actions/checkout@v4 provides the full repository.",
+        allow_module_level=True,
+    )
+
 # pytest renders node ids relative to the resolved rootdir, which is not stable across the
 # invocation shapes below: a single-root `pytest oracle` yields `oracle/bimodal_logic/tests/...`,
 # while a mixed-root `pytest oracle code/tests/ci` shifts rootdir and yields the same items as

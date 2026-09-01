@@ -465,10 +465,36 @@ general_settings = {}
         build_example = BuildExample(build_module, theory, example, "Bimodal")
         result = build_example.get_result()
 
+        # A TIMEOUT IS NOT AN UNSAT. get_result()'s own docstring states that "model_found" is
+        # False both when Z3 proved unsatisfiability and when it returned UNKNOWN, and that
+        # "timeout" is the flag that disambiguates the two. Asserting on "model_found" alone
+        # therefore cannot tell "the solver ran out of budget under CI contention" from "no
+        # countermodel exists", and an exhausted budget inverts into a false negative claiming
+        # bimodal validates A |= B. This is the third site carrying that flaw; the other two
+        # are guarded by _skip_if_solver_timed_out() in
+        # theory_lib/bimodal/tests/integration/test_iterate.py, whose docstring records why no
+        # max_time value closes the hole (this example's budget was already widened once, to
+        # 30s, and the failure recurred anyway -- CI run 33500582816, the Python 3.10 leg,
+        # where 3.11 and 3.12 passed on the identical selection).
+        #
+        # Deliberately a skip, not an xfail: the outcome is budget-dependent, so xfail would
+        # report a spurious XPASS on every run where the solve does finish in time.
+        #
+        # The assertion below is NOT weakened. A genuine unsat still has timeout=False and
+        # still fails; only the inconclusive case is routed to a skip, where it belongs.
+        if result["timeout"]:
+            budget = result["model_structure"]["settings"].get("max_time")
+            self.skipTest(
+                "Z3 returned UNKNOWN (budget exhausted under load), not a decided result; "
+                "an inconclusive solve is not evidence about satisfiability in either "
+                f"direction. max_time={budget}s, runtime={result['runtime']}s"
+            )
+
         # Simple example: A as premise, B as conclusion over the full bimodal theory -
         # should find a countermodel (A does not entail B under bimodal semantics)
         self.assertTrue(result["model_found"],
-                       "Should find countermodel where A is true but B is false")
+                       "Should find countermodel where A is true but B is false "
+                       f"(solver decided, not timed out; runtime={result['runtime']}s)")
     
     def test_iteration_via_iterate_api(self):
         """Test that further models are found through the iterate API.
