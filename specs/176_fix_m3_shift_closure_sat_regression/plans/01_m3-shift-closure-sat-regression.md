@@ -1,7 +1,7 @@
 # Implementation Plan: Task #176
 
 - **Task**: 176 - fix_m3_shift_closure_sat_regression
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6.5 hours (5.75 hours if Phase 6 is not entered)
 - **Dependencies**: None
 - **Research Inputs**: `specs/172_fix_contention_flaky_soundness_regression_tests/reports/02_spawn-analysis.md`
@@ -127,7 +127,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Reproduce at HEAD and Classify the Solver Verdict [NOT STARTED]
+### Phase 1: Reproduce at HEAD and Classify the Solver Verdict [COMPLETED]
 
 **Goal**: Establish, from the solver's own reported status at current HEAD, whether the failure is
 a genuine `unsat`, an `unknown` (and with what `reason_unknown`), or a budget overrun — replacing
@@ -180,7 +180,7 @@ attribution chain downstream changes.
 
 ---
 
-### Phase 2: Encoding-Drift Audit Against the Post-Task-114 Baseline [NOT STARTED]
+### Phase 2: Encoding-Drift Audit Against the Post-Task-114 Baseline [IN PROGRESS]
 
 **Goal**: Determine whether the bimodal frame-constraint encoding reaching this test differs
 semantically from the post-task-114 baseline that made it pass — covering both the claimed-clean

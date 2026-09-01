@@ -1,0 +1,51 @@
+{
+  "head_commit": "6686356f956baa0d9f5d090f4e955606d96b5774",
+  "test_confirmed_failing_at_head": true,
+  "test_failure_message": "AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance",
+  "classification": "unknown",
+  "classification_rationale": "The solver's own check() call returns 'unknown', not 'unsat'. reason_unknown() is 'canceled' in every run, and wall_seconds is 15.0003-15.0070s against the test's max_time=15.0 budget in all 5 runs -- i.e. the solver is being cancelled at exactly the wall-clock timeout, not deciding UNSAT within budget. structure.timeout is True and structure.z3_model_status is False, which BimodalStructure.solve() (code/src/model_checker/models/structure.py) sets identically for any UNKNOWN result regardless of the specific reason_unknown() string (see the comment at structure.py:280-292: UNKNOWN is always treated as an inconclusive timeout, never a fall-through UNSAT). This is a BUDGET OVERRUN mislabeled as a failed SAT-search by the test's combined assertion (`structure.z3_model_status and not structure.timeout`), not a genuine unsat verdict.",
+  "confirmed_via": "specs/176_fix_m3_shift_closure_sat_regression/scripts/repro_m3.py --confirm-structure: raw solver check() and BimodalStructure's z3_model_status/timeout agree exactly (structure_agrees_with_raw: true).",
+  "five_run_distribution": {
+    "runs": 5,
+    "all_unknown_canceled": true,
+    "verdicts": [
+      "unknown",
+      "unknown",
+      "unknown",
+      "unknown",
+      "unknown"
+    ],
+    "wall_seconds": [
+      15.0003,
+      15.0003,
+      15.0003,
+      15.0003,
+      15.007
+    ],
+    "reason_unknown": [
+      "canceled",
+      "canceled",
+      "canceled",
+      "canceled",
+      "canceled"
+    ],
+    "rlimit_count": [
+      34923579,
+      36213670,
+      32526693,
+      36968073,
+      41489220
+    ],
+    "max_memory_mb": [
+      265.13,
+      265.13,
+      265.13,
+      265.13,
+      265.13
+    ],
+    "interpretation": "Deterministic: 5/5 runs hit the 15.0s wall-clock timeout and are cancelled by Z3, not decided. rlimit-count varies across runs (32.5M-41.5M units) despite an identical wall-clock cutoff, showing genuine ongoing search work (not a fixed-cost early abort) that simply does not converge within the 15s budget. This is a heavy-tailed cost/no-convergence shape, not a flaky pass/fail draw -- all 5 runs are UNKNOWN/canceled, none are SAT or UNSAT.",
+    "historical_context": "The task description and test docstring record this test historically running 2-8s against its 15s budget (2-7x headroom) pre-regression. The current ~15.0s-exactly-canceled shape is consistent with the solve cost having grown past the budget at some point since then, not with the encoding becoming logically unsatisfiable."
+  },
+  "consequence_for_8_9_criterion_2": "Because the verdict is UNKNOWN/canceled (a budget/resource outcome), not a decided UNSAT, TESTING_GUIDE.md 8.9 criterion 2 ('demonstrably non-semantic -- the failure mode is a budget overrun or resource exhaustion, never a changed logical conclusion') CAN be satisfied if a genuine fix is not found. Phase 6's BLOCKING PRECONDITION (which forbids the unstable marker only for a genuine unsat) does not apply on this evidence.",
+  "structure_solve_path_confirmation": "code/src/model_checker/models/structure.py:271-292 (solve()) and :326-338 (re_solve()): result is read from solver.check() (a TrackedSolverProtocol wrapping z3.Solver.check()). SAT -> (timeout=False, model, status=True). UNSAT -> (timeout=False, unsat_core, status=False). UNKNOWN (any reason_unknown, not just literal 'timeout') -> (timeout=True, None, status=False) -- confirmed by the in-code comment explaining this is a deliberate soundness fix (UNKNOWN must never fall through to a definitive-UNSAT reading). z3_model_status and timeout are set directly from these solver_results in _process_solver_results() (structure.py:133-159), with no derivation or reinterpretation layer between the raw check() result and the structure's public attributes."
+}
