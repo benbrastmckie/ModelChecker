@@ -650,32 +650,45 @@ re-broken by the first multi-model iteration a Windows user runs.
 
 ---
 
-### Phase 7: Record the non-ASCII output policy [NOT STARTED]
+### Phase 7: Record the non-ASCII output policy [COMPLETED]
 
 **Goal**: Turn the choice into a durable, discoverable convention, as the task explicitly
 requires — not just a patch.
 
+**Concurrent-session note**: `code/docs/core/TESTING_GUIDE.md` was also being edited concurrently
+by task 181 while this phase landed its section (a one-sentence edit at line ~1533, unrelated to
+and non-overlapping with the new §9 section this phase adds at the end of the file, before
+`## Quick Reference`). Committed together for the same reason as Phase 5's packaging-file note --
+not separable via partial staging without extra risk, and non-conflicting on inspection.
+
 **Tasks**:
-- [ ] Add a new numbered section to `code/docs/core/TESTING_GUIDE.md` after §8 ("Best Practices
+- [x] Add a new numbered section to `code/docs/core/TESTING_GUIDE.md` after §8 ("Best Practices
   and Patterns") and before the Quick Reference, titled for output-encoding testing. Content:
   why `io.StringIO` is NOT a valid encoding test (it never encodes, so it can never raise);
   the canonical `io.TextIOWrapper(io.BytesIO(), encoding="cp1252")` recipe; the
   `PYTHONIOENCODING=cp1252` subprocess recipe for end-to-end legs; and the standing rule that
-  any new non-ASCII glyph on a print path requires a cp1252 test in the same commit.
-- [ ] Add a rendering/output-encoding policy subsection to
+  any new non-ASCII glyph on a print path requires a cp1252 test in the same commit. (Landed as
+  §9 "Output-Encoding Testing" with subsections 9.1-9.4.)
+- [x] Add a rendering/output-encoding policy subsection to
   `code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md` (bimodal owns the aligned
   renderer most affected): state the adopted option (b), the substitution table, the rule that
   the arrow column budget is derived from the rendered arrow rather than hard-coded, and the
-  alignment invariant that any future renderer change must preserve.
-- [ ] Add a short pointer in `code/docs/core/CODE_STANDARDS.md` so the convention is reachable
+  alignment invariant that any future renderer change must preserve. (Landed as "Rendering and
+  Output-Encoding Policy", placed after the bound-variable-counter section and before "Testing
+  Architecture".)
+- [x] Add a short pointer in `code/docs/core/CODE_STANDARDS.md` so the convention is reachable
   from the coding-standards entry point, linking to the two sections above rather than
-  duplicating them.
-- [ ] Record the two explicitly deferred items in the TESTING_GUIDE section: the
+  duplicating them. (Landed as an "Output-Encoding Safety" subsection under "Testing
+  Integration".)
+- [x] Record the two explicitly deferred items in the TESTING_GUIDE section: the
   `TerminalDisplay` isatty gate, and the standing prohibition on adding
-  `PYTHONIOENCODING`/`PYTHONUTF8` to the packaging fixture env as a mitigation.
-- [ ] Cite durable anchors only (file names, section headings). Per
+  `PYTHONIOENCODING`/`PYTHONUTF8` to the packaging fixture env as a mitigation. (Landed in §9.4
+  "Known, Recorded Scope Boundaries" and §9.3 respectively; §9.4 additionally records the
+  `__repr__`-cannot-receive-a-stream boundary Phase 5 discovered and fixed, per that phase's own
+  record -- recorded as a *fixed* boundary with its resolution pattern, not a deferred one.)
+- [x] Cite durable anchors only (file names, section headings). Per
   `.claude/rules/no-task-references-in-deliverables.md`, no task numbers appear in any file
-  outside `specs/**`.
+  outside `specs/**`. CONFIRMED via `grep -nEi 'task [0-9]'` over all three files -- zero hits.
 
 **Timing**: 1 hour
 
@@ -691,8 +704,8 @@ requires — not just a patch.
 **Verification**:
 - Diff read-through confirms every changed hunk is prose/markdown with no code surface.
 - `TESTING_GUIDE.md`'s table of contents is updated to include the new section, and its numbering
-  is consistent with the existing §1-§8.
-- `grep -nEi 'task [0-9]' ` over the three modified files returns nothing.
+  is consistent with the existing §1-§8. CONFIRMED: `9. [Output-Encoding Testing](#9-output-encoding-testing)` added directly after the §8 entry.
+- `grep -nEi 'task [0-9]' ` over the three modified files returns nothing. CONFIRMED.
 
 ---
 

@@ -633,6 +633,77 @@ results become order-dependent again, check counter/naming isolation (is
 `test_bound_var_counter_isolation.py` still pass?) before concluding that `ForAll` instantiation
 is inherently non-deterministic and reaching for a quantifier-free rewrite.
 
+## Rendering and Output-Encoding Policy
+
+Bimodal owns the theory's most affected renderer: `print_world_histories` (columnar, horizontal)
+and `print_world_histories_vertical` are the only aligned, column-budgeted print paths in the
+codebase, so this theory's `docs/` is the natural home for the rendering-policy record the
+project's non-ASCII output convention requires. See `code/docs/core/TESTING_GUIDE.md`'s
+output-encoding testing section for the full cross-theory policy and its testing recipes; this
+subsection records the bimodal-specific consequence: what changes when a glyph is substituted
+inside an aligned column layout.
+
+### The Adopted Option
+
+**Stream-encoding-aware ASCII fallback** (`model_checker.utils.glyphs`), not a blanket
+ASCII-only mode and not a global interpreter reconfiguration. `BimodalStructure`'s print methods
+resolve each glyph via `glyph(name, output)`/`to_subscript(n, output)`, keyed off
+`getattr(output, "encoding", None)`: a stream that can encode the preferred Unicode glyph (a real
+terminal, a UTF-8 file, `io.StringIO`) gets it; a stream that cannot (a `cp1252`-constrained
+Windows pipe) gets a readable ASCII substitute instead of raising `UnicodeEncodeError`.
+
+### The Substitution Table
+
+| Semantic name | Unicode | ASCII fallback | Used by |
+|---|---|---|---|
+| `DOUBLE_ARROW` | `⟹` | `=>` | `print_evaluation`, `_create_world_line` (columnar world-history arrow) |
+| `DOWN_ARROW` | `↓` | `v` | `print_world_histories_vertical` (inter-row arrow) |
+| duration subscripts | `₀`-`₉`, `₋` | plain digits, `-` | `_to_subscript` (both arrow call sites above) |
+
+### The Column-Budget Rule: Derive From the Rendered Arrow, Never Hard-Code a Width
+
+`_create_time_positions` computes each time column's starting position by reserving
+`column_widths[time] + <arrow width>` per column. **The arrow width is derived from the actual
+rendered arrow string** (`_max_arrow_width_for_time`, mirroring `_create_world_line`'s own
+per-world duration computation) — never a hard-coded constant. This is a hard rule for this
+renderer, not a stylistic preference: a naive `⟹` → `=>` substitution *widens* the arrow slot
+(`" ⟹₁ "` is 4 characters, `" =>1 "` is 5), and a fixed-width budget sized for one rendering
+silently overflows under the other. Deriving the budget from the actually-rendered string keeps
+both the Unicode and the ASCII rendering correctly reserved for, automatically, with no per
+-encoding special case.
+
+**Any future change to this renderer's arrow slot must preserve this derivation.** Reverting to a
+hard-coded width constant (as the pre-fix code had: `+ 4  # Width + space for " ==> "`, a comment
+that already described a 5-character ASCII arrow the code never actually rendered) reintroduces
+the alignment defect this policy exists to prevent — including a latent two-digit-duration
+overflow (`⟹₁₂` is 5 characters) that predates and is independent of the encoding-safety work,
+fixed as a consequence of this same derivation.
+
+### The Alignment Invariant
+
+Within a single rendering, every world-history row's state token for a given time column starts
+at the same character column — checked directly, not by inspection, in
+`theory_lib/bimodal/tests/unit/test_world_history_alignment.py`. This invariant is asserted
+**separately** for the UTF-8 rendering and the `cp1252` rendering; the two renderings are **not**
+expected to share identical absolute columns (their arrow widths legitimately differ), only to
+each be internally self-consistent. Any future renderer change — a new glyph, a new column type,
+a different arrow shape — must preserve this invariant under both encodings, and should extend
+this test file rather than introduce a parallel alignment check elsewhere.
+
+The down-arrow (`↓`/`v`) and duration-subscript substitutions are exactly 1-for-1 width-neutral
+(one character either way), so — unlike the double-arrow column budget — they need no width
+recalculation anywhere they are used. Do not "fix" this by adding width arithmetic for them; the
+in-line comment at each call site marks this explicitly so a future editor does not add
+unnecessary complexity here.
+
+### Deliberately Out of Scope
+
+Re-enabling `output/progress/display.py`'s commented-out `stream.isatty()` gate on
+`TerminalDisplay.enabled` is unrelated to this policy and intentionally untouched — it is a
+progress-display *behavior* change (would stop showing progress in any non-terminal context),
+not an encoding-safety concern. See `code/docs/core/TESTING_GUIDE.md`'s output-encoding section
+for the full record of this and one other recorded scope boundary.
+
 ## Testing Architecture
 
 ### Test Organization

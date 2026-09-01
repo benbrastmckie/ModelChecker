@@ -588,6 +588,20 @@ __all__ = [
 
 ## Testing Integration
 
+### Output-Encoding Safety
+
+Any code that prints non-ASCII glyphs (arrows, subscripts, block characters, and similar
+presentation-quality symbols) to a caller-supplied `output` stream must resolve them through
+`model_checker.utils.glyphs` (`glyph(name, output)` / `to_subscript(n, output)`) rather than
+writing the literal Unicode character, so the glyph degrades to a readable ASCII form on a
+stream that cannot encode it (e.g. a `cp1252`-constrained Windows pipe) instead of raising
+`UnicodeEncodeError`. See `code/docs/core/TESTING_GUIDE.md`'s output-encoding testing section for
+the full policy, the standing "new glyph requires a `cp1252` test in the same commit" rule, and
+the `cp1252`/`PYTHONIOENCODING` testing recipes; see
+`theory_lib/bimodal/docs/ARCHITECTURE.md`'s rendering-policy subsection for the column-alignment
+consequence this has for a fixed-width renderer specifically. This section is a pointer only —
+the policy and its rationale live in those two documents, not duplicated here.
+
 ### Test Organization
 
 ```python

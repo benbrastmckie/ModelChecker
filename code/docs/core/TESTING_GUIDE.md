@@ -26,6 +26,7 @@ This guide defines comprehensive testing standards for the ModelChecker codebase
 6. [Theory-Specific Testing](#6-theory-specific-testing)
 7. [Test Coverage Requirements](#7-test-coverage-requirements)
 8. [Best Practices and Patterns](#8-best-practices-and-patterns)
+9. [Output-Encoding Testing](#9-output-encoding-testing)
 
 ---
 
@@ -1530,7 +1531,8 @@ trigger) is not.
    items are the six classes listed in `_SOUNDNESS_CORE_CLASSES` there; see "Soundness stays
    gating" below, which this exemption is what makes true.
 
-No other test in the repository carries the marker.
+Three per-test markings, none a blanket, carry the marker outside these two trees -- see
+"Per-test markings outside bimodal and oracle" below.
 
 *Why the oracle tree took a blanket too.* `oracle/` is bimodal in its entirety — every test file
 in it lives under `oracle/bimodal_logic/tests`, and there is nothing else in the tree. It is a
@@ -1618,6 +1620,156 @@ development. Nothing else needs to change — the registration, the ten gating `
 and the classifier are shared infrastructure, not bimodal-specific. Removing the hook will fail
 `test_development_marker_application.py`, which is the intended signal to delete that contract in
 the same commit.
+
+**Per-test markings outside bimodal and oracle.** Three node ids, each marked
+`@pytest.mark.development` individually (the default per-test granularity, not a new blanket),
+following the identified-completeness-claim disposition an audit of every release-gating test
+outside `theory_lib/bimodal/tests/` recorded for each:
+
+1. `code/tests/packaging/test_generate_then_execute.py::test_generate_then_execute[bimodal]` —
+   the *test function* is generic (packaging-journey correctness, applies to any registered
+   theory), but its bimodal parametrize case runs bimodal's full default generated
+   `examples.py` to completion, the single most expensive bimodal-coupled gating test found in
+   the audit. Applied via a `_DEVELOPMENT_THEORIES = {"bimodal"}` set-membership check on the
+   parametrize list, mirroring the `UNSTABLE_EXAMPLES` idiom above.
+2. `code/tests/packaging/test_generate_then_execute.py::test_generate_then_execute_cp1252[bimodal]`
+   — the identical completeness claim, under the cp1252-constrained stdout-encoding leg (see
+   that test's own docstring), marked via the same `_DEVELOPMENT_THEORIES` set.
+3. `code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel`
+   — asserts BuildExample finds a countermodel for bimodal within budget; not a bimodal-specific
+   semantic claim (the assertion is generic BuildExample-integration plumbing), but a
+   completeness claim about bimodal specifically while its frame-axiom cost is unsettled. Its
+   pre-existing timeout-vs-unsat discriminator and `max_time: 30` are unchanged.
+
+`code/tests/ci/test_development_marker_application.py`'s containment contract enumerates these
+three explicitly in `_AUTHORIZED_NON_BIMODAL_DEVELOPMENT` and asserts the non-bimodal
+`development`-marked set matches that allowlist *exactly* — neither a stale entry (a rename or
+un-marking leaving the list wider than reality) nor an unlisted new leak can pass silently.
+
+**A known, accepted consequence: `unstable-watch.yml`'s `watch_development` step now collects and
+reports the `test_generate_then_execute[bimodal]` case.** That step selects `-m development` and
+is `continue-on-error: true`, non-gating by construction (see "Observability" above) — its job is
+to keep an in-development test's outcome *observed*, not to keep it silent. A future reader
+seeing this case newly appear in that step's report should read it as the marker working as
+designed, not as a regression introduced by this change.
+
+---
+
+## 9. Output-Encoding Testing
+
+Printed model output writes a small set of non-ASCII glyphs (`⟹`, `→`, `↓`, subscript digits,
+progress-bar block characters, the `□` null-state symbol) to a caller-supplied `output` stream.
+When that stream cannot encode a glyph — most commonly a Windows pipe, which falls off the
+PEP-528 `WriteConsoleW` console path and resolves its encoding to the ANSI codepage (`cp1252`)
+the moment it is redirected or captured by a subprocess — printing the raw glyph raises
+`UnicodeEncodeError` and crashes the caller. `model_checker.utils.glyphs` is the single shared
+resolution helper for this: `glyph(name, output)` and `to_subscript(n, output)` probe
+`getattr(output, "encoding", None)`, test-encode the preferred Unicode glyph, and substitute a
+readable ASCII form only when the target codec cannot represent it. See that module's own
+docstring for the full substitution table and `theory_lib/bimodal/docs/ARCHITECTURE.md`'s
+rendering-policy subsection for the bimodal-specific column-alignment consequence of adopting
+this policy.
+
+**Any new non-ASCII glyph added to a print path requires a `cp1252` regression test in the same
+commit.** This is a standing rule, not a one-time cleanup: a literal-character grep sweep alone
+is not sufficient to prove a print path is safe (see the "why a grep sweep is insufficient"
+subsection below) — a real test against a constrained stream is required.
+
+### 9.1 Why `io.StringIO` Is NOT a Valid Encoding Test
+
+`io.StringIO` never encodes at all — writing to it just appends to an in-memory text buffer, so
+it can never raise `UnicodeEncodeError` regardless of what glyphs it receives. A test that only
+constructs `io.StringIO()` and asserts "no exception" proves nothing about encoding safety; it
+only proves the code path runs. `StringIO`'s `.encoding` attribute is `None` (not absent — see
+the "no `.encoding` attribute" trap below), which `model_checker.utils.glyphs` treats as "cannot
+fail to encode" and defaults to Unicode, matching existing `StringIO`-based test expectations
+throughout this codebase. Use `StringIO` as the *Unicode-still-renders* control in an
+encoding-test suite, never as the sole reproduction of the crash itself.
+
+### 9.2 The Canonical `cp1252`-Constrained Stream Recipe
+
+Reproduce the Windows pipe condition directly, on Linux, with no Windows runner:
+
+```python
+import io
+
+buf = io.BytesIO()
+stream = io.TextIOWrapper(buf, encoding="cp1252", newline="")
+model_structure.print_to(settings, name, theory_name, output=stream)
+stream.flush()
+rendered = buf.getvalue().decode("cp1252")
+```
+
+This `TextIOWrapper`-over-`BytesIO` stream genuinely encodes, so a glyph the codec cannot
+represent raises `UnicodeEncodeError` exactly as it would in the real crash. Pair it with a
+`utf-8`-encoded counterpart (same shape, `encoding="utf-8"`) as the *Unicode-still-renders*
+control for a real-encoding stream, alongside the `StringIO` control from §9.1 above — a
+regression test asserting only the `cp1252` case, with no control, cannot distinguish "the fix
+works" from "the test doesn't reach the glyph at all." `model_checker.utils.testing` provides
+`make_encoding_test_streams()` (returns all three: `"cp1252"`, `"utf8"`, `"stringio"`) and
+`read_encoding_test_stream(stream)` (reads back either shape uniformly) so this recipe does not
+need to be hand-rolled at every call site — see
+`code/src/model_checker/models/tests/unit/test_structure_print_encoding.py` and the
+per-theory `tests/unit/test_print_encoding.py` modules for the established usage pattern.
+
+### 9.3 The `PYTHONIOENCODING=cp1252` Subprocess Recipe (End-to-End Legs)
+
+A unit-level `TextIOWrapper` test proves a single print method is safe; it does not prove the
+*whole installed console-script journey* is safe, because some print paths (documented as a
+known scope boundary — see §9.4) reach `sys.stdout` directly rather than the `output` parameter
+threaded through `print_all`/`print_to`. For an end-to-end reproduction that also exercises those
+paths, constrain the **child process's** `sys.stdout` via `PYTHONIOENCODING`:
+
+```python
+import subprocess
+
+env = dict(installed_venv["env"])
+env["PYTHONIOENCODING"] = "cp1252"
+result = subprocess.run([script_path, examples_path], env=env, capture_output=True, text=True)
+```
+
+`PYTHONIOENCODING` overrides Python's encoding resolution for `sys.stdout`/`sys.stderr`
+identically on any platform, so this reproduces the exact Windows child-process condition on
+Linux CI. See `code/tests/packaging/test_generate_then_execute.py`'s
+`test_generate_then_execute_cp1252` for the reference implementation — parametrized over every
+registered theory, run through the real installed `model-checker` console script.
+
+**Standing prohibition**: never add `PYTHONIOENCODING` or `PYTHONUTF8` to
+`code/tests/packaging/conftest.py`'s `installed_venv` fixture env (or any other shared test
+fixture env) as a *mitigation*. Doing so would force every subprocess spawned through that
+fixture into UTF-8 regardless of what a real Windows environment would actually resolve to,
+masking the exact defect class this section exists to catch and making any `cp1252`-constrained
+leg untestable — there would be nothing left to distinguish the "ambient" and "constrained" legs.
+`PYTHONIOENCODING=cp1252` is sanctioned only as a per-test, additive *reproduction* technique
+(§9.3 above), copied into a local `env` dict, never written into the shared fixture.
+
+### 9.4 Known, Recorded Scope Boundaries
+
+Two boundaries were identified while building this policy and are deliberately left unclosed;
+recording them here so a future change does not have to rediscover them from scratch:
+
+- **The `TerminalDisplay.isatty()` gate.** `output/progress/display.py`'s `TerminalDisplay.enabled`
+  is hardcoded `True` ("Always enabled for testing"), with a `stream.isatty()` gate commented out
+  immediately below it. Re-enabling that gate is a progress-display *behavior* change (it would
+  stop showing progress in any non-terminal context, including existing tests that rely on
+  "Always enabled for testing") with its own test-visibility consequences, entirely unrelated to
+  encoding safety. The glyph substitution in `_generate_bar` (block characters) is the complete
+  fix for this class's encoding hazard; the isatty question is out of scope and intentionally
+  untouched.
+- **`__repr__` cannot receive a stream parameter.** `WitnessProposition.__repr__` (exclusion) and
+  `LogosProposition.__repr__` (logos, reused by imposition) build a verifier/falsifier set display
+  via `bitvec_to_substates`. `__repr__` is invoked implicitly through Python's string-formatting
+  protocol (`str(self)`/`f"{self}"`), so it cannot accept an `output` argument the normal way. In
+  this codebase, the *only* place either `__repr__` is ever actually reached is
+  `print_proposition`'s own bare `print()` call, which itself has no `file=output` argument and
+  therefore always targets the real `sys.stdout` regardless of what stream the caller passed to
+  `print_all`/`print_to`. Both `__repr__` methods (and `print_proposition`'s own `world_state`
+  computation, and bimodal's `EMPTY_SET` fallback in `semantic/proposition.py`) resolve their
+  glyphs against `sys.stdout` directly — the one stream they can ever actually reach — rather than
+  against the `output` parameter the rest of the print pipeline threads through. This is not a
+  residual gap: an end-to-end `cp1252` subprocess leg (§9.3) exercises `sys.stdout` directly and
+  confirms these sites are safe. It is recorded here because the fix pattern (resolve against
+  `sys.stdout`, not `output`) is easy to miss and differs from every other site in this codebase.
 
 ---
 
