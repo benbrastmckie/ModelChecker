@@ -236,7 +236,7 @@ the list above is a hypothesis from planning-time inspection of one directory, n
 
 ---
 
-### Phase 3: Z3 Version Sweep [IN PROGRESS]
+### Phase 3: Z3 Version Sweep [COMPLETED]
 
 **Goal**: Answer whether `z3-solver` version drift — `code/pyproject.toml`'s `"z3-solver>=4.8.0"` has
 no upper bound, and 4.16.0 is installed — flips this formula's verdict, an axis git bisection
@@ -278,7 +278,7 @@ record that and fall back to `nix develop` with an overridden z3 input, or mark 
 
 ---
 
-### Phase 4: Attribute the Root Cause [NOT STARTED]
+### Phase 4: Attribute the Root Cause [IN PROGRESS]
 
 **Goal**: Convert Phases 2 and 3's evidence into a single named cause (or an explicitly-stated
 multi-cause verdict), pinned to a commit and/or a z3 version.

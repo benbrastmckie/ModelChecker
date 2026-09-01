@@ -1,0 +1,29 @@
+{
+  "installed_version": "4.16.0",
+  "pyproject_pin": "z3-solver>=4.8.0 (unbound upper limit, code/pyproject.toml:29)",
+  "nix_devshell_z3_provenance": "flake.nix builds z3 from nixpkgs' python.pkgs.z3-solver attribute (nixpkgs-native, source-built from Z3Prover/z3), NOT the PyPI z3-solver wheel -- see flake.nix:23-29 comment. flake.lock's nixpkgs input (rev 331800de..., lastModified 1780243769) has been UNCHANGED since it was first committed the day after task 114 landed (commit 6bddaf6d, task 115, 2026-06-02) through the current HEAD -- confirmed via `git log --oneline -- flake.lock` (only 2 commits touch it post-task-114: 6bddaf6d adding it, and e726abcb/task 123 which adds a flake-utils input but leaves the nixpkgs node's rev/lastModified byte-identical). Conclusion: within the project's sanctioned Nix devShell, the z3 build has not drifted at all across the entire window this task investigates.",
+  "pypi_release_timeline_check": "z3-solver 4.16.0.0 (PyPI JSON API upload_time: 2026-02-19) was already the latest available PyPI release BEFORE task 114 landed (2026-06-01) and remains the latest as of this task (2026-08-31) -- no newer PyPI release exists to have drifted TO. This independently corroborates the nix devShell finding: there is no available upstream version that could explain a post-task-114 regression via upward version drift.",
+  "control_check": {
+    "environment": "isolated scratch venv under scratchpad (no --system-site-packages), libstdc++.so.6 supplied via LD_LIBRARY_PATH pointing at a nix-store gcc-lib closure (the venv is otherwise plain pip, outside the project's Nix devShell)",
+    "installed_version_in_venv": "4.16.0.0 (pip-installed PyPI wheel, not the nixpkgs-native build the devShell uses)",
+    "result": "unknown/canceled, wall_seconds=15.0003, matching Phase 1's HEAD verdict exactly",
+    "verdict": "Control is valid -- the isolated venv reproduces Phase 1's classification, so the sweep below is not confounded by the venv/devShell environment difference."
+  },
+  "sweep": [
+    {"version": "4.16.0.0", "source": "PyPI (control, matches nixpkgs-provided 4.16.0)", "verdict": "unknown", "reason_unknown": "canceled", "wall_seconds": 15.0003, "rlimit_count": 45667678, "max_memory_mb": 520.25},
+    {"version": "4.15.4.0", "released": "2025-10-29", "verdict": "unknown", "reason_unknown": "canceled", "wall_seconds": 15.0002, "rlimit_count": 52479876, "max_memory_mb": 512.13},
+    {"version": "4.14.0.0", "released": "2025-02-18", "verdict": "unknown", "reason_unknown": "canceled", "wall_seconds": 15.0031, "rlimit_count": 48156105, "max_memory_mb": 495.56},
+    {"version": "4.13.0.0", "released": "2024-03-07", "verdict": "unknown", "reason_unknown": "canceled", "wall_seconds": 15.0056, "rlimit_count": 39422364, "max_memory_mb": 284.67},
+    {"version": "4.12.0.0", "released": "2023-01-14", "verdict": "ENVIRONMENT_INCOMPATIBLE", "note": "4.12.0.0's wheel imports pkg_resources at z3core.py import time; ModuleNotFoundError under this venv's Python 3.13 + setuptools combination even after `pip install setuptools`. Not a solver-behavior data point -- a packaging-era incompatibility with this run's Python 3.13, unrelated to the regression under investigation. Not pursued further given the 4 clean data points above already span 2024-03 to 2026-02 (release dates) with a consistent unknown/canceled verdict throughout, well before and covering the task-114-to-HEAD window."
+  ],
+  "answer": {
+    "does_z3_version_drift_flip_this_formulas_verdict": "NO",
+    "confidence": "high",
+    "evidence": [
+      "All 4 successfully-tested PyPI versions spanning 2024-03 to 2026-02 releases (4.13.0.0 through 4.16.0.0) return the identical unknown/canceled verdict at the identical 15.0s wall-clock cutoff.",
+      "The nix devShell's own z3 build (the sanctioned way this repo runs tests) has been pinned to one unchanged nixpkgs revision since immediately after task 114 landed -- there was no window in which the devShell's z3 version could have drifted.",
+      "4.16.0.0, the currently installed version, was already the latest available PyPI release before task 114 even landed -- there is no newer release for 'drift' to have occurred toward."
+    ],
+    "residual_uncertainty": "The exact z3 version task 114 was verified against (2026-06-01, one day before flake.nix/flake.lock existed) is not independently recoverable from this repo -- no lockfile predates 6bddaf6d. If task 114 was verified with an unpinned pip install at that time, whatever version PyPI's latest was on 2026-06-01 is what would have been used, which -- per the PyPI release timeline above -- was also already 4.16.0.0 (no release between 2026-02-19 and now). This closes the residual gap: there is no plausible pre-task-114 z3-solver version different from what is tested here."
+  }
+}
