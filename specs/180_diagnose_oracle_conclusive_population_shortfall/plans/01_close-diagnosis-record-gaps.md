@@ -225,7 +225,7 @@ assignment and reading upward to the preceding non-comment line; do not trust th
 
 ---
 
-### Phase 2: Annotate TESTING_GUIDE.md 8.9's "Currently marked" entry [NOT STARTED]
+### Phase 2: Annotate TESTING_GUIDE.md 8.9's "Currently marked" entry [COMPLETED]
 
 **Goal**: Implement the report's (d) answer in the guide — *the documented signature and the
 entry/exit criteria are not rewritten* — while adding the single forward-looking caveat, and keeping
@@ -233,24 +233,24 @@ the guide's own "each marker's source-site comment block is the source of truth;
 duplicated here" discipline intact.
 
 **Tasks**:
-- [ ] In section 8.9's **Currently marked** bullet for
+- [x] In section 8.9's **Currently marked** bullet for
       `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`, add a short clause
       noting that the recorded signature was last confirmed against pre-axiom code and that the first
       post-axiom real CI run must be checked against it explicitly. Keep it pointer-shaped: the
       numbers live in the source-site block (Phase 1), not here.
-- [ ] Do **not** alter 8.9's entry criteria, exit criteria, the 20-run default, the standing rule, or
+- [x] Do **not** alter 8.9's entry criteria, exit criteria, the 20-run default, the standing rule, or
       the deselection wiring paragraph. Confirm by diff that none of these changed.
-- [ ] Record the standing-rule justification for keeping the quarantine, as a pointer rather than a
+- [x] Record the standing-rule justification for keeping the quarantine, as a pointer rather than a
       restatement: the marking dates to `25eadae8` (2026-08-25), roughly one week old, well inside
       8.9's two-review-cycle window, and the rule's joint "no active repair work in progress"
       condition is not met — repair work is live and partially landed (`cfb9cb4a`; the closed 2x
       budget-widening avenue; the closed `xdist_serial` avenue; the axiom avenue closed in Phase 1).
       Neither de-quarantining nor re-quarantining is recommended (C4).
-- [ ] Confirm the classifier lesson from `cfb9cb4a` needs no new guide text: 8.9's "The classifier
+- [x] Confirm the classifier lesson from `cfb9cb4a` needs no new guide text: 8.9's "The classifier
       lives in an importable module, not YAML" paragraph already documents the rendered-text /
       bare-substring guard rule and the sequential-assert source-listing mechanism. If it does, record
       that finding in the summary and add nothing. Do not duplicate it.
-- [ ] Confirm no task number was introduced (C6).
+- [x] Confirm no task number was introduced (C6).
 
 **Timing**: 0.25 hours
 

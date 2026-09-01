@@ -1041,7 +1041,9 @@ contract keeps driven solely by whether a `NEW` classification was recorded this
   conclusive-population shortfall on the performance floor only, never on the disagreements
   soundness check; the closed `xdist_serial` isolation lead; the CI-verified 2x budget widening
   that bought zero additional conclusive formulas; the written 20-run-or-verified-fix exit
-  criterion).
+  criterion). The recorded signature there was last confirmed against pre-axiom code, so the
+  first post-axiom real CI run of this test must be checked against it explicitly rather than
+  assumed to still hold — see that file's comment block, not here, for the numbers.
 - `TestShiftClosure::test_shift_closure_on_extracted_worlds_m3` in
   `oracle/bimodal_logic/tests/test_soundness_regression.py` — see that method's own
   entry-criteria comment block for the full record (a solver `unknown`/`canceled` wall-clock
