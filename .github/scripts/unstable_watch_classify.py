@@ -63,13 +63,29 @@ DEFAULT_RECORD_PATH = "unstable-watch-record.jsonl"
 # test whose TIMING signature is NOT duration-based (e.g. a per-formula budget floor across many
 # formulas, where no single wall-clock threshold is meaningful) gets its own dedicated branch in
 # classify() instead of an entry here -- see GATING_FLOOR_NODEID_FRAGMENT immediately below for
-# the second such branch, and follow that pattern (not this dict) for a third duration-independent
+# the second such branch, and follow that pattern (not this dict) for a duration-independent
 # marking.
 MAX_TIME_BY_NODEID_FRAGMENT = {
     "BM_CM_1-example_case7": 60,
+    "test_shift_closure_on_extracted_worlds_m3": 15,
 }
 
 FAILURE_SIGNATURE = "Test failed for example:"
+
+# Per-nodeid-fragment override of the expected failure-text signature for the duration-based
+# TIMING branch below, keyed by the same fragment used in MAX_TIME_BY_NODEID_FRAGMENT. A
+# fragment absent from this dict falls back to FAILURE_SIGNATURE (BM_CM_1's shape), preserving
+# behavior for every marking added before this dict existed. Add an entry here whenever a new
+# duration-based marking's own assertion message differs from BM_CM_1's
+# "Test failed for example: ..." shape -- e.g. a marking with its own bespoke assertion text.
+FAILURE_SIGNATURE_BY_NODEID_FRAGMENT = {
+    # oracle/bimodal_logic/tests/test_soundness_regression.py::TestShiftClosure::
+    # test_shift_closure_on_extracted_worlds_m3 -- exact string, copied verbatim from that
+    # test's own assertion message.
+    "test_shift_closure_on_extracted_worlds_m3": (
+        "Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance"
+    ),
+}
 
 # Safety survey: FAILURE_SIGNATURE is the last statement of a *single*-assertion test
 # (`test_example_cases`'s `assert result, f"Test failed for example: {example_name}"` --
@@ -210,15 +226,20 @@ def classify(nodeid, duration, failure_text):
         return "NEW"
 
     max_time = None
+    matched_fragment = None
     for fragment, mt in MAX_TIME_BY_NODEID_FRAGMENT.items():
         if fragment in nodeid:
             max_time = mt
+            matched_fragment = fragment
             break
     if max_time is None:
         # No known max_time for this node id -- cannot confirm the timing signature, so treat
         # conservatively as NEW rather than silently assuming TIMING.
         return "NEW"
-    if duration >= 0.8 * max_time and FAILURE_SIGNATURE in failure_text:
+    expected_signature = FAILURE_SIGNATURE_BY_NODEID_FRAGMENT.get(
+        matched_fragment, FAILURE_SIGNATURE
+    )
+    if duration >= 0.8 * max_time and expected_signature in failure_text:
         return "TIMING"
     return "NEW"
 

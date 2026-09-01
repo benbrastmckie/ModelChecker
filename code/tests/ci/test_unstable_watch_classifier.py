@@ -230,6 +230,63 @@ class TestClassifyGatingFloorSignature:
 
 
 # ---------------------------------------------------------------------------
+# Third unstable marking: TestShiftClosure::test_shift_closure_on_extracted_worlds_m3
+# (oracle/bimodal_logic/tests/test_soundness_regression.py). Duration-based, like
+# BM_CM_1, but with its own bespoke assertion message rather than BM_CM_1's shared
+# "Test failed for example: ..." shape -- exercises FAILURE_SIGNATURE_BY_NODEID_FRAGMENT's
+# per-fragment override.
+# ---------------------------------------------------------------------------
+
+SHIFT_CLOSURE_M3_NODEID = (
+    "oracle/bimodal_logic/tests/test_soundness_regression.py::TestShiftClosure::"
+    "test_shift_closure_on_extracted_worlds_m3"
+)
+# Exact string, copied verbatim from the test's own assertion message.
+SHIFT_CLOSURE_M3_FAILURE_TEXT = (
+    "AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance"
+)
+
+
+class TestClassifyShiftClosureM3Signature:
+    def test_timing_signature_at_full_duration(self):
+        """duration=15.0003 (>= 0.8*15) plus this test's own failure signature -> TIMING."""
+        result = classify_mod.classify(
+            SHIFT_CLOSURE_M3_NODEID, 15.0003, SHIFT_CLOSURE_M3_FAILURE_TEXT
+        )
+        assert result == "TIMING"
+
+    def test_fast_failure_is_new(self):
+        """Same node id and text, but duration=3.0 is well under 0.8*15 -- the solver
+        decided quickly and the assertion still failed, which is not the documented
+        timing signature -> NEW."""
+        result = classify_mod.classify(
+            SHIFT_CLOSURE_M3_NODEID, 3.0, SHIFT_CLOSURE_M3_FAILURE_TEXT
+        )
+        assert result == "NEW"
+
+    def test_different_message_at_full_duration_is_new(self):
+        """Same node id and duration, but a different assertion message (e.g. BM_CM_1's
+        shape, which this fragment does NOT fall back to since it has its own override
+        entry in FAILURE_SIGNATURE_BY_NODEID_FRAGMENT) -> NEW."""
+        result = classify_mod.classify(
+            SHIFT_CLOSURE_M3_NODEID, 15.0003, BM_CM_1_FAILURE_TEXT
+        )
+        assert result == "NEW"
+
+    def test_bm_cm_1_still_uses_its_own_signature_not_the_fallback_default(self):
+        """Confirms adding a per-fragment override for the shift-closure marking did not
+        change BM_CM_1's own classification -- BM_CM_1 has no entry in
+        FAILURE_SIGNATURE_BY_NODEID_FRAGMENT, so it must still fall back to the shared
+        FAILURE_SIGNATURE default, not the shift-closure override."""
+        result = classify_mod.classify(BM_CM_1_NODEID, 60.94, BM_CM_1_FAILURE_TEXT)
+        assert result == "TIMING"
+        result_wrong_signature = classify_mod.classify(
+            BM_CM_1_NODEID, 60.94, SHIFT_CLOSURE_M3_FAILURE_TEXT
+        )
+        assert result_wrong_signature == "NEW"
+
+
+# ---------------------------------------------------------------------------
 # parse_junit tests
 # ---------------------------------------------------------------------------
 
