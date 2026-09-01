@@ -164,31 +164,39 @@ existing count is not 20, record the actual number rather than adjusting the cla
 
 ---
 
-### Phase 2: GREEN — implement `/proc/<pid>/environ` worker-id tagging in the sampler [NOT STARTED]
+### Phase 2: GREEN — implement `/proc/<pid>/environ` worker-id tagging in the sampler [COMPLETED]
 
 **Goal**: Make Phase 1's tests pass with the minimum sampler change, using the same `/proc`-only,
 stdlib-only, no-new-dependency approach the module already commits to.
 
 **Tasks**:
-- [ ] Add `parse_xdist_worker_id(environ_bytes) -> str | None`: split on `\0`, find the entry
+- [x] Add `parse_xdist_worker_id(environ_bytes) -> str | None`: split on `\0`, find the entry
       whose key is exactly `PYTEST_XDIST_WORKER` (exact key match, not `startswith`, so
       `PYTEST_XDIST_WORKER_COUNT` cannot match), decode with `errors="replace"`.
-- [ ] Add `read_xdist_worker_id(proc_root, pid) -> str | None` reading
+- [x] Add `read_xdist_worker_id(proc_root, pid) -> str | None` reading
       `proc_root/<pid>/environ` via `read_bytes()`, with the identical
       `(FileNotFoundError, ProcessLookupError, PermissionError) -> None` tolerance as
       `read_vm_rss_kb`. Fail-fast applies to programmer errors, not to the normal
       process-exited-mid-read race, which the module already treats as expected.
-- [ ] Extend `sample_once` to return per-PID `(rss_kb, worker_id)` (or a parallel worker-id map),
-      keeping the "raced away -> omit, never record 0" behavior unchanged.
-- [ ] Extend `PeakTracker` with `pid_to_worker: dict[int, str | None]`, recording the first
+- [x] Extend `sample_once` to return per-PID `(rss_kb, worker_id)` (or a parallel worker-id map),
+      keeping the "raced away -> omit, never record 0" behavior unchanged. **Deviation**:
+      `sample_once`'s own return shape (`dict[int, int]`) is left byte-identical instead — several
+      Phase-1 (and pre-existing) tests assert against that exact shape and Phase 1 explicitly
+      forbids modifying existing tests. Worker-id attribution is instead a parallel map, produced
+      by the new `_sample_worker_ids()` helper and threaded into `PeakTracker.record()`'s new
+      optional `worker_ids` parameter inside `run()`. Net effect is identical to the plan's intent
+      (per-PID RSS and worker-id both flow into the tracker every sample) via a different call
+      shape.
+- [x] Extend `PeakTracker` with `pid_to_worker: dict[int, str | None]`, recording the first
       non-`None` id seen for a PID and never overwriting it with a later `None`.
-- [ ] Extend `summary()` with `pid_to_worker` and `per_worker_id_peak_kb` (max per `gwN` across
+- [x] Extend `summary()` with `pid_to_worker` and `per_worker_id_peak_kb` (max per `gwN` across
       the PIDs that carried that id). Keep every existing key and its meaning unchanged, and add
       no threshold, ratio, or ceiling.
-- [ ] Update the sampler docstring's "What the sampler records" paragraph to name the new fields
+- [x] Update the sampler docstring's "What the sampler records" paragraph to name the new fields
       and state that worker-id attribution is best-effort (absent under a non-xdist or
       permission-restricted run).
-- [ ] Run `PYTHONPATH=code/src pytest code/tests/ci/test_worker_rss_sampler.py -v` — all GREEN.
+- [x] Run `PYTHONPATH=code/src pytest code/tests/ci/test_worker_rss_sampler.py -v` — all GREEN
+      (36 passed).
 
 **Timing**: 1 hour
 
