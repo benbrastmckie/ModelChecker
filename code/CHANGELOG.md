@@ -6,6 +6,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.9] - 2026-09-01
+
+### Fixed
+- Model output no longer crashes on Windows consoles. Printed output wrote raw Unicode glyphs
+  (the world-history transition arrow, subscript digits, the imposition/witness arrows, the
+  null-state symbol, and progress-bar block characters) directly to the caller-supplied stream.
+  On a Windows pipe -- `subprocess.run(..., capture_output=True)`, which falls off Python's
+  PEP-528 console path -- these encode with cp1252 and raise `UnicodeEncodeError`, breaking every
+  theory's print path. A new `model_checker.utils.glyphs` module resolves each glyph to its
+  Unicode form or an ASCII fallback based on the target stream's encoding, and every theory's
+  print paths now route through it. The bug was latent and long-standing; the `Verify PyPI
+  install` Windows matrix added in 1.3.8 is what surfaced it.
+- The bimodal aligned world-history renderer derives its column budget from the actually-rendered
+  arrow string rather than a hard-coded width, so alignment survives ASCII substitution. This
+  also fixes a latent column overflow for two-digit durations.
+- Corrected a false claim in the oracle gating test's quarantine entry-criteria record, which
+  stated the nightly runs reproduced an identical 96/103 conclusive, 7-timeout result. The actual
+  spread across those runs is 96-98/103 at 5-7 timeouts. The record now also documents why all
+  six runs were classified as new failures rather than matching the known timing signature.
+
+### Changed
+- Release-gating test selections no longer depend on bimodal solve cost. Tests that merely used
+  bimodal as a convenient fixture now use logos, while tests whose subject is genuinely bimodal
+  are marked `development` and deselected from gating runs. Measured effect: the packaging suite
+  drops from 105.80s to 19.82s, and `builder/tests/unit/test_example.py` from 36.13s to 10.66s.
+- The `packaging.yml`, `release.yml`, and `pypi-smoke.yml` workflows are now covered by the
+  gating-selector contract, so their marker expressions are checked executably rather than by
+  convention.
+
+### Added
+- Opt-in per-formula instrumentation for the oracle gating scan via
+  `ORACLE_GATING_SCAN_OUT_DIR`, kept distinct from the existing `ORACLE_SCAN_OUT_DIR` so the two
+  scans cannot overwrite each other's reports. This makes it possible to identify which formulas
+  fail to resolve, which previously was not recoverable from the test's output.
+- An executable contract test asserting that no release-gating selection constructs or solves a
+  bimodal example.
+
+### Testing and release infrastructure
+- Regression coverage for the encoding fix writes to a cp1252-constrained stream, so it runs on
+  Linux and does not require a Windows runner. The packaging suite gains an additive
+  `PYTHONIOENCODING=cp1252` leg exercising the real installed console script.
+
 ## [1.3.8] - 2026-09-01
 
 ### Added
