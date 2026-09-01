@@ -1,18 +1,72 @@
 #!/usr/bin/env python3
-"""Peak-RSS-per-xdist-worker telemetry sampler for the Python 3.12 `general-tests` matrix leg
-(see `.github/workflows/tests.yml`'s 3.12-gated telemetry step and
-`code/docs/core/TESTING_GUIDE.md` section 8.11 for the incident this instruments).
+"""Peak-RSS-per-xdist-worker telemetry sampler for the `general-tests` matrix, run
+unconditionally on EVERY Python leg (see `.github/workflows/tests.yml`'s telemetry step and
+`code/docs/core/TESTING_GUIDE.md` section 8.11 for the incident this instruments;
+`code/tests/ci/test_worker_rss_sampler.py::TestSamplerIsNotMatrixGated` keeps this ungated
+executably).
 
-**This is instrumentation only. It does not fix, diagnose, or claim a root cause for the D
-incident** (two occurrences of a Python-3.12-only xdist worker crash, `[gwN] node down: Not
-properly terminated`, both with a ~2-17 minute silent gap before detection and no
-`Fatal Python error`/segfault/faulthandler stack dump in the captured log). Three hypotheses
-remain live and unconfirmed: (1) memory exhaustion on the runner (this sampler's target),
-(2) a Python-3.12-specific Z3/`z3-solver` ABI incompatibility unrelated to memory, (3) an
-xdist/execnet worker-communication fault under load. This module makes hypothesis (1)
-falsifiable with data instead of log archaeology; it does not favor it. It is removable once
-the hypothesis resolves either way -- delete this file, its test module, and the workflow step
-that invokes it.
+**This is instrumentation only. Root cause: NOT identified. Item D: OPEN.** It does not fix,
+diagnose, or claim a root cause for the recurring `[gwN] node down: Not properly terminated`
+xdist worker crash. Current hypothesis ledger (superseding the original two-incident,
+3.12-only framing below):
+
+- **4 confirmed observations**, not 2: `gw2` (twice), `gw0` (once, confounded by concurrent
+  uncommitted edits in the same working tree), and a third `gw2` occurrence recorded
+  independently. Observed on **both Python 3.11 and 3.12** -- not a single-leg phenomenon.
+- **Hypothesis 1 (aggregate memory exhaustion, naive ceiling read)**: weakened, not eliminated.
+  Measured aggregate peak RSS (~4.14 GiB) is a small fraction of runner memory; the original 2s
+  sampling interval could not see a transient spike, which is the reason this task tightened it
+  (see `DEFAULT_INTERVAL_S` and this file's own overhead-measurement record in the task history).
+- **Hypothesis 1b (new, narrower, UNTESTED)**: concentrated native-memory buildup within a
+  single worker, produced by `pytest-xdist`'s verified `LoadScheduling` algorithm dispatching
+  large, collection-order-contiguous chunks -- a worker that happens to draw one Z3-heavy chunk
+  is structurally likely to keep drawing adjacent heavy chunks for the rest of the run (it stays
+  the "fastest asker"). This would produce exactly the observed asymmetric, non-simultaneous RSS
+  pattern without requiring a leak or an ABI fault. Testable directly by the deferred worker-side
+  per-test log described below; not yet tested.
+- **Hypothesis 2 (Python-3.12-specific Z3/`z3-solver` ABI fault)**: further weakened. The
+  3rd/4th data points did not confirm a 3.12-only pattern, and an incident is already on record
+  against Python 3.11 (see `.github/workflows/tests.yml`'s telemetry comment block) -- this
+  module's own title used to claim "the Python 3.12 leg"; that claim was itself stale and has
+  been corrected here.
+- **Hypothesis 3 (xdist/execnet worker-communication fault under load)**: unchanged, gains
+  weight only by elimination of the above -- nothing confirms it directly.
+- **A fixed `gw2`-specific / module-specific binding**: weakened by mechanism, not by data.
+  Reading the installed `pytest-xdist` scheduler source directly shows the initial worker batch
+  is a large, deterministic, module-sized chunk, but the *specific* worker that receives a given
+  chunk after the first round is decided by real-time solve-duration variance
+  (`WorkerController.check_schedule`), not by a fixed formula -- and the 4th incident named a
+  *different* worker (`gw0`). Treat "it's always `gw2`" as likely coincidence riding on a real
+  but non-worker-specific mechanism, not as evidence of anything special about worker index 2.
+
+**Lead (d) -- a file-level `xdist_serial` experiment for the confirmed trigger file -- is
+MOOT, recorded here rather than run**: the entire `theory_lib/bimodal` tree (not just one file)
+is already excluded from every gating `-m` expression by an unrelated `development` marker (see
+the containment-expiry note below), so isolating one file no longer tests anything the current
+gating configuration doesn't already guarantee. The broader version of the experiment already
+ran, informally, via a before/after comparison around that exclusion landing: one clean run with
+bimodal absent, no crash. **This is one data point in a non-hermetic, shared CI environment and
+is reported as weak evidence, not as resolution** -- per this task's own standard, a single clean
+run does not close an open item.
+
+**Containment-expiry note**: `theory_lib/bimodal`'s absence from every gating `-m` expression
+(see `.github/workflows/tests.yml`, `code/tests/ci/test_unstable_deselection_wiring.py`) removes
+this incident's two confirmed trigger sites from gating CI today, but it is **containment, not a
+fix**, and it did not happen for this reason -- it was motivated entirely by "bimodal is
+unfinished," a separate and unrelated concern. It is explicitly temporary: once bimodal is
+re-admitted to gating, the exact conditions that produced 3 of 4 confirmed crashes return unless
+this ledger has been closed by then. What must be in place before that re-admission: this
+module's `PYTEST_XDIST_WORKER` pid attribution and its sub-second sampling interval (both landed
+by this task), plus the **deferred next step** -- a worker-side `pytest_runtest_logstart` hook
+(keyed by `PYTEST_XDIST_WORKER`, logging `(timestamp, nodeid)` per test) that would test
+hypothesis 1b directly instead of by inference. That hook requires editing a `conftest.py`,
+which is outside this task's declared file scope, so it is named here as the next step for
+whoever picks this ledger up rather than being silently built or silently dropped.
+
+Do not close item D on the strength of this record alone. It documents what changed, not a
+resolution. This module remains removable in one piece once item D is actually resolved either
+way -- delete this file, its test module (`code/tests/ci/test_worker_rss_sampler.py`), and the
+workflow step that invokes it.
 
 **Implementation choice, stated per the plan's requirement**: `/proc/<pid>/status` is read
 directly rather than via `psutil`. The Python 3.12 leg (like every leg) targets

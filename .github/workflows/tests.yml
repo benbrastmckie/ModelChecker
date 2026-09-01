@@ -158,20 +158,37 @@ jobs:
           # flake.
           #
           # Peak-RSS-per-worker telemetry on EVERY Python leg (item D instrumentation; see
-          # `.github/scripts/worker_rss_sample.py`'s module docstring for the full contract).
-          # D's root cause is OPEN -- this does not fix or diagnose it, only makes the memory
-          # hypothesis checkable against data instead of log archaeology. Three live hypotheses:
-          # (1) memory exhaustion on the runner, (2) a Z3/z3-solver ABI fault unrelated to
-          # memory, (3) an xdist/execnet worker-communication fault under load.
+          # `.github/scripts/worker_rss_sample.py`'s module docstring for the full ledger).
+          # D's root cause is OPEN -- this does not fix or diagnose it, only makes hypotheses
+          # checkable against data instead of log archaeology. Current ledger (full detail in
+          # the sampler docstring): **4 confirmed `node down` observations, not 2** -- `gw2`
+          # twice, `gw0` once (confounded by concurrent uncommitted edits), observed on both
+          # Python 3.11 and 3.12. Hypothesis 1 (aggregate memory exhaustion) is weakened, not
+          # eliminated; hypothesis 1b (new, UNTESTED: chunk-contiguous heavy-Z3 concentration
+          # within one worker, per the verified xdist scheduler source) is the most promising
+          # open lead; hypothesis 2 (a Python-3.12-only Z3 ABI fault) is further weakened by the
+          # confirmed 3.11 occurrence; hypothesis 3 (xdist/execnet fault) is unconfirmed either
+          # way; a fixed `gw2`-specific worker binding is weakened by mechanism (verified
+          # scheduler source), not by data alone.
           #
-          # NOT matrix-gated, and deliberately so. This step was originally scoped to 3.12 as
-          # "the only leg the crash has been observed on". CI run 32996446859 falsified that:
-          # `[gw2] node down: Not properly terminated` occurred on Python 3.11, and the
-          # 3.12 gate meant the sampler collected NOTHING for that incident. Telemetry gated to
-          # a subset of legs cannot observe a failure whose leg distribution is the open
-          # question. `code/tests/ci/test_worker_rss_sampler.py::TestSamplerIsNotMatrixGated`
-          # keeps this ungated executably. Hypothesis (2) is correspondingly weakened: the
-          # crash is not Python-3.12-specific.
+          # NOT gated to a single Python leg, and deliberately so. This step was originally
+          # scoped to one leg as "the only leg the crash has been observed on". CI run
+          # 32996446859 falsified that: `[gw2] node down: Not properly terminated` occurred on
+          # Python 3.11 too, and the original single-leg gate meant the sampler collected
+          # NOTHING for that incident. Telemetry gated to a subset of legs cannot observe a
+          # failure whose leg distribution is the open question.
+          # `code/tests/ci/test_worker_rss_sampler.py::TestSamplerIsNotMatrixGated` keeps this
+          # ungated executably.
+          #
+          # Containment-expiry note: `theory_lib/bimodal`'s current exclusion from every gating
+          # `-m` expression (see `code/tests/ci/test_unstable_deselection_wiring.py`) removes
+          # this incident's confirmed trigger sites from gating CI today, but it is containment,
+          # not a fix -- it was motivated entirely by "bimodal is unfinished," an unrelated
+          # concern, and is explicitly temporary. When bimodal is re-admitted to gating, this
+          # step's worker-id attribution and its sub-second `--interval` (both below) plus the
+          # deferred worker-side per-test log (see the sampler docstring's "deferred next step")
+          # must already be in place so the next occurrence is diagnosable on first observation,
+          # not a blind fourth-or-fifth incident.
           #
           # Deliberately non-gating: the sampler runs in the background alongside the parallel
           # pass and its own failure (`|| true`) can never turn a green suite red; only the

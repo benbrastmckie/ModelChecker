@@ -431,3 +431,80 @@ class TestSamplerIntervalIsSubSecond:
             "RSS traces uninformative -- do not widen it back without re-measuring the sampler's "
             "own CPU overhead and updating this guard deliberately."
         )
+
+
+class TestRecordIntegrityItemDStaysOpen:
+    """Guards the honest record itself: a future edit must not be able to quietly downgrade
+    item D from OPEN to "resolved" in either place its status is stated (the sampler module
+    docstring and the `tests.yml` telemetry comment block), and the containment-expiry framing
+    (bimodal's exclusion from gating is incidental/temporary, not a fix) must survive too.
+    """
+
+    def test_sampler_docstring_states_root_cause_open(self):
+        doc = sampler.__doc__ or ""
+        doc_flat = " ".join(doc.lower().split())
+        assert "not identified" in doc_flat, (
+            "The sampler module docstring no longer states that the root cause is NOT "
+            "identified -- item D must stay OPEN until an actual root cause is confirmed."
+        )
+        assert "OPEN" in doc, (
+            "The sampler module docstring no longer explicitly states item D is OPEN."
+        )
+
+    def test_sampler_docstring_carries_containment_expiry_note(self):
+        doc = sampler.__doc__ or ""
+        # Prose wraps across lines in the source, so normalize whitespace (including newlines)
+        # before matching a multi-word phrase -- a mid-phrase line-wrap must not defeat this
+        # guard.
+        doc_flat = " ".join(doc.lower().split())
+        assert "containment" in doc_flat, (
+            "The sampler module docstring no longer frames bimodal's gating exclusion as "
+            "containment -- this must not be silently reframed as a fix."
+        )
+        assert "not a fix" in doc_flat, (
+            "The sampler module docstring no longer states explicitly that bimodal's gating "
+            "exclusion is not a fix for item D."
+        )
+        assert "re-admitted" in doc.lower() or "readmitted" in doc.lower(), (
+            "The sampler module docstring no longer names the containment's expiry condition "
+            "(bimodal being re-admitted to gating)."
+        )
+
+    def test_sampler_docstring_names_the_deferred_worker_side_log_next_step(self):
+        doc = sampler.__doc__ or ""
+        assert "pytest_runtest_logstart" in doc, (
+            "The sampler module docstring no longer names the deferred worker-side per-test "
+            "log hook as the next step -- this deferral must stay documented, not silently "
+            "dropped."
+        )
+        assert "conftest.py" in doc, (
+            "The sampler module docstring no longer explains why the worker-side log was "
+            "deferred (a conftest.py edit is outside this task's declared file scope)."
+        )
+
+    def test_sampler_docstring_never_claims_resolution(self):
+        doc_flat = " ".join((sampler.__doc__ or "").lower().split())
+        # A future edit must not slip in a claim that the crash is fixed/resolved/explained.
+        for forbidden in ("root cause: identified", "root cause identified", "item d: resolved",
+                           "item d resolved", "this fixes", "this resolves the crash"):
+            assert forbidden not in doc_flat, (
+                f"The sampler module docstring appears to claim resolution ({forbidden!r} "
+                "found) -- item D must stay OPEN until an actual root cause is confirmed."
+            )
+
+    def test_tests_yml_telemetry_comment_states_root_cause_open(self):
+        text = TESTS_YML.read_text(encoding="utf-8")
+        assert "D's root cause is OPEN" in text or "root cause is OPEN" in text, (
+            "tests.yml's telemetry comment block no longer states item D's root cause is OPEN."
+        )
+
+    def test_tests_yml_telemetry_comment_carries_containment_expiry_note(self):
+        text = TESTS_YML.read_text(encoding="utf-8")
+        assert "containment" in text.lower(), (
+            "tests.yml's telemetry comment block no longer frames bimodal's gating exclusion "
+            "as containment."
+        )
+        assert "not a fix" in text.lower(), (
+            "tests.yml's telemetry comment block no longer states bimodal's gating exclusion "
+            "is not a fix for item D."
+        )

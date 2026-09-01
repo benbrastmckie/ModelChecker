@@ -287,7 +287,7 @@ than one line matches, stop and re-plan rather than editing both.
 
 ---
 
-### Phase 4: The durable, executable honest record [NOT STARTED]
+### Phase 4: The durable, executable honest record [COMPLETED]
 
 **Goal**: Satisfy the exit condition's second branch. Write, where a future investigator will
 actually land, (a) the updated hypothesis ledger with what was eliminated and by what evidence,
@@ -297,41 +297,53 @@ log as the named next step, and (f) the containment-expiry note — that bimodal
 gating is incidental, temporary, and not a fix.
 
 **Tasks**:
-- [ ] Rewrite the hypothesis paragraph in `.github/scripts/worker_rss_sample.py`'s module
+- [x] Rewrite the hypothesis paragraph in `.github/scripts/worker_rss_sample.py`'s module
       docstring: it currently describes a "Python 3.12-only" crash and three hypotheses. Replace
       with the current ledger — 4 observations, `gw2` x2 / `gw0` x1 / one confounded, observed on
       both 3.11 and 3.12; hypothesis 2 (3.12-only ABI) weakened; fixed-worker-index binding
       weakened by the verified `LoadScheduling` algorithm; hypothesis 1b (chunk-contiguous
       heavy-Z3 concentration within one worker) newly articulated and **untested**. State
-      explicitly: root cause NOT identified, item D OPEN.
-- [ ] Add the containment-expiry note to the same docstring and to the `tests.yml` telemetry
+      explicitly: root cause NOT identified, item D OPEN. Also corrected the module's opening
+      line, which stated the sampler was for "the Python 3.12 `general-tests` matrix leg" — a
+      stale claim predating `TestSamplerIsNotMatrixGated` (the sampler has run unconditionally on
+      every leg since that guard landed); now states it runs on every leg.
+- [x] Add the containment-expiry note to the same docstring and to the `tests.yml` telemetry
       comment block: `theory_lib/bimodal` is currently out of every gating `-m` expression via a
       blanket `development` marker applied for an unrelated reason ("bimodal is unfinished"),
       which incidentally removes the confirmed trigger sites. **This is containment, not a fix, and
       it expires when bimodal is re-admitted to gating.** Name the instrumentation that must be in
       place by then (this task's Phases 2-3, plus the deferred per-test log).
-- [ ] Record lead (d) as moot with its reasoning: a file-level `xdist_serial` experiment is
+- [x] Record lead (d) as moot with its reasoning: a file-level `xdist_serial` experiment is
       superseded because the entire theory is already out of both gating passes; the broader
       before/after comparison already ran with a single clean post-quarantine run, which is weak
       evidence and is reported as such, not as resolution.
-- [ ] Record the deferred next step: a worker-side `pytest_runtest_logstart` hook writing
+- [x] Record the deferred next step: a worker-side `pytest_runtest_logstart` hook writing
       `(timestamp, nodeid)` to a per-worker log keyed by `PYTEST_XDIST_WORKER`, which is what
       would test hypothesis 1b directly. Note it was deferred because `conftest.py` is outside
       this task's declared file scope.
-- [ ] Add a short header comment to
+- [x] Add a short header comment to
       `code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py` noting
       it is a confirmed *innocent bystander* (two incidents killed two different tests in this
       file; its own fixtures are `N=2, M=2`, one `solver.check()` per test, and the replacement
       worker re-ran the named test in 0.23s), pointing at the sampler docstring for the record.
       **Add no marker and change no test** — the file's collected test count and markers must be
-      byte-for-byte equivalent afterwards.
-- [ ] Add an executable guard test to `code/tests/ci/test_worker_rss_sampler.py` asserting the
+      byte-for-byte equivalent afterwards. Verified: `--collect-only -q` reports 14 tests both
+      before and after; `grep -c "development\|unstable"` on the file is 0 both before and after.
+- [x] Add an executable guard test to `code/tests/ci/test_worker_rss_sampler.py` asserting the
       sampler docstring still contains the containment-expiry note and an explicit
       root-cause-open statement, so a future edit cannot quietly downgrade the record to
-      "resolved".
-- [ ] Re-run `code/tests/ci/` after **each** `tests.yml` comment edit (not just at phase end) —
+      "resolved". Implemented as `TestRecordIntegrityItemDStaysOpen` (7 tests): asserts the
+      root-cause-open statement and containment-expiry note in BOTH the sampler docstring and the
+      `tests.yml` telemetry comment block (the hard constraint requires item D stay OPEN in every
+      location the record touches, not just one), asserts the deferred-next-step note survives,
+      and asserts a denylist of resolution-claiming phrases never appears.
+- [x] Re-run `code/tests/ci/` after **each** `tests.yml` comment edit (not just at phase end) —
       `TestSamplerIsNotMatrixGated` scans every line for the `matrix.python-version` + `if` + `=`
-      token combination, and a careless comment can trip it.
+      token combination, and a careless comment can trip it. Ran
+      `code/tests/ci/test_worker_rss_sampler.py::TestSamplerIsNotMatrixGated`,
+      `test_workflow_parity.py`, and `test_unstable_deselection_wiring.py` immediately after the
+      `tests.yml` edit (27 passed), then the full `code/tests/ci/` suite at phase end (157
+      passed).
 
 **Timing**: 1 hour
 

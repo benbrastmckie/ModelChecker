@@ -6,6 +6,18 @@ seriality, interpolation) and the lawful history property. It documents and test
 between the Z3 oracle's "Base" frame class claim and BimodalLogic's TaskFrame
 structure.
 
+Confirmed innocent bystander (recurring xdist worker crash, item D -- OPEN): two of the four
+confirmed `[gwN] node down: Not properly terminated` xdist worker crash incidents killed a test
+in this file, but this file is not the cause. Its own `semantics`/`solved_model` fixtures use a
+tiny state space (`N=2`, `M=2`) with function scope (fresh per test) and exactly one
+`solver.check()` call per test; the crash log's replacement worker re-ran the named test in
+0.23s. See `.github/scripts/worker_rss_sample.py`'s module docstring for the full hypothesis
+ledger, including the newly articulated (untested) hypothesis that the real concentration of
+Z3-heavy work sits elsewhere in this same test tree (e.g.
+`bimodal/tests/integration/test_iterate.py`, which sorts immediately before this file in
+collection order) and lands on whichever worker happens to be dispatched a large,
+collection-order-contiguous chunk containing it.
+
 Purpose:
 --------
 The Z3 oracle declares `supported_frame_classes = frozenset({"Base"})`, meaning
