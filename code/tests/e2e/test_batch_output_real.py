@@ -15,11 +15,15 @@ combined `MODELS.json`'s `"models"` list, and a `---` separator between examples
 
 from tests.utils.helpers import run_cli_command
 
-_BATCH_EXAMPLE_CONTENT = '''"""Multi-example bimodal module for batch-output testing."""
+# Uses logos rather than bimodal: both consuming tests assert only the batch-output *shape*
+# (one MODELS.json entry per example, "---" separator in combined EXAMPLES.md) -- nothing
+# bimodal-specific. Same remedy, same rationale as tests/cli/conftest.py's precedent fix. See
+# TESTING_GUIDE.md section 8.14 and this task's audit report.
+_BATCH_EXAMPLE_CONTENT = '''"""Multi-example logos module for batch-output testing."""
 
-from model_checker.theory_lib import bimodal
+from model_checker.theory_lib import logos
 
-theory = bimodal.get_theory()
+theory = logos.get_theory()
 semantic_theories = {"batch_test": theory}
 
 example_range = {
@@ -29,7 +33,7 @@ example_range = {
 '''
 
 
-def test_bimodal_batch_output_saves_one_model_entry_per_example(tmp_path):
+def test_batch_output_saves_one_model_entry_per_example(tmp_path):
     """--save with a two-example module produces a combined MODELS.json whose "models" list has
     exactly one entry per example, each identifiable by name -- the batch-specific behavior this
     file's name promises, not just a bare successful exit.
@@ -60,7 +64,7 @@ def test_bimodal_batch_output_saves_one_model_entry_per_example(tmp_path):
     assert example_names == {"BATCH_EX_ONE", "BATCH_EX_TWO"}
 
 
-def test_bimodal_batch_output_combines_markdown_with_separator(tmp_path):
+def test_batch_output_combines_markdown_with_separator(tmp_path):
     """The combined EXAMPLES.md joins per-example output with a '---' separator, proving both
     examples' formatted output actually landed in the same file rather than only the first (or
     only a single-example smoke check, which the previous version of this test provided)."""

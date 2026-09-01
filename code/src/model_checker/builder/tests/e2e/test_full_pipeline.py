@@ -55,9 +55,16 @@ class TestFullPipeline(unittest.TestCase):
     
     def test_theory_library_execution(self):
         """Test running theory library examples end-to-end.
-        
+
         This catches issues like the discover_theory_module method signature
         mismatch that unit tests with mocks missed.
+
+        Deliberately, audited retention on bimodal: this is the one test in this file (and the
+        one exception in this task's whole audit) whose assertion genuinely needs bimodal --
+        the "World Histories" string below is bimodal's own model-rendering label, not
+        reproducible under any other theory. A future sweep must not "finish the job" by
+        swapping this fixture to logos too; see TESTING_GUIDE.md section 8.14 and this task's
+        audit report for the full reasoning. Its existing `max_time=10` is unchanged.
         """
         # Create a simple test module instead of running full examples
         # to avoid timeouts while still testing the discover_theory_module path
@@ -102,11 +109,15 @@ general_settings = {}
         covers `--print_impossible`'s actual, documented effect: including impossible states in
         the model display, exercising the same `discover_theory_module` code path the original
         test intended to stress.
+
+        Uses logos rather than bimodal: only generic flag-plumbing is asserted (that `-i`
+        changes output relative to the no-flag baseline), nothing bimodal-specific. Same
+        remedy, same rationale as this file's other logos swaps in this task.
         """
         # Create a simple test module
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
             f.write('''
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}

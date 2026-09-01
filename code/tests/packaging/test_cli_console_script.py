@@ -21,11 +21,17 @@ from .conftest import _console_script_path, handle_known_venv_libz3_link_failure
 pytestmark = [pytest.mark.packaging, pytest.mark.slow]
 
 
+# Uses logos rather than bimodal: both consuming tests
+# (test_real_example_run_through_console_script, test_console_script_runs_without_pythonpath)
+# assert only generic console-script behavior (exit code, absence of Traceback, output
+# containing "EXAMPLE") -- nothing bimodal-specific. Same remedy, same rationale as
+# tests/cli/conftest.py's precedent fix. See TESTING_GUIDE.md section 8.14 and this task's
+# audit report.
 _TINY_EXAMPLE_CONTENT = '''"""Minimal example module for console-script behavioral testing."""
 
-from model_checker.theory_lib import bimodal
+from model_checker.theory_lib import logos
 
-theory = bimodal.get_theory()
+theory = logos.get_theory()
 semantic_theories = {"console_script_test": theory}
 
 example_range = {

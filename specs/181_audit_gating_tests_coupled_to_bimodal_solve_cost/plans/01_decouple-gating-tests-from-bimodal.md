@@ -355,7 +355,29 @@ non-zero durations are the ones being changed (minus
 
 ---
 
-### Phase 4: Switch the remaining CLI / e2e / packaging plumbing fixtures to logos [NOT STARTED]
+### Phase 4: Switch the remaining CLI / e2e / packaging plumbing fixtures to logos [COMPLETED]
+
+Scope-hypothesis grep (`theory_lib import bimodal\|theory_lib\.bimodal` over
+`tests/packaging tests/e2e tests/cli src/model_checker/builder/tests/e2e`) confirmed exactly the
+five hits the plan enumerated (four files, five test functions), no surprises. All correctness
+checks pass: `pytest tests/cli/test_flag_matrix.py tests/e2e/test_batch_output_real.py
+src/model_checker/builder/tests/e2e/test_full_pipeline.py -m "not development"` — 48 passed,
+unchanged collected count; `pytest tests/packaging/test_cli_console_script.py -v -m packaging` — 4
+passed; `World Histories` still present and `test_theory_library_execution` still resolves bimodal
+with `max_time: 10` unchanged; no budget value increased in the diff.
+
+**Load-contamination note** (honest per this task's measurement-fidelity mandate, not glossed
+over): this phase's local re-measurement was taken while machine load climbed sharply mid-run
+(`uptime` 1-min average rose from 7.68 to 12.27 across the phase's verification commands, driven
+by unrelated concurrent processes on this shared host) — `test_theory_library_execution` (still
+retained on bimodal) scaled from 3.72s (Phase 1 baseline, load ~4.9) to 7.52s to 9.13s across
+successive re-runs at rising load, and the file selection's aggregate wall clock (29.93s, then
+33.96s) came in *above* Phase 1's 21.32s baseline. This is recorded as a load artifact, not a
+regression: no other property (assertion text, collected count, budget values) changed, and the
+pattern (proportional scaling with `uptime`, affecting all tests including untouched ones) is
+consistent with contention rather than a slowdown from this phase's edits. Phase 8's own paired
+before/after comparison is the authoritative wall-clock claim for this file selection, taken under
+matched load rather than this phase's single contended sample.
 
 **Goal**: Close out the four inline fixtures the earlier `tests/cli/conftest.py` fix did not reach,
 while explicitly preserving the one genuinely-bimodal gating test.

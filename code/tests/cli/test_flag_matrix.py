@@ -238,11 +238,15 @@ def test_save_with_explicit_format(tmp_path, tiny_example_content, fmt, expected
 # --maximize / -m
 # ---------------------------------------------------------------------------------------------
 
+# Uses logos rather than bimodal: asserts only dispatch to
+# module.comparison.run_comparison() (see the consuming test's own docstring), nothing
+# bimodal-specific. Same remedy, same rationale as this file's _CVC5_COMPATIBLE_EXAMPLE swap
+# below and tests/cli/conftest.py's precedent fix.
 _MAXIMIZE_EXAMPLE = '''"""Minimal comparison example for --maximize CLI testing."""
 
-from model_checker.theory_lib import bimodal
+from model_checker.theory_lib import logos
 
-theory = bimodal.get_theory()
+theory = logos.get_theory()
 semantic_theories = {
     "theory_a": theory,
     "theory_b": theory,
