@@ -1,16 +1,46 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 5,
-  "summary": "Created an 8-phase implementation plan decoupling release-gating tests from bimodal solve cost: fix create_test_model to honor theory_name (defaulting to logos, ~20 call sites), swap six non-bimodal-specific fixtures to logos, mark two completeness-claim tests development at per-test/per-parametrize granularity, fix the four packaging-suite gating invocations across packaging.yml/release.yml/pypi-smoke.yml, extend both CI wiring contracts, add a new no-bimodal-in-gating contract, and record paired before/after wall clocks.",
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 7,
+  "summary": "Completed all 8 phases decoupling release-gating tests from bimodal solve cost. Fixed create_test_model() to honor theory_name (default logos), pinning 5 call sites to bimodal explicitly after discovering logos's own DEFAULT_EXAMPLE_SETTINGS is expensive (N=16, all constraint flags True). Swapped 10 non-bimodal-specific fixtures to logos across 6 files, including a previously unaudited real-solve gating file discovered by this task's own Phase 7 scan (builder/tests/integration/test_performance.py). Marked 3 completeness-claim tests development at per-test/per-parametrize granularity (2 hypothesized plus 1 discovered mid-task from concurrent work). Fixed the 4 packaging-suite gating invocations across packaging.yml/release.yml/pypi-smoke.yml, extended both CI wiring contracts (development-marker containment now an exact-match allowlist), and added a new standing no-bimodal-in-gating contract with a genuine-RED demonstration. Recorded a paired before/after wall-clock comparison: packaging suite 105.80s -> 19.82s (-81.3%), test_example.py 36.13s -> 10.66s (-70.5%). tests/ci/ -v: 167 passed. nix flake check deferred (not run).",
   "artifacts": [
     {
       "type": "plan",
-      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/plans/01_decouple-gating-tests-from-bimodal.md",
-      "summary": "8-phase plan built on the audit report's recorded dispositions, with hard constraints (no budget widening, no assertion weakening, no bimodal semantics changes) restated inline."
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/plans/01_decouple-gating-tests-from-bimodal.md"
+    },
+    {
+      "type": "summary",
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/summaries/01_decouple-gating-tests-summary.md"
+    },
+    {
+      "type": "summary",
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/baselines/before-after-comparison.md"
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 8,
   "phases_total": 8,
+  "modified_files": [
+    "code/tests/utils/helpers.py",
+    "code/tests/utils/base.py",
+    "code/tests/integration/test_performance.py",
+    "code/tests/integration/test_error_handling.py",
+    "code/tests/integration/test_timeout_resources.py",
+    "code/src/model_checker/builder/tests/unit/test_example.py",
+    "code/tests/packaging/test_cli_console_script.py",
+    "code/tests/e2e/test_batch_output_real.py",
+    "code/tests/cli/test_flag_matrix.py",
+    "code/src/model_checker/builder/tests/e2e/test_full_pipeline.py",
+    ".github/workflows/packaging.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/pypi-smoke.yml",
+    "code/tests/ci/test_unstable_deselection_wiring.py",
+    "code/docs/core/TESTING_GUIDE.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/conftest.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+    "code/tests/ci/test_development_marker_application.py",
+    "code/tests/packaging/test_generate_then_execute.py",
+    "code/tests/ci/test_gating_selection_bimodal_decoupling.py",
+    "code/src/model_checker/builder/tests/integration/test_performance.py"
+  ],
   "blockers": []
 }

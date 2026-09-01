@@ -11,7 +11,7 @@ next_project_number: 184
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,180,181,183 | -- | semantics, release-engineering, test-reliability |
+| 1 | 154,176,180,183 | -- | semantics, release-engineering, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -23,7 +23,6 @@ next_project_number: 184
 ### Release Engineering
 
 180 [IMPLEMENTING] — Diagnose the oracle gating conclusive-population shortfall that h
-181 [IMPLEMENTING] — Audit which gating tests outside the bimodal test tree still depe
 
 ### Test Reliability
 
@@ -110,12 +109,13 @@ NON-GOALS. Do not change any theory's semantics or solver behavior. Do not remov
 ---
 
 ### 181. Audit gating tests coupled to bimodal solve cost
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
 - **Research**: [181_audit_gating_tests_coupled_to_bimodal_solve_cost/reports/01_gating-tests-coupled-to-bimodal.md]
 - **Plan**: [181_audit_gating_tests_coupled_to_bimodal_solve_cost/plans/01_decouple-gating-tests-from-bimodal.md]
+- **Summary**: [181_audit_gating_tests_coupled_to_bimodal_solve_cost/summaries/01_decouple-gating-tests-summary.md]
 
 **Description**: Audit which gating tests outside the bimodal test tree still depend on bimodal solve cost, now that the Skolemized Seriality and Interpolation frame axioms have made bimodal solves substantially more expensive.
 
