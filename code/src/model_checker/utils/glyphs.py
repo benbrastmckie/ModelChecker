@@ -38,6 +38,19 @@ _GLYPHS: dict[str, tuple[str, str]] = {
     "DOWN_ARROW": ("↓", "v"),      # ↓
     "BLOCK_FULL": ("█", "#"),      # █
     "BLOCK_LIGHT": ("░", "-"),     # ░
+    # Not part of the report's original 9-site inventory: `□` is produced at
+    # runtime by `model_checker.utils.bitvector.bitvec_to_substates` for the
+    # null/bottom state, so a literal-character grep over theory source never
+    # finds it -- it only surfaces by tracing data flow or by actually
+    # running a cp1252-constrained print. Found during Phase 2 regression
+    # testing; see `code/docs/core/TESTING_GUIDE.md`'s output-encoding
+    # section for the full account of why a grep sweep alone is insufficient.
+    "NULL_STATE": ("□", "_"),      # □ -- exclusion/imposition/logos state fusions
+    # Same discovery path as NULL_STATE: `∅` is a hardcoded fallback literal
+    # in `theory_lib/bimodal/semantic/proposition.py`, reachable only via a
+    # bare `print()` that targets `sys.stdout` directly (see that module for
+    # the known, documented scope boundary this implies).
+    "EMPTY_SET": ("∅", "{}"),      # ∅ -- bimodal's "no world state found" fallback
 }
 
 # Unicode subscript digits (U+2080-U+2089) and subscript minus (U+208B),

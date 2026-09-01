@@ -32,7 +32,8 @@ from .glyphs import glyph, to_subscript, stream_can_encode
 # here; import them from theory_lib.meta_data directly.
 from .api import get_example, get_theory
 from .testing import (
-    run_test, run_enhanced_test, TestResultData
+    run_test, run_enhanced_test, TestResultData,
+    make_encoding_test_streams, read_encoding_test_stream,
 )
 
 __all__ = [
@@ -68,4 +69,6 @@ __all__ = [
     'run_test',
     'run_enhanced_test',
     'TestResultData',
+    'make_encoding_test_streams',
+    'read_encoding_test_stream',
 ]

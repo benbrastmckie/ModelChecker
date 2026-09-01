@@ -214,35 +214,73 @@ rather than branching at the call site.
 
 ---
 
-### Phase 2: Failing cp1252 regression coverage for the 9 print sites [NOT STARTED]
+### Phase 2: Failing cp1252 regression coverage for the 9 print sites [COMPLETED]
 
 **Goal**: Regression tests that reproduce the crash on Linux, one per inventoried site, and that
 **fail on current code**. This phase deliberately lands red assertions before any call site is
 touched, per the project's mandatory TDD requirement.
 
+**Scope-Hypothesis correction, recorded per the pre-edit-verification-gate contract**: while
+building the exclusion/imposition/logos regression tests below, `test_cp1252_via_print_all_does_not_raise`
+surfaced a print-path defect the report's literal-character `grep` could not see: `→`/`Ō`-style
+glyph
+literals live in theory source, but `model_checker.utils.bitvector.bitvec_to_substates` returns
+the literal `□` (U+25A1, "null state") glyph *at runtime* for bitvector 0 — invisible to a grep
+over theory `.py` files because the character never appears in their source text. `all_states`
+always includes state 0, so `print_states` (exclusion, imposition, logos) and several other
+`bitvec_to_substates(...)` call sites in `exclusion/semantic/model.py` and
+`imposition/semantic/model.py` hit this on nearly every model. This directly contradicts the
+Phase 2 logos task item below ("assert logos is clean") and the report's §2 claim of zero
+logos-local print hits — logos DOES have a print-path defect, just one a literal-character sweep
+cannot find. A second, narrower instance of the same discovery-by-execution pattern was found in
+`theory_lib/bimodal/semantic/proposition.py`'s `∅` fallback (reachable only via a bare `print()`
+targeting `sys.stdout` directly, independent of the `output` parameter — see that file's own
+comment, added in Phase 3, for the documented scope boundary this implies). Both glyphs
+(`NULL_STATE` / `EMPTY_SET`) were added to Phase 1's `utils/glyphs.py` substitution table as part
+of this phase's work (Phase 1 itself stays closed; this is an additive amendment to its already-
+committed artifact, matching the "extend it here" instruction this phase's own Scope Hypothesis
+below anticipates). The exclusion, imposition, and logos test files below were written with this
+correction already applied (their `print_all`-level assertions exercise the null-state defect,
+not just the report's originally named arrow site), so no rewrite was needed after the
+discovery — see the implementation summary's Plan Deviations section for the full account.
+
 **Tasks**:
-- [ ] Add a shared test helper that builds the constrained stream:
+- [x] Add a shared test helper that builds the constrained stream:
   `io.TextIOWrapper(io.BytesIO(), encoding="cp1252", newline="")`, plus a UTF-8 counterpart and
-  a `StringIO` counterpart, so each site is asserted under all three.
-- [ ] `code/src/model_checker/models/tests/unit/test_structure_print_encoding.py`: exercise
+  a `StringIO` counterpart, so each site is asserted under all three. (Landed as
+  `model_checker.utils.testing.make_encoding_test_streams`/`read_encoding_test_stream`, exported
+  via `model_checker.utils`, rather than a bare local helper, so all five test files below share
+  one implementation.)
+- [x] `code/src/model_checker/models/tests/unit/test_structure_print_encoding.py`: exercise
   `_print_sentence_letter_differences`, `_print_semantic_function_differences`, and
   `_print_model_structure_differences` (report §2 lines 762 / 781 / 798) against the cp1252
   stream, following the existing `Mock(spec=ModelDefaults)` pattern already established in
   `models/tests/unit/test_structure_print.py`. Assert no `UnicodeEncodeError` and that `->`
   appears in the cp1252 rendering while `→` appears in the UTF-8 and `StringIO` renderings.
-- [ ] `code/src/model_checker/theory_lib/bimodal/tests/unit/test_print_encoding.py`: exercise
+- [x] `code/src/model_checker/theory_lib/bimodal/tests/unit/test_print_encoding.py`: exercise
   `print_evaluation` (`⟹` + subscripts), `_create_world_line` / `print_world_histories`
   (columnar `⟹`), and `print_world_histories_vertical` (`↓`).
-- [ ] `code/src/model_checker/theory_lib/exclusion/tests/unit/test_print_encoding.py`: exercise
-  the witness-function difference printing at report §2's `semantic/model.py:536`.
-- [ ] `code/src/model_checker/theory_lib/imposition/tests/unit/test_print_encoding.py`: exercise
-  the imposition-relation printing at report §2's `semantic/model.py:172`.
-- [ ] `code/src/model_checker/theory_lib/logos/tests/unit/test_print_encoding.py`: assert logos
-  is clean via the shared `models/structure.py` path only (report §2 records zero logos-local
-  non-ASCII print hits) — this pins the report's finding so a future logos-local glyph is caught.
-- [ ] Run the new suite and **record the failures**; every cp1252 assertion must be red at this
+- [x] `code/src/model_checker/theory_lib/exclusion/tests/unit/test_print_encoding.py`: exercise
+  the witness-function difference printing at report §2's `semantic/model.py:536`, plus (per the
+  Scope-Hypothesis correction above) the `print_states`/`print_all`-level `□` null-state defect.
+- [x] `code/src/model_checker/theory_lib/imposition/tests/unit/test_print_encoding.py`: exercise
+  the imposition-relation printing at report §2's `semantic/model.py:172`, plus the same `□`
+  null-state defect (imposed/world/outcome states include state 0 in the IM_TR_0 countermodel).
+- [x] `code/src/model_checker/theory_lib/logos/tests/unit/test_print_encoding.py`: corrected per
+  the Scope-Hypothesis note above -- logos is NOT clean. Pins the report's literal-grep claim
+  (zero literal `→`/`⟹`/`↓` in `logos/semantic/model.py`, asserted via `inspect.getsource`) as
+  still true, while separately exercising the real `print_states`/`print_all` null-state defect
+  the grep could not see.
+- [x] Run the new suite and **record the failures**; every cp1252 assertion must be red at this
   point. A green run here means the test does not reach the glyph and must be reworked before
-  proceeding.
+  proceeding. (20 failed / 20 passed across all five files combined; every cp1252 assertion in the
+  original 9-site + null-state scope failed with `UnicodeEncodeError` or a missing-ASCII-substitute
+  `AssertionError`, and every UTF-8/StringIO control passed. One additional latent finding,
+  recorded as a pre-existing separate defect and left untouched: `exclusion/semantic/model.py`'s
+  `print_witness_functions` wraps its `print(...)` in a bare `except Exception: pass`, which
+  silently swallows `UnicodeEncodeError` too -- `test_cp1252_stream_does_not_raise` therefore
+  passes trivially for that one method; the load-bearing regression signal for it is
+  `test_cp1252_stream_uses_ascii_arrow`, which correctly failed.)
 
 **Timing**: 1.5 hours
 

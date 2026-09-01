@@ -84,6 +84,24 @@ class TestGlyphResolution:
         assert glyph("BLOCK_FULL", stream) == "█"
         assert glyph("BLOCK_LIGHT", stream) == "░"
 
+    def test_cp1252_null_state(self):
+        """`□` (null state, from `bitvec_to_substates`) falls back to ASCII."""
+        stream = _FakeStream("cp1252")
+        assert glyph("NULL_STATE", stream) == "_"
+
+    def test_utf8_null_state(self):
+        stream = _FakeStream("utf-8")
+        assert glyph("NULL_STATE", stream) == "□"
+
+    def test_cp1252_empty_set(self):
+        """`∅` (bimodal's world-state fallback) falls back to ASCII."""
+        stream = _FakeStream("cp1252")
+        assert glyph("EMPTY_SET", stream) == "{}"
+
+    def test_utf8_empty_set(self):
+        stream = _FakeStream("utf-8")
+        assert glyph("EMPTY_SET", stream) == "∅"
+
     def test_real_cp1252_textiowrapper(self):
         """The canonical Windows-pipe reproduction: a real cp1252 TextIOWrapper."""
         buf = io.BytesIO()

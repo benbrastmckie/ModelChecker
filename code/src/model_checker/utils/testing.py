@@ -5,8 +5,9 @@ This module provides functions for running model checking tests with various
 configurations and collecting detailed results.
 """
 
+import io
 import time
-from typing import List, Any, Type
+from typing import Any, Dict, List, TextIO, Type
 
 
 def run_test(
@@ -218,7 +219,58 @@ def run_enhanced_test(
     except Exception as e:
         result_data.error_message = str(e)
         result_data.solving_time = time.time() - start_time if 'start_time' in locals() else 0.0
-    
+
     return result_data
+
+
+def make_encoding_test_streams() -> Dict[str, TextIO]:
+    """Build the three output streams used to test print-path encoding safety.
+
+    Returns a dict with three keys, each a fresh, independent stream:
+
+    - ``"cp1252"``: an ``io.TextIOWrapper`` over an in-memory ``io.BytesIO``,
+      opened with ``encoding="cp1252"``. This reproduces the exact condition
+      a Windows console script hits once its stdout is piped/redirected off
+      the PEP-528 ``WriteConsoleW`` path (see
+      ``code/docs/core/TESTING_GUIDE.md``'s output-encoding testing section).
+      Any non-ASCII glyph the target codec cannot represent raises
+      ``UnicodeEncodeError`` when written to this stream, which is exactly
+      the crash this helper exists to reproduce on Linux without a Windows
+      runner.
+    - ``"utf8"``: the same ``TextIOWrapper``-over-``BytesIO`` shape, opened
+      with ``encoding="utf-8"``, which can represent every glyph in the
+      substitution table. Used as the "still renders Unicode" control.
+    - ``"stringio"``: a plain ``io.StringIO``. Its ``.encoding`` is `None`
+      and it never encodes at all, so it can never raise
+      ``UnicodeEncodeError`` regardless of content -- it is the "encoding
+      probe absent" control (`model_checker.utils.glyphs` defaults to
+      Unicode when `.encoding` is `None`), not a substitute for the cp1252
+      reproduction above.
+
+    Callers should read back cp1252/utf8 stream content via
+    ``stream.detach().getvalue().decode(stream_encoding)`` or by calling
+    ``stream.flush()`` then reading the underlying ``BytesIO`` buffer
+    directly -- ``TextIOWrapper`` does not expose ``.getvalue()`` itself the
+    way ``StringIO`` does.
+    """
+    return {
+        "cp1252": io.TextIOWrapper(io.BytesIO(), encoding="cp1252", newline=""),
+        "utf8": io.TextIOWrapper(io.BytesIO(), encoding="utf-8", newline=""),
+        "stringio": io.StringIO(),
+    }
+
+
+def read_encoding_test_stream(stream: TextIO) -> str:
+    """Read back the text written so far to a stream from `make_encoding_test_streams`.
+
+    Handles both the `io.TextIOWrapper`-over-`io.BytesIO` streams (`"cp1252"`
+    and `"utf8"`) and the plain `io.StringIO` stream (`"stringio"`) uniformly,
+    so call sites do not need to branch on stream type.
+    """
+    stream.flush()
+    if isinstance(stream, io.StringIO):
+        return stream.getvalue()
+    buffer = stream.buffer
+    return buffer.getvalue().decode(stream.encoding)
 
 
