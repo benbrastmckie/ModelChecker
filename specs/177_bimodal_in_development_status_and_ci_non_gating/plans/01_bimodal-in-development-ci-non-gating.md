@@ -1,7 +1,7 @@
 # Implementation Plan: Task #177
 
 - **Task**: 177 - Bimodal in-development status and CI non-gating
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 7 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/177_bimodal_in_development_status_and_ci_non_gating/reports/01_bimodal-ci-gating-ground-truth.md

@@ -11,7 +11,7 @@ next_project_number: 178
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,177 | -- | semantics, release-engineering, test-reliability |
+| 1 | 154,176 | -- | semantics, test-reliability |
 | 2 | 172 | 176 | test-reliability |
 | 3 | 173 | 172 | testing |
 | 4 | 174 | 173 | test-reliability |
@@ -26,10 +26,6 @@ next_project_number: 178
 
 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
 
-### Release Engineering
-
-177 [IMPLEMENTING] — Give bimodal a coherent, first-class in-development status: fully
-
 ### Test Reliability
 
 176 [RESEARCHED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
@@ -39,7 +35,7 @@ next_project_number: 178
 ## Tasks
 
 ### 177. Bimodal in development status and ci non gating
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None

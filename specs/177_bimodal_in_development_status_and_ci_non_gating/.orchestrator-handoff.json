@@ -1,5 +1,5 @@
 {
-  "status": "completed",
+  "status": "implemented",
   "summary": "All 6 phases of the plan implemented and verified. Phase 1: EXPECTED_GATING_MARKER_INVOCATIONS=7 executable count plus docs-consistency test; corrected six->seven across all 7 stale anchors (TESTING_GUIDE.md x4, bimodal conftest.py, bimodal README.md, test_development_marker_application.py). Phase 2: TestOracleSoundnessGateStaysUnconditionallyGating (3 RED-verified assertions) pins differential-tests.yml's gate step as gating-by-design; comment block plus TESTING_GUIDE.md 8.14 paragraph added. Phase 3: watch_development step wired into unstable-watch.yml mirroring watch_code's exact shape, zero classifier changes, RED-verified step-shape test added; the unchanged 'exactly 2' unstable-watch assertion confirmed untouched. Phase 4: --markers/-m passthrough added to run_tests.py across all 5 command-building sites plus a new TDD module (test_run_tests_markers.py); additionally added _normalize_markers_deselection_exit_code (undocumented in the plan but required to make --markers \"not development\" actually exit 0 rather than pytest's raw exit 5). Phase 5: corrected stale -m \"not packaging\"/-n 6 claims in .github/workflows/README.md (4 passages) to the real five-clause filter/-n 4, and reworded tests.yml's self-contradicting bimodal-exclusion comment. Phase 6: documented the two canonical run_tests.py invocations in bimodal/tests/README.md and TESTING_GUIDE.md 8.14; recorded the task-173 pointer note (stale zero-tests criterion at lines 501/529/588, not edited per instruction) in this task's own summary; recorded proofs for criteria (a) (0 bimodal in both gating passes, real execution 2116+9 passed/0 bimodal), (b) (bare ./run_tests.py bimodal shows 5 known real failures visibly; --markers \"not development\" shows 0 selected + exit 0), and (c) (Phase 2's 3 RED-verified assertions). During verification, found and fixed a self-caused bug: test_run_tests_markers.py's hand-rolled subprocess.run patch/restore permanently corrupted the global subprocess module for the rest of the pytest session (restore line re-read an already-overwritten attribute), causing test_unstable_watch_classifier.py's real-subprocess tests to fail whenever run afterward in the same session. Fixed via pytest's monkeypatch fixture; re-verified 120/120 in code/tests/ci/ (3 consecutive clean runs) and 629 passed/5 skipped in the full code/tests/ suite. No bimodal semantics, AVAILABLE_THEORIES, wheel contents, code/pyproject.toml addopts, or .github/scripts/unstable_watch_classify.py were touched; the 'exactly 2' -m unstable assertion and all three containment tests are unchanged/extended, never narrowed.",
   "artifacts": [
     {
@@ -18,5 +18,6 @@
   "blockers": [],
   "continuation_path": null,
   "next_action_hint": "Task ready for postflight/PR-readiness review; no further implementation dispatch needed.",
-  "dispatch_seq": 3
+  "dispatch_seq": 3,
+  "plan_markers_verified": "true"
 }
