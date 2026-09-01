@@ -1,10 +1,14 @@
 # Diagnosis: Oracle gating conclusive-population shortfall (unstable-watch, 2026-08-27 → 2026-09-01)
 
-**Status of this report: diagnosis complete for the CI-observed failures; the task's explicit
-MEASUREMENT REQUIREMENT (an idle-host reproduction at current, axiom-bearing HEAD, with the
-conclusive count and wall clock recorded) is OUTSTANDING — attempted, did not finish within this
-dispatch, and is not silently assumed either way. See (b) below for the full account and what a
-follow-on should run to close it.**
+**Status of this report: diagnosis complete for the CI-observed failures, and the task's explicit
+MEASUREMENT REQUIREMENT has now been executed to completion and recorded — see (b) below. The
+local run reproduced the shortfall, at axiom-bearing current HEAD, and numerically *worse* than
+every one of the six historical CI runs (93/103 conclusive vs. 96–98/103; 951.21s vs. 749–899s).
+The measurement host was demonstrably **not idle** (load average ~5.9→~5.0 on 24 cores, several
+concurrent `claude` sessions and editors running throughout), so this result does not cleanly
+isolate contention from a possible axiom-driven cost increase — both remain live explanations,
+honestly reported as such rather than picking one. See (b) for the full numbers and the
+interpretive caveat.**
 
 ## Summary
 
@@ -101,38 +105,67 @@ evidence of a genuine oracle-encoding or in-package-semantics cost regression:
   Task 167's `max_rlimit` plumbing (already present in the stale checkout) is opt-in and never
   passed by `TestGatingConclusiveScan`'s call sites, so it does not affect this test's budget
   behavior either way — it stays purely `max_time`-driven, exactly as documented.
-- **Idle-host re-measurement — ATTEMPTED, DID NOT COMPLETE WITHIN THIS DISPATCH. The
-  MEASUREMENT REQUIREMENT is therefore OUTSTANDING, not satisfied.** A local run of
-  `test_known_conclusive_population_self_consistent` was started on this research host (24-core /
-  30GB, load average ~4.7-5.1 on 24 cores — the same class of machine as the original derivation
-  workstation, though not perfectly idle: a handful of unrelated `nvim`/`claude`/build processes
-  were present, and a concurrent `pytest tests/integration/...` invocation from a sibling session
-  was observed mid-run) via `PYTHONPATH=code/src timeout 1000 python3 -m pytest
+- **Idle-host re-measurement — COMPLETED. The shortfall REPRODUCED locally, and reproduced worse
+  than every historical CI run.** `test_known_conclusive_population_self_consistent` was run to
+  completion in the foreground on this research host at `HEAD=9ce3b4ad` (2026-09-01 05:21 -0700,
+  "task 181: create implementation plan") via
+  `PYTHONPATH=code/src timeout 2400 python3 -m pytest
   oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent
-  -v -m unstable -s`, run in the background so other research could continue concurrently. At the
-  time this dispatch was closed out, the run had been executing for ~356s (of its 1000s timeout)
-  with no result yet written to its log (`collecting ... collected 1 item` was the last line
-  observed; the test itself had not finished). The process was independent of this dispatch's own
-  lifecycle (started via `&`/`disown`) and may still be running or may have since completed or
-  timed out, but this report does not rely on or guess at any outcome from it — no number from
-  that run is reported here, measured or inferred, because none was actually observed to
-  completion.
+  -v -m unstable -s`. `git merge-base --is-ancestor f9cc081e HEAD` confirms this run is
+  axiom-bearing — the first measurement of this specific test with the 2026-08-31 Skolemized
+  Seriality/Interpolation axioms actually present in the `BimodalSemantics` construction
+  `Z3OracleProvider` calls internally, unlike any of the six CI runs in the table above.
 
-  **What this means concretely:** every claim above in this subsection (unchanged solve path,
-  zero disagreements on all six real CI runs, historical 103/103 local derivations) is real,
-  measured evidence, but all of it either (i) predates the 2026-08-31 Skolemized
-  Seriality/Interpolation axioms landing inside `BimodalSemantics.build_frame_constraints` — which
-  `Z3OracleProvider` calls internally — or (ii) comes from CI runs whose checkout also predates
-  those axioms (see the ordering finding in (c) and the forward-looking risk it flags). **No
-  fresh, axiom-bearing, idle-host measurement of this specific test exists as of this report.**
-  The task's explicit instruction — "If the shortfall does not reproduce idle, that is itself the
-  finding and should be recorded with the numbers" — cannot be honored either way (reproduce or
-  not) without that run finishing. This is recorded here as an open gap, not silently dropped: a
-  follow-on task (or a re-run of this one) should execute that command to completion — expect
-  roughly 200-900s wall clock based on the range this report's other evidence spans — and record
-  whichever outcome it produces (conclusive count, timeout count, wall clock) before treating the
-  budget/contention hypothesis as measured, rather than well-supported-but-inferred, for the
-  axiom-bearing code now at `origin/master`.
+  **Result:** `agreements=93 disagreements=0 timeout_count=10 conclusive=93/103`
+  (`floor=100`), wall clock **951.21s (0:15:51)**, in `1 failed`. Zero disagreements — the
+  soundness claim is intact, exactly as on all six CI runs; the failure is exclusively the
+  performance floor, as designed. Individual timed-out-formula identities are **not recoverable**
+  from this log, for the same pre-existing instrumentation-gap reason given in (a): pytest's
+  assertion-introspection repr of the `report` dict truncates `entries` with `...`, and
+  `unstable-watch`-style invocations of this test still pass none of
+  `_generate_differential_report`'s `progress_path`/`heartbeat_every`/`artifact_dir` options.
+  Getting the per-formula timeout set would require a second run with that instrumentation wired
+  in — out of scope for this dispatch (no second multi-hundred-second run was started, per
+  instruction), and it is remediation-shaped work regardless.
+
+  **Host load — explicitly NOT idle, reported honestly rather than mislabeled:**
+
+  | | 1-min | 5-min | 15-min |
+  |---|---|---|---|
+  | Before (`uptime`, 05:13:45) | 5.91 | 5.93 | 5.61 |
+  | After (`uptime`, 05:29:59) | 4.77 | 5.14 | 5.28 |
+
+  24 cores (`nproc`), 30GB RAM with 15GB used and **7.3GB of swap in use** at completion time. A
+  `ps aux` snapshot taken immediately after the run shows at minimum four concurrent
+  `claude --dangerously-skip-permissions` sessions (PIDs 1850738, 2092138, 2093786, plus this
+  session), several `nvim` instances, and a `sioyek` PDF viewer, all resident and competing for
+  the same 24 cores and 30GB throughout the run. A load average of ~5–6 on 24 cores is not the
+  same severity of contention as a maxed-out box, but it is unambiguously **not idle**, and the
+  swap usage is a second, independent contention signal beyond raw CPU load. This measurement
+  should be read as "best available host, honestly characterized," not as a clean idle baseline.
+
+  **Interpretation — two live explanations, deliberately not collapsed into one:** This local
+  result (93/103, 951.21s) is numerically worse on both axes than every one of the six historical
+  CI runs (96–98/103, 749–899s; see the table in (a)) — CI's supposedly-more-generic runner did
+  *better* than this "idle-host" attempt. Two candidate explanations exist and this single,
+  confounded data point cannot discriminate between them:
+  1. **Axiom-driven cost increase.** This is the first measurement of this exact test with
+     `f9cc081e` present. Task 178 already measured a real, `rlimit`-confirmed 4–6x solver-cost
+     increase from the same two axioms in a different Z3 constraint context (the forward-looking
+     risk this report's (c) already flagged, before any HEAD measurement existed). A worse result
+     here is consistent with that risk having materialized in this path too.
+  2. **Host contention.** Load ~5–6 plus active swapping on a shared, multi-session box is a real,
+     independent alternative explanation for both the lower conclusive count and the longer wall
+     clock, with no need to invoke the axioms at all.
+  **What would discriminate between them:** a run of this same test, at this same `HEAD`, on a
+  verifiably idle CI-class runner (load ~0, no swap) — or, cheaper, a run at the pre-axiom
+  `98d3ad8d` checkout on *this* host under comparable (~load 5–6) contention, to see whether the
+  contention alone reproduces a 93/103-class shortfall without the axioms. Neither run was
+  performed in this dispatch (both are additional multi-hundred-second measurements, out of
+  scope for a diagnosis-only dispatch that was explicitly told not to start another long run).
+  This report does not pick one explanation over the other without that evidence — both are
+  recorded as live, and the forward-looking risk in (c) is upgraded from "untested" to
+  "consistent with one real, confounded data point," not to "confirmed."
 
 ## (c) Ordering against the Skolemized Seriality/Interpolation axioms (commit f9cc081e)
 
@@ -149,20 +182,28 @@ Verified rather than assumed, per the task's explicit instruction, from two inde
    ordering happens to look clean, but because the axiom code was structurally absent from every
    CI process that produced these failures.
 
-**Forward-looking risk, not yet observed:** `Z3OracleProvider` (the oracle
-`TestGatingConclusiveScan` exercises) constructs its own `BimodalSemantics(settings)` internally
-(`oracle/bimodal_logic/provider.py:275`) and calls `build_frame_constraints()`, which is exactly
-the function `f9cc081e` modified. `core.py` (home of `build_frame_constraints`) differs by 152
-lines between the stale checkout and current HEAD. Now that `origin/master` has caught up, the
-*next* `unstable-watch` run will, for the first time, exercise this gating test's oracle solves
-with the two new TaskFrame axioms present — a variable none of the six analyzed runs tested.
+**Forward-looking risk — partially observed as of this report, still not confirmed.**
+`Z3OracleProvider` (the oracle `TestGatingConclusiveScan` exercises) constructs its own
+`BimodalSemantics(settings)` internally (`oracle/bimodal_logic/provider.py:275`) and calls
+`build_frame_constraints()`, which is exactly the function `f9cc081e` modified. `core.py` (home
+of `build_frame_constraints`) differs by 152 lines between the stale checkout and current HEAD.
 Task 178 (tracked separately, scoped to a different test —
 `TestShiftClosure::test_shift_closure_on_extracted_worlds_m3`) already measured a real, `rlimit`-
 count-confirmed 4–6x solver-cost increase from these same two axioms in a different Z3 constraint
-context. Whether that cost increase propagates into `TestGatingConclusiveScan`'s 103-formula
-resolve budget is genuinely unknown and untested by anything in this diagnosis's evidence — it is
-a real, specific, and previously-uncontrolled-for risk for whoever owns the next observation of
-this test, flagged here explicitly rather than left implicit.
+context, which is what originally motivated flagging this as a risk before any HEAD measurement
+of this specific test existed.
+
+That measurement now exists (see (b)): a local, axiom-bearing run at `HEAD=9ce3b4ad` (which
+includes `f9cc081e`) produced 93/103 conclusive in 951.21s, worse on both axes than every one of
+the six pre-axiom CI runs (96–98/103, 749–899s). This is **consistent with** the axiom-cost risk
+having propagated into this gating path, but the run was also on a demonstrably non-idle host
+(load ~5–6 on 24 cores, active swapping — see (b)), so host contention remains an equally live,
+untested-apart explanation. This report does **not** treat the risk as confirmed on this single
+confounded data point, and does not treat it as ruled out either — (b) states explicitly what a
+discriminating follow-up run would need to look like (same `HEAD`, verifiably idle CI-class
+runner). Whoever owns the next observation of this test should treat this as a real, specific,
+still-open risk, now backed by one suggestive (not conclusive) local measurement rather than pure
+inference.
 
 ## (d) Should TESTING_GUIDE.md section 8.9's documented signature be updated?
 
@@ -185,6 +226,16 @@ misleading omission for a future reader who trusts the step summary/promotion-st
 since a per-node-id streak reset to 0 on every one of these six nights and nothing in the source
 comment currently explains why. This is a documentation-accuracy fix, not a behavior change, and
 belongs with the classifier-sync remediation below.
+
+A second, now-concrete gap: this report's own (b) local measurement (93/103 conclusive, 10
+timeouts, 951.21s at axiom-bearing HEAD) sits outside the "96/103 conclusive, 7-timeout" range
+that "(3b)" and TESTING_GUIDE.md 8.9's "Currently marked" entry both cite as the test's signature.
+That local run is a single, host-contended, non-CI data point — not itself grounds to rewrite the
+documented signature, which is derived from six real CI runs this diagnosis has no reason to
+distrust — but it is grounds to add one sentence noting that the signature was last confirmed
+against pre-axiom code, and that the first post-axiom real CI run should be checked against it
+explicitly rather than assumed to still hold. This is folded into the classifier-sync/documentation
+remediation in item 3 below, not treated as an update to the signature itself.
 
 ### The `unstable` marker's continued presence, checked against section 8.9's standing rule
 
@@ -229,9 +280,16 @@ instruction that a "leave it quarantined" conclusion must be justified against 8
 
 ## What this diagnosis rules out
 
-- **Not a semantic/soundness regression** — zero disagreements on all six runs, unconditionally.
-- **Not caused by the Skolemized Seriality/Interpolation axioms** — those axioms were absent from
-  the code that produced every one of the six failures (see (c)).
+- **Not a semantic/soundness regression** — zero disagreements on all six CI runs, and zero again
+  on this report's own axiom-bearing local measurement (see (b)) — seven-for-seven now,
+  unconditionally.
+- **Not caused by the Skolemized Seriality/Interpolation axioms, for the six CI runs specifically**
+  — those axioms were structurally absent from the code that produced every one of the six
+  failures (see (c)). This does **not** extend to current, axiom-bearing `HEAD`: a local
+  measurement at `HEAD` (which does contain the axioms) reproduced the shortfall worse than any
+  CI run, and whether the axioms contributed to that or host contention alone explains it is an
+  open question this diagnosis states explicitly rather than resolving one way or the other (see
+  (b) and (c)'s forward-looking-risk paragraph).
 - **Not `xdist_serial`/sibling-worker contention** — already closed by prior investigation (see
   the source file's criterion (3) and (3b)); `unstable-watch.yml` runs the oracle tree with no
   `-n` flag at all, strictly stronger isolation than the marker provides, and this diagnosis found
@@ -246,19 +304,26 @@ instruction that a "leave it quarantined" conclusion must be justified against 8
 
 ## What remains open (for a follow-on remediation task, not this one)
 
-0. **Complete the idle-host measurement this task required.** Run
-   `PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent
-   -v -m unstable -s` to completion on an idle (or at least uncontended) host at current HEAD, and
-   record the resulting conclusive count, timeout count, and wall clock. This is the single
-   concrete gap left by this report — see (b) above. Until it is done, "budget/contention, not a
-   regression" remains well-supported by indirect evidence (code-path diffing, six real CI runs'
-   zero-disagreement history, prior same-class-hardware derivations) but not itself a fresh
-   measured fact for the axiom-bearing code now on `origin/master`.
+0. ~~Complete the idle-host measurement this task required.~~ **DONE, see (b).** A local run at
+   axiom-bearing `HEAD=9ce3b4ad` completed in 951.21s with 93/103 conclusive (10 timeouts, 0
+   disagreements) — the shortfall reproduced, and reproduced worse than every CI run. The host was
+   not idle (load ~5–6 on 24 cores, active swapping, four-plus concurrent `claude` sessions), so
+   this closes the measurement gap honestly rather than by mislabeling a contended run as idle;
+   item 0a below is the residual, genuinely still-open sub-question this measurement opens up.
+0a. **New, more specific open question this measurement raises:** discriminate axiom cost from
+    host contention as the cause of the 93/103/951.21s result. Needs either (i) the same test at
+    the same `HEAD` on a verifiably idle CI-class runner, or (ii) the same test at the pre-axiom
+    `98d3ad8d` checkout on a comparably-loaded host, to see whether contention alone reproduces a
+    93/103-class shortfall without the axioms. Neither run is performed by this diagnosis (both
+    are additional multi-hundred-second measurements and this is a diagnosis-only dispatch).
 1. Confirm the classifier fix (`cfb9cb4a`) actually reaches a real `unstable-watch` run now that
    `origin/master` has caught up, and confirm the next run(s) classify TIMING rather than NEW.
 2. Re-measure this gating test's conclusive count once a real CI run finally executes the
    Skolemized Seriality/Interpolation axioms inside `Z3OracleProvider`'s `BimodalSemantics`
-   construction — the forward-looking risk in (c) above is currently untested.
+   construction on an uncontended runner — this report's (b) local measurement is suggestive
+   (worse than every historical CI run) but confounded by host load, so the forward-looking risk
+   in (c) remains open rather than confirmed; a clean CI-runner data point at axiom-bearing HEAD
+   would resolve it either way.
 3. Close the documentation gap in (d): correct or annotate the "(3b)" paragraph to record the
    actual per-run classify verdicts, not just durations.
 4. Per TESTING_GUIDE.md section 8.9's standing rule (an indefinitely-quarantined test is itself a

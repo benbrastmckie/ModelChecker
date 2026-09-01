@@ -18,7 +18,7 @@ next_project_number: 183
 
 ### Packaging
 
-182 [PLANNED] — Fix the UnicodeEncodeError that makes model output crash on Windo
+182 [IMPLEMENTING] — Fix the UnicodeEncodeError that makes model output crash on Windo
 
 ### Semantics
 
@@ -26,8 +26,8 @@ next_project_number: 183
 
 ### Release Engineering
 
-180 [RESEARCHING] — Diagnose the oracle gating conclusive-population shortfall that h
-181 [PLANNED] — Audit which gating tests outside the bimodal test tree still depe
+180 [RESEARCHED] — Diagnose the oracle gating conclusive-population shortfall that h
+181 [IMPLEMENTING] — Audit which gating tests outside the bimodal test tree still depe
 
 ### Test Reliability
 
@@ -38,7 +38,7 @@ next_project_number: 183
 ## Tasks
 
 ### 182. Fix windows unicode encode error in output
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
@@ -80,7 +80,7 @@ NON-GOALS. Do not change any theory's semantics or solver behavior. Do not remov
 ---
 
 ### 181. Audit gating tests coupled to bimodal solve cost
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
@@ -104,7 +104,7 @@ VERIFICATION. Prove executably that no gating selection's wall clock depends on 
 ---
 
 ### 180. Diagnose oracle conclusive population shortfall
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None

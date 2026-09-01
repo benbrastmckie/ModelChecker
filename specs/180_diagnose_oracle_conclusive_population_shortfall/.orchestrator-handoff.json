@@ -1,26 +1,18 @@
 {
-  "status": "partial",
-  "dispatch_seq": 1,
+  "status": "researched",
+  "dispatch_seq": 4,
   "phase": "research",
-  "summary": "Root-caused all six unstable-watch failures since 2026-08-27 to a stale origin/master CI checkout (frozen at commit 98d3ad8d for ~5 days) compounded by an already-fixed-but-never-CI-exercised classifier laundering-guard bug; confirmed via direct GitHub archaeology (gh run/job/log inspection) and by running both classifier versions against the reconstructed failure text. Ruled out the Skolemized Seriality/Interpolation axioms as a cause of any observed run (two independent ordering checks) and addressed the TESTING_GUIDE.md 8.9 signature and quarantine-justification questions. The task's explicit idle-host MEASUREMENT REQUIREMENT was attempted (background local pytest run) but did not complete within this dispatch, so it is recorded as an outstanding gap rather than a measured or assumed result.",
+  "summary": "Diagnosis complete, including the task's explicit idle-host MEASUREMENT REQUIREMENT, which this dispatch executed to completion. All six unstable-watch failures since 2026-08-27 are root-caused to a stale origin/master CI checkout (frozen at 98d3ad8d for ~5 days) compounded by an already-fixed classifier laundering-guard bug (cfb9cb4a) that never reached CI; the Skolemized Seriality/Interpolation axioms (f9cc081e) were structurally absent from every one of those six failing checkouts and are ruled out as their cause. This dispatch then ran test_known_conclusive_population_self_consistent to completion at current, axiom-bearing HEAD (9ce3b4ad): the shortfall reproduced, and reproduced worse than every historical CI run -- 93/103 conclusive, 10 timeouts, 0 disagreements, 951.21s wall clock, versus 96-98/103 and 749-899s across the six CI runs. The measurement host was explicitly documented as non-idle (load average ~5.9->~5.0 on 24 cores, 7.3GB swap in use, four-plus concurrent claude sessions), so the report states two live, undiscriminated candidate explanations for the worse local result -- axiom-driven solver cost increase (consistent with task 178's separately measured 4-6x cost increase from the same axioms) versus host contention -- rather than asserting either as confirmed, and names the specific follow-up run that would discriminate them.",
   "artifacts": [
     {
       "type": "report",
       "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md",
-      "summary": "Full diagnosis: stale-checkout + classifier-laundering-bug root cause, per-run evidence table across all six failures, axiom ordering verification, TESTING_GUIDE 8.9 signature/quarantine analysis, and an explicit outstanding-measurement section."
+      "summary": "Full diagnosis: stale-checkout + classifier-laundering-bug root cause with a per-run evidence table across all six CI failures, axiom-ordering verification for those six runs, the completed idle-host measurement at axiom-bearing HEAD (93/103, 10 timeouts, 0 disagreements, 951.21s) with honest non-idle load reporting and a two-explanation (axiom cost vs. contention) interpretation, TESTING_GUIDE.md 8.9 signature/quarantine analysis, and an updated open-items list."
     }
   ],
-  "phases_completed": 1,
+  "phases_completed": 2,
   "phases_total": 2,
-  "blockers": [
-    {
-      "phase": "research",
-      "target": "oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent (idle-host reproduction)",
-      "verbatim_goal": "Reproduce on an idle host and record the conclusive count and wall clock, so 'contention' is a measured claim rather than an inference from the runner being busy.",
-      "what_was_tried": "Started a local run (PYTHONPATH=code/src timeout 1000 python3 -m pytest ...::test_known_conclusive_population_self_consistent -v -m unstable -s) in the background on this 24-core/30GB research host, matching the class of machine used for the original historical derivation, so other research could continue concurrently.",
-      "why_it_failed": "The Z3 solve for 103 formulas at a 40s-per-formula budget takes on the order of several hundred seconds; the background process (356s elapsed of its 1000s timeout when checked) had not finished writing a result when this dispatch was closed out, and per explicit instruction this dispatch does not block on or restart that measurement. No conclusive-count or wall-clock number is reported because none was actually observed to completion."
-    }
-  ],
-  "next_action_hint": "Re-run TestGatingConclusiveScan::test_known_conclusive_population_self_consistent to completion on an idle/uncontended host at current HEAD, record conclusive count/timeout count/wall clock, and fold the result into the existing report (specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md) before closing this task or opening a remediation follow-on.",
+  "blockers": [],
+  "next_action_hint": "Diagnosis task is complete. A follow-on remediation task, if opened, should run the discriminating measurement named in the report's item 0a (same test/HEAD on a verifiably idle CI-class runner) before treating the axiom-cost risk flagged in (c) as confirmed, and should confirm the classifier fix (cfb9cb4a) reaches a real unstable-watch run.",
   "continuation_path": "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md"
 }
