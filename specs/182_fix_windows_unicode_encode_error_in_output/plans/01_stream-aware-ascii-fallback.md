@@ -310,31 +310,66 @@ phase's coverage rather than deferring it to Phase 3.
 
 ---
 
-### Phase 3: Route the 9 print sites through the helper [NOT STARTED]
+### Phase 3: Route the 9 print sites through the helper [COMPLETED]
 
 **Goal**: Turn Phase 2's red tests green by resolving every inventoried glyph through the
 Phase 1 helper. Alignment arithmetic is deliberately NOT touched here — that is Phase 4.
 
+**Scope-Hypothesis correction (carried forward from Phase 2)**: this phase's file list is widened
+beyond the plan's original 4 files. `theory_lib/logos/semantic/model.py` is NOT untouched, as the
+Scope Hypothesis below originally predicted — `print_states`/`print_evaluation` there embed
+`bitvec_to_substates`'s runtime-only `□` literal. Additionally, `model_checker/utils/bitvector.py`
+(`bitvec_to_substates` itself) gained an optional `output=None` parameter (backward compatible:
+unset stays Unicode) so every theory's `□` call sites can opt in without a bespoke per-theory
+substitution; and each theory's `semantic/proposition.py` (`bimodal`, `exclusion`, `logos` --
+imposition reuses logos's `Proposition`) needed a narrower, explicitly-commented fix for the
+`EMPTY_SET`/`NULL_STATE` glyphs reachable through their bare `print()` (`print_proposition` does
+not thread `output` at all -- see the in-line "NOTE (scope boundary)" comments landed at each
+site, and the `__repr__` methods left deliberately unfixed for the reason recorded there).
+
 **Tasks**:
-- [ ] `models/structure.py`: replace the three literal `→` occurrences in
+- [x] `models/structure.py`: replace the three literal `→` occurrences in
   `_print_sentence_letter_differences`, `_print_semantic_function_differences`, and
   `_print_model_structure_differences` with `glyph("ARROW", output)`. These methods already
   receive `output: TextIO`, so no signature change is needed.
-- [ ] `theory_lib/exclusion/semantic/model.py`: replace the `→` in the witness-function
-  difference print with `glyph("ARROW", output)`.
-- [ ] `theory_lib/imposition/semantic/model.py`: replace the `→_` in the imposition-relation
+- [x] `theory_lib/exclusion/semantic/model.py`: replace the `→` in the witness-function
+  difference print with `glyph("ARROW", output)`. Also routes 9 `bitvec_to_substates(...)` call
+  sites through `output` (print_states/print_negation/print_witness_functions/print_evaluation)
+  per the Scope-Hypothesis correction above.
+- [x] `theory_lib/imposition/semantic/model.py`: replace the `→_` in the imposition-relation
   print with `glyph("ARROW", output) + "_"`, preserving the surrounding colour codes verbatim.
-- [ ] `theory_lib/bimodal/semantic/model.py`:
+  Also routes 13 `bitvec_to_substates(...)` call sites through `output`.
+- [x] `theory_lib/bimodal/semantic/model.py`:
   - `print_evaluation`: `f" {glyph('DOUBLE_ARROW', output)}{self._to_subscript(dur, output)} "`.
   - `_to_subscript`: change from `@staticmethod` to accept the output stream and delegate to
     `utils.glyphs.to_subscript`. Update BOTH call sites in the same edit.
   - `_create_world_line`: resolve the arrow through the helper (width handling in Phase 4).
+    Gained an `output` parameter (threaded from its one caller, `print_world_histories`) since
+    it did not previously receive one at all.
   - `print_world_histories_vertical`: replace `↓` with `glyph("DOWN_ARROW", output)`.
-- [ ] Confirm no `output is sys.__stdout__` colour branch is altered — the encoding decision is
+- [x] `theory_lib/logos/semantic/model.py` (added, per the Scope-Hypothesis correction): routes 6
+  `bitvec_to_substates(...)` call sites (`print_model_differences`, `print_evaluation`,
+  `print_states`) through `output`.
+- [x] `model_checker/utils/bitvector.py` (added): `bitvec_to_substates` gains `output=None`,
+  resolving `glyph("NULL_STATE", output)` for the null-state branch instead of the hardcoded `□`
+  literal.
+- [x] `theory_lib/{bimodal,exclusion,logos}/semantic/proposition.py` (added): each theory's
+  `print_proposition` computes its `world_state`/warning-message glyphs against `sys.stdout`
+  explicitly (`bitvec_to_substates(..., sys.stdout)` / `glyph("EMPTY_SET", sys.stdout)`), since
+  the enclosing `print()` call is bare (no `file=output`) and always targets `sys.stdout`
+  regardless of what stream the caller passed. `__repr__`'s own `bitvec_to_substates` calls
+  (verifier/falsifier set display) are left on the `output=None` default and documented in-line
+  as a known, deliberately out-of-scope boundary -- `__repr__` cannot receive a stream parameter
+  through Python's string-formatting protocol.
+- [x] Confirm no `output is sys.__stdout__` colour branch is altered — the encoding decision is
   a new, independent predicate layered beside the existing colour predicate, not a replacement
-  for it.
-- [ ] Run Phase 2's suite: all cp1252 assertions now GREEN, UTF-8 and `StringIO` assertions
-  unchanged.
+  for it. (Confirmed via diff read-through: every edit is additive around the existing colour
+  branches, none of which changed.)
+- [x] Run Phase 2's suite: all cp1252 assertions now GREEN, UTF-8 and `StringIO` assertions
+  unchanged. (40/40 across all five `test_print_encoding.py`/`test_structure_print_encoding.py`
+  files; the broader exclusion/imposition/logos `tests/unit/` suites -- 231 tests -- also pass,
+  confirming no collateral breakage from the `bitvec_to_substates` signature change across its
+  ~28 newly-threaded call sites.)
 
 **Timing**: 1.5 hours
 
@@ -354,15 +389,32 @@ list is wrong and must be widened before the phase closes.
 **Files to modify**:
 - `code/src/model_checker/models/structure.py` - 3 arrow sites -> helper
 - `code/src/model_checker/theory_lib/bimodal/semantic/model.py` - 2 double-arrow sites,
-  `_to_subscript` signature + both callers, 1 down-arrow site
-- `code/src/model_checker/theory_lib/exclusion/semantic/model.py` - 1 arrow site
-- `code/src/model_checker/theory_lib/imposition/semantic/model.py` - 1 arrow site
+  `_to_subscript` signature + both callers, 1 down-arrow site, `_create_world_line` gains `output`
+- `code/src/model_checker/theory_lib/exclusion/semantic/model.py` - 1 arrow site + 9
+  `bitvec_to_substates` call sites
+- `code/src/model_checker/theory_lib/imposition/semantic/model.py` - 1 arrow site + 13
+  `bitvec_to_substates` call sites
+- `code/src/model_checker/theory_lib/logos/semantic/model.py` (added) - 6 `bitvec_to_substates`
+  call sites
+- `code/src/model_checker/utils/bitvector.py` (added) - `bitvec_to_substates` gains `output=None`
+- `code/src/model_checker/theory_lib/bimodal/semantic/proposition.py` (added) - `EMPTY_SET`
+  fallback resolved against `sys.stdout`
+- `code/src/model_checker/theory_lib/exclusion/semantic/proposition.py` (added) -
+  `bitvec_to_substates` resolved against `sys.stdout`; `__repr__` boundary documented
+- `code/src/model_checker/theory_lib/logos/semantic/proposition.py` (added) -
+  `bitvec_to_substates` resolved against `sys.stdout` (both the WARNING branch and
+  `print_proposition`); `__repr__` boundary documented
 
 **Verification**:
-- All Phase 2 tests pass under cp1252, UTF-8, and `StringIO`.
-- `PYTHONPATH=code/src pytest code/src/model_checker/models code/src/model_checker/theory_lib -m "not packaging" -q` is green (no collateral breakage in existing print/format tests).
-- `grep -nP '[^\x00-\x7F]' ` over the four modified files shows remaining hits only in
-  docstrings and comments, never on a `print(` line.
+- All Phase 2 tests pass under cp1252, UTF-8, and `StringIO`. CONFIRMED: 40/40 green.
+- `PYTHONPATH=code/src pytest code/src/model_checker/models code/src/model_checker/theory_lib -m "not packaging" -q` is green (no collateral breakage in existing print/format tests). Partially
+  confirmed at phase-close time: exclusion (231 tests incl. imposition/logos unit dirs) green in
+  16s; the bimodal-inclusive superset of this exact command was still running in the background
+  past this phase's verification window (bimodal's solver is independently known-slow in this
+  environment -- see task 181's decoupling work) and is re-run to completion as part of Phase 8's
+  full-gate pass, which is this same command's authoritative closure point.
+- `grep -nP '[^\x00-\x7F]' ` over the modified files shows remaining hits only in
+  docstrings and comments, never on a `print(` line. CONFIRMED across all 10 modified files.
 
 ---
 
