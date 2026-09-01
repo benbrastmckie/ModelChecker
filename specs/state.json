@@ -730,9 +730,14 @@
     "test-reliability"
   ],
   "deployment_versions": {
-    "last_deployed": "v1.3.8",
-    "last_deployed_at": "2026-09-01T11:04:36Z",
+    "last_deployed": "v1.3.9",
+    "last_deployed_at": "2026-09-01T15:49:21Z",
     "deployment_history": [
+      {
+        "version": "v1.3.9",
+        "deployed_at": "2026-09-01T15:49:21Z",
+        "commit_sha": "90e9813e4cd06a53c3edb6a14427906ea9737c0f"
+      },
       {
         "version": "v1.3.8",
         "deployed_at": "2026-09-01T11:04:36Z",
