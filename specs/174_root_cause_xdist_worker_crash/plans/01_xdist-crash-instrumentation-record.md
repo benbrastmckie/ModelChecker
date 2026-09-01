@@ -1,7 +1,7 @@
 # Implementation Plan: Task #174
 
 - **Task**: 174 - root_cause_xdist_worker_crash
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 4 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/174_root_cause_xdist_worker_crash/reports/01_xdist-worker-crash-root-cause.md
@@ -108,31 +108,38 @@ parallelism would only produce conflicts.
 
 ---
 
-### Phase 1: RED — failing tests for `PYTEST_XDIST_WORKER` PID attribution [NOT STARTED]
+### Phase 1: RED — failing tests for `PYTEST_XDIST_WORKER` PID attribution [COMPLETED]
 
 **Goal**: Write the hermetic unit tests for worker-id attribution *before* any sampler change,
 per mandatory TDD. At the end of this phase the new tests fail for the right reason (the
 functions/keys do not exist yet), and every pre-existing test still passes.
 
 **Tasks**:
-- [ ] Extend `code/tests/ci/test_worker_rss_sampler.py` with a synthetic `/proc/<pid>/environ`
+- [x] Extend `code/tests/ci/test_worker_rss_sampler.py` with a synthetic `/proc/<pid>/environ`
       fixture helper, mirroring the existing synthetic `/status` fixture style (NUL-separated
       `KEY=VALUE\0` byte content, written with `write_bytes`).
-- [ ] Add `TestParseXdistWorkerId`: extracts `gw2` from realistic NUL-separated environ bytes;
+- [x] Add `TestParseXdistWorkerId`: extracts `gw2` from realistic NUL-separated environ bytes;
       returns `None` when `PYTEST_XDIST_WORKER` is absent; is not confused by
       `PYTEST_XDIST_WORKER_COUNT` (prefix-collision guard — this one matters, both keys are set
       by `xdist/remote.py`); tolerates a trailing NUL and non-UTF8 bytes without raising.
-- [ ] Add `TestReadXdistWorkerId`: reads a tagged synthetic PID; returns `None` for a missing
+- [x] Add `TestReadXdistWorkerId`: reads a tagged synthetic PID; returns `None` for a missing
       PID directory; returns `None` on an unreadable/`PermissionError` environ file.
-- [ ] Add tracker/summary tests: `per_pid_peak_kb` entries gain a worker-id association; the
+- [x] Add tracker/summary tests: `per_pid_peak_kb` entries gain a worker-id association; the
       summary exposes a PID -> `gwN` mapping and a per-worker-id peak; an untagged PID is still
       recorded (degrades to `null`/untagged, never dropped); the summary stays JSON-serializable
       and still carries no threshold/ceiling of any kind.
-- [ ] Add a worker-replacement test: `gw0` dying and being replaced by a new PID *also* tagged
+- [x] Add a worker-replacement test: `gw0` dying and being replaced by a new PID *also* tagged
       `gw0` keeps both PIDs' peaks distinct while both map to `gw0` — this is the exact D
       scenario and must not conflate pids.
-- [ ] Run `PYTHONPATH=code/src pytest code/tests/ci/test_worker_rss_sampler.py -v` and confirm:
-      new tests RED, the 20 pre-existing tests still GREEN.
+- [x] Run `PYTHONPATH=code/src pytest code/tests/ci/test_worker_rss_sampler.py -v` and confirm:
+      new tests RED, the pre-existing tests still GREEN. **Deviation**: the Scope Hypothesis
+      below assumed 20 pre-existing tests; `pytest --collect-only -q` before this phase's edits
+      showed the actual pre-existing count is **22** (3 `TestParseVmRss` + 3 `TestReadVmRssKb` +
+      4 `TestDiscoverDescendantPids` + 2 `TestSampleOnce` + 8 `TestPeakTracker` +
+      2 `TestSamplerIsNotMatrixGated`). Recorded here per the Scope Hypothesis's own instruction
+      rather than silently adjusted; all 22 passed unchanged after this phase's additions, and 14
+      new tests failed RED for the correct reason (`AttributeError`/`TypeError` on the
+      not-yet-implemented functions/kwarg, not an import or fixture error).
 
 **Timing**: 0.75 hours
 

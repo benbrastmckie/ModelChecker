@@ -70,6 +70,19 @@ def _write_proc_entry(proc_root: Path, pid: int, ppid: int, vm_rss_kb: int | Non
     (d / "status").write_text("".join(lines))
 
 
+def _write_proc_environ(proc_root: Path, pid: int, pairs: list[tuple[bytes, bytes]]):
+    """Write a synthetic `/proc/<pid>/environ` file: NUL-separated `KEY=VALUE\\0` byte content,
+    mirroring the real kernel-exposed format. `xdist/remote.py:416-418` sets
+    `PYTEST_XDIST_WORKER` (e.g. `gw2`) and `PYTEST_XDIST_WORKER_COUNT` (e.g. `4`) inside each
+    worker subprocess's own environment before it begins executing tests -- this fixture mirrors
+    that shape byte-for-byte, including the exact-key collision risk between the two variable
+    names (see `TestParseXdistWorkerId.test_not_confused_by_worker_count_prefix` below)."""
+    d = proc_root / str(pid)
+    d.mkdir(parents=True, exist_ok=True)
+    content = b"".join(key + b"=" + value + b"\0" for key, value in pairs)
+    (d / "environ").write_bytes(content)
+
+
 class TestParseVmRss:
     def test_parses_standard_status_text(self):
         text = "Name:\tpytest\nVmPeak:\t 200000 kB\nVmRSS:\t   123456 kB\nVmHWM:\t 130000 kB\n"
@@ -218,6 +231,131 @@ class TestPeakTracker:
         # json.dumps requires string keys; the module's own summary() must already convert
         # int pids to strings, or json.dumps must not raise here either way.
         json.dumps(summary)
+
+
+class TestParseXdistWorkerId:
+    """Unit tests for `parse_xdist_worker_id`, which extracts `PYTEST_XDIST_WORKER` (e.g.
+    `gw2`) from NUL-separated `/proc/<pid>/environ`-shaped bytes. See Finding 1 of the research
+    report backing this task: `xdist/remote.py:416-418` sets this variable inside each worker
+    subprocess's own environment, verified against the installed `pytest-xdist==3.8.0` source."""
+
+    def test_extracts_gw2_from_realistic_environ_bytes(self):
+        environ = (
+            b"PATH=/usr/bin\0"
+            b"PYTEST_XDIST_TESTRUNUID=abc123\0"
+            b"PYTEST_XDIST_WORKER=gw2\0"
+            b"PYTEST_XDIST_WORKER_COUNT=4\0"
+        )
+        assert sampler.parse_xdist_worker_id(environ) == "gw2"
+
+    def test_returns_none_when_absent(self):
+        environ = b"PATH=/usr/bin\0HOME=/root\0"
+        assert sampler.parse_xdist_worker_id(environ) is None
+
+    def test_not_confused_by_worker_count_prefix(self):
+        # PYTEST_XDIST_WORKER_COUNT is a real sibling variable xdist also sets. A naive
+        # `key.startswith(b"PYTEST_XDIST_WORKER")` match would grab this one's value ("4")
+        # instead of the actual worker id -- this is the exact-key-match guard the plan calls
+        # out as mattering, since both keys are set by xdist/remote.py in every worker.
+        environ = b"PYTEST_XDIST_WORKER_COUNT=4\0PYTEST_XDIST_WORKER=gw3\0"
+        assert sampler.parse_xdist_worker_id(environ) == "gw3"
+
+    def test_worker_count_only_without_worker_key_returns_none(self):
+        environ = b"PYTEST_XDIST_WORKER_COUNT=4\0"
+        assert sampler.parse_xdist_worker_id(environ) is None
+
+    def test_tolerates_trailing_nul_and_non_utf8(self):
+        environ = b"PYTEST_XDIST_WORKER=gw1\0" + b"\xff\xfe\0" + b"\0"
+        assert sampler.parse_xdist_worker_id(environ) == "gw1"
+
+
+class TestReadXdistWorkerId:
+    """Unit tests for `read_xdist_worker_id`, mirroring `read_vm_rss_kb`'s tolerance for a
+    process that raced away or a permission-restricted environ file -- both are the normal,
+    expected shape of reading a live `/proc`, not error conditions."""
+
+    def test_reads_tagged_pid(self, tmp_path):
+        _write_proc_environ(tmp_path, pid=200, pairs=[(b"PYTEST_XDIST_WORKER", b"gw2")])
+        assert sampler.read_xdist_worker_id(tmp_path, 200) == "gw2"
+
+    def test_missing_pid_directory_returns_none(self, tmp_path):
+        assert sampler.read_xdist_worker_id(tmp_path, 999) is None
+
+    def test_unreadable_environ_returns_none(self, tmp_path, monkeypatch):
+        _write_proc_environ(tmp_path, pid=201, pairs=[(b"PYTEST_XDIST_WORKER", b"gw1")])
+        environ_path = tmp_path / "201" / "environ"
+        original_read_bytes = Path.read_bytes
+
+        def _raise_permission_error(self):
+            if self == environ_path:
+                raise PermissionError("simulated: unreadable environ (permission-restricted)")
+            return original_read_bytes(self)
+
+        monkeypatch.setattr(Path, "read_bytes", _raise_permission_error)
+        assert sampler.read_xdist_worker_id(tmp_path, 201) is None
+
+
+class TestPeakTrackerWorkerAttribution:
+    """`PeakTracker.record()` gains an optional `worker_ids` parameter mapping pid -> `gwN`
+    (or `None`). These tests are additive -- they never call `record()` with the old
+    single-argument shape in a way that would require changing `TestPeakTracker`'s existing
+    assertions, since `worker_ids` defaults to `None`/empty and an unattributed pid degrades to
+    untagged rather than being dropped."""
+
+    def test_per_pid_peak_kb_entries_gain_worker_id_association(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({2: 1000, 3: 2000}, worker_ids={2: "gw0", 3: "gw1"})
+        assert tracker.pid_to_worker == {2: "gw0", 3: "gw1"}
+
+    def test_summary_exposes_pid_to_worker_and_per_worker_id_peak(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({2: 1000, 3: 2000}, worker_ids={2: "gw0", 3: "gw1"})
+        tracker.record({2: 1500, 3: 1800}, worker_ids={2: "gw0", 3: "gw1"})
+        summary = tracker.summary(workers=2, interval_s=0.25)
+        assert summary["pid_to_worker"] == {"2": "gw0", "3": "gw1"}
+        assert summary["per_worker_id_peak_kb"] == {"gw0": 1500, "gw1": 2000}
+
+    def test_untagged_pid_is_still_recorded_not_dropped(self):
+        tracker = sampler.PeakTracker()
+        # pid 5 carries no worker_ids entry at all (e.g. a non-xdist smoke run, or a
+        # permission-restricted environ read) -- it must degrade to untagged, never vanish.
+        tracker.record({5: 4000}, worker_ids={})
+        summary = tracker.summary(workers=1, interval_s=0.25)
+        assert summary["pid_to_worker"] == {"5": None}
+        assert summary["per_pid_peak_kb"] == {"5": 4000}
+        # An untagged pid contributes nothing to per_worker_id_peak_kb (no gwN to attribute to).
+        assert summary["per_worker_id_peak_kb"] == {}
+
+    def test_first_non_none_id_wins_never_overwritten_by_later_none(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({7: 1000}, worker_ids={7: "gw2"})
+        # A later sample where pid 7's environ read raced away must not blank out the id
+        # already recorded for it.
+        tracker.record({7: 1100}, worker_ids={7: None})
+        assert tracker.pid_to_worker == {7: "gw2"}
+
+    def test_worker_replaced_mid_run_both_pids_map_to_same_worker_id_distinct_peaks(self):
+        # The exact D scenario: gw0's original pid dies and is replaced by a new pid that is
+        # ALSO tagged gw0 (xdist reuses the worker id string for the replacement worker). Both
+        # pids' own peaks must stay distinct in per_pid_peak_kb while both attribute to "gw0"
+        # in pid_to_worker -- this must not conflate the two pids into one entry.
+        tracker = sampler.PeakTracker()
+        tracker.record({10: 40000}, worker_ids={10: "gw0"})
+        tracker.record({}, worker_ids={})  # pid 10 (gw0) died between samples
+        tracker.record({12: 5000}, worker_ids={12: "gw0"})  # replacement worker, also gw0
+        assert tracker.per_pid_peak_kb == {10: 40000, 12: 5000}
+        assert tracker.pid_to_worker == {10: "gw0", 12: "gw0"}
+        summary = tracker.summary(workers=1, interval_s=0.25)
+        # per_worker_id_peak_kb["gw0"] is the max across BOTH pids that carried that id.
+        assert summary["per_worker_id_peak_kb"]["gw0"] == 40000
+
+    def test_summary_with_worker_ids_stays_json_serializable_and_has_no_ceiling(self):
+        tracker = sampler.PeakTracker()
+        tracker.record({2: 1000, 3: 2000}, worker_ids={2: "gw0", 3: "gw1"})
+        summary = tracker.summary(workers=2, interval_s=0.25)
+        json.dumps(summary)
+        for key in summary:
+            assert "16" not in key and "ceiling" not in key.lower() and "limit" not in key.lower()
 
 
 class TestSamplerIsNotMatrixGated:
