@@ -368,7 +368,7 @@ include it in the same commit rather than deferring it.
 
 ---
 
-### Phase 5: Post-change verification and after-measurement [NOT STARTED]
+### Phase 5: Post-change verification and after-measurement [COMPLETED]
 
 **Goal**: Prove the collapse lost no coverage and record every "after" number that is obtainable
 without a push.

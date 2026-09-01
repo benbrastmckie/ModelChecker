@@ -210,4 +210,84 @@ values are untouched by this task regardless of what this local observation show
   confirms the file is byte-identical to its pre-phase state (no output).
   — **measured locally**.
 
-## (Phase 5 and Phase 6 sections appended below once those phases run.)
+## Phase 5: Post-change verification and after-measurement
+
+Performed after Phase 4's atomic-batch commit (`7b55a59c`) collapsed the `differential-tests.yml`
+redundancy.
+
+### (1) `--collect-only` re-diff against the Phase 1 baseline
+
+Command (unchanged from Phase 1's step-2 command; the surviving step's node-id selection is
+byte-identical to before the edit, since the edit removed only the other, now-deleted step):
+```
+PYTHONPATH=code/src pytest \
+  oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestCIGate \
+  oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFormulaEnumerator \
+  oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestDifferentialInfrastructure \
+  oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestKnownFormulaBaseline \
+  oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestDifferentialComparison \
+  oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestDifferentialReport \
+  -q --collect-only
+```
+
+Result: **49 node ids collected**, `diff` against the Phase 1-recorded 49-node-id list is
+**empty**. No coverage was lost by deleting the redundant first step.
+
+— **measured locally**.
+
+### (2) Guard suite re-run — `code/tests/ci/`
+
+```
+PYTHONPATH=code/src pytest code/tests/ci/ -q
+```
+
+Result: **136 passed in 26.75s** (`real 0m27.152s`) — same count as the Phase 1 baseline (136),
+duration within normal run-to-run variance (27.00s → 27.15s).
+
+— **measured locally**.
+
+### (3) Broader gating regression check — `code/tests/`
+
+```
+PYTHONPATH=code/src pytest code/tests/ -q -m "not slow and not unstable and not development"
+```
+
+Run in the background (10-minute budget) since this is the full repository gating selection, not
+just the `code/tests/ci/` guard suite.
+
+Result: **539 passed, 1 skipped, 110 deselected in 76.09s (0:01:16)**. Green.
+
+— **measured locally**.
+
+### (4) Derived after-number for `differential-tests.yml`
+
+Not measured post-push (local commits are unpushed; a real "after" wall clock requires an actual
+push, which is outside this task's scope — see Phase 6 for the repo owner's post-push capture
+procedure). Derived from the Phase 1 per-step baseline instead:
+
+The job previously ran two passes over the identical 49-item soundness core: step 1 (now deleted)
+took 4m56s, step 2 (the surviving gate step) took 3m14s, for an 8m22s job total. With step 1
+removed, the job now runs exactly one pass over the same 49-item core. The best available
+estimate is that the job's future wall clock is dominated by step 2's historical 3m14s plus the
+same ~12s of shared setup (checkout, Python setup, package install) that both configurations pay
+identically — i.e. **roughly 3m14s-3m30s**, down from the historical 8m22s. This is a **derived**
+estimate from the recorded per-step baseline, **not a measurement of a real post-push CI run**.
+
+— **derived, not measured post-push**.
+
+### (5) Local NON-GATING timing, post-change
+
+Not re-run: the surviving gate step's test population and code are unchanged by this task (only
+the *other*, now-deleted step's redundant invocation was removed), so a fresh post-change local
+timing of the same 49-item selection would measure the same underlying test workload as Phase 1's
+already-recorded 216.97s local observation, just re-confirming machine-contention variance rather
+than revealing anything about the actual change made. Not repeating it avoids a second multi-minute
+non-gating local run for no new information; Phase 1's number remains the local reference point.
+
+### (6) `oracle/run-oracle-suite.sh` — deliberately NOT run
+
+Per `code/docs/core/TESTING_GUIDE.md` section 8.8 (explicitly forbids gating a task plan on a full
+`bash oracle/run-oracle-suite.sh` run) and this plan's own binding constraint, `oracle/run-oracle-suite.sh`
+was not run as a gate for this or any phase of this task.
+
+## (Phase 6 section appended below once that phase runs.)
