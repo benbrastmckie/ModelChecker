@@ -638,7 +638,45 @@ mutually dependent — landing either half alone leaves `test_development_marker
 
 ---
 
-### Phase 7: Add an executable no-bimodal-in-gating contract [NOT STARTED]
+### Phase 7: Add an executable no-bimodal-in-gating contract [COMPLETED]
+
+**Deviation record**: the Scope Hypothesis's seed list (derived from the report's "Items checked
+and ruled out" narrative) was, as expected, a hypothesis rather than a fact. Running this
+contract's own scan (`grep`-equivalent over the actual gating-collected file set, restricted to
+the two literal import shapes the contract checks) surfaced **11 files**, not the ~19 the report's
+narrative named -- most of the report's list uses bimodal only as a *string literal*
+(`BuildProject('bimodal')`, `get_theory('bimodal')`), which the contract deliberately does not
+scan for (out of scope by the contract's own textual-fixture definition), so those files never
+appeared as candidates in the first place; this is a difference in *what the two artifacts count*,
+not a contradiction. Of the 11 real hits:
+
+- **A genuine, previously unaudited real-solve gating file was found**:
+  `src/model_checker/builder/tests/integration/test_performance.py` (distinct from
+  `builder/tests/unit/test_example.py`, which the report's Finding 3 covered) constructs
+  `BuildModule`+`runner.run_examples()` against bimodal at four call sites (N=2/3/5), none
+  bimodal-specific -- the exact pattern Finding 3 described, in a sibling file the original audit
+  missed. Fixed in this phase (swapped to logos, matching the established remedy), not merely
+  classified: measured 6 passed in 1.00s after the fix (vs. ~8.6s of real bimodal solve cost the
+  file's own pre-fix docstrings recorded). This is squarely within the plan's stated
+  "Definition of done" and within HARD CONSTRAINT compliance (no assertion changed, no budget
+  raised) -- documented here rather than silently expanding scope unannounced.
+- The remaining 10 files were classified: 9 into `_SOLVE_FREE_BIMODAL_REFERENCES` (construct-only,
+  a per-test-development-marked-and-therefore-gating-unreachable reference, or bounded/tiny
+  CLI-subprocess content strings already audited in the create_test_model() fix phase), and 1
+  (`builder/tests/e2e/test_full_pipeline.py`) into `_DELIBERATE_BIMODAL_GATING`.
+- The contract's own source file necessarily quotes the literal snippets it searches for and
+  would otherwise false-positive-match itself; excluded explicitly via `_THIS_FILE_RELPATH`.
+
+Genuine-RED demonstration performed and reverted: `tests/e2e/test_batch_output_real.py`'s fixture
+(logos, fixed in Phase 4) was temporarily reverted to bimodal; the contract went RED naming
+exactly that file; reverted immediately (`git status --short` confirmed a clean diff against the
+already-committed version). The anti-vacuity guard was additionally exercised directly
+(`pytest.raises` against a deliberately empty collection), not merely asserted never to fire.
+
+Verified: `pytest tests/ci/test_gating_selection_bimodal_decoupling.py -v` — 6 passed.
+`pytest tests/ci/ -v` — 167 passed (was 161; +6 for this file). No budget value increased
+(comment-only mentions of `max_time`/historical figures in the fixed file's docstrings, no
+numeric change; `git diff` reviewed).
 
 **Goal**: Convert this audit from a one-time sweep into a standing guard, so a *new* bimodal-coupled
 test cannot silently enter a gating selection.

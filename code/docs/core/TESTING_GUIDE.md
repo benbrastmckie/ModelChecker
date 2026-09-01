@@ -1653,6 +1653,18 @@ to keep an in-development test's outcome *observed*, not to keep it silent. A fu
 seeing this case newly appear in that step's report should read it as the marker working as
 designed, not as a regression introduced by this change.
 
+**Standing guard against new, unclassified bimodal coupling.**
+`code/tests/ci/test_gating_selection_bimodal_decoupling.py` converts the audit that produced the
+per-test markings above into an executable contract: every file outside
+`theory_lib/bimodal/tests/` that both textually references bimodal as an example fixture and has
+at least one test collected by a gating selection must appear in one of that contract's two
+enumerated constants (a solve-free allowlist, or the single deliberate real-solve retention). A
+new bimodal-coupled fixture that is neither fixed nor classified fails this contract loudly,
+rather than silently re-coupling a gating selection's wall clock to bimodal's solve cost. It is a
+static source check, not a runtime measurement, so it has an honest, documented blind spot
+(covered in its own module docstring); the paired before/after wall-clock record is the
+complementary, empirical evidence that decoupling actually happened.
+
 ---
 
 ## 9. Output-Encoding Testing

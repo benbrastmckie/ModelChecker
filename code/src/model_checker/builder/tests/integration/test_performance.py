@@ -5,13 +5,23 @@ running its examples, comparison mode, and serialization.
 
 Most of the wall-clock budgets this module used to assert have been removed.
 Measurement showed they were not measuring the builder's cost at all: the
-bimodal theory's default `max_time` is 1 second, so every model construction
-here measured `min(real_solve_time, max_time) + overhead` and pinned at ~1.2s
-regardless of the example. A 500ms budget was arithmetically unreachable, and
-the multi-second budgets were satisfied by a quantity that physically could
-not exceed the cap. The two timing assertions that remain
-(`test_module_loading_performance`, `test_serialization_performance`) are
-Z3-free and are documented individually.
+theory previously used here (bimodal) had a default `max_time` of 1 second, so
+every model construction measured `min(real_solve_time, max_time) + overhead`
+and pinned at ~1.2s regardless of the example. A 500ms budget was
+arithmetically unreachable, and the multi-second budgets were satisfied by a
+quantity that physically could not exceed the cap. The two timing assertions
+that remain (`test_module_loading_performance`, `test_serialization_performance`)
+are Z3-free and are documented individually.
+
+The fixture theory below is logos, not bimodal: every test in this module
+asserts generic builder plumbing (module loading, example execution,
+comparison-mode dispatch, serialization) -- nothing bimodal-specific -- so
+pinning it to the one theory under active construction coupled this file's
+wall clock to that theory's solver cost for no coverage benefit. See
+TESTING_GUIDE.md section 8.14 and the audit that discovered this coupling
+(a second, previously unaudited file exhibiting the exact pattern
+`builder/tests/unit/test_example.py` already had) for the cost-decoupling
+rationale.
 """
 
 import unittest
@@ -50,15 +60,17 @@ class TestBuilderPerformance(unittest.TestCase):
     def test_small_model_runs_end_to_end(self):
         """Test a small (N=2) example loads and runs to completion.
 
-        This used to assert the run finished in <500ms. That budget was
-        unreachable: the example's real solve time exceeds the theory's
-        1-second `max_time`, so the run always spends the full timeout wall
-        plus module-loading overhead (measured floor ~1.20s). What is worth
-        pinning is that the load-and-run path completes without raising.
+        This used to assert the run finished in <500ms. Under the theory
+        previously used here (bimodal), that budget was unreachable: the
+        example's real solve time exceeded bimodal's 1-second `max_time`, so
+        the run always spent the full timeout wall plus module-loading
+        overhead (measured floor ~1.20s). What is worth pinning is that the
+        load-and-run path completes without raising -- true regardless of
+        which theory's solve time backs it.
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -91,13 +103,14 @@ general_settings = {}
     def test_medium_model_runs_end_to_end(self):
         """Test a medium (N=5) example loads and runs to completion.
 
-        This used to assert the run finished in <2s. The measured cost is
-        pinned at ~1.2s by the theory's 1-second `max_time` cap regardless of
-        N, so the budget described the cap rather than the builder.
+        This used to assert the run finished in <2s. Under bimodal (the
+        theory previously used here), the measured cost was pinned at ~1.2s
+        by its 1-second `max_time` cap regardless of N, so the budget
+        described the cap rather than the builder.
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -135,12 +148,13 @@ general_settings = {}
         """Test a module holding five examples loads and runs all of them.
 
         This used to assert an average of <500ms per example and <2s total.
-        Both were unreachable: each of the five examples spends the theory's
-        full 1-second `max_time` plus overhead, for a measured ~6.1s total.
+        Under bimodal (the theory previously used here), both were
+        unreachable: each of the five examples spent its full 1-second
+        `max_time` plus overhead, for a measured ~6.1s total.
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -182,17 +196,18 @@ general_settings = {}
         """Test comparison mode runs to completion over two theory entries.
 
         This used to assert a <2s budget, which was vacuous: the measured cost
-        is ~0.13s. Note also that the two entries are not actually different
-        theories -- `bimodal.get_theory(['extensional'])` and
-        `get_theory(['counterfactual'])` return the identical object (the
-        subtheory argument is ignored), so this compares bimodal against
-        itself. That is a defect in `get_theory`, not in this test, and is not
-        addressed here; the test is kept as a smoke test of the comparison
-        code path.
+        is ~0.13s. Note also that `get_theory`'s first positional argument
+        (`config`) is unused by logos -- both `get_theory(['extensional'])` and
+        `get_theory(['counterfactual'])` below actually load the same default
+        subtheory set, so the two entries are semantically identical theories
+        (same `LogosSemantics` class, equivalent operator content) even though
+        `get_theory()` builds a fresh dict per call rather than returning a
+        literal singleton. The test is kept as a smoke test of the comparison
+        code path, not a test of theory differentiation.
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory1 = get_theory(['extensional'])
 theory2 = get_theory(['counterfactual'])
