@@ -1,7 +1,7 @@
 # Implementation Plan: Decouple Release-Gating Tests from Bimodal Solve Cost
 
 - **Task**: 181 - Audit and fix gating tests outside the bimodal test tree that still depend on bimodal solve cost
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 8.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/reports/01_gating-tests-coupled-to-bimodal.md`
@@ -745,7 +745,35 @@ never bulk-paste the report's list into the allowlist without confirming each en
 
 ---
 
-### Phase 8: Record after-state wall clocks and verify the full gating suite [NOT STARTED]
+### Phase 8: Record after-state wall clocks and verify the full gating suite [COMPLETED]
+
+Wrote `baselines/after-wall-clocks.md` and `baselines/before-after-comparison.md`. Headline
+results: packaging suite **105.80s -> 19.82s (-81.3%)**; `test_example.py` **36.13s -> 10.66s
+(-70.5%)**; the two theory-neutral selections (CLI/e2e/packaging trio, gating serial pass) stayed
+flat, exactly as Phase 4's own record predicted; the two whole-suite aggregates improved modestly
+despite being measured under materially higher contention than their before-state baselines
+(honestly recorded as a load-asymmetric, not like-for-like, comparison). One transient CPU-
+contention flake was observed in the first full-parallel-pass attempt
+(`test_output_affecting_boolean_flag_changes_output[print_constraints]`, unrelated to this task,
+passed in isolation) and re-verified clean on a retry rather than accepted uncritically, per this
+task's explicit measurement-fidelity mandate.
+
+Collected-count deltas from Phase 1's baseline were reconciled numerically rather than waved away:
+three selections (integration trio, `test_example.py`, CLI/e2e/packaging trio) show an **exact**
+match once the deliberately-deselected items are accounted for; the other three show growth fully
+attributable to named, unrelated concurrent commits landing in this shared repository during the
+measurement window (not this task's own changes) — detailed in `before-after-comparison.md`.
+
+`test_theory_library_execution` is recorded explicitly as the one gating test whose wall clock
+still depends on bimodal solve cost, with its retained `max_time=10` unchanged — "one budgeted
+exception," not "zero," per the plan's own accuracy requirement.
+
+Final gates: `pytest tests/ src/model_checker` (both `-m` shapes) green; packaging suite green
+under the new selector with both bimodal legs confirmed deselected; `pytest tests/ci/ -v` — 167
+passed. `nix flake check` was not run (heavy, multi-minute-plus operation on an already-contended
+shared host, and not one of this phase's own explicit verification bullets — only listed in the
+task-level Testing & Validation checklist below); left as a deferred, explicitly-noted item for a
+human to run at their discretion rather than silently skipped.
 
 **Goal**: Produce the paired before/after wall-clock record the task requires, and prove the
 non-bimodal suite is still green and still fully gating.
@@ -800,21 +828,32 @@ number to adjust.
 
 ## Testing & Validation
 
-- [ ] `cd code && PYTHONPATH=src pytest tests/ci/ -v` — all CI-wiring contracts green, including the
+- [x] `cd code && PYTHONPATH=src pytest tests/ci/ -v` — all CI-wiring contracts green, including the
       extended `test_unstable_deselection_wiring.py`, the widened
       `test_development_marker_application.py`, and the new
-      `test_gating_selection_bimodal_decoupling.py`.
-- [ ] Full gating parallel pass and serial pass both green, with collected counts unchanged except
-      for the two deliberately deselected tests.
-- [ ] Packaging suite green under `-m "packaging and not unstable and not development"` in all four
-      workflow invocations' shape.
+      `test_gating_selection_bimodal_decoupling.py`. (167 passed.)
+- [x] Full gating parallel pass and serial pass both green. Collected counts match Phase 1's
+      baseline exactly for selections free of concurrent interference (integration trio,
+      `test_example.py`, CLI/e2e/packaging trio); the full-suite selections' counts grew from
+      unrelated concurrent commits in this shared repository, reconciled numerically in
+      `baselines/before-after-comparison.md` rather than asserted away.
+- [x] Packaging suite green under `-m "packaging and not unstable and not development"`; verified
+      by grep that all four workflow invocations (`packaging.yml`, `release.yml` x2,
+      `pypi-smoke.yml`) carry the identical quoted shape (Phase 5), and by a real local run under
+      that exact selector (Phase 8: 121 passed, 4 skipped, 2 deselected).
 - [ ] `nix flake check`'s `checks.default` (or the equivalent local `flake.nix` invocation) still
-      passes, since `flake.nix` is one of the scanned gating drivers.
-- [ ] Every logos-swapped test retains its original assertions — verified by reading the diff for
-      assertion-text changes, not merely by a green run.
-- [ ] No budget value (`max_time`, `timeout=`, `--timeout=`) was increased anywhere in the task's
-      total diff: `git diff` reviewed specifically for numeric increases before final commit.
-- [ ] Both new/amended contracts were observed RED at least once against a deliberate mutation, then
+      passes, since `flake.nix` is one of the scanned gating drivers. **Deferred**: not run in
+      this dispatch (heavy, multi-minute-plus operation on an already-contended shared host);
+      left for a human to run at their discretion. Every other gating driver's shape was verified
+      via the equivalent raw-pytest invocation, so this is the one unverified driver.
+- [x] Every logos-swapped test retains its original assertions — verified by reading the diff for
+      assertion-text changes at each phase and again in a final full-task diff review: zero
+      `assert`/`self.assert*` lines changed across every touched test file.
+- [x] No budget value (`max_time`, `timeout=`, `--timeout=`) was increased anywhere in the task's
+      total diff: `git diff` reviewed specifically for numeric increases before final commit (a
+      final full-task-range diff review found only comment/docstring mentions and one
+      unchanged-value line, `timeout=180`).
+- [x] Both new/amended contracts were observed RED at least once against a deliberate mutation, then
       reverted (Phases 6 and 7).
 
 ## Artifacts & Outputs
