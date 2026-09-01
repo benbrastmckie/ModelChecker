@@ -1,0 +1,26 @@
+{
+  "status": "partial",
+  "dispatch_seq": 1,
+  "phase": "research",
+  "summary": "Root-caused all six unstable-watch failures since 2026-08-27 to a stale origin/master CI checkout (frozen at commit 98d3ad8d for ~5 days) compounded by an already-fixed-but-never-CI-exercised classifier laundering-guard bug; confirmed via direct GitHub archaeology (gh run/job/log inspection) and by running both classifier versions against the reconstructed failure text. Ruled out the Skolemized Seriality/Interpolation axioms as a cause of any observed run (two independent ordering checks) and addressed the TESTING_GUIDE.md 8.9 signature and quarantine-justification questions. The task's explicit idle-host MEASUREMENT REQUIREMENT was attempted (background local pytest run) but did not complete within this dispatch, so it is recorded as an outstanding gap rather than a measured or assumed result.",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md",
+      "summary": "Full diagnosis: stale-checkout + classifier-laundering-bug root cause, per-run evidence table across all six failures, axiom ordering verification, TESTING_GUIDE 8.9 signature/quarantine analysis, and an explicit outstanding-measurement section."
+    }
+  ],
+  "phases_completed": 1,
+  "phases_total": 2,
+  "blockers": [
+    {
+      "phase": "research",
+      "target": "oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestGatingConclusiveScan::test_known_conclusive_population_self_consistent (idle-host reproduction)",
+      "verbatim_goal": "Reproduce on an idle host and record the conclusive count and wall clock, so 'contention' is a measured claim rather than an inference from the runner being busy.",
+      "what_was_tried": "Started a local run (PYTHONPATH=code/src timeout 1000 python3 -m pytest ...::test_known_conclusive_population_self_consistent -v -m unstable -s) in the background on this 24-core/30GB research host, matching the class of machine used for the original historical derivation, so other research could continue concurrently.",
+      "why_it_failed": "The Z3 solve for 103 formulas at a 40s-per-formula budget takes on the order of several hundred seconds; the background process (356s elapsed of its 1000s timeout when checked) had not finished writing a result when this dispatch was closed out, and per explicit instruction this dispatch does not block on or restart that measurement. No conclusive-count or wall-clock number is reported because none was actually observed to completion."
+    }
+  ],
+  "next_action_hint": "Re-run TestGatingConclusiveScan::test_known_conclusive_population_self_consistent to completion on an idle/uncontended host at current HEAD, record conclusive count/timeout count/wall clock, and fold the result into the existing report (specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md) before closing this task or opening a remediation follow-on.",
+  "continuation_path": "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md"
+}

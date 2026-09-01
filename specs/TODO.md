@@ -18,7 +18,7 @@ next_project_number: 183
 
 ### Packaging
 
-182 [NOT STARTED] — Fix the UnicodeEncodeError that makes model output crash on Windo
+182 [RESEARCHED] — Fix the UnicodeEncodeError that makes model output crash on Windo
 
 ### Semantics
 
@@ -26,8 +26,8 @@ next_project_number: 183
 
 ### Release Engineering
 
-180 [NOT STARTED] — Diagnose the oracle gating conclusive-population shortfall that h
-181 [NOT STARTED] — Audit which gating tests outside the bimodal test tree still depe
+180 [RESEARCHING] — Diagnose the oracle gating conclusive-population shortfall that h
+181 [RESEARCHED] — Audit which gating tests outside the bimodal test tree still depe
 
 ### Test Reliability
 
@@ -38,10 +38,11 @@ next_project_number: 183
 ## Tasks
 
 ### 182. Fix windows unicode encode error in output
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
+- **Research**: [182_fix_windows_unicode_encode_error_in_output/reports/01_windows-unicode-encode-error.md]
 
 **Description**: Fix the UnicodeEncodeError that makes model output crash on Windows, and give the codebase a deliberate policy on non-ASCII characters in printed output.
 
@@ -78,10 +79,11 @@ NON-GOALS. Do not change any theory's semantics or solver behavior. Do not remov
 ---
 
 ### 181. Audit gating tests coupled to bimodal solve cost
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
+- **Research**: [181_audit_gating_tests_coupled_to_bimodal_solve_cost/reports/01_gating-tests-coupled-to-bimodal.md]
 
 **Description**: Audit which gating tests outside the bimodal test tree still depend on bimodal solve cost, now that the Skolemized Seriality and Interpolation frame axioms have made bimodal solves substantially more expensive.
 
@@ -100,10 +102,11 @@ VERIFICATION. Prove executably that no gating selection's wall clock depends on 
 ---
 
 ### 180. Diagnose oracle conclusive population shortfall
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
+- **Research**: [180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md]
 
 **Description**: Diagnose the oracle gating conclusive-population shortfall that has failed the unstable-watch workflow every day since 2026-08-27.
 
