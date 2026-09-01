@@ -1,0 +1,24 @@
+{
+  "dispatch_seq": 2,
+  "phase": "research",
+  "status": "researched",
+  "summary": "Completed and enhanced the audit begun by an earlier dispatch. Five findings: packaging.yml/release.yml/pypi-smoke.yml are a fifth, unaudited gating driver with no `not development` clause; code/tests/utils/helpers.py::create_test_model() silently hardcodes bimodal despite a theory_name parameter, feeding ~20 gating call sites across three files; builder/tests/unit/test_example.py's coupling is file-wide, not just the one named test; two more CLI-plumbing switch-to-logos gaps (test_batch_output_real.py, test_full_pipeline.py); and a test_flag_matrix.py gap. Recorded the required genuinely-bimodal-subject decision: keep test_theory_library_execution on bimodal (its 'World Histories' assertion is bimodal-specific); mark test_generate_then_execute[bimodal] and test_build_example_bimodal_theory_countermodel @pytest.mark.development; switch everything else to logos. Empirically reproduced test_generate_then_execute[bimodal] exceeding its 180s subprocess timeout (>200s wall clock, still running when terminated).",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/reports/01_gating-tests-coupled-to-bimodal.md",
+      "summary": "Full audit: 5 findings, disposition table, wall-clock evidence, and the recorded genuinely-bimodal-subject decision."
+    }
+  ],
+  "blockers": [],
+  "phases_completed": 1,
+  "phases_total": 1,
+  "continuation_path": null,
+  "next_action_hint": "Run /plan 181 to turn the disposition table into an implementation plan.",
+  "decisions_made": [
+    "test_theory_library_execution (builder/tests/e2e/test_full_pipeline.py) stays on bimodal with its existing max_time=10: its 'World Histories' output assertion is bimodal's own model-rendering label and is genuinely bimodal-specific, unlike every other flagged test.",
+    "test_build_example_bimodal_theory_countermodel and test_generate_then_execute[bimodal] should be marked @pytest.mark.development (per-test/per-parametrize, not a blanket) rather than switched to a cheap theory or budget-widened: both are completeness claims about bimodal specifically (not soundness claims), so TESTING_GUIDE.md 8.14's development marker is the correct fit; test_iteration_via_iterate_api, by contrast, asserts only the generic iterate-API contract and should switch to logos.",
+    "oracle/ is out of scope for this task's remedy: its bimodal solve cost is the deliberate subject of that tree, already covered by its own development blanket plus a documented, tested unstable-marked soundness-core exception."
+  ],
+  "dead_ends": []
+}
