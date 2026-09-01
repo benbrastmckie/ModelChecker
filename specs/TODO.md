@@ -22,7 +22,7 @@ next_project_number: 180
 
 ### Test Reliability
 
-174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
+174 [RESEARCHED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
   └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
   └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
@@ -201,10 +201,11 @@ task_type: python. file_scope: .github/scripts/unstable_watch_classify.py, code/
 ---
 
 ### 174. Root cause xdist worker crash
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: Task 153, Task 158, Task 173
+- **Research**: [174_root_cause_xdist_worker_crash/reports/01_xdist-worker-crash-root-cause.md]
 
 **Description**: Find the root cause of the recurring xdist worker crash -- `[gw2] node down: Not properly terminated` -- which has now been observed THREE times across TWO Python versions with no explanation, and which no other task owns.
 
