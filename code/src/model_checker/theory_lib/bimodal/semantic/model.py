@@ -12,6 +12,7 @@ from model_checker import z3_shim as z3
 
 from model_checker.models.structure import ModelDefaults
 from model_checker.utils import bitvec_to_worldstate
+from model_checker.utils.glyphs import glyph, to_subscript
 
 
 class BimodalStructure(ModelDefaults):
@@ -207,7 +208,7 @@ class BimodalStructure(ModelDefaults):
             parts.append(str(main_world_history[time]))
             if i < len(sorted_times) - 1:
                 dur = sorted_times[i + 1] - time
-                parts.append(f" ⟹{self._to_subscript(dur)} ")
+                parts.append(f" {glyph('DOUBLE_ARROW', output)}{self._to_subscript(dur, output)} ")
         world_line = "".join(parts)
 
         # Get evaluation time and state
@@ -222,12 +223,17 @@ class BimodalStructure(ModelDefaults):
             file=output,
         )
 
-    @staticmethod
-    def _to_subscript(n):
-        """Convert an integer to Unicode subscript characters."""
-        sub = {'0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
-               '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉', '-': '₋'}
-        return ''.join(sub.get(c, c) for c in str(n))
+    def _to_subscript(self, n, output=sys.__stdout__):
+        """Convert an integer to Unicode subscript characters, or plain ASCII
+        digits when `output`'s stream cannot encode Unicode subscripts.
+
+        Delegates to `model_checker.utils.glyphs.to_subscript`, which is
+        width-neutral by construction (one character per digit in both
+        forms), so no caller needs special-case width handling for this
+        substitution -- see `_create_time_positions` for the one arrow-width
+        derivation that *does* need to account for the rendered string.
+        """
+        return to_subscript(n, output)
 
     def format_time(self, time):
         """Format time with appropriate sign for display.
@@ -316,16 +322,21 @@ class BimodalStructure(ModelDefaults):
             current_pos += column_widths[time] + 4  # Width + space for " ==> "
         return time_positions
     
-    def _create_world_line(self, world_id, all_times, formatted_states, time_positions, column_widths):
+    def _create_world_line(self, world_id, all_times, formatted_states, time_positions, column_widths, output=sys.__stdout__):
         """Create a formatted line for a world history with proper alignment.
-        
+
         Args:
             world_id: The world ID to create a line for
             all_times: List of all time points to consider
             formatted_states: Dictionary mapping world_ids to dictionaries mapping times to formatted state strings
             time_positions: Dictionary mapping time points to their starting positions
             column_widths: Dictionary mapping time points to column widths
-            
+            output: Output stream this line will eventually be printed to; used to
+                resolve the arrow glyph (Unicode vs. ASCII) via `model_checker.utils.glyphs`.
+                `time_positions` must already have been computed against the same
+                `output` (see `_create_time_positions`), or the reserved column
+                budget can mismatch the arrow actually rendered here.
+
         Returns:
             str: Formatted world line with properly aligned states
         """
@@ -349,7 +360,7 @@ class BimodalStructure(ModelDefaults):
             if i < len(visible_times) - 1:
                 arrow_pos = pos + len(state_str)
                 dur = visible_times[i + 1] - time
-                arrow = f" ⟹{self._to_subscript(dur)} "
+                arrow = f" {glyph('DOUBLE_ARROW', output)}{self._to_subscript(dur, output)} "
                 for j, char in enumerate(arrow):
                     if arrow_pos + j < len(line):
                         line[arrow_pos + j] = char
@@ -398,7 +409,7 @@ class BimodalStructure(ModelDefaults):
         for world_id in sorted(self.world_histories.keys()):
             # Create the world line with proper alignment
             world_line = self._create_world_line(
-                world_id, all_times, formatted_states, time_positions, column_widths
+                world_id, all_times, formatted_states, time_positions, column_widths, output
             )
             
             # Print the formatted world line
@@ -534,7 +545,11 @@ class BimodalStructure(ModelDefaults):
                         time + 1 in formatted_states.get(world_id, {})):
                         # Create a string with pipe, spaces and an arrow at the calculated position
                         arrow_str = " | "  # Keep the pipe separator
-                        arrow_str += " " * arrow_position + "↓" + " " * (column_widths[world_id] - arrow_position - 1)
+                        # Down-arrow substitution is exactly 1-for-1 width-neutral
+                        # (both "↓" and its ASCII fallback "v" are one character),
+                        # so no width recalculation is needed here -- unlike the
+                        # double-arrow slot in _create_time_positions/_create_world_line.
+                        arrow_str += " " * arrow_position + glyph('DOWN_ARROW', output) + " " * (column_widths[world_id] - arrow_position - 1)
                     else:
                         # Keep the pipe separator but no arrow
                         arrow_str = " | " + " " * column_widths[world_id]
