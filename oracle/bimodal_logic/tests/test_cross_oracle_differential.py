@@ -202,8 +202,12 @@ SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 #     `_generate_differential_report`'s `progress_path`/`heartbeat_every`/`artifact_dir`
 #     instrumentation. The 7-vs-8 count difference across the two shortfall runs rules out a
 #     strictly identical fixed subset, while leaving a mostly-stable heavy-tailed subset with
-#     membership churn at the margin open -- do not assert a same-7 claim; enabling that
-#     instrumentation is a possible future round, not attempted here.
+#     membership churn at the margin open -- do not assert a same-7 claim. That instrumentation
+#     is now wired, opt-in and off by default: set `ORACLE_GATING_SCAN_OUT_DIR` (distinct from
+#     `ORACLE_SCAN_OUT_DIR`, so the two instrumented tests can never clobber one another's
+#     `report.json`/`SCAN_COMPLETE`) to capture per-formula timeout identities on any future run
+#     of this test, gating or otherwise. Unset (the default), behaviour is byte-for-byte
+#     unchanged from before instrumentation existed.
 #
 #     AXIOM AVENUE CLOSED (2026-09-01): the 2026-08-31 Skolemized Seriality/Interpolation frame
 #     axioms (commit `f9cc081e`) are ruled out as a cause of the 2026-08-27 -> 2026-09-01
@@ -1958,6 +1962,42 @@ def _write_completion_marker(marker_path: Path, payload: dict) -> None:
     os.replace(tmp_path, marker_path)
 
 
+def _resolve_scan_instrumentation(env_var_name: str):
+    """Resolve the (artifact_dir, progress_path, heartbeat_every) triple
+    `_generate_differential_report`'s opt-in instrumentation takes, from a
+    single named environment variable.
+
+    Mirrors `test_complexity_5_scan_self_consistent`'s Decision D2 inline
+    resolution (see that test's own docstring, near `ORACLE_SCAN_OUT_DIR`)
+    verbatim in behaviour. Deliberately duplicated rather than shared: D2's
+    call site is `slow`-marked and cannot be exercised in a fast-gating
+    dispatch, so refactoring it to call this helper would be an unverified
+    change to working code -- a future reader should not "clean up" that
+    duplication without first re-verifying the `slow` call site end to end
+    under a real scan.
+
+    Args:
+        env_var_name: Name of the environment variable to resolve (e.g.
+            "ORACLE_SCAN_OUT_DIR" or "ORACLE_GATING_SCAN_OUT_DIR"). Each
+            call site names its own, distinct variable so two instrumented
+            tests can never resolve to the same artifact directory and
+            clobber one another's `report.json` / `SCAN_COMPLETE`.
+
+    Returns:
+        `(None, None, 0)` when the named environment variable is unset or
+        empty -- exactly the three parameter defaults, so a caller that
+        threads this return value through unconditionally is byte-for-byte
+        unchanged from before instrumentation existed. When set,
+        `(Path(value), Path(value) / "progress.jsonl", 10)`.
+    """
+    value = os.environ.get(env_var_name)
+    if not value:
+        return None, None, 0
+    artifact_dir = Path(value)
+    progress_path = artifact_dir / "progress.jsonl"
+    return artifact_dir, progress_path, 10
+
+
 class TestDifferentialReport:
     """Tests for the differential report structure and generation."""
 
@@ -2412,6 +2452,104 @@ class TestScanInstrumentation:
         assert not (tmp_path / "SCAN_COMPLETE").exists()
 
 
+class TestResolveScanInstrumentation:
+    """Tests for `_resolve_scan_instrumentation`, the helper that wires
+    `ORACLE_GATING_SCAN_OUT_DIR` into `TestGatingConclusiveScan` alongside
+    Decision D2's existing `ORACLE_SCAN_OUT_DIR`.
+
+    All Z3-free: these exercise only environment-variable resolution and
+    filesystem calls, plus `_generate_differential_report` against the
+    Z3-free `_StubOracle`, the same technique `TestScanInstrumentation`
+    uses -- so these belong in the fast gating pass.
+    """
+
+    def test_unset_env_var_yields_defaults(self, monkeypatch):
+        """An unset environment variable resolves to the same three
+        defaults `_generate_differential_report`'s own parameters use.
+        """
+        monkeypatch.delenv("ORACLE_GATING_SCAN_OUT_DIR", raising=False)
+        artifact_dir, progress_path, heartbeat_every = _resolve_scan_instrumentation(
+            "ORACLE_GATING_SCAN_OUT_DIR"
+        )
+        assert (artifact_dir, progress_path, heartbeat_every) == (None, None, 0)
+
+    def test_empty_env_var_yields_defaults(self, monkeypatch):
+        """An explicitly empty environment variable is treated the same as
+        unset, not as a request to use the empty string as a path.
+        """
+        monkeypatch.setenv("ORACLE_GATING_SCAN_OUT_DIR", "")
+        artifact_dir, progress_path, heartbeat_every = _resolve_scan_instrumentation(
+            "ORACLE_GATING_SCAN_OUT_DIR"
+        )
+        assert (artifact_dir, progress_path, heartbeat_every) == (None, None, 0)
+
+    def test_set_env_var_yields_artifact_dir_progress_path_and_heartbeat(
+        self, tmp_path, monkeypatch
+    ):
+        """A set environment variable resolves to the artifact dir, a
+        progress.jsonl under it, and a non-zero heartbeat.
+        """
+        target = tmp_path / "gating-scan-out"
+        monkeypatch.setenv("ORACLE_GATING_SCAN_OUT_DIR", str(target))
+        artifact_dir, progress_path, heartbeat_every = _resolve_scan_instrumentation(
+            "ORACLE_GATING_SCAN_OUT_DIR"
+        )
+        assert artifact_dir == target
+        assert progress_path == target / "progress.jsonl"
+        assert heartbeat_every == 10
+
+    def test_gating_and_exhaustive_env_vars_resolve_independently(self, tmp_path, monkeypatch):
+        """Setting `ORACLE_SCAN_OUT_DIR` does not affect resolution of
+        `ORACLE_GATING_SCAN_OUT_DIR`, and vice versa -- the two instrumented
+        tests can never resolve to the same artifact directory.
+        """
+        exhaustive_target = tmp_path / "exhaustive-out"
+        gating_target = tmp_path / "gating-out"
+        monkeypatch.setenv("ORACLE_SCAN_OUT_DIR", str(exhaustive_target))
+        monkeypatch.delenv("ORACLE_GATING_SCAN_OUT_DIR", raising=False)
+
+        gating_artifact_dir, _, gating_heartbeat = _resolve_scan_instrumentation(
+            "ORACLE_GATING_SCAN_OUT_DIR"
+        )
+        assert gating_artifact_dir is None
+        assert gating_heartbeat == 0
+
+        monkeypatch.setenv("ORACLE_GATING_SCAN_OUT_DIR", str(gating_target))
+        exhaustive_artifact_dir, _, _ = _resolve_scan_instrumentation("ORACLE_SCAN_OUT_DIR")
+        gating_artifact_dir, _, _ = _resolve_scan_instrumentation("ORACLE_GATING_SCAN_OUT_DIR")
+        assert exhaustive_artifact_dir == exhaustive_target
+        assert gating_artifact_dir == gating_target
+        assert exhaustive_artifact_dir != gating_artifact_dir
+
+    def test_unset_env_var_through_helper_writes_no_files(self, tmp_path, monkeypatch):
+        """With `ORACLE_GATING_SCAN_OUT_DIR` unset, driving
+        `_generate_differential_report` through the helper's return values
+        writes no files anywhere -- the `test_default_params_produce_no_files`
+        technique, applied to the helper-mediated call path.
+        """
+        formulas = [{"tag": "atom", "name": "f0"}]
+        subject = _StubOracle({"f0": "SAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        monkeypatch.delenv("ORACLE_GATING_SCAN_OUT_DIR", raising=False)
+        monkeypatch.chdir(tmp_path)
+        artifact_dir, progress_path, heartbeat_every = _resolve_scan_instrumentation(
+            "ORACLE_GATING_SCAN_OUT_DIR"
+        )
+        _generate_differential_report(
+            subject,
+            formulas,
+            ref_fn,
+            {"mc": "stub", "ref": "stub"},
+            progress_path=progress_path,
+            heartbeat_every=heartbeat_every,
+            artifact_dir=artifact_dir,
+        )
+        assert list(tmp_path.iterdir()) == []
+
+
 def _verify_manifest_matches_enumeration(manifest: dict) -> list[dict]:
     """Structural drift guard for the known-conclusive-population manifest.
 
@@ -2506,6 +2644,23 @@ class TestGatingConclusiveScan:
         (near the top of this file) for the full four-criteria entry record,
         mirroring how test_bimodal.py keeps its four-criteria prose at the
         `UNSTABLE_EXAMPLES` definition site rather than duplicating it here.
+
+        Artifact wiring, distinct from Decision D2: when the
+        `ORACLE_GATING_SCAN_OUT_DIR` environment variable is set, this test
+        streams progress and lands `report.json`/`SCAN_COMPLETE` in that
+        directory via `_resolve_scan_instrumentation` and the shared core's
+        own instrumentation -- deliberately a DIFFERENT variable name than
+        `test_complexity_5_scan_self_consistent`'s `ORACLE_SCAN_OUT_DIR`, so
+        the two tests can never resolve to the same artifact directory and
+        clobber one another's `report.json`/`SCAN_COMPLETE`. When unset
+        (the default), all three instrumentation parameters stay at
+        `(None, None, 0)` and this test's behaviour is byte-for-byte
+        unchanged from before instrumentation existed. This closes the gap
+        that made timed-out formulas' individual identities unrecoverable
+        during the 2026-08-27 -> 2026-09-01 `unstable-watch` investigation
+        (see criterion (3) above): a future observer can now set
+        `ORACLE_GATING_SCAN_OUT_DIR` on a manual or CI run of this test to
+        capture per-formula timeout identities directly.
         """
         manifest = _load_known_conclusive_manifest(KNOWN_CONCLUSIVE_MANIFEST_PATH)
         conclusive_formulas = _verify_manifest_matches_enumeration(manifest)
@@ -2515,12 +2670,19 @@ class TestGatingConclusiveScan:
                 self.oracle, f, timeout_ms=GATING_RECHECK_SOLVE_TIMEOUT_MS
             )
 
+        artifact_dir, progress_path, heartbeat_every = _resolve_scan_instrumentation(
+            "ORACLE_GATING_SCAN_OUT_DIR"
+        )
+
         report = _generate_differential_report(
             self.oracle,
             conclusive_formulas,
             ref_fn,
             {"mc": "mc_oracle", "ref": "mc_oracle_self"},
             timeout_ms=GATING_RECHECK_SOLVE_TIMEOUT_MS,
+            progress_path=progress_path,
+            heartbeat_every=heartbeat_every,
+            artifact_dir=artifact_dir,
         )
 
         _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_GATING_FORMULAS)

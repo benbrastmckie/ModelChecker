@@ -269,45 +269,45 @@ duplicated here" discipline intact.
 
 ---
 
-### Phase 3: Wire opt-in per-formula instrumentation into the gating test [NOT STARTED]
+### Phase 3: Wire opt-in per-formula instrumentation into the gating test [COMPLETED]
 
 **Goal**: Make the timed-out formulas' identities recoverable on any future run of
 `test_known_conclusive_population_self_consistent`, without changing its behaviour when the opt-in is
 not requested. This closes the gap that made report section (a) unanswerable.
 
 **Tasks**:
-- [ ] Add a module-level helper next to the existing instrumentation code, e.g.
+- [x] Add a module-level helper next to the existing instrumentation code, e.g.
       `_resolve_scan_instrumentation(env_var_name)`, returning
       `(artifact_dir, progress_path, heartbeat_every)`: when the named environment variable is unset or
       empty, return `(None, None, 0)` — exactly the three parameter defaults; when set, return
       `(Path(value), Path(value) / "progress.jsonl", 10)`, mirroring
       `test_complexity_5_scan_self_consistent`'s Decision D2 block verbatim in behaviour.
-- [ ] Wire it into `test_known_conclusive_population_self_consistent`'s
+- [x] Wire it into `test_known_conclusive_population_self_consistent`'s
       `_generate_differential_report(...)` call using the env var **`ORACLE_GATING_SCAN_OUT_DIR`** —
       deliberately distinct from `ORACLE_SCAN_OUT_DIR`, so that
       `oracle/run-oracle-exhaustive-scan.sh` (which sets `ORACLE_SCAN_OUT_DIR` before invoking
       `pytest oracle -m slow -s`) can never cause two tests to write the same `report.json` /
       `SCAN_COMPLETE`.
-- [ ] Leave `test_complexity_5_scan_self_consistent`'s existing D2 block **unchanged**. It is
+- [x] Leave `test_complexity_5_scan_self_consistent`'s existing D2 block **unchanged**. It is
       `slow`-marked and cannot be exercised in this dispatch, so refactoring it would be an unverified
       change to working code. Record the deliberate duplication in a one-line comment at the helper so
       a future reader does not "clean it up" blindly.
-- [ ] Add a docstring paragraph to `test_known_conclusive_population_self_consistent` in the same
+- [x] Add a docstring paragraph to `test_known_conclusive_population_self_consistent` in the same
       shape as D2's: what the env var does, that unset means byte-identical prior behaviour, and that
       it exists so a future observer can identify *which* formulas time out — the question the
       2026-08-27 -> 2026-09-01 investigation could not answer.
-- [ ] Amend criterion (3)'s closing sentence (edited in Phase 1) from "enabling that instrumentation
+- [x] Amend criterion (3)'s closing sentence (edited in Phase 1) from "enabling that instrumentation
       is a possible future round, not attempted here" to record that it is now enabled, opt-in, behind
       `ORACLE_GATING_SCAN_OUT_DIR`, and how to use it. Keep the surrounding "do not assert a same-7
       claim" language intact.
-- [ ] Add tests in the Z3-free style of `TestScanInstrumentation` (stub oracle, gating pass, fast):
+- [x] Add tests in the Z3-free style of `TestScanInstrumentation` (stub oracle, gating pass, fast):
       - unset / empty env var yields `(None, None, 0)`;
       - set env var yields the artifact dir, a `progress.jsonl` under it, and a non-zero heartbeat;
       - `ORACLE_GATING_SCAN_OUT_DIR` and `ORACLE_SCAN_OUT_DIR` resolve independently — setting one
         does not affect resolution of the other;
       - with the env var unset, `_generate_differential_report` driven through the helper's return
         values writes no files (the `test_default_params_produce_no_files` technique).
-- [ ] Verify no change to the `_assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_GATING_FORMULAS)`
+- [x] Verify no change to the `_assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_GATING_FORMULAS)`
       call, to `_assert_scan_report` itself, or to either constant (C1, C2, C3).
 
 **Timing**: 1.5 hours
