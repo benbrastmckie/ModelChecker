@@ -1,23 +1,42 @@
 {
-  "dispatch_seq": 9,
+  "dispatch_seq": 10,
   "task_number": 180,
-  "session_id": "sess_1788263678_7f5c4a_180",
-  "stage": "plan",
-  "status": "planned",
-  "agent_type": "planner-agent",
+  "session_id": "sess_1788263678_7f5c4a",
+  "stage": "implement",
+  "status": "implemented",
+  "agent_type": "python-implementation-agent",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md",
-      "summary": "5-phase closure plan for the diagnosis task: record corrections at the unstable-marker source site, TESTING_GUIDE 8.9 annotation, opt-in per-formula timeout instrumentation, and one allocated follow-on task."
+      "type": "summary",
+      "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/summaries/01_close-diagnosis-record-gaps-summary.md",
+      "summary": "Execution summary for all 5 phases, including the C1-C7 closure gate and the CI-accurate command correction."
+    },
+    {
+      "type": "implementation",
+      "path": "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+      "summary": "Corrected entry-criteria record (Phase 1) and wired opt-in ORACLE_GATING_SCAN_OUT_DIR instrumentation (Phase 3)."
     }
   ],
   "modified_files": [
-    "specs/180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md"
+    "code/docs/core/TESTING_GUIDE.md",
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-1-handoff-20260901T125032Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-2-handoff-20260901T125144Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-3-handoff-20260901T130038Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-4-handoff-20260901T130235Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-5-handoff-20260901T140948Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/summaries/01_close-diagnosis-record-gaps-summary.md",
+    "specs/events.jsonl",
+    "specs/state.json",
+    "specs/TODO.md"
   ],
   "phase_count": 5,
+  "phases_completed": 5,
+  "phases_total": 5,
   "estimated_hours": 3.5,
   "dependency_waves": [[1, 4], [2, 3], [5]],
-  "next_steps": "Run /implement 180 to execute the plan",
-  "notes": "Diagnosis is complete and is the primary deliverable; this plan closes the task only. Remediation is deliberately deferred to the follow-on task created in Phase 4. Hard constraints C1-C7 carried inline: no widening of GATING_RECHECK_SOLVE_TIMEOUT_MS, no lowering of MIN_CONCLUSIVE_GATING_FORMULAS, no assertion weakening, no marker change, no semantics or soundness-core change, no task-number references outside specs/**, and no claim that the axioms are excluded at HEAD. No new timing measurement is taken (host is contended)."
+  "next_steps": "Task closed. Follow-on task 183 (discriminate_gating_shortfall_axiom_vs_contention) is allocated and not_started for the discriminating observation.",
+  "notes": "All 5 phases COMPLETED. C1-C7 hard constraints verified PASS, scoped to this task's own 5 commits (d95be050, 0fd874cc, 6a4b1af9, ab83ed68, c6b24650) rather than the shared working tree, since tasks 181 and 182 committed concurrently into the same branch during this dispatch. One corrected-command deviation recorded (not a substantive plan deviation): Phase 5's literal fast-gate command omitted 'and not development', which oracle/conftest.py's pre-existing development-marker blanket requires to match real CI (oracle/run-oracle-suite.sh); re-run with the CI-accurate filter produced 49 passed, 0 failed. No shortfall-remediation task was created, per the plan's explicit prohibition -- TESTING_GUIDE.md 8.9's escalation trigger has not fired."
 }

@@ -1,7 +1,7 @@
 # Implementation Plan: Close the oracle gating conclusive-population diagnosis
 
 - **Task**: 180 - Diagnose oracle conclusive-population shortfall (`unstable-watch`, 2026-08-27 -> 2026-09-01)
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md`

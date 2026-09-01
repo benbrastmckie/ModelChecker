@@ -11,7 +11,7 @@ next_project_number: 184
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,180,183 | -- | semantics, release-engineering, test-reliability |
+| 1 | 154,176,183 | -- | semantics, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -19,10 +19,6 @@ next_project_number: 184
 ### Semantics
 
 154 [NOT STARTED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
-
-### Release Engineering
-
-180 [IMPLEMENTING] — Diagnose the oracle gating conclusive-population shortfall that h
 
 ### Test Reliability
 
@@ -134,12 +130,13 @@ VERIFICATION. Prove executably that no gating selection's wall clock depends on 
 ---
 
 ### 180. Diagnose oracle conclusive population shortfall
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: release-engineering
 - **Dependencies**: None
 - **Research**: [180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md]
 - **Plan**: [180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md]
+- **Summary**: [180_diagnose_oracle_conclusive_population_shortfall/summaries/01_close-diagnosis-record-gaps-summary.md]
 
 **Description**: Diagnose the oracle gating conclusive-population shortfall that has failed the unstable-watch workflow every day since 2026-08-27.
 
