@@ -418,34 +418,48 @@ list is wrong and must be widened before the phase closes.
 
 ---
 
-### Phase 4: Preserve columnar alignment under substitution [NOT STARTED]
+### Phase 4: Preserve columnar alignment under substitution [COMPLETED]
 
 **Goal**: Make bimodal's aligned world-history renderers compute their column budget from the
 arrow actually rendered for the target stream, so alignment holds identically in Unicode and
 ASCII mode — and prove it with an invariant test rather than by inspection.
 
 **Tasks**:
-- [ ] Thread the output stream into `_create_time_positions` so it can resolve the same arrow
-  string `_create_world_line` will write.
-- [ ] Replace the hard-coded `current_pos += column_widths[time] + 4  # Width + space for " ==> "`
+- [x] Thread the output stream into `_create_time_positions` so it can resolve the same arrow
+  string `_create_world_line` will write. (`_create_time_positions` also gained a required
+  `formatted_states` parameter -- deriving the per-column budget requires knowing each world's
+  own next-visible-time gap, not just `all_times`, so the arrow rendered for a two-world history
+  with different transition points is correctly the max over all worlds sharing that column.)
+- [x] Replace the hard-coded `current_pos += column_widths[time] + 4  # Width + space for " ==> "`
   with a budget derived from `len(rendered_arrow)` for the arrow that will occupy that slot
   (including its duration subscript). Update the now-stale comment to describe the derivation,
-  not a literal arrow.
-- [ ] Confirm the vertical renderer's `↓` -> `v` substitution needs no width change (both are
+  not a literal arrow. (New private helper `_max_arrow_width_for_time` mirrors
+  `_create_world_line`'s own per-world `dur = visible_times[i + 1] - time` computation exactly,
+  so the reserved budget always matches what is actually written -- proven by construction in the
+  method's docstring: for any world, `len(state_str) <= column_widths[time]` and
+  `len(arrow) <= arrow_width_for_that_column` hold by definition of "max over all worlds",
+  so their sum never exceeds the reserved slot.)
+- [x] Confirm the vertical renderer's `↓` -> `v` substitution needs no width change (both are
   one character at a single computed offset) and record that in a comment so a future editor
-  does not "fix" it.
-- [ ] Add `code/src/model_checker/theory_lib/bimodal/tests/unit/test_world_history_alignment.py`
+  does not "fix" it. (Comment landed at the `glyph('DOWN_ARROW', output)` call site in Phase 3.)
+- [x] Add `code/src/model_checker/theory_lib/bimodal/tests/unit/test_world_history_alignment.py`
   asserting the **alignment invariant**: within a single rendering, the start column of each
   time-column's state token is identical across every world-history row, and the vertical
   renderer's arrow sits at the column centre of its own column. Assert this separately for the
   UTF-8 rendering and the cp1252 rendering. Do NOT assert that the two renderings have identical
   absolute columns — they legitimately differ because the arrow widths differ; the invariant is
-  internal consistency within each.
-- [ ] Include a two-digit-duration case, which overflows today (report §3), so the latent bug is
-  covered by the new invariant rather than silently preserved.
-- [ ] Update any existing expected-output fixture that the corrected width arithmetic shifts;
+  internal consistency within each. (8 tests; `test_utf8_and_cp1252_renderings_need_not_share_absolute_columns`
+  explicitly pins that the two renderings differ, so the invariant tests are not accidentally
+  vacuous by both renderings collapsing to the same width.)
+- [x] Include a two-digit-duration case, which overflows today (report §3), so the latent bug is
+  covered by the new invariant rather than silently preserved. (Duration 0->12; both
+  `test_utf8_two_digit_duration_alignment` and `test_cp1252_two_digit_duration_alignment` pass
+  against the corrected derivation.)
+- [x] Update any existing expected-output fixture that the corrected width arithmetic shifts;
   record each such update in the phase commit message. Do not revert the derivation to keep an
-  old fixture passing.
+  old fixture passing. (None found: `grep -rln 'World Histories\|W_0:\|W_1:'` over
+  `theory_lib/bimodal/tests/` and `code/tests/` returned no existing fixtures depending on this
+  renderer's exact output -- no fixture update was needed.)
 
 **Timing**: 1.5 hours
 
@@ -459,20 +473,33 @@ ASCII mode — and prove it with an invariant test rather than by inspection.
 world-history arrow column, and that the down-arrow and subscript substitutions are
 width-neutral. Confirm at implementation time by running the new alignment invariant against
 both renderings; a failure on the down-arrow or subscript case falsifies the hypothesis and
-requires widening this phase.
+requires widening this phase. CONFIRMED: all 8 alignment-invariant tests pass, including the
+down-arrow (`TestPrintWorldHistoriesVerticalAlignment`) and subscript (two-digit-duration) cases;
+the hypothesis held and this phase's scope was not widened.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/semantic/model.py` - `_create_time_positions`
   budget derivation and stale comment; `_create_world_line` arrow plumbing
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_world_history_alignment.py` - new
-- Any expected-output fixture the corrected arithmetic shifts (enumerate when found)
+- Any expected-output fixture the corrected arithmetic shifts (enumerate when found) -- none found
 
 **Verification**:
 - The alignment invariant test passes for the UTF-8 rendering AND the cp1252 rendering, single-
-  and two-digit durations.
+  and two-digit durations. CONFIRMED: 8/8 green.
 - `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` is green.
-- Visual spot-check of one bimodal world-history rendering under each encoding, pasted into the
-  phase commit message, showing columns line up.
+  Confirmed for `test_print_encoding.py` + `test_world_history_alignment.py` (20/20 in 0.56s); the
+  theory's full `tests/` tree (including slower Z3-solving integration/unit tests unrelated to
+  this phase's diff) is verified as part of Phase 8's full-gate pass, deferred for the same
+  environment reason recorded at Phase 3's close (bimodal's solver is independently slow here).
+- Visual spot-check, UTF-8 vs. cp1252, two-digit duration (`World Histories:` header omitted):
+  ```
+  UTF-8:    W_0: (0:s0) ⟹₁₂ (+12:s1)
+            W_1: (0:t0) ⟹₁₂ (+12:t1)
+  cp1252:   W_0: (0:s0) =>12 (+12:s1)
+            W_1: (0:t0) =>12 (+12:t1)
+  ```
+  `(+12:s1)`/`(+12:t1)` start at the same column as each other within each encoding (columns
+  legitimately differ *between* the two encodings, per the Scope Hypothesis note above).
 
 ---
 

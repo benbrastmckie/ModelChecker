@@ -305,23 +305,65 @@ class BimodalStructure(ModelDefaults):
             column_widths[time] = max_width
         return column_widths
     
-    def _create_time_positions(self, all_times, column_widths):
+    def _max_arrow_width_for_time(self, time, formatted_states, output):
+        """Widest double-arrow (+ duration subscript) any world actually renders
+        starting at the `time` column, for the glyphs `output` can encode.
+
+        Mirrors `_create_world_line`'s own per-world arrow computation
+        (`dur = visible_times[i + 1] - time`, using each world's own next
+        *visible* time -- not just `time + 1`) so the reserved budget always
+        matches what will actually be written. Returns 0 when no world has a
+        state at both `time` and some later time (e.g. the last column, or a
+        column where every world's history has already ended).
+        """
+        max_width = 0
+        for time_states in formatted_states.values():
+            if time not in time_states:
+                continue
+            later_times = [t for t in time_states if t > time]
+            if not later_times:
+                continue
+            dur = min(later_times) - time
+            arrow = f" {glyph('DOUBLE_ARROW', output)}{self._to_subscript(dur, output)} "
+            max_width = max(max_width, len(arrow))
+        return max_width
+
+    def _create_time_positions(self, all_times, column_widths, formatted_states, output=sys.__stdout__):
         """Calculate starting position for each time column.
-        
+
         Args:
             all_times: List of all time points to consider
             column_widths: Dictionary mapping time points to column widths
-            
+            formatted_states: Dictionary mapping world_ids to dictionaries mapping
+                times to formatted state strings -- needed to determine, per
+                column, the widest arrow any world will actually render there.
+            output: Output stream this line will eventually be printed to; used
+                to resolve the arrow glyph the same way `_create_world_line`
+                will, so the reserved column budget matches what is actually
+                written (both in Unicode and in ASCII-fallback mode).
+
         Returns:
             dict: Dictionary mapping time points to their starting positions
+
+        The per-column budget is derived from the actually-rendered arrow
+        string (`_max_arrow_width_for_time`) rather than a hard-coded
+        constant. The previous `+ 4  # Width + space for " ==> "` reserved a
+        fixed 4-character slot sized for a 5-character ASCII arrow comment
+        that never matched the 4-character Unicode arrow actually rendered
+        (single-digit durations happened to still fit; two-digit durations
+        silently overflowed into the next column -- see the research report
+        this plan is built on, §3). Deriving the budget from the rendered
+        string fixes that latent overflow as a consequence, for both the
+        Unicode and the ASCII-fallback rendering.
         """
         time_positions = {}
         current_pos = 0
         for time in all_times:
             time_positions[time] = current_pos
-            current_pos += column_widths[time] + 4  # Width + space for " ==> "
+            arrow_width = self._max_arrow_width_for_time(time, formatted_states, output)
+            current_pos += column_widths[time] + arrow_width
         return time_positions
-    
+
     def _create_world_line(self, world_id, all_times, formatted_states, time_positions, column_widths, output=sys.__stdout__):
         """Create a formatted line for a world history with proper alignment.
 
@@ -403,7 +445,7 @@ class BimodalStructure(ModelDefaults):
         column_widths = self._calculate_column_widths(all_times, formatted_states)
         
         # 5. Calculate starting position for each time column
-        time_positions = self._create_time_positions(all_times, column_widths)
+        time_positions = self._create_time_positions(all_times, column_widths, formatted_states, output)
         
         # 6. Print each world history with aligned columns
         for world_id in sorted(self.world_histories.keys()):
