@@ -1,19 +1,22 @@
 {
-  "dispatch_seq": 2,
-  "phase": "plan",
-  "status": "planned",
-  "summary": "Created a six-phase TDD implementation plan built on the research report's verified ground truth: keep the oracle soundness gate and pin it with three new assertions (GAP 1), wire run_tests.py's dead TestConfig.markers field through argparse with a new test module while leaving addopts untouched (GAP 2), add the -m development producing step to unstable-watch.yml with zero classifier changes (GAP 3), and correct the seven-not-six invocation count plus the .github/workflows/README.md and tests.yml false claims. Phases 1, 4, 5 are unblocked; 2 depends on 1, 3 on 2, 6 on all.",
+  "status": "completed",
+  "summary": "All 6 phases of the plan implemented and verified. Phase 1: EXPECTED_GATING_MARKER_INVOCATIONS=7 executable count plus docs-consistency test; corrected six->seven across all 7 stale anchors (TESTING_GUIDE.md x4, bimodal conftest.py, bimodal README.md, test_development_marker_application.py). Phase 2: TestOracleSoundnessGateStaysUnconditionallyGating (3 RED-verified assertions) pins differential-tests.yml's gate step as gating-by-design; comment block plus TESTING_GUIDE.md 8.14 paragraph added. Phase 3: watch_development step wired into unstable-watch.yml mirroring watch_code's exact shape, zero classifier changes, RED-verified step-shape test added; the unchanged 'exactly 2' unstable-watch assertion confirmed untouched. Phase 4: --markers/-m passthrough added to run_tests.py across all 5 command-building sites plus a new TDD module (test_run_tests_markers.py); additionally added _normalize_markers_deselection_exit_code (undocumented in the plan but required to make --markers \"not development\" actually exit 0 rather than pytest's raw exit 5). Phase 5: corrected stale -m \"not packaging\"/-n 6 claims in .github/workflows/README.md (4 passages) to the real five-clause filter/-n 4, and reworded tests.yml's self-contradicting bimodal-exclusion comment. Phase 6: documented the two canonical run_tests.py invocations in bimodal/tests/README.md and TESTING_GUIDE.md 8.14; recorded the task-173 pointer note (stale zero-tests criterion at lines 501/529/588, not edited per instruction) in this task's own summary; recorded proofs for criteria (a) (0 bimodal in both gating passes, real execution 2116+9 passed/0 bimodal), (b) (bare ./run_tests.py bimodal shows 5 known real failures visibly; --markers \"not development\" shows 0 selected + exit 0), and (c) (Phase 2's 3 RED-verified assertions). During verification, found and fixed a self-caused bug: test_run_tests_markers.py's hand-rolled subprocess.run patch/restore permanently corrupted the global subprocess module for the rest of the pytest session (restore line re-read an already-overwritten attribute), causing test_unstable_watch_classifier.py's real-subprocess tests to fail whenever run afterward in the same session. Fixed via pytest's monkeypatch fixture; re-verified 120/120 in code/tests/ci/ (3 consecutive clean runs) and 629 passed/5 skipped in the full code/tests/ suite. No bimodal semantics, AVAILABLE_THEORIES, wheel contents, code/pyproject.toml addopts, or .github/scripts/unstable_watch_classify.py were touched; the 'exactly 2' -m unstable assertion and all three containment tests are unchanged/extended, never narrowed.",
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/177_bimodal_in_development_status_and_ci_non_gating/plans/01_bimodal-in-development-ci-non-gating.md",
-      "summary": "Six-phase TDD plan, 7h estimated, dependency waves [[1,4,5],[2],[3],[6]]."
+      "summary": "Six-phase TDD plan, all phases marked [COMPLETED]."
+    },
+    {
+      "type": "summary",
+      "path": "specs/177_bimodal_in_development_status_and_ci_non_gating/summaries/01_bimodal-ci-non-gating-summary.md",
+      "summary": "Full implementation summary: what changed per phase, task-173 pointer note, criteria (a)/(b)/(c) proofs, containment/regression checks, and the subprocess.run bug-fix account."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
   "blockers": [],
-  "plan_markers_verified": true,
   "continuation_path": null,
-  "next_action_hint": "Dispatch /implement 177 starting at Phase 1 (executable gating-invocation count and six->seven corrections)."
+  "next_action_hint": "Task ready for postflight/PR-readiness review; no further implementation dispatch needed.",
+  "dispatch_seq": 3
 }

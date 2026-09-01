@@ -2,6 +2,11 @@
 
 - **Plan**: `specs/177_bimodal_in_development_status_and_ci_non_gating/plans/01_bimodal-in-development-ci-non-gating.md`
 - **Status**: COMPLETED (all six phases)
+- **Task**: TBD
+- **Started**: TBD
+- **Completed**: TBD
+- **Artifacts**: TBD
+- **Standards**: TBD
 
 ## What Changed
 
