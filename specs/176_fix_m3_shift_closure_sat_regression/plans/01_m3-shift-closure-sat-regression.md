@@ -494,6 +494,39 @@ asserting the delta; only the "pass 1 zero failures" criterion is fixed.
 - The run was full, not narrowed
 - Count deltas against the pre-fix baseline are each accounted for
 
+**Attempt 1 (not passing)**: Full run launched detached via `setsid nohup nix develop --command
+bash oracle/run-oracle-suite.sh`, log saved to `baselines/06_full-suite-run.log`. Neither pass
+completed clean: pass 1 (parallel) `3 failed, 610 passed, 4 skipped, 4 xfailed in 727.11s`; pass 2
+(serial) `16 failed, 2 passed, 1 skipped, 625 deselected in 1666.13s`. Neither pass timed out
+(exit 1, not 124/137) and this was a full, unnarrowed run. `test_shift_closure_on_extracted_worlds_m3`
+does not appear anywhere in the log (confirmed correctly deselected by the Phase 6 marker). The
+zero-failures criterion is therefore NOT met and this phase stays open.
+
+Mechanism evidence on the 19 failures (3 pass 1 + 16 pass 2): 15 are `OracleTimeoutError` raised
+by `Z3OracleProvider.find_countermodel()` at `timeout_ms=5000` or `timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS`
+(`oracle/bimodal_logic/provider.py:292`) — the exact `find_countermodel()`/`timeout_ms=5000`
+mechanism the Phase 1 research explicitly distinguished from this task's target test (which
+constructs `BimodalStructure` directly and never touches that path). The remaining 4 are
+`AssertionError`s on `BM_CM_1`/`BM_CM_4` example regressions (`test_boundary_regression.py`,
+`test_oracle_example_regression`-style pipelines) — the same heavy-tailed-solve example family
+task 175's context already documents as a known instability source, not a new one.
+
+This run followed roughly 20+ minutes of cold nix devShell provisioning (package downloads/builds
+visible in the log preceding `test session starts`), and pass 2's 1666s for only 19 selected items
+(~88s/test average) is anomalously slow next to its own `1800s` budget for what should be a light
+serial pass — consistent with residual I/O/CPU contention from that provisioning bleeding into the
+test run, rather than a regression introduced by this task (Phase 5 landed no net source change,
+and Phase 6's only change is the marker itself). This is not proof of contention rather than a
+real regression, only the more probable reading given the mechanism/scope evidence above — it is
+recorded as an open question, not a settled one.
+
+**Before re-entering this phase**: re-run on an otherwise-idle machine (nix devShell already
+warm, no concurrent heavy I/O/CPU) so a second data point can distinguish "environmental
+contention" from "a real, reproducible regression" per the mechanism evidence above. If the
+failures reproduce on a clean run, they are out of this task's stated scope (task 176 is scoped to
+`test_shift_closure_on_extracted_worlds_m3` specifically) and should be spawned as a follow-up
+rather than fixed here — but do not assume that without the clean second run.
+
 ---
 
 ### Phase 8: Document the Outcome [NOT STARTED]
