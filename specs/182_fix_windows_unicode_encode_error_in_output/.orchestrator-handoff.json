@@ -1,17 +1,23 @@
 {
-  "status": "planned",
-  "summary": "Ratified the research report's option (b), stream-encoding-aware ASCII fallback, with one recorded departure: the column budget in bimodal's aligned renderer is derived from the actually-rendered arrow rather than the report's implied hard-coded constant, because a naive '=>' substitution is 1 char WIDER than the Unicode arrow and would overflow the reserved 4-char slot, breaking the alignment the task's hard constraints protect. 8 phases / 9.5h: (1) shared utils/glyphs.py helper with lru_cached encodability probe on getattr(output,'encoding',None); (2) TDD-first cp1252 TextIOWrapper regression coverage that must be RED across all 9 inventoried print sites in 4 theories; (3) route those 9 sites through the helper, including a _to_subscript signature change; (4) derived-width alignment preservation plus an explicit alignment-invariant test (internal consistency per rendering, not cross-rendering equality) covering the latent two-digit-duration overflow; (5) an ADDITIVE PYTHONIOENCODING=cp1252 leg on test_generate_then_execute reproducing the Windows child-process condition on Linux; (6) progress-bar glyph sweep (decided IN scope, since the block glyphs are the same live crash class; the isatty gate stays out of scope); (7) policy recorded in TESTING_GUIDE.md, bimodal ARCHITECTURE.md, CODE_STANDARDS.md; (8) full-gate run plus an explicit hard-constraint audit. No packaging assertion is weakened, no CI workflow is touched, and PYTHONIOENCODING/PYTHONUTF8 is forbidden in the fixture env as a mitigation.",
+  "dispatch_seq": 8,
+  "status": "implemented",
+  "summary": "Stream-encoding-aware ASCII glyph fallback (model_checker.utils.glyphs) routed through all printed-output paths across all four theories, fixing the Windows cp1252 UnicodeEncodeError. Two scope-hypothesis corrections found via execution and the end-to-end packaging leg: bitvec_to_substates's runtime-only null-state glyph (affecting logos too), and __repr__'s verifier/falsifier display. All 8 plan phases COMPLETED. Gating: 2229 passed/1 pre-existing skip. Packaging: 10/10 (4 theories x 2 legs).",
   "artifacts": [
     {
+      "type": "summary",
+      "path": "specs/182_fix_windows_unicode_encode_error_in_output/summaries/01_stream-aware-ascii-fallback-summary.md",
+      "summary": "Implementation summary covering all 8 completed phases."
+    },
+    {
       "type": "plan",
-      "path": "specs/182_fix_windows_unicode_encode_error_in_output/plans/01_stream-aware-ascii-fallback.md"
+      "path": "specs/182_fix_windows_unicode_encode_error_in_output/plans/01_stream-aware-ascii-fallback.md",
+      "summary": "Plan file updated in-place with per-phase evidence; all 8 phases [COMPLETED]."
     }
   ],
-  "phase": "plan",
-  "dispatch_seq": 6,
-  "phases_completed": 0,
+  "phases_completed": 8,
   "phases_total": 8,
   "blockers": [],
   "continuation_path": null,
-  "plan_markers_verified": true
+  "plan_markers_verified": true,
+  "next_action_hint": "All hard constraints verified (no packaging assertion weakened, no CI workflow touched, no theory semantics touched, aligned renderer intact). Ready for postflight/PR-ready transition."
 }

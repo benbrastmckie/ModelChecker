@@ -11,14 +11,10 @@ next_project_number: 184
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176,180,181,182,183 | -- | packaging, semantics, release-engineering, ... |
+| 1 | 154,176,180,181,183 | -- | semantics, release-engineering, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
-
-### Packaging
-
-182 [IMPLEMENTING] — Fix the UnicodeEncodeError that makes model output crash on Windo
 
 ### Semantics
 
@@ -71,12 +67,13 @@ NOT IN SCOPE: this is a discrimination/observation task, not a shortfall-remedia
 ---
 
 ### 182. Fix windows unicode encode error in output
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: None
 - **Research**: [182_fix_windows_unicode_encode_error_in_output/reports/01_windows-unicode-encode-error.md]
 - **Plan**: [182_fix_windows_unicode_encode_error_in_output/plans/01_stream-aware-ascii-fallback.md]
+- **Summary**: [182_fix_windows_unicode_encode_error_in_output/summaries/01_stream-aware-ascii-fallback-summary.md]
 
 **Description**: Fix the UnicodeEncodeError that makes model output crash on Windows, and give the codebase a deliberate policy on non-ASCII characters in printed output.
 
