@@ -11,16 +11,10 @@ next_project_number: 180
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 154,176 | -- | semantics, test-reliability |
+| 1 | 154,174,176 | -- | semantics, test-reliability |
 | 2 | 172,178 | 176 | test-reliability |
-| 3 | 173 | 172 | testing |
-| 4 | 174 | 173 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
-
-### Testing
-
-173 [IMPLEMENTING] — Add a `development` pytest marker so a theory still under active 
 
 ### Semantics
 
@@ -28,10 +22,10 @@ next_project_number: 180
 
 ### Test Reliability
 
+174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
   └─ 172 [BLOCKED] — Three tests in oracle/bimodal_logic/tests/test_soundness_regressi
   └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
-174 [NOT STARTED] — Find the root cause of the recurring xdist worker crash -- `[gw2]
 
 ## Tasks
 
@@ -248,13 +242,13 @@ EXIT CONDITION. Either a root cause identified with evidence and a fix that meas
 ---
 
 ### 173. Add development marker for in progress theories
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 158, Task 172, Task 175
 - **Research**: [173_add_development_marker_for_in_progress_theories/reports/01_development-marker-design.md]
 - **Plan**: [173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md]
-- **Summary**: [173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md]
+- **Summary**: [173_add_development_marker_for_in_progress_theories/summaries/01_development-marker-summary.md]
 
 **Description**: Add a `development` pytest marker so a theory still under active construction (bimodal today) can carry known-failing or contention-flaky tests without turning the whole package's CI red -- while keeping every such test observed rather than forgotten.
 

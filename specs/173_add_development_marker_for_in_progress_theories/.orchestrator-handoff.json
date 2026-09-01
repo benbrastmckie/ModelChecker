@@ -1,24 +1,19 @@
 {
-  "status": "partial",
-  "summary": "Phases 1-5 of the six-phase plan are implemented and verified green: the development marker is registered in code/pyproject.toml (with the deliberate oracle/conftest.py non-mirroring note); all six gating -m invocations across tests.yml, differential-tests.yml, flake.nix, and run-oracle-suite.sh carry 'and not development'; code/tests/ci/test_unstable_deselection_wiring.py was extended in place to enforce both markers (bite-confirmed by a temporary-revert check); unstable_watch_classify.py gained a third, optional dev_junit_path input producing DEV_STATUS-classified records that never feed any_new/any_failure and are excluded from the currently_unstable fragment-matching loop; fetch_past_classifications was generalized with a defaulted field selector and compute_dev_pass_rate feeds a new '## Development Watch' step-summary section; TESTING_GUIDE.md section 8.14 documents the whole category plus one appended sentence in 8.9. code/tests/ci/ is fully green (83 tests) and collection-level equivalence of the new filter is proven by an exact empty diff of --collect-only output (3055 lines each, with vs without 'and not development') -- definitive proof the filter deselects nothing today. Phase 6 (full-gate verification) is PARTIAL, not COMPLETED: the full gating execution command (pytest ... -n 4 with the new filter) was run twice under a 580s timeout bound and exited 124 both times (killed, not a clean pass), showing 4 F's and an xdist worker crash ('[gw0] node down: Not properly terminated', 'replacing crashed worker gw0') near 93-96% collected on the first attempt. A targeted rerun scoped to the two implicated bimodal files (test_frame_constraints.py, test_frame_class_mapping.py) was itself confounded: task 153 is concurrently mid-flight on those exact files plus uncommitted changes to bimodal/semantic/core.py in the shared working tree, and had already landed commit b7bc19c3 (four intentionally-red test classes) during this task's own Phase 6 window. No failure attributable to this task's own scope was observed or is plausible given the collection-equivalence proof; the worker-crash excerpt is recorded as evidence for task 174 (root_cause_xdist_worker_crash, not_started) rather than investigated here. The one-file file_scope widening (unstable_watch_classify.py), the deferred unstable-watch.yml third-step /spawn candidate, the flagged-not-done release.yml comment update, and the deliberate oracle/conftest.py non-mirroring are all recorded in the implementation summary as required.",
-  "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md",
-      "summary": "Six-phase plan; phases 1-5 COMPLETED, phase 6 PARTIAL with a documented Findings section."
-    },
-    {
-      "type": "summary",
-      "path": "specs/173_add_development_marker_for_in_progress_theories/summaries/01_development-marker-summary.md",
-      "summary": "Implementation summary recording what was verified green, the Phase 6 deviation, and the task 174/153 continuation condition."
-    }
+  "task_number": 173,
+  "dispatch_seq": 1,
+  "status": "completed",
+  "phase_reached": "Phase 6: Full-gate verification and deferred-item record [COMPLETED]",
+  "summary": "Phase 6's blocking precondition (task 153 holding uncommitted changes in the shared working tree) has cleared. Re-ran the full gating parallel-pass command from the plan verbatim (pytest tests/ src/model_checker -m \"not packaging and not performance and not unstable and not xdist_serial and not development\" -n 4 -q --timeout=300 --timeout-method=thread) and it now passes clean: 2132 passed, 1 skipped, 2 warnings in 82.21s -- no timeout, no failure, no xdist worker crash. code/tests/ci/ -q reconfirmed green (136 passed). All six plan phases are now [COMPLETED]; plan-level Status set to [COMPLETED].",
+  "key_finding": "Between the two dispatches, task 153 phase 8 legitimately applied the development marker to the entire bimodal test tree via a new bimodal/tests/conftest.py collection hook (the marker's own designed exit path, not a regression), and a later, separate, non-task-173 commit (65f9de0e) mirrored that blanket into oracle/conftest.py. Neither edit belongs to task 173's file_scope or was made by this dispatch. Consequence: the plan's original 'identical collected-test count with/without and not development' verification bullet -- true and verified (byte-identical collect-only diff) at the time this task's own Phases 1-5 landed with zero tests marked -- is no longer literally true now that a downstream task has put the category into real use: the gating expression now deselects 447 tests (vs. 135 without the filter), all attributable to bimodal, not to any defect in this task's own six -m edits or the classifier. This is documented in full in the plan's Phase 6 Findings and the implementation summary's Plan Deviations section, with the two affected Testing & Validation checklist items annotated DEVIATION (downstream, not this task's edit) rather than silently left checked or unchecked.",
+  "not_this_tasks_scope": [
+    "The xdist worker crash observed in the first dispatch's confounded run did not reproduce in this clean re-run; its excerpt remains recorded as evidence for task 174 (root_cause_xdist_worker_crash) and was not investigated here.",
+    "The two CI run 32996446859 failures were not marked development, not touched, and did not appear in this run.",
+    "The later oracle/conftest.py mirroring commit (65f9de0e) was not made by this task and is not evaluated or endorsed here beyond noting it for factual accuracy."
   ],
-  "phases_completed": 5,
-  "phases_total": 6,
-  "blockers": [
-    "Phase 6's full-suite execution gate (pytest tests/ src/model_checker -m \"... and not development\" -n 4) cannot be run clean while task 153 holds uncommitted changes to bimodal/semantic/core.py and test_frame_constraints.py in the shared working tree -- re-run once 153 lands.",
-    "An xdist worker crash ('[gw0] node down: Not properly terminated') observed during the full-suite attempt is task 174's (root_cause_xdist_worker_crash) concern, not this task's; excerpt recorded in the plan's Phase 6 Findings and the implementation summary for that task to consume."
+  "artifacts_updated": [
+    "specs/173_add_development_marker_for_in_progress_theories/plans/01_development-marker.md",
+    "specs/173_add_development_marker_for_in_progress_theories/summaries/01_development-marker-summary.md"
   ],
-  "continuation_path": "/implement 173 (resume at Phase 6 once task 153 lands; re-run the full gating parallel-pass command and confirm clean, or reconcile any residual failure against task 174)",
-  "dispatch_seq": 21
+  "commit": "54e08f18 task 173 phase 6: full-gate verification, resolved",
+  "next_steps": "None required for task 173 -- it is complete. Orchestrator/postflight may transition task 173's state.json status to completed based on this handoff and the .return-meta.json status field."
 }
