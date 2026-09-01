@@ -1,7 +1,7 @@
 # Implementation Plan: Decouple Release-Gating Tests from Bimodal Solve Cost
 
 - **Task**: 181 - Audit and fix gating tests outside the bimodal test tree that still depend on bimodal solve cost
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 8.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/reports/01_gating-tests-coupled-to-bimodal.md`
@@ -158,7 +158,7 @@ concurrently.
 
 ---
 
-### Phase 1: Record before-state wall-clock baselines [NOT STARTED]
+### Phase 1: Record before-state wall-clock baselines [COMPLETED]
 
 **Goal**: Capture, on current HEAD before any code change, the wall clock of every selection whose
 improvement this task claims — so Phase 8's "after" figures compare against a real measurement
