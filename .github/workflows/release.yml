@@ -91,7 +91,20 @@ jobs:
       shell: bash
       run: |
         set -uo pipefail
-        TAG_TYPE=$(git cat-file -t "${GITHUB_REF_NAME}")
+
+        # Re-fetch the tag ref before inspecting it. actions/checkout@v4 DESTROYS the
+        # annotation: after its initial `+refs/tags/*:refs/tags/*` fetch, it runs a second
+        # `git fetch --no-tags ... origin +<commit-sha>:refs/tags/<tag>` that re-points the
+        # local ref straight at the dereferenced commit. `git cat-file -t` in the workspace
+        # therefore reports "commit" for EVERY tag, annotated or not, and this check could
+        # never pass as originally written -- it rejected correctly-annotated tags. Observed
+        # on CI run 33502746641, whose own checkout log shows that clobbering fetch while the
+        # remote ref was a genuine tag object. Fetching the ref itself (not the SHA) restores
+        # the real object, and the check keeps its meaning: a genuinely lightweight remote tag
+        # still resolves to a commit here and still fails.
+        git fetch origin --force "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+
+        TAG_TYPE=$(git cat-file -t "refs/tags/${GITHUB_REF_NAME}")
         if [ "${TAG_TYPE}" != "tag" ]; then
           echo "ERROR: ${GITHUB_REF_NAME} is a ${TAG_TYPE}, not an annotated tag. Create it" \
                "with 'git tag -a' (or -s), not 'git tag'."
