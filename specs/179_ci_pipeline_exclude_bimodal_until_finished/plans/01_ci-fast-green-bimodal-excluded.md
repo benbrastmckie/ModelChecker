@@ -271,7 +271,7 @@ single guard module that consumes the file.
 
 ---
 
-### Phase 4: Collapse the differential-tests.yml redundancy (atomic batch) [NOT STARTED]
+### Phase 4: Collapse the differential-tests.yml redundancy (atomic batch) [COMPLETED]
 
 **Goal**: Delete the proven-duplicate workflow step and land every follow-on bookkeeping edit in
 the same commit, so the guard suite is green before and after and never in between.

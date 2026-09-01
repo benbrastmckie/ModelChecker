@@ -22,7 +22,7 @@ def pytest_collection_modifyitems(config, items):
     """Apply `development` to every test collected from the bimodal test tree.
 
     The bimodal theory is under active construction and is deliberately not part of what a
-    release run requires to pass. All seven release-gating pytest invocations already carry
+    release run requires to pass. All six release-gating pytest invocations already carry
     `and not development` in their `-m` expression (enforced by
     `code/tests/ci/test_unstable_deselection_wiring.py`), so claiming the marker here is what
     actually takes bimodal off the gate -- the marker had been registered, wired, and documented

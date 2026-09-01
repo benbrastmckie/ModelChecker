@@ -10,7 +10,7 @@ Two properties are asserted, and the second matters as much as the first:
 
 1. **Complete coverage of bimodal.** Every item collected under
    `src/model_checker/theory_lib/bimodal/tests/` carries `development`, so a bimodal failure
-   cannot turn a release-gating run red (all seven gating invocations already carry
+   cannot turn a release-gating run red (all six gating invocations already carry
    `and not development`; see `test_unstable_deselection_wiring.py`).
 2. **Containment to bimodal.** No item outside that tree acquires the marker. A theory-level
    blanket is the marker application most capable of over-reaching, so the blast radius is

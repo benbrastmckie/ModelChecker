@@ -992,7 +992,7 @@ filter as a matter of course, not rediscover the need for it —
 `code/tests/ci/test_unstable_deselection_wiring.py` enforces this contract executably across
 `tests.yml`, `flake.nix`, `differential-tests.yml`, and `run-oracle-suite.sh`. `unstable` is not
 the only quarantine-style marker deselected this way -- see 8.14 for the sibling `development`
-marker, wired through the same seven invocations and the same contract test.
+marker, wired through the same six invocations and the same contract test.
 
 **The classifier lives in an importable module, not YAML.** `unstable-watch.yml`'s classify step
 invokes `.github/scripts/unstable_watch_classify.py`, unit-tested by
@@ -1437,19 +1437,27 @@ named, tested exception that stays gating by design, and it must never gain
 `continue-on-error`, lose its `::TestCIGate` node-id selection, or have its `paths:` trigger
 narrowed.
 
-**Where the deselection is wired.** All four gating drivers carry `and not development` in their
-`-m` expression: `.github/workflows/tests.yml`'s parallel and serial passes,
-`.github/workflows/differential-tests.yml`'s first invocation, `flake.nix`'s `checks.default`
-parallel and serial passes, and `oracle/run-oracle-suite.sh`'s two passes (defensive there today,
-now load-bearing there rather than defensive -- see "Currently marked" below). Seven invocations in total.
-Two of those seven live in `oracle/run-oracle-suite.sh`, which is invoked by no CI workflow -- it
-is a manual `nix develop --command bash oracle/run-oracle-suite.sh` driver, and those two carry
-the filter so a local gating-reproduction run does not get a false red from an in-development
-theory. `code/tests/ci/test_unstable_deselection_wiring.py` -- the same executable contract 8.9
-names, extended rather than duplicated -- enforces both `not unstable` and `not development`
-across all seven. A future author adding a new gating pytest invocation anywhere in this
-repository should carry the same filter as a matter of course, exactly as 8.9 already states for
-`unstable`.
+**Where the deselection is wired.** Three of the four gating drivers carry `and not development`
+directly in an `-m` expression: `.github/workflows/tests.yml`'s parallel and serial passes,
+`flake.nix`'s `checks.default` parallel and serial passes, and `oracle/run-oracle-suite.sh`'s two
+passes (defensive there today, now load-bearing there rather than defensive -- see "Currently
+marked" below). The fourth, `.github/workflows/differential-tests.yml`, achieves the same
+deselection differently: its one remaining step ("Run CI gate tests explicitly") node-id-selects
+the six soundness-core classes directly, none of which is ever `development`-marked (they are the
+`_SOUNDNESS_CORE_CLASSES` exemption in `oracle/conftest.py`), so the step needs no `-m` filter at
+all to stay clean of `development`-marked tests. Six invocations in total. This dropped from seven:
+`differential-tests.yml` previously ran a redundant first step carrying its own `-m "... and not
+development"` expression, but a `--collect-only` diff proved that step selected the byte-identical
+same 49 node ids as the node-id gate step, so it was removed as a proven duplicate -- a redundancy
+cleanup, not a `development`-deselection-wiring regression. A reader who sees "six" here should
+not conclude coverage was lost. Two of those six live in `oracle/run-oracle-suite.sh`, which is
+invoked by no CI workflow -- it is a manual `nix develop --command bash oracle/run-oracle-suite.sh`
+driver, and those two carry the filter so a local gating-reproduction run does not get a false red
+from an in-development theory. `code/tests/ci/test_unstable_deselection_wiring.py` -- the same
+executable contract 8.9 names, extended rather than duplicated -- enforces both `not unstable` and
+`not development` across all six. A future author adding a new gating pytest invocation anywhere in
+this repository should carry the same filter as a matter of course, exactly as 8.9 already states
+for `unstable`.
 
 **Observability.** `.github/scripts/unstable_watch_classify.py` (8.9's classifier module) accepts
 a third, optional JUnit input (`dev_junit_path`, default `/tmp/watch-development.xml`). Every
@@ -1593,7 +1601,7 @@ bimodal's known failures visibly rather than silently filtering them out.
 
 *Exit path for this blanket.* Delete the `pytest_collection_modifyitems` hook from
 `code/src/model_checker/theory_lib/bimodal/tests/conftest.py` when bimodal is no longer in
-development. Nothing else needs to change — the registration, the seven gating `-m` expressions,
+development. Nothing else needs to change — the registration, the six gating `-m` expressions,
 and the classifier are shared infrastructure, not bimodal-specific. Removing the hook will fail
 `test_development_marker_application.py`, which is the intended signal to delete that contract in
 the same commit.

@@ -44,15 +44,22 @@ RUN_ORACLE_SUITE_SH = REPO_ROOT / "oracle" / "run-oracle-suite.sh"
 _SCANNED_FILES = [TESTS_YML, FLAKE_NIX, DIFFERENTIAL_TESTS_YML, RUN_ORACLE_SUITE_SH]
 
 # The true aggregate count of `-m`-bearing gating invocations across all four scanned drivers:
-# tests.yml (2) + flake.nix (2) + differential-tests.yml (1, since its "Run CI gate tests
-# explicitly" step node-id-selects with no `-m` at all) + run-oracle-suite.sh (2) = 7. This was
-# undercounted as "six" in seven documentation anchors before this constant existed to enforce it
-# executably -- see test_total_gating_marker_expression_count_is_seven below.
-EXPECTED_GATING_MARKER_INVOCATIONS = 7
+# tests.yml (2) + flake.nix (2) + differential-tests.yml (0, since its former broad `-m` step was
+# removed as a proven-duplicate of the node-id "Run CI gate tests explicitly" step -- both
+# selected the byte-identical same 49 node ids, confirmed by a `--collect-only` diff) +
+# run-oracle-suite.sh (2) = 6. This constant has drifted stale in BOTH directions across this
+# repository's history: it was once undercounted as "six" in seven documentation anchors before
+# this constant existed to enforce it executably (that regression is what originally motivated
+# this constant and the anchors below); it is now legitimately six again, following differential-
+# tests.yml's real invocation removal -- do not "correct" it back to seven on the theory that six
+# looks like the old undercount, since this time the undercount is not a bug. See
+# test_total_gating_marker_expression_count_matches_constant below.
+EXPECTED_GATING_MARKER_INVOCATIONS = 6
 
 # Documentation/docstring anchors that state the aggregate gating-invocation count in prose.
-# Each tuple is (path, must_contain, must_not_contain): the corrected "seven" phrasing that must
-# be present, and the exact stale "six" phrasing that must no longer appear.
+# Each tuple is (path, must_contain, must_not_contain): the corrected "six" phrasing that must
+# be present, and the stale "seven" phrasing that must no longer appear now that
+# differential-tests.yml's redundant `-m`-bearing step has been removed.
 TESTING_GUIDE_MD = REPO_ROOT / "code" / "docs" / "core" / "TESTING_GUIDE.md"
 BIMODAL_CONFTEST_PY = (
     REPO_ROOT
@@ -71,43 +78,43 @@ TEST_DEVELOPMENT_MARKER_APPLICATION_PY = (
     REPO_ROOT / "code" / "tests" / "ci" / "test_development_marker_application.py"
 )
 
-_SEVEN_COUNT_ANCHORS = [
+_INVOCATION_COUNT_ANCHORS = [
     (
         TESTING_GUIDE_MD,
-        "wired through the same seven invocations",
         "wired through the same six invocations",
+        "wired through the same seven invocations",
     ),
     (
         TESTING_GUIDE_MD,
-        "Seven invocations in total.",
         "Six invocations in total.",
+        "Seven invocations in total.",
     ),
     (
         TESTING_GUIDE_MD,
-        "across all seven.",
         "across all six.",
+        "across all seven.",
     ),
     (
         TESTING_GUIDE_MD,
-        "the seven gating `-m` expressions,",
         "the six gating `-m` expressions,",
+        "the seven gating `-m` expressions,",
     ),
     (
         BIMODAL_CONFTEST_PY,
-        "All seven release-gating pytest invocations already carry",
         "All six release-gating pytest invocations already carry",
+        "All seven release-gating pytest invocations already carry",
     ),
     (
         BIMODAL_TESTS_README_MD,
+        "all six release-gating pytest invocations across the repository's CI drivers deselect "
+        "it with",
         "all seven release-gating pytest invocations across the repository's CI drivers deselect "
         "it with",
-        "all six release-gating pytest invocations across the repository's CI drivers deselect it "
-        "with",
     ),
     (
         TEST_DEVELOPMENT_MARKER_APPLICATION_PY,
-        "all seven gating invocations already carry",
         "all six gating invocations already carry",
+        "all seven gating invocations already carry",
     ),
 ]
 
@@ -209,14 +216,16 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
         the assertions above vacuous."""
         assert len(_invocations_for(TESTS_YML)) == 2
         assert len(_invocations_for(FLAKE_NIX)) == 2
-        assert len(_invocations_for(DIFFERENTIAL_TESTS_YML)) == 2
+        assert len(_invocations_for(DIFFERENTIAL_TESTS_YML)) == 1
         assert len(_invocations_for(RUN_ORACLE_SUITE_SH)) == 2
 
-    def test_total_gating_marker_expression_count_is_seven(self):
+    def test_total_gating_marker_expression_count_matches_constant(self):
         """The aggregate count of `-m`-bearing gating invocations across all four scanned
         drivers is fixed at EXPECTED_GATING_MARKER_INVOCATIONS. An uncaught drift here is
-        exactly how "six" went stale across seven documentation anchors with no test ever
-        catching it -- see test_seven_count_anchor_is_corrected below for the docs half."""
+        exactly how "six" went stale across seven documentation anchors before this constant
+        existed, and how those same anchors could just as easily go stale again in the other
+        direction now that the count has legitimately dropped back to six -- see
+        test_invocation_count_anchor_is_current below for the docs half."""
         total = sum(
             1
             for path in _SCANNED_FILES
@@ -228,18 +237,23 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
             f"across {[str(p) for p in _SCANNED_FILES]}, found {total}"
         )
 
-    @pytest.mark.parametrize("path, must_contain, must_not_contain", _SEVEN_COUNT_ANCHORS)
-    def test_seven_count_anchor_is_corrected(self, path, must_contain, must_not_contain):
+    @pytest.mark.parametrize("path, must_contain, must_not_contain", _INVOCATION_COUNT_ANCHORS)
+    def test_invocation_count_anchor_is_current(self, path, must_contain, must_not_contain):
         """Each documentation/docstring anchor that states the aggregate gating-invocation
-        count must state seven, not six. This is genuinely RED before the corresponding prose
+        count must state six, not seven, now that differential-tests.yml's redundant `-m`-
+        bearing step has been removed. This is genuinely RED before the corresponding prose
         edit lands -- it is not a guard against a hypothetical future regression, it is the
-        contract that the "six" -> "seven" correction actually happened."""
+        contract that the "seven" -> "six" correction actually happened. History matters here:
+        an earlier drift in this repository saw "six" go stale as an UNDERCOUNT (before this
+        anchor mechanism existed); this correction is the opposite direction -- a real
+        invocation was removed, so "six" is now the true count and must not be "corrected"
+        back to seven."""
         text = path.read_text()
         assert must_not_contain not in text, (
-            f"{path}: stale six-count claim {must_not_contain!r} still present"
+            f"{path}: stale count claim {must_not_contain!r} still present"
         )
         assert must_contain in text, (
-            f"{path}: expected corrected seven-count claim {must_contain!r} not found"
+            f"{path}: expected corrected count claim {must_contain!r} not found"
         )
 
     def test_differential_tests_yml_gate_step_has_no_marker_expression(self):
