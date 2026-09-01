@@ -31,9 +31,16 @@ class TestBuildExampleBasic(unittest.TestCase):
             shutil.rmtree(self.temp_dir)
     
     def _create_test_module(self):
-        """Create a simple test module file."""
+        """Create a simple test module file.
+
+        Uses logos rather than bimodal: these tests assert only generic
+        BuildExample/BuildModule wiring (attribute presence, result-dict
+        shape, comparison-mode plumbing) -- nothing bimodal-specific -- and
+        N=2 is cheap under either theory. See TESTING_GUIDE.md section 8.14
+        and this task's audit report for the cost-decoupling rationale.
+        """
         content = """
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -157,9 +164,12 @@ general_settings = {}
     
     def test_build_example_with_no_model(self):
         """Test BuildExample when no model is found."""
-        # Create a module with unsatisfiable example
+        # Create a module with unsatisfiable example. Uses logos rather than
+        # bimodal (see _create_test_module's docstring): this test asserts
+        # only that no model is found for a contradiction, not any
+        # bimodal-specific semantics.
         content = """
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -203,9 +213,12 @@ general_settings = {}
     
     def test_build_example_comparison_mode(self):
         """Test BuildExample in comparison mode."""
-        # Create a module with multiple theories
+        # Create a module with multiple theories. Uses logos rather than
+        # bimodal (see _create_test_module's docstring): this test asserts
+        # only comparison-mode wiring (theory count, settings_manager
+        # presence), not any bimodal-specific semantics.
         content = """
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory1 = get_theory(['extensional'])
 theory2 = get_theory(['modal'])
@@ -504,18 +517,26 @@ general_settings = {}
         and, per iterate/__init__.py, never should -- next-model search is
         the iterate package's responsibility, entered through each theory's
         own iterate_example.
+
+        Uses logos rather than bimodal: this test's own docstring already
+        states it asserts the generic BuildExample/iterate-API contract, not
+        bimodal semantics ("asserts the contract, not the model count"), and
+        it was the file's clearest near-miss under bimodal (measured 31.78s
+        against its own explicit max_time=30 -- see this task's audit
+        report). logos's iterate path is exercised elsewhere in the theory's
+        own test tree, so this is not a coverage loss for the generic
+        contract this test targets. The explicit `max_time: 30` override
+        that existed solely to buy headroom against bimodal's cost is
+        removed (not raised) -- N=2 under logos measures well under a
+        second, so the theory's own default max_time is ample.
         """
         content = """
-from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.logos import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
 # Simple satisfiable example - just A as premise, no conclusions
-# max_time is explicit for the same reason as the SIMPLE example above: the
-# bimodal default is 1s and the real solve is slower than that, so an inherited
-# default makes model_found depend on machine load rather than on satisfiability.
-# This test also drives iteration, which solves again, so the budget is generous.
-example_range = {"SAT": [["A"], [], {"N": 2, "max_time": 30}]}
+example_range = {"SAT": [["A"], [], {"N": 2}]}
 general_settings = {}
 """
         test_file = os.path.join(self.temp_dir, "next_model_test.py")
@@ -569,7 +590,7 @@ general_settings = {}
                          "next-model search belongs to the iterate API, "
                          "not to BuildExample")
 
-        from model_checker.theory_lib.bimodal.iterate import iterate_example
+        from model_checker.theory_lib.logos.iterate import iterate_example
 
         model_structures = iterate_example(build_example, max_iterations=2)
 

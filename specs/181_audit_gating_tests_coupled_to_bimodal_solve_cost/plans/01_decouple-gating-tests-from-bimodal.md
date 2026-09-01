@@ -294,7 +294,17 @@ the phase's commit message.
 
 ---
 
-### Phase 3: Switch `builder/tests/unit/test_example.py`'s non-bimodal-specific solves to logos [NOT STARTED]
+### Phase 3: Switch `builder/tests/unit/test_example.py`'s non-bimodal-specific solves to logos [COMPLETED]
+
+Verified: `pytest src/model_checker/builder/tests/unit/test_example.py -m "not development" --durations=20`
+-> 17 passed in 10.93s (baseline: 36.13s, slowest 31.47s). New slowest is
+`test_iteration_via_iterate_api` at 10.01s (near logos's own default `max_time=10` during its
+iterate step -- not a failure, and the test's own docstring already tolerates a second model not
+being found), down from 31.78s/31.47s and no longer within 20% of any explicit budget (the
+explicit `max_time: 30` override was removed, not raised, per the hard constraint). `grep -c
+bimodal` shows every remaining occurrence confined to `test_build_example_bimodal_theory_countermodel`
+(Phase 6's subject, untouched) or an explanatory docstring/comment. No budget value increased
+(`git diff` reviewed).
 
 **Goal**: Remove the file's incidental bimodal exposure for the six tests whose subject is generic
 BuildExample/iterate-API plumbing, including the 31.78s near-miss.
