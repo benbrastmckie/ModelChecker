@@ -122,18 +122,18 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Pure-Python frame oracle and F3 reproduction [NOT STARTED]
+### Phase 2: Pure-Python frame oracle and F3 reproduction [COMPLETED]
 
 **Goal**: Build the exhaustive measurement instrument -- an explicit-finite-frame evaluator independent of Z3 -- and use it to reproduce report 02's F3 refutation of Reading I.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/theory_lib/logos/subtheories/counterfactual/frame_oracle.py` with a `Frame` (states as bitmasks over named atoms; `possible` as an explicit downward-closed set; worlds computed as maximal possible states, asserted equal to the declared worlds) and an `Interpretation` (verifier/falsifier bitmask sets per sentence letter)
-- [ ] Implement the shared primitives over bitmasks: `is_part_of`, `fusion`, `compatible`, `max_compatible_parts(s, a)`, `alternatives(s, a)`, and the counterfactual truth clause `T(w)` transcribed from `CounterfactualOperator.true_at` (universal over `A`-verifiers and alternatives)
-- [ ] Implement `verifiers_falsifiers(candidate, frame, interp, A, B)` for every key in the Candidate Clauses table (I, W, L, M, MC, IL; SQ takes an explicit world argument), plus `fusion_closure(S)` and `minimal_elements(S)` helpers
-- [ ] Implement `measure(candidate, ...)` returning a record with: closure of `V` and `F` under fusion (with a witness pair on failure); impossible members and whether each is part of some world; exclusivity over possible states (witness on failure); exhaustivity over worlds; bridge soundness (a verifier part of a world where `T` is false, and dually) ; existence of a possible verifier that is a proper part of some world
-- [ ] Encode the F3.1 frame verbatim (8 atoms, `w0..w3`, `|A|+ = {{a}}` etc.) as a test fixture; RED tests first asserting report 02's F3.2 facts (`T(w0)` false, `T(w1)`/`T(w2)` true, `T(w3)` false; `[w0]_{a} = {{p,p',b},{q,q',b},{p,q}}`), then the four F3.3 claims for I: closure fails at `{p,p'} ⊔ {q,q'}`, exclusivity fails at `{p,p'}`/`{q}`, bridge fails at `{p,p'} ⊑ w0`, and the identity instance `(A \boxright B) \boxright (A \boxright B)` fails at `w0` when the antecedent's verifiers are `V_I`
-- [ ] On the same frame, run `measure` for W, L, M, MC, IL and record the results table (this is the first cross-candidate datum; report 02's F5 sanity check `V_W = {w1, w2, w1 ⊔ w2}` is a RED assertion)
-- [ ] Add a small-N (N ≤ 4 atoms) exhaustive frame enumerator restricted to frames satisfying the logos frame constraints and the classical/exclusivity/exhaustivity constraints on sentence letters, used by later phases to search for witnesses without Z3
+- [x] Create `code/src/model_checker/theory_lib/logos/subtheories/counterfactual/frame_oracle.py` with a `Frame` (states as bitmasks over named atoms; `possible` as an explicit downward-closed set; worlds computed as maximal possible states, asserted equal to the declared worlds) and an `Interpretation` (verifier/falsifier bitmask sets per sentence letter)
+- [x] Implement the shared primitives over bitmasks: `is_part_of`, `fusion`, `compatible`, `max_compatible_parts(s, a)`, `alternatives(s, a)`, and the counterfactual truth clause `T(w)` transcribed from `CounterfactualOperator.true_at` (universal over `A`-verifiers and alternatives)
+- [x] Implement `verifiers_falsifiers(candidate, frame, interp, A, B)` for every key in the Candidate Clauses table (I, W, L, M, MC, IL; SQ takes an explicit world argument), plus `fusion_closure(S)` and `minimal_elements(S)` helpers
+- [x] Implement `measure(candidate, ...)` returning a record with: closure of `V` and `F` under fusion (with a witness pair on failure); impossible members and whether each is part of some world; exclusivity over possible states (witness on failure); exhaustivity over worlds; bridge soundness (a verifier part of a world where `T` is false, and dually) ; existence of a possible verifier that is a proper part of some world
+- [x] Encode the F3.1 frame verbatim (8 atoms, `w0..w3`, `|A|+ = {{a}}` etc.) as a test fixture; RED tests first asserting report 02's F3.2 facts (`T(w0)` false, `T(w1)`/`T(w2)` true, `T(w3)` false; `[w0]_{a} = {{p,p',b},{q,q',b},{p,q}}`), then the four F3.3 claims for I: closure fails at `{p,p'} ⊔ {q,q'}`, exclusivity fails at `{p,p'}`/`{q}`, bridge fails at `{p,p'} ⊑ w0`, and the identity instance `(A \boxright B) \boxright (A \boxright B)` fails at `w0` when the antecedent's verifiers are `V_I`
+- [x] On the same frame, run `measure` for W, L, M, MC, IL and record the results table (this is the first cross-candidate datum; report 02's F5 sanity check `V_W = {w1, w2, w1 ⊔ w2}` is a RED assertion)
+- [x] Add a small-N (N ≤ 4 atoms) exhaustive frame enumerator restricted to frames satisfying the logos frame constraints and the classical/exclusivity/exhaustivity constraints on sentence letters, used by later phases to search for witnesses without Z3
 
 **Timing**: 2 hours
 
