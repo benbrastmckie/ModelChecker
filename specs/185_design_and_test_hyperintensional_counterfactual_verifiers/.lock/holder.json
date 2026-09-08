@@ -1,0 +1,10 @@
+{
+  "session_id": "sess_1788909739_fd000e",
+  "task_number": 185,
+  "operation": "plan",
+  "acquired_at": "2026-09-08T23:22:36Z",
+  "heartbeat_at": "2026-09-08T23:22:36Z",
+  "command": "/orchestrate (multi-task)",
+  "pid": 2513925,
+  "pid_source": "ancestor-claude"
+}

@@ -1,17 +1,17 @@
 ---
-next_project_number: 185
+next_project_number: 186
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-09-01. Generated from state.json dependency graph.*
+*Updated 2026-09-08. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 184 | -- | semantics |
+| 1 | 184,185 | -- | semantics |
 | 2 | 154,176,183 | 184 | semantics, test-reliability |
 | 3 | 172,178 | 176 | test-reliability |
 
@@ -21,6 +21,7 @@ next_project_number: 185
 
 184 [NOT STARTED] — Refactor the bimodal theory so its full test suite passes quickly
   └─ 154 [BLOCKED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
+185 [PLANNED] — Design and test the hyperintensional semantics for counterfactual
 
 ### Test Reliability
 
@@ -31,6 +32,55 @@ next_project_number: 185
 183 [BLOCKED] — Discriminate axiom-driven solver cost from host contention as the
 
 ## Tasks
+
+### 185. Design and test hyperintensional counterfactual verifiers
+- **Effort**: large
+- **Status**: [PLANNED]
+- **Task Type**: python
+- **Topic**: semantics
+- **Dependencies**: None
+- **Plan**: [185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md]
+
+**Description**: Design and test the hyperintensional semantics for counterfactual conditionals in the logos theory: specifically, which states verify and which falsify A []-> B. Define new counterfactual operators as competing alternatives and discriminate between them by exploring their logic over small models, so the choice rests on model-based evidence rather than on argument alone.
+
+PROVENANCE. Two research rounds in the Logos manual repository set up the problem and refuted the first two candidate answers. Read both before starting:
+- ~/Projects/Logos/Theory/specs/406_counterfactual_null_state_verification/reports/01_counterfactual-null-state-verification.md
+- ~/Projects/Logos/Theory/specs/406_counterfactual_null_state_verification/reports/02_context-free-counterfactual-verifiers.md
+
+GOVERNING CRITERION. A sentence must determine ONE proposition <V,F> as a function of the model alone. A clause whose verifier set depends on the point of evaluation without recording that dependence is rejected, because the same counterfactual would then express different propositions in different contexts. (In the tensed manual setting, dependence on the anchor and index is not context-dependence in the objectionable sense; dependence on the evaluation world or history is.)
+
+THE ADDITIONAL DESIDERATUM DRIVING THIS TASK. The clause should deliver some POSSIBLE verifiers and falsifiers that lie properly below world states, not only total states. Report 02's recommendation (Reading W: verifiers are the fusion closure of the world states at which the counterfactual is true) satisfies context-freedom, but its every possible verifier is a whole world state and nothing proper verifies. That is the specific respect in which the current recommendation is judged unsatisfying, and addressing it is the main point of this exploration.
+
+WHY MODELCHECKER IS THE RIGHT TEST BED. The logos theory here is the untensed fragment, so the manual's world-histories collapse to world states and every candidate clause can be stated directly over states. Small finite models can be enumerated and the resulting logic measured -- which theorems survive, which countermodels appear -- instead of argued.
+
+CURRENT STATE, VERIFIED ON DISK. code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py:74-90 defines
+  extended_verify(state, ...)  := (state == eval_point["world"]) AND true_at(...)
+  extended_falsify(state, ...) := (state == eval_point["world"]) AND false_at(...)
+so the verifier set is {w} at evaluation world w and varies with the evaluation point. This is precisely the context-dependent clause the governing criterion rejects -- report 01's "Reading B", in Python. find_verifiers_and_falsifiers (:92) builds the sets per world the same way, and MightCounterfactualOperator (:182) mirrors it.
+
+CANDIDATES TO IMPLEMENT AND DISCRIMINATE. Implement each as a separate operator so they can be run side by side on identical models.
+(1) Status quo (context-dependent, state == eval world). Baseline; expected to fail the criterion, included to measure what its logic actually is.
+(2) Reading I, imposition-local -- the intuitive proposal: s verifies A []-> B iff for every verifier a of A and every r among the maximal a-compatible parts of s, every world containing a fused with r makes B true. Report 02 refutes this analytically on a finite 8-atom, 4-world frame: the verifier set is not closed under fusion; a verifier and a falsifier are compatible, so exclusivity fails; a verifier is part of a world at which the counterfactual is false, so the truth bridge gluts; and identity fails at nested antecedents. FIRST CONCRETE DELIVERABLE: reproduce that countermodel mechanically here and either confirm or overturn it. The frame is given explicitly in report 02, finding F3.1, and is small enough to encode directly.
+(3) Reading W, world-state verifiers: V is the fusion closure of the world states at which A []-> B is true, F dually. Exact-shaped and context-free; report 02's recommendation, and the one judged unsatisfying above.
+(4) Reading L, settler verifiers: V = { s : every world state containing s makes A []-> B true }. Upward-closed, hence inexact by Fine's criterion, which is why report 02 declined to recommend it -- BUT settlers include possible states properly below world states, so L is in fact the candidate that delivers the desideratum. Re-evaluate it on that basis rather than inheriting report 02's ranking.
+(5) NEW CANDIDATE, minimal settlers -- considered in neither report, and the most promising route to satisfying the criterion and the desideratum together: V is the parthood-minimal elements of L's settler set. This is exact-shaped (not upward-closed) AND contains proper, possible verifiers. Open question the exploration must settle: whether V so defined is closed under fusion, and if not, whether the fusion closure of the minimal settlers remains sound (every member still a settler). Test this; do not assume it.
+(6) Any further candidate the work suggests. The aim is the most naturally articulated clause with the best logic, not a defence of any candidate above.
+
+A THEORETICAL CONSTRAINT TO BE TESTED, NOT ASSUMED. Report 02 argues that any context-free clause that is sound (a verifier contained in a world makes the counterfactual true there) and sufficient (every world where it is true contains a verifier) must have verifiers that are settlers; and since settler-hood is a function of the truth-set, no such clause is hyperintensional except by fiat. Candidate (5) does not escape that argument -- minimal settlers are still determined by the truth-set -- though it does escape the "no proper verifiers" complaint. If the exploration finds a sound, sufficient, context-free clause that IS hyperintensional, that refutes report 02's F4 argument and is the single most valuable outcome available here. Look for one explicitly rather than treating F4 as settled.
+
+MEASUREMENTS THAT DISCRIMINATE. For each candidate, over small models, determine at minimum:
+- Closure of V and F under fusion. Report 02 notes that some verifiers will be impossible states; impossible states are part of no world state and so are invisible to the truth bridge. Confirm that harmlessness per candidate rather than assuming it -- it holds for some candidates and demonstrably fails for others.
+- Exclusivity and exhaustivity: no possible state both verifies and falsifies; every world state does one or the other.
+- Whether a verifier can be part of a world at which the counterfactual is false (bridge soundness).
+- The status of the counterfactual axioms and rules at NESTED counterfactual antecedents, which is where the candidates come apart: identity, (A []-> B) []-> (A []-> B); the modus-ponens-style rule; antecedent strengthening with conjunction; and whether X []-> C collapses to the strict conditional [](X -> C).
+- Whether distinct counterfactuals sharing a truth-set receive distinct propositions (hyperintensionality at nested position).
+- Regression: re-run the existing logos counterfactual examples per candidate and record which currently-valid theorems break and which currently-invalid ones become valid. Baseline is code/src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py and tests/test_counterfactual_examples.py.
+
+SCOPE. Exploration and evidence-gathering. Add new operators alongside the existing one; this is not a destructive replacement. Do not delete or rewrite the current counterfactual operator until a successor is chosen on evidence. Work on a dedicated branch.
+
+DELIVERABLE. A recommendation naming one clause, the model-based evidence discriminating it from the others, and an explicit statement of what it concedes. If the evidence does not discriminate between two candidates, say so plainly and name the further test that would.
+
+---
 
 ### 184. Refactor bimodal theory tests green and paper lean aligned
 - **Effort**: large

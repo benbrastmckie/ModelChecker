@@ -154,7 +154,7 @@
     {
       "project_number": 185,
       "project_name": "design_and_test_hyperintensional_counterfactual_verifiers",
-      "status": "not_started",
+      "status": "planned",
       "task_type": "python",
       "topic": "semantics",
       "effort": "large",
@@ -166,9 +166,16 @@
         "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py",
         "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/"
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "path": "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md",
+          "type": "plan",
+          "summary": "8-phase plan: pure-Python frame oracle reproducing report 02's F3 refutation, six candidate Z3 counterfactual operators (I, W, L, M, MC, IL) alongside the untouched status quo, structural/nested-logic/regression measurement matrices, an explicit F4 refutation attempt, and a recommendation report."
+        }
+      ],
       "created": "2026-09-08T23:11:08Z",
-      "last_updated": "2026-09-08T23:11:08Z"
+      "last_updated": "2026-09-08T23:32:07Z",
+      "session_id": "sess_1788909739_fd000e"
     }
   ],
   "repository_health": {
