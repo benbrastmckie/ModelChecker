@@ -1,7 +1,7 @@
 # Implementation Plan: Task #185
 
 - **Task**: 185 - Design and test hyperintensional counterfactual verifiers
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 14 hours
 - **Dependencies**: None
 - **Research Inputs**: None in this repository (no `reports/` artifact this round). Provenance reports read at plan time: `~/Projects/Logos/Theory/specs/406_counterfactual_null_state_verification/reports/01_counterfactual-null-state-verification.md` and `.../02_context-free-counterfactual-verifiers.md`
@@ -95,16 +95,16 @@ Notes the implementer must carry, each a hypothesis for Phase 2/5 to confirm mec
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Baseline, branch check, and status-quo audit [NOT STARTED]
+### Phase 1: Baseline, branch check, and status-quo audit [COMPLETED]
 
 **Goal**: Freeze the regression baseline, confirm the working branch, and record on disk the one fact about the status quo that every later measurement must be labelled against: its Z3-side and Python-side verifier sets disagree.
 
 **Tasks**:
-- [ ] Confirm the current branch is the dedicated `counterfactual-verifier-semantics` branch (task requires a dedicated branch); do not create a new one if it is
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/ -v` and save the per-example pass/fail list to `specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/01_counterfactual-examples-baseline.txt`
-- [ ] Run the full logos suite `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and record the summary line in the same baselines directory
-- [ ] Write `tests/test_status_quo_audit.py` (RED first): on a solved model for `CF_CM_1`, compare, per world `w`, `z3_model.evaluate(op.extended_verify(s, A, B, {"world": w}))` for all states `s` against `op.find_verifiers_and_falsifiers(...)`; the test asserts the documented disagreement (Z3 side is `{w}`, Python side is all `T`-worlds) so that it fails if someone later silently changes either side
-- [ ] Add a short module docstring note in the new test naming the two clauses and their line ranges in `operators.py`
+- [x] Confirm the current branch is the dedicated `counterfactual-verifier-semantics` branch (task requires a dedicated branch); do not create a new one if it is
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/ -v` and save the per-example pass/fail list to `specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/01_counterfactual-examples-baseline.txt`
+- [x] Run the full logos suite `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and record the summary line in the same baselines directory
+- [x] Write `tests/test_status_quo_audit.py` (RED first): on a solved model for `CF_CM_1`, compare, per world `w`, `z3_model.evaluate(op.extended_verify(s, A, B, {"world": w}))` for all states `s` against `op.find_verifiers_and_falsifiers(...)`; the test asserts the documented disagreement (Z3 side is `{w}`, Python side is all `T`-worlds) so that it fails if someone later silently changes either side *(altered: solved `\Box (A \boxright C)` at N=3 instead of `CF_CM_1`, because CF_CM_1 does not guarantee two true worlds and so cannot guarantee the two clauses differ; CF_CM_1 is used by the Phase 3 cross-validation instead)*
+- [x] Add a short module docstring note in the new test naming the two clauses and their line ranges in `operators.py`
 
 **Timing**: 1 hour
 

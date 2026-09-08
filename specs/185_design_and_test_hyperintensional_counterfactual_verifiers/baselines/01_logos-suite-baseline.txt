@@ -1,0 +1,4 @@
+# Baseline: full logos suite (pre-change)
+# Command: PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q
+======================== 452 passed in 87.22s (0:01:27) ========================
+exit=0
