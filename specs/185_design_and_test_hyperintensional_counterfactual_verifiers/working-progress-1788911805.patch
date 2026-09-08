@@ -1,0 +1,126 @@
+diff --git a/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py b/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py
+index e413e7e2..8494b0d1 100644
+--- a/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py
++++ b/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py
+@@ -16,6 +16,16 @@ from .operators import (
+     CounterfactualOperator,
+     MightCounterfactualOperator,
+ )
++from .candidates import (
++    CandidateCounterfactual,
++    ImpositionLocalCounterfactual,
++    WorldStateCounterfactual,
++    SettlerCounterfactual,
++    CANDIDATE_OPERATORS,
++    MIGHT_OPERATORS,
++    get_candidate_operators,
++    substitute_candidate,
++)
+ 
+ def get_examples():
+     """
+@@ -37,4 +47,12 @@ __all__ = [
+     'get_examples',
+     'CounterfactualOperator',
+     'MightCounterfactualOperator',
++    'CandidateCounterfactual',
++    'ImpositionLocalCounterfactual',
++    'WorldStateCounterfactual',
++    'SettlerCounterfactual',
++    'CANDIDATE_OPERATORS',
++    'MIGHT_OPERATORS',
++    'get_candidate_operators',
++    'substitute_candidate',
+ ]
+\ No newline at end of file
+diff --git a/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py b/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py
+index 573ef4ba..ca20fc68 100644
+--- a/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py
++++ b/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py
+@@ -302,11 +302,20 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
+ def get_operators():
+     """
+     Get all counterfactual operators.
+-    
++
++    Alongside ``\\boxright`` and ``\\diamondright`` this includes the
++    exploratory candidate clauses from ``candidates.py`` (``\\boxrightI``,
++    ``\\boxrightW``, ...), which share the truth clause of
++    ``CounterfactualOperator`` and differ only in their verifier clauses.
++
+     Returns:
+         dict: Dictionary mapping operator names to operator classes
+     """
++    # Imported here: candidates.py subclasses CounterfactualOperator.
++    from .candidates import get_candidate_operators
++
+     return {
+         "\\boxright": CounterfactualOperator,
+         "\\diamondright": MightCounterfactualOperator,
++        **get_candidate_operators(),
+     }
+diff --git a/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/.lock/holder.json b/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/.lock/holder.json
+index b659f5a6..6a6feb92 100644
+--- a/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/.lock/holder.json
++++ b/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/.lock/holder.json
+@@ -1,9 +1,9 @@
+ {
+   "session_id": "sess_1788909739_fd000e",
+   "task_number": 185,
+-  "operation": "plan",
+-  "acquired_at": "2026-09-08T23:22:36Z",
+-  "heartbeat_at": "2026-09-08T23:22:36Z",
++  "operation": "implement",
++  "acquired_at": "2026-09-08T23:32:18Z",
++  "heartbeat_at": "2026-09-08T23:32:18Z",
+   "command": "/orchestrate (multi-task)",
+   "pid": 2513925,
+   "pid_source": "ancestor-claude"
+diff --git a/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md b/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md
+index 25902745..8e45f519 100644
+--- a/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md
++++ b/specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md
+@@ -153,20 +153,20 @@ Phases within the same wave can execute in parallel.
+ 
+ ---
+ 
+-### Phase 3: Z3 candidate operators I, W, L with cross-validation [NOT STARTED]
++### Phase 3: Z3 candidate operators I, W, L with cross-validation [IN PROGRESS]
+ 
+ **Goal**: Add the first three candidate operators as Z3 operators alongside the status quo, sharing its truth clause, and prove on solved models that each operator's Python-side sets equal both the oracle's sets and its own Z3-side clause.
+ 
+ **Tasks**:
+-- [ ] RED: `tests/test_candidate_operators.py` asserting that `get_operators()` exposes `\boxrightI`, `\boxrightW`, `\boxrightL` and `\diamondrightI/W/L`, that each name parses inside a formula via `Syntax`, and that no name collides with `imposition/operators.py`'s `\boxrightlogos`/`\diamondrightlogos`
+-- [ ] Create `code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidates.py` with a base `_CandidateCounterfactual(CounterfactualOperator)` that inherits `true_at`/`false_at`/`print_method` unchanged and declares the shared helper `truth_set(model_structure, leftarg, rightarg)` (Python-side: evaluate `true_at` at every `z3_world_state`)
+-- [ ] Implement `ImpositionLocalCounterfactual` (`\boxrightI`): `extended_verify(s, A, B, ep) = self.true_at(A, B, semantics.with_world(ep, s))`, `extended_falsify` dually via `false_at`; `find_verifiers_and_falsifiers` evaluates those clauses at every state of the solved model
+-- [ ] Implement `WorldStateCounterfactual` (`\boxrightW`): Z3 clause via the fusion-closure encoding in "Candidate Clauses" over `is_world(w) ∧ T(w)`; Python side closes the truth-set under fusion
+-- [ ] Implement `SettlerCounterfactual` (`\boxrightL`): Z3 clause `ForAll w. (is_world(w) ∧ s ⊑ w) → true_at(A, B, w)` and its dual; Python side filters all states
+-- [ ] Implement the three `DefinedOperator` might-variants with `derived_definition` only
+-- [ ] Merge the candidate dictionary into `operators.get_operators()` and export the classes from `__init__.py`
+-- [ ] Cross-validation tests, parametrized over the three candidates and over `CF_CM_1`, `CF_CM_7`, `CF_TH_2` at N=3: (a) `find_verifiers_and_falsifiers` equals the oracle's sets on the frame extracted from the solved model (`z3_possible_states`, `z3_world_states`, verify/falsify tables); (b) for every state `s` and every world `w`, `z3_model.evaluate(extended_verify(s, ..., {"world": w}))` equals membership in the Python-side set (context-freedom and Z3/Python agreement in one assertion)
+-- [ ] Run the full logos suite to confirm the enlarged operator collection breaks nothing
++- [x] RED: `tests/test_candidate_operators.py` asserting that `get_operators()` exposes `\boxrightI`, `\boxrightW`, `\boxrightL` and `\diamondrightI/W/L`, that each name parses inside a formula via `Syntax`, and that no name collides with `imposition/operators.py`'s `\boxrightlogos`/`\diamondrightlogos`
++- [x] Create `code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidates.py` with a base `_CandidateCounterfactual(CounterfactualOperator)` that inherits `true_at`/`false_at`/`print_method` unchanged and declares the shared helper `truth_set(model_structure, leftarg, rightarg)` (Python-side: evaluate `true_at` at every `z3_world_state`)
++- [x] Implement `ImpositionLocalCounterfactual` (`\boxrightI`): `extended_verify(s, A, B, ep) = self.true_at(A, B, semantics.with_world(ep, s))`, `extended_falsify` dually via `false_at`; `find_verifiers_and_falsifiers` evaluates those clauses at every state of the solved model
++- [x] Implement `WorldStateCounterfactual` (`\boxrightW`): Z3 clause via the fusion-closure encoding in "Candidate Clauses" over `is_world(w) ∧ T(w)`; Python side closes the truth-set under fusion
++- [x] Implement `SettlerCounterfactual` (`\boxrightL`): Z3 clause `ForAll w. (is_world(w) ∧ s ⊑ w) → true_at(A, B, w)` and its dual; Python side filters all states
++- [x] Implement the three `DefinedOperator` might-variants with `derived_definition` only
++- [x] Merge the candidate dictionary into `operators.get_operators()` and export the classes from `__init__.py`
++- [x] Cross-validation tests, parametrized over the three candidates and over `CF_CM_1`, `CF_CM_7`, `CF_TH_2` at N=3: (a) `find_verifiers_and_falsifiers` equals the oracle's sets on the frame extracted from the solved model (`z3_possible_states`, `z3_world_states`, verify/falsify tables); (b) for every state `s` and every world `w`, `z3_model.evaluate(extended_verify(s, ..., {"world": w}))` equals membership in the Python-side set (context-freedom and Z3/Python agreement in one assertion) *(altered: `CF_TH_2` is a theorem and yields no model to cross-validate on, so the set is `CF_CM_1` (N=4, its countermodel needs four atoms), `CF_CM_7`, `CF_CM_19` (nested consequent) and a nested-antecedent example `((A \boxrightK B) \boxrightK C), \neg (A \boxrightK B)` at N=3; a further test checks the predicate encoding agrees with the direct one on the nested example)*
++- [x] Run the full logos suite to confirm the enlarged operator collection breaks nothing
+ 
+ **Timing**: 2 hours
+ 
+diff --git a/specs/events.jsonl b/specs/events.jsonl
+index 8bffc395..aaab0de0 100644
+--- a/specs/events.jsonl
++++ b/specs/events.jsonl
+@@ -1123,3 +1123,8 @@
+ {"event_id":"evt_1788278000644_eGT9gC","event_type":"session_stop","category":"milestone","timestamp":"2026-09-01T15:53:20.647Z","duration_seconds":null,"session_id":"sess_1788263678_7f5c4a_182","task":182,"checkpoint":null,"message":"Session stop observed for task 182","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker","cc_session_id":"b10b0250-c69d-492d-867a-0a431214277f"}
+ {"event_id":"evt_1788278148084_15bX6a","event_type":"session_stop","category":"milestone","timestamp":"2026-09-01T15:55:48.088Z","duration_seconds":null,"session_id":"sess_1788263678_7f5c4a_182","task":182,"checkpoint":null,"message":"Session stop observed for task 182","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker","cc_session_id":"b10b0250-c69d-492d-867a-0a431214277f"}
+ {"event_id":"evt_1788278270279_nbvs4J","event_type":"session_stop","category":"milestone","timestamp":"2026-09-01T15:57:50.284Z","duration_seconds":null,"session_id":"sess_1788263678_7f5c4a_182","task":182,"checkpoint":null,"message":"Session stop observed for task 182","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker","cc_session_id":"b10b0250-c69d-492d-867a-0a431214277f"}
++{"event_id":"evt_1788909756664_BN6mHi","event_type":"lifecycle_stage","category":"milestone","timestamp":"2026-09-08T23:22:36.668Z","duration_seconds":0.616,"session_id":"sess_1788909739_fd000e_185","task":185,"checkpoint":"preflight","message":"Preflight stage completed for plan","detail":{},"error_ref":null,"cwd":null,"cc_session_id":null}
++{"event_id":"evt_1788909771771_BrvRc0","event_type":"session_stop","category":"milestone","timestamp":"2026-09-08T23:22:51.775Z","duration_seconds":null,"session_id":"sess_1788909739_fd000e_185","task":185,"checkpoint":null,"message":"Session stop observed for task 185","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker","cc_session_id":"dfeda622-85b2-47a8-90d0-565a55fa3c0a"}
++{"event_id":"evt_1788910328335_PGWwB3","event_type":"lifecycle_stage","category":"milestone","timestamp":"2026-09-08T23:32:08.339Z","duration_seconds":0.636,"session_id":"sess_1788909739_fd000e","task":185,"checkpoint":"postflight","message":"Postflight stage completed for plan (status: planned)","detail":{},"error_ref":null,"cwd":null,"cc_session_id":null}
++{"event_id":"evt_1788910339095_ZbK0zf","event_type":"lifecycle_stage","category":"milestone","timestamp":"2026-09-08T23:32:19.099Z","duration_seconds":0.667,"session_id":"sess_1788909739_fd000e","task":185,"checkpoint":"preflight","message":"Preflight stage completed for implement","detail":{},"error_ref":null,"cwd":null,"cc_session_id":null}
++{"event_id":"evt_1788910347068_m5ZVIo","event_type":"session_stop","category":"milestone","timestamp":"2026-09-08T23:32:27.072Z","duration_seconds":null,"session_id":"sess_1788909739_fd000e","task":185,"checkpoint":null,"message":"Session stop observed for task 185","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker","cc_session_id":"dfeda622-85b2-47a8-90d0-565a55fa3c0a"}
