@@ -957,6 +957,97 @@ def exact_sufficiency_mismatches(models: Iterable[Tuple["Frame", "Interpretation
     return checked, mismatches
 
 
+#: Nested-antecedent principles, with ``X := left □→ right`` under the candidate.
+LOGIC_PRINCIPLES: Tuple[str, ...] = (
+    "identity",        # X □→ X
+    "modus_ponens",    # X, X □→ C ⊢ C
+    "strengthening",   # X □→ C ⊢ (X ∧ D) □→ C
+    "strict_to_cf",    # □(X → C) ⊢ X □→ C
+    "cf_to_strict",    # X □→ C ⊢ □(X → C)
+    "might_identity",  # (left ◇→ right) □→ (left ◇→ right)
+)
+
+
+def logic_failures(key: str, frame: "Frame", interp: "Interpretation",
+                   left: Any, right: Any, c: Any, d: Any) -> Dict[str, bool]:
+    """Which nested-antecedent principles fail at some world of one model."""
+    ev = Evaluator(frame, interp)
+    x = CF(key, left, right)
+    x_might = Might(key, left, right)
+    identity = CF(key, x, x)
+    x_c = CF(key, x, c)
+    xd_c = CF(key, And(x, d), c)
+    strict = Box(Implies(x, c))
+    might_identity = CF(key, x_might, x_might)
+    failed = {name: False for name in LOGIC_PRINCIPLES}
+    for w in frame.worlds:
+        if not ev.truth(identity, w):
+            failed["identity"] = True
+        if ev.truth(x, w) and ev.truth(x_c, w) and not ev.truth(c, w):
+            failed["modus_ponens"] = True
+        if ev.truth(x_c, w) and not ev.truth(xd_c, w):
+            failed["strengthening"] = True
+        if ev.truth(strict, w) and not ev.truth(x_c, w):
+            failed["strict_to_cf"] = True
+        if ev.truth(x_c, w) and not ev.truth(strict, w):
+            failed["cf_to_strict"] = True
+        if not ev.truth(might_identity, w):
+            failed["might_identity"] = True
+    return failed
+
+
+def logic_sweep(models: Iterable[Tuple["Frame", "Interpretation"]], keys: Sequence[str],
+                left: Any, right: Any, c: Any, d: Any) -> Dict[str, Dict[str, Any]]:
+    """Per key: count of models with a world at which each principle fails, with first witnesses."""
+    result: Dict[str, Dict[str, Any]] = {
+        key: {"models": 0, "fails": {name: 0 for name in LOGIC_PRINCIPLES}, "witness": {}}
+        for key in keys
+    }
+    for frame, interp in models:
+        for key in keys:
+            entry = result[key]
+            entry["models"] += 1
+            failed = logic_failures(key, frame, interp, left, right, c, d)
+            for name, did_fail in failed.items():
+                if did_fail:
+                    entry["fails"][name] += 1
+                    entry["witness"].setdefault(name, model_to_dict(frame, interp))
+    return result
+
+
+def hyperintensionality_sweep(models: Iterable[Tuple["Frame", "Interpretation"]], keys: Sequence[str],
+                              first: Tuple[Any, Any], second: Tuple[Any, Any]) -> Dict[str, Dict[str, Any]]:
+    """Per key: same-truth-set pairs ``first □→`` vs ``second □→`` with distinct propositions."""
+    result: Dict[str, Dict[str, Any]] = {
+        key: {"models": 0, "same_truth_set": 0, "distinct_props": 0, "distinct_on_possible": 0, "witness": None}
+        for key in keys
+    }
+    for frame, interp in models:
+        for key in keys:
+            entry = result[key]
+            entry["models"] += 1
+            ev = Evaluator(frame, interp)
+            x, y = CF(key, *first), CF(key, *second)
+            if ev.truth_set(x) != ev.truth_set(y):
+                continue
+            entry["same_truth_set"] += 1
+            pv, pf = ev.proposition(x)
+            qv, qf = ev.proposition(y)
+            if (pv, pf) != (qv, qf):
+                entry["distinct_props"] += 1
+            poss = frame.possible
+            if (pv & poss, pf & poss) != (qv & poss, qf & poss):
+                entry["distinct_on_possible"] += 1
+                if entry["witness"] is None:
+                    entry["witness"] = {
+                        "model": model_to_dict(frame, interp),
+                        "truth_set": frame.fmt_set(ev.truth_set(x)),
+                        "first_verifiers": frame.fmt_set(pv),
+                        "second_verifiers": frame.fmt_set(qv),
+                    }
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Small-N enumeration
 # ---------------------------------------------------------------------------

@@ -191,16 +191,16 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 
 ---
 
-### Phase 4: Oracle characterization: nested logic and hyperintensionality [NOT STARTED]
+### Phase 4: Oracle characterization: nested logic and hyperintensionality [COMPLETED]
 
 **Goal**: Pin the nested-antecedent logic profile per candidate (F7) and the same-truth-set/distinct-proposition results (F8), including the Frame G2 separation that Z3 at N <= 4 cannot show.
 
 **Tasks**:
-- [ ] RED: `tests/test_candidate_logic_oracle.py` -- port `logic_sweep` (identity `X []-> X`, MP `X, X []-> C |- C`, AS `X []-> C |- (X ∧ D) []-> C`, `[](X -> C) |- X []-> C`, converse, might-identity; `X := A []-> B` under the candidate) over the seeded n=3 sample (1,500 models) and pin the F7 counts: `ILC`/`W`/`L`: 0 everywhere; `ILMC`/`MC`: identity 0, MP 0, AS 361, strict->cf 0, cf->strict 700; `SRC`: AS 200, cf->strict 372; `I`: identity 22; `XPa`: MP 389
-- [ ] RED: port `hyper_sweep` (same truth-set, distinct proposition, `A []-> B` vs `C []-> D`) over the same sample and pin: `I` 1, settler-based keys 0, `SR` 428, `XS` 482
-- [ ] Frame G2 tests: `A []-> B` and `C []-> D` have the same truth-set; `L`/`MC` give identical propositions; `ILC` and `ILMC` give distinct ones (`x'` verifies the first only; `a'`, `y` the second only); under `ILMC`, `(A []-> B) []-> C` is false at every world while `(C []-> D) []-> C` is true at three of four; `identical_proposition` returns False for `ILC`/`ILMC` and True for `L`/`MC`
-- [ ] The strict-collapse mechanism test: on any model, `ILC`'s verifier set contains every true world, and `X []-> C` under `ILC` is true at `w` iff `[](X -> C)` is (pin on the n=3 sample); under `ILMC` exhibit one sampled model where they differ and save it to `baselines/06_logic-matrix.json`
-- [ ] Write the logic and hyperintensionality matrices (`baselines/06_logic-matrix.json`, `baselines/07_hyperintensionality.json`) with every countermodel's frame/interpretation serialized via `model_to_dict`
+- [x] RED: `tests/test_candidate_logic_oracle.py` -- port `logic_sweep` (identity `X []-> X`, MP `X, X []-> C |- C`, AS `X []-> C |- (X ∧ D) []-> C`, `[](X -> C) |- X []-> C`, converse, might-identity; `X := A []-> B` under the candidate) over the seeded n=3 sample (1,500 models) and pin the F7 counts: `ILC`/`W`/`L`: 0 everywhere; `ILMC`/`MC`: identity 0, MP 0, AS 361, strict->cf 0, cf->strict 700; `SRC`: AS 200, cf->strict 372; `I`: identity 22; `XPa`: MP 389
+- [x] RED: port `hyper_sweep` (same truth-set, distinct proposition, `A []-> B` vs `C []-> D`) over the same sample and pin: `I` 1, settler-based keys 0, `SR` 428, `XS` 482 -- CORRECTED: the mechanical count for `SRC` on the seed-37 sample is 403 (as in the archived table `03_research-exploration-output.txt`); the report's F8 prose figure 428 is wrong and the test pins 403
+- [x] Frame G2 tests: `A []-> B` and `C []-> D` have the same truth-set; `L`/`MC` give identical propositions; `ILC` and `ILMC` give distinct ones (`x'` verifies the first only; `a'`, `y` the second only); under `ILMC`, `(A []-> B) []-> C` is false at every world while `(C []-> D) []-> C` is true at three of four; `identical_proposition` returns False for `ILC`/`ILMC` and True for `L`/`MC`
+- [x] The strict-collapse mechanism test: on any model, `ILC`'s verifier set contains every true world, and `X []-> C` under `ILC` is true at `w` iff `[](X -> C)` is (pin on the n=3 sample); under `ILMC` exhibit one sampled model where they differ and save it to `baselines/06_logic-matrix.json`
+- [x] Write the logic and hyperintensionality matrices (`baselines/06_logic-matrix.json`, `baselines/07_hyperintensionality.json`) with every countermodel's frame/interpretation serialized via `model_to_dict` -- written by the sweep fixture when `CF_LOGIC_MATRIX_DIR` is set (26 tests, 3 s)
 
 **Timing**: 1.5 hours
 

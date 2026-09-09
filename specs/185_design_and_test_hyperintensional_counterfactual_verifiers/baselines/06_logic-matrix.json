@@ -1,0 +1,1342 @@
+{
+ "population": {
+  "n": 3,
+  "letters": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "seed": 23,
+  "models": 1500
+ },
+ "principles": [
+  "identity",
+  "modus_ponens",
+  "strengthening",
+  "strict_to_cf",
+  "cf_to_strict",
+  "might_identity"
+ ],
+ "sweep": {
+  "I": {
+   "models": 1500,
+   "fails": {
+    "identity": 22,
+    "modus_ponens": 0,
+    "strengthening": 6,
+    "strict_to_cf": 8,
+    "cf_to_strict": 0,
+    "might_identity": 22
+   },
+   "witness": {
+    "identity": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b.c"
+       ],
+       "falsifiers": [
+        "a.b",
+        "a.c",
+        "a.b.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      }
+     }
+    },
+    "might_identity": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b.c"
+       ],
+       "falsifiers": [
+        "a.b",
+        "a.c",
+        "a.b.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      }
+     }
+    },
+    "strict_to_cf": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a"
+       ],
+       "falsifiers": [
+        "b.c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "a.b"
+       ],
+       "falsifiers": [
+        "a.c",
+        "b.c",
+        "a.b.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      }
+     }
+    },
+    "strengthening": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a"
+       ],
+       "falsifiers": [
+        "b.c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a.c",
+        "b.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "a.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "b.c"
+       ],
+       "falsifiers": [
+        "a.b",
+        "a.c",
+        "a.b.c"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "ILC": {
+   "models": 1500,
+   "fails": {
+    "identity": 0,
+    "modus_ponens": 0,
+    "strengthening": 0,
+    "strict_to_cf": 0,
+    "cf_to_strict": 0,
+    "might_identity": 0
+   },
+   "witness": {}
+  },
+  "ILMC": {
+   "models": 1500,
+   "fails": {
+    "identity": 0,
+    "modus_ponens": 0,
+    "strengthening": 361,
+    "strict_to_cf": 0,
+    "cf_to_strict": 700,
+    "might_identity": 0
+   },
+   "witness": {
+    "strengthening": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    },
+    "cf_to_strict": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "W": {
+   "models": 1500,
+   "fails": {
+    "identity": 0,
+    "modus_ponens": 0,
+    "strengthening": 0,
+    "strict_to_cf": 0,
+    "cf_to_strict": 0,
+    "might_identity": 0
+   },
+   "witness": {}
+  },
+  "L": {
+   "models": 1500,
+   "fails": {
+    "identity": 0,
+    "modus_ponens": 0,
+    "strengthening": 0,
+    "strict_to_cf": 0,
+    "cf_to_strict": 0,
+    "might_identity": 0
+   },
+   "witness": {}
+  },
+  "MC": {
+   "models": 1500,
+   "fails": {
+    "identity": 0,
+    "modus_ponens": 0,
+    "strengthening": 361,
+    "strict_to_cf": 0,
+    "cf_to_strict": 700,
+    "might_identity": 0
+   },
+   "witness": {
+    "strengthening": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    },
+    "cf_to_strict": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "SRC": {
+   "models": 1500,
+   "fails": {
+    "identity": 0,
+    "modus_ponens": 0,
+    "strengthening": 200,
+    "strict_to_cf": 0,
+    "cf_to_strict": 372,
+    "might_identity": 0
+   },
+   "witness": {
+    "strengthening": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    },
+    "cf_to_strict": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "XPa": {
+   "models": 1500,
+   "fails": {
+    "identity": 0,
+    "modus_ponens": 389,
+    "strengthening": 4,
+    "strict_to_cf": 0,
+    "cf_to_strict": 402,
+    "might_identity": 0
+   },
+   "witness": {
+    "modus_ponens": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    },
+    "cf_to_strict": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    },
+    "strengthening": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a.c"
+       ],
+       "falsifiers": [
+        "a.b",
+        "b.c",
+        "a.b.c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.c"
+       ],
+       "falsifiers": [
+        "a.b",
+        "b.c",
+        "a.b.c"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "XS": {
+   "models": 1500,
+   "fails": {
+    "identity": 7,
+    "modus_ponens": 384,
+    "strengthening": 8,
+    "strict_to_cf": 2,
+    "cf_to_strict": 400,
+    "might_identity": 0
+   },
+   "witness": {
+    "modus_ponens": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    },
+    "cf_to_strict": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a",
+        "c",
+        "a.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "b"
+       ]
+      }
+     }
+    },
+    "identity": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "a"
+       ],
+       "falsifiers": [
+        "b.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "b.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      }
+     }
+    },
+    "strengthening": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "a"
+       ],
+       "falsifiers": [
+        "b.c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b",
+        "b.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      }
+     }
+    },
+    "strict_to_cf": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b.c"
+       ],
+       "falsifiers": [
+        "a"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      }
+     }
+    }
+   }
+  }
+ },
+ "ilmc_strict_collapse_counterexample": {
+  "model": {
+   "frame": {
+    "n": 3,
+    "atoms": [
+     "a",
+     "b",
+     "c"
+    ],
+    "worlds": [
+     "b",
+     "c"
+    ],
+    "possible": [
+     "□",
+     "b",
+     "c"
+    ]
+   },
+   "interpretation": {
+    "A": {
+     "verifiers": [
+      "a",
+      "b",
+      "a.b"
+     ],
+     "falsifiers": [
+      "c"
+     ]
+    },
+    "B": {
+     "verifiers": [
+      "a",
+      "b",
+      "a.b"
+     ],
+     "falsifiers": [
+      "a",
+      "c",
+      "a.c"
+     ]
+    },
+    "C": {
+     "verifiers": [
+      "b",
+      "a.c",
+      "a.b.c"
+     ],
+     "falsifiers": [
+      "a",
+      "c",
+      "a.c"
+     ]
+    },
+    "D": {
+     "verifiers": [
+      "a.b",
+      "c",
+      "a.b.c"
+     ],
+     "falsifiers": [
+      "b"
+     ]
+    }
+   }
+  },
+  "world": "b",
+  "X_cf_C": true,
+  "strict": false,
+  "ILMC_verifiers_of_X": [
+   "□"
+  ]
+ }
+}

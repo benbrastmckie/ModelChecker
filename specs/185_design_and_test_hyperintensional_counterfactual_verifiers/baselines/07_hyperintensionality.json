@@ -1,0 +1,377 @@
+{
+ "population": {
+  "n": 3,
+  "letters": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "seed": 37,
+  "models": 1500
+ },
+ "comparison": "A □→ B versus C □→ D with the same truth-set",
+ "sweep": {
+  "I": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 1,
+   "distinct_on_possible": 1,
+   "witness": {
+    "model": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "a.c",
+       "b.c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c",
+       "a.c",
+       "b.c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "b"
+       ],
+       "falsifiers": [
+        "a.c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "b.c"
+       ],
+       "falsifiers": [
+        "a"
+       ]
+      }
+     }
+    },
+    "truth_set": [
+     "b.c"
+    ],
+    "first_verifiers": [
+     "c",
+     "b.c"
+    ],
+    "second_verifiers": [
+     "b",
+     "b.c"
+    ]
+   }
+  },
+  "ILC": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 0,
+   "distinct_on_possible": 0,
+   "witness": null
+  },
+  "ILMC": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 0,
+   "distinct_on_possible": 0,
+   "witness": null
+  },
+  "W": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 0,
+   "distinct_on_possible": 0,
+   "witness": null
+  },
+  "L": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 0,
+   "distinct_on_possible": 0,
+   "witness": null
+  },
+  "MC": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 0,
+   "distinct_on_possible": 0,
+   "witness": null
+  },
+  "SRC": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 403,
+   "distinct_on_possible": 403,
+   "witness": {
+    "model": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      }
+     }
+    },
+    "truth_set": [
+     "a.b",
+     "c"
+    ],
+    "first_verifiers": [
+     "□",
+     "c"
+    ],
+    "second_verifiers": [
+     "□",
+     "a.b"
+    ]
+   }
+  },
+  "XPa": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 480,
+   "distinct_on_possible": 480,
+   "witness": {
+    "model": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      }
+     }
+    },
+    "truth_set": [
+     "a.b",
+     "c"
+    ],
+    "first_verifiers": [
+     "c",
+     "a.c",
+     "b.c",
+     "a.b.c"
+    ],
+    "second_verifiers": [
+     "a",
+     "b",
+     "a.b",
+     "a.c",
+     "b.c",
+     "a.b.c"
+    ]
+   }
+  },
+  "XS": {
+   "models": 1500,
+   "same_truth_set": 723,
+   "distinct_props": 482,
+   "distinct_on_possible": 480,
+   "witness": {
+    "model": {
+     "frame": {
+      "n": 3,
+      "atoms": [
+       "a",
+       "b",
+       "c"
+      ],
+      "worlds": [
+       "a.b",
+       "c"
+      ],
+      "possible": [
+       "□",
+       "a",
+       "b",
+       "a.b",
+       "c"
+      ]
+     },
+     "interpretation": {
+      "A": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ]
+      },
+      "B": {
+       "verifiers": [
+        "c"
+       ],
+       "falsifiers": [
+        "a.b"
+       ]
+      },
+      "C": {
+       "verifiers": [
+        "b",
+        "a.c",
+        "a.b.c"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      },
+      "D": {
+       "verifiers": [
+        "a",
+        "b",
+        "a.b"
+       ],
+       "falsifiers": [
+        "c"
+       ]
+      }
+     }
+    },
+    "truth_set": [
+     "a.b",
+     "c"
+    ],
+    "first_verifiers": [
+     "c"
+    ],
+    "second_verifiers": [
+     "a",
+     "b",
+     "a.b"
+    ]
+   }
+  }
+ }
+}
