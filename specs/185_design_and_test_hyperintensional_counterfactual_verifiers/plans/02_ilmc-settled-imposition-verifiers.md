@@ -127,17 +127,17 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 
 ---
 
-### Phase 2: Port the research clauses and witness frames into the oracle [NOT STARTED]
+### Phase 2: Port the research clauses and witness frames into the oracle [COMPLETED]
 
 **Goal**: Move every candidate clause and every witness frame the research defined out of `baselines/03_research-exploration.py` / `03_research-witnesses.py` and into the committed oracle, so later phases and the recommendation cite tracked code rather than a task-directory script.
 
 **Tasks**:
-- [ ] RED: extend `tests/test_frame_oracle.py` with a test asserting `Evaluator.counterfactual_proposition` accepts every key in `("SQpy","I","W","L","M","MC","IL","ILC","ILM","ILMC","SR","SRC","XS","XSr","XPe","XPer","XPa","XPar","XSx","SB","SAB","SX","SXr","SXC")` on the F3 frame and, for each key, returns the exact sets recorded in `baselines/03_research-exploration-output.txt` (`f3` mode) -- transcribe the F3-frame verifier/falsifier sets per key into the test as the pinned expectation
-- [ ] Port `composable`, `composable_subset` and the `XEvaluator` clause bodies (`pairs`, `b_options`, `br_options`, `comp_at`, the per-key branches) into `frame_oracle.py`'s `Evaluator` as methods, keeping the committed keys' behavior unchanged; delete `XEvaluator` from the baselines script by replacing it with an import of the ported `Evaluator` (the script remains runnable for reproduction)
-- [ ] Create `tests/witness_frames.py` with builders `frame_f3()`, `frame_g()`, `frame_g2()`, `frame_f3z()`, `src_null_remainder_model()` transcribed from `03_research-witnesses.py` and the `g` mode, each returning `(Frame, Interpretation)` with atom names and the letters' propositions as in the report Appendix; move the existing F3 fixture in `test_frame_oracle.py` to use `frame_f3()`
-- [ ] RED tests for the witness builders: each frame's computed `worlds` equals the declared world list; each letter proposition satisfies `letter_constraints_hold`
-- [ ] Add `Evaluator.identical_proposition(phi, psi)` (the `\equiv` truth: same verifier and falsifier sets) so hyperintensionality can be measured in the oracle without Z3
-- [ ] Re-run `python baselines/03_research-exploration.py f3` after the port and diff against the archived output to prove the port is behavior-preserving
+- [x] RED: extend `tests/test_frame_oracle.py` with a test asserting `Evaluator.counterfactual_proposition` accepts every key in `("SQpy","I","W","L","M","MC","IL","ILC","ILM","ILMC","SR","SRC","XS","XSr","XPe","XPer","XPa","XPar","XSx","SB","SAB","SX","SXr","SXC")` on the F3 frame and, for each key, returns the exact sets recorded in `baselines/03_research-exploration-output.txt` (`f3` mode) -- transcribe the F3-frame verifier/falsifier sets per key into the test as the pinned expectation -- ALTERED: the archived text output truncates long set lines, so the pins are `tests/f3_candidate_sets.json`, the full sets for all 24 keys dumped from the research script BEFORE the port (the archived output is a prefix of it)
+- [x] Port `composable`, `composable_subset` and the `XEvaluator` clause bodies (`pairs`, `b_options`, `br_options`, `comp_at`, the per-key branches) into `frame_oracle.py`'s `Evaluator` as methods, keeping the committed keys' behavior unchanged; delete `XEvaluator` from the baselines script by replacing it with an import of the ported `Evaluator` (the script remains runnable for reproduction)
+- [x] Create `tests/witness_frames.py` with builders `frame_f3()`, `frame_g()`, `frame_g2()`, `frame_f3z()`, `src_null_remainder_model()` transcribed from `03_research-witnesses.py` and the `g` mode, each returning `(Frame, Interpretation)` with atom names and the letters' propositions as in the report Appendix -- ALTERED for `frame_g()`: letters restricted to `A`, `B`; the research script's `C = ({c},{y})` on Frame G violates the letter constraints (`b'` is compatible with neither), caught by the RED constraint test; `C`/`D` live on G2 as the report's F8 uses them; move the existing F3 fixture in `test_frame_oracle.py` to use `frame_f3()`
+- [x] RED tests for the witness builders: each frame's computed `worlds` equals the declared world list; each letter proposition satisfies `letter_constraints_hold`
+- [x] Add `Evaluator.identical_proposition(phi, psi)` (the `\equiv` truth: same verifier and falsifier sets) so hyperintensionality can be measured in the oracle without Z3
+- [x] Re-run `python baselines/03_research-exploration.py f3` after the port and diff against the archived output to prove the port is behavior-preserving -- done against the full pre-port capture (empty diff); `03_research-witnesses.py` and `g` mode also re-run clean
 
 **Timing**: 1.5 hours
 

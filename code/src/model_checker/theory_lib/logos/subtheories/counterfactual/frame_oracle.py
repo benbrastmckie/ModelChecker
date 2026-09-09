@@ -26,8 +26,28 @@ counterfactual under each candidate clause:
 - ``M``: parthood-minimal settlers.
 - ``MC``: fusion closure of the minimal settlers.
 - ``IL``: imposition-local settlers, ``V_I`` intersected with ``V_L``.
+- ``ILC``: fusion closure of ``IL``; ``ILM``: parthood-minimal members of
+  ``IL``; ``ILMC``: fusion closure of ``ILM`` (the exact clause: minimal
+  settled-imposition verifiers, fused).
+- ``SR``: settler that is a fusion of maximal antecedent-compatible parts
+  (one per antecedent verifier with alternatives) of some world containing
+  it; ``SRC``: its fusion closure.
+- Exact-imposition family, in which the consequent must be *verified* at each
+  alternative by a designated part and the candidate is the fusion of those
+  parts: ``XS`` (alternatives taken to the candidate itself), ``XSr`` (with
+  the surviving remainder fused in), ``XPe`` (alternatives taken to some
+  world containing the candidate), ``XPer``, ``XPa`` (to every such world),
+  ``XPar``, ``XSx`` (a single consequent verifier below some alternative).
+- Settled variants of the exact family: ``SB`` (settler in the closure of the
+  consequent's verifiers), ``SAB`` (settler in the closure of antecedent and
+  consequent verifiers), ``SX``/``SXr`` (settler and ``XPe``/``XPer``),
+  ``SXC`` (closure of ``SX``).
+- ``XE``: the exact composition over the alternatives of the evaluation world
+  (context-dependent, like ``SQ``).
 
-Falsifier sets are the polarity duals stated per clause in ``proposition``.
+Falsifier sets are the polarity duals stated per clause in ``proposition``;
+for the exact family a falsifier is a fusion of consequent-falsifiers over a
+nonempty subset of the alternatives.
 """
 
 from __future__ import annotations
@@ -37,9 +57,23 @@ import random
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, FrozenSet, Iterable, Iterator, List, Optional, Sequence, Set, Tuple
 
-CANDIDATE_KEYS: Tuple[str, ...] = ("I", "W", "L", "M", "MC", "IL")
+#: Truth-set baselines (disqualified as candidates; comparison columns only).
+BASELINE_KEYS: Tuple[str, ...] = ("W", "L", "M", "MC")
+#: Clauses built from imposition on the candidate state.
+IMPOSITION_KEYS: Tuple[str, ...] = ("I", "IL", "ILC", "ILM", "ILMC")
+#: Settlers composed from surviving antecedent-compatible remainders.
+REMAINDER_KEYS: Tuple[str, ...] = ("SR", "SRC")
+#: Exact-imposition family (consequent verified by a designated part).
+EXACT_KEYS: Tuple[str, ...] = ("XS", "XSr", "XPe", "XPer", "XPa", "XPar", "XSx")
+#: Settler-guarded members of the exact family.
+SETTLED_EXACT_KEYS: Tuple[str, ...] = ("SB", "SAB", "SX", "SXr", "SXC")
+CANDIDATE_KEYS: Tuple[str, ...] = (
+    IMPOSITION_KEYS + BASELINE_KEYS + REMAINDER_KEYS + EXACT_KEYS + SETTLED_EXACT_KEYS
+)
+#: Clauses whose verifier set depends on the evaluation world.
+CONTEXT_DEPENDENT_KEYS: Tuple[str, ...] = ("SQ", "XE")
 STATUS_QUO_KEYS: Tuple[str, ...] = ("SQ", "SQpy")
-ALL_KEYS: Tuple[str, ...] = STATUS_QUO_KEYS + CANDIDATE_KEYS
+ALL_KEYS: Tuple[str, ...] = STATUS_QUO_KEYS + ("XE",) + CANDIDATE_KEYS
 
 StateSet = FrozenSet[int]
 
@@ -98,6 +132,43 @@ def is_fusion_closed(states: Iterable[int]) -> Optional[Tuple[int, int]]:
             if s | t not in pool:
                 return (s, t)
     return None
+
+
+def composable(s: int, slots: Sequence[Sequence[int]]) -> bool:
+    """``s`` is the fusion of one option drawn from every slot.
+
+    Options are expected to be parts of ``s`` already; an empty slot makes
+    composition impossible, and with no slots only the null state composes.
+    """
+    if any(not options for options in slots):
+        return False
+    if not slots:
+        return s == 0
+    ordered = sorted(slots, key=len)
+    seen: Set[Tuple[int, int]] = set()
+
+    def extend(i: int, covered: int) -> bool:
+        if i == len(ordered):
+            return covered == s
+        key = (i, covered)
+        if key in seen:
+            return False
+        seen.add(key)
+        return any(extend(i + 1, covered | option) for option in ordered[i])
+
+    return extend(0, 0)
+
+
+def composable_subset(s: int, slots: Sequence[Sequence[int]]) -> bool:
+    """``s`` is the fusion of one option each from a *nonempty* subset of the slots.
+
+    Because any option may be taken from whichever slot offers it, this is
+    membership of ``s`` in the fusion closure of the offered parts of ``s``.
+    """
+    if s == 0:
+        return any(0 in options for options in slots)
+    offered = sorted({o for options in slots for o in options if is_part_of(o, s)})
+    return s in fusion_closure(offered) if offered else False
 
 
 # ---------------------------------------------------------------------------
@@ -472,13 +543,8 @@ class Evaluator:
     def counterfactual_proposition(self, key: str, left: Any, right: Any) -> Tuple[StateSet, StateSet]:
         """Verifiers and falsifiers of ``left □→ right`` under candidate ``key``."""
         frame = self.frame
-        if key == "SQ":
-            w = self.eval_world
-            if w is None:
-                raise ValueError("the status-quo clause needs an evaluation world")
-            v = frozenset({w}) if self.cf_true(left, right, w) else frozenset()
-            f = frozenset({w}) if self.cf_false(left, right, w) else frozenset()
-            return v, f
+        if key in CONTEXT_DEPENDENT_KEYS:
+            return self.context_dependent_proposition(key, left, right)
         true_worlds = frozenset(w for w in frame.worlds if self.cf_true(left, right, w))
         false_worlds = frozenset(w for w in frame.worlds if self.cf_false(left, right, w))
         if key == "SQpy":
@@ -494,12 +560,173 @@ class Evaluator:
             return minimal_elements(lv), minimal_elements(lf)
         if key == "MC":
             lv, lf = self.settlers(true_worlds, false_worlds)
-            return fusion_closure(minimal_elements(lv)), fusion_closure(minimal_elements(lf))
-        if key == "IL":
+            return closure_or_empty(minimal_elements(lv)), closure_or_empty(minimal_elements(lf))
+        if key in ("IL", "ILC", "ILM", "ILMC"):
             iv, if_ = self.imposition_local(left, right)
             lv, lf = self.settlers(true_worlds, false_worlds)
-            return iv & lv, if_ & lf
+            v, f = iv & lv, if_ & lf
+            if key == "IL":
+                return v, f
+            if key == "ILC":
+                return closure_or_empty(v), closure_or_empty(f)
+            v, f = minimal_elements(v), minimal_elements(f)
+            if key == "ILM":
+                return v, f
+            return closure_or_empty(v), closure_or_empty(f)
+        if key in REMAINDER_KEYS:
+            return self.remainder_proposition(key, left, true_worlds, false_worlds)
+        if key in EXACT_KEYS or key in SETTLED_EXACT_KEYS:
+            return self.exact_proposition(key, left, right, true_worlds, false_worlds)
         raise ValueError(f"unknown candidate {key!r}")
+
+    def context_dependent_proposition(self, key: str, left: Any, right: Any) -> Tuple[StateSet, StateSet]:
+        """``SQ`` and ``XE``: clauses that read the evaluation world."""
+        w = self.eval_world
+        if w is None:
+            raise ValueError(f"the context-dependent clause {key!r} needs an evaluation world")
+        if key == "SQ":
+            v = frozenset({w}) if self.cf_true(left, right, w) else frozenset()
+            f = frozenset({w}) if self.cf_false(left, right, w) else frozenset()
+            return v, f
+        va = self.proposition(left)[0]
+        vb, fb = self.proposition(right)
+        v, f = set(), set()
+        for s in self.frame.states:
+            cv, cf = self.composed_at(s, w, va, vb, fb, False)
+            if cv:
+                v.add(s)
+            if cf:
+                f.add(s)
+        return frozenset(v), frozenset(f)
+
+    # -- exact-imposition composition ---------------------------------------
+
+    def imposition_pairs(self, base: int, va: StateSet) -> List[Tuple[int, int]]:
+        """``P(base)``: every ``(a, u)`` with ``a`` an antecedent verifier and ``u ∈ Alt(base, a)``."""
+        return [(a, u) for a in va for u in self.frame.alternatives(base, a)]
+
+    def consequent_options(self, s: int, u: int, vb: StateSet) -> List[int]:
+        """Consequent verifiers (or falsifiers) below both the alternative ``u`` and ``s``."""
+        return [b for b in vb if is_part_of(b, u) and is_part_of(b, s)]
+
+    def consequent_remainder_options(self, s: int, base: int, a: int, u: int, vb: StateSet) -> List[int]:
+        """``consequent_options`` each fused with a surviving remainder ``r ∈ [base]_a`` below ``s``."""
+        remainders = [
+            r for r in self.frame.max_compatible_parts(base, a)
+            if is_part_of(a | r, u) and is_part_of(r, s)
+        ]
+        return sorted({
+            b | r
+            for b in vb if is_part_of(b, u) and is_part_of(b, s)
+            for r in remainders
+        })
+
+    def composed_at(self, s: int, base: int, va: StateSet, vb: StateSet, fb: StateSet,
+                    with_remainder: bool) -> Tuple[bool, bool]:
+        """``(verifies, falsifies)``: ``s`` composed over the alternatives of ``base``.
+
+        Verification composes one consequent verifier per alternative;
+        falsification composes consequent falsifiers over a nonempty subset
+        of the alternatives.
+        """
+        pairs = self.imposition_pairs(base, va)
+        if with_remainder:
+            v_slots = [self.consequent_remainder_options(s, base, a, u, vb) for a, u in pairs]
+            f_slots = [self.consequent_remainder_options(s, base, a, u, fb) for a, u in pairs]
+        else:
+            v_slots = [self.consequent_options(s, u, vb) for _, u in pairs]
+            f_slots = [self.consequent_options(s, u, fb) for _, u in pairs]
+        return composable(s, v_slots), composable_subset(s, f_slots)
+
+    def exact_proposition(self, key: str, left: Any, right: Any,
+                          true_worlds: StateSet, false_worlds: StateSet) -> Tuple[StateSet, StateSet]:
+        """The exact-imposition family and its settler-guarded variants."""
+        frame = self.frame
+        states = frame.states
+        va = self.proposition(left)[0]
+        vb, fb = self.proposition(right)
+        lv, lf = self.settlers(true_worlds, false_worlds)
+
+        def composed_below_some_world(with_remainder: bool, settle: bool) -> Tuple[StateSet, StateSet]:
+            v, f = set(), set()
+            for s in states:
+                if settle and s not in lv and s not in lf:
+                    continue
+                for w in frame.worlds_above(s):
+                    cv, cf = self.composed_at(s, w, va, vb, fb, with_remainder)
+                    if cv and (not settle or s in lv):
+                        v.add(s)
+                    if cf and (not settle or s in lf):
+                        f.add(s)
+            return frozenset(v), frozenset(f)
+
+        if key in ("XS", "XSr"):
+            v, f = set(), set()
+            for s in states:
+                cv, cf = self.composed_at(s, s, va, vb, fb, key == "XSr")
+                if cv:
+                    v.add(s)
+                if cf:
+                    f.add(s)
+            return frozenset(v), frozenset(f)
+        if key in ("XPe", "XPer"):
+            return composed_below_some_world(key == "XPer", settle=False)
+        if key in ("XPa", "XPar"):
+            v, f = set(), set()
+            for s in states:
+                results = [self.composed_at(s, w, va, vb, fb, key == "XPar") for w in frame.worlds_above(s)]
+                if all(cv for cv, _ in results):
+                    v.add(s)
+                if all(cf for _, cf in results):
+                    f.add(s)
+            return frozenset(v), frozenset(f)
+        if key == "XSx":
+            v, f = set(), set()
+            for s in states:
+                pairs = self.imposition_pairs(s, va)
+                if s in vb and any(is_part_of(s, u) for _, u in pairs):
+                    v.add(s)
+                if s in fb and any(is_part_of(s, u) for _, u in pairs):
+                    f.add(s)
+            return frozenset(v), frozenset(f)
+        if key == "SB":
+            return lv & fusion_closure(vb), lf & fusion_closure(fb)
+        if key == "SAB":
+            return lv & fusion_closure(va | vb), lf & fusion_closure(va | fb)
+        if key in ("SX", "SXr"):
+            return composed_below_some_world(key == "SXr", settle=True)
+        if key == "SXC":
+            v, f = composed_below_some_world(False, settle=True)
+            return closure_or_empty(v), closure_or_empty(f)
+        raise ValueError(f"unknown exact clause {key!r}")
+
+    def remainder_proposition(self, key: str, left: Any,
+                              true_worlds: StateSet, false_worlds: StateSet) -> Tuple[StateSet, StateSet]:
+        """``SR``/``SRC``: settlers composed of surviving antecedent-compatible remainders."""
+        frame = self.frame
+        va = self.proposition(left)[0]
+        lv, lf = self.settlers(true_worlds, false_worlds)
+        v, f = set(), set()
+        for s in frame.states:
+            if s not in lv and s not in lf:
+                continue
+            for w in frame.worlds_above(s):
+                slots = [
+                    [r for r in frame.max_compatible_parts(w, a) if is_part_of(r, s)]
+                    for a in va if frame.alternatives(w, a)
+                ]
+                if composable(s, slots):
+                    if s in lv:
+                        v.add(s)
+                    if s in lf:
+                        f.add(s)
+        if key == "SRC":
+            return closure_or_empty(v), closure_or_empty(f)
+        return frozenset(v), frozenset(f)
+
+    def identical_proposition(self, phi: Any, psi: Any) -> bool:
+        """``phi ≡ psi``: the same verifier set and the same falsifier set."""
+        return self.proposition(phi) == self.proposition(psi)
 
     def imposition_local(self, left: Any, right: Any) -> Tuple[StateSet, StateSet]:
         """Reading I over every state."""
@@ -524,6 +751,12 @@ def coproduct(xs: Iterable[int], ys: Iterable[int]) -> StateSet:
     """Union plus all pairwise fusions."""
     xs, ys = frozenset(xs), frozenset(ys)
     return xs | ys | product(xs, ys)
+
+
+def closure_or_empty(states: Iterable[int]) -> StateSet:
+    """Fusion closure, with the empty set closed to itself."""
+    pool = frozenset(states)
+    return fusion_closure(pool) if pool else pool
 
 
 # ---------------------------------------------------------------------------
