@@ -10,10 +10,26 @@ counterfactual/
 ├── __init__.py                          # Module initialization and public API
 ├── examples.py                          # Example formulas and test cases (37 examples)
 ├── operators.py                         # Counterfactual operator definitions (2 operators)
+├── candidates.py                        # Exploratory verifier-clause candidates (6 operators + might variants)
+├── candidate_examples.py                # Nested-antecedent, constitutive and regression collections per candidate
+├── frame_oracle.py                      # Pure-Python oracle: every candidate clause over explicit frames
+├── report/
+│   ├── null_alts.md
+│   └── verifier_clauses.md              # Measurement tables and the recommended clause (ILMC)
 └── tests/                               # Test suite (see tests/README.md)
     ├── README.md                        # Test documentation and methodology
     ├── __init__.py                      # Test module initialization
-    └── test_counterfactual_examples.py  # Integration tests with 37 examples
+    ├── harness.py                       # Solve-and-interpret helper for verifier-clause tests
+    ├── witness_frames.py                # Hand-built 4-9 atom witness frames (F3, G, G2, F3z, ...)
+    ├── f3_candidate_sets.json           # Pinned verifier/falsifier sets of every clause on the F3 frame
+    ├── n4_separation_witnesses.json     # 4-atom models separating ILMC/ILC propositions on possible states
+    ├── test_counterfactual_examples.py  # Integration tests with 37 examples
+    ├── test_status_quo_audit.py         # Pins the current operator's two verifier clauses
+    ├── test_frame_oracle.py             # Oracle primitives, F3 refutation, clause roster
+    ├── test_candidate_structure.py      # Closure, exclusivity, soundness, sufficiency sweeps
+    ├── test_candidate_logic_oracle.py   # Nested logic and hyperintensionality (oracle)
+    ├── test_candidate_operators.py      # Python side == oracle == Z3 side cross-validation
+    └── test_candidate_logic.py          # Nested logic, constitutive comparison, regression (Z3)
 ```
 
 ## Overview
@@ -59,6 +75,21 @@ The counterfactual subtheory provides two operators: one primitive operator that
 **Defined Operator:**
 
 - Might Counterfactual (◇→) - Defined as ¬(A □→ ¬B)
+
+**Exploratory candidate operators** (`candidates.py`): alternatives to `\boxright` that share
+its truth clause verbatim and differ only in which states verify and falsify `A □→ B`. They
+exist to be measured side by side on identical examples; see
+[report/verifier_clauses.md](report/verifier_clauses.md) for the evidence and the
+recommendation. Each has a defined might variant `\diamondrightK`.
+
+| Operator | Key | Verifiers of `A □→ B` | Role |
+|----------|-----|------------------------|------|
+| `\boxrightI` | I | states `s` such that imposing every `A`-verifier on `s` reaches only `B`-worlds | refuted control |
+| `\boxrightILC` | ILC | fusion closure of the `I`-verifiers that also settle the counterfactual (every world above them makes it true) | mechanical control |
+| `\boxrightILMC` | ILMC | fusion closure of the parthood-minimal such states | recommended clause |
+| `\boxrightW` | W | fusion closure of the worlds where `A □→ B` is true | disqualified baseline |
+| `\boxrightL` | L | settlers | disqualified baseline |
+| `\boxrightMC` | MC | fusion closure of the minimal settlers | disqualified baseline |
 
 ### Counterfactual Conditional
 
@@ -288,32 +319,31 @@ def false_at(self, leftarg, rightarg, eval_point):
 
 ### Verification Semantics
 
-The counterfactual operators follow the **null-state verification pattern**:
-
-- **Verifiers**: Only the null state verifies true counterfactuals
-- **Falsifiers**: Only the null state falsifies false counterfactuals
-- **Evaluation**: Truth value determined by world-relative evaluation, not state verification
-
-This ensures counterfactuals behave as **world-sensitive** rather than **state-sensitive** operators.
+The current operator's verifier clause is **world-relative**: at evaluation world `w`, the
+Z3-side clause makes `w` itself the unique verifier of a true counterfactual (and the unique
+falsifier of a false one), while the Python-side `find_verifiers_and_falsifiers` returns every
+world where it is true. Both clauses are pinned by `tests/test_status_quo_audit.py`.
 
 **Z3 Implementation** (from operators.py):
 
 ```python
-# Verifier/falsifier conditions (hyperintensional)
 def extended_verify(self, state, leftarg, rightarg, eval_point):
-    """Defines verification conditions for counterfactual conditional in the extended semantics."""
+    """A state verifies A □→ B at a world if the state is that world
+    and A □→ B is true at that world."""
+    world = eval_point["world"]
     return z3.And(
-        state == self.semantics.null_state,
+        state == world,
         self.true_at(leftarg, rightarg, eval_point)
     )
-
-def extended_falsify(self, state, leftarg, rightarg, eval_point):
-    """Defines falsification conditions for counterfactual conditional in the extended semantics."""
-    return z3.And(
-        state == self.semantics.null_state,
-        self.false_at(leftarg, rightarg, eval_point)
-    )
 ```
+
+Because the verifier set changes with the evaluation world, the same counterfactual expresses
+different propositions in different contexts. The context-free alternatives in `candidates.py`
+are measured against this clause in [report/verifier_clauses.md](report/verifier_clauses.md),
+which recommends `\boxrightILMC`: a state verifies `A □→ B` iff it is a fusion of
+parthood-minimal states `t` such that imposing any `A`-verifier on `t`, or on any world
+containing `t`, reaches only `B`-worlds. The current `\boxright` is unchanged; adopting a
+successor is a separate decision.
 
 ## Testing and Validation
 
@@ -435,7 +465,17 @@ from model_checker.theory_lib.logos.subtheories.counterfactual.examples import (
     counterfactual_examples,        # Combined 37 examples
     example_range                   # Selected examples for execution
 )
+
+from model_checker.theory_lib.logos.subtheories.counterfactual.candidate_examples import (
+    counterfactual_candidate_examples,  # Curated candidate-clause collection (separate from unit_tests)
+    nested_examples,                    # Six nested-antecedent schemata for one candidate key
+    constitutive_examples,              # Necessary equivalence versus \equiv for one candidate key
+    regression_examples,                # The 37 examples rewritten to one candidate key
+)
 ```
+
+The candidate collection is not merged into `unit_tests`; run `candidate_examples.py` directly
+(its registry loads the constitutive subtheory for the `\equiv` comparison).
 
 #### Direct Operator Usage
 

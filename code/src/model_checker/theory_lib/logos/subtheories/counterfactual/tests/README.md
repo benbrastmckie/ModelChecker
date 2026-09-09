@@ -8,14 +8,24 @@
 tests/
 ├── README.md                         # This file - counterfactual test documentation
 ├── __init__.py                       # Test module initialization
-└── test_counterfactual_examples.py   # Integration tests with 33 comprehensive examples
+├── harness.py                        # solve()/outcome() helpers returning the solved structure
+├── witness_frames.py                 # Hand-built witness frames for the oracle (F3, G, G2, F3z, SRC-null)
+├── f3_candidate_sets.json            # Pinned sets of every verifier clause on the F3 frame
+├── n4_separation_witnesses.json      # 4-atom models separating ILMC/ILC on possible states
+├── test_counterfactual_examples.py   # Integration tests with 37 comprehensive examples
+├── test_status_quo_audit.py          # Pins the current operator's two verifier clauses
+├── test_frame_oracle.py              # Oracle primitives, the F3 refutation, the clause roster
+├── test_candidate_structure.py       # Structural sweeps per verifier clause (oracle)
+├── test_candidate_logic_oracle.py    # Nested logic and hyperintensionality (oracle)
+├── test_candidate_operators.py       # Python side == oracle == Z3 side cross-validation
+└── test_candidate_logic.py           # Nested logic, constitutive comparison, regression (Z3)
 ```
 
 ## Overview
 
 This directory contains comprehensive tests for the Counterfactual Subtheory of the Logos theory, covering both counterfactual operators: counterfactual conditional (`\\boxright`) and might counterfactual (`\\diamondright`).
 
-The test suite validates hypothetical reasoning through **33 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid counterfactual principles). These tests demonstrate the non-monotonic nature of counterfactual reasoning where principles like antecedent strengthening, contraposition, and transitivity fail.
+The test suite validates hypothetical reasoning through **37 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid counterfactual principles). These tests demonstrate the non-monotonic nature of counterfactual reasoning where principles like antecedent strengthening, contraposition, and transitivity fail.
 
 All tests use the ModelChecker framework's constraint-based validation approach with alternative worlds semantics, verifying counterfactual relationships based on verification conditions and world-relative evaluation.
 
@@ -25,12 +35,40 @@ All tests use the ModelChecker framework's constraint-based validation approach 
 
 **Purpose**: Integration tests that validate counterfactual operators using realistic counterfactual reasoning examples
 
-**Coverage**: 33 comprehensive examples testing counterfactual reasoning
+**Coverage**: 37 comprehensive examples testing counterfactual reasoning
 
 - **21 Countermodel Examples** (CF_CM_\*): Invalid arguments showing limitations of counterfactual logic
 - **12 Theorem Examples** (CF_TH_\*): Valid arguments confirming counterfactual principles
 
 **Test Framework**: Uses parametrized testing with pytest to run all examples systematically
+
+### Verifier-clause characterization tests
+
+The remaining modules measure the candidate verifier clauses of `candidates.py` (see
+[report/verifier_clauses.md](../report/verifier_clauses.md)). They follow one methodology:
+
+1. **Oracle first.** `frame_oracle.py` states every clause over explicit finite frames in pure
+   Python, so frames of 7-9 atoms (which the Z3 layer's finite quantifier expansion cannot
+   reach) and exhaustive/sampled populations of small models can be measured in seconds.
+   `test_frame_oracle.py` validates the oracle against the provenance research's refutation
+   frame and pins every clause's sets on it (`f3_candidate_sets.json`, generated before the
+   clauses were ported). `test_candidate_structure.py` and `test_candidate_logic_oracle.py`
+   are *characterization* tests: each count is pinned from a recorded run, and the pinned
+   population sizes are asserted before any count is compared.
+2. **Z3 confirmation at N ≤ 4.** `test_candidate_operators.py` solves identical examples under
+   every candidate and checks, on each solved model, that the operator's Python-side sets,
+   the oracle's sets on the extracted frame, and the operator's Z3-side clause evaluated at
+   every state and every evaluation world all agree (the last also checks context-freedom).
+   `test_candidate_logic.py` asks Z3 for the nested schemata and the constitutive comparison
+   and asserts the recorded outcome; a timed-out solve is recorded as inconclusive.
+3. **Small-frame caveat.** Several clauses coincide on possible states at small N (`IL = L`,
+   `ILMC = MC` on every n ≤ 4 population measured) and come apart only on the witness frames
+   of `witness_frames.py` (Frame G, 7 atoms) or on rare 4-atom models
+   (`n4_separation_witnesses.json`). A Z3 result at N ≤ 4 must not be read as showing two
+   clauses coincide.
+
+Environment variables `CF_STRUCTURE_MATRIX=<file>` and `CF_LOGIC_MATRIX_DIR=<dir>` make the
+sweep fixtures write their full matrices (counts, population sizes, witnesses) to disk.
 
 ## Running Tests
 

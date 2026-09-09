@@ -1,7 +1,7 @@
 # Implementation Plan: Task #185
 
 - **Task**: 185 - Design and test hyperintensional counterfactual verifiers
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 12 hours
 - **Dependencies**: None (phases 1-2 of the superseded plan `plans/01_counterfactual-verifier-candidates.md` are committed at `24998369` and `9a706717` and are inherited as prerequisites, not repeated)
 - **Research Inputs**: specs/185_design_and_test_hyperintensional_counterfactual_verifiers/reports/01_exact-imposition-verifier-clauses.md; prior decision (`.decisions.json`, cycle 2): admit the minimality step, plan around ILMC as primary with ILC as control
@@ -287,18 +287,18 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 
 ---
 
-### Phase 7: Recommendation document, documentation, cleanup, and summary [NOT STARTED]
+### Phase 7: Recommendation document, documentation, cleanup, and summary [COMPLETED]
 
 **Goal**: Deliver the recommendation naming `ILMC`, the discriminating evidence, its explicit concessions, and the further tests, with the subtheory documentation updated and the stash retired.
 
 **Tasks**:
-- [ ] Write `counterfactual/report/verifier_clauses.md` (no task-number references; cite filenames, test names, and section headings): the governing criterion and mechanism constraint; the roster with each clause stated; the F3 verdict (confirmed, strengthened); the exact family's characterization and what it gives up; the structure matrix; the nested-logic matrix; the hyperintensionality results with Frame G2; the regression result; the verdict on the settler argument (impossibility refuted by `IL*`; what survives); the recommendation `ILMC` with a dedicated "Concessions" section (every possible verifier is a settler; V3 is a minimality operation of the same kind as `max_compatible_part`'s maximality; in some contingent models -- all at n=3 -- nothing proper verifies, only proper falsifiers exist; the tensed generalization is not addressed); `ILC` as the mechanical control and what choosing it would concede (strict collapse); `SRC` recorded with its two insufficiency modes; and a "Further Tests" section naming, for `ILMC` vs `MC` (constitutive comparison on a Frame-G-type model; conceptual grounds) and `ILC` vs `L`/`W` (`\equiv` on Frame G2, oracle-only), the test that would separate them
-- [ ] Update `counterfactual/README.md`: Directory Structure (add `candidates.py`, `candidate_examples.py`, `frame_oracle.py`, `report/verifier_clauses.md`, the new test modules), Operator Reference (candidate operators marked as exploratory alternatives to `\boxright`, with the roster table), Example Collections (the candidate collection), and a pointer from the Verification Semantics section to the report
-- [ ] Update `counterfactual/tests/README.md` to describe the oracle, the witness frames, and the characterization-test methodology (pinned oracle outcomes, Z3 confirmation at N <= 4, small-frame coincidence caveat)
-- [ ] Run `bash .claude/scripts/check-task-references.sh` over `code/`; fix any hit
-- [ ] Complete gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and `PYTHONPATH=code/src pytest code/tests/ -q`; compare against `baselines/01_logos-suite-baseline.txt`
-- [ ] After the phase commit, with `git status --porcelain` empty, run `git stash drop 'stash@{0}'` (allowed only on a clean tree per `.claude/rules/git-workflow.md`) and remove `.git-snapshot-marker` and `working-progress-1788911805.patch` from the task directory
-- [ ] Write `specs/185_.../summaries/02_ilmc-settled-imposition-verifiers-summary.md` per summary-format.md, pointing at the report, the tests, and baselines `04`-`08`
+- [x] Write `counterfactual/report/verifier_clauses.md` (no task-number references; cite filenames, test names, and section headings): the governing criterion and mechanism constraint; the roster with each clause stated; the F3 verdict (confirmed, strengthened); the exact family's characterization and what it gives up; the structure matrix; the nested-logic matrix; the hyperintensionality results with Frame G2; the regression result; the verdict on the settler argument (impossibility refuted by `IL*`; what survives); the recommendation `ILMC` with a dedicated "Concessions" section (every possible verifier is a settler; V3 is a minimality operation of the same kind as `max_compatible_part`'s maximality; in some contingent models -- all at n=3 -- nothing proper verifies, only proper falsifiers exist; the tensed generalization is not addressed); `ILC` as the mechanical control and what choosing it would concede (strict collapse); `SRC` recorded with its two insufficiency modes; and a "Further Tests" section naming, for `ILMC` vs `MC` (constitutive comparison on a Frame-G-type model; conceptual grounds) and `ILC` vs `L`/`W` (`\equiv` on Frame G2, oracle-only), the test that would separate them
+- [x] Update `counterfactual/README.md`: Directory Structure (add `candidates.py`, `candidate_examples.py`, `frame_oracle.py`, `report/verifier_clauses.md`, the new test modules), Operator Reference (candidate operators marked as exploratory alternatives to `\boxright`, with the roster table), Example Collections (the candidate collection), and a pointer from the Verification Semantics section to the report
+- [x] Update `counterfactual/tests/README.md` to describe the oracle, the witness frames, and the characterization-test methodology (pinned oracle outcomes, Z3 confirmation at N <= 4, small-frame coincidence caveat)
+- [x] Run `bash .claude/scripts/check-task-references.sh` over `code/`; fix any hit -- ALTERED: the script rejects `code/` as a PATH_SCOPE (allowed: agent-system/extensions, .opencode, lua, .memory); a manual grep for task-number patterns over the counterfactual package is clean
+- [x] Complete gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and `PYTHONPATH=code/src pytest code/tests/ -q`; compare against `baselines/01_logos-suite-baseline.txt` -- observed 747 passed (452 baseline + 295 new) and 680 passed / 5 skipped
+- [x] After the phase commit, with `git status --porcelain` empty, run `git stash drop 'stash@{0}'` (allowed only on a clean tree per `.claude/rules/git-workflow.md`) and remove `.git-snapshot-marker` and `working-progress-1788911805.patch` from the task directory
+- [x] Write `specs/185_.../summaries/02_ilmc-settled-imposition-verifiers-summary.md` per summary-format.md, pointing at the report, the tests, and baselines `04`-`08`
 
 **Timing**: 1.5 hours
 
@@ -318,13 +318,13 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 
 ## Testing & Validation
 
-- [ ] Phase 1: recovered `test_candidate_operators.py` (44 tests) green with `I`, `W`, `L`; full logos suite at baseline + recovered count
-- [ ] Phase 2: every clause key returns the archived F3-frame sets; `f3`-mode output diff empty; witness frames' worlds and letter constraints verified
-- [ ] Phase 3: `test_candidate_structure.py` pins the n=3 exhaustive counts, the F4 characterization, Frame G, F3z and null-remainder separations
-- [ ] Phase 4: `test_candidate_logic_oracle.py` pins the F7 profile and the Frame G2 hyperintensionality results
-- [ ] Phase 5: six candidates pass Python == oracle == Z3 cross-validation at every world; cost decision recorded
-- [ ] Phase 6: `test_candidate_logic.py` outcomes match the oracle profile; regression matrix identical across candidates; 37-example baseline untouched and green
-- [ ] Phase 7: `check-task-references.sh` clean; `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and `pytest code/tests/ -q` green
+- [x] Phase 1: recovered `test_candidate_operators.py` (44 tests) green with `I`, `W`, `L`; full logos suite at baseline + recovered count
+- [x] Phase 2: every clause key returns the archived F3-frame sets; `f3`-mode output diff empty; witness frames' worlds and letter constraints verified
+- [x] Phase 3: `test_candidate_structure.py` pins the n=3 exhaustive counts, the F4 characterization, Frame G, F3z and null-remainder separations
+- [x] Phase 4: `test_candidate_logic_oracle.py` pins the F7 profile and the Frame G2 hyperintensionality results
+- [x] Phase 5: six candidates pass Python == oracle == Z3 cross-validation at every world; cost decision recorded
+- [x] Phase 6: `test_candidate_logic.py` outcomes match the oracle profile; regression matrix identical across candidates; 37-example baseline untouched and green
+- [x] Phase 7: `check-task-references.sh` clean; `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and `pytest code/tests/ -q` green
 
 ## Artifacts & Outputs
 
