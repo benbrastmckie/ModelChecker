@@ -154,7 +154,7 @@
     {
       "project_number": 185,
       "project_name": "design_and_test_hyperintensional_counterfactual_verifiers",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "topic": "semantics",
       "effort": "large",
@@ -179,12 +179,18 @@
           "path": "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_ilmc-settled-imposition-verifiers.md",
           "type": "plan",
           "summary": "7-phase plan (12 h) around ILMC as primary and ILC as control: recover the stashed Z3 substrate, port the research clauses and witness frames into the oracle with characterization tests (structure, F4, nested logic, Frame G/G2/F3z separations), add ILC/ILMC/MC Z3 operators with cross-validation and a cost gate, add nested-antecedent and constitutive example collections plus the regression matrix, and write the recommendation with concessions and further tests."
+        },
+        {
+          "path": "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/summaries/02_ilmc-settled-imposition-verifiers-summary.md",
+          "type": "summary",
+          "summary": "Per-phase record of the seven-phase implementation, its verification counts, plan deviations, and the deferred stash drop."
         }
       ],
       "created": "2026-09-08T23:11:08Z",
-      "last_updated": "2026-09-09T00:32:17Z",
+      "last_updated": "2026-09-09T01:38:52Z",
       "session_id": "sess_1788911899_64b5b6",
-      "next_artifact_number": 3
+      "next_artifact_number": 4,
+      "completion_summary": "Implemented and measured the candidate verifier clauses for the logos counterfactual: recovered the stashed Z3 substrate, ported every research clause and witness frame into the committed oracle with pinned characterization tests, added ILC/ILMC/MC as Z3 operators cross-validated against the oracle, built nested-antecedent and constitutive example collections with Z3 confirmation, and delivered the recommendation report naming ILMC (exact settled-imposition verifiers) with its concessions. Along the way fixed a pre-existing bound-variable capture in CounterfactualOperator.true_at/false_at and established, against the research's small-frame hypothesis, that ILMC/ILC are hyperintensional on possible states already at four atoms (Z3-confirmed at N=4)."
     }
   ],
   "repository_health": {

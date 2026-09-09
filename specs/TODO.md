@@ -11,7 +11,7 @@ next_project_number: 186
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 184,185 | -- | semantics |
+| 1 | 184 | -- | semantics |
 | 2 | 154,176,183 | 184 | semantics, test-reliability |
 | 3 | 172,178 | 176 | test-reliability |
 
@@ -21,7 +21,6 @@ next_project_number: 186
 
 184 [NOT STARTED] — Refactor the bimodal theory so its full test suite passes quickly
   └─ 154 [BLOCKED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
-185 [IMPLEMENTING] — Design and test the hyperintensional semantics for counterfactual
 
 ### Test Reliability
 
@@ -35,12 +34,13 @@ next_project_number: 186
 
 ### 185. Design and test hyperintensional counterfactual verifiers
 - **Effort**: large
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [185_design_and_test_hyperintensional_counterfactual_verifiers/reports/01_exact-imposition-verifier-clauses.md]
 - **Plan**: [185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_ilmc-settled-imposition-verifiers.md]
+- **Summary**: [185_design_and_test_hyperintensional_counterfactual_verifiers/summaries/02_ilmc-settled-imposition-verifiers-summary.md]
 
 **Description**: Design and test the hyperintensional semantics for counterfactual conditionals in the logos theory: specifically, which states verify and which falsify A []-> B. Define new counterfactual operators as competing alternatives and discriminate between them by exploring their logic over small models, so the choice rests on model-based evidence rather than on argument alone.
 
