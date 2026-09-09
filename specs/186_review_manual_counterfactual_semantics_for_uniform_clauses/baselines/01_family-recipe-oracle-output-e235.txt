@@ -1,0 +1,124 @@
+==============================================================================
+E2  Null-family derivations (identity, necessity), window [0, 1]
+  (A == A)                     V = ['{0:null}']  F = []   [V=={null}: True, F=={null}: False]
+  (A == B)                     V = []  F = ['{0:null}']   [V=={null}: False, F=={null}: True]
+  [](A v ~A)                   V = ['{0:null}']  F = []   [V=={null}: True, F=={null}: False]
+  []A                          V = []  F = ['{0:null}']   [V=={null}: False, F=={null}: True]
+  []((A v B) v (C v D))        V = ['{0:null}']  F = []   [V=={null}: True, F=={null}: False]
+  SA                           V = ['{0:a, 1:a.b.c.d}', '{0:a, 1:a.d}', '{0:a, 1:b.c}', '{0:a.b.c, 1:a.b.c.d}']...  F = ['{0:b.c.d}', '{0:b.d}', '{0:c.d}']   [V=={null}: False, F=={null}: False]
+==============================================================================
+E3  Nested logic at a recipe-governed antecedent: X = A []-> B, window [0, 1]
+  padding full, variant ILMC: |V_X| = 1 (realizable 1: {0:b}), |F_X| = 15, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   FAILS for 4/10 consequents; e.g. consequent A at history <a.b, a.b>
+    AS           FAILS for 2/10 consequents; e.g. consequent A at history <a.b, a.b>
+    ReadingB(S)  FAILS for 6/10 consequents; e.g. consequent B at history <a.c, a.b>
+    might-id     valid for all 10 consequents
+  padding full, variant ILC: |V_X| = 68 (realizable 30: {0:b}, {0:b, 1:null}, {0:b, 1:a}, {0:b, 1:b}, {0:b, 1:a.b}, {0:b, 1:c}...), |F_X| = 174, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   valid for all 10 consequents
+    AS           valid for all 10 consequents
+    ReadingB(S)  FAILS for 10/10 consequents; e.g. consequent A at history <a.b, a.b>
+    might-id     valid for all 10 consequents
+  padding restrict, variant ILMC: |V_X| = 1 (realizable 1: {0:b}), |F_X| = 15, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   FAILS for 4/10 consequents; e.g. consequent A at history <a.b, a.b>
+    AS           FAILS for 2/10 consequents; e.g. consequent A at history <a.b, a.b>
+    ReadingB(S)  FAILS for 6/10 consequents; e.g. consequent B at history <a.c, a.b>
+    might-id     valid for all 10 consequents
+  padding restrict, variant ILC: |V_X| = 68 (realizable 30: {0:b}, {0:b, 1:null}, {0:b, 1:a}, {0:b, 1:b}, {0:b, 1:a.b}, {0:b, 1:c}...), |F_X| = 174, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   valid for all 10 consequents
+    AS           valid for all 10 consequents
+    ReadingB(S)  FAILS for 10/10 consequents; e.g. consequent A at history <a.b, a.b>
+    might-id     valid for all 10 consequents
+==============================================================================
+E3  Nested logic at a recipe-governed antecedent: X = (F A) []-> B, window [0, 1]
+  padding full, variant ILMC: |V_X| = 15 (realizable 1: {0:b}), |F_X| = 21, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   FAILS for 4/10 consequents; e.g. consequent A at history <a.b, a.b>
+    AS           FAILS for 2/10 consequents; e.g. consequent A at history <a.b, a.b>
+    ReadingB(S)  FAILS for 6/10 consequents; e.g. consequent B at history <a.c, a.b>
+    might-id     valid for all 10 consequents
+  padding full, variant ILC: |V_X| = 157 (realizable 30: {0:b}, {0:b, 1:null}, {0:b, 1:a}, {0:b, 1:b}, {0:b, 1:a.b}, {0:b, 1:c}...), |F_X| = 149, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   valid for all 10 consequents
+    AS           valid for all 10 consequents
+    ReadingB(S)  FAILS for 10/10 consequents; e.g. consequent A at history <a.b, a.b>
+    might-id     valid for all 10 consequents
+  padding restrict, variant ILMC: |V_X| = 15 (realizable 1: {0:b}), |F_X| = 47, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   FAILS for 4/10 consequents; e.g. consequent A at history <a.b, a.b>
+    AS           FAILS for 2/10 consequents; e.g. consequent A at history <a.b, a.b>
+    ReadingB(S)  FAILS for 6/10 consequents; e.g. consequent B at history <a.c, a.b>
+    might-id     valid for all 10 consequents
+  padding restrict, variant ILC: |V_X| = 163 (realizable 30: {0:b}, {0:b, 1:null}, {0:b, 1:a}, {0:b, 1:b}, {0:b, 1:a.b}, {0:b, 1:c}...), |F_X| = 140, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   valid for all 10 consequents
+    AS           valid for all 10 consequents
+    ReadingB(S)  FAILS for 10/10 consequents; e.g. consequent A at history <a.b, a.b>
+    might-id     valid for all 10 consequents
+==============================================================================
+E3  Nested logic at a recipe-governed antecedent: X = S B, window [0, 1]
+  padding full, variant ILMC: |V_X| = 15 (realizable 1: {0:b}), |F_X| = 3, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   FAILS for 4/10 consequents; e.g. consequent A at history <a.b, a.b>
+    AS           FAILS for 2/10 consequents; e.g. consequent A at history <a.b, a.b>
+    ReadingB(S)  FAILS for 6/10 consequents; e.g. consequent B at history <a.c, a.b>
+    might-id     valid for all 10 consequents
+  padding full, variant ILC: |V_X| = 212 (realizable 30: {0:b}, {0:b, 1:null}, {0:b, 1:a}, {0:b, 1:b}, {0:b, 1:a.b}, {0:b, 1:c}...), |F_X| = 51, X true at 8/16 histories
+    identity     valid for all 10 consequents
+    MP           valid for all 10 consequents
+    strict->cf   valid for all 10 consequents
+    cf->strict   valid for all 10 consequents
+    AS           valid for all 10 consequents
+    ReadingB(S)  FAILS for 10/10 consequents; e.g. consequent A at history <a.b, a.b>
+    might-id     valid for all 10 consequents
+==============================================================================
+E5  Tensed antecedent (F P) []-> Q and its settlers, window [0, 1, 2], padding full
+  event verifiers of FA at 0: 17; domains [(0, 1), (0, 1, 2)]
+  X true at 32/64 histories; agrees with Q at anchor everywhere: True
+
+[(FA []-> B)] at anchor 0, variant ILMC
+  IL members: V 1494, F 2794; after min+closure: V 63, F 93
+  minimal settlers: 6 (realizable 1); minimal co-settlers: 10 (realizable 1)
+  domains of realizable minimal settlers: [(0,)]
+  domains of realizable minimal co-settlers: [(0,)]
+  realizable minimal settlers: {0:b}
+  realizable minimal co-settlers: {0:c}
+  sound V/F: True/True; sufficient V/F: True/True
+  E3 pointwise (all members): False; E3 pointwise (realizable members): True; E3 history-form: True; all domains convex: False
+  pointwise-E3 witness: V {0:null, 1:a.b.c.d, 2:a.d} (realizable False) vs F {0:c} (realizable True)
+==============================================================================
+E5  Tensed antecedent (F P) []-> Q and its settlers, window [0, 1, 2], padding restrict
+  event verifiers of FA at 0: 17; domains [(0, 1), (0, 1, 2)]
+  X true at 32/64 histories; agrees with Q at anchor everywhere: True
+
+[(FA []-> B)] at anchor 0, variant ILMC
+  IL members: V 1637, F 2618; after min+closure: V 63, F 599
+  minimal settlers: 6 (realizable 1); minimal co-settlers: 32 (realizable 6)
+  domains of realizable minimal settlers: [(0,)]
+  domains of realizable minimal co-settlers: [(0, 1), (0, 1, 2)]
+  realizable minimal settlers: {0:b}
+  realizable minimal co-settlers: {0:c, 1:a}, {0:c, 1:b}, {0:c, 1:c}, {0:c, 1:d, 2:a}, {0:c, 1:d, 2:b}, {0:c, 1:d, 2:c}
+  sound V/F: True/True; sufficient V/F: True/True
+  E3 pointwise (all members): False; E3 pointwise (realizable members): True; E3 history-form: True; all domains convex: False
+  pointwise-E3 witness: V {0:null, 2:a.b.c.d} (realizable False) vs F {0:c, 1:b} (realizable True)

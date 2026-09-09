@@ -21,7 +21,7 @@ next_project_number: 187
 
 184 [NOT STARTED] — Refactor the bimodal theory so its full test suite passes quickly
   └─ 154 [BLOCKED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
-186 [NOT STARTED] — Review the counterfactual semantics of the Logos manual's dynamic
+186 [RESEARCHED] — Review the counterfactual semantics of the Logos manual's dynamic
 
 ### Test Reliability
 
@@ -35,10 +35,11 @@ next_project_number: 187
 
 ### 186. Review manual counterfactual semantics for uniform clauses
 - **Effort**: large
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: formal:logic
 - **Topic**: semantics
 - **Dependencies**: None
+- **Research**: [186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md]
 
 **Description**: Review the counterfactual semantics of the Logos manual's dynamics chapter (~/Projects/Logos/Theory/typst/manual/chapters/03-dynamics.typ) and identify whether further improvements are available, with the aim of a clean, systematic, and UNIFORM hyperintensional semantics for counterfactual conditionals -- one whose clauses place no restriction on which well-formed sentences may be embedded or interpreted.
 
