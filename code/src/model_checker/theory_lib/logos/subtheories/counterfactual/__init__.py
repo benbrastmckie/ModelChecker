@@ -16,6 +16,16 @@ from .operators import (
     CounterfactualOperator,
     MightCounterfactualOperator,
 )
+from .candidates import (
+    CandidateCounterfactual,
+    ImpositionLocalCounterfactual,
+    WorldStateCounterfactual,
+    SettlerCounterfactual,
+    CANDIDATE_OPERATORS,
+    MIGHT_OPERATORS,
+    get_candidate_operators,
+    substitute_candidate,
+)
 
 def get_examples():
     """
@@ -37,4 +47,12 @@ __all__ = [
     'get_examples',
     'CounterfactualOperator',
     'MightCounterfactualOperator',
+    'CandidateCounterfactual',
+    'ImpositionLocalCounterfactual',
+    'WorldStateCounterfactual',
+    'SettlerCounterfactual',
+    'CANDIDATE_OPERATORS',
+    'MIGHT_OPERATORS',
+    'get_candidate_operators',
+    'substitute_candidate',
 ]

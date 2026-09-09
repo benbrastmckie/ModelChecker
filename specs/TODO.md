@@ -21,7 +21,7 @@ next_project_number: 186
 
 184 [NOT STARTED] — Refactor the bimodal theory so its full test suite passes quickly
   └─ 154 [BLOCKED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
-185 [PLANNED] — Design and test the hyperintensional semantics for counterfactual
+185 [IMPLEMENTING] — Design and test the hyperintensional semantics for counterfactual
 
 ### Test Reliability
 
@@ -35,7 +35,7 @@ next_project_number: 186
 
 ### 185. Design and test hyperintensional counterfactual verifiers
 - **Effort**: large
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None

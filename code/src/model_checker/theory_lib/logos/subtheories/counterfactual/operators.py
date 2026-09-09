@@ -6,6 +6,7 @@ This module implements counterfactual logical operators:
 - Might Counterfactual
 """
 
+import itertools
 from typing import TYPE_CHECKING, cast
 
 from model_checker import z3_shim as z3
@@ -26,6 +27,13 @@ if TYPE_CHECKING:
 
 # Import required operators for defined operators
 
+#: Distinguishes the bound variables of each ``true_at``/``false_at`` call.
+#: ``utils.ForAll``/``Exists`` expand quantifiers by substituting for the
+#: named constant, so a counterfactual nested in consequent position would
+#: otherwise have its evaluation world (the outer clause's bound ``u``)
+#: captured by the inner clause's own ``u``.
+_bound_variable_ids = itertools.count()
+
 
 class CounterfactualOperator(syntactic.Operator):
     """Implementation of the counterfactual conditional.
@@ -44,8 +52,9 @@ class CounterfactualOperator(syntactic.Operator):
         """Defines truth conditions for counterfactual conditional at an evaluation point."""
         semantics = self.semantics
         N = semantics.N
-        x = z3.BitVec("t_cf_x", N)
-        u = z3.BitVec("t_cf_u", N)
+        tag = next(_bound_variable_ids)
+        x = z3.BitVec(f"t_cf_x_{tag}", N)
+        u = z3.BitVec(f"t_cf_u_{tag}", N)
         return ForAll(
             [x, u],
             z3.Implies(
@@ -61,8 +70,9 @@ class CounterfactualOperator(syntactic.Operator):
         """Defines falsity conditions for counterfactual conditional at an evaluation point."""
         semantics = self.semantics
         N = semantics.N
-        x = z3.BitVec("f_cf_x", N)
-        u = z3.BitVec("f_cf_u", N)
+        tag = next(_bound_variable_ids)
+        x = z3.BitVec(f"f_cf_x_{tag}", N)
+        u = z3.BitVec(f"f_cf_u_{tag}", N)
         return Exists(
             [x, u],
             cast(z3.BoolRef, z3.And(
@@ -302,11 +312,20 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
 def get_operators():
     """
     Get all counterfactual operators.
-    
+
+    Alongside ``\\boxright`` and ``\\diamondright`` this includes the
+    exploratory candidate clauses from ``candidates.py`` (``\\boxrightI``,
+    ``\\boxrightW``, ...), which share the truth clause of
+    ``CounterfactualOperator`` and differ only in their verifier clauses.
+
     Returns:
         dict: Dictionary mapping operator names to operator classes
     """
+    # Imported here: candidates.py subclasses CounterfactualOperator.
+    from .candidates import get_candidate_operators
+
     return {
         "\\boxright": CounterfactualOperator,
         "\\diamondright": MightCounterfactualOperator,
+        **get_candidate_operators(),
     }

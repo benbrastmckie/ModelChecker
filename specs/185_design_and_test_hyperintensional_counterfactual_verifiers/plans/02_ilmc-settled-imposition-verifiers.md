@@ -1,7 +1,7 @@
 # Implementation Plan: Task #185
 
 - **Task**: 185 - Design and test hyperintensional counterfactual verifiers
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 12 hours
 - **Dependencies**: None (phases 1-2 of the superseded plan `plans/01_counterfactual-verifier-candidates.md` are committed at `24998369` and `9a706717` and are inherited as prerequisites, not repeated)
 - **Research Inputs**: specs/185_design_and_test_hyperintensional_counterfactual_verifiers/reports/01_exact-imposition-verifier-clauses.md; prior decision (`.decisions.json`, cycle 2): admit the minimality step, plan around ILMC as primary with ILC as control
@@ -92,18 +92,18 @@ Notation as in the research report F3: `W` worlds; `|A|± = (V_A, F_A)`; `[s]_a`
 
 Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 only; Phase 5 depends on 1 and 2.
 
-### Phase 1: Recover the stashed Z3 substrate [NOT STARTED]
+### Phase 1: Recover the stashed Z3 substrate [COMPLETED]
 
 **Goal**: Bring the earlier phase-3 work (`candidates.py`, cross-validation tests, `get_operators()` merge) back from `git stash@{0}` by explicit path, confirm it green on the current tree, and commit it so Phase 5 builds on a committed base.
 
 **Tasks**:
-- [ ] Verify `git stash list` shows `stash@{0}: On counterfactual-verifier-semantics: git-snapshot-1788911805` and `git show --stat 'stash@{0}^3'` lists `candidates.py`, `tests/test_candidate_operators.py`, `handoffs/phase-3-handoff-20260908T235211Z.md`; abort with a recorded finding if the stash is absent
-- [ ] Restore tracked edits by path only: `git checkout 'stash@{0}' -- code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py`; confirm the diff against `HEAD` touches only `get_operators()` (merge of `candidates.get_candidate_operators()`) and the `__init__.py` exports -- the two operator classes must be byte-identical to `HEAD`
-- [ ] Restore untracked files by path: `git checkout 'stash@{0}^3' -- code/.../counterfactual/candidates.py code/.../counterfactual/tests/test_candidate_operators.py specs/185_.../handoffs/phase-3-handoff-20260908T235211Z.md`
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/ -q`; expected 24 (oracle/audit) + 37 (examples) + 44 (candidate cross-validation) green
-- [ ] Run the full logos suite `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and compare with `baselines/01_logos-suite-baseline.txt` (452 passed); the new count must be the baseline plus the recovered tests
-- [ ] Add a module-docstring note to `candidates.py` naming the roster this plan implements (`I`, `W`, `L` now; `ILC`, `ILMC`, `MC` in Phase 5) and that `IL`, `ILM`, `M`, `SR`, `SRC` are oracle-only
-- [ ] Do NOT `git stash pop` or `git stash drop` in this phase
+- [x] Verify `git stash list` shows `stash@{0}: On counterfactual-verifier-semantics: git-snapshot-1788911805` and `git show --stat 'stash@{0}^3'` lists `candidates.py`, `tests/test_candidate_operators.py`, `handoffs/phase-3-handoff-20260908T235211Z.md`; abort with a recorded finding if the stash is absent
+- [x] Restore tracked edits by path only: `git checkout 'stash@{0}' -- code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py`; confirm the diff against `HEAD` touches only `get_operators()` (merge of `candidates.get_candidate_operators()`) and the `__init__.py` exports -- the two operator classes must be byte-identical to `HEAD` -- DEVIATION (altered): `true_at`/`false_at` now draw fresh bound-variable names per call; the shared names `t_cf_x`/`t_cf_u` let a consequent-position counterfactual capture the outer clause's bound world (`utils.ForAll` substitutes by name), which surfaced as `test_z3_side_equals_python_side_at_every_world[W-CF_CM_19]` failing in the full suite. Semantics unchanged; pinned by `test_status_quo_audit.py::test_nested_consequent_keeps_its_evaluation_world`; the 37 examples' expectations unchanged
+- [x] Restore untracked files by path: `git checkout 'stash@{0}^3' -- code/.../counterfactual/candidates.py code/.../counterfactual/tests/test_candidate_operators.py specs/185_.../handoffs/phase-3-handoff-20260908T235211Z.md`
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/ -q`; expected 24 (oracle/audit) + 37 (examples) + 44 (candidate cross-validation) green -- observed 106 (one extra: the capture regression test)
+- [x] Run the full logos suite `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and compare with `baselines/01_logos-suite-baseline.txt` (452 passed); the new count must be the baseline plus the recovered tests -- observed 521 = 452 + 24 (phases 1-2 of plan 01) + 44 + 1
+- [x] Add a module-docstring note to `candidates.py` naming the roster this plan implements (`I`, `W`, `L` now; `ILC`, `ILMC`, `MC` in Phase 5) and that `IL`, `ILM`, `M`, `SR`, `SRC` are oracle-only
+- [x] Do NOT `git stash pop` or `git stash drop` in this phase
 
 **Timing**: 1.5 hours
 

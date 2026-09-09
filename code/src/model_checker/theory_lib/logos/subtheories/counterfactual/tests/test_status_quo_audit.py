@@ -20,6 +20,8 @@ measured.
 
 import pytest
 
+from model_checker import z3_shim as z3
+
 from model_checker.theory_lib.logos.subtheories.counterfactual.tests.harness import (
     base_settings,
     find_sentence,
@@ -107,3 +109,55 @@ def test_the_two_clauses_disagree(solved):
         py_v, _ = op.find_verifiers_and_falsifiers(left, right, {"world": w})
         assert z3_verifiers != py_v
         assert z3_verifiers < py_v
+
+
+# ---------------------------------------------------------------------------
+# Bound-variable hygiene of the shared truth clause
+# ---------------------------------------------------------------------------
+
+def _mentions_constant(expr, name):
+    seen = set()
+    stack = [expr]
+    while stack:
+        e = stack.pop()
+        if e.get_id() in seen:
+            continue
+        seen.add(e.get_id())
+        if z3.is_const(e) and e.decl().name() == name:
+            return True
+        stack.extend(e.children())
+    return False
+
+
+def test_nested_consequent_keeps_its_evaluation_world():
+    """A counterfactual in consequent position must depend on the world it is evaluated at.
+
+    ``utils.ForAll`` expands quantifiers by substituting for a *named*
+    constant.  With a single fixed name for the bound world, the inner
+    clause of ``A \\boxright (B \\boxright C)`` captured the outer clause's
+    bound world and collapsed to a world-independent formula, so the Z3-side
+    truth clause disagreed with the Python-side evaluation at concrete
+    worlds.  Each call now draws fresh names; this pins that.
+    """
+    syntax, semantics, structure = solve(
+        ['((A \\wedge B) \\boxright C)'], ['(A \\boxright (B \\boxright C))'], base_settings(N=3)
+    )
+    assert structure.z3_model is not None
+    outer = syntax.conclusions[0]
+    left, right = outer.arguments
+    probe = z3.BitVec("probe_world", semantics.N)
+    assert _mentions_constant(semantics.true_at(right, {"world": probe}), "probe_world")
+    assert _mentions_constant(semantics.false_at(right, {"world": probe}), "probe_world")
+    # And the Z3-side truth clause agrees with a concrete-world recomputation.
+    evaluate = structure.z3_model.evaluate
+    states = structure.all_states
+    worlds = structure.z3_world_states
+    antecedent = {int(s.as_long()) for s in left.proposition.verifiers}
+    for w in worlds:
+        z3_truth = bool(evaluate(outer.operator.true_at(left, right, {"world": w})))
+        alternatives = {
+            u for a in antecedent for u in worlds
+            if bool(evaluate(semantics.is_alternative(u, states[a], w)))
+        }
+        recomputed = all(bool(evaluate(semantics.true_at(right, {"world": u}))) for u in alternatives)
+        assert z3_truth == recomputed, f"world {w}: Z3 {z3_truth} vs recomputed {recomputed}"
