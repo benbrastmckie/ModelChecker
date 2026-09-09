@@ -159,18 +159,18 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 
 ---
 
-### Phase 3: Oracle characterization: structure, F4, and the Frame G / F3z separations [NOT STARTED]
+### Phase 3: Oracle characterization: structure, F4, and the Frame G / F3z separations [COMPLETED]
 
 **Goal**: Pin the research's structural findings as characterization tests so the recommendation's soundness/sufficiency/closure/proper-verifier claims and the mechanism-constraint separations are reproducible from `pytest` alone.
 
 **Tasks**:
-- [ ] RED: `tests/test_candidate_structure.py` -- exhaustive n=3 sweep (`enumerate_models(3)`, 3,204 models, 24 contingent) parametrized over `I, ILC, ILMC, W, L, MC, SRC, XPe, XPa, XS`: per candidate, count models failing each `measure` property (closure V/F, `exclusive_compat`, `exhaustive`, bridge soundness both polarities, sufficiency both polarities, `impossible_harmless_*`) and pin the counts from report F4/F5/F6 tables (`ILC`/`ILMC`/`W`/`L`/`MC`: 0 everywhere; `XS`: sound 6, sufficient 1554/1644, exhaustive 3192; `XPe`: closure 3/18; `SRC`: closure 0/0; `I`: the F3-style failures) -- if a count differs, the test fails and the report is corrected, not the test
-- [ ] Proper-verifier desideratum: pin per candidate the count of contingent models with a possible verifier properly below a world at n=3 exhaustive (`ILMC`: 0/24 V, 24/24 F) and on the seeded n=4 sample (`enumerate_models(4, limit=300, seed=...)` -- use the seed the research script uses; `ILMC`: 6/11), and pin the F3-frame `ILMC` proper verifiers `{a.p', a.q', a.b, a.p'.b, a.q'.b}` and `IL`'s closure witness `a.p.p' ⊔ a.q.q'`
-- [ ] F4 characterization test: over n=3 exhaustive models, assert `XPe` has a verifier below true world `w` iff every `(a,u) ∈ P(w)` has some `b ∈ V_B` with `b ⊑ u` and `b ⊑ w` (port `characterize_exact_sufficiency`); 0 mismatches
-- [ ] Frame G tests: `y` and `a'` are settlers but not `I`-verifiers (`Alt(y, a)` contains `u = a.x.b'`); `IL ≠ L` and `ILMC ∩ possible = {c, b, c.b}` versus `MC`'s set containing `a'`, `y`
-- [ ] Frame F3z tests: `T(w4)` true; `SR`/`SRC` have no verifier and no falsifier at `w4` (exhaustivity fails); `ILMC` verifies `w4` via `p'.z`, `b.z`, `p'.b.z`
-- [ ] SRC null-remainder tests: at world `d` the counterfactual is false, `[d]_b = {null}`, `SRC` has no falsifier below `d`, `ILMC`/`MC` give `d`
-- [ ] Write the property matrix to `baselines/04_structure-matrix.json` (candidate x property -> count or witness) from the test run (a small writer in the test module gated on an env var, or a `python -m` entry in `frame_oracle.py`)
+- [x] RED: `tests/test_candidate_structure.py` -- exhaustive n=3 sweep (`enumerate_models(3)`, 3,204 models, 24 contingent) parametrized over `I, ILC, ILMC, W, L, MC, SRC, XPe, XPa, XS`: per candidate, count models failing each `measure` property (closure V/F, `exclusive_compat`, `exhaustive`, bridge soundness both polarities, sufficiency both polarities, `impossible_harmless_*`) and pin the counts from report F4/F5/F6 tables (`ILC`/`ILMC`/`W`/`L`/`MC`: 0 everywhere; `XS`: sound 6, sufficient 1554/1644, exhaustive 3192; `XPe`: closure 3/18; `SRC`: closure 0/0; `I`: the F3-style failures) -- if a count differs, the test fails and the report is corrected, not the test
+- [x] Proper-verifier desideratum: pin per candidate the count of contingent models with a possible verifier properly below a world at n=3 exhaustive (`ILMC`: 0/24 V, 24/24 F) and on the seeded n=4 sample (`enumerate_models(4, limit=300, seed=...)` -- use the seed the research script uses; `ILMC`: 6/11), and pin the F3-frame `ILMC` proper verifiers `{a.p', a.q', a.b, a.p'.b, a.q'.b}` and `IL`'s closure witness `a.p.p' ⊔ a.q.q'`
+- [x] F4 characterization test: over n=3 exhaustive models, assert `XPe` has a verifier below true world `w` iff every `(a,u) ∈ P(w)` has some `b ∈ V_B` with `b ⊑ u` and `b ⊑ w` (port `characterize_exact_sufficiency`); 0 mismatches
+- [x] Frame G tests: `y` and `a'` are settlers but not `I`-verifiers (`Alt(y, a)` contains `u = a.x.b'`); `IL ≠ L` and `ILMC ∩ possible = {c, b, c.b}` versus `MC`'s set containing `a'`, `y`
+- [x] Frame F3z tests: `T(w4)` true; `SR`/`SRC` have no verifier and no falsifier at `w4` (exhaustivity fails); `ILMC` verifies `w4` via `p'.z`, `b.z`, `p'.b.z`
+- [x] SRC null-remainder tests: at world `d` the counterfactual is false, `[d]_b = {null}`, `SRC` has no falsifier below `d`, `ILMC`/`MC` give `d`
+- [x] Write the property matrix to `baselines/04_structure-matrix.json` (candidate x property -> count or witness) from the test run (the sweep fixture writes it when `CF_STRUCTURE_MATRIX=<path>` is set; `structure_sweep` and `exact_sufficiency_mismatches` live in `frame_oracle.py`) -- every pinned count matched on first run (39 tests, 19 s)
 
 **Timing**: 2 hours
 

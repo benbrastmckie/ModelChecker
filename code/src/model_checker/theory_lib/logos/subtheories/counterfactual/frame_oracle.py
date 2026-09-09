@@ -866,6 +866,97 @@ PROPERTY_NAMES: Tuple[str, ...] = (
 )
 
 
+#: The properties a structure sweep counts failures of, in table order.
+SWEEP_PROPERTIES: Tuple[str, ...] = (
+    "closure_V", "closure_F", "exclusive_possible", "exclusive_compat", "exhaustive",
+    "bridge_sound_V", "bridge_sound_F", "bridge_sufficient_V", "bridge_sufficient_F",
+    "impossible_harmless_V", "impossible_harmless_F",
+)
+
+
+def structure_sweep(models: Iterable[Tuple["Frame", "Interpretation"]], keys: Sequence[str],
+                    left: Any, right: Any) -> Dict[str, Dict[str, Any]]:
+    """Per key: how many models fail each property, proper-verifier tallies, first witnesses.
+
+    Returns ``{key: {"models": n, "fails": {property: count}, "proper": {...},
+    "witness": {property: serialized model}}}``.  ``proper`` counts the
+    contingent models (true and false somewhere) and, among them, those with
+    a possible verifier / falsifier properly below a world, those whose
+    proper verifier comes with every property intact, and the models on
+    which the proposition is empty.
+    """
+    result: Dict[str, Dict[str, Any]] = {
+        key: {
+            "models": 0,
+            "fails": {prop: 0 for prop in SWEEP_PROPERTIES},
+            "proper": {
+                "contingent_models": 0,
+                "contingent_with_proper_V": 0,
+                "contingent_with_proper_F": 0,
+                "contingent_proper_V_and_all_props": 0,
+                "empty_proposition": 0,
+            },
+            "witness": {},
+        }
+        for key in keys
+    }
+    for frame, interp in models:
+        for key in keys:
+            entry = result[key]
+            entry["models"] += 1
+            record = measure(key, left, right, frame, interp)
+            for prop in SWEEP_PROPERTIES:
+                if record[prop] is False:
+                    entry["fails"][prop] += 1
+                    entry["witness"].setdefault(prop, {
+                        "model": model_to_dict(frame, interp),
+                        "verifiers": record["verifiers"],
+                        "falsifiers": record["falsifiers"],
+                        "true_worlds": record["true_worlds"],
+                        "witness": record.get(prop + "_witness"),
+                    })
+            proper = entry["proper"]
+            if record["contingent"]:
+                proper["contingent_models"] += 1
+                if record["proper_possible_V"]:
+                    proper["contingent_with_proper_V"] += 1
+                if record["proper_possible_F"]:
+                    proper["contingent_with_proper_F"] += 1
+                if record["proper_possible_V"] and all(record[prop] for prop in SWEEP_PROPERTIES):
+                    proper["contingent_proper_V_and_all_props"] += 1
+            if not record["verifiers"] and not record["falsifiers"]:
+                proper["empty_proposition"] += 1
+    return result
+
+
+def exact_sufficiency_mismatches(models: Iterable[Tuple["Frame", "Interpretation"]],
+                                 left: Any, right: Any, key: str = "XPe") -> Tuple[int, int]:
+    """``(true worlds checked, mismatches)`` for the exact-family characterization.
+
+    Claim: an exact clause has a verifier below a true world ``w`` iff every
+    ``(a, u)`` in ``P(w)`` has a consequent verifier that is part of both
+    ``u`` and ``w``.
+    """
+    checked = mismatches = 0
+    for frame, interp in models:
+        ev = Evaluator(frame, interp)
+        va = ev.proposition(left)[0]
+        vb = ev.proposition(right)[0]
+        v, _ = ev.proposition(CF(key, left, right))
+        for w in frame.worlds:
+            if not ev.cf_true(left, right, w):
+                continue
+            checked += 1
+            has_verifier = any(is_part_of(s, w) for s in v)
+            predicted = all(
+                any(is_part_of(b, u) and is_part_of(b, w) for b in vb)
+                for a in va for u in frame.alternatives(w, a)
+            )
+            if has_verifier != predicted:
+                mismatches += 1
+    return checked, mismatches
+
+
 # ---------------------------------------------------------------------------
 # Small-N enumeration
 # ---------------------------------------------------------------------------
