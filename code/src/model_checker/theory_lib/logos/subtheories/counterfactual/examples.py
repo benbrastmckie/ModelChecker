@@ -838,6 +838,13 @@ counterfactual_th_examples = {
 # Combined collection of all counterfactual examples
 unit_tests = {**counterfactual_cm_examples, **counterfactual_th_examples}
 
+# Candidate verifier-clause examples (nested-antecedent schemata and the
+# constitutive comparison for the exploratory candidate operators in
+# candidates.py).  A separate collection: it is NOT merged into unit_tests,
+# so the 37-example baseline above is unchanged.  See candidate_examples.py
+# for the generators and report/verifier_clauses.md for the results.
+from .candidate_examples import counterfactual_candidate_examples  # noqa: E402
+
 # Default settings
 general_settings = {
     "print_constraints": False,
@@ -866,6 +873,11 @@ semantic_theories = {
 # # Specify which examples to run by default when running this module directly
 # # All examples included by default
 # example_range = unit_tests
+#
+# # Candidate verifier-clause collection (separate from unit_tests; needs the
+# # constitutive subtheory for the \equiv comparison -- run candidate_examples.py
+# # directly, whose registry loads it)
+# example_range = counterfactual_candidate_examples
 
 # Or set specific examples
 example_range = {

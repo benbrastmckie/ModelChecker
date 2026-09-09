@@ -8,6 +8,13 @@ models each).  One pin corrects the report's prose: the same-truth-set,
 distinct-proposition count for ``SR``/``SRC`` on the seed-37 sample is 403
 (the value in the archived table), not the 428 the F8 paragraph quotes.
 
+A second correction to the research: the zeros for the settled-imposition
+clauses at n=3/n=4 are a sampling artefact, not a small-frame coincidence.
+Larger seeded samples at n=4 (20,000 models) contain pairs whose ``ILMC``
+and ``ILC`` propositions differ on *possible* states while ``L`` and ``MC``
+give identical propositions; ``tests/n4_separation_witnesses.json`` holds
+one such model per clause and ``test_n4_witness_*`` pin it.
+
 Set ``CF_LOGIC_MATRIX_DIR=/path/to/dir`` to have the sweep fixtures write
 ``06_logic-matrix.json`` and ``07_hyperintensionality.json`` there.
 """
@@ -31,9 +38,16 @@ from model_checker.theory_lib.logos.subtheories.counterfactual.frame_oracle impo
     logic_sweep,
     model_to_dict,
 )
+from model_checker.theory_lib.logos.subtheories.counterfactual.frame_oracle import (
+    Frame,
+    Interpretation,
+    letter_constraints_hold,
+)
 from model_checker.theory_lib.logos.subtheories.counterfactual.tests.witness_frames import (
     frame_g2,
 )
+
+N4_WITNESSES_PATH = os.path.join(os.path.dirname(__file__), "n4_separation_witnesses.json")
 
 A, B, C, D = Atom("A"), Atom("B"), Atom("C"), Atom("D")
 
@@ -233,3 +247,67 @@ def test_logic_failures_helper_matches_the_f3_identity_verdict():
     assert logic_failures("I", frame, interp_abcd, A, B, C, D)["identity"] is True
     for key in ("ILC", "ILMC", "MC"):
         assert logic_failures(key, frame, interp_abcd, A, B, C, D)["identity"] is False
+
+
+# ---------------------------------------------------------------------------
+# n=4 possible-state separation (oracle-found, Z3-sized)
+# ---------------------------------------------------------------------------
+
+def _model_from_dict(payload):
+    names = payload["frame"]["atoms"]
+    bit = {name: 1 << i for i, name in enumerate(names)}
+
+    def st(rendered):
+        return 0 if rendered == "□" else sum(bit[atom] for atom in rendered.split("."))
+
+    frame = Frame(payload["frame"]["n"], {st(s) for s in payload["frame"]["possible"]}, names)
+    interp = Interpretation({
+        letter: ({st(s) for s in sets["verifiers"]}, {st(s) for s in sets["falsifiers"]})
+        for letter, sets in payload["interpretation"].items()
+    })
+    return frame, interp
+
+
+@pytest.fixture(scope="module")
+def n4_witnesses():
+    with open(N4_WITNESSES_PATH, encoding="utf-8") as handle:
+        return {key: _model_from_dict(model) for key, model in json.load(handle).items()}
+
+
+@pytest.mark.parametrize("key", ("ILMC", "ILC"))
+def test_n4_witness_is_a_legitimate_four_atom_model(n4_witnesses, key):
+    frame, interp = n4_witnesses[key]
+    assert frame.n == 4
+    for letter, (v, f) in interp.letters.items():
+        assert letter_constraints_hold(frame, v, f), (key, letter)
+
+
+@pytest.mark.parametrize("key", ("ILMC", "ILC"))
+def test_n4_witness_separates_on_possible_states(n4_witnesses, key):
+    """Same truth-set; the settled clause differs on a possible state; L and MC do not differ at all."""
+    frame, interp = n4_witnesses[key]
+    ev = Evaluator(frame, interp)
+    poss = frame.possible
+    x, y = CF(key, A, B), CF(key, C, D)
+    assert ev.truth_set(x) == ev.truth_set(y)
+    vx, fx = ev.proposition(x)
+    vy, fy = ev.proposition(y)
+    assert ((vx ^ vy) | (fx ^ fy)) & poss
+    for baseline in ("L", "MC", "W"):
+        assert ev.identical_proposition(CF(baseline, A, B), CF(baseline, C, D)), baseline
+
+
+def test_n4_ilmc_witness_details(n4_witnesses):
+    """Worlds a.b, b.c, a.d, b.d: c verifies A □→ B only, b.c verifies C □→ D only; MC gives {a.b, c} for both."""
+    frame, interp = n4_witnesses["ILMC"]
+    st = frame.state
+    assert frame.worlds == {st("a", "b"), st("b", "c"), st("a", "d"), st("b", "d")}
+    ev = Evaluator(frame, interp)
+    poss = frame.possible
+    v_ab, _ = ev.proposition(CF("ILMC", A, B))
+    v_cd, _ = ev.proposition(CF("ILMC", C, D))
+    assert v_ab & poss == {st("a", "b"), st("c")}
+    assert v_cd & poss == {st("a", "b"), st("b", "c")}
+    for pair in ((A, B), (C, D)):
+        v_mc, _ = ev.proposition(CF("MC", *pair))
+        assert v_mc & poss == {st("a", "b"), st("c")}

@@ -1,0 +1,210 @@
+{
+ "description": "Oracle-found n=4 models (seeded enumerator samples of 20,000) on which A []-> B and C []-> D share a truth-set but the settled-imposition clauses give propositions that differ on POSSIBLE states; L and MC give identical propositions on every sampled pair. Refutes the small-frame-coincidence hypothesis at n=4 on possible states; the research's 300/400-model samples missed these.",
+ "witnesses": {
+  "ILMC": {
+   "seed": 4001,
+   "sample": 20000,
+   "same_truth_set_pairs": 9784,
+   "distinct_on_possible": 1,
+   "model": {
+    "frame": {
+     "n": 4,
+     "atoms": [
+      "a",
+      "b",
+      "c",
+      "d"
+     ],
+     "worlds": [
+      "a.b",
+      "b.c",
+      "a.d",
+      "b.d"
+     ],
+     "possible": [
+      "□",
+      "a",
+      "b",
+      "a.b",
+      "c",
+      "b.c",
+      "d",
+      "a.d",
+      "b.d"
+     ]
+    },
+    "interpretation": {
+     "A": {
+      "verifiers": [
+       "b",
+       "c",
+       "b.c"
+      ],
+      "falsifiers": [
+       "a.b.c",
+       "a.d",
+       "a.b.c.d"
+      ]
+     },
+     "B": {
+      "verifiers": [
+       "a.b",
+       "c",
+       "a.b.c"
+      ],
+      "falsifiers": [
+       "d"
+      ]
+     },
+     "C": {
+      "verifiers": [
+       "a",
+       "b.c",
+       "a.b.c"
+      ],
+      "falsifiers": [
+       "b.d"
+      ]
+     },
+     "D": {
+      "verifiers": [
+       "a.b",
+       "b.c",
+       "a.b.c",
+       "c.d",
+       "b.c.d",
+       "a.b.c.d"
+      ],
+      "falsifiers": [
+       "a.c",
+       "a.d",
+       "b.d",
+       "a.b.d",
+       "c.d",
+       "a.c.d",
+       "b.c.d",
+       "a.b.c.d"
+      ]
+     }
+    }
+   },
+   "truth_set": [
+    "a.b",
+    "b.c"
+   ],
+   "first_verifiers": [
+    "a.b",
+    "c",
+    "a.b.c"
+   ],
+   "second_verifiers": [
+    "a.b",
+    "b.c",
+    "a.b.c"
+   ]
+  },
+  "ILC": {
+   "seed": 4001,
+   "sample": 20000,
+   "same_truth_set_pairs": 9784,
+   "distinct_on_possible": 3,
+   "model": {
+    "frame": {
+     "n": 4,
+     "atoms": [
+      "a",
+      "b",
+      "c",
+      "d"
+     ],
+     "worlds": [
+      "a.b.c",
+      "a.d",
+      "c.d"
+     ],
+     "possible": [
+      "□",
+      "a",
+      "b",
+      "a.b",
+      "c",
+      "a.c",
+      "b.c",
+      "a.b.c",
+      "d",
+      "a.d",
+      "c.d"
+     ]
+    },
+    "interpretation": {
+     "A": {
+      "verifiers": [
+       "d"
+      ],
+      "falsifiers": [
+       "a.b.c",
+       "a.c.d",
+       "a.b.c.d"
+      ]
+     },
+     "B": {
+      "verifiers": [
+       "a.c",
+       "b.c",
+       "a.b.c",
+       "a.d",
+       "b.d",
+       "a.b.d",
+       "a.c.d",
+       "b.c.d",
+       "a.b.c.d"
+      ],
+      "falsifiers": [
+       "a.b.d",
+       "c.d",
+       "a.b.c.d"
+      ]
+     },
+     "C": {
+      "verifiers": [
+       "a"
+      ],
+      "falsifiers": [
+       "b.d",
+       "c.d",
+       "b.c.d"
+      ]
+     },
+     "D": {
+      "verifiers": [
+       "a.d",
+       "b.d",
+       "a.b.d",
+       "c.d",
+       "a.c.d",
+       "b.c.d",
+       "a.b.c.d"
+      ],
+      "falsifiers": [
+       "a.b",
+       "a.c",
+       "a.b.c",
+       "b.c.d",
+       "a.b.c.d"
+      ]
+     }
+    }
+   },
+   "truth_set": [
+    "a.d"
+   ],
+   "first_verifiers": [
+    "a.d",
+    "a.b.d"
+   ],
+   "second_verifiers": [
+    "a.d"
+   ]
+  }
+ }
+}

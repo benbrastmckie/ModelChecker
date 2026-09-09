@@ -1,0 +1,932 @@
+{
+ "description": "The 37 baseline counterfactual examples (examples.unit_tests) re-run once with \\boxright/\\diamondright rewritten to each candidate operator, using run_test as tests/test_counterfactual_examples.py does. Every candidate shares true_at/false_at verbatim and no baseline example places a counterfactual in a verifier-consuming position, so the outcomes are provably identical across candidates; this file records the sanity run, not evidence.",
+ "baseline_examples": 37,
+ "identical_across_candidates": true,
+ "total_seconds": 24.7,
+ "matrix": {
+  "I": {
+   "seconds": 3.8,
+   "examples": {
+    "CF_CM_1": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_2": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_3": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_4": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_5": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_6": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_7": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_8": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_9": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_10": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_11": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_12": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_13": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_14": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_15": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_16": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_17": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_18": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_19": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_20": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_21": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_24": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_25": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_TH_1": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_2": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_3": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_4": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_5": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_6": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_7": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_8": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_9": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_10": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_11": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_12": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_13": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_14": {
+     "expectation": false,
+     "matches_expectation": true
+    }
+   },
+   "all_match": true
+  },
+  "ILC": {
+   "seconds": 4.0,
+   "examples": {
+    "CF_CM_1": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_2": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_3": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_4": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_5": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_6": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_7": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_8": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_9": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_10": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_11": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_12": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_13": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_14": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_15": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_16": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_17": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_18": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_19": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_20": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_21": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_24": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_25": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_TH_1": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_2": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_3": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_4": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_5": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_6": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_7": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_8": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_9": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_10": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_11": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_12": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_13": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_14": {
+     "expectation": false,
+     "matches_expectation": true
+    }
+   },
+   "all_match": true
+  },
+  "ILMC": {
+   "seconds": 4.1,
+   "examples": {
+    "CF_CM_1": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_2": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_3": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_4": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_5": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_6": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_7": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_8": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_9": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_10": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_11": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_12": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_13": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_14": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_15": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_16": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_17": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_18": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_19": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_20": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_21": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_24": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_25": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_TH_1": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_2": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_3": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_4": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_5": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_6": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_7": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_8": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_9": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_10": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_11": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_12": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_13": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_14": {
+     "expectation": false,
+     "matches_expectation": true
+    }
+   },
+   "all_match": true
+  },
+  "W": {
+   "seconds": 4.2,
+   "examples": {
+    "CF_CM_1": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_2": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_3": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_4": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_5": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_6": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_7": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_8": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_9": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_10": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_11": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_12": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_13": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_14": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_15": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_16": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_17": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_18": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_19": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_20": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_21": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_24": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_25": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_TH_1": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_2": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_3": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_4": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_5": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_6": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_7": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_8": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_9": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_10": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_11": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_12": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_13": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_14": {
+     "expectation": false,
+     "matches_expectation": true
+    }
+   },
+   "all_match": true
+  },
+  "L": {
+   "seconds": 4.2,
+   "examples": {
+    "CF_CM_1": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_2": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_3": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_4": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_5": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_6": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_7": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_8": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_9": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_10": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_11": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_12": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_13": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_14": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_15": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_16": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_17": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_18": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_19": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_20": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_21": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_24": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_25": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_TH_1": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_2": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_3": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_4": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_5": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_6": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_7": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_8": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_9": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_10": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_11": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_12": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_13": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_14": {
+     "expectation": false,
+     "matches_expectation": true
+    }
+   },
+   "all_match": true
+  },
+  "MC": {
+   "seconds": 4.4,
+   "examples": {
+    "CF_CM_1": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_2": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_3": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_4": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_5": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_6": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_7": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_8": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_9": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_10": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_11": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_12": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_13": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_14": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_15": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_16": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_17": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_18": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_19": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_20": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_21": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_24": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_CM_25": {
+     "expectation": true,
+     "matches_expectation": true
+    },
+    "CF_TH_1": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_2": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_3": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_4": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_5": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_6": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_7": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_8": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_9": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_10": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_11": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_12": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_13": {
+     "expectation": false,
+     "matches_expectation": true
+    },
+    "CF_TH_14": {
+     "expectation": false,
+     "matches_expectation": true
+    }
+   },
+   "all_match": true
+  }
+ }
+}

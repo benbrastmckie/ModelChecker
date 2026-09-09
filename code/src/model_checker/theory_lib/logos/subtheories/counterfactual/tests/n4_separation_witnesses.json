@@ -1,0 +1,171 @@
+{
+ "ILMC": {
+  "frame": {
+   "n": 4,
+   "atoms": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ],
+   "worlds": [
+    "a.b",
+    "b.c",
+    "a.d",
+    "b.d"
+   ],
+   "possible": [
+    "□",
+    "a",
+    "b",
+    "a.b",
+    "c",
+    "b.c",
+    "d",
+    "a.d",
+    "b.d"
+   ]
+  },
+  "interpretation": {
+   "A": {
+    "verifiers": [
+     "b",
+     "c",
+     "b.c"
+    ],
+    "falsifiers": [
+     "a.b.c",
+     "a.d",
+     "a.b.c.d"
+    ]
+   },
+   "B": {
+    "verifiers": [
+     "a.b",
+     "c",
+     "a.b.c"
+    ],
+    "falsifiers": [
+     "d"
+    ]
+   },
+   "C": {
+    "verifiers": [
+     "a",
+     "b.c",
+     "a.b.c"
+    ],
+    "falsifiers": [
+     "b.d"
+    ]
+   },
+   "D": {
+    "verifiers": [
+     "a.b",
+     "b.c",
+     "a.b.c",
+     "c.d",
+     "b.c.d",
+     "a.b.c.d"
+    ],
+    "falsifiers": [
+     "a.c",
+     "a.d",
+     "b.d",
+     "a.b.d",
+     "c.d",
+     "a.c.d",
+     "b.c.d",
+     "a.b.c.d"
+    ]
+   }
+  }
+ },
+ "ILC": {
+  "frame": {
+   "n": 4,
+   "atoms": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ],
+   "worlds": [
+    "a.b.c",
+    "a.d",
+    "c.d"
+   ],
+   "possible": [
+    "□",
+    "a",
+    "b",
+    "a.b",
+    "c",
+    "a.c",
+    "b.c",
+    "a.b.c",
+    "d",
+    "a.d",
+    "c.d"
+   ]
+  },
+  "interpretation": {
+   "A": {
+    "verifiers": [
+     "d"
+    ],
+    "falsifiers": [
+     "a.b.c",
+     "a.c.d",
+     "a.b.c.d"
+    ]
+   },
+   "B": {
+    "verifiers": [
+     "a.c",
+     "b.c",
+     "a.b.c",
+     "a.d",
+     "b.d",
+     "a.b.d",
+     "a.c.d",
+     "b.c.d",
+     "a.b.c.d"
+    ],
+    "falsifiers": [
+     "a.b.d",
+     "c.d",
+     "a.b.c.d"
+    ]
+   },
+   "C": {
+    "verifiers": [
+     "a"
+    ],
+    "falsifiers": [
+     "b.d",
+     "c.d",
+     "b.c.d"
+    ]
+   },
+   "D": {
+    "verifiers": [
+     "a.d",
+     "b.d",
+     "a.b.d",
+     "c.d",
+     "a.c.d",
+     "b.c.d",
+     "a.b.c.d"
+    ],
+    "falsifiers": [
+     "a.b",
+     "a.c",
+     "a.b.c",
+     "b.c.d",
+     "a.b.c.d"
+    ]
+   }
+  }
+ }
+}

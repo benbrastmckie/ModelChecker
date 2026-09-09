@@ -1,0 +1,497 @@
+{
+ "description": "Z3-found constitutive countermodels at N=4: premise Box((A K B) <-> (C K D)), conclusion (A K B) equiv (C K D). The oracle re-evaluates every candidate on the extracted frame/interpretation: the settled-imposition clauses separate the two counterfactuals; the truth-set functions do not. Refutes the small-frame-coincidence hypothesis for N=4 (the oracle's random samples missed these models; Z3's exhaustive search finds them). CAVEAT: in both countermodels the propositions differ only on impossible states (ILMC model: a.b, a.c; ILC model: c.d, b.c.d); restricted to possible states the pair coincides, so the possible-state separation of the settled-imposition clauses still rests on Frame G2 (oracle).",
+ "countermodels": {
+  "ILMC": {
+   "seconds": 4.25,
+   "model": {
+    "frame": {
+     "n": 4,
+     "atoms": [
+      "a",
+      "b",
+      "c",
+      "d"
+     ],
+     "worlds": [
+      "b.c",
+      "b.d",
+      "c.d"
+     ],
+     "possible": [
+      "□",
+      "b",
+      "c",
+      "b.c",
+      "d",
+      "b.d",
+      "c.d"
+     ]
+    },
+    "interpretation": {
+     "A": {
+      "verifiers": [
+       "b"
+      ],
+      "falsifiers": [
+       "a.b",
+       "c.d",
+       "b.c.d",
+       "a.b.c.d"
+      ]
+     },
+     "B": {
+      "verifiers": [
+       "b.c"
+      ],
+      "falsifiers": [
+       "b.d",
+       "a.b.d",
+       "c.d",
+       "b.c.d",
+       "a.b.c.d"
+      ]
+     },
+     "C": {
+      "verifiers": [
+       "c"
+      ],
+      "falsifiers": [
+       "b.d"
+      ]
+     },
+     "D": {
+      "verifiers": [
+       "b.c",
+       "b.d",
+       "b.c.d"
+      ],
+      "falsifiers": [
+       "a.b.c",
+       "c.d",
+       "a.c.d",
+       "a.b.c.d"
+      ]
+     }
+    }
+   },
+   "oracle": {
+    "ILMC": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.c"
+     ],
+     "identical_proposition": false,
+     "V_AB_possible": [
+      "b.c"
+     ],
+     "V_CD_possible": [
+      "b.c"
+     ],
+     "F_AB_possible": [
+      "d"
+     ],
+     "F_CD_possible": [
+      "d"
+     ]
+    },
+    "ILC": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.c"
+     ],
+     "identical_proposition": false,
+     "V_AB_possible": [
+      "b.c"
+     ],
+     "V_CD_possible": [
+      "b.c"
+     ],
+     "F_AB_possible": [
+      "d",
+      "b.d",
+      "c.d"
+     ],
+     "F_CD_possible": [
+      "d",
+      "b.d",
+      "c.d"
+     ]
+    },
+    "MC": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.c"
+     ],
+     "identical_proposition": true,
+     "V_AB_possible": [
+      "b.c"
+     ],
+     "V_CD_possible": [
+      "b.c"
+     ],
+     "F_AB_possible": [
+      "d"
+     ],
+     "F_CD_possible": [
+      "d"
+     ]
+    },
+    "L": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.c"
+     ],
+     "identical_proposition": true,
+     "V_AB_possible": [
+      "b.c"
+     ],
+     "V_CD_possible": [
+      "b.c"
+     ],
+     "F_AB_possible": [
+      "d",
+      "b.d",
+      "c.d"
+     ],
+     "F_CD_possible": [
+      "d",
+      "b.d",
+      "c.d"
+     ]
+    },
+    "W": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.c"
+     ],
+     "identical_proposition": true,
+     "V_AB_possible": [
+      "b.c"
+     ],
+     "V_CD_possible": [
+      "b.c"
+     ],
+     "F_AB_possible": [
+      "b.d",
+      "c.d"
+     ],
+     "F_CD_possible": [
+      "b.d",
+      "c.d"
+     ]
+    },
+    "I": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.c"
+     ],
+     "identical_proposition": false,
+     "V_AB_possible": [
+      "c",
+      "b.c"
+     ],
+     "V_CD_possible": [
+      "b",
+      "b.c"
+     ],
+     "F_AB_possible": [
+      "□",
+      "b",
+      "d",
+      "b.d",
+      "c.d"
+     ],
+     "F_CD_possible": [
+      "□",
+      "c",
+      "d",
+      "b.d",
+      "c.d"
+     ]
+    }
+   }
+  },
+  "ILC": {
+   "seconds": 6.77,
+   "model": {
+    "frame": {
+     "n": 4,
+     "atoms": [
+      "a",
+      "b",
+      "c",
+      "d"
+     ],
+     "worlds": [
+      "a.b",
+      "a.c",
+      "a.d",
+      "b.d"
+     ],
+     "possible": [
+      "□",
+      "a",
+      "b",
+      "a.b",
+      "c",
+      "a.c",
+      "d",
+      "a.d",
+      "b.d"
+     ]
+    },
+    "interpretation": {
+     "A": {
+      "verifiers": [
+       "b",
+       "a.b.d",
+       "a.c.d",
+       "a.b.c.d"
+      ],
+      "falsifiers": [
+       "c",
+       "a.c",
+       "a.d",
+       "a.c.d"
+      ]
+     },
+     "B": {
+      "verifiers": [
+       "a.c",
+       "a.d",
+       "b.d",
+       "a.b.d",
+       "a.c.d",
+       "a.b.c.d"
+      ],
+      "falsifiers": [
+       "a.b"
+      ]
+     },
+     "C": {
+      "verifiers": [
+       "b",
+       "b.c",
+       "d",
+       "b.d",
+       "b.c.d"
+      ],
+      "falsifiers": [
+       "c",
+       "a.c"
+      ]
+     },
+     "D": {
+      "verifiers": [
+       "a.b.c",
+       "b.d",
+       "a.b.c.d"
+      ],
+      "falsifiers": [
+       "a.b",
+       "c",
+       "a.c",
+       "a.b.c",
+       "a.d",
+       "a.b.d",
+       "a.c.d",
+       "a.b.c.d"
+      ]
+     }
+    }
+   },
+   "oracle": {
+    "ILMC": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.d"
+     ],
+     "identical_proposition": false,
+     "V_AB_possible": [
+      "b.d"
+     ],
+     "V_CD_possible": [
+      "b.d"
+     ],
+     "F_AB_possible": [
+      "a",
+      "c",
+      "a.c"
+     ],
+     "F_CD_possible": [
+      "a",
+      "c",
+      "a.c"
+     ]
+    },
+    "ILC": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.d"
+     ],
+     "identical_proposition": false,
+     "V_AB_possible": [
+      "b.d"
+     ],
+     "V_CD_possible": [
+      "b.d"
+     ],
+     "F_AB_possible": [
+      "a",
+      "a.b",
+      "c",
+      "a.c",
+      "a.d"
+     ],
+     "F_CD_possible": [
+      "a",
+      "a.b",
+      "c",
+      "a.c",
+      "a.d"
+     ]
+    },
+    "MC": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.d"
+     ],
+     "identical_proposition": true,
+     "V_AB_possible": [
+      "b.d"
+     ],
+     "V_CD_possible": [
+      "b.d"
+     ],
+     "F_AB_possible": [
+      "a",
+      "c",
+      "a.c"
+     ],
+     "F_CD_possible": [
+      "a",
+      "c",
+      "a.c"
+     ]
+    },
+    "L": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.d"
+     ],
+     "identical_proposition": true,
+     "V_AB_possible": [
+      "b.d"
+     ],
+     "V_CD_possible": [
+      "b.d"
+     ],
+     "F_AB_possible": [
+      "a",
+      "a.b",
+      "c",
+      "a.c",
+      "a.d"
+     ],
+     "F_CD_possible": [
+      "a",
+      "a.b",
+      "c",
+      "a.c",
+      "a.d"
+     ]
+    },
+    "W": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.d"
+     ],
+     "identical_proposition": true,
+     "V_AB_possible": [
+      "b.d"
+     ],
+     "V_CD_possible": [
+      "b.d"
+     ],
+     "F_AB_possible": [
+      "a.b",
+      "a.c",
+      "a.d"
+     ],
+     "F_CD_possible": [
+      "a.b",
+      "a.c",
+      "a.d"
+     ]
+    },
+    "I": {
+     "same_truth_set": true,
+     "truth_set": [
+      "b.d"
+     ],
+     "identical_proposition": false,
+     "V_AB_possible": [
+      "d",
+      "b.d"
+     ],
+     "V_CD_possible": [
+      "b.d"
+     ],
+     "F_AB_possible": [
+      "□",
+      "a",
+      "b",
+      "a.b",
+      "c",
+      "a.c",
+      "a.d"
+     ],
+     "F_CD_possible": [
+      "□",
+      "a",
+      "b",
+      "a.b",
+      "c",
+      "a.c",
+      "d",
+      "a.d"
+     ]
+    }
+   }
+  }
+ },
+ "possible_state_difference": {
+  "ILMC": [],
+  "ILC": []
+ },
+ "impossible_state_difference": {
+  "ILMC": [
+   "a.b",
+   "a.c"
+  ],
+  "ILC": [
+   "c.d",
+   "b.c.d"
+  ]
+ },
+ "z3_seed_sweep": {
+  "description": "ILMC constitutive example at N=4 re-solved under smt/sat random seeds 0-5; whether the returned countermodel separates the pair on a possible state depends on the seed.",
+  "seeds_separating_on_possible_states": [
+   1
+  ],
+  "seeds_tried": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "seed_1_worlds": [
+   "a.b",
+   "a.c",
+   "b.c",
+   "b.d"
+  ]
+ }
+}
