@@ -1,0 +1,415 @@
+========================================
+
+EXAMPLE U1_BOX_EQ_TOP_ILMC: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+
+Conclusion:
+1. (\Box A \equiv (\top \boxrightILMC A))
+
+Solver Run Time: 0.0046 seconds
+
+========================================
+========================================
+
+EXAMPLE U2_BOX_EQ_TOP_SQ: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+
+Conclusion:
+1. (\Box A \equiv (\top \boxright A))
+
+Solver Run Time: 0.0021 seconds
+
+========================================
+
+State Space:
+  #b000 = □
+  #b001 = a (world)
+  #b010 = b (world)
+  #b011 = a.b (impossible)
+  #b100 = c (world)
+  #b101 = a.c (impossible)
+  #b110 = b.c (impossible)
+  #b111 = a.b.c (impossible)
+
+The evaluation world is: a
+
+INTERPRETED CONCLUSION:
+
+1.  |(\Box A \equiv (\top \boxright A))| = < {}, {□} >  (False in a)
+      |\Box A| = < {}, {□} >  (False in a)
+        |A| = < {b}, {a, a.c, c} >  (False in a)
+        |A| = < {b}, {a, a.c, c} >  (True in b)
+        |A| = < {b}, {a, a.c, c} >  (False in c)
+      |(\top \boxright A)| = < {}, {a, b, c} >  (False in a)
+        |\top| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, {} >  (True in a)
+          |\top|-alternatives to a = {a, b, c}
+            |A| = < {b}, {a, a.c, c} >  (True in b)
+            |A| = < {b}, {a, a.c, c} >  (False in a)
+            |A| = < {b}, {a, a.c, c} >  (False in c)
+
+Total Run Time: 0.1469 seconds
+
+========================================
+========================================
+
+EXAMPLE U3_BOX_COLLAPSE: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. \Box A
+2. \Box B
+
+Conclusion:
+3. (\Box A \equiv \Box B)
+
+Solver Run Time: 0.0022 seconds
+
+========================================
+========================================
+
+EXAMPLE U4_CONST_COLLAPSE: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. (A \leq B)
+2. (C \sqsubseteq D)
+
+Conclusion:
+3. ((A \leq B) \equiv (C \sqsubseteq D))
+
+Solver Run Time: 0.004 seconds
+
+========================================
+========================================
+
+EXAMPLE U5_CONST_ANTE_CENTERED: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. \Box (((A \leq B) \boxrightILMC C) \leftrightarrow C)
+
+Solver Run Time: 0.0051 seconds
+
+========================================
+========================================
+
+EXAMPLE U6_CONST_ANTE_NOT_C: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (((A \leq B) \boxrightILMC C) \equiv C)
+
+Solver Run Time: 0.0048 seconds
+
+========================================
+
+State Space:
+  #b000 = □
+  #b001 = a
+  #b010 = b
+  #b011 = a.b (world)
+  #b100 = c
+  #b101 = a.c (impossible)
+  #b110 = b.c (world)
+  #b111 = a.b.c (impossible)
+
+The evaluation world is: a.b
+
+INTERPRETED PREMISE:
+
+1.  |(A \leq B)| = < {□}, {} >  (True in a.b)
+      |A| = < {a.b}, {b.c, c} >  (True in a.b)
+      |B| = < {a.b}, {b.c, c} >  (True in a.b)
+
+INTERPRETED CONCLUSION:
+
+2.  |(((A \leq B) \boxrightILMC C) \equiv C)| = < {}, {□} >  (False in a.b)
+      |((A \leq B) \boxrightILMC C)| = < {c}, {a} >  (False in a.b)
+        |(A \leq B)| = < {□}, {} >  (True in a.b)
+          |A| = < {a.b}, {b.c, c} >  (True in a.b)
+          |B| = < {a.b}, {b.c, c} >  (True in a.b)
+          |(A \leq B)|-alternatives to a.b = {a.b}
+            |C| = < {b.c, c}, {a, a.b} >  (False in a.b)
+      |C| = < {b.c, c}, {a, a.b} >  (False in a.b)
+
+Total Run Time: 0.2079 seconds
+
+========================================
+========================================
+
+EXAMPLE U7_CONST_ANTE_NOT_C_SQ: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (((A \leq B) \boxright C) \equiv C)
+
+Solver Run Time: 0.0029 seconds
+
+========================================
+
+State Space:
+  #b000 = □
+  #b001 = a (world)
+  #b010 = b (world)
+  #b011 = a.b (impossible)
+  #b100 = c (impossible)
+  #b101 = a.c (impossible)
+  #b110 = b.c (impossible)
+  #b111 = a.b.c (impossible)
+
+The evaluation world is: b
+
+INTERPRETED PREMISE:
+
+1.  |(A \leq B)| = < {□}, {} >  (True in b)
+      |A| = < {b}, {a} >  (True in b)
+      |B| = < {b}, {a} >  (True in b)
+
+INTERPRETED CONCLUSION:
+
+2.  |(((A \leq B) \boxright C) \equiv C)| = < {}, {□} >  (False in b)
+      |((A \leq B) \boxright C)| = < {a}, {b} >  (False in b)
+        |(A \leq B)| = < {□}, {} >  (True in b)
+          |A| = < {b}, {a} >  (True in b)
+          |B| = < {b}, {a} >  (True in b)
+          |(A \leq B)|-alternatives to b = {b}
+            |C| = < {a, a.b}, {a.b, a.b.c, a.c, b, b.c, c} >  (False in b)
+      |C| = < {a, a.b}, {a.b, a.b.c, a.c, b, b.c, c} >  (False in b)
+
+Total Run Time: 0.0818 seconds
+
+========================================
+========================================
+
+EXAMPLE U8_BOT_ANTE_COLLAPSE: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+
+Conclusion:
+1. ((\bot \boxrightILMC A) \equiv (\bot \boxrightILMC B))
+
+Solver Run Time: 0.0015 seconds
+
+========================================
+========================================
+
+EXAMPLE U9_TOP_ILMC_COLLAPSE: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. \Box A
+2. \Box B
+
+Conclusion:
+3. ((\top \boxrightILMC A) \equiv (\top \boxrightILMC B))
+
+Solver Run Time: 0.0046 seconds
+
+========================================
+========================================
+
+EXAMPLE U10_BOX_TRUTH_AGREE: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+
+Conclusion:
+1. \Box (\Box A \leftrightarrow (\top \boxrightILMC A))
+
+Solver Run Time: 0.0024 seconds
+
+========================================
+========================================
+
+EXAMPLE U11_CORE_GROUNDS_C: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (((A \leq B) \boxrightILMC C) \leq C)
+
+Solver Run Time: 0.0052 seconds
+
+========================================
+
+State Space:
+  #b000 = □
+  #b001 = a (world)
+  #b010 = b (world)
+  #b011 = a.b (impossible)
+  #b100 = c (world)
+  #b101 = a.c (impossible)
+  #b110 = b.c (impossible)
+  #b111 = a.b.c (impossible)
+
+The evaluation world is: b
+
+INTERPRETED PREMISE:
+
+1.  |(A \leq B)| = < {□}, {} >  (True in b)
+      |A| = < {a}, {b, b.c, c} >  (False in b)
+      |B| = < {a, a.c, c}, {b, b.c} >  (False in b)
+
+INTERPRETED CONCLUSION:
+
+2.  |(((A \leq B) \boxrightILMC C) \leq C)| = < {}, {□} >  (False in b)
+      |((A \leq B) \boxrightILMC C)| = < {a, a.c, c}, {b} >  (False in b)
+        |(A \leq B)| = < {□}, {} >  (True in b)
+          |A| = < {a}, {b, b.c, c} >  (False in b)
+          |B| = < {a, a.c, c}, {b, b.c} >  (False in b)
+          |(A \leq B)|-alternatives to b = {b}
+            |C| = < {a, a.c, c}, {a.b.c, a.c, b} >  (False in b)
+      |C| = < {a, a.c, c}, {a.b.c, a.c, b} >  (False in b)
+
+Total Run Time: 0.233 seconds
+
+========================================
+========================================
+
+EXAMPLE U12_C_GROUNDS_CORE: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (C \leq ((A \leq B) \boxrightILMC C))
+
+Solver Run Time: 0.0046 seconds
+
+========================================
+
+State Space:
+  #b000 = □
+  #b001 = a
+  #b010 = b
+  #b011 = a.b (world)
+  #b100 = c
+  #b101 = a.c (world)
+  #b110 = b.c (world)
+  #b111 = a.b.c (impossible)
+
+The evaluation world is: a.c
+
+INTERPRETED PREMISE:
+
+1.  |(A \leq B)| = < {□}, {} >  (True in a.c)
+      |A| = < {a, a.b, a.b.c, a.c}, {b.c} >  (True in a.c)
+      |B| = < {a, a.b, a.b.c, a.c}, {b.c} >  (True in a.c)
+
+INTERPRETED CONCLUSION:
+
+2.  |(C \leq ((A \leq B) \boxrightILMC C))| = < {}, {□} >  (False in a.c)
+      |C| = < {a.c}, {a.b, a.b.c, b, b.c} >  (True in a.c)
+      |((A \leq B) \boxrightILMC C)| = < {a.c}, {b} >  (True in a.c)
+        |(A \leq B)| = < {□}, {} >  (True in a.c)
+          |A| = < {a, a.b, a.b.c, a.c}, {b.c} >  (True in a.c)
+          |B| = < {a, a.b, a.b.c, a.c}, {b.c} >  (True in a.c)
+          |(A \leq B)|-alternatives to a.c = {a.c}
+            |C| = < {a.c}, {a.b, a.b.c, b, b.c} >  (True in a.c)
+
+Total Run Time: 0.2412 seconds
+
+========================================
+========================================
+
+EXAMPLE U13_CORE_ESSENCE_C: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (((A \leq B) \boxrightILMC C) \sqsubseteq C)
+
+Solver Run Time: 0.0046 seconds
+
+========================================
+
+State Space:
+  #b000 = □
+  #b001 = a (world)
+  #b010 = b (world)
+  #b011 = a.b (impossible)
+  #b100 = c (world)
+  #b101 = a.c (impossible)
+  #b110 = b.c (impossible)
+  #b111 = a.b.c (impossible)
+
+The evaluation world is: c
+
+INTERPRETED PREMISE:
+
+1.  |(A \leq B)| = < {□}, {} >  (True in c)
+      |A| = < {a}, {b, b.c, c} >  (False in c)
+      |B| = < {a}, {b, b.c, c} >  (False in c)
+
+INTERPRETED CONCLUSION:
+
+2.  |(((A \leq B) \boxrightILMC C) \sqsubseteq C)| = < {}, {□} >  (False in c)
+      |((A \leq B) \boxrightILMC C)| = < {b}, {a, a.c, c} >  (False in c)
+        |(A \leq B)| = < {□}, {} >  (True in c)
+          |A| = < {a}, {b, b.c, c} >  (False in c)
+          |B| = < {a}, {b, b.c, c} >  (False in c)
+          |(A \leq B)|-alternatives to c = {c}
+            |C| = < {a.b.c, a.c, b}, {a, a.c, c} >  (False in c)
+      |C| = < {a.b.c, a.c, b}, {a, a.c, c} >  (False in c)
+
+Total Run Time: 0.2331 seconds
+
+========================================
