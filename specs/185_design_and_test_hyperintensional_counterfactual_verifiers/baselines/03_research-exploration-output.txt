@@ -1,0 +1,381 @@
+# Research exploration output (pure-Python frame oracle; reproduce with baselines/03_research-exploration.py and 03_research-witnesses.py)
+# Generated 2026-09-09T00:15:29Z; PROPS order in flag strings: closure_V closure_F exclusive_possible exclusive_compat exhaustive bridge_sound_V bridge_sound_F bridge_sufficient_V bridge_sufficient_F impossible_harmless_V impossible_harmless_F
+
+## F3 frame (report 02 F3.1), every candidate
+F3 frame: worlds ["a.p.p'.b", "a.q.q'.b", "a'.p.p'.q.q'.b", "a.p.q.b'"]
+SQpy   XX.........  V=["a.p.p'.b", "a.q.q'.b"]
+        F=["a'.p.p'.q.q'.b", "a.p.q.b'"]
+        properV=[] properF=[]
+I      X..X.XX....  V=["p'", "a.p'", "a'.p'", "a.a'.p'", "p.p'", "a.p.p'", "a'.p.p'", "a.a'.p.p'", "q'", "a.q'", "a'.q'", "a.a'.q'", "p'.q'", "a.p'.q'", "a'.p'.q'", "a.a'.p'.q'", "p.p'.q'", "a.p.p'.q'", "a'.p.p'.q'", "a.a'.p.p'.q'", "q.q'", "a.q.q'", "a'.q.q'", "a.a'.q.q'", "p'.q.q'", "a.p'.q.q'", "a'.p'.q.q'", "a.a'.p'.q.q'", 'b', 'a.b', "a'.b", "a.a'.b", 'p.b', 'a.p.b', "a'.p.b", "a.a'.p.b", "p'
+        F=['□', 'a', "a'", "a.a'", 'p', 'a.p', "a'.p", "a.a'.p", 'q', 'a.q', "a'.q", "a.a'.q", 'p.q', 'a.p.q', "a'.p.q", "a.a'.p.q", "p'.q", "a.p'.q", "a'.p'.q", "a.a'.p'.q", "p.p'.q", "a.p.p'.q", "a'.p.p'.q", "a.a'.p.p'.q", "p.q'", "a.p.q'", "a'.p.q'", "a.a'.p.q'", "p.q.q'", "a.p.q.q'", "a'.p.q.q'", "a.a'.p.q.q'", "p.p'.q.q'", "a.p.p'.q.q'", "a'.p.p'.q.q'", "a.a'.p.p'.q.q'", 'p.q.b', 'a.p.q.b', "
+        properV=["p'", "a.p'", "a'.p'", "p.p'", "a.p.p'", "a'.p.p'", "q'", "a.q'", "a'.q'", "p'.q'", "a'.p'.q'", "p.p'.q'", "a'.p.p'.q'", "q.q'", "a.q.q'", "a'.q.q'", "p'.q.q'", "a'.p'.q.q'", 'b', 'a.b', "a'.b", 'p.b', 'a.p.b', "a'.p.b", "p'.b", "a.p'.b", "a'.p'.b", "p.p'.b", "a'.p.p'.b", 'q.b', 'a.q.b', "a'.q.b", "p'.q.b", "a'.p'.q.b", "q'.b", "a.q'.b", "a'.q'.b", "p.q'.b", "a'.p.q'.b", "p'.q'.b"
+W      ...........  V=["a.p.p'.b", "a.q.q'.b", "a.p.p'.q.q'.b"]
+        F=["a'.p.p'.q.q'.b", "a.p.q.b'", "a.a'.p.p'.q.q'.b.b'"]
+        properV=[] properF=[]
+L      ...........  V=["a.a'", "a.a'.p", "a.p'", "a.a'.p'", "a.p.p'", "a.a'.p.p'", "a.a'.q", "a.a'.p.q", "a.p'.q", "a.a'.p'.q", "a.p.p'.q", "a.a'.p.p'.q", "a.q'", "a.a'.q'", "a.p.q'", "a.a'.p.q'", "a.p'.q'", "a.a'.p'.q'", "a.p.p'.q'", "a.a'.p.p'.q'", "a.q.q'", "a.a'.q.q'", "a.p.q.q'", "a.a'.p.q.q'", "a.p'.q.q'", "a.a'.p'.q.q'", "a.p.p'.q.q'", "a.a'.p.p'.q.q'", 'a.b', "a.a'.b", 'a.p.b', "a.a'.p.b",
+        F=["a'", "a.a'", "a'.p", "a.a'.p", "a'.p'", "a.a'.p'", "a'.p.p'", "a.a'.p.p'", "a'.q", "a.a'.q", 'p.q', 'a.p.q', "a'.p.q", "a.a'.p.q", "p'.q", "a.p'.q", "a'.p'.q", "a.a'.p'.q", "p.p'.q", "a.p.p'.q", "a'.p.p'.q", "a.a'.p.p'.q", "a'.q'", "a.a'.q'", "p.q'", "a.p.q'", "a'.p.q'", "a.a'.p.q'", "p'.q'", "a.p'.q'", "a'.p'.q'", "a.a'.p'.q'", "p.p'.q'", "a.p.p'.q'", "a'.p.p'.q'", "a.a'.p.p'.q'", "a'
+        properV=["a.p'", "a.p.p'", "a.q'", "a.q.q'", 'a.b', 'a.p.b', "a.p'.b", 'a.q.b', "a.q'.b"] properF=["a'", "a'.p", "a'.p'", "a'.p.p'", "a'.q", 'p.q', 'a.p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "a'.q'", "p.q'", "a'.p.q'", "p'.q'", "a'.p'.q'", "p.p'.q'", "a'.p.p'.q'", "a'.q.q'", "p.q.q'", "a'.p.q.q'", "p'.q.q'", "a'.p'.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "a'.b", "a'.p.b", "a'
+M      XX.........  V=["a.a'", "a.p'", "a.q'", 'a.b', "a'.b'", "p'.b'", "q'.b'", "b.b'"]
+        F=["a'", 'p.q', "p'.q", "p.q'", "p'.q'", "b'"]
+        properV=["a.p'", "a.q'", 'a.b'] properF=["a'", 'p.q', "p'.q", "p.q'", "p'.q'", "b'"]
+MC     ...........  V=["a.a'", "a.p'", "a.a'.p'", "a.q'", "a.a'.q'", "a.p'.q'", "a.a'.p'.q'", 'a.b', "a.a'.b", "a.p'.b", "a.a'.p'.b", "a.q'.b", "a.a'.q'.b", "a.p'.q'.b", "a.a'.p'.q'.b", "a'.b'", "a.a'.b'", "p'.b'", "a.p'.b'", "a'.p'.b'", "a.a'.p'.b'", "q'.b'", "a.q'.b'", "a'.q'.b'", "a.a'.q'.b'", "p'.q'.b'", "a.p'.q'.b'", "a'.p'.q'.b'", "a.a'.p'.q'.b'", "b.b'", "a.b.b'", "a'.b.b'", "a.a'.b.b'", "p
+        F=["a'", 'p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "a'.p.q'", "p'.q'", "a'.p'.q'", "p.p'.q'", "a'.p.p'.q'", "p.q.q'", "a'.p.q.q'", "p'.q.q'", "a'.p'.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "b'", "a'.b'", "p.q.b'", "a'.p.q.b'", "p'.q.b'", "a'.p'.q.b'", "p.p'.q.b'", "a'.p.p'.q.b'", "p.q'.b'", "a'.p.q'.b'", "p'.q'.b'", "a'.p'.q'.b'", "p.p'.q'.b'", "a'.p.p'.q'.b'", "p.q.q'
+        properV=["a.p'", "a.q'", 'a.b', "a.p'.b", "a.q'.b"] properF=["a'", 'p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "a'.p.q'", "p'.q'", "a'.p'.q'", "p.p'.q'", "a'.p.p'.q'", "p.q.q'", "a'.p.q.q'", "p'.q.q'", "a'.p'.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "b'", "p.q.b'"]
+IL     X..........  V=["a.p'", "a.a'.p'", "a.p.p'", "a.a'.p.p'", "a.q'", "a.a'.q'", "a.p'.q'", "a.a'.p'.q'", "a.p.p'.q'", "a.a'.p.p'.q'", "a.q.q'", "a.a'.q.q'", "a.p'.q.q'", "a.a'.p'.q.q'", 'a.b', "a.a'.b", 'a.p.b', "a.a'.p.b", "a.p'.b", "a.a'.p'.b", "a.p.p'.b", "a.a'.p.p'.b", 'a.q.b', "a.a'.q.b", "a.p'.q.b", "a.a'.p'.q.b", "a.q'.b", "a.a'.q'.b", "a.p.q'.b", "a.a'.p.q'.b", "a.p'.q'.b", "a.a'.p'.q'
+        F=["a'", "a.a'", "a'.p", "a.a'.p", "a'.q", "a.a'.q", 'p.q', 'a.p.q', "a'.p.q", "a.a'.p.q", "p'.q", "a.p'.q", "a'.p'.q", "a.a'.p'.q", "p.p'.q", "a.p.p'.q", "a'.p.p'.q", "a.a'.p.p'.q", "p.q'", "a.p.q'", "a'.p.q'", "a.a'.p.q'", "p.q.q'", "a.p.q.q'", "a'.p.q.q'", "a.a'.p.q.q'", "p.p'.q.q'", "a.p.p'.q.q'", "a'.p.p'.q.q'", "a.a'.p.p'.q.q'", 'p.q.b', 'a.p.q.b', "a'.p.q.b", "a.a'.p.q.b", "p.p'.q.b
+        properV=["a.p'", "a.p.p'", "a.q'", "a.q.q'", 'a.b', 'a.p.b', "a.p'.b", 'a.q.b', "a.q'.b"] properF=["a'", "a'.p", "a'.q", 'p.q', 'a.p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "a'.p.q'", "p.q.q'", "a'.p.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", 'p.q.b', "a'.p.q.b", "p.p'.q.b", "a'.p.p'.q.b", "p.q.q'.b", "a'.p.q.q'.b", "p.p'.q.q'.b", "b'", "a.b'", "p.b'", "a.p.b'", "q.b'", "a
+XS     .....X..X..  V=['b']
+        F=["b'"]
+        properV=['b'] properF=["b'"]
+XSr    X....X..X..  V=['b', 'a.b', 'p.b', 'a.p.b', "p'.b", "a.p'.b", "p.p'.b", "a.p.p'.b", 'q.b', 'a.q.b', "p'.q.b", "a.p'.q.b", "q'.b", "a.q'.b", "p.q'.b", "a.p.q'.b", "p'.q'.b", "a.p'.q'.b", "p.p'.q'.b", "a.p.p'.q'.b", "q.q'.b", "a.q.q'.b", "p'.q.q'.b", "a.p'.q.q'.b"]
+        F=["b'", "a.b'", "p.b'", "a.p.b'", "q.b'", "a.q.b'", "p.q.b'", "a.p.q.b'"]
+        properV=['b', 'a.b', 'p.b', 'a.p.b', "p'.b", "a.p'.b", "p.p'.b", 'q.b', 'a.q.b', "p'.q.b", "q'.b", "a.q'.b", "p.q'.b", "p'.q'.b", "p.p'.q'.b", "q.q'.b", "p'.q.q'.b"] properF=["b'", "a.b'", "p.b'", "a.p.b'", "q.b'", "a.q.b'", "p.q.b'"]
+XPe    .....X..X..  V=['b']
+        F=["b'"]
+        properV=['b'] properF=["b'"]
+XPer   X...X...X..  V=["a.p.p'.b", "a.q.q'.b"]
+        F=["a.p.q.b'"]
+        properV=[] properF=[]
+XPa    ....X..XX..  V=["a.a'", "a.a'.p", "a.a'.p'", "a.a'.p.p'", "a.a'.q", "a.a'.p.q", "a.p'.q", "a.a'.p'.q", "a.p.p'.q", "a.a'.p.p'.q", "a.a'.q'", "a.p.q'", "a.a'.p.q'", "a.p'.q'", "a.a'.p'.q'", "a.p.p'.q'", "a.a'.p.p'.q'", "a.a'.q.q'", "a.p.q.q'", "a.a'.p.q.q'", "a.p'.q.q'", "a.a'.p'.q.q'", "a.p.p'.q.q'", "a.a'.p.p'.q.q'", "a.a'.b", "a.a'.p.b", "a.a'.p'.b", "a.a'.p.p'.b", "a.a'.q.b", 'a.p.q.b', 
+        F=["a.a'", "a.a'.p", "a.a'.p'", "a.a'.p.p'", "a.a'.q", "a.a'.p.q", "a.p'.q", "a.a'.p'.q", "a.p.p'.q", "a.a'.p.p'.q", "a.a'.q'", "a.p.q'", "a.a'.p.q'", "a.p'.q'", "a.a'.p'.q'", "a.p.p'.q'", "a.a'.p.p'.q'", "a.a'.q.q'", "a.p.q.q'", "a.a'.p.q.q'", "a.p'.q.q'", "a.a'.p'.q.q'", "a.p.p'.q.q'", "a.a'.p.p'.q.q'", "a.a'.b", "a.a'.p.b", "a.a'.p'.b", "a.a'.p.p'.b", "a.a'.q.b", 'a.p.q.b', "a.a'.p.q.b"
+        properV=[] properF=["b'"]
+XPar   ....X...X..  V=["a.a'", "a.a'.p", "a.a'.p'", "a.a'.p.p'", "a.a'.q", "a.a'.p.q", "a.p'.q", "a.a'.p'.q", "a.p.p'.q", "a.a'.p.p'.q", "a.a'.q'", "a.p.q'", "a.a'.p.q'", "a.p'.q'", "a.a'.p'.q'", "a.p.p'.q'", "a.a'.p.p'.q'", "a.a'.q.q'", "a.p.q.q'", "a.a'.p.q.q'", "a.p'.q.q'", "a.a'.p'.q.q'", "a.p.p'.q.q'", "a.a'.p.p'.q.q'", "a.a'.b", "a.a'.p.b", "a.a'.p'.b", "a.p.p'.b", "a.a'.p.p'.b", "a.a'.q.b",
+        F=["a.a'", "a.a'.p", "a.a'.p'", "a.a'.p.p'", "a.a'.q", "a.a'.p.q", "a.p'.q", "a.a'.p'.q", "a.p.p'.q", "a.a'.p.p'.q", "a.a'.q'", "a.p.q'", "a.a'.p.q'", "a.p'.q'", "a.a'.p'.q'", "a.p.p'.q'", "a.a'.p.p'.q'", "a.a'.q.q'", "a.p.q.q'", "a.a'.p.q.q'", "a.p'.q.q'", "a.a'.p'.q.q'", "a.p.p'.q.q'", "a.a'.p.p'.q.q'", "a.a'.b", "a.a'.p.b", "a.a'.p'.b", "a.a'.p.p'.b", "a.a'.q.b", 'a.p.q.b', "a.a'.p.q.b"
+        properV=[] properF=[]
+XSx    .....X..X..  V=['b']
+        F=["b'"]
+        properV=['b'] properF=["b'"]
+SB     ....X..XX..  V=[]
+        F=["b'"]
+        properV=[] properF=["b'"]
+SAB    ....X...X..  V=['a.b']
+        F=["b'", "a.b'"]
+        properV=['a.b'] properF=["b'", "a.b'"]
+SX     ....X..XX..  V=[]
+        F=["b'"]
+        properV=[] properF=["b'"]
+SXr    X...X...X..  V=["a.p.p'.b", "a.q.q'.b"]
+        F=["a.p.q.b'"]
+        properV=[] properF=[]
+SXC    ....X..XX..  V=[]
+        F=["b'"]
+        properV=[] properF=["b'"]
+SR     X..........  V=["a.p.p'.b", "a.q.q'.b"]
+        F=['p.q', "a.p.q.b'"]
+        properV=[] properF=['p.q']
+SRC    ...........  V=["a.p.p'.b", "a.q.q'.b", "a.p.p'.q.q'.b"]
+        F=['p.q', "a.p.q.b'"]
+        properV=[] properF=['p.q']
+ILC    ...........  V=["a.p'", "a.a'.p'", "a.p.p'", "a.a'.p.p'", "a.q'", "a.a'.q'", "a.p'.q'", "a.a'.p'.q'", "a.p.p'.q'", "a.a'.p.p'.q'", "a.q.q'", "a.a'.q.q'", "a.p'.q.q'", "a.a'.p'.q.q'", "a.p.p'.q.q'", "a.a'.p.p'.q.q'", 'a.b', "a.a'.b", 'a.p.b', "a.a'.p.b", "a.p'.b", "a.a'.p'.b", "a.p.p'.b", "a.a'.p.p'.b", 'a.q.b', "a.a'.q.b", 'a.p.q.b', "a.a'.p.q.b", "a.p'.q.b", "a.a'.p'.q.b", "a.p.p'.q.b", "a
+        F=["a'", "a.a'", "a'.p", "a.a'.p", "a'.q", "a.a'.q", 'p.q', 'a.p.q', "a'.p.q", "a.a'.p.q", "p'.q", "a.p'.q", "a'.p'.q", "a.a'.p'.q", "p.p'.q", "a.p.p'.q", "a'.p.p'.q", "a.a'.p.p'.q", "p.q'", "a.p.q'", "a'.p.q'", "a.a'.p.q'", "p.q.q'", "a.p.q.q'", "a'.p.q.q'", "a.a'.p.q.q'", "p.p'.q.q'", "a.p.p'.q.q'", "a'.p.p'.q.q'", "a.a'.p.p'.q.q'", 'p.q.b', 'a.p.q.b', "a'.p.q.b", "a.a'.p.q.b", "p.p'.q.b
+        properV=["a.p'", "a.p.p'", "a.q'", "a.q.q'", 'a.b', 'a.p.b', "a.p'.b", 'a.q.b', "a.q'.b"] properF=["a'", "a'.p", "a'.q", 'p.q', 'a.p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "a'.p.q'", "p.q.q'", "a'.p.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", 'p.q.b', "a'.p.q.b", "p.p'.q.b", "a'.p.p'.q.b", "p.q.q'.b", "a'.p.q.q'.b", "p.p'.q.q'.b", "b'", "a.b'", "p.b'", "a.p.b'", "q.b'", "a
+ILM    XX.........  V=["a.p'", "a.q'", 'a.b']
+        F=["a'", 'p.q', "p'.q", "p.q'", "b'"]
+        properV=["a.p'", "a.q'", 'a.b'] properF=["a'", 'p.q', "p'.q", "p.q'", "b'"]
+ILMC   ...........  V=["a.p'", "a.q'", "a.p'.q'", 'a.b', "a.p'.b", "a.q'.b", "a.p'.q'.b"]
+        F=["a'", 'p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "a'.p.q'", "p.q.q'", "a'.p.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "b'", "a'.b'", "p.q.b'", "a'.p.q.b'", "p'.q.b'", "a'.p'.q.b'", "p.p'.q.b'", "a'.p.p'.q.b'", "p.q'.b'", "a'.p.q'.b'", "p.q.q'.b'", "a'.p.q.q'.b'", "p.p'.q.q'.b'", "a'.p.p'.q.q'.b'"]
+        properV=["a.p'", "a.q'", 'a.b', "a.p'.b", "a.q'.b"] properF=["a'", 'p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "a'.p.q'", "p.q.q'", "a'.p.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "b'", "p.q.b'"]
+props order: ('closure_V', 'closure_F', 'exclusive_possible', 'exclusive_compat', 'exhaustive', 'bridge_sound_V', 'bridge_sound_F', 'bridge_sufficient_V', 'bridge_sufficient_F', 'impossible_harmless_V', 'impossible_harmless_F')
+I      identity@w0..w3=[False, False, False, False]  (X[]->B)@w0..w3=[True, True, True, True]
+W      identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+L      identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+M      identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+MC     identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+IL     identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+XS     identity@w0..w3=[False, True, True, False]  (X[]->B)@w0..w3=[True, True, True, True]
+XSr    identity@w0..w3=[False, False, False, False]  (X[]->B)@w0..w3=[True, True, True, True]
+XPe    identity@w0..w3=[False, True, True, False]  (X[]->B)@w0..w3=[True, True, True, True]
+XPer   identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+XPa    identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+XPar   identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+XSx    identity@w0..w3=[False, True, True, False]  (X[]->B)@w0..w3=[True, True, True, True]
+SB     identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+SAB    identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+SX     identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+SXr    identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+SXC    identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+SR     identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+SRC    identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+ILC    identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+ILM    identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+ILMC   identity@w0..w3=[True, True, True, True]  (X[]->B)@w0..w3=[True, True, True, True]
+
+## Exhaustive n=3 (A,B)
+
+=== STRUCTURE n=3 limit=None: 3204 models, 5.0s ===
+key         closure_V      closure_F exclusive_poss exclusive_comp     exhaustive bridge_sound_V bridge_sound_F bridge_suffici bridge_suffici impossible_har impossible_har   contingent proper_V proper_F properV&ok empty
+I                   0              0              0             24              0             24             24              0              0              0              0       24       24       24          0     0
+W                   0              0              0              0              0              0              0              0              0              0              0       24        0        0          0     0
+L                   0              0              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+M                1068           1020              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+MC                  0              0              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+IL                  0              0              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+XS                  0              0              0              0           3192              6              0           1554           1644              0              0       24        6        6          0     0
+XSr                 0              0              0              0           3192              6              0           1554           1644              0              0       24        6        6          0     0
+XPe                 3             18              0              0           3192              6              0           1554           1644              0              0       24        6        6          0    15
+XPer                9             24              0              0           3198              0              0           1554           1644              0              0       24        0        6          0    15
+XPa                 0              0              0              0           3198              0              0           1560           1644              0              0       24        0        6          0     0
+XPar                0              0              0              0           3204              0              0           1554           1650              0              0       24        0        0          0     0
+XSx                18             18              0              0           3180             78              0           1554           1644              0              0       24        6        6          0     0
+SB                  0              0              0              0           3192              0              0           1560           1638              0              0       24        0        6          0     0
+SAB                 0              0              0              0           3156              0              0           1554           1602              0              0       24        0        6          0     0
+SX                  3             18              0              0           3198              0              0           1560           1644              0              0       24        0        6          0    15
+SXr                 9             24              0              0           3198              0              0           1554           1644              0              0       24        0        6          0    15
+SXC                 0              0              0              0           3198              0              0           1560           1644              0              0       24        0        6          0    15
+SR                 24             96              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+SRC                 0              0              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+ILC                 0              0              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+ILM                 0              0              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+ILMC                0              0              0              0              0              0              0              0              0              0              0       24        0       24          0     0
+
+## Sampled n=4 (A,B), enumerator sample
+
+=== STRUCTURE n=4 limit=300: 300 models, 0.9s ===
+key         closure_V      closure_F exclusive_poss exclusive_comp     exhaustive bridge_sound_V bridge_sound_F bridge_suffici bridge_suffici impossible_har impossible_har   contingent proper_V proper_F properV&ok empty
+I                   0              1              0             11              0              6             11              0              0              0              0       11       10       11          0     0
+W                   0              0              0              0              0              0              0              0              0              0              0       11        0        0          0     0
+L                   0              0              0              0              0              0              0              0              0              0              0       11        6       11          6     0
+M                 173            120              0              0              0              0              0              0              0              0              0       11        6       11          0     0
+MC                  0              0              0              0              0              0              0              0              0              0              0       11        6       11          6     0
+IL                  0              1              0              0              0              0              0              0              0              0              0       11        6       11          6     0
+XS                  0              0              0              0            297              2              0            118            180              0              0       11        4        3          1     0
+XSr                 0              0              0              0            297              2              0            118            180              0              0       11        4        3          1     0
+XPe                 1             18              0              0            297              2              0            118            180              0              0       11        4        3          1    10
+XPer                5             23              0              0            297              0              0            118            180              0              0       11        1        2          1    10
+XPa                 0              0              0              0            297              0              0            119            180              0              0       11        2        3          1     0
+XPar                0              0              0              0            299              0              0            119            181              0              0       11        0        1          0     0
+XSx                18             18              0              0            288             60              0            117            180              0              0       11        4        3          1     0
+SB                  0              0              0              0            294              0              0            119            177              0              0       11        3        5          2     0
+SAB                 0              0              0              0            270              0              0            117            153              0              0       11        4        5          4     0
+SX                  1             18              0              0            297              0              0            119            180              0              0       11        2        3          1    10
+SXr                 5             23              0              0            297              0              0            118            180              0              0       11        1        2          1    10
+SXC                 0              0              0              0            297              0              0            119            180              0              0       11        2        3          1    10
+SR                 21             80              0              0              1              0              0              0              1              0              0       11        2        7          2     0
+SRC                 0              0              0              0              1              0              0              0              1              0              0       11        2        7          2     0
+ILC                 0              0              0              0              0              0              0              0              0              0              0       11        6       11          6     0
+ILM                 4              9              0              0              0              0              0              0              0              0              0       11        6       11          0     0
+ILMC                0              0              0              0              0              0              0              0              0              0              0       11        6       11          6     0
+
+## Random frames n=4/5/6 (A,B)
+
+=== STRUCTURE random n=4 limit=400: 400 models, 0.5s ===
+key         closure_V      closure_F exclusive_poss exclusive_comp     exhaustive bridge_sound_V bridge_sound_F bridge_suffici bridge_suffici impossible_har impossible_har   contingent proper_V proper_F properV&ok empty
+I                   0              0              0             14              0             13             14              0              0              0              0       14       14       14          0     0
+W                   0              0              0              0              0              0              0              0              0              0              0       14        0        0          0     0
+L                   0              0              0              0              0              0              0              0              0              0              0       14        9       14          9     0
+MC                  0              0              0              0              0              0              0              0              0              0              0       14        9       14          9     0
+IL                  0              0              0              0              0              0              0              0              0              0              0       14        9       14          9     0
+ILC                 0              0              0              0              0              0              0              0              0              0              0       14        9       14          9     0
+ILM                 4              6              0              0              0              0              0              0              0              0              0       14        9       14          5     0
+ILMC                0              0              0              0              0              0              0              0              0              0              0       14        9       14          9     0
+SR                 15             34              0              0              1              0              0              0              1              0              0       14        0       11          0     0
+SRC                 0              0              0              0              1              0              0              0              1              0              0       14        0       11          0     0
+XPa                 0              0              0              0            393              0              0            191            205              0              0       14        8        9          6     0
+XPar                0              0              0              0            400              0              0            188            212              0              0       14        0        0          0     0
+SB                  0              0              0              0            392              0              0            191            204              0              0       14        8       10          6     0
+SAB                 0              0              0              0            387              0              0            188            199              0              0       14        8       10          6     0
+
+=== STRUCTURE random n=5 limit=300: 300 models, 0.7s ===
+key         closure_V      closure_F exclusive_poss exclusive_comp     exhaustive bridge_sound_V bridge_sound_F bridge_suffici bridge_suffici impossible_har impossible_har   contingent proper_V proper_F properV&ok empty
+I                   0              0              0             23              0             19             23              0              0              0              0       23       23       23          0     0
+W                   0              0              0              0              0              0              0              0              0              0              0       23        0        0          0     0
+L                   0              0              0              0              0              0              0              0              0              0              0       23       20       23         20     0
+MC                  0              0              0              0              0              0              0              0              0              0              0       23       20       23         20     0
+IL                  0              0              0              0              0              0              0              0              0              0              0       23       20       23         20     0
+ILC                 0              0              0              0              0              0              0              0              0              0              0       23       20       23         20     0
+ILM                12             17              0              0              0              0              0              0              0              0              0       23       20       23          1     0
+ILMC                0              0              0              0              0              0              0              0              0              0              0       23       20       23         20     0
+SR                 20             38              0              0              1              0              0              0              1              0              0       23        2       19          2     0
+SRC                 0              0              0              0              1              0              0              0              1              0              0       23        2       19          2     0
+XPa                 0              0              0              0            292              0              0            141            158              0              0       23       11       16          7     0
+XPar                0              0              0              0            300              0              0            137            166              0              0       23        0        0          0     0
+SB                  0              0              0              0            289              0              0            140            155              0              0       23       11       18          8     0
+SAB                 0              0              0              0            282              0              0            135            148              0              0       23       14       18          8     0
+
+=== STRUCTURE random n=6 limit=150: 150 models, 0.7s ===
+key         closure_V      closure_F exclusive_poss exclusive_comp     exhaustive bridge_sound_V bridge_sound_F bridge_suffici bridge_suffici impossible_har impossible_har   contingent proper_V proper_F properV&ok empty
+I                   0              0              0             11              0              7             11              0              0              0              0       11       11       11          0     0
+W                   0              0              0              0              0              0              0              0              0              0              0       11        0        0          0     0
+L                   0              0              0              0              0              0              0              0              0              0              0       11       10       11         10     0
+MC                  0              0              0              0              0              0              0              0              0              0              0       11       10       11         10     0
+IL                  0              0              0              0              0              0              0              0              0              0              0       11       10       11         10     0
+ILC                 0              0              0              0              0              0              0              0              0              0              0       11       10       11         10     0
+ILM                 9             10              0              0              0              0              0              0              0              0              0       11       10       11          0     0
+ILMC                0              0              0              0              0              0              0              0              0              0              0       11       10       11         10     0
+SR                 18             26              0              0              0              0              0              0              0              0              0       11        3        8          2     0
+SRC                 0              0              0              0              0              0              0              0              0              0              0       11        3        8          3     0
+XPa                 0              0              0              0            148              0              0             67             85              0              0       11        5        8          2     0
+XPar                0              0              0              0            150              0              0             64             88              0              0       11        0        0          0     0
+SB                  0              0              0              0            144              0              0             65             83              0              0       11        6        8          5     0
+SAB                 0              0              0              0            136              0              0             62             75              0              0       11        8        8          5     0
+
+## Nested logic, sampled n=3 (A,B,C,D)
+
+=== LOGIC n=3 limit=1500: 1500 models, 4.8s (count of models with a failing world) ===
+key          identity   modus_ponens  strengthening   strict_to_cf   cf_to_strict might_identity mp_falsity_form
+I                  22              0              6              8              0             22              0
+W                   0              0              0              0              0              0              0
+L                   0              0              0              0              0              0              0
+M                   0              0            361              0            700              0              0
+MC                  0              0            361              0            700              0              0
+IL                  0              0              0              0              0              0              0
+XS                  7            384              8              2            400              0            384
+XSr                 7            384              3              2            388              0            384
+XPe                 7            384              8              2            400              0            384
+XPer                0            384              1              0            388              0            384
+XPa                 0            389              4              0            402              0            389
+XPar                0            388              0              0            388              0            388
+XSx                84            373              8             35            389              0            373
+SB                  0            364              4              0            377              0            364
+SAB                 0            359              2              0            364              0            359
+SX                  0            389              4              0            402              0            389
+SXr                 0            384              1              0            388              0            384
+SXC                 0            389              4              0            402              0            389
+SR                  0              0            200              0            372              0              0
+SRC                 0              0            200              0            372              0              0
+ILC                 0              0              0              0              0              0              0
+ILM                 0              0            361              0            700              0              0
+ILMC                0              0            361              0            700              0              0
+
+## Nested logic, random n=5
+
+=== LOGIC random n=5 limit=300: 300 models, 1.0s (count of models with a failing world) ===
+key          identity   modus_ponens  strengthening   strict_to_cf   cf_to_strict might_identity mp_falsity_form
+I                  17              0              0              3              0             17              0
+L                   0              0              0              0              0              0              0
+MC                  0              0             70              0            132              0              0
+IL                  0              0              0              0              0              0              0
+ILC                 0              0              0              0              0              0              0
+ILMC                0              0             70              0            132              0              0
+SR                  0              0             26              0             51              0              0
+SRC                 0              0             26              0             51              0              0
+XPa                 0             59              4              0             69              0             59
+SB                  0             53              4              0             63              0             53
+
+## Hyperintensionality (same truth-set, distinct proposition), sampled n=3
+
+=== HYPERINTENSIONALITY n=3 limit=1500: 1500 models ===
+key    same_truth_set distinct_props distinct_on_possible
+I                 723              1                    1
+W                 723              0                    0
+L                 723              0                    0
+M                 723              0                    0
+MC                723              0                    0
+IL                723              0                    0
+XS                723            482                  480
+XSr               723            484                  482
+XPe               723            480                  480
+XPer              723            388                  388
+XPa               723            480                  480
+XPar              723            382                  382
+XSx               723            503                  503
+SB                723            661                  497
+SAB               723            678                  512
+SX                723            480                  480
+SXr               723            388                  388
+SXC               723            480                  480
+SR                723            403                  403
+SRC               723            403                  403
+ILC               723              0                    0
+ILM               723              0                    0
+ILMC              723              0                    0
+
+## Hyperintensionality, random n=5 and n=6
+
+=== HYPERINTENSIONALITY random n=5 limit=400: 400 models ===
+key    same_truth_set distinct_props distinct_on_possible
+I                 187              0                    0
+L                 187              0                    0
+MC                187              0                    0
+IL                187              0                    0
+ILC               187              0                    0
+ILMC              187              0                    0
+SR                187            109                  109
+SRC               187            109                  109
+
+=== HYPERINTENSIONALITY random n=6 limit=200: 200 models ===
+key    same_truth_set distinct_props distinct_on_possible
+I                 100              1                    1
+L                 100              0                    0
+MC                100              0                    0
+IL                100              0                    0
+ILC               100              0                    0
+ILMC              100              0                    0
+SR                100             65                   65
+SRC               100             64                   64
+
+## Frame G (7 atoms): IL separates from L
+Frame G worlds: ['a.x.c.b', "a'.x.y.c.b", "a.x.b'"]
+I     ...X..X.... T=['a.x.c.b', "a'.x.y.c.b"] properV=['c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b'] properF=['□', 'a', "a'", 'x', 'a.x', "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", "b'", "a.b'", "x.b'"]
+L     ........... T=['a.x.c.b', "a'.x.y.c.b"] properV=["a'", "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b'] properF=["b'", "a.b'", "x.b'"]
+IL    ........... T=['a.x.c.b', "a'.x.y.c.b"] properV=['c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b'] properF=["b'", "a.b'", "x.b'"]
+M     XX......... T=['a.x.c.b', "a'.x.y.c.b"] properV=["a'", 'y', 'c', 'b'] properF=["b'"]
+MC    ........... T=['a.x.c.b', "a'.x.y.c.b"] properV=["a'", 'y', "a'.y", 'c', "a'.c", 'y.c', "a'.y.c", 'b', "a'.b", 'y.b', "a'.y.b", 'c.b', "a'.c.b", 'y.c.b', "a'.y.c.b"] properF=["b'"]
+ILC   ........... T=['a.x.c.b', "a'.x.y.c.b"] properV=['c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b'] properF=["b'", "a.b'", "x.b'"]
+ILM   XX......... T=['a.x.c.b', "a'.x.y.c.b"] properV=['c', 'b'] properF=["b'"]
+ILMC  ........... T=['a.x.c.b', "a'.x.y.c.b"] properV=['c', 'b', 'c.b'] properF=["b'"]
+XPa   ........... T=['a.x.c.b', "a'.x.y.c.b"] properV=['b'] properF=["b'"]
+SB    ........... T=['a.x.c.b', "a'.x.y.c.b"] properV=['b'] properF=["b'"]
+L truth sets ['a.x.c.b', "a'.x.y.c.b"] ['a.x.c.b', "a'.x.y.c.b", "a.x.b'"] V_X∩poss ["a'", "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"] V_Y∩poss ['□', 'a', "a'", 'x', 'a.x', "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'
+   X[]->C: [True, True, True]  strict: [True, True, True]  identity: [True, True, True]
+IL truth sets ['a.x.c.b', "a'.x.y.c.b"] ['a.x.c.b', "a'.x.y.c.b", "a.x.b'"] V_X∩poss ['c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"] V_Y∩poss ['□', 'a', "a'", 'x', 'a.x', "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b"
+   X[]->C: [True, True, True]  strict: [True, True, True]  identity: [True, True, True]
+ILC truth sets ['a.x.c.b', "a'.x.y.c.b"] ['a.x.c.b', "a'.x.y.c.b", "a.x.b'"] V_X∩poss ['c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"] V_Y∩poss ['□', 'a', "a'", 'x', 'a.x', "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b
+   X[]->C: [True, True, True]  strict: [True, True, True]  identity: [True, True, True]
+MC truth sets ['a.x.c.b', "a'.x.y.c.b"] ['a.x.c.b', "a'.x.y.c.b", "a.x.b'"] V_X∩poss ["a'", 'y', "a'.y", 'c', "a'.c", 'y.c', "a'.y.c", 'b', "a'.b", 'y.b', "a'.y.b", 'c.b', "a'.c.b", 'y.c.b', "a'.y.c.b"] V_Y∩poss ['□']
+   X[]->C: [True, True, True]  strict: [True, True, True]  identity: [True, True, True]
+ILMC truth sets ['a.x.c.b', "a'.x.y.c.b"] ['a.x.c.b', "a'.x.y.c.b", "a.x.b'"] V_X∩poss ['c', 'b', 'c.b'] V_Y∩poss ['□']
+   X[]->C: [True, True, True]  strict: [True, True, True]  identity: [True, True, True]
+
+## Exact-family sufficiency characterization
+exact-sufficiency characterization: 3228 true worlds checked, 0 mismatches
+exact-sufficiency characterization: 287 true worlds checked, 0 mismatches
+
+## Witness frames G2 (ILC hyperintensional), F3z (SR insufficient), SRC falsifier-insufficient model
+Frame G2 worlds: ["a.x'.b", 'a.x.c.b', "a'.x.y.c.b", "a.x.b'"]
+  letter A constraints hold: True
+  letter B constraints hold: True
+  letter C constraints hold: True
+  letter D constraints hold: True
+  truth sets X, Y: ["a.x'.b", 'a.x.c.b', "a'.x.y.c.b"] ["a.x'.b", 'a.x.c.b', "a'.x.y.c.b"]
+  L     V_X∩poss=["a'", "a'.x", "x'", "a.x'", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", "x'.b", "a.x'.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"]
+        V_Y∩poss=["a'", "a'.x", "x'", "a.x'", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", "x'.b", "a.x'.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"]
+        F_X∩poss=["b'", "a.b'", "x.b'", "a.x.b'"]  F_Y∩poss=["b'", "a.b'", "x.b'", "a.x.b'"]  distinct=False
+        props X: ...........  props Y: ...........
+  MC    V_X∩poss=["a'", "x'", 'y', "a'.y", 'c', "a'.c", 'y.c', "a'.y.c", 'b', "a'.b", "x'.b", 'y.b', "a'.y.b", 'c.b', "a'.c.b", 'y.c.b', "a'.y.c.b"]
+        V_Y∩poss=["a'", "x'", 'y', "a'.y", 'c', "a'.c", 'y.c', "a'.y.c", 'b', "a'.b", "x'.b", 'y.b', "a'.y.b", 'c.b', "a'.c.b", 'y.c.b', "a'.y.c.b"]
+        F_X∩poss=["b'"]  F_Y∩poss=["b'"]  distinct=False
+        props X: ...........  props Y: ...........
+  IL    V_X∩poss=["x'", "a.x'", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", "x'.b", "a.x'.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"]
+        V_Y∩poss=["a'", "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", "x'.b", "a.x'.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"]
+        F_X∩poss=["b'", "a.b'", "x.b'", "a.x.b'"]  F_Y∩poss=["b'", "a.b'", "x.b'", "a.x.b'"]  distinct=True
+        props X: ...........  props Y: ...........
+  ILC   V_X∩poss=["x'", "a.x'", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", "x'.b", "a.x'.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"]
+        V_Y∩poss=["a'", "a'.x", 'y', "a'.y", 'x.y', "a'.x.y", 'c', 'a.c', "a'.c", 'x.c', 'a.x.c', "a'.x.c", 'y.c', "a'.y.c", 'x.y.c', "a'.x.y.c", 'b', 'a.b', "a'.b", 'x.b', 'a.x.b', "a'.x.b", "x'.b", "a.x'.b", 'y.b', "a'.y.b", 'x.y.b', "a'.x.y.b", 'c.b', 'a.c.b', "a'.c.b", 'x.c.b', 'a.x.c.b', "a'.x.c.b", 'y.c.b', "a'.y.c.b", 'x.y.c.b', "a'.x.y.c.b"]
+        F_X∩poss=["b'", "a.b'", "x.b'", "a.x.b'"]  F_Y∩poss=["b'", "a.b'", "x.b'", "a.x.b'"]  distinct=True
+        props X: ...........  props Y: ...........
+  ILM   V_X∩poss=["x'", 'c', 'b']
+        V_Y∩poss=["a'", 'y', 'c', 'b']
+        F_X∩poss=["b'"]  F_Y∩poss=["b'"]  distinct=True
+        props X: XX.........  props Y: XX.........
+  ILMC  V_X∩poss=["x'", 'c', 'b', "x'.b", 'c.b']
+        V_Y∩poss=["a'", 'y', "a'.y", 'c', "a'.c", 'y.c', "a'.y.c", 'b', "a'.b", 'y.b', "a'.y.b", 'c.b', "a'.c.b", 'y.c.b', "a'.y.c.b"]
+        F_X∩poss=["b'"]  F_Y∩poss=["b'"]  distinct=True
+        props X: ...........  props Y: ...........
+  ILMC: (A[]->B) []-> ¬A = [False, False, False, False]  vs (C[]->D) []-> ¬A = [False, False, True, False]   [u,u2,w,v]
+  ILMC: (A[]->B) []-> C = [False, False, False, False]  vs (C[]->D) []-> C = [True, True, True, False]   [u,u2,w,v]
+
+Frame F3z worlds: ["a.p.p'.b", "a.q.q'.b", "a'.p.p'.q.q'.b", "a.p.q.b'", "a'.p.p'.b.z"]
+  L     ........... T=["a.p.p'.b", "a.q.q'.b", "a'.p.p'.b.z"] suffV_witness=None properV=["a.p'", "a.p.p'", "a.q'", "a.q.q'", 'a.b', 'a.p.b', "a.p'.b", 'a.q.b', "a.q'.b", 'z', "a'.z", 'p.z', "a'.p.z", "p'.z", "a'.p'.z", "p.p'.z", "a'.p.p'.z", 'b.z', "a'.b.z", 'p.b.z', "a'.p.b.z", "p'.b.z", "a'.p'.b.z", "p.p'.b.z"] properF=["a'.q", 'p.q', 'a.p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "a'.q'", "p.q'", "a'.p.q'", "p'.q'", "a'.p'.q'", "p.p'.q'", "a'.p.p'.q'", "a'.q.q'", "p.q.q'", "a'.p.q.q'", "p'.q.q'", "a'.p'.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "a'.q.b", 'p.q.b', "a'.p.q.b", "p'.q.b", "a'.p'.q.b", "p.p'.q.b", "a'.p.p'.q.b", "a'.q'.b", "p.q'.b", "a'.p.q'.b", "p'.q'.b", "a'.p'.q'.b
+  MC    ........... T=["a.p.p'.b", "a.q.q'.b", "a'.p.p'.b.z"] suffV_witness=None properV=["a.p'", "a.q'", 'a.b', "a.p'.b", "a.q'.b", 'z'] properF=["a'.q", 'p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "a'.q'", "p.q'", "a'.p.q'", "p'.q'", "a'.p'.q'", "p.p'.q'", "a'.p.p'.q'", "a'.q.q'", "p.q.q'", "a'.p.q.q'", "p'.q.q'", "a'.p'.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "b'", "p.q.b'"]
+  ILC   ........... T=["a.p.p'.b", "a.q.q'.b", "a'.p.p'.b.z"] suffV_witness=None properV=["a.p'", "a.p.p'", "a.q'", "a.q.q'", 'a.b', 'a.p.b', "a.p'.b", 'a.q.b', "a.q'.b", "p'.z", "a'.p'.z", "p.p'.z", "a'.p.p'.z", 'b.z', "a'.b.z", 'p.b.z', "a'.p.b.z", "p'.b.z", "a'.p'.b.z", "p.p'.b.z"] properF=["a'.q", 'p.q', 'a.p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "a'.p.q'", "p.q.q'", "a'.p.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", 'p.q.b', "a'.p.q.b", "p.p'.q.b", "a'.p.p'.q.b", "p.q.q'.b", "a'.p.q.q'.b", "p.p'.q.q'.b", "b'", "a.b'", "p.b'", "a.p.b'", "q.b'", "a.q.b'", "p.q.b'"]
+  ILMC  ........... T=["a.p.p'.b", "a.q.q'.b", "a'.p.p'.b.z"] suffV_witness=None properV=["a.p'", "a.q'", 'a.b', "a.p'.b", "a.q'.b", "p'.z", 'b.z', "p'.b.z"] properF=["a'.q", 'p.q', "a'.p.q", "p'.q", "a'.p'.q", "p.p'.q", "a'.p.p'.q", "p.q'", "p.q.q'", "a'.p.q.q'", "p.p'.q.q'", "a'.p.p'.q.q'", "b'", "p.q.b'"]
+  SR    X...X..X... T=["a.p.p'.b", "a.q.q'.b", "a'.p.p'.b.z"] suffV_witness=a'.p.p'.b.z properV=[] properF=['p.q']
+  SRC   ....X..X... T=["a.p.p'.b", "a.q.q'.b", "a'.p.p'.b.z"] suffV_witness=a'.p.p'.b.z properV=[] properF=['p.q']
+  XPa   ....X..XX.. T=["a.p.p'.b", "a.q.q'.b", "a'.p.p'.b.z"] suffV_witness=a.q.q'.b properV=[] properF=["b'"]
+  [w4]_a = ["p.p'.b"]  worlds above p.p'.b = ["a.p.p'.b", "a'.p.p'.q.q'.b", "a'.p.p'.b.z"]
+
+SRC falsifier-insufficient model: {"frame": {"n": 4, "atoms": ["a", "b", "c", "d"], "worlds": ["a.b", "b.c", "d"], "possible": ["□", "a", "b", "a.b", "c", "b.c", "d"]}, "interpretation": {"A": {"verifiers": ["b"], "falsifiers": ["d"]}, "B": {"verifiers": ["a", "d", "a.d"], "falsifiers": ["c"]}}}
+  false worlds: ['b.c', 'd']  F= ['b.c']  witness world: d
+   a= b [w]_a= ['□'] Alt= ['a.b', 'b.c']
+  L falsifiers: ['c', 'a.c', 'b.c', 'a.b.c', 'd', 'a.d', 'b.d', 'a.b.d', 'c.d', 'a.c.d', 'b.c.d', 'a.b.c.d']  MC falsifiers: ['c', 'd', 'c.d']
