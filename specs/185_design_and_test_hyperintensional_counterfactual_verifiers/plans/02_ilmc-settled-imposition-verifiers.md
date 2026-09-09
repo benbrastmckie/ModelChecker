@@ -287,7 +287,7 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 
 ---
 
-### Phase 7: Recommendation document, documentation, cleanup, and summary [COMPLETED]
+### Phase 7: Recommendation document, documentation, cleanup, and summary [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: Deliver the recommendation naming `ILMC`, the discriminating evidence, its explicit concessions, and the further tests, with the subtheory documentation updated and the stash retired.
 
@@ -297,7 +297,7 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 - [x] Update `counterfactual/tests/README.md` to describe the oracle, the witness frames, and the characterization-test methodology (pinned oracle outcomes, Z3 confirmation at N <= 4, small-frame coincidence caveat)
 - [x] Run `bash .claude/scripts/check-task-references.sh` over `code/`; fix any hit -- ALTERED: the script rejects `code/` as a PATH_SCOPE (allowed: agent-system/extensions, .opencode, lua, .memory); a manual grep for task-number patterns over the counterfactual package is clean
 - [x] Complete gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ -q` and `PYTHONPATH=code/src pytest code/tests/ -q`; compare against `baselines/01_logos-suite-baseline.txt` -- observed 747 passed (452 baseline + 295 new) and 680 passed / 5 skipped
-- [x] After the phase commit, with `git status --porcelain` empty, run `git stash drop 'stash@{0}'` (allowed only on a clean tree per `.claude/rules/git-workflow.md`) and remove `.git-snapshot-marker` and `working-progress-1788911805.patch` from the task directory
+- [ ] After the phase commit, with `git status --porcelain` empty, run `git stash drop 'stash@{0}'` (allowed only on a clean tree per `.claude/rules/git-workflow.md`) and remove `.git-snapshot-marker` and `working-progress-1788911805.patch` from the task directory -- EXCLUDED (deferred): see Reasoned Exclusions below
 - [x] Write `specs/185_.../summaries/02_ilmc-settled-imposition-verifiers-summary.md` per summary-format.md, pointing at the report, the tests, and baselines `04`-`08`
 
 **Timing**: 1.5 hours
@@ -311,6 +311,12 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 - `code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md` - documentation
 - `code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/README.md` - test methodology
 - `specs/185_design_and_test_hyperintensional_counterfactual_verifiers/summaries/02_ilmc-settled-imposition-verifiers-summary.md` - summary
+
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|------|--------|----------|
+| `git stash drop 'stash@{0}'`, removal of `.git-snapshot-marker` and `working-progress-1788911805.patch` | The drop is permitted only on a clean tree, and the tree cannot be clean inside this dispatch: `specs/185_.../.lock/holder.json` and `specs/events.jsonl` carry the orchestrator's live edits, which are outside this agent's commit scope (`git-commit-scoped.sh` excludes `.lock/`). Every source file the stash held is restored and committed (`64eb483b`), so the stash is redundant; it is left for the user (or the next clean-tree operation) to drop, together with the marker and patch that reference it. | `git status --porcelain` after the Phase 7 commit: ` M .../.lock/holder.json`, ` M specs/events.jsonl`, `?? .../.dispatch/4.md`; `git stash list`: `stash@{0}: On counterfactual-verifier-semantics: git-snapshot-1788911805` |
 
 **Verification**:
 - The report names exactly one recommended clause, has a "Concessions" section and a "Further Tests" section, and every table cell cites the test or baseline that produced it

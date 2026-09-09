@@ -1,7 +1,7 @@
 # Implementation Summary: ILMC settled-imposition verifiers (plan 02)
 
 - **Task**: 185 - Design and test hyperintensional counterfactual verifiers
-- **Plan**: `plans/02_ilmc-settled-imposition-verifiers.md` (7 phases, all `[COMPLETED]`)
+- **Plan**: `plans/02_ilmc-settled-imposition-verifiers.md` (7 phases; 1-6 `[COMPLETED]`, 7 `[COMPLETED WITH EXCLUSIONS]`)
 - **Status**: [COMPLETED]
 - **Branch**: `counterfactual-verifier-semantics`
 - **Session**: sess_1788911899_64b5b6
@@ -17,7 +17,7 @@
 | 4 Oracle nested logic and hyperintensionality | `e62aa784` | `tests/test_candidate_logic_oracle.py`: F7 profile and F8 counts pinned on the research seeds; strict-collapse mechanism; Frame G2; baselines 06, 07. One report figure corrected (`SR`/`SRC` 403, not 428). |
 | 5 Z3 operators ILC, ILMC, MC | `08cb3076` | `\boxrightILC`, `\boxrightILMC`, `\boxrightMC` + might variants via `il_verifier_at`/`il_falsifier_at`, `settler_at`, `minimal_clause`, `closure_clause`; 86 cross-validation tests (Python side == oracle == Z3 side at every world; predicate == direct encoding). Cost gate: direct encoding retained (`ILMC` nested at N=4 in 1.1 s; `baselines/08_nesting-cost.json`). |
 | 6 Discriminating examples and Z3 matrices | `5806c5e9` | `candidate_examples.py` (nested schemata, constitutive comparison, regression substitution, curated runnable collection); `tests/test_candidate_logic.py` (76): all 36 nested cells match the oracle profile at N=3; constitutive comparison at N=3/N=4; regression identical across candidates (`baselines/05_regression-matrix.json`). New evidence: Z3 finds `\equiv` countermodels for `ILC`/`ILMC` at N=4 (none for `W`/`L`/`MC`), and 20,000-model oracle samples at n=4 hold possible-state separations for `ILMC`/`ILC` and none for `L`/`MC` (baselines 09, 10; `tests/n4_separation_witnesses.json`). |
-| 7 Recommendation, docs, cleanup | this commit | `report/verifier_clauses.md`; `README.md` and `tests/README.md` updated (directory structure, candidate operator table, corrected verification-semantics section, example collections, test methodology); stash dropped; snapshot marker and patch removed. |
+| 7 Recommendation, docs, cleanup | this commit | `report/verifier_clauses.md`; `README.md` and `tests/README.md` updated (directory structure, candidate operator table, corrected verification-semantics section, example collections, test methodology). The stash drop and the removal of the snapshot marker/patch are deferred: the drop is allowed only on a clean tree, and the orchestrator's live `.lock/holder.json` and `events.jsonl` edits keep the tree dirty inside this dispatch (recorded as a Reasoned Exclusion in the plan). |
 
 ## Recommendation (from the report)
 
@@ -35,7 +35,7 @@
 - Phase 2: F3 pins are a JSON data file (`tests/f3_candidate_sets.json`) generated before the port, because the archived text output truncates long set lines; `frame_g()` carries only `A`, `B` because the research script's `C = ({c},{y})` violates the letter constraints on that frame (caught by the RED constraint test).
 - Phase 4: the `SR`/`SRC` same-truth-set count is pinned at 403 (mechanical), correcting the research report's prose figure 428.
 - Phase 6: the small-frame-coincidence hypothesis for the constitutive comparison was overturned (Z3 countermodels at N=4 for `ILC`/`ILMC`); two extra baselines (09, 10) and one test-data file record it.
-- Phase 7: `check-task-references.sh` does not accept `code/` as a scope; a manual grep was used instead.
+- Phase 7: `check-task-references.sh` does not accept `code/` as a scope; a manual grep was used instead. The stash drop / snapshot-artefact removal is deferred (clean-tree precondition unmet inside the dispatch); `stash@{0}` is fully redundant with commit `64eb483b` and can be dropped by the user with `git stash drop 'stash@{0}'`, then `rm` the marker and patch in the task directory.
 
 ## Findings for follow-up (not in scope)
 

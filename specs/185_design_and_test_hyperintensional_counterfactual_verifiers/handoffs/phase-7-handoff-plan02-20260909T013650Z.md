@@ -6,7 +6,7 @@ None -- the plan is complete. A successor decision (whether `\boxrightILMC` repl
 
 ## Current State
 
-Phase 7 [COMPLETED]. `report/verifier_clauses.md` names `ILMC`, cites a test or baseline for every table cell, and has Concessions and Further Tests sections. `README.md` and `tests/README.md` updated. Summary at `summaries/02_ilmc-settled-imposition-verifiers-summary.md`. Gate: logos 747, `code/tests` 680. Stash dropped and snapshot artefacts removed after the phase commit on a clean tree.
+Phase 7 [COMPLETED WITH EXCLUSIONS]. `report/verifier_clauses.md` names `ILMC`, cites a test or baseline for every table cell, and has Concessions and Further Tests sections. `README.md` and `tests/README.md` updated. Summary at `summaries/02_ilmc-settled-imposition-verifiers-summary.md`. Gate: logos 747, `code/tests` 680. Stash NOT dropped: the clean-tree precondition cannot hold inside the dispatch (orchestrator-owned `.lock/holder.json` and `events.jsonl` edits); `stash@{0}` is redundant with commit `64eb483b` and awaits a user-side `git stash drop`, with `.git-snapshot-marker` and `working-progress-1788911805.patch` to be removed alongside it.
 
 ## Key Decisions Made
 
@@ -16,6 +16,7 @@ Phase 7 [COMPLETED]. `report/verifier_clauses.md` names `ILMC`, cites a test or 
 ## Deviations from Plan
 
 - Lint scope substitution (recorded inline).
+- Stash drop deferred (Reasoned Exclusions table in the plan).
 
 ## References
 
