@@ -13,27 +13,28 @@ clause; ``frame_oracle.py`` states the same clauses over explicit frames.
 Clauses, writing ``T(w)`` for "the counterfactual is true at world ``w``" and
 ``W`` for the world states:
 
-- ``\\boxrightI`` (imposition-local): ``s`` verifies iff every ``A``-verifier
-  imposed on ``s`` reaches only ``B``-worlds -- the truth clause with ``s``
-  in the world slot.
-- ``\\boxrightW`` (world-state): the fusion closure of ``{w in W : T(w)}``.
-- ``\\boxrightL`` (settlers): ``{s : every world above s is a T-world}``.
-- ``\\boxrightM`` (minimal settlers): the parthood-minimal settlers.
-- ``\\boxrightMC`` (generated settlers): the fusion closure of the minimal
-  settlers.
-- ``\\boxrightIL`` (imposition-local settlers): ``V_I`` intersected with
-  ``V_L``.
+- ``\\boxrightI`` (imposition-local, the refuted control): ``s`` verifies
+  iff every ``A``-verifier imposed on ``s`` reaches only ``B``-worlds -- the
+  truth clause with ``s`` in the world slot.
+- ``\\boxrightILC`` (settled imposition, closed; the mechanical control):
+  the fusion closure of ``IL = {s : I(s) and every world above s is a
+  T-world}`` -- imposition on ``s`` itself and on every world containing it.
+- ``\\boxrightILMC`` (exact settled imposition; the primary candidate): the
+  fusion closure of the parthood-minimal members of ``IL``.
+- ``\\boxrightW`` (world-state baseline): the fusion closure of
+  ``{w in W : T(w)}``.
+- ``\\boxrightL`` (settler baseline): ``{s : every world above s is a T-world}``.
+- ``\\boxrightMC`` (generated-settler baseline): the fusion closure of the
+  parthood-minimal settlers.
 
-Falsifier clauses are the polarity duals.  Every ``\\diamondrightK`` is the
-defined might-counterfactual ``\\neg (A \\boxrightK \\neg B)``.
+Falsifier clauses are the polarity duals (``I``-falsification, co-settling,
+minimality, closure).  Every ``\\diamondrightK`` is the defined
+might-counterfactual ``\\neg (A \\boxrightK \\neg B)``.
 
-Roster.  The Z3 operators implemented here are ``I`` (refuted control), the
-baselines ``W`` and ``L``, and -- once the settled-imposition clauses land --
-``ILC`` (fusion closure of ``IL``, the mechanical control), ``ILMC`` (fusion
-closure of the parthood-minimal ``IL`` members, the primary candidate) and
-``MC``.  The clauses ``IL``, ``ILM``, ``M``, ``SR``, ``SRC`` and the
-exact-imposition family are stated oracle-only in ``frame_oracle.py`` and
-populate the comparison tables; they have no Z3 operator.
+``W``, ``L`` and ``MC`` are functions of the truth-set and are disqualified as
+candidates; they are implemented only as comparison columns.  The clauses
+``IL``, ``ILM``, ``M``, ``SR``, ``SRC`` and the exact-imposition family are
+stated oracle-only in ``frame_oracle.py``; they have no Z3 operator.
 
 Two encodings of ``T(w)`` are available on the Z3 side.  ``direct`` inlines
 the truth clause for each concrete world; ``predicate`` allocates one Z3
@@ -299,6 +300,77 @@ class CandidateCounterfactual(CounterfactualOperator):
         ])
         return z3.And(below, covered)
 
+    def il_verifier_at(self, leftarg: Any, rightarg: Any, eval_point: Dict[str, Any],
+                       state: Any, encoding: Optional[str] = None) -> Any:
+        """``IL(state)``: the truth clause at ``state`` and at every world above it.
+
+        ``truth_at_world`` is defined at every state (the truth clause reads
+        its world slot as a plain state), so ``I(state)`` is that term.
+        Memoized for concrete states.
+        """
+        memo = _memo(self.semantics)
+        t = _concrete(state)
+        key = ("il_v", self.name, leftarg.name, rightarg.name, t, encoding or self.truth_encoding)
+        if t is not None and key in memo:
+            return memo[key]
+        clause = z3.And(
+            self.truth_at_world(leftarg, rightarg, eval_point, state, encoding),
+            self.settler_at(leftarg, rightarg, eval_point, state, "V", encoding),
+        )
+        if t is not None:
+            memo[key] = clause
+        return clause
+
+    def il_falsifier_at(self, leftarg: Any, rightarg: Any, eval_point: Dict[str, Any],
+                        state: Any, encoding: Optional[str] = None) -> Any:
+        """The dual of ``il_verifier_at``: falsity at ``state`` and co-settling."""
+        memo = _memo(self.semantics)
+        t = _concrete(state)
+        key = ("il_f", self.name, leftarg.name, rightarg.name, t, encoding or self.truth_encoding)
+        if t is not None and key in memo:
+            return memo[key]
+        clause = z3.And(
+            self.falsity_at_world(leftarg, rightarg, eval_point, state, encoding),
+            self.settler_at(leftarg, rightarg, eval_point, state, "F", encoding),
+        )
+        if t is not None:
+            memo[key] = clause
+        return clause
+
+    def settler_at(self, leftarg: Any, rightarg: Any, eval_point: Dict[str, Any],
+                   state: Any, polarity: str, encoding: Optional[str] = None) -> Any:
+        """``settler_clause`` over the truth (``"V"``) or falsity (``"F"``) clause, memoized for concrete states."""
+        memo = _memo(self.semantics)
+        t = _concrete(state)
+        key = ("settler", polarity, self.name, leftarg.name, rightarg.name, t, encoding or self.truth_encoding)
+        if t is not None and key in memo:
+            return memo[key]
+        at_world = self.truth_at_world if polarity == "V" else self.falsity_at_world
+        clause = self.settler_clause(state, lambda w: at_world(leftarg, rightarg, eval_point, w, encoding))
+        if t is not None:
+            memo[key] = clause
+        return clause
+
+    def minimal_clause(self, state: Any, member: Callable[[Any], Any]) -> Any:
+        """``member(state)`` and no proper part of ``state`` satisfies ``member``.
+
+        Iterates concrete states; for a symbolic ``state`` the proper-part
+        test is a constraint, for a concrete one it is decided in Python.
+        """
+        semantics = self.semantics
+        s = _concrete(state)
+        conjuncts = [member(state)]
+        for t in semantics.all_states:
+            t_int = int(t.as_long())
+            if s is not None:
+                if t_int & s == t_int and t_int != s:
+                    conjuncts.append(z3.Not(member(t)))
+            else:
+                conjuncts.append(z3.Implies(
+                    z3.And(semantics.is_part_of(t, state), t != state), z3.Not(member(t))
+                ))
+        return z3.And(conjuncts)
+
     # -- clause API ---------------------------------------------------------
 
     def verifier_clause(self, state: Any, leftarg: Any, rightarg: Any,
@@ -386,6 +458,92 @@ class SettlerCounterfactual(CandidateCounterfactual):
         return view.settlers()
 
 
+class SettlingImpositionClosureCounterfactual(CandidateCounterfactual):
+    """``\\boxrightILC``: fusion closure of the imposition-local settlers ``IL``."""
+
+    name = "\\boxrightILC"
+    key = "ILC"
+
+    def verifier_clause(self, state, leftarg, rightarg, eval_point, encoding=None):
+        return self.closure_clause(
+            state, lambda t: self.il_verifier_at(leftarg, rightarg, eval_point, t, encoding)
+        )
+
+    def falsifier_clause(self, state, leftarg, rightarg, eval_point, encoding=None):
+        return self.closure_clause(
+            state, lambda t: self.il_falsifier_at(leftarg, rightarg, eval_point, t, encoding)
+        )
+
+    def python_sets(self, view):
+        iv, if_ = view.imposition_local()
+        lv, lf = view.settlers()
+        return fusion_closure(iv & lv), fusion_closure(if_ & lf)
+
+
+class ExactSettlingImpositionCounterfactual(CandidateCounterfactual):
+    """``\\boxrightILMC``: fusion closure of the parthood-minimal members of ``IL``.
+
+    ``s`` verifies iff ``s`` is a fusion of states ``t`` such that (V1) every
+    alternative to ``t`` under any antecedent verifier makes the consequent
+    true, (V2) every alternative to any world containing ``t`` does too, and
+    (V3) no proper part of ``t`` satisfies V1 and V2.  Falsifiers dually.
+    """
+
+    name = "\\boxrightILMC"
+    key = "ILMC"
+
+    def verifier_clause(self, state, leftarg, rightarg, eval_point, encoding=None):
+        return self.closure_clause(
+            state,
+            lambda t: self.minimal_clause(
+                t, lambda r: self.il_verifier_at(leftarg, rightarg, eval_point, r, encoding)
+            ),
+        )
+
+    def falsifier_clause(self, state, leftarg, rightarg, eval_point, encoding=None):
+        return self.closure_clause(
+            state,
+            lambda t: self.minimal_clause(
+                t, lambda r: self.il_falsifier_at(leftarg, rightarg, eval_point, r, encoding)
+            ),
+        )
+
+    def python_sets(self, view):
+        iv, if_ = view.imposition_local()
+        lv, lf = view.settlers()
+        return (
+            fusion_closure(minimal_elements(iv & lv)),
+            fusion_closure(minimal_elements(if_ & lf)),
+        )
+
+
+class GeneratedSettlerCounterfactual(CandidateCounterfactual):
+    """``\\boxrightMC``: fusion closure of the parthood-minimal settlers (baseline)."""
+
+    name = "\\boxrightMC"
+    key = "MC"
+
+    def verifier_clause(self, state, leftarg, rightarg, eval_point, encoding=None):
+        return self.closure_clause(
+            state,
+            lambda t: self.minimal_clause(
+                t, lambda r: self.settler_at(leftarg, rightarg, eval_point, r, "V", encoding)
+            ),
+        )
+
+    def falsifier_clause(self, state, leftarg, rightarg, eval_point, encoding=None):
+        return self.closure_clause(
+            state,
+            lambda t: self.minimal_clause(
+                t, lambda r: self.settler_at(leftarg, rightarg, eval_point, r, "F", encoding)
+            ),
+        )
+
+    def python_sets(self, view):
+        lv, lf = view.settlers()
+        return fusion_closure(minimal_elements(lv)), fusion_closure(minimal_elements(lf))
+
+
 def _might_variant(counterfactual: type, name: str) -> type:
     """The defined might-counterfactual ``\\neg (A \\boxrightK \\neg B)`` for one candidate."""
 
@@ -413,21 +571,40 @@ def _might_variant(counterfactual: type, name: str) -> type:
 
 
 ImpositionLocalMightCounterfactual = _might_variant(ImpositionLocalCounterfactual, "\\diamondrightI")
+SettlingImpositionClosureMightCounterfactual = _might_variant(SettlingImpositionClosureCounterfactual, "\\diamondrightILC")
+ExactSettlingImpositionMightCounterfactual = _might_variant(ExactSettlingImpositionCounterfactual, "\\diamondrightILMC")
 WorldStateMightCounterfactual = _might_variant(WorldStateCounterfactual, "\\diamondrightW")
 SettlerMightCounterfactual = _might_variant(SettlerCounterfactual, "\\diamondrightL")
+GeneratedSettlerMightCounterfactual = _might_variant(GeneratedSettlerCounterfactual, "\\diamondrightMC")
 
 #: Candidate key -> primitive operator class.
 CANDIDATE_OPERATORS: Dict[str, type] = {
     "I": ImpositionLocalCounterfactual,
+    "ILC": SettlingImpositionClosureCounterfactual,
+    "ILMC": ExactSettlingImpositionCounterfactual,
     "W": WorldStateCounterfactual,
     "L": SettlerCounterfactual,
+    "MC": GeneratedSettlerCounterfactual,
 }
 
 #: Candidate key -> defined might-counterfactual class.
 MIGHT_OPERATORS: Dict[str, type] = {
     "I": ImpositionLocalMightCounterfactual,
+    "ILC": SettlingImpositionClosureMightCounterfactual,
+    "ILMC": ExactSettlingImpositionMightCounterfactual,
     "W": WorldStateMightCounterfactual,
     "L": SettlerMightCounterfactual,
+    "MC": GeneratedSettlerMightCounterfactual,
+}
+
+#: The roles the candidates play in the measurement tables.
+CANDIDATE_ROLES: Dict[str, str] = {
+    "I": "refuted control",
+    "ILC": "mechanical control",
+    "ILMC": "primary candidate",
+    "W": "disqualified baseline",
+    "L": "disqualified baseline",
+    "MC": "disqualified baseline",
 }
 
 

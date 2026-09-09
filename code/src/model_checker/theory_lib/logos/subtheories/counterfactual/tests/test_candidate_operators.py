@@ -16,6 +16,7 @@ import pytest
 from model_checker import Syntax
 from model_checker.theory_lib.logos.subtheories.counterfactual import (
     CANDIDATE_OPERATORS,
+    CANDIDATE_ROLES,
     MIGHT_OPERATORS,
     get_operators,
     substitute_candidate,
@@ -59,7 +60,12 @@ CROSS_VALIDATION_EXAMPLES = {
 # ---------------------------------------------------------------------------
 
 def test_candidate_operators_are_registered():
+    """Scope hypothesis: six candidates, twelve candidate operator names, one status quo pair."""
     operators = get_operators()
+    assert set(CANDIDATE_OPERATORS) == {"I", "ILC", "ILMC", "W", "L", "MC"}
+    assert set(CANDIDATE_ROLES) == set(CANDIDATE_OPERATORS)
+    candidate_names = {n for n in operators if n not in ("\\boxright", "\\diamondright")}
+    assert len(candidate_names) == 12
     for key, cls in CANDIDATE_OPERATORS.items():
         assert operators[f"\\boxright{key}"] is cls
         assert operators[f"\\diamondright{key}"] is MIGHT_OPERATORS[key]

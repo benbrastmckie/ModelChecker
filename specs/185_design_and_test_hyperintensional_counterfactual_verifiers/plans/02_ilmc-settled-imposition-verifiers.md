@@ -220,18 +220,18 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 depend on 2 
 
 ---
 
-### Phase 5: Z3 operators ILC, ILMC, MC with cross-validation and the cost gate [NOT STARTED]
+### Phase 5: Z3 operators ILC, ILMC, MC with cross-validation and the cost gate [COMPLETED]
 
 **Goal**: Add the primary candidate, its control, and the remaining baseline as Z3 operators sharing `true_at`/`false_at` verbatim, prove on solved models that each operator's Python side equals the oracle and its own Z3 clause at every world, and decide the encoding on measured cost.
 
 **Tasks**:
-- [ ] RED: extend `test_candidate_operators.py` `KEYS` with `ILC`, `ILMC`, `MC`: registration of `\boxrightILC`, `\boxrightILMC`, `\boxrightMC` and `\diamondright*`, parsing inside nested formulas, no collision with `imposition/operators.py` aliases, and the three existing cross-validation tests (Python side == oracle; Z3 side == Python side at every world; truth/falsity complementary at worlds) on `CF_CM_1` (N=4), `CF_CM_7`, `CF_CM_19`, `NESTED_ANTECEDENT` (N=3)
-- [ ] `candidates.py`: add `il_clause(state, leftarg, rightarg, eval_point)` = `ImpositionLocalCounterfactual.verifier_clause` ∧ `settler_clause`; `minimal_clause(state, member)` = `member(state) ∧ ⋀_{t ⊏ state} ¬member(t)` iterating concrete states (per the phase-3 handoff, never `utils.ForAll`); dual falsifier clauses via `falsifier_clause` ∧ co-settling
-- [ ] Implement `SettlingImpositionClosureCounterfactual` (`\boxrightILC`: `closure_clause(state, il_clause)`), `ExactSettlingImpositionCounterfactual` (`\boxrightILMC`: `closure_clause(state, lambda t: minimal_clause(t, il_clause))`), `GeneratedSettlerCounterfactual` (`\boxrightMC`: `closure_clause(state, lambda t: minimal_clause(t, settler_clause))`); Python sides via `SolvedModelView` + `fusion_closure`/`minimal_elements`, mirroring the oracle keys exactly
-- [ ] Register the three primitives and factory-built might variants in `CANDIDATE_OPERATORS`/`MIGHT_OPERATORS`; `get_operators()` needs no further change
-- [ ] Cost probe (recorded, not a test): time `((A \boxrightK B) \boxrightK C)` with premise `\neg (A \boxrightK B)` for `K ∈ {ILC, ILMC, MC}` at N=3 and N=4, `max_time=60`, both encodings where available; write `baselines/08_nesting-cost.json`
-- [ ] Decision gate: if `ILMC` exceeds 60 s at N=4, extend the stashed `truth_predicate` pattern with an `il_<n>(s)` predicate (2^N defining constraints appended to `semantics.frame_constraints` before solving) and rewrite `ILC`/`ILMC` over it; re-run the probe and the cross-validation tests; otherwise record "direct encoding retained" in the JSON header
-- [ ] Full logos suite green; counterfactual test directory green
+- [x] RED: extend `test_candidate_operators.py` `KEYS` with `ILC`, `ILMC`, `MC`: registration of `\boxrightILC`, `\boxrightILMC`, `\boxrightMC` and `\diamondright*`, parsing inside nested formulas, no collision with `imposition/operators.py` aliases, and the three existing cross-validation tests (Python side == oracle; Z3 side == Python side at every world; truth/falsity complementary at worlds) on `CF_CM_1` (N=4), `CF_CM_7`, `CF_CM_19`, `NESTED_ANTECEDENT` (N=3)
+- [x] `candidates.py`: add `il_clause(state, leftarg, rightarg, eval_point)` = `ImpositionLocalCounterfactual.verifier_clause` ∧ `settler_clause`; `minimal_clause(state, member)` = `member(state) ∧ ⋀_{t ⊏ state} ¬member(t)` iterating concrete states (per the phase-3 handoff, never `utils.ForAll`); dual falsifier clauses via `falsifier_clause` ∧ co-settling
+- [x] Implement `SettlingImpositionClosureCounterfactual` (`\boxrightILC`: `closure_clause(state, il_clause)`), `ExactSettlingImpositionCounterfactual` (`\boxrightILMC`: `closure_clause(state, lambda t: minimal_clause(t, il_clause))`), `GeneratedSettlerCounterfactual` (`\boxrightMC`: `closure_clause(state, lambda t: minimal_clause(t, settler_clause))`); Python sides via `SolvedModelView` + `fusion_closure`/`minimal_elements`, mirroring the oracle keys exactly
+- [x] Register the three primitives and factory-built might variants in `CANDIDATE_OPERATORS`/`MIGHT_OPERATORS`; `get_operators()` needs no further change
+- [x] Cost probe (recorded, not a test): time `((A \boxrightK B) \boxrightK C)` with premise `\neg (A \boxrightK B)` for `K ∈ {ILC, ILMC, MC}` at N=3 and N=4, `max_time=60`, both encodings where available; write `baselines/08_nesting-cost.json`
+- [x] Decision gate: if `ILMC` exceeds 60 s at N=4, extend the stashed `truth_predicate` pattern with an `il_<n>(s)` predicate (2^N defining constraints appended to `semantics.frame_constraints` before solving) and rewrite `ILC`/`ILMC` over it; re-run the probe and the cross-validation tests; otherwise record "direct encoding retained" in the JSON header -- RESULT: direct encoding retained; slowest cell 1.34 s (ILC, N=4), ILMC 1.13 s at N=4; the predicate encoding stays available and is exercised by `test_predicate_encoding_agrees_with_direct_encoding` for ILC/ILMC/MC too
+- [x] Full logos suite green; counterfactual test directory green -- observed 666 and 251 (86 in `test_candidate_operators.py`)
 
 **Timing**: 2 hours
 

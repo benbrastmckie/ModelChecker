@@ -1,0 +1,185 @@
+{
+ "description": "Nested-antecedent cost probe: premises ((A K B) K C) and \\neg (A K B), no conclusions, max_time=60, per candidate K, N and truth-set encoding. total_seconds is wall-clock for constraint construction plus solving; z3_seconds is the solver's own runtime.",
+ "budget_seconds": 60,
+ "decision": "direct encoding retained: the slowest cell (ILC direct, N=4) is 1.34 s; ILMC direct at N=4 is 1.13 s. The predicate encoding stays available (candidates.PREDICATE) and roughly halves construction time at N=4 but is not needed.",
+ "note": "I ignores the encoding (its clause is the truth clause at the candidate state), so only the direct rows exist for it. Concrete-state memoization of the truth, settler and IL subterms per semantics instance is what keeps the four quantifier layers of ILMC cheap: each subterm is built once and shared as a DAG.",
+ "machine_context": "measured in the implementation session on the development machine; absolute times are indicative only",
+ "rows": [
+  {
+   "key": "I",
+   "encoding": "direct",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.15,
+   "z3_seconds": 0.0038
+  },
+  {
+   "key": "I",
+   "encoding": "direct",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 0.54,
+   "z3_seconds": 0.013
+  },
+  {
+   "key": "W",
+   "encoding": "direct",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.13,
+   "z3_seconds": 0.0036
+  },
+  {
+   "key": "W",
+   "encoding": "direct",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 0.92,
+   "z3_seconds": 0.0141
+  },
+  {
+   "key": "W",
+   "encoding": "predicate",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.1,
+   "z3_seconds": 0.0058
+  },
+  {
+   "key": "W",
+   "encoding": "predicate",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 0.32,
+   "z3_seconds": 0.0136
+  },
+  {
+   "key": "L",
+   "encoding": "direct",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.11,
+   "z3_seconds": 0.0038
+  },
+  {
+   "key": "L",
+   "encoding": "direct",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 1.04,
+   "z3_seconds": 0.0138
+  },
+  {
+   "key": "L",
+   "encoding": "predicate",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.14,
+   "z3_seconds": 0.0046
+  },
+  {
+   "key": "L",
+   "encoding": "predicate",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 0.44,
+   "z3_seconds": 0.0132
+  },
+  {
+   "key": "ILC",
+   "encoding": "direct",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.18,
+   "z3_seconds": 0.0051
+  },
+  {
+   "key": "ILC",
+   "encoding": "direct",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 1.34,
+   "z3_seconds": 0.0166
+  },
+  {
+   "key": "ILC",
+   "encoding": "predicate",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.16,
+   "z3_seconds": 0.0049
+  },
+  {
+   "key": "ILC",
+   "encoding": "predicate",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 0.51,
+   "z3_seconds": 0.0151
+  },
+  {
+   "key": "ILMC",
+   "encoding": "direct",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.15,
+   "z3_seconds": 0.0047
+  },
+  {
+   "key": "ILMC",
+   "encoding": "direct",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 1.13,
+   "z3_seconds": 0.0164
+  },
+  {
+   "key": "ILMC",
+   "encoding": "predicate",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.13,
+   "z3_seconds": 0.0045
+  },
+  {
+   "key": "ILMC",
+   "encoding": "predicate",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 0.62,
+   "z3_seconds": 0.0146
+  },
+  {
+   "key": "MC",
+   "encoding": "direct",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.16,
+   "z3_seconds": 0.0045
+  },
+  {
+   "key": "MC",
+   "encoding": "direct",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 1.29,
+   "z3_seconds": 0.0149
+  },
+  {
+   "key": "MC",
+   "encoding": "predicate",
+   "N": 3,
+   "outcome": "model",
+   "total_seconds": 0.12,
+   "z3_seconds": 0.0041
+  },
+  {
+   "key": "MC",
+   "encoding": "predicate",
+   "N": 4,
+   "outcome": "model",
+   "total_seconds": 0.55,
+   "z3_seconds": 0.0138
+  }
+ ]
+}
