@@ -154,7 +154,7 @@
     {
       "project_number": 185,
       "project_name": "design_and_test_hyperintensional_counterfactual_verifiers",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "topic": "semantics",
       "effort": "large",
@@ -171,20 +171,20 @@
       ],
       "artifacts": [
         {
-          "path": "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md",
-          "type": "plan",
-          "summary": "8-phase plan: pure-Python frame oracle reproducing report 02's F3 refutation, six candidate Z3 counterfactual operators (I, W, L, M, MC, IL) alongside the untouched status quo, structural/nested-logic/regression measurement matrices, an explicit F4 refutation attempt, and a recommendation report."
-        },
-        {
           "path": "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/reports/01_exact-imposition-verifier-clauses.md",
           "type": "report",
           "summary": "Oracle-based exploration of the exact-imposition verifier family: F3 confirmed; the exact family is characterized (verifies only centered truths, gives up sufficiency; self-based variants unsound); F4's impossibility claim refuted by IL/ILC (imposition-on-s AND settling-by-imposition), hyperintensional on an 8-atom witness frame; recommendation ILMC (exact/minimal IL, fusion-closed) with ILC as fallback; remainder clause SRC recorded with its two insufficiency modes; regression over the 37 examples provably identical across candidates."
+        },
+        {
+          "path": "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_ilmc-settled-imposition-verifiers.md",
+          "type": "plan",
+          "summary": "7-phase plan (12 h) around ILMC as primary and ILC as control: recover the stashed Z3 substrate, port the research clauses and witness frames into the oracle with characterization tests (structure, F4, nested logic, Frame G/G2/F3z separations), add ILC/ILMC/MC Z3 operators with cross-validation and a cost gate, add nested-antecedent and constitutive example collections plus the regression matrix, and write the recommendation with concessions and further tests."
         }
       ],
       "created": "2026-09-08T23:11:08Z",
-      "last_updated": "2026-09-09T00:21:31Z",
+      "last_updated": "2026-09-09T00:32:07Z",
       "session_id": "sess_1788911899_64b5b6",
-      "next_artifact_number": 2
+      "next_artifact_number": 3
     }
   ],
   "repository_health": {

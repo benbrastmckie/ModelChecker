@@ -21,7 +21,7 @@ next_project_number: 186
 
 184 [NOT STARTED] — Refactor the bimodal theory so its full test suite passes quickly
   └─ 154 [BLOCKED] — THE PAYOFF, and the one task in this group where OVER-CLAIMING is
-185 [RESEARCHED] — Design and test the hyperintensional semantics for counterfactual
+185 [PLANNED] — Design and test the hyperintensional semantics for counterfactual
 
 ### Test Reliability
 
@@ -35,12 +35,12 @@ next_project_number: 186
 
 ### 185. Design and test hyperintensional counterfactual verifiers
 - **Effort**: large
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
-- **Plan**: [185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_counterfactual-verifier-candidates.md]
 - **Research**: [185_design_and_test_hyperintensional_counterfactual_verifiers/reports/01_exact-imposition-verifier-clauses.md]
+- **Plan**: [185_design_and_test_hyperintensional_counterfactual_verifiers/plans/01_ilmc-settled-imposition-verifiers.md]
 
 **Description**: Design and test the hyperintensional semantics for counterfactual conditionals in the logos theory: specifically, which states verify and which falsify A []-> B. Define new counterfactual operators as competing alternatives and discriminate between them by exploring their logic over small models, so the choice rests on model-based evidence rather than on argument alone.
 

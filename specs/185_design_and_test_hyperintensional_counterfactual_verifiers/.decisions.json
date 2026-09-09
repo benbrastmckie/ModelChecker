@@ -1,0 +1,8 @@
+[
+  {
+    "question": "The recommended clause ILMC adds an exactness step (V3: no proper part of the verifier already satisfies the imposition conditions) on top of the fully mechanical clause ILC. Without V3 the clause collapses nested antecedents to the strict conditional; with V3 it reproduces the base counterfactual logic. Does a parthood-minimality step over a mechanically defined set count as a disqualified settler-set operation, or is it admissible in the same way max_compatible_part's maximality is?",
+    "answer": "ILMC — admit the minimality step; plan around ILMC as the primary candidate with ILC as control. Rationale: the disqualification rule targets clauses whose BASE is the truth-set. M/MC minimized over settlers (a truth-set functional) and stay disqualified; IL is built from antecedent verifiers and imposition, so minimizing over it is not a truth-set operation. Extremal conditions are already native to the machinery (max_compatible_part is a maximality condition). Decisive payoff: ILMC reproduces the base counterfactual logic at nested antecedents; ILC collapses to the strict conditional.",
+    "cycle": 2,
+    "timestamp": "2026-09-09T00:23:32Z"
+  }
+]
