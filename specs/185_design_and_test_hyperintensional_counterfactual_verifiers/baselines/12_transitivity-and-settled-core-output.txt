@@ -1,0 +1,107 @@
+========================================
+
+EXAMPLE T1_WT_ATOMIC_SQ: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. (A \boxright C)
+2. ((A \wedge C) \boxright D)
+
+Conclusion:
+3. (A \boxright D)
+
+Solver Run Time: 0.0094 seconds
+
+========================================
+========================================
+
+EXAMPLE T2_WT_ATOMIC_ILMC: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. (A \boxrightILMC C)
+2. ((A \wedge C) \boxrightILMC D)
+
+Conclusion:
+3. (A \boxrightILMC D)
+
+Solver Run Time: 0.0042 seconds
+
+========================================
+========================================
+
+EXAMPLE T3_WT_NESTED_ILMC: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. ((A \boxrightILMC B) \boxrightILMC C)
+2. (((A \boxrightILMC B) \wedge C) \boxrightILMC D)
+
+Conclusion:
+3. ((A \boxrightILMC B) \boxrightILMC D)
+
+Solver Run Time: 0.0076 seconds
+
+========================================
+========================================
+
+EXAMPLE T4_WT_NESTED_ILMC_N4: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. ((A \boxrightILMC B) \boxrightILMC C)
+2. (((A \boxrightILMC B) \wedge C) \boxrightILMC D)
+
+Conclusion:
+3. ((A \boxrightILMC B) \boxrightILMC D)
+
+Solver Run Time: 0.0979 seconds
+
+========================================
+========================================
+
+EXAMPLE T5_CORE_INDEPENDENT: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. (A \leq B)
+2. (D \sqsubseteq E)
+
+Conclusion:
+3. (((A \leq B) \boxrightILMC C) \equiv ((D \sqsubseteq E) \boxrightILMC C))
+
+Solver Run Time: 0.0106 seconds
+
+========================================
+========================================
+
+EXAMPLE T6_CORE_VIA_TOP_TOP: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (((A \leq B) \boxrightILMC C) \equiv ((\top \boxrightILMC \top) \boxrightILMC C))
+
+Solver Run Time: 0.008 seconds
+
+========================================
