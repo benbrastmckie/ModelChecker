@@ -1,18 +1,24 @@
 # Redesigning the bimodal theory around finite certificates (discrete time)
 
-- **Task**: 184 (sequencing gate for all bimodal work)
-- **Date**: 2026-09-24
+- **Task**: 184 - Refactor bimodal theory tests green and paper lean aligned (sequencing gate for all bimodal work)
+- **Started**: 2026-09-24T17:10:00Z
+- **Completed**: 2026-09-24T18:20:00Z
+- **Effort**: about 1.5 hours (paper and Lean source reading, two codebase surveys, design)
+- **Dependencies**: none
+- **Sources/Inputs**:
+  - `~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex` (`app:TaskSemantics`, `thm:extension`,
+    `def:BL-semantics`, `lem:history-time-shift-preservation`)
+  - `~/Projects/BimodalLogic/FormalSystem/` (`Semantics/IntNormalForm.lean`, `Semantics/ShiftSet.lean`,
+    `Semantics/Extension/PeriodicExtension.lean`, `Metalogic/Decidability/IntPresentation.lean`,
+    `Metalogic/Decidability/BiLasso/*`, `Metalogic/Decidability/Verified/*`)
+  - `~/Projects/BimodalLogic/specs/archive/476_box_faithful_small_model_theorem/evidence/fmp-hypothesis-is-false.lean`
+    and `~/Projects/BimodalLogic/specs/TODO.md` task 623
+  - `code/src/model_checker/theory_lib/bimodal/`, `oracle/bimodal_logic/`
+- **Artifacts**: this report
+- **Standards**: report-format.md
 - **Scope decision (user)**: discrete time (Z-time) only. Dense and continuous time are future work.
-- **Sources**: `~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex` (`app:TaskSemantics`,
-  `thm:extension`, `def:BL-semantics`, `lem:history-time-shift-preservation`);
-  `~/Projects/BimodalLogic/FormalSystem/` (`Semantics/IntNormalForm.lean`, `Semantics/ShiftSet.lean`,
-  `Semantics/Extension/PeriodicExtension.lean`, `Metalogic/Decidability/IntPresentation.lean`,
-  `Metalogic/Decidability/BiLasso/*`, `Metalogic/Decidability/Verified/*`,
-  `specs/archive/476_box_faithful_small_model_theorem/evidence/fmp-hypothesis-is-false.lean`,
-  `specs/TODO.md` task 623); `code/src/model_checker/theory_lib/bimodal/`; `oracle/bimodal_logic/`;
-  the survey in the session scratchpad (`mc_bimodal_survey.md`).
 
-## 0. Summary
+## Executive Summary
 
 1. **Over Z-time, a finite task frame is a finite bi-serial digraph.** Compositionality makes every
    duration relation a power of the unit step, Limit makes the zero-duration relation identity,
@@ -52,7 +58,19 @@
    task in ModelChecker; in BimodalLogic, prioritize 623 (its dependencies are complete) and add a
    certificate re-verification tool task depending on it. Details in sections 5 and 6.
 
-## 1. What the paper and the Lean development already establish
+## Context & Scope
+
+The user's aim is to redesign the bimodal theory in ModelChecker so that it constructs finite
+models of the appropriate kind, given that every partial history over a task frame extends to a
+possible world (`thm:extension`). This report reviews the open bimodal tasks, the current Z3
+encoding, the paper's task semantics, and the BimodalLogic formalization, and settles what the
+finite object to search for must be, why the current encoding is replaced rather than repaired,
+how the tableau should be used, and which tasks to revise, add, or abandon. The user restricted
+scope to discrete time; dense and continuous time are recorded as future work.
+
+## Findings
+
+### 1. What the paper and the Lean development already establish
 
 | Fact | Paper | Lean (BimodalLogic) |
 |---|---|---|
@@ -76,7 +94,7 @@ Two consequences shape the design:
 - **Completeness needs a different finite object.** By `fmp_false`, the search must range over
   witness families whose full model has infinitely many states. Task 623 is that theorem.
 
-## 2. The trivial-frame worry, resolved by temporal order
+### 2. The trivial-frame worry, resolved by temporal order
 
 - **Z-time.** Finite W supports every serial and co-serial relation: total relations, cycles, a
   looping state feeding another looping state. Possible worlds are the bi-infinite paths (in general
@@ -89,7 +107,7 @@ Two consequences shape the design:
   Dense-time countermodel search needs finite *presentations* of infinite W (mosaic-style or
   region-style). Out of scope now; recorded so the scoping is justified rather than assumed.
 
-## 3. Defects of the current encoding (why replace rather than repair)
+### 3. Defects of the current encoding (why replace rather than repair)
 
 Anchors are in `code/src/model_checker/theory_lib/bimodal/`.
 
@@ -115,9 +133,11 @@ Anchors are in `code/src/model_checker/theory_lib/bimodal/`.
 - **Inert scaffolding.** `WitnessRegistry`/`WitnessConstraintGenerator` are instantiated and never
   used; `iterate.py` performs no isomorphism rejection.
 
-## 4. The redesign: witness-family certificates
+## Decisions
 
-### 4.1 The searched object
+### 4. The redesign: witness-family certificates
+
+#### 4.1 The searched object
 
 Fix premises Γ and conclusions Σ; let C be the subformula closure of Γ ∪ Σ. A **certificate** is:
 
@@ -143,7 +163,7 @@ subject to:
    lasso; for each `□χ` with `b χ = false`, some position of some lasso has `χ ∉ L(t)`.
 4. **Target**: some position `t₀` of Λ₀ has every γ ∈ Γ in `L(t₀)` and no σ ∈ Σ in `L(t₀)`.
 
-### 4.2 The full model it certifies
+#### 4.2 The full model it certifies
 
 The ShiftSet with carrier `⊔_i {i} × Z`, action `sh (i,t) d = (i, t+d)`, valuation `p` true at
 `(i,t)` iff `atom p ∈ L_i(t)`. Its task frame is deterministic (`TaskRel w d u := u = sh w d`);
@@ -161,7 +181,7 @@ depend on it for soundness; it determines only whether "no certificate within th
 carries information. ModelChecker should never report validity; that is the tableau's and the proof
 system's job (section 5).
 
-### 4.3 Why this shape
+#### 4.3 Why this shape
 
 - **Sound by a theorem that is true on paper and planned in Lean**, with the certificate literally
   re-checkable by Lean's decidable `LocalCoherent`/`Fulfilling` instances once 623 lands its
@@ -180,7 +200,7 @@ system's job (section 5).
   open problem of BimodalLogic's completeness research and must not be promised here. Design the
   certificate datatype so lassos *may* later share states, but do not implement sharing now.
 
-### 4.4 Output and framework fit
+#### 4.4 Output and framework fit
 
 - **Printing.** Each history as `(back)^ω | mid | (fwd)^ω` of atom valuations with the evaluation
   position marked; a table of boxed subformulas with their guessed values; for each false box, the
@@ -198,7 +218,7 @@ system's job (section 5).
 - **Fixed-frame mode (later, optional).** Model checking a *given* finite dynamical system (a
   digraph) is a different feature; its reference is Lean's `check`. Not part of this refactor.
 
-## 5. The tableau: together, not instead
+### 5. The tableau: together, not instead
 
 BimodalLogic's `decide` (`Metalogic/Decidability/DecisionProcedure.lean`) returns a derivation
 (`valid`, soundness machine-checked: `isValid_sound`), a countermodel from an open saturated branch
@@ -232,9 +252,11 @@ Recommendation:
   `and not development` gating clause are removed when the refactor lands (this is the exit
   condition the CI comments already name).
 
-## 6. Task revisions
+## Recommendations
 
-### 6.1 ModelChecker (`specs/TODO.md`)
+### 6. Task revisions
+
+#### 6.1 ModelChecker (`specs/TODO.md`)
 
 | Task | Action | Reason |
 |---|---|---|
@@ -250,7 +272,7 @@ Recommendation:
 | **New C** (optional) Fixed-frame model checking mode | Add later if wanted. | Section 4.4, last bullet. |
 | ROADMAP note | Record dense/continuous time as future work with the static-frame argument of section 2. | Scoping justification. |
 
-### 6.2 BimodalLogic (`~/Projects/BimodalLogic/specs/TODO.md`)
+#### 6.2 BimodalLogic (`~/Projects/BimodalLogic/specs/TODO.md`)
 
 | Task | Action | Reason |
 |---|---|---|
@@ -263,7 +285,7 @@ Recommendation:
 No task is needed for "finite Z-model ⇒ genuine countermodel": that is `not_validZTime_of_satAtState`
 and the ShiftSet representation theorem, both landed.
 
-## 7. Sequencing
+### 7. Sequencing
 
 1. Revise 184 and abandon 154/172/176/178/183 (ModelChecker); create the BimodalLogic checker task
    and re-prioritize 623.
@@ -271,3 +293,15 @@ and the ShiftSet representation theorem, both landed.
    by Lean's `Annot`; 623 supplies the formal guarantee later without changing the format.
 3. New A (tableau oracle) can proceed in parallel with 184's later phases.
 4. New B waits for 623 and the checker task.
+
+## Risks & Mitigations
+
+- **Risk**: the soundness theorem for witness families (BimodalLogic task 623's ShiftSet truth
+  lemma) is not yet machine-checked. **Mitigation**: the argument is the standard quasimodel one and
+  the certificate format is fixed by Lean's landed `Annot`/`LocalCoherent`/`Fulfilling` shape, so
+  ModelChecker can proceed and the Lean proof lands without changing the format; recommend
+  splitting the soundness half out of 623 so it lands first.
+- **Risk**: over-claiming validity from "no certificate within bounds". **Mitigation**: ModelChecker
+  never reports validity; the tableau and proof system do.
+- **Risk**: a `frame_class` typo silently becomes `Base` at the tableau bridge. **Mitigation**: the
+  oracle client validates the tag before sending.
