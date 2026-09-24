@@ -12,8 +12,6 @@ next_project_number: 187
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 184,186 | -- | semantics |
-| 2 | 176 | 184 | test-reliability |
-| 3 | 178 | 176 | test-reliability |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -21,11 +19,6 @@ next_project_number: 187
 
 184 [NOT STARTED] — Redesign the bimodal theory around witness-family certificates fo
 186 [RESEARCHED] — Review the counterfactual semantics of the Logos manual's dynamic
-
-### Test Reliability
-
-176 [BLOCKED] — TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at or
-  └─ 178 [BLOCKED] — Fix the 4-6x solver-cost regression that commit f9cc081e introduc
 
 ## Tasks
 
@@ -170,43 +163,3 @@ SEQUENCING. This task was previously the refactor-first gate holding back five d
 FOLLOW-ON WORK, NOT IN SCOPE HERE. The report proposes two successor tasks. First, wiring the Lean tableau bridge as a differential oracle at frame class Z-time, replacing the current Z3-against-Z3 self-consistency scan and harness comparison, with ground_truth.py kept as a tie-breaker for the temporal-only fragment. Second, JSON certificate export in the Lean annotation shape plus a round-trip test through a Lean re-verification executable. A fixed-frame model-checking mode, checking a given finite digraph, is a separate optional feature and is also out of scope.
 
 STARTING POINTS. The research report named above is the primary reference. Then: code/src/model_checker/theory_lib/bimodal/ (semantic/, operators.py, iterate.py, examples.py, tests/); oracle/bimodal_logic/; the paper at ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex (app:TaskSemantics, thm:extension, def:BL-semantics, lem:history-time-shift-preservation); and ~/Projects/BimodalLogic/FormalSystem/ with its specs/, in particular Semantics/IntNormalForm.lean, Semantics/ShiftSet.lean, Semantics/Extension/PeriodicExtension.lean, and Metalogic/Decidability/BiLasso/.
-
----
-
-### 178. Fix frame axiom solver cost regression
-- **Effort**: 4-8 hours
-- **Status**: [BLOCKED]
-- **Task Type**: python
-- **Topic**: test-reliability
-- **Dependencies**: Task 176, Task 184
-
-**Description**: Fix the 4-6x solver-cost regression that commit f9cc081e introduced into BimodalSemantics.build_frame_constraints, which forces TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 to be quarantined under the `unstable` marker instead of passing. The quarantine is applied by the M=3 shift-closure task, which this task depends on; if that task's own marker phase is still in flight or was reverted when you read this, confirm the marker's actual presence at the test site rather than assuming it.
-
-WHAT IS ESTABLISHED. This is not an open investigation -- the root cause is already bisected and recorded. Commit f9cc081e (2026-08-31 13:35) added build_seriality_constraint() and build_interpolation_constraint() to build_frame_constraints. Isolated single-process git-worktree bisection with a standalone repro produced: at f9cc081e^, rlimit_count = 7,850,279 (byte-for-byte identical across repeated runs) and the solver returns SAT; at f9cc081e, rlimit_count = 29,028,028 and the solver returns unknown/canceled at wall_seconds 15.0004 against the test's 15.0s max_time. At HEAD the range is 32.5M-46.5M, unknown/canceled on 5/5 runs. The effect is on Z3's machine-load-independent resource metric, so it is not a contention artifact. Full evidence: the specs entry for the M=3 shift-closure regression, baselines/01_head-classification.json through 04_attribution.md (active or archived).
-
-START FROM THE RECORDED FRONTIER, DO NOT REDO IT. Seven encoding-level avenues were already tried and each failed to reach budget: explicit E-matching patterns on each new axiom individually and jointly; a corrected joint z3.MultiPattern following the existing build_forward_comp_constraint precedent; reordering the two axioms' position in build_frame_constraints' returned list; and combinations. Best measured result, re-measured cleanly by a sole owner across 5 runs, was rlimit_count 19.3M-21.4M -- a real and reproducible ~2.2x reduction from the unmodified 32-46M baseline, but still short of the ~8M region needed to finish inside the budget, with all 5 runs remaining unknown/canceled. That mitigation (E-matching patterns on both new axioms PLUS reordering them after skolem_abundance/world_uniqueness in build_frame_constraints' returned list) was deliberately NOT landed, to avoid banking a target-insufficient change without its own regression-gate pass. It is the frontier to start from, and it should be reconstructible from baselines/05_fix-attempts.md without re-deriving it. Per-avenue measurements are in that task's baselines/05_fix-attempts.md. Read it first and start past it rather than re-walking those seven.
-
-WHAT SUCCESS LOOKS LIKE. Close the rlimit_count gap from the current ~11M-46M range down to the pre-regression ~8M region while keeping both new axioms' logical content intact, verified across a >= 20-seed re-verification with no undecided draw at max_time == 15.0. That is verbatim the exit criterion recorded at the `unstable` marker site in oracle/bimodal_logic/tests/test_soundness_regression.py, so satisfying it is what retires the marker. Removing the `unstable` marker is part of this task's completion, not a separate follow-up.
-
-CONSTRAINTS. Do NOT revert the two axioms -- the task that added them deferred that decision deliberately, and reverting would drop asserted TaskFrame axioms from five back to three. Do NOT widen the test's 15.0s max_time budget. Do NOT weaken or remove the test's assertions. Do NOT touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS. A single green run is never sufficient evidence -- the marker's own exit criterion requires the >= 20-seed re-verification above.
-
-WHY THIS EXISTS AS ITS OWN TASK. The quarantine task fixed the symptom (the red suite) and explicitly did not fix the cause. Nothing else in the backlog owns this cost regression, and an indefinitely-quarantined test is itself a defect to escalate per TESTING_GUIDE.md section 8.9's standing rule. This task is that escalation's owner.
-
----
-
-### 176. Fix m3 shift closure sat regression
-- **Effort**: 3-5 hours
-- **Status**: [BLOCKED]
-- **Task Type**: python
-- **Topic**: test-reliability
-- **Dependencies**: Task 184
-- **Research**: [172_fix_contention_flaky_soundness_regression_tests/reports/02_spawn-analysis.md]
-- **Plan**: [176_fix_m3_shift_closure_sat_regression/plans/01_m3-shift-closure-sat-regression.md]
-
-**Description**: TestShiftClosure::test_shift_closure_on_extracted_worlds_m3 at oracle/bimodal_logic/tests/test_soundness_regression.py:541 fails deterministically with `AssertionError: Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance` (structure.z3_model_status is False). Reproduced 2/2 across two independent full pass-1 oracle runs (bash oracle/run-oracle-suite.sh, 705.05s and 718.15s, both '1 failed, 615 passed, 2 skipped, 4 xfailed'). This is a DETERMINISTIC, reproducible failure -- not a contention flake -- discovered while verifying task 172 (fix_contention_flaky_soundness_regression_tests), which cannot fix it: the test constructs BimodalStructure directly with its own max_time: 15.0 budget, a different code path from the find_countermodel()/timeout_ms=5000/OracleTimeoutError mechanism task 172's xdist_serial remedy targets. In scope by file, out of scope by remedy.
-
-HISTORICAL CONTEXT. This test's docstring cites 'Task 114 fix: uses temporal_depth=1 for bounded shift closure at M=3' -- the archived task-114 summary (specs/archive/114_skolem_abundance_overconstrain_fix/) shows task 114 (2026-06-01) introduced BimodalSemantics.depth_bounded_skolem_abundance_constraint(max_shift) specifically so this test would find SAT at M=3, and removed a prior xfail. specs/archive/108_soundness_regression_test_suite/ and specs/archive/114's own records show this test historically ran 2-8s against its 15s max_time budget -- 2-7x headroom, not a near-budget shape, so this does not look like a scheduling/timeout regression on its face (confirm structure.timeout's actual value as a first step, do not assume). Three later commits (task 144 phases 2-4, 2026-08-11, oracle-solve-cost-reduction) experimented with alternative Z3 trigger/grounding strategies for the same depth_bounded_skolem_abundance_constraint quantifier, but each commit message records it as reverted/tested-and-rejected -- verify the current encoding is genuinely byte-identical to the post-task-114 baseline rather than assuming the revert was clean. code/pyproject.toml pins z3-solver only as '>=4.8.0' (unpinned upper bound); the currently installed version is 4.16.0 -- check whether a drifted Z3 version altered solver behavior on this exact quantifier shape (MBQI/E-matching heuristics are version-sensitive). git log --stat on tasks 152/158/175's landed commits touches no bimodal semantic/solver code this test depends on, ruling out same-window tree drift as the cause.
-
-WHAT TO DO. (1) Confirm whether the failure is a genuine solver UNSAT/inconclusive result within budget or a mislabeled timeout -- read structure.timeout directly. (2) Bisect or otherwise determine what changed since task 114 landed (Z3 version, an incomplete revert of the task-144 experiments, or something else) that turned a previously-SAT-finding encoding into a non-SAT one for this exact formula (atom 'p', M=3, temporal_depth=1, max_shift=1). (3) Fix the constraint/solver-layer defect if one is found, OR -- only if a genuine fix is not found -- mark the test `unstable` per code/docs/core/TESTING_GUIDE.md section 8.9, which requires ALL FOUR of: a documented failure mechanism with measurements, demonstrable non-semantic-ness, a genuine fix attempt recorded with why it failed, and a concrete written exit criterion. Do not weaken or remove the test's assertions to reach green.
-
-CONSTRAINTS. Do not touch GATING_RECHECK_SOLVE_TIMEOUT_MS or MIN_CONCLUSIVE_GATING_FORMULAS. Do not widen this test's max_time budget merely to force green -- widening past the 15s value only masks a genuine UNSAT result and contradicts the 2-8s historical measurement showing budget was never the constraint. Verify the fix via a full `bash oracle/run-oracle-suite.sh` run (not a narrowed selection), confirming pass 1 reports zero failures. After this task lands, task 172 (fix_contention_flaky_soundness_regression_tests) should be re-verified and closed with /implement 172.
