@@ -381,29 +381,38 @@ F8's family-level refutation of report 02's F4 by measurement rather than by emb
 
 ---
 
-### Phase 5: Settler Minimality and the recorded decisions (open items 3 and 4) [NOT STARTED]
+### Phase 5: Settler Minimality and the recorded decisions (open items 3 and 4) [COMPLETED]
 
 **Goal**: Resolve open item 3 as far as the evidence reaches, and close open item 4 (padding) as a
 recorded decision, using Phase 1's alignment verdict and Phase 3's constrained-frame measurements.
 
 **Tasks**:
-- [ ] State Settler Minimality precisely, in the form it would take beside
+- [x] State Settler Minimality precisely, in the form it would take beside
       `@def-evolution-maximality` and `@def-maximal-constraint`, and give the exact conditional
       form of sufficiency that replaces it if it is not adopted (report 01 F5.3's fallback).
-- [ ] Settle whether Phase 1 found a BimodalLogic constraint that supplies it, corroborates it, or
-      is merely analogous, and say which.
-- [ ] Record the descending-chain construction for `G p` that shows the principle is not vacuous,
+      *(completed: the manual has already adopted it verbatim as `@def-minimal-settler`, quoted in
+      F14; the conditional fallback is F5.3's `ILC`, restated)*
+- [x] Settle whether Phase 1 found a BimodalLogic constraint that supplies it, corroborates it, or
+      is merely analogous, and say which. *(completed: corroborates the methodology and the
+      specific finite-carrier automaticity claim, does not supply the content)*
+- [x] Record the descending-chain construction for `G p` that shows the principle is not vacuous,
       in the manual's continuous candidate model (`@rem-threading-general-open`, closed subsets of
-      `ℝ`), and state plainly that it is not executable at the oracle's scale.
-- [ ] Re-state where the principle is automatic (finite lattice, bounded settling window) in light
-      of Phase 3: does the constrained frame stay inside that region?
-- [ ] Close D2 (padding) with the conceptual argument report 01 item 4 names — which exact
+      `ℝ`), and state plainly that it is not executable at the oracle's scale. *(completed: an
+      informal sketch, honestly caveated as riding on constraints — Limit, the relativized
+      Spherical — the manual itself records as unverified for that candidate model)*
+- [x] Re-state where the principle is automatic (finite lattice, bounded settling window) in light
+      of Phase 3: does the constrained frame stay inside that region? *(completed: yes, Phase 3's
+      frame stays inside the automatic region on both counts, so C1/C2 do not test non-automaticity)*
+- [x] Close D2 (padding) with the conceptual argument report 01 item 4 names — which exact
       falsifier of "if `A` were going to happen, `B` would" the manual wants — and state the
-      decision with its consequence for tensed-antecedent falsifier shapes.
-- [ ] Record D3's remaining judgment (axiom vs. conditional theorem) with both options' costs, for
-      the follow-up task's author.
-- [ ] Append `### F14. Settler Minimality, padding, and what the evidence still does not decide`
-      to `reports/01_family-level-settled-verification.md`.
+      decision with its consequence for tensed-antecedent falsifier shapes. *(completed: full
+      padding, decided)*
+- [x] Record D3's remaining judgment (axiom vs. conditional theorem) with both options' costs, for
+      the follow-up task's author. *(completed, reframed per Plan Deviations: the manual has
+      already decided D3; the costs are recorded for a reader who might reconsider it, not as an
+      open choice handed to the follow-up task)*
+- [x] Append `### F14. Settler Minimality, padding, and what the evidence still does not decide`
+      to `reports/01_family-level-settled-verification.md`. *(completed)*
 
 **Timing**: 1 hour
 

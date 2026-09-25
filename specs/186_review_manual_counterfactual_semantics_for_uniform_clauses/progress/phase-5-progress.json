@@ -1,0 +1,27 @@
+{
+  "phase": 5,
+  "phase_name": "Settler Minimality and the recorded decisions (open items 3 and 4)",
+  "started_at": "2026-09-25T02:30:00Z",
+  "last_updated": "2026-09-25T02:45:00Z",
+  "objectives": [
+    {"id": 1, "description": "State Settler Minimality precisely with the conditional fallback", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 2, "description": "Settle whether Phase 1 found a supplying/corroborating/analogous BimodalLogic constraint", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Record the descending-chain non-vacuity construction in the continuous candidate model", "status": "done", "files_touched": []},
+    {"id": 4, "description": "Re-state the automatic region in light of Phase 3", "status": "done", "files_touched": []},
+    {"id": 5, "description": "Close D2 (padding)", "status": "done", "files_touched": []},
+    {"id": 6, "description": "Record D3's remaining judgment", "status": "done", "files_touched": []},
+    {"id": 7, "description": "Append F14 to report 01", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]}
+  ],
+  "current_objective": 7,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "5.D3",
+      "description": "Record D3's remaining judgment (axiom vs. conditional theorem) with both options' costs.",
+      "type": "altered",
+      "reason": "Phase 1's discovery (manual currency) means D3 is no longer an open choice this task or a follow-up task makes: the manual has already adopted the axiom form. F14 records this as a fact discovered rather than a decision made, and reframes 'D3's remaining judgment' as the residual cost analysis for a reader who might reconsider the manual's own choice, not as an active open decision for the follow-up task's author to resolve from scratch.",
+      "annotation": "*(deviation: altered — D3 is reported as already decided by the manual, with residual costs stated for completeness, rather than as an open choice this task hands forward)*"
+    }
+  ]
+}
