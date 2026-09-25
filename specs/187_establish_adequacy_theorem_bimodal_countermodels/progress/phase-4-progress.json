@@ -1,0 +1,17 @@
+{
+  "phase": 4,
+  "phase_name": "Differential the corpus against the Lean certificate checker",
+  "started_at": "2026-09-25T07:15:00Z",
+  "last_updated": "2026-09-25T07:25:00Z",
+  "objectives": [
+    {"id": 1, "description": "Write test_certificate_lean_agreement.py with resolution + skip", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py"]},
+    {"id": 2, "description": "Probe binary once under hard timeout before fixture loop", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py"]},
+    {"id": 3, "description": "Pipe each fixture to lake exe check_certificate, assert agreement", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py"]},
+    {"id": 4, "description": "Assert two error-path rows", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py"]},
+    {"id": 5, "description": "Record BimodalLogic commit in module docstring", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "deviations": [],
+  "handoff_count": 0
+}

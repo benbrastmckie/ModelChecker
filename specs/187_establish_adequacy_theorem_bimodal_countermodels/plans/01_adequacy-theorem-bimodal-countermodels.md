@@ -305,28 +305,28 @@ discriminate.
 
 ---
 
-### Phase 4: Differential the corpus against the Lean certificate checker [NOT STARTED]
+### Phase 4: Differential the corpus against the Lean certificate checker [COMPLETED]
 
 **Goal**: Where BimodalLogic and `lake` are present, every fixture's expected verdict is
 adjudicated by `lake exe check_certificate`; where they are not, the test skips cleanly with a
 named reason.
 
 **Tasks**:
-- [ ] Write
+- [x] Write
       `code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py`:
       resolve the BimodalLogic checkout (environment variable first, then `~/Projects/BimodalLogic`),
-      resolve `lake`, and skip with an explicit reason when either is missing.
-- [ ] Probe the binary once, under a hard timeout, before the fixture loop; on timeout or build
-      failure, skip the whole module with the recorded reason rather than failing.
-- [ ] For each fixture, pipe its JSON to `lake exe check_certificate` on stdin, parse the single
+      resolve `lake`, and skip with an explicit reason when either is missing. *(completed)*
+- [x] Probe the binary once, under a hard timeout, before the fixture loop; on timeout or build
+      failure, skip the whole module with the recorded reason rather than failing. *(completed)*
+- [x] For each fixture, pipe its JSON to `lake exe check_certificate` on stdin, parse the single
       output line, and assert agreement with `expected_verdicts.json` on `status` and, where
-      recorded, on `condition`.
-- [ ] Assert the two error-path rows: a certificate with `target` removed and one with
-      `target.time` removed both produce `error`, never `rejected`.
-- [ ] Record the BimodalLogic commit the agreement was observed against in the module docstring.
-- [ ] If the binary adjudicates any fixture differently from Phase 3's evaluator, treat the
+      recorded, on `condition`. *(completed)*
+- [x] Assert the two error-path rows: a certificate with `target` removed and one with
+      `target.time` removed both produce `error`, never `rejected`. *(completed)*
+- [x] Record the BimodalLogic commit the agreement was observed against in the module docstring. *(completed)*
+- [x] If the binary adjudicates any fixture differently from Phase 3's evaluator, treat the
       fixture or the evaluator as the defect — the Lean predicates are the contract — and fix the
-      repository side, recording what was wrong.
+      repository side, recording what was wrong. *(completed)*
 
 **Timing**: 1 hour
 
