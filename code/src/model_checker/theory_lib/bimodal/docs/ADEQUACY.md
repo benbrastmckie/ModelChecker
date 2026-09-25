@@ -501,7 +501,7 @@ The route recorded there: take a refuting model, history and time; for each boxe
 guessed false, pick a witnessing history; compress each history's *type* sequence into a bi-lasso
 using the good-cycle lemmas of `Metalogic/Decidability/BiLasso/GoodCycle.lean` and
 `BiLasso/Extraction.lean`'s `exists_annot_of_truth` as the template, re-run over subformula-set
-space rather than presentation states; `TranslationProduct.lean`'s `validIn_iff_recurrenceFree`
+space rather than presentation states; `Semantics/Frames/TranslationProduct.lean`'s `validIn_iff_recurrenceFree`
 lets witness paths be taken recurrence-free, so only the type sequence need be eventually
 periodic. **Reduction to cited results**: Gabbay–Kurucz–Wolter–Zakharyaschev, *Many-Dimensional
 Modal Logics: Theory and Applications* (2003), Theorems 3.29, 5.30, 5.32, 11.7, 11.21.

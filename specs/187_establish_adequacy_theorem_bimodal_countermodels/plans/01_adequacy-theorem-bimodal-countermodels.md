@@ -176,44 +176,44 @@ with proofs, the theorem, and the mapping of every step to its landed Lean count
 
 ---
 
-### Phase 2: State (ADEQ), the proved windows, the re-check protocol and the scope rationale [NOT STARTED]
+### Phase 2: State (ADEQ), the proved windows, the re-check protocol and the scope rationale [COMPLETED]
 
 **Goal**: `ADEQUACY.md` is complete: the re-check windows and their proofs, the two gaps as
 closed, the presentation-and-re-verification protocol, (ADEQ) with its status table and deciding
 tests, and the recorded reasons for discrete time only.
 
 **Tasks**:
-- [ ] Add the periodicity section: the two decoding periodicities, the four collapse results with
+- [x] Add the periodicity section: the two decoding periodicities, the four collapse results with
       their Lean names and file:line, and the window table — `[-2*nb, nm + 2*nf)` for local
       coherence and for fulfilment, `[-nb, nm + nf)` for box faithfulness, and the two witness
       scan bounds — with the reason two periods are required (the clause at `t` reads `t-1` and
       `t+1`, so a representative position needs its whole neighbourhood inside the periodic
-      region).
-- [ ] Add the second half of the periodicity obligation as a differential obligation, not a
+      region). *(completed)*
+- [x] Add the second half of the periodicity obligation as a differential obligation, not a
       proof: the Python re-checker's verdict must agree with `lake exe check_certificate` over a
       corpus that includes a coherent-but-unfulfilling family, a family failing only outside the
-      one-period window, and a family failing box faithfulness only.
-- [ ] Add the determinism section: Limit is genuinely non-free (separation is not derivable from
+      one-period window, and a family failing box faithfulness only. *(completed)*
+- [x] Add the determinism section: Limit is genuinely non-free (separation is not derivable from
       the action laws), Saturation follows from subsingleton fibres, and — the correction — the
       real blocker to lasso state-sharing is that determinism is what makes the histories exactly
-      the orbits, hence what makes the Box case of the truth lemma go through.
-- [ ] Add the presentation and re-verification section: the wire contract (required `target` with
+      the orbits, hence what makes the Box case of the truth lemma go through. *(completed)*
+- [x] Add the presentation and re-verification section: the wire contract (required `target` with
       a required `time`, sparse `bx`, `lassos[0]` the main lasso, the formula tag vocabulary,
       base-only atom identity), the output vocabulary including that it is never a validity claim,
-      and the four-step dual verification with its fail-fast rule.
-- [ ] State (ADEQ) as a conditional, at frame class discrete-time only, with the A0-A3 status
+      and the four-step dual verification with its fail-fast rule. *(completed)*
+- [x] State (ADEQ) as a conditional, at frame class discrete-time only, with the A0-A3 status
       table: A0 the permanent frame-class gap with the two named axioms and their citations, A1
       open with the compression route and the literature citation, A2 provable and testable now,
-      A3 vacuous until A1 supplies a bound.
-- [ ] Record the examined-and-rejected reduction: the presentation-relative bounded-completeness
+      A3 vacuous until A1 supplies a bound. *(completed)*
+- [x] Record the examined-and-rejected reduction: the presentation-relative bounded-completeness
       theorem is the template for A1, not a reduction of it, with the three blocking facts and
-      the three conditions under which a genuine reduction would go through.
-- [ ] Record the deciding tests by name: the A2 three-way differential at the smallest lengths,
-      and the A0 standing test that the two discrete-time-only axioms must render inconclusive.
-- [ ] Add the discrete-time-only section with all three recorded reasons, the sharpest being the
-      finite descent in the truth lemma's until case.
-- [ ] State the never-report-validity rule with both of its independent grounds (search
-      one-sidedness, and the frame-class gap).
+      the three conditions under which a genuine reduction would go through. *(completed)*
+- [x] Record the deciding tests by name: the A2 three-way differential at the smallest lengths,
+      and the A0 standing test that the two discrete-time-only axioms must render inconclusive. *(completed)*
+- [x] Add the discrete-time-only section with all three recorded reasons, the sharpest being the
+      finite descent in the truth lemma's until case. *(completed)*
+- [x] State the never-report-validity rule with both of its independent grounds (search
+      one-sidedness, and the frame-class gap). *(completed)*
 
 **Timing**: 2 hours
 

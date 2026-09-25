@@ -1,0 +1,29 @@
+{
+  "phase": 2,
+  "phase_name": "State (ADEQ), the proved windows, the re-check protocol and the scope rationale",
+  "started_at": "2026-09-25T05:40:00Z",
+  "last_updated": "2026-09-25T05:55:00Z",
+  "objectives": [
+    {"id": 1, "description": "Periodicity section: windows + Lean names", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 2, "description": "Differential obligation (not proof)", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 3, "description": "Determinism section, corrected", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "Presentation + re-verification section", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 5, "description": "(ADEQ) A0-A3 status table", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 6, "description": "Examined-and-rejected reduction", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 7, "description": "Deciding tests named", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 8, "description": "Discrete-time-only section", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 9, "description": "Never-report-validity rule", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "deviations": [
+    {
+      "task_id": "2.x",
+      "description": "Phase 2 content was authored together with Phase 1 in a single Write pass (same continuous document)",
+      "type": "altered",
+      "reason": "Splitting authorship into two passes would not change the final content; Phase 2's own acceptance criteria (ADEQ status table, window table, Lean citation resolution, no task/specs refs) were verified independently against the corrected file before closing this phase.",
+      "annotation": "*(deviation: altered — authored together with Phase 1; closed on Phase 2's own acceptance criteria)*"
+    }
+  ],
+  "handoff_count": 0
+}
