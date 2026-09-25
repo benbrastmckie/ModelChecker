@@ -19,17 +19,18 @@ next_project_number: 188
 
 184 [PLANNED] — Redesign the bimodal theory around witness-family...
 186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
-187 [RESEARCHED] — Establish an adequacy theorem connecting ModelChecker's...
+187 [PLANNED] — Establish an adequacy theorem connecting ModelChecker's...
 
 ## Tasks
 
 ### 187. Establish adequacy theorem bimodal countermodels
 - **Effort**: large
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: formal:logic
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [187_establish_adequacy_theorem_bimodal_countermodels/reports/01_adequacy-theorem-bimodal-countermodels.md]
+- **Plan**: [187_establish_adequacy_theorem_bimodal_countermodels/plans/01_adequacy-theorem-bimodal-countermodels.md]
 
 **Description**: Establish an adequacy theorem connecting ModelChecker's bimodal countermodels to the paper's task semantics: every countermodel the model checker reports must provably entail the existence of a countermodel in the sense of sec:Construction of ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex, and ideally conversely. Refactor the bimodal theory as far as is needed to make that theorem true, stated precisely, and mechanically checkable.
 

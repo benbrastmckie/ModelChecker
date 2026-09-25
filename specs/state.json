@@ -4,7 +4,7 @@
     {
       "project_number": 187,
       "project_name": "establish_adequacy_theorem_bimodal_countermodels",
-      "status": "researched",
+      "status": "planned",
       "task_type": "formal:logic",
       "topic": "semantics",
       "effort": "large",
@@ -15,10 +15,15 @@
           "path": "specs/187_establish_adequacy_theorem_bimodal_countermodels/reports/01_adequacy-theorem-bimodal-countermodels.md",
           "type": "report",
           "summary": "Adequacy theorem for bimodal countermodels: (SOUND) stated and proved in full (four lemmas + theorem), with every step mapped to a landed sorry-free Lean counterpart; both identified gaps closed; (ADEQ) reduced to A0/A1/A2/A3 and recorded open with deciding tests named; relationship to task 184 settled as option (a); one defect found in task 184's plan decision D7."
+        },
+        {
+          "path": "specs/187_establish_adequacy_theorem_bimodal_countermodels/plans/01_adequacy-theorem-bimodal-countermodels.md",
+          "type": "plan",
+          "summary": "Adequacy-layer implementation plan: 6 phases, 9.5 hours, waves [[1,3],[2,4],[5],[6]]."
         }
       ],
       "created": "2026-09-25T04:53:08Z",
-      "last_updated": "2026-09-25T05:08:07Z",
+      "last_updated": "2026-09-25T05:14:22Z",
       "session_id": "sess_1790312099_19329d",
       "next_artifact_number": 2
     },
