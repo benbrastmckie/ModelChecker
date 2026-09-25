@@ -143,7 +143,14 @@ class TestLogreportCollection:
 ##############################################################################
 
 class TestClassification:
-    def test_known_entry_classified_known(self):
+    def test_known_entry_classified_known(self, monkeypatch):
+        # `_KNOWN_TIMEOUT_SKIPS` is production data (currently empty -- see
+        # its own module comment), not a fixture; these mechanism tests must
+        # not depend on it staying non-empty, so a fragment is injected
+        # locally via monkeypatch rather than relying on a real live entry.
+        monkeypatch.setitem(
+            oc._KNOWN_TIMEOUT_SKIPS, "test_oracle_regression[TN_TH_2]", "test fixture entry"
+        )
         nodeid = (
             "oracle/x.py::TestOracleExampleRegressionViaAPI"
             "::test_oracle_regression[TN_TH_2]"
@@ -170,7 +177,10 @@ class TestClassification:
         assert known == []
         assert [e["nodeid"] for e in new] == [nodeid]
 
-    def test_known_entry_that_now_decides_is_resolved(self):
+    def test_known_entry_that_now_decides_is_resolved(self, monkeypatch):
+        monkeypatch.setitem(
+            oc._KNOWN_TIMEOUT_SKIPS, "test_oracle_regression[TN_TH_2]", "test fixture entry"
+        )
         nodeid = (
             "oracle/x.py::TestOracleExampleRegressionViaAPI"
             "::test_oracle_regression[TN_TH_2]"
@@ -203,6 +213,9 @@ class TestJsonArtifact:
     def test_writes_json_artifact_when_env_var_set(self, tmp_path, monkeypatch):
         report_path = tmp_path / "skip-report.json"
         monkeypatch.setenv("ORACLE_SKIP_REPORT", str(report_path))
+        monkeypatch.setitem(
+            oc._KNOWN_TIMEOUT_SKIPS, "test_oracle_regression[TN_TH_2]", "test fixture entry"
+        )
 
         nodeid = (
             "oracle/x.py::TestOracleExampleRegressionViaAPI"

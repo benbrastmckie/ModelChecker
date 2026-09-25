@@ -11,10 +11,20 @@ function (1) raises `OracleTimeoutError` on an undecided solve rather than
 returning a record, and (2) returns only a serialized countermodel dict (or
 None), never the `BimodalStructure` needed to read the rlimit statistic.
 Building the settings dict and pipeline inline -- using the exact same keys
-and values `find_countermodel()` uses (`N=2`, `M=max(depth+2,3)`,
-`temporal_depth`, `contingent=False`, `disjoint=False`, `max_time`,
+and values `find_countermodel()` uses (`back`/`mid`/`fwd` sized from
+`temporal_depth` via `Z3OracleProvider._segment_lengths`, `max_time`,
 `expectation=True`, `solver='z3'`) inside `isolated_z3_context()` -- keeps a
 probed number a number about the real oracle path, without either problem.
+
+Historical note: this tool's original motivation was calibrating the retired
+window-and-abundance encoding's heavy-tailed Z3 solve-cost distributions
+(a genuine, measured problem for that encoding -- see the recalibration
+history retired from `theory_lib/bimodal/examples.py`'s own `BM_CM_1`/
+`BM_CM_4` comments). The witness-family certificate encoding this tool now
+probes is quantifier-free and decides every measured formula in single-digit
+milliseconds with no comparable tail, so the seed-sweep workflow this tool
+was built for is no longer a live need -- it is kept as a general-purpose
+solve-cost measurement utility, not because a heavy tail is expected.
 
 rlimit access path: `structure.stored_solver.raw_solver.statistics()`.
 `stored_solver` survives `ModelDefaults._cleanup_solver_resources()` (that
@@ -105,7 +115,12 @@ FORMULA_REGISTRY: dict[str, dict] = {
 }
 
 
-def run_probe(formula_name: str, timeout_ms: int, seed: int | None) -> dict:
+def run_probe(
+    formula_name: str,
+    timeout_ms: int,
+    seed: int | None,
+    max_rlimit: int | None = None,
+) -> dict:
     """Solve `FORMULA_REGISTRY[formula_name]` once and return a JSON-ready record.
 
     Never raises `OracleTimeoutError`-equivalent: an undecided solve is
@@ -119,6 +134,13 @@ def run_probe(formula_name: str, timeout_ms: int, seed: int | None) -> dict:
             value before solving (probe-only; production never sets a seed
             -- see the plan's Non-Goals). If None, no seed param is touched,
             so Z3's own default-seed behavior governs the draw.
+        max_rlimit: Optional deterministic Z3 resource-unit budget, alongside
+            `timeout_ms`. The certificate encoding is quantifier-free and
+            decides every registered formula in single-digit milliseconds, so
+            a tiny `timeout_ms` alone can no longer be relied on to force an
+            undecided draw for measurement purposes; `max_rlimit` (load
+            independent) can. Default-off, mirroring
+            `Z3OracleProvider.find_countermodel`'s own guard.
 
     Returns:
         A dict with: formula_name, timeout_ms, seed ("default" or the int),
@@ -132,6 +154,7 @@ def run_probe(formula_name: str, timeout_ms: int, seed: int | None) -> dict:
         )
     formula_json = FORMULA_REGISTRY[formula_name]
 
+    from bimodal_logic.provider import Z3OracleProvider
     from bimodal_logic.translation import (
         json_to_prefix,
         prefix_to_infix,
@@ -148,22 +171,22 @@ def run_probe(formula_name: str, timeout_ms: int, seed: int | None) -> dict:
     import z3
 
     depth = temporal_depth(formula_json)
-    M = max(depth + 2, 3)
+    back, mid, fwd = Z3OracleProvider()._segment_lengths(depth)
     prefix = json_to_prefix(formula_json)
     infix = prefix_to_infix(prefix)
 
     # Settings dict replicated verbatim from
     # Z3OracleProvider.find_countermodel() -- see this module's docstring.
     settings = {
-        "N": 2,
-        "M": M,
-        "temporal_depth": depth,
-        "contingent": False,
-        "disjoint": False,
+        "back": back,
+        "mid": mid,
+        "fwd": fwd,
         "max_time": timeout_ms / 1000.0,
         "expectation": True,
         "solver": "z3",
     }
+    if max_rlimit:
+        settings["max_rlimit"] = max_rlimit
 
     if seed is not None:
         z3.set_param("sat.random_seed", seed)
@@ -231,6 +254,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Number of draws to run, each emitting its own JSON record "
              "(default: 1).",
     )
+    parser.add_argument(
+        "--max-rlimit", type=int, default=None,
+        help="Optional deterministic Z3 resource-unit budget, alongside "
+             "--timeout-ms (default: unset).",
+    )
     return parser.parse_args(argv)
 
 
@@ -251,6 +279,7 @@ def main(argv: list[str] | None = None) -> int:
                 formula_name=args.formula_name,
                 timeout_ms=args.timeout_ms,
                 seed=args.seed,
+                max_rlimit=args.max_rlimit,
             )
             record["draw_index"] = draw_index
             print(json.dumps(record), flush=True)

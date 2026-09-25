@@ -71,14 +71,17 @@ class TestRunProbeUndecided:
 
     def test_tiny_timeout_reports_undecided_not_raises(self):
         # timeout_ms=0 is NOT "instant timeout": Z3 treats 0 as disabling
-        # its "timeout" option (confirmed empirically -- see the phase
-        # handoff), so it decides normally instead of timing out. 1ms is
-        # the smallest budget that reliably produces an undecided draw for
-        # this formula.
+        # its "timeout" option, so it decides normally instead of timing
+        # out. The certificate encoding is quantifier-free and decides this
+        # (and every other registered) formula in single-digit
+        # milliseconds, so a tiny timeout_ms alone no longer reliably
+        # forces an undecided draw the way it did against the retired
+        # encoding; max_rlimit=1 (load-independent) does.
         record = run_probe(
             formula_name=ATEMPORAL_FORMULA_NAME,
             timeout_ms=1,
             seed=None,
+            max_rlimit=1,
         )
         assert record["decided"] is False
         # rlimit is still readable on an undecided draw -- Phase 2's

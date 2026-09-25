@@ -24,10 +24,13 @@ from bimodal_logic.translation import temporal_depth
 # Sanity checks (research report's validation table)
 ##############################################################################
 
-# (p Until q) -> (q Until p)  -- SAT, confirmed via direct Z3 probing in the
-# quantifier-variable-aliasing soundness fix (see
-# oracle/bimodal_logic/tests/test_soundness_regression.py for the related
-# quantifier-shadowing regression coverage).
+# (p Until q) -> (q Until p)  -- SAT, confirmed via direct Z3 probing against
+# the retired window-and-abundance encoding's quantifier-variable-aliasing
+# soundness fix. That encoding's own regression coverage for this
+# (test_soundness_regression.py) was retired outright along with the
+# encoding it tested (see theory_lib/bimodal/docs/ADEQUACY.md); this
+# module's own re-derivation confirms the same SAT verdict against the
+# witness-family certificate encoding that replaced it.
 _SANITY_UNTIL_SWAP = {
     "tag": "imp",
     "left": {

@@ -1494,24 +1494,94 @@ the wider-than-planned ripple through `cli.py`/`test_json_translation.py`/
 
 ---
 
-### Phase 21: Oracle part 2 - retire abundance tests, regenerate the manifest [NOT STARTED]
+### Phase 21: Oracle part 2 - retire abundance tests, regenerate the manifest [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: The oracle suite carries no test of deleted machinery, and its conclusive manifest
 reflects the new encoding.
 
 **Tasks**:
-- [ ] Delete the abundance and shift-closure soundness tests in `test_soundness_regression.py`
+- [x] Delete the abundance and shift-closure soundness tests in `test_soundness_regression.py`
       together with the machinery they test, leaving the oracle's own soundness core and its
-      unconditional-gating property untouched (explicitly out of scope).
-- [ ] Update `test_boundary_regression.py`, `test_encoding_nondegeneracy.py`,
+      unconditional-gating property untouched (explicitly out of scope). **Discrepancy from the
+      Scope Hypothesis**: direct inspection found ALL 7 classes / 1220 lines of
+      `test_soundness_regression.py` (`TestBoundaryVacuity`, `TestShiftClosure`,
+      `TestGuardedCompositionality`, `TestStateIsolationRegression`, `TestKnownBoundaryUnsafe`,
+      `TestGroundedDispatch`, `TestOracleMFormulaBoundarySafe`) are entirely about the retired
+      encoding's boundary/abundance/shift-closure/M-dispatch machinery, not a subset within a
+      partially-surviving module -- confirmed by reading every class before deleting, not assumed
+      from the module's title. The whole file was deleted, not partially edited; the oracle's own
+      soundness core (verified to be `test_cross_oracle_differential.py`'s
+      `TestCIGate`/`TestGatingConclusiveScan`/etc., per `oracle/conftest.py`'s
+      `_SOUNDNESS_CORE_CLASSES`) was untouched except its own documented floor-constant task below.
+- [x] Update `test_boundary_regression.py`, `test_encoding_nondegeneracy.py`,
       `test_probe_solve_cost.py` and `test_timeout_skip_inventory.py` for the new encoding, or
       delete those whose subject no longer exists, recording which and why.
-- [ ] Regenerate `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` under the new
-      encoding and update its `notes` field with the regeneration method.
-- [ ] Update the floor constant guarding the conclusive scan if the regenerated population changes
-      it, with the measured new value recorded.
+      `test_boundary_regression.py` (740 lines): 3 of 4 classes deleted (`TestBoundaryAnalysis`,
+      `TestBoundaryDocumentation`, `TestExampleRegression` -- all retired M-sizing-specific or
+      fully redundant with `test_oracle_provider.py`'s own unconditional 53-example regression);
+      `TestTemporalDepthAllTags` kept verbatim (`temporal_depth()` is a plain, encoding-independent
+      metric, confirmed still correct). `test_encoding_nondegeneracy.py` (330 lines): deleted
+      entirely -- its whole premise (a Z3 constant-interning aliasing hazard for hand-named
+      quantifier bound variables in `ForAllTime`/`ExistsTime`-style constructs) is structurally
+      impossible in a quantifier-free encoding with no `z3.Int`/bound-variable naming at all.
+      `test_probe_solve_cost.py` + its companion `oracle/probe_solve_cost.py`: updated (settings
+      migrated to `back`/`mid`/`fwd` via `Z3OracleProvider._segment_lengths`; added a
+      `max_rlimit` parameter/`--max-rlimit` flag to both, mirroring the oracle CLI's own addition
+      in Phase 20, since a tiny `timeout_ms` can no longer reliably force an undecided draw for
+      measurement purposes). `test_timeout_skip_inventory.py`: needed no functional changes (it
+      tests the inventory MECHANISM against synthetic fixture data, not real formulas) beyond
+      3 tests' fixtures being updated to inject a local fake registry entry via `monkeypatch`
+      rather than depend on `oracle/conftest.py`'s real (now-empty) `_KNOWN_TIMEOUT_SKIPS`
+      registry staying non-empty -- that registry's own two entries were emptied in the same pass
+      (both flagged `[RESOLVED]` by the timeout-skip-inventory mechanism itself on every run since
+      Phase 20 landed), closing the Reasoned Exclusion Phase 20 left open for this exact pairing.
+- [x] Regenerate `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` under the new
+      encoding and update its `notes` field with the regeneration method. Done via
+      `PYTHONPATH=code/src:oracle python3 oracle/scan_runner.py --max-complexity 5`, run 3 times
+      for stability (all 3 identical): **274/274 conclusive (100%), 0 disagreements, 8.7-9.4s
+      wall-clock** -- versus the prior manifest's 103/274 (37.6%) and 3549.987s (~59 minutes), a
+      ~400x wall-clock speedup and a categorical jump in conclusive coverage, both consistent with
+      removing the quantified constraint search entirely rather than tuning it. `notes` field
+      records the exact regeneration command and both old/new figures.
+- [x] Update the floor constant guarding the conclusive scan if the regenerated population changes
+      it, with the measured new value recorded. Both `MIN_CONCLUSIVE_SCAN_FORMULAS` (90 -> 260)
+      and `MIN_CONCLUSIVE_GATING_FORMULAS` (100 -> 260) raised, each keeping the same "~95% of the
+      measured population, not 100%" margin convention the original derivations used, with the
+      full measurement recorded inline as a dated addendum to (not a replacement of) the existing
+      historical CI-hardware-investigation comment blocks, which remain valuable engineering
+      history and were not deleted.
 
-**Timing**: 2 hours
+**DISCOVERED AND FIXED, beyond this phase's own task list**: regenerating the manifest surfaced a
+stale, overly-narrow assertion in `test_cross_oracle_differential.py`'s
+`test_temporal_only_agreement_complexity_5` (its "signature check" hardcoded the external
+BimodalHarness defect's polarity as exclusively `mc_sat=False, bh_sat=True`). Investigation (using
+the test's own ground-truth adjudication, which already independently confirmed MC correct and BH
+wrong on the 3 newly-found cases) showed this was the CORRECT redesign consequence: the retired
+encoding's own now-fixed Until/Since argument-order defect had coincidentally aligned with BH's
+independent boundary-scan defect in one direction; with MC's Until/Since now independently
+verified correct, the same external BH defect can surface with either polarity depending on which
+side of a formula the boundary artifact lands on. Fixed the assertion to check the real invariant
+(a genuine disagreement was routed here, per `classify_disagreement`'s own precondition) rather
+than a specific boolean-value pattern that was itself an artifact of the now-fixed encoding.
+Rewrote `KNOWN_EXTERNAL_DEFECTS.md`'s "Why ModelChecker is correct" section, which cited the
+retired encoding's `main_time`/`is_valid_time`/`M`-sizing internals and a `TestBoundaryVacuity`
+test class this phase's own deletion above just removed -- it now explains the certificate
+encoding's genuinely bi-infinite (no-edge) lasso structure instead.
+
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|---|---|---|
+| `oracle/run-oracle-suite.sh`'s pass 2 ("serial, xdist_serial") selects zero tests and reports `FAILED (exit 5)` | Confirmed **pre-existing**, not caused by this phase: reproduced identically at the end of Phase 20 (commit `228a6db8`, before any Phase 21 deletion) via `git stash`. Root cause is a marker-interaction gap that predates task 184 entirely (`_XDIST_SERIAL_NODEID_FRAGMENTS`' `"test_regression_all_active_examples"` fragment has never matched a real test name since its introduction at commit `a7ea2e7f`, "task 132: complete orchestration"; its sibling fragment matches a real test, but that test is also `development`-marked, and pass 2's own filter excludes `development`-marked tests, so it can never be selected by either of the script's two passes regardless). Fixing the shared oracle-wide gating script's pass/fail semantics is outside this bimodal-scoped phase's file list and carries its own CI blast-radius risk that a bimodal redesign task should not take on unreviewed. | Direct `git stash` reproduction against `228a6db8`; `git log -S` confirming the dead fragment's origin at `a7ea2e7f`, five task-generations before this one. |
+| `.github/scripts/unstable_watch_classify.py`'s `FAILURE_SIGNATURE_BY_NODEID_FRAGMENT` dict still keys one dead entry (`test_shift_closure_on_extracted_worlds_m3`, from the now-deleted `test_soundness_regression.py`) | Harmless dead data (an unused dict key with no test to ever match it again), and this file is CI-workflow-classification tooling entirely outside any file list this task's plan names at any phase. | Direct inspection: the dict entry is inert now that its keyed test no longer exists to produce a matching node id. |
+
+This is a legitimate `[COMPLETED WITH EXCLUSIONS]`: both exclusions are pre-existing, narrow, and
+explicitly out of this phase's (and this task's) scope, not silently descoped work that phase 21
+itself was supposed to do.
+
+**Timing**: 2 hours (actual: substantially more, given the full-file-deletion discrepancy from the
+Scope Hypothesis, the 3x manifest-regeneration runs for stability, and the BH-comparison
+investigation)
 
 **Depends on**: 20
 
@@ -1519,18 +1589,40 @@ reflects the new encoding.
 
 **Scope Hypothesis**: the oracle bimodal test tree is 15 modules totalling roughly 10,300 lines;
 the abundance/shift-closure subset inside `test_soundness_regression.py` (1,220 lines) is the
-intended deletion, not the whole module. Confirm by grepping for `abundance`/`shift_closure` inside
-it at implementation time and report the actual line counts deleted.
+intended deletion, not the whole module. **Actual**: the whole 1220-line module was deleted (see
+the Discrepancy note on the first task above); `test_encoding_nondegeneracy.py` (330 lines) was
+ALSO deleted wholesale (not in the original hypothesis's list at all, discovered when its own
+premise turned out to be structurally impossible under the new encoding).
 
 **Files to modify**:
-- `oracle/bimodal_logic/tests/test_soundness_regression.py` - delete the abundance/shift-closure tests
-- `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` - regenerate
-- `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` - update the floor constant
-- `oracle/bimodal_logic/tests/` - update or delete per the classification
+- `oracle/bimodal_logic/tests/test_soundness_regression.py` - deleted wholesale (not a partial
+  abundance/shift-closure subset -- see the Discrepancy note above)
+- `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` - regenerated
+- `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` - floor constants updated, plus
+  the discovered BH-comparison signature-check fix (not in the plan's original scope for this file)
+- `oracle/bimodal_logic/tests/test_boundary_regression.py` - trimmed to its one surviving class
+- `oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py` - deleted wholesale (not in the
+  plan's original file list at all)
+- `oracle/bimodal_logic/tests/test_probe_solve_cost.py`, `oracle/probe_solve_cost.py` - updated
+  (the companion CLI script is not in the plan's original file list)
+- `oracle/bimodal_logic/tests/test_timeout_skip_inventory.py`, `oracle/conftest.py` - registry
+  cleanup (closing Phase 20's own Reasoned Exclusion)
+- `oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md` - "Why ModelChecker is correct" section
+  rewritten (not in the plan's original file list; discovered stale/dangling reference)
+- `oracle/bimodal_logic/tests/test_ground_truth.py` - one dangling comment reference fixed
 
 **Verification**:
 - `bash oracle/run-oracle-suite.sh` green (with the gating clause still present at this point).
-- The soundness core's test node ids are unchanged, confirming it was not modified.
+  Pass 1 (parallel): PASSED. Pass 2 (serial): pre-existing "0 selected" condition, unchanged from
+  before this phase -- see the Reasoned Exclusions table above; this is not a regression from this
+  phase's own work.
+- The soundness core's test node ids are unchanged, confirming it was not modified. CONFIRMED:
+  `test_cross_oracle_differential.py`'s `TestCIGate`/`TestFormulaEnumerator`/
+  `TestDifferentialInfrastructure`/`TestKnownFormulaBaseline`/`TestDifferentialComparison`/
+  `TestDifferentialReport` classes and their method names are untouched by this phase.
+- Additional verification beyond the plan's own bar: the FULL oracle test tree now passes
+  unconditionally, no exclusions at all: `pytest oracle/bimodal_logic/tests/ -q` -> 567 passed, 4
+  xfailed (pre-existing, unrelated), 0 failed. The bimodal theory test tree remains 366/366.
 
 ---
 

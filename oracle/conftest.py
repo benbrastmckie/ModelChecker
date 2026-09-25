@@ -197,20 +197,22 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 # (test_timeout_skip_inventory.py), not this report silently going quiet.
 _TIMEOUT_SKIP_SIGNATURE = "did not decide within"
 
-# Node-id fragment -> short adjudication note. Seeded with exactly the two
-# skip sites confirmed live and adjudicated. A timeout-caused skip whose
+# Node-id fragment -> short adjudication note. A timeout-caused skip whose
 # node id contains none of these fragments is [NEW]: an unadjudicated
 # finding to investigate, never assumed to be a defect in this tooling.
-_KNOWN_TIMEOUT_SKIPS: dict[str, str] = {
-    "test_oracle_regression[TN_TH_2]": (
-        "label corrected to SAT from the ground-truth evaluator; the solver "
-        "still does not decide it at 2x budget"
-    ),
-    "test_enriched_vs_primitive_sat_agreement[all_future]": (
-        "primitive untl-based expansion does not decide; the enriched form "
-        "decides in under 2s -- a performance gap, not a disagreement"
-    ),
-}
+#
+# Empty as of the witness-family certificate redesign: this registry
+# previously held exactly two entries (`test_oracle_regression[TN_TH_2]`,
+# `test_enriched_vs_primitive_sat_agreement[all_future]`), both adjudicated
+# against the retired window-and-abundance encoding's solve-cost profile. The
+# "ORACLE TIMEOUT-SKIP INVENTORY" mechanism itself flagged both `[RESOLVED]`
+# (the underlying formulas now decide under the certificate encoding, so the
+# `pytest.skip()` sites they documented can no longer fire) the first time
+# the oracle suite ran after that redesign landed. Kept as an empty dict
+# (not deleted) for the same greppable-single-point reason
+# `theory_lib/bimodal/tests/unit/test_bimodal.py`'s own exclusion constants
+# are kept empty rather than removed.
+_KNOWN_TIMEOUT_SKIPS: dict[str, str] = {}
 
 # Session-scoped collection state. Each pytest invocation (including each
 # xdist controller process) is a fresh interpreter, so module-level state

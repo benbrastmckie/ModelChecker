@@ -6,12 +6,12 @@
   ],
   "total_formulas": 274,
   "solve_timeout_ms": 10000,
-  "derived_at": "2026-08-07T09:22:45.486260+00:00",
-  "wall_clock_seconds": 3549.987,
-  "conclusive_count": 103,
+  "derived_at": "2026-09-25T21:21:21.345507+00:00",
+  "wall_clock_seconds": 8.865,
+  "conclusive_count": 274,
   "disagreements": 0,
   "documented_prior_conclusive_count": 103,
-  "notes": "Re-derived after a soundness fix to the bimodal temporal operators' quantified bound-variable declarations: z3.Int fixed-name bound variables were replaced with counter-suffixed _fresh_bound_int() at all 14 quantifier-declaration sites, eliminating a defect where a nested same-primitive quantified operator's 'fresh' bound variable aliased the outer call's eval_time term via Z3's (name, sort) interning. Measured conclusive_count=103, identical in COUNT to the prior (pre-fix) manifest's 103, but NOT identical in SET: 7 formulas gained conclusiveness and 7 different formulas lost it (net zero). This is a genuine behavioural change from the encoding fix, not a coincidental no-op -- see specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/rederivation.md for the full per-formula diff and explanation of both directions. disagreements=0 (hard constraint satisfied). The re-derivation run was launched without an idle-machine pre-flight pass (recorded deviation, see the evidence file above); conclusive_count=103 clears the ~95 stop-and-re-run floor documented there, so the run is used as-is per that sanctioned criterion.",
+  "notes": "Re-derived after the witness-family certificate redesign replaced the retired window-and-abundance Z3 encoding outright (see code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md). The prior manifest's conclusive_count=103/274 (37.6%) reflected that encoding's ForAll/Exists-quantifier solve-cost profile, where a meaningful fraction of complexity-5 formulas timed out at the 10s budget. The certificate encoding is quantifier-free (no ForAll/Exists/MBQI/E-matching anywhere in the search), and this re-derivation found conclusive_count=274/274 (100%): every complexity<=5 formula over the single atom 'p' now decides within the same 10000ms budget, with zero disagreements between the mc_oracle and its own self-consistency reference. The full scan completed in 8.865s wall-clock (oracle/scan_runner.py --max-complexity 5), versus the prior derivation's 3549.987s (~59 minutes) -- a ~400x speedup, consistent with removing the quantified constraint search entirely rather than tuning it. Regeneration method: `PYTHONPATH=code/src:oracle python3 oracle/scan_runner.py --max-complexity 5 --out-dir <dir>`, then this manifest was rebuilt from that run's report.json (every entry is conclusive, so the `conclusive` array below is now the full formula list, indices 0-273).",
   "conclusive": [
     {
       "index": 0,
@@ -24,6 +24,15 @@
       "formula_json": {
         "tag": "atom",
         "name": "p"
+      }
+    },
+    {
+      "index": 2,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
       }
     },
     {
@@ -114,6 +123,110 @@
       }
     },
     {
+      "index": 10,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 11,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 12,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 13,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 14,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 15,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 16,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 17,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
       "index": 18,
       "formula_json": {
         "tag": "box",
@@ -123,6 +236,22 @@
             "tag": "box",
             "child": {
               "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 19,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
             }
           }
         }
@@ -186,6 +315,134 @@
             "name": "p"
           },
           "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 24,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 25,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 26,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 27,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 28,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 29,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 30,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 31,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
             "tag": "atom",
             "name": "p"
           }
@@ -321,6 +578,21 @@
       }
     },
     {
+      "index": 40,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
       "index": 41,
       "formula_json": {
         "tag": "untl",
@@ -337,6 +609,231 @@
       }
     },
     {
+      "index": 42,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 43,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 44,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 45,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 46,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 47,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 48,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 49,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 50,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 51,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 52,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 53,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 54,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 55,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
       "index": 56,
       "formula_json": {
         "tag": "box",
@@ -348,6 +845,25 @@
               "tag": "box",
               "child": {
                 "tag": "bot"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 57,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "box",
+              "child": {
+                "tag": "atom",
+                "name": "p"
               }
             }
           }
@@ -423,6 +939,158 @@
               "name": "p"
             },
             "right": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 62,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 63,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 64,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 65,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 66,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 67,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 68,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 69,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
               "tag": "atom",
               "name": "p"
             }
@@ -576,6 +1244,310 @@
             }
           },
           "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 78,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 79,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 80,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 81,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 82,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 83,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 84,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 85,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 86,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 87,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 88,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 89,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 90,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 91,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 92,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 93,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
             "tag": "atom",
             "name": "p"
           }
@@ -967,6 +1939,166 @@
       }
     },
     {
+      "index": 114,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 115,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 116,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 117,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 118,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 119,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 120,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 121,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
       "index": 122,
       "formula_json": {
         "tag": "imp",
@@ -1351,6 +2483,86 @@
       }
     },
     {
+      "index": 142,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 143,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 144,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 145,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
       "index": 146,
       "formula_json": {
         "tag": "imp",
@@ -1446,6 +2658,46 @@
       }
     },
     {
+      "index": 151,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 152,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
       "index": 153,
       "formula_json": {
         "tag": "imp",
@@ -1463,6 +2715,24 @@
         "right": {
           "tag": "atom",
           "name": "p"
+        }
+      }
+    },
+    {
+      "index": 154,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
         }
       }
     },
@@ -1523,6 +2793,255 @@
       }
     },
     {
+      "index": 158,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 159,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 160,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 161,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 162,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 163,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 164,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 165,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 166,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 167,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 168,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 169,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 170,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
       "index": 171,
       "formula_json": {
         "tag": "untl",
@@ -1538,6 +3057,26 @@
           "right": {
             "tag": "atom",
             "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 172,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
           }
         }
       }
@@ -1560,6 +3099,318 @@
             "tag": "atom",
             "name": "p"
           }
+        }
+      }
+    },
+    {
+      "index": 174,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 175,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 176,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 177,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 178,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 179,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 180,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 181,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 182,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 183,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 184,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 185,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 186,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 187,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 188,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 189,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
         }
       }
     },
@@ -1640,6 +3491,45 @@
       }
     },
     {
+      "index": 194,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 195,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
       "index": 196,
       "formula_json": {
         "tag": "untl",
@@ -1681,6 +3571,355 @@
       }
     },
     {
+      "index": 198,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 199,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 200,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 201,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 202,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 203,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 204,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 205,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 206,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 207,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 208,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 209,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 210,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 211,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 212,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 213,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 214,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 215,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
       "index": 216,
       "formula_json": {
         "tag": "snce",
@@ -1718,6 +3957,25 @@
       }
     },
     {
+      "index": 218,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
       "index": 219,
       "formula_json": {
         "tag": "snce",
@@ -1734,6 +3992,589 @@
             "tag": "atom",
             "name": "p"
           }
+        }
+      }
+    },
+    {
+      "index": 220,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 221,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 222,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 223,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 224,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 225,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 226,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 227,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 228,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 229,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 230,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 231,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 232,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 233,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 234,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 235,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 236,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 237,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 238,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 239,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 240,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 241,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 242,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 243,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 244,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 245,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 246,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 247,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 248,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 249,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
         }
       }
     },
@@ -1833,6 +4674,26 @@
       }
     },
     {
+      "index": 255,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
       "index": 256,
       "formula_json": {
         "tag": "snce",
@@ -1863,6 +4724,318 @@
             "name": "p"
           },
           "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 258,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 259,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 260,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 261,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 262,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 263,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 264,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 265,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 266,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 267,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 268,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 269,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 270,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 271,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 272,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 273,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
             "tag": "atom",
             "name": "p"
           }

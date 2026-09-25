@@ -45,19 +45,30 @@ one.
 
 ### Why ModelChecker is correct
 
-ModelChecker never evaluates a formula at its own frame's edge. `main_time` is fixed at
-`z3.IntVal(0)` (`code/src/model_checker/theory_lib/bimodal/semantic/core.py:225`), and the valid
-time domain is the open interval `(-M, M)` with `M = max(depth + 2, 3)`
-(`oracle/bimodal_logic/provider.py:225-226`), where `depth` is the formula's temporal nesting
-depth (`oracle/bimodal_logic/translation.py`'s `temporal_depth`). `is_valid_time`'s own docstring
-(`core.py:804-819`) states the invariant directly: "Boundary safety: For a formula of temporal
-depth d, M >= d+2 ensures that genuine (non-vacuous) evaluation can occur from t=0" — this is a
-deliberate design invariant, not an incidental property, and it is independently tracked by
-`TestBoundaryVacuity` in `oracle/bimodal_logic/tests/test_soundness_regression.py`.
+**Updated for the witness-family certificate encoding** (this section previously cited the
+retired window-and-abundance encoding's own bounded-window boundary-safety mechanism, `M =
+max(depth+2, 3)`, `main_time`/`is_valid_time` in `semantic/core.py`, and a `TestBoundaryVacuity`
+test module that no longer exists -- see `theory_lib/bimodal/docs/ADEQUACY.md` for the
+certificate design this module now sits on top of). ModelChecker never evaluates a formula at a
+frame edge because the certificate encoding's model has no edge at all: a certified history is a
+labelled bi-infinite lasso (`back` repeating leftward and `fwd` repeating rightward forever,
+`theory_lib/bimodal/semantic/certificate.py`'s `LabelledLasso`), decoded to a genuinely
+bi-infinite label function over every integer position, not a bounded window with a first or last
+time point. `Untl`/`Snce`'s fulfilment obligation is checked over a Lean-proved window wide enough
+to guarantee a witness is found wherever one exists in the periodic structure
+(`ADEQUACY.md` section 5), so a formula like `p \Until bot` (which needs the very next position to
+witness `p` with an empty, vacuously-satisfied guard) is evaluated the same way at every position
+of the lasso, including near the seam between `back`/`mid`/`fwd` segments -- there is no
+distinguished "last" or "first" position analogous to BH's own `t = m_time`/`t = 0` scan bounds
+for this defect to manifest against.
 
 The canonical semantics (the Lean `BimodalLogic` specification's `Semantics.lean`) types the time
 domain as a `LinearOrderedAddCommGroup`, which by definition has no minimal or maximal element —
-matching ModelChecker's boundary-safe design intent, not BimodalHarness's edge-inclusive scan.
+matching the certificate encoding's own genuinely unbounded design, not BimodalHarness's
+edge-inclusive scan. Ground-truth adjudication (`oracle/bimodal_logic/ground_truth.py`, a
+solver-free brute-force check) directly confirms ModelChecker's verdict is correct on every
+formula this document's own differential test attributes to this defect
+(`test_temporal_only_agreement_complexity_5`'s `mc_soundness_bug` bucket is empty on every run).
 
 ### The 12 affected formulas
 
