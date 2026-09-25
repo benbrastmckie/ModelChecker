@@ -1,335 +1,125 @@
-"""Integration tests for Until and Since temporal operators.
+"""Integration tests for Until and Since temporal operators against the certificate
+encoding (Phase 18 rewrite).
 
-These tests verify that the operators work correctly with the full model checking
-infrastructure, including Z3 solving and extension computation.
+The retired version of this file asserted `find_truth_condition` signature/mock-based Z3
+plumbing that no longer exists at all (operators now have only `true_at`/`false_at`,
+already covered directly against `translate`'s own rules by
+`tests/unit/test_operators.py`'s `TestPrimitiveOperatorsMirrorTranslate`), so this rewrite
+drops that layer entirely rather than patching it, and instead tests the semantic claims
+the retired file's own docstring named as its "Key tests" -- run end-to-end through the
+real `Syntax -> ModelConstraints -> BimodalStructure -> run_test()` pipeline, since that is
+the only way to check a genuine semantic equivalence (a claim about every model, not about
+one hand-built Z3 term):
 
-Key tests:
-- U(p, top) should be equivalent to F(p) - "p eventually"
-- S(p, top) should be equivalent to P(p) - "p occurred"
-- Open guard interval behavior
-- Boundary time behavior
+- `U(p, top)` (i.e. `(p \\Until \\neg\\bot)`) is equivalent to `future p`
+- `S(p, top)` (i.e. `(p \\Since \\neg\\bot)`) is equivalent to `past p`
+- The open guard interval: a guard that fails strictly between now and the event time
+  blocks Until/Since, even though the event itself holds later/earlier
+- Boundary/immediate-witness behaviour: `(p \\Until \\bot)` (`\\next p`) is witnessed only by
+  the immediately next position, since `bot` never holds to bridge a wider gap
 """
 
-import pytest
+from __future__ import annotations
+
+from model_checker import ModelConstraints, Syntax, run_test
 from model_checker.theory_lib.bimodal import (
-    BimodalSemantics,
     BimodalProposition,
+    BimodalSemantics,
+    BimodalStructure,
     bimodal_operators,
 )
-from model_checker.syntactic import Operator
-
-
-def get_operator_by_name(name):
-    """Get operator class by name from bimodal_operators."""
-    return bimodal_operators.operator_dictionary.get(name)
-
-
-class TestUntilSinceAPIConsistency:
-    """Test API consistency for Until and Since operators."""
-
-    def test_until_has_find_truth_condition_with_eval_point(self):
-        """Test that UntilOperator.find_truth_condition has eval_point parameter."""
-        import inspect
-
-        UntilOperator = get_operator_by_name("\\Until")
-        assert UntilOperator is not None, "UntilOperator should be registered"
-
-        signature = inspect.signature(UntilOperator.find_truth_condition)
-        parameters = list(signature.parameters.keys())
-
-        # Should have: self, event_arg, guard_arg, eval_point
-        assert parameters[0] == 'self'
-        assert parameters[-1] == 'eval_point', \
-            f"eval_point should be last parameter, got {parameters}"
-
-    def test_since_has_find_truth_condition_with_eval_point(self):
-        """Test that SinceOperator.find_truth_condition has eval_point parameter."""
-        import inspect
-
-        SinceOperator = get_operator_by_name("\\Since")
-        assert SinceOperator is not None, "SinceOperator should be registered"
-
-        signature = inspect.signature(SinceOperator.find_truth_condition)
-        parameters = list(signature.parameters.keys())
-
-        # Should have: self, event_arg, guard_arg, eval_point
-        assert parameters[0] == 'self'
-        assert parameters[-1] == 'eval_point', \
-            f"eval_point should be last parameter, got {parameters}"
-
-    def test_operators_in_collection(self):
-        """Test that Until and Since are properly in the operator collection."""
-        assert "\\Until" in bimodal_operators.operator_dictionary
-        assert "\\Since" in bimodal_operators.operator_dictionary
-
-        UntilOperator = get_operator_by_name("\\Until")
-        SinceOperator = get_operator_by_name("\\Since")
-
-        assert UntilOperator.arity == 2
-        assert SinceOperator.arity == 2
-
-
-class TestUntilSinceSemantics:
-    """Test semantic behavior of Until and Since operators."""
-
-    @pytest.fixture
-    def semantics(self):
-        """Create BimodalSemantics instance with small model."""
-        settings = {
-            'N': 2,  # 2 worlds
-            'M': 2,  # time interval [-1, 1]
-            'contingent': False,
-            'disjoint': False,
-            'max_time': 1,
-            'expectation': True,
-            'iterate': 1
-        }
-        return BimodalSemantics(settings)
-
-    def test_until_operator_instantiation(self, semantics):
-        """Test that UntilOperator can be instantiated with semantics."""
-        UntilOperator = get_operator_by_name("\\Until")
-        op = UntilOperator(semantics)
-
-        assert op is not None
-        assert op.semantics is semantics
-        assert op.arity == 2
-
-    def test_since_operator_instantiation(self, semantics):
-        """Test that SinceOperator can be instantiated with semantics."""
-        SinceOperator = get_operator_by_name("\\Since")
-        op = SinceOperator(semantics)
-
-        assert op is not None
-        assert op.semantics is semantics
-        assert op.arity == 2
-
-
-class TestUntilSinceZ3Integration:
-    """Test Z3 integration for Until and Since."""
-
-    @pytest.fixture
-    def semantics(self):
-        """Create BimodalSemantics instance."""
-        settings = {
-            'N': 2,
-            'M': 2,
-            'contingent': False,
-            'disjoint': False,
-            'max_time': 1,
-            'expectation': True,
-            'iterate': 1
-        }
-        return BimodalSemantics(settings)
-
-    def test_until_true_at_produces_valid_z3(self, semantics):
-        """Test that UntilOperator.true_at produces valid Z3 expression."""
-        import z3 as z3_lib
-
-        UntilOperator = get_operator_by_name("\\Until")
-        op = UntilOperator(semantics)
-
-        # Mock arguments
-        class MockArg:
-            pass
-
-        original_true_at = semantics.true_at
-        semantics.true_at = lambda s, ep: z3_lib.Bool('mock')
-
-        try:
-            result = op.true_at(MockArg(), MockArg(), {"world": 0, "time": 0})
-
-            # Result should be a valid Z3 expression that can be used in solving
-            assert isinstance(result, z3_lib.ExprRef)
-
-            # Should be satisfiable in general
-            solver = z3_lib.Solver()
-            solver.add(result)
-            check_result = solver.check()
-            # The result could be sat or unsat, but should not error
-            assert check_result in [z3_lib.sat, z3_lib.unsat]
-        finally:
-            semantics.true_at = original_true_at
-
-    def test_since_true_at_produces_valid_z3(self, semantics):
-        """Test that SinceOperator.true_at produces valid Z3 expression."""
-        import z3 as z3_lib
-
-        SinceOperator = get_operator_by_name("\\Since")
-        op = SinceOperator(semantics)
-
-        class MockArg:
-            pass
-
-        original_true_at = semantics.true_at
-        semantics.true_at = lambda s, ep: z3_lib.Bool('mock')
-
-        try:
-            result = op.true_at(MockArg(), MockArg(), {"world": 0, "time": 1})
-
-            assert isinstance(result, z3_lib.ExprRef)
-
-            solver = z3_lib.Solver()
-            solver.add(result)
-            check_result = solver.check()
-            assert check_result in [z3_lib.sat, z3_lib.unsat]
-        finally:
-            semantics.true_at = original_true_at
-
-
-class TestUntilSinceFindTruthConditionIntegration:
-    """Integration tests for find_truth_condition with realistic extensions."""
-
-    @pytest.fixture
-    def semantics(self):
-        """Create BimodalSemantics with known time intervals."""
-        settings = {
-            'N': 1,  # 1 world
-            'M': 3,  # time interval [-2, 2]
-            'contingent': False,
-            'disjoint': False,
-            'max_time': 2,
-            'expectation': True,
-            'iterate': 1
-        }
-        sem = BimodalSemantics(settings)
-        sem.world_time_intervals = {0: (-2, 2)}
-        return sem
-
-    def test_until_with_immediate_witness(self, semantics):
-        """Test Until when event occurs immediately at next time."""
-        UntilOperator = get_operator_by_name("\\Until")
-        op = UntilOperator(semantics)
-
-        class MockProposition:
-            def __init__(self, ext, ms):
-                self.extension = ext
-                self.model_structure = ms
-
-        class MockArg:
-            def __init__(self, ext, ms):
-                self.proposition = MockProposition(ext, ms)
-
-        class MockMS:
-            def __init__(self, sem):
-                self.semantics = sem
-
-        ms = MockMS(semantics)
-
-        # event true at t=1, guard true everywhere
-        event_arg = MockArg({0: ([1], [-2, -1, 0, 2])}, ms)
-        guard_arg = MockArg({0: ([-2, -1, 0, 1, 2], [])}, ms)
-
-        result = op.find_truth_condition(event_arg, guard_arg, {})
-        true_times, false_times = result[0]
-
-        # At t=0: witness at t=1, guard in (0,1) is empty -> U is true
-        assert 0 in true_times, "Until should be true at t=0 with immediate witness"
-
-        # At t=-1: witness at t=1, guard in (-1,1)={0} must be true -> U is true
-        assert -1 in true_times, "Until should be true at t=-1"
-
-        # At t=2: no future -> U is false
-        assert 2 in false_times, "Until should be false at last time"
-
-    def test_since_with_immediate_witness(self, semantics):
-        """Test Since when event occurred immediately at previous time."""
-        SinceOperator = get_operator_by_name("\\Since")
-        op = SinceOperator(semantics)
-
-        class MockProposition:
-            def __init__(self, ext, ms):
-                self.extension = ext
-                self.model_structure = ms
-
-        class MockArg:
-            def __init__(self, ext, ms):
-                self.proposition = MockProposition(ext, ms)
-
-        class MockMS:
-            def __init__(self, sem):
-                self.semantics = sem
-
-        ms = MockMS(semantics)
-
-        # event true at t=-1, guard true everywhere
-        event_arg = MockArg({0: ([-1], [-2, 0, 1, 2])}, ms)
-        guard_arg = MockArg({0: ([-2, -1, 0, 1, 2], [])}, ms)
-
-        result = op.find_truth_condition(event_arg, guard_arg, {})
-        true_times, false_times = result[0]
-
-        # At t=0: witness at t=-1, guard in (-1,0) is empty -> S is true
-        assert 0 in true_times, "Since should be true at t=0 with immediate witness"
-
-        # At t=1: witness at t=-1, guard in (-1,1)={0} must be true -> S is true
-        assert 1 in true_times, "Since should be true at t=1"
-
-        # At t=-2: no past -> S is false
-        assert -2 in false_times, "Since should be false at first time"
-
-    def test_until_fails_when_guard_fails(self, semantics):
-        """Test Until when guard fails in the interval."""
-        UntilOperator = get_operator_by_name("\\Until")
-        op = UntilOperator(semantics)
-
-        class MockProposition:
-            def __init__(self, ext, ms):
-                self.extension = ext
-                self.model_structure = ms
-
-        class MockArg:
-            def __init__(self, ext, ms):
-                self.proposition = MockProposition(ext, ms)
-
-        class MockMS:
-            def __init__(self, sem):
-                self.semantics = sem
-
-        ms = MockMS(semantics)
-
-        # event true at t=2, guard FALSE at t=1
-        event_arg = MockArg({0: ([2], [-2, -1, 0, 1])}, ms)
-        guard_arg = MockArg({0: ([-2, -1, 0, 2], [1])}, ms)  # guard false at t=1
-
-        result = op.find_truth_condition(event_arg, guard_arg, {})
-        true_times, false_times = result[0]
-
-        # At t=0: only witness at t=2, guard in (0,2)={1} has guard false -> U is false
-        assert 0 in false_times, "Until should be false when guard fails in interval"
-
-        # At t=1: witness at t=2, guard in (1,2)={} is empty -> U is true
-        assert 1 in true_times, "Until should be true when guard interval is empty"
-
-    def test_since_fails_when_guard_fails(self, semantics):
-        """Test Since when guard fails in the interval."""
-        SinceOperator = get_operator_by_name("\\Since")
-        op = SinceOperator(semantics)
-
-        class MockProposition:
-            def __init__(self, ext, ms):
-                self.extension = ext
-                self.model_structure = ms
-
-        class MockArg:
-            def __init__(self, ext, ms):
-                self.proposition = MockProposition(ext, ms)
-
-        class MockMS:
-            def __init__(self, sem):
-                self.semantics = sem
-
-        ms = MockMS(semantics)
-
-        # event true at t=-2, guard FALSE at t=-1
-        event_arg = MockArg({0: ([-2], [-1, 0, 1, 2])}, ms)
-        guard_arg = MockArg({0: ([-2, 0, 1, 2], [-1])}, ms)  # guard false at t=-1
-
-        result = op.find_truth_condition(event_arg, guard_arg, {})
-        true_times, false_times = result[0]
-
-        # At t=0: only witness at t=-2, guard in (-2,0)={-1} has guard false -> S is false
-        assert 0 in false_times, "Since should be false when guard fails in interval"
-
-        # At t=-1: witness at t=-2, guard in (-2,-1)={} is empty -> S is true
-        assert -1 in true_times, "Since should be true when guard interval is empty"
+from model_checker.theory_lib.bimodal.operators import bimodal_operators as _bimodal_operators
+from model_checker.utils.context import isolated_z3_context
+
+
+def _settings(**overrides):
+    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
+    settings.update(overrides)
+    return settings
+
+
+def _run(premises, conclusions, **setting_overrides):
+    example = [premises, conclusions, _settings(**setting_overrides)]
+    with isolated_z3_context():
+        return run_test(
+            example,
+            BimodalSemantics,
+            BimodalProposition,
+            bimodal_operators,
+            Syntax,
+            ModelConstraints,
+            BimodalStructure,
+        )
+
+
+class TestOperatorsRegistered:
+    def test_until_and_since_in_operator_collection(self):
+        assert "\\Until" in _bimodal_operators.operator_dictionary
+        assert "\\Since" in _bimodal_operators.operator_dictionary
+        assert _bimodal_operators.operator_dictionary["\\Until"].arity == 2
+        assert _bimodal_operators.operator_dictionary["\\Since"].arity == 2
+
+
+class TestUntilSinceTopGuardEquivalence:
+    """`(p \\Until top)` <-> `future p`, and the Since dual -- the retired file's own
+    headline claim, checked as a real biconditional theorem."""
+
+    def test_until_top_guard_equivalent_to_future(self):
+        result = _run(
+            [],
+            ['((A \\Until \\neg \\bot) \\leftrightarrow \\future A)'],
+            back=2, mid=1, fwd=2, expectation=False,
+        )
+        assert result, "(A \\Until top) <-> future A should be a theorem"
+
+    def test_since_top_guard_equivalent_to_past(self):
+        result = _run(
+            [],
+            ['((A \\Since \\neg \\bot) \\leftrightarrow \\past A)'],
+            back=2, mid=1, fwd=2, expectation=False,
+        )
+        assert result, "(A \\Since top) <-> past A should be a theorem"
+
+
+class TestBoundaryImmediateWitness:
+    """`(p \\Until bot)` (i.e. `\\next p`) and its Since dual: witnessed only by the
+    immediately next/previous position, since `bot` never holds to bridge a wider gap
+    (already exercised structurally by `test_next_prev.py`'s
+    `TestSemanticEquivalence.test_next_equivalent_to_until_bot`; this checks the
+    *countermodel* direction -- that a merely-eventual `A` does NOT suffice)."""
+
+    def test_until_bot_guard_is_not_equivalent_to_eventual(self):
+        """`future A` does NOT imply `(A \\Until bot)`: A might hold two steps out, with a
+        non-bot state at the intervening position, which `\\Until bot` (needing an *empty*
+        guard interval) rejects. This is a genuine countermodel, not a theorem."""
+        result = _run(
+            ['\\future A'],
+            ['(A \\Until \\bot)'],
+            back=2, mid=2, fwd=2, expectation=True,
+        )
+        assert result, "future A should NOT imply (A \\Until bot): expected a countermodel"
+
+
+class TestOpenGuardInterval:
+    """A guard that fails strictly between now and the event time blocks Until/Since, even
+    though the event itself genuinely holds later/earlier -- `(B \\Until A)` requires B at
+    every intermediate position, not merely that A eventually holds."""
+
+    def test_until_requires_guard_throughout_the_open_interval(self):
+        """`future A` (A holds at *some* later time) does NOT imply `(B \\Until A)` for an
+        unrelated B: nothing forces B to hold at every intermediate position. Expect a
+        countermodel."""
+        result = _run(
+            ['\\future A'],
+            ['(B \\Until A)'],
+            back=2, mid=2, fwd=2, expectation=True,
+        )
+        assert result, "future A should NOT imply (B \\Until A): expected a countermodel"
+
+    def test_since_requires_guard_throughout_the_open_interval(self):
+        result = _run(
+            ['\\past A'],
+            ['(B \\Since A)'],
+            back=2, mid=2, fwd=2, expectation=True,
+        )
+        assert result, "past A should NOT imply (B \\Since A): expected a countermodel"

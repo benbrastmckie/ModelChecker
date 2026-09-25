@@ -1192,34 +1192,83 @@ confirmation, not a fresh investigation.
 
 ---
 
-### Phase 18: Test suite part 1 - retire tests bound to deleted machinery [NOT STARTED]
+### Phase 18: Test suite part 1 - retire tests bound to deleted machinery [COMPLETED]
 
 **Goal**: No test in the tree asserts behaviour of the retired encoding.
 
 **Tasks**:
-- [ ] Enumerate every test module asserting retired behaviour and classify each as delete, rewrite,
+- [x] Enumerate every test module asserting retired behaviour and classify each as delete, rewrite,
       or keep: expected deletions include `test_frame_constraints.py`,
       `test_world_history_alignment.py`, `test_frame_class_mapping.py`,
       `test_enriched_equivalence.py`, and the retired-witness tests already replaced in Phases 6-7.
-- [ ] Rewrite the behaviour-level temporal tests (`test_until_since.py`, `test_next_prev.py`,
+      **Actual classification** (12 modules were failing/erroring post-Phase-17, 183 items
+      total): **DELETE** (7 files, all fully superseded or directly contradicting the redesign,
+      confirmed by inspection before deletion, not assumed from the name) --
+      `test_frame_constraints.py` (13 items: builder methods for constraints that no longer
+      exist), `test_frame_class_mapping.py` (14: `task_rel`/TaskFrame axiom mapping, gone),
+      `test_world_history_alignment.py` (8: printing renderer Phase 13 replaced),
+      `test_enriched_equivalence.py` (69: tests "enriched vs primitive" divergence for
+      operators that are now ALL `DefinedOperator`s with no separate enriched implementation
+      to diverge from -- the premise no longer applies), `test_modal_witness_integration.py`
+      (16 errors + 1 vacuous pass: retired `WitnessRegistry(N, M)`/`has_witness_predicate` API),
+      `test_strict_semantics.py` (8: `ForAllTime`/`ExistsTime`/`is_valid_time`/`semantics.M`, all
+      gone), `test_api_consistency.py` (1: `find_truth_condition` no longer exists anywhere --
+      operators use only `true_at`/`false_at` now), `test_until_since.py` (21: literally asserts
+      `z3.is_quantifier(result)`, the direct opposite of the redesign's quantifier-free claim,
+      already correctly tested by `test_operators.py`'s `TestConstraintSetIsQuantifierFree`).
+      **REWRITE** (3 files): `test_next_prev.py` (12: settings migrated N/M -> back/mid/fwd,
+      every other claim -- signature, `derived_definition` structure, registration, parsing,
+      semantic equivalence -- survived unchanged), `test_until_since_integration.py` (10: the
+      retired `find_truth_condition`-signature/mock-Z3-plumbing tests dropped as redundant with
+      `test_operators.py`; replaced with real end-to-end `run_test()` theorems/countermodels for
+      the file's own stated "Key tests" -- U(p,top)<->future(p), S(p,top)<->past(p), open guard
+      interval, boundary/immediate-witness behaviour), `test_data_extraction.py` (6: `extract_*`
+      methods kept their names but now read `self.certificate`/lasso indices instead of
+      `world_histories`/`main_world`; rewritten against real built structures, not mocks).
+      **UPDATE** (2 files): `test_injection.py` (5: `inject_z3_model_values` still exists,
+      rewritten for the certificate encoding's variable set -- label bits, box guesses, target
+      selector -- in place of `is_world`/`truth_condition`/`task_rel`; rewritten against a real
+      solved structure), `conftest.py` fixtures.
+- [x] Rewrite the behaviour-level temporal tests (`test_until_since.py`, `test_next_prev.py`,
       `test_until_since_integration.py`) against the certificate encoding, preserving the semantic
-      claims they encode while dropping their window assumptions.
-- [ ] Update `tests/conftest.py` fixtures: `basic_settings` / `minimal_settings` /
+      claims they encode while dropping their window assumptions. **Amended per the
+      classification above**: `test_until_since.py` was deleted rather than rewritten (its
+      claims are either already covered by `test_operators.py` or directly contradict the
+      redesign); `test_next_prev.py` and `test_until_since_integration.py` were rewritten as
+      described.
+- [x] Update `tests/conftest.py` fixtures: `basic_settings` / `minimal_settings` /
       `complex_settings` to the new settings, and the `witness_registry` /
-      `constraint_generator` fixtures to the rewritten constructors.
-- [ ] Update `tests/integration/test_injection.py`, `test_data_extraction.py`,
+      `constraint_generator` fixtures to the rewritten constructors. Done: `back`/`mid`/`fwd` in
+      place of `N`/`M`/`contingent`/`disjoint`; `witness_registry` now built with
+      `WitnessRegistry(back=, mid=, fwd=, closure=())`; `constraint_generator` now built as
+      `WitnessConstraintGenerator(witness_registry)` (the rewritten one-argument constructor).
+      **Note**: no currently-collected test consumes these three settings fixtures any more (their
+      only consumers were in the now-deleted files) -- updated per this task's explicit
+      instruction and left in place for future test authors, not removed.
+- [x] Update `tests/integration/test_injection.py`, `test_data_extraction.py`,
       `test_strict_semantics.py`, `test_api_consistency.py` for the new attribute surface.
+      **Amended per the classification above**: `test_strict_semantics.py` and
+      `test_api_consistency.py` were deleted (their entire premise -- `ForAllTime`/
+      `is_valid_time`/`find_truth_condition` -- no longer exists, nothing to update); the other
+      two were rewritten as described.
 
-**Timing**: 2 hours
+**MEASURED OUTCOME**: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/
+-q` goes from 103 failed / 80 errored / 335 passed (end of Phase 17) to **357 passed, 0 failed, 0
+errored** -- the entire bimodal test tree is green. This also substantially pre-empts Phase 19's
+own "green suite" goal; see that phase's notes for what remains.
+
+**Timing**: 2 hours (actual: comparable, given each deletion candidate was independently confirmed
+by inspection rather than assumed, and two files needed from-scratch rewrites)
 
 **Depends on**: 14, 15
 
 **Verification Tier**: local
 
 **Scope Hypothesis**: the bimodal test tree is 20 modules totalling roughly 5,400 lines; the
-delete/rewrite split above is a hypothesis, not an inventory. Confirm by running the suite after
-Phase 15 and classifying each failing module by whether its claim survives the redesign; report the
-actual classification.
+delete/rewrite split above is a hypothesis, not an inventory. **Actual**: 12 of the (then) 25
+modules were failing/erroring (183 items); the actual delete/rewrite/update split is recorded in
+full above, and differs from the hypothesis (`test_until_since.py` moved from "rewrite" to
+"delete"; `test_strict_semantics.py`/`test_api_consistency.py` moved from "update" to "delete").
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/tests/conftest.py` - update fixtures
@@ -1228,7 +1277,8 @@ actual classification.
 
 **Verification**:
 - `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` collects with no
-  import errors and no test referencing a deleted method.
+  import errors and no test referencing a deleted method. CONFIRMED (357 passed, 0 failed, 0
+  errored, 0 collection errors).
 
 ---
 

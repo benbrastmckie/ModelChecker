@@ -68,20 +68,13 @@ def bimodal_theory():
 
 @pytest.fixture
 def basic_settings():
-    """Standard settings for most tests.
-
-    Includes 'M' (bimodal's temporal dimension parameter, required by
-    BimodalSemantics.__init__ to size its WitnessRegistry) alongside the
-    common 'N', which the other three theories' settings fixtures don't need.
-    """
+    """Standard settings for most tests: the certificate encoding's own segment lengths
+    (`back`/`mid`/`fwd`) in place of the retired `N`/`M`/`contingent`/`disjoint` (D4)."""
     return {
-        'N': 3,
-        'M': 2,
+        'back': 2,
+        'mid': 1,
+        'fwd': 2,
         'max_time': 1,
-        'contingent': True,
-        'non_null': True,
-        'non_empty': True,
-        'disjoint': False,
         'expectation': True,
         'iterate': 1,
     }
@@ -89,43 +82,47 @@ def basic_settings():
 
 @pytest.fixture
 def minimal_settings():
-    """Minimal settings for quick tests."""
+    """Minimal settings for quick tests: the smallest legal segment lengths
+    (`WitnessRegistry.__init__` requires `back >= 1`, `fwd >= 1`; `mid` may be `0`)."""
     return {
-        'N': 2,
+        'back': 1,
+        'mid': 0,
+        'fwd': 1,
         'max_time': 1,
         'expectation': True,
-        'contingent': True,
-        'non_null': True,
-        'non_empty': True,
-        'disjoint': True,
     }
 
 
 @pytest.fixture
 def complex_settings():
-    """Settings for more complex tests."""
+    """Settings for more complex tests: larger segment lengths than `basic_settings`."""
     return {
-        'N': 4,
+        'back': 3,
+        'mid': 2,
+        'fwd': 4,
         'max_time': 5,
-        'contingent': True,
-        'non_null': True,
-        'non_empty': True,
-        'disjoint': True,
         'expectation': True,
     }
 
 
 @pytest.fixture
 def witness_registry(basic_settings):
-    """Fresh witness registry for tests."""
+    """Fresh witness registry for tests, over an empty closure (callers needing specific
+    closure members should construct their own `WitnessRegistry` directly, matching
+    `test_witness_registry.py`'s own convention)."""
     from model_checker.theory_lib.bimodal.semantic.witness_registry import WitnessRegistry
-    return WitnessRegistry(N=basic_settings['N'], M=basic_settings['M'])
+    return WitnessRegistry(
+        back=basic_settings['back'],
+        mid=basic_settings['mid'],
+        fwd=basic_settings['fwd'],
+        closure=(),
+    )
 
 
 @pytest.fixture
-def constraint_generator(basic_settings):
-    """Constraint generator with a fresh bimodal semantics instance."""
-    from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
+def constraint_generator(witness_registry):
+    """Constraint generator built directly against a `WitnessRegistry` -- the rewritten
+    `WitnessConstraintGenerator.__init__(self, registry)` signature (Phase 7), not a
+    `BimodalSemantics` instance (the retired encoding's own constructor argument)."""
     from model_checker.theory_lib.bimodal.semantic.witness_constraints import WitnessConstraintGenerator
-    semantics = BimodalSemantics(basic_settings)
-    return WitnessConstraintGenerator(semantics)
+    return WitnessConstraintGenerator(witness_registry)

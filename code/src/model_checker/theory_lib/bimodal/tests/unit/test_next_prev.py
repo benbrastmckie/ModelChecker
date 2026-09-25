@@ -6,7 +6,10 @@ These are defined temporal operators:
 - Prev(phi) = S(phi, bot): phi held at the immediately previous time (first past time
   with no guard condition in between)
 
-Following the TDD pattern established in test_until_since.py.
+Settings migrated (Phase 18) from the retired encoding's `N`/`M`/`contingent`/`disjoint`
+to the certificate encoding's `back`/`mid`/`fwd` (D4); `run_test()` requires every key be
+present explicitly, since it does not merge with `DEFAULT_EXAMPLE_SETTINGS` (see
+`test_bimodal.py`'s own `KNOWN_TIMEOUT_EXAMPLES` history for why).
 """
 
 import pytest
@@ -119,7 +122,7 @@ class TestDefNextDefinition:
     def test_next_derived_definition_returns_list(self):
         """Test that derived_definition returns a list."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -131,7 +134,7 @@ class TestDefNextDefinition:
     def test_next_derived_definition_uses_until_operator(self):
         """Test that Next is defined using UntilOperator as the outer operator."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -144,7 +147,7 @@ class TestDefNextDefinition:
     def test_next_derived_definition_argument_is_event(self):
         """Test that the argument appears as the event (first arg) of Until."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -157,7 +160,7 @@ class TestDefNextDefinition:
     def test_next_derived_definition_guard_is_bot(self):
         """Test that the guard argument of Until is [BotOperator]."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -170,7 +173,7 @@ class TestDefNextDefinition:
     def test_next_derived_definition_full_structure(self):
         """Test the complete structure: [UntilOperator, argument, [BotOperator]]."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -189,7 +192,7 @@ class TestDefPrevDefinition:
     def test_prev_derived_definition_returns_list(self):
         """Test that derived_definition returns a list."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -201,7 +204,7 @@ class TestDefPrevDefinition:
     def test_prev_derived_definition_uses_since_operator(self):
         """Test that Prev is defined using SinceOperator as the outer operator."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -214,7 +217,7 @@ class TestDefPrevDefinition:
     def test_prev_derived_definition_argument_is_event(self):
         """Test that the argument appears as the event (first arg) of Since."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -227,7 +230,7 @@ class TestDefPrevDefinition:
     def test_prev_derived_definition_guard_is_bot(self):
         """Test that the guard argument of Since is [BotOperator]."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -240,7 +243,7 @@ class TestDefPrevDefinition:
     def test_prev_derived_definition_full_structure(self):
         """Test the complete structure: [SinceOperator, argument, [BotOperator]]."""
         semantics_settings = {
-            'N': 3, 'M': 2, 'contingent': False, 'disjoint': False,
+            'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
         }
         sem = BimodalSemantics(semantics_settings)
@@ -322,10 +325,7 @@ def make_next_equiv_example():
     premises = []
     conclusions = ['(\\next A \\leftrightarrow (A \\Until \\bot))']
     settings = {
-        'N': 2,
-        'M': 2,
-        'contingent': False,
-        'disjoint': False,
+        'back': 2, 'mid': 1, 'fwd': 2,
         'max_time': 5,
         'expectation': False,
     }
@@ -337,10 +337,7 @@ def make_prev_equiv_example():
     premises = []
     conclusions = ['(\\prev A \\leftrightarrow (A \\Since \\bot))']
     settings = {
-        'N': 2,
-        'M': 2,
-        'contingent': False,
-        'disjoint': False,
+        'back': 2, 'mid': 1, 'fwd': 2,
         'max_time': 5,
         'expectation': False,
     }
