@@ -1,7 +1,7 @@
 # Implementation Plan: Task #184
 
 - **Task**: 184 - Redesign the bimodal theory around witness-family certificates (discrete Z-time)
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 46 hours
 - **Dependencies**: None (the five previously-dependent bimodal tasks 154, 172, 176, 178, 183 were
   abandoned in the operation that created this revision; BimodalLogic tasks 665/666/667 are
@@ -1839,21 +1839,102 @@ no gating invocation of its own); and precisely 5 CI contract tests
 
 ---
 
-### Phase 24: Final verification [NOT STARTED]
+### Phase 24: Final verification [COMPLETED]
 
 **Goal**: The whole repository green under the real gating selections, with the redesign's claims
 measured rather than asserted.
 
 **Tasks**:
-- [ ] Run the main gating selection (`pytest src/model_checker tests` with the release `-m`
+- [x] Run the main gating selection (`pytest src/model_checker tests` with the release `-m`
       expression, now without `and not development`) and record the result and wall-clock.
-- [ ] Run `bash oracle/run-oracle-suite.sh` and record the result.
-- [ ] Run the example suite through `dev_cli.py` and confirm the printed output matches the new
-      shape for at least one countermodel and one no-certificate case.
-- [ ] Record the before/after comparison: examples active, examples excluded, suite wall-clock,
-      and the certificate round-trip status.
-- [ ] Confirm every deliverable in the task description has a corresponding landed change, and
-      name explicitly anything deliberately left out.
+      **`pytest src/model_checker tests -m "not packaging and not performance and not unstable
+      and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread` -> 2855 passed, 1
+      skipped (an environment-mode-conditional skip, unrelated to bimodal), 236.66s (0:03:56).**
+      **Serial pass: `-m "xdist_serial and not packaging and not unstable"` -> 9 passed, 2985
+      deselected, 4.24s.** Combined: 2864 tests passed, 0 failed, across both passes.
+- [x] Run `bash oracle/run-oracle-suite.sh` and record the result. **Both passes PASSED**: pass 1
+      (parallel, `-n 6`) and pass 2 (serial, `xdist_serial`) both green, ~9s combined wall-clock
+      (down from the ~40-minute pre-redesign figure recorded in `TESTING_GUIDE.md` section 8.14's
+      own history). Pass 2 now genuinely selects and passes 5 tests (previously "0 selected, exit
+      5" per Phase 21's own Reasoned Exclusions -- see Phase 23's own Discovered note: this closes
+      as a side effect of the `development` marker's removal, not a deliberate fix in this phase).
+- [x] Run the example suite through `dev_cli.py` and confirm the printed output matches the new
+      shape for at least one countermodel and one no-certificate case. **Confirmed**: `BM_CM_1`
+      (countermodel) prints the `Certificate:`/boxed-subformula-table/`Evaluation Point:` block
+      exactly as documented in `README.md`'s "Sample Output"; `MF_MODAL_FUTURE_TH` (no
+      certificate) prints only `there is no countermodel.` with no `Certificate:`/`Evaluation
+      Point:` block, matching D8 (never report validity, never print a spurious "no certificate"
+      block when `model_status` is false).
+- [x] Record the before/after comparison: examples active, examples excluded, suite wall-clock,
+      and the certificate round-trip status. See the "Before/After Comparison" subsection below.
+- [x] Confirm every deliverable in the task description has a corresponding landed change, and
+      name explicitly anything deliberately left out. See the "Deliverable Checklist" subsection
+      below.
+
+#### Before/After Comparison
+
+| Metric | Before (window-and-abundance) | After (witness-family certificate) |
+|---|---|---|
+| Examples in the full test suite (`unit_tests`) | 53, with 9 excluded from a passing run | **53, zero excluded** |
+| Examples in the curated demo set (`example_range`) | not independently re-verified for this table (superseded by the rewrite) | 25, including all of `BM_TH_1`/`BM_TH_2`/`MF_MODAL_FUTURE_TH`/`BX7_LINEAR_U_TH`/`BX7P_LINEAR_S_TH` |
+| Excluded examples | `MF_MODAL_FUTURE_TH`, `BM_TH_1`, `BM_TH_2`, `TN_CM_1`, `TN_CM_2`, `BM_CM_3`, `MD_TH_2`, `BX7_LINEAR_U_TH`, `BX7P_LINEAR_S_TH` (9) | **none (0)** |
+| Bimodal in-package suite | 313 items, `development`-quarantined | **366 items, fully gating, 366/366 passing** |
+| Oracle suite (gating selection) | 613 (pass 1) + 18 (pass 2) tests, ~40 min, red (19 `OracleTimeoutError` failures) | **567 passed + 4 xfailed, ~9s, fully green, no quarantine** |
+| Oracle exhaustive complexity<=5 scan | 103/274 (37.6%) conclusive, ~3550s (~59 min) | **274/274 (100%) conclusive, ~9s -- a ~400x wall-clock speedup, independently re-measured in this phase (274/274, 0 disagreements, 9s)** |
+| Main gating selection (`code/tests src/model_checker`) | bimodal tree entirely deselected (0 of 366 collected) | **all 366 collected and passing; 2864 total tests passed across both passes, 236.66s parallel + 4.24s serial** |
+| Certificate round-trip (`lake exe check_certificate`) | not applicable (no certificate format existed) | **live and green**: `test_certificate_lean_agreement.py` -> 10/10 passed (not skipped -- BimodalLogic/`lake` was available in this environment) |
+| MF axiom (`Box A -> Box Future A`) | refuted at `N=1, M=2` (decisive evidence of unsoundness) | **no certificate found** (correctly matches the paper) |
+| `development` marker | registered, applied as a theory-wide blanket + oracle-tree-minus-soundness-core blanket | **retired**: unregistered, both hooks deleted, 10 gating invocations no longer reference it |
+
+#### Deliverable Checklist (against the task description's own DELIVERABLES section)
+
+- [x] New `semantic/` core implementing the certificate encoding and the certified `ShiftSet`
+      model (Phases 1-14).
+- [x] Operators rewritten as label-constraint generators; `WitnessRegistry`/
+      `WitnessConstraintGenerator` rewritten, not deleted (Phases 6-8, 14).
+- [x] Model structure and printing: `(back)^w | mid | (fwd)^w` history display, boxed-subformula
+      guess table, false-box witness display; world states as `(lasso, position)` pairs; the
+      time-shift-relation and interval displays removed (Phases 12-13).
+- [x] `iterate.py` rewritten with difference constraints on labels/guesses; isomorphism rejection
+      **narrowed to exact-difference, not rotation/permutation-invariant** -- a recorded, reasoned
+      exclusion from Phase 15, carried forward here, not silently absorbed (see below).
+- [x] Pure-Python re-checker of the four conditions, independent of the Z3 model object, run on
+      every found model in tests (Phase 4, wired into `BimodalStructure.__init__` in Phase 12).
+- [x] Examples migrated, all nine previously-excluded examples restored (Phase 17); every
+      expectation checked against the paper's axioms (Phase 16).
+- [x] Theory docs rewritten, frame-axiom ledger and duration-guard gap note retired (Phase 22).
+- [x] The `development` marker removed, every `and not development` gating clause removed, oracle
+      provider rewritten, abundance/shift-closure soundness tests deleted with their machinery,
+      known-conclusive manifest regenerated (Phases 20-21, 23).
+
+**Two exclusions from earlier phases are carried forward here, not silently absorbed into this
+"complete" verdict, per this dispatch's own instruction:**
+
+1. **Phase 15 `[COMPLETED WITH EXCLUSIONS]`**: isomorphism rejection during iteration is
+   exact-difference, not rotation/permutation-invariant, and the shared framework's
+   `ConstraintGenerator` provides no active exclusion constraint at all for bimodal's live
+   `iterate: N > 1` loop (an `is_world`-gated mechanism bimodal deliberately has none of). **Phase
+   22 discovered this gap is sharper than originally recorded**: `iterate: N > 1` does not merely
+   risk duplicate/isomorphic models, it **crashes outright** via the standard CLI/`iterate_example`
+   path with `AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`
+   (`model_checker/iterate/models.py`'s `build_new_model_structure`, no `hasattr` guard). Neither
+   is fixed by this task -- both are shared, cross-theory framework code requiring their own
+   regression plan, explicitly out of a bimodal-scoped task's remit. **Use `iterate: 1` (the
+   default) until fixed.**
+2. **Phase 21 `[COMPLETED WITH EXCLUSIONS]`**: `oracle/run-oracle-suite.sh`'s pass-2 "0 selected"
+   condition was confirmed pre-existing (predating this task by five task-generations) and left
+   unfixed as out of scope. **Phase 24 update**: this condition has since resolved itself as a side
+   effect of the `development` marker's removal in Phase 23 (the one test the dead `xdist_serial`
+   fragment could have matched was also `development`-marked, so removing that marker unblocked
+   it) -- pass 2 now selects and passes 5 tests. This was not a deliberate fix and should not be
+   read as evidence the underlying dead-fragment issue itself was addressed; the fragment
+   (`test_regression_all_active_examples`) still does not match any real test name, but it no
+   longer matters for pass 2's outcome now that its sibling fragment's match is unmarked.
+
+**Also carried forward, not part of this task's own scope**: `docs/ADEQUACY.md`'s "Scope and
+status" section still describes `semantic/core.py`/`operators.py` as the retired encoding "as they
+stand today" -- stale since Phases 9-14 landed the rewrite in those files. `ADEQUACY.md` is owned
+by the separate adequacy-layer task (Phase 22's own Amendment note), so this task did not edit it.
 
 **Timing**: 1.5 hours
 
@@ -1865,24 +1946,36 @@ measured rather than asserted.
 - none (verification only; findings go in the implementation summary)
 
 **Verification**:
-- Both gating suites green.
+- Both gating suites green. **CONFIRMED.**
 - The recorded comparison shows zero excluded bimodal examples and a measured speedup.
+  **CONFIRMED**: 0 of 53 excluded (was 9); oracle exhaustive scan ~400x faster (9s vs. ~3550s);
+  oracle gating suite ~9s vs. ~40 minutes; main gating suite now includes bimodal's 366 tests at
+  no measurable cost to the ~4-minute parallel pass.
 
 ---
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` fully green
-      with no exclusion list and no `development` marker.
-- [ ] Every found model in the example suite passes the pure-Python re-checker (enforced in the
-      structure, not only in tests).
-- [ ] Every fixture certificate receives the same verdict from the Python re-checker and from
-      `lake exe check_certificate` (skipped cleanly when BimodalLogic is unavailable).
-- [ ] The full constraint set for a nested-modal example contains no quantifier node.
-- [ ] `bash oracle/run-oracle-suite.sh` green, with the oracle soundness core unmodified.
-- [ ] `pytest code/tests/ code/src/model_checker -q` green under the release gating `-m` expression.
-- [ ] `pytest code/tests/ci -v` green after the marker removal.
-- [ ] No output path claims validity; the no-certificate case is rendered as inconclusive.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` fully green
+      with no exclusion list and no `development` marker. **366 passed.**
+- [x] Every found model in the example suite passes the pure-Python re-checker (enforced in the
+      structure, not only in tests). **Enforced by `BimodalStructure.__init__`'s S3 hook on every
+      one of the 366 passing tests.**
+- [x] Every fixture certificate receives the same verdict from the Python re-checker and from
+      `lake exe check_certificate` (skipped cleanly when BimodalLogic is unavailable). **10/10
+      passed (not skipped -- BimodalLogic/`lake` was available in this environment).**
+- [x] The full constraint set for a nested-modal example contains no quantifier node.
+      **`test_witness_constraints.py::TestLocalCoherenceIsQuantifierFree::
+      test_no_quantifier_node_for_a_closure_with_every_connective` passes.**
+- [x] `bash oracle/run-oracle-suite.sh` green, with the oracle soundness core unmodified.
+      **Both passes PASSED; soundness-core node ids unchanged since Phase 21.**
+- [x] `pytest code/tests/ code/src/model_checker -q` green under the release gating `-m` expression.
+      **2855 passed + 9 passed (parallel + serial passes), 0 failed.**
+- [x] `pytest code/tests/ci -v` green after the marker removal. **136 passed.**
+- [x] No output path claims validity; the no-certificate case is rendered as inconclusive.
+      **Confirmed by direct `dev_cli.py` run and by `BimodalStructure`'s D8 code review: an
+      unsatisfiable solve is rendered as "there is no countermodel"/"no certificate found within
+      the configured bounds", never as a validity claim.**
 
 ## Artifacts & Outputs
 
@@ -1898,7 +1991,9 @@ measured rather than asserted.
 - `oracle/bimodal_logic/provider.py`, `serialization.py`, `translation.py`, tests, and
   `tests/data/known_conclusive_complexity5.json` (rewritten/regenerated)
 - Gating and CI wiring with the `development` marker removed
-- `specs/184_.../summaries/01_witness-family-certificate-redesign-summary.md` (at completion)
+- `specs/184_.../summaries/03_final-verification-and-completion-summary.md` (at completion; the
+  `01`/`02` prefixes were already used by two earlier progress summaries covering Phases 1-8 and
+  9-15 respectively, so the final summary uses the next sequence number rather than colliding)
 
 ## Rollback/Contingency
 

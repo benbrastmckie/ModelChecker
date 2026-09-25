@@ -1,18 +1,23 @@
 {
-  "status": "partial",
-  "dispatch_seq": 8,
-  "summary": "Implemented Phases 9-15 of 24: the entire semantic core, BimodalProposition, BimodalStructure (solve/extract/re-check/printing), operators.py, and iterate.py are all rewritten for the certificate encoding. The real end-user pipeline (Syntax -> ModelConstraints -> BimodalStructure -> interpret -> print_to) now works end to end for atomic and compound examples. Phase 15 completed with two reasoned exclusions (isomorphism rotation invariance deferred; a discovered gap in the shared iterate/constraints.py exclusion mechanism, out of scope for a bimodal-only phase). Phases 16-24 (examples migration, test-suite retirement, oracle rewrite, docs, development-marker removal, final verification) remain.",
+  "status": "implemented",
+  "dispatch_seq": 10,
+  "summary": "Task 184 is complete: all 24 phases of the witness-family certificate redesign are [COMPLETED] or [COMPLETED WITH EXCLUSIONS]. This dispatch closed out Phases 22-24 on top of the already-landed Phases 1-21: documentation fully rewritten for the certificate design (README.md, docs/ARCHITECTURE.md carrying in the (SOUND) theorem and Lean citation table from ADEQUACY.md, SETTINGS/API_REFERENCE/USER_GUIDE/ITERATE.md, oracle README's certificate-export section); the development pytest marker retired entirely (unregistered, both quarantine hooks deleted, and not development removed from all 10 gating -m invocations across flake.nix/tests.yml/packaging.yml/release.yml/pypi-smoke.yml/run-oracle-suite.sh, three now-obsolete CI contract tests deleted, two narrowed, TESTING_GUIDE.md section 8.14 rewritten as a retirement record); and final verification run live, not assumed -- bimodal 366/366, oracle 567 passed + 4 xfailed (plus pass 2's 5 passed, previously 0/exit-5), main gating selection 2855+9 passed with 0 failures, code/tests/ci 136 passed, certificate/Lean round-trip 10/10 passed live, oracle exhaustive scan re-measured at 274/274 conclusive in ~9s. Two exclusions from earlier phases are carried forward explicitly, not silently absorbed: Phase 15's isomorphism-rejection scope narrowing, sharpened during this dispatch into a reproduced, documented crash for iterate: N > 1 (shared framework code, not fixed); and Phase 21's oracle/run-oracle-suite.sh pass-2 pre-existing gap, which resolved itself as a side effect of the marker's removal rather than being deliberately fixed.",
   "artifacts": [
     {
       "type": "summary",
-      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/02_semantic-core-structure-operators-iterate-summary.md",
-      "summary": "Implementation summary for Phases 9-15 of the witness-family certificate redesign."
+      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/03_final-verification-and-completion-summary.md",
+      "summary": "Final summary closing task 184: Phases 22-24 landed, measured final suite numbers recorded, both carried-forward exclusions named explicitly."
+    },
+    {
+      "type": "plan",
+      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md",
+      "summary": "All 24 phases closed with inline verification evidence; Phase 24 carries the full before/after comparison table and deliverable checklist against the task description."
     }
   ],
-  "phases_completed": 15,
+  "phases_completed": 24,
   "phases_total": 24,
   "blockers": [],
   "plan_markers_verified": true,
-  "continuation_path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/handoffs/phase-15-handoff-20260925T203000Z.md",
-  "next_action_hint": "Open Phase 16: examples migration -- settings and expectation audit (examples.py). Replace N/M/contingent/disjoint with back/mid/fwd/max_witnesses in every example; audit every \\Until/\\Since argument order against D2's event-first convention (X \\Until Y means 'Y holds until X happens' -- this bit Phase 12's own A0 test once already, see that phase's handoff); audit every expectation against the paper's axioms, in particular MF_MODAL_FUTURE_TH (cite modal_future_valid/no_witnessFamily_of_MF) and delete the test_bimodal.py comment claiming MF has a countermodel. Read the plan's Phase 15 'Reasoned Exclusions' table before touching iteration again."
+  "continuation_path": null,
+  "next_action_hint": "Task 184 is complete; no further phases remain. A follow-on task, if opened, should address: (1) the reproduced iterate: N > 1 crash in model_checker/iterate/models.py (shared framework code, needs cross-theory regression coverage before fixing), (2) the shared iterate/constraints.py ConstraintGenerator's is_world-gated exclusion-mechanism gap for bimodal, (3) docs/ADEQUACY.md's one stale sentence describing semantic/core.py/operators.py as the retired encoding (owned by the separate adequacy-layer task, not this one), and (4) the two successor tasks report 01 names (a Lean tableau bridge as a differential oracle at frame class Z-time, and JSON certificate export with a Lean re-verification round trip -- note the round-trip half is already live via lake exe check_certificate, narrowing that successor's remaining scope)."
 }
