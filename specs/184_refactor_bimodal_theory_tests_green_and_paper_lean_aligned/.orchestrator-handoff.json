@@ -1,18 +1,18 @@
 {
   "status": "partial",
-  "dispatch_seq": 5,
-  "summary": "Implemented Phases 1-4 of 24 (the certificate foundation layer: Formula ADT/closure/translation, LabelledLasso/WitnessFamily datatypes, pure-Python re-checker), all green with no regressions. Phases 5-24 (Lean round-trip, Z3 encoding, semantics/operators/iterate/examples rewrite, oracle rewrite, docs, development-marker removal) remain.",
+  "dispatch_seq": 7,
+  "summary": "Implemented Phases 5-8 of 24: the Lean round-trip differential test (extended, not duplicated), and the full quantifier-free Z3 variable/constraint layer (label-bit registry, local coherence, target selector, fulfilment, box faithfulness). 79 new/extended unit tests green, plus 10/10 integration tests against the live lake exe check_certificate binary. Phase 6 breaks core.py's old WitnessRegistry(N, M) call immediately (128 failed + 87 errored of 339 unit tests, measured) -- this moves the plan's documented red-period start three phases earlier than its Rollback/Contingency section states; corrected inline in the plan. Phases 9-24 (BimodalSemantics/BimodalProposition/BimodalStructure rewrite, operators/iterate/examples migration, oracle rewrite, docs, development-marker removal) remain.",
   "artifacts": [
     {
       "type": "summary",
-      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/01_certificate-foundation-layer-summary.md",
-      "summary": "Implementation summary for Phases 1-4 of the witness-family certificate redesign."
+      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/01_constraint-generation-groundwork-summary.md",
+      "summary": "Implementation summary for Phases 5-8 of the witness-family certificate redesign."
     }
   ],
-  "phases_completed": 4,
+  "phases_completed": 8,
   "phases_total": 24,
   "blockers": [],
   "plan_markers_verified": true,
-  "continuation_path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/handoffs/phase-4-handoff-20260925T181126Z.md",
-  "next_action_hint": "Open Phase 5: round-trip test against lake exe check_certificate (present and built at ~/Projects/BimodalLogic/.lake/build/bin/check_certificate). Then Phases 6-9 (Z3 label-bit encoding), which the plan's dependency-wave table also requires before Phase 5's A2-triangle sub-item can close."
+  "continuation_path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/handoffs/phase-8-handoff-20260925T190500Z.md",
+  "next_action_hint": "Open Phase 9: BimodalSemantics rewrite (settings and framework contract, semantic/core.py). Repairs core.py:86's broken WitnessRegistry construction as its first order of business. Read D3/D4/D5/D6 before starting; the theory stays red through at least Phase 13 by design, so do not treat 'tests green' as this phase's own exit gate."
 }
