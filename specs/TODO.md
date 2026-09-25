@@ -11,38 +11,77 @@ next_project_number: 189
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 184,186 | -- | semantics |
+| 1 | 186,188 | -- | testing, semantics |
+| 2 | 184 | 188 | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
+### Testing
+
+188 [RESEARCHED] — BMCM4 fails DETERMINISTICALLY in the bimodal suite and is...
+
 ### Semantics
 
-184 [PLANNED] — Redesign the bimodal theory around witness-family...
 186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
+184 [PLANNED] — Redesign the bimodal theory around witness-family...
 
 ## Tasks
 
 ### 188. Diagnose bm cm 4 deterministic countermodel failure
-- **Status**: [NOT STARTED]
+- **Effort**: small
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: testing
-- **Dependencies**: --
+- **Dependencies**: None
+- **Research**: [188_diagnose_bm_cm_4_deterministic_countermodel_failure/reports/01_bm-cm-4-cost-regression.md]
 
-**Description**: `BM_CM_4` fails DETERMINISTICALLY in the bimodal suite and is neither tracked nor documented as failing. Diagnose it, then either fix it or give it a marker meeting `TESTING_GUIDE.md` 8.9's entry criteria. Do NOT simply widen `max_time`.
+**Description**: BM_CM_4 fails DETERMINISTICALLY in the bimodal suite and is neither tracked nor documented as failing. Diagnose it, then either fix it or give it a marker that meets TESTING_GUIDE.md section 8.9's entry criteria. Do not simply widen max_time.
 
-MEASURED (2026-09-25): full bimodal suite = 345 passed, 5 failed in 699s. One failure is `BM_CM_1` (legitimately tracked as the sole `UNSTABLE_EXAMPLES` member, with four entry criteria and an exit criterion -- NOT this task). The other four are all `BM_CM_4`, which is in no marker list.
+MEASURED EVIDENCE (2026-09-25, master at the adequacy-theorem commit). A full run of code/src/model_checker/theory_lib/bimodal/tests/ gives 345 passed, 5 failed in 699s. The five failures are:
 
-WHY "Z3 nondeterminism" IS THE WRONG LABEL: (1) the isolation test parametrizes exactly `[0, 17, 30]` and ALL THREE fail, though its own docstring records seeds 0 and 30 as passing -- uniform failure across every seed is a deterministic signature; (2) re-running the example test alone failed 3/3, giving seven consecutive failures across two modules and three seeds with zero successes; (3) the counter-reset fix IS present and working (`semantic/core.py:122`) -- results no longer VARY, the example itself fails; (4) `BM_CM_4_settings` (`examples.py:426-446`) asserts "the countermodel is still genuinely found on every probed seed", now false, with wall time exceeding the 120s budget.
+  test_bimodal.py::test_example_cases[BM_CM_1-example_case9-equivalent]  (BM_CM_1)
+  test_bimodal.py::test_example_cases[BM_CM_4-example_case9]
+  test_bound_var_counter_isolation.py::TestBoundVarCounterOrderIndependence::test_bm_cm_4_independent_of_prior_counter_state[0]
+  ... the same test at [17]
+  ... the same test at [30]
 
-SETTLE FIRST: (a) solve-cost regression, (b) countermodel unreachable at N=2, M=2, or (c) genuine semantic failure. Bisect for the last passing commit -- the adequacy-theorem work changed NO semantic source file, so the cause predates it.
+BM_CM_1 is legitimately tracked: it is the sole member of UNSTABLE_EXAMPLES in tests/unit/test_bimodal.py, with four explicit entry criteria, three recorded failed fix attempts, and a verbatim exit criterion. THIS TASK IS NOT ABOUT BM_CM_1.
 
-CRITICAL: the encoding is independently known UNSOUND (see `docs/ADEQUACY.md`), so a `BM_CM_4` verdict is untrustworthy in EITHER direction. This makes 8.9's entry criterion 2 ("demonstrably not semantic") a real obligation, not a formality: `BM_CM_1` met it via decided draws always finding the countermodel; `BM_CM_4` has no decided draws at all, so an unstable marking is unavailable until one is exhibited or the verdict is independently confirmed.
+The other four failures are all BM_CM_4, which is NOT in UNSTABLE_EXAMPLES and is not recorded as failing anywhere.
 
-OUTCOMES, preferred order: (1) genuine fix, green across a >= 20-seed sweep; (2) corrected expected verdict IF the paper semantics say so -- justified against `ADEQUACY.md`, never against the encoder's own output; (3) a compliant `UNSTABLE_EXAMPLES` entry with the false settings sentence corrected. Raising `max_time` is explicitly NOT acceptable.
+WHY 'Z3 NONDETERMINISM' IS THE WRONG LABEL, AND THIS MATTERS FOR THE DIAGNOSIS.
 
-ALSO CORRECT: the stale claim at `tests/unit/test_bimodal.py:69` that `BM_CM_1`, `BM_CM_2`, `BM_CM_4` "now reliably find countermodels".
+(1) The isolation test parametrizes exactly [0, 17, 30] and ALL THREE fail. Its own module docstring states that seed 17 was the original reproducer and that 'every other tested seed (0, 5, 10, 13, 15, 16, 18, 20, 25, 30) passes'. Seeds 0 and 30 now fail. Uniform failure across every parametrized seed is the signature of a deterministic failure.
 
-SCOPE: bimodal tests, `examples.py` settings/comments, and `semantic/` only if a real fix is warranted. Do NOT let this grow into the encoding replacement -- hand that over if the diagnosis points there.
+(2) Re-running test_example_cases[BM_CM_4-example_case9] alone three consecutive times failed 3/3. Combined with the three isolation seeds, that is seven consecutive failures across two test modules and three counter seeds, with zero successes.
+
+(3) The counter-reset fix the isolation test guards IS present and appears to be working: semantic/core.py:122 calls operators.reset_bound_var_counter() in BimodalSemantics.__init__. That the result no longer VARIES with counter state is consistent with the fix working; what fails is BM_CM_4 itself, uniformly. Do not re-diagnose this as the aliasing bug -- that regression test is arguably now passing on its own terms (order independence) while the underlying example fails.
+
+(4) BM_CM_4_settings (examples.py:426-446) documents max_time recalibrated 30 -> 120 on 2026-08-11 against a 7-seed uncensored probe measuring median 6.9s and a 57.1s worst draw, and asserts 'The countermodel is still genuinely found on every probed seed.' That assertion is now false as stated. Observed single-test wall time is over 120s, i.e. the budget is being exhausted rather than a fast wrong answer being returned.
+
+THE EXAMPLE. BM_CM_4 is premises ['\\Diamond A'], conclusions ['\\past A'] (examples.py:424-425), N=2, M=2, contingent=True, disjoint=False, max_time=120.
+
+FIRST QUESTION TO SETTLE, BEFORE ANY FIX. Distinguish these three, because they have different remedies and only the first is a mere performance problem:
+  (a) a solve-cost regression -- the countermodel is still reachable but the search no longer gets there inside 120s;
+  (b) an encoding change that made the countermodel genuinely unreachable at N=2, M=2;
+  (c) a SEMANTIC failure, i.e. there is no countermodel for \Diamond A / \past A under the current bounded encoding at these settings.
+Bisect against git history to find the commit where BM_CM_4 last passed; the adequacy-theorem work (commits 9f0c8ea0..10a30085) changed NO semantic source file -- core.py, operators.py, model.py and iterate.py are untouched there -- so the cause predates it and lies further back.
+
+CRITICAL CONTEXT THAT CHANGES HOW (c) MUST BE READ. The bimodal encoding is independently known to be UNSOUND with respect to the paper's task semantics; see code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md, which proves (SOUND) for the witness-family certificate design and documents at file and line granularity why the current window-and-abundance encoding cannot satisfy it (bounded time via is_valid_time at semantic/core.py:997, uninterpreted is_world at :201, task_restriction commented out of build_frame_constraints at :993 above a 45-line soundness analysis at :891-934 recording that reported models may carry phantom task_rel pairs). A BM_CM_4 verdict produced by that encoding is therefore not automatically trustworthy in EITHER direction. If the diagnosis lands on (c), do not record it as 'BM_CM_4 is not a countermodel'; record it as a verdict of a known-unsound encoding and check the expected verdict against the paper semantics directly.
+
+THIS IS WHY SECTION 8.9's ENTRY CRITERION 2 ('DEMONSTRABLY NOT SEMANTIC') IS A REAL OBLIGATION HERE RATHER THAN A FORMALITY. BM_CM_1 could satisfy it by showing the genuine countermodel is found on every decided draw, with failures always a budget overrun reported as model_found == False and never a changed semantic conclusion. BM_CM_4 currently cannot make that showing, because it has no decided draws at all. An unstable marking is therefore NOT available until either a decided draw is exhibited or the verdict is independently confirmed.
+
+ACCEPTABLE OUTCOMES, in preference order:
+  1. A genuine fix, with BM_CM_4 green across a >= 20-seed sweep with no undecided draw.
+  2. A correction to the example's expected verdict, IF the paper semantics say so -- justified against ADEQUACY.md, never against the current encoder's own output.
+  3. An UNSTABLE_EXAMPLES entry that actually satisfies all four of 8.9's entry criteria, including an exit criterion, with the settings comment's now-false 'found on every probed seed' sentence corrected.
+Simply raising max_time is explicitly NOT acceptable: BM_CM_1_settings' standing verdict already records that no budget closes that family's tail, and an unbounded budget hides rather than answers the first question above.
+
+ALSO CORRECT, as part of this task: the stale claim at tests/unit/test_bimodal.py:69, 'NOTE: BM_CM_1, BM_CM_2, BM_CM_4 now reliably find countermodels with corrected semantics', which the measurements above contradict for two of the three named examples.
+
+SCOPE. code/src/model_checker/theory_lib/bimodal/ tests, examples.py settings and comments, and semantic/ only if the diagnosis warrants a real fix. Do NOT undertake the encoding replacement here -- that is the certificate-redesign task, and this task must not be allowed to grow into it. If the diagnosis concludes the failure is an artifact that only the redesign can fix, say so, record the evidence, and hand it over rather than attempting it.
+
+STARTING POINTS. tests/unit/test_bimodal.py:32-115 (exclusions, UNSTABLE_EXAMPLES and its criteria); tests/unit/test_bound_var_counter_isolation.py:1-95 (the docstring's seed history and the parametrize list); examples.py:424-456 (the example and its settings history); operators.py:43-160 (_fresh_bound_int and reset_bound_var_counter); semantic/core.py:118-122 (the reset call site); code/docs/core/TESTING_GUIDE.md:926 (section 8.9); docs/ADEQUACY.md (why an encoding verdict is not self-certifying).
 
 ---
 
