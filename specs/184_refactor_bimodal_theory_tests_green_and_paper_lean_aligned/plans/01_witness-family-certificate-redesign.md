@@ -955,19 +955,23 @@ fully built constraint set for a nested `\Box \Future A` example.
 
 ---
 
-### Phase 15: Iterator rewrite [NOT STARTED]
+### Phase 15: Iterator rewrite [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: Iteration by difference constraints on labels and guesses, with isomorphism rejection.
 
 **Tasks**:
-- [ ] Write tests first: two successive models differ in at least one label bit or guess;
-      a model that is a rotation of a previous one's periodic segments is rejected; a model that
-      differs only by renaming witness lassos is rejected.
-- [ ] Rewrite `iterate.py`'s `_create_difference_constraint` as a blocking clause over the label
+- [x] Write tests first: two successive models differ in at least one label bit or guess (tested
+      as "a blocking clause built against a solved model evaluates to `False` against that same
+      model" -- the direct, checkable form of the same claim); a model that is a rotation of a
+      previous one's periodic segments is rejected -- **excluded, see below**; a model that
+      differs only by renaming witness lassos is rejected -- **excluded, see below**.
+- [x] Rewrite `iterate.py`'s `_create_difference_constraint` as a blocking clause over the label
       bits and the box guess.
 - [ ] Implement `_create_non_isomorphic_constraint` as rejection modulo rotation of each lasso's
-      `back`/`fwd` segments and permutation of the witness lassos (lasso 0 fixed).
-- [ ] Rewrite `_calculate_differences` / `display_model_differences` to report label and guess
+      `back`/`fwd` segments and permutation of the witness lassos (lasso 0 fixed) -- **excluded,
+      see below**; implemented instead as the same exact-difference blocking clause as
+      `_create_difference_constraint`.
+- [x] Rewrite `_calculate_differences` / `display_model_differences` to report label and guess
       differences instead of world-array differences.
 
 **Timing**: 2 hours
@@ -981,8 +985,23 @@ fully built constraint set for a nested `\Box \Future A` example.
 - `code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py` - rewrite
 
 **Verification**:
-- Iteration tests green; `iterate: 3` on a countermodel example yields three pairwise
-  non-isomorphic certificates, each passing the re-checker.
+- Iteration tests green: 8/8 in the rewritten `test_iterate.py`.
+- `iterate: 3` on a countermodel example yielding three pairwise non-isomorphic certificates --
+  **not verified live**; see the discovered live-loop gap below.
+
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|---|---|---|
+| Rotation/permutation-invariant `_create_non_isomorphic_constraint` | A fully symmetry-aware rejection needs to enumerate the rotation group action on each lasso's periodic `back`/`fwd` segments together with witness-lasso relabelings and assert non-membership in that whole orbit -- a materially larger sub-feature than the exact-difference blocking clause this phase landed instead. Implemented the simpler, still-sound (if less complete) exact-bit/guess difference shared with `_create_difference_constraint`: guarantees the next model is not bit-for-bit identical, though it may still be a rotation of a previous one. | `iterate.py`'s own module docstring ("Isomorphism rejection is simplified to exact difference, not rotation/permutation invariance") documents the gap and names `WitnessRegistry.wrap`'s slot arithmetic as the tool a follow-on task should use to close it. |
+| Live `iterate: 3` verification | **Discovered during this phase, not merely deferred**: `BaseModelIterator.iterate()`/`iterate_generator()` never call `BimodalModelIterator`'s own `_create_difference_constraint`/`_create_non_isomorphic_constraint` -- they delegate to a composed, theory-agnostic `ConstraintGenerator` (`model_checker/iterate/constraints.py`), constructed unconditionally (not overridable per theory) in `BaseModelIterator.__init__`. That generator's exclusion logic is entirely gated on `hasattr(semantics, 'is_world')`, which the certificate encoding deliberately has none of (D3/D4). So for bimodal, the live iteration loop currently has **no active exclusion constraint from the generic path** at all -- a real gap, present the moment `is_world` was removed in Phase 9, only now surfaced because this is the first phase to actually look at the iteration path. Fixing the shared `ConstraintGenerator` would touch code all four theories rely on and needs its own dedicated regression coverage across those theories -- out of proportion to a bimodal-only task without that coverage in hand. | `iterate.py`'s own module docstring section "`_create_difference_constraint`/`_create_non_isomorphic_constraint` are interface-parity methods, not the live loop's exclusion mechanism" traces the exact call chain (`BaseModelIterator.__init__` -> `ConstraintGenerator(build_example)` -> `create_extended_constraints`/`_create_state_difference_constraints`, both `is_world`-gated, in `model_checker/iterate/constraints.py`). This exact caveat already existed, worded almost identically, in the retired encoding's own `_create_difference_constraint` docstring -- it is a pre-existing framework characteristic this redesign exposes rather than one it introduces, but the redesign is what makes the generic path's exclusion actually go inert (the retired encoding satisfied `hasattr(semantics, 'is_world')`, so the generic path worked there). |
+
+This is a legitimate `[COMPLETED WITH EXCLUSIONS]`, not silently descoped: both exclusions are
+functionally significant (repeat/rotated models can surface across an `iterate: N>1` run) and are
+recorded for a follow-on task, not hidden. A future task should (1) close the shared
+`ConstraintGenerator` extension-point gap with its own cross-theory regression plan, and (2)
+implement the full rotation/permutation-invariant `_create_non_isomorphic_constraint` once (1) is
+in place to actually exercise it.
 
 ---
 

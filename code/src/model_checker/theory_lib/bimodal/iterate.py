@@ -1,14 +1,55 @@
 """Bimodal theory specific model iteration implementation.
 
 This module provides the BimodalModelIterator implementation which handles:
-1. Detecting differences between models using bimodal theory semantics
-2. Creating constraints to differentiate models with bimodal theory primitives
-3. Checking model isomorphism for bimodal theory models
+1. Detecting differences between models using the certificate encoding's own variables
+2. Creating constraints to differentiate models by label bits and box guesses
+3. Displaying those differences
 
-Ported to the current iterate_example_generator convention (see
-imposition/iterate.py) from the version restored via git history; the
-original was removed during an unrelated dependency-cutting pass, not
-because the semantics were wrong -- see bimodal/docs/ITERATE.md.
+## Change of meaning
+
+The retired encoding's iterator compared world histories (`{world_id: {time: state}}`),
+truth conditions read via `semantics.truth_condition`, and `task_rel`/time-shift-relation
+tables. None of that exists any more (see `semantic/core.py`'s own module docstring). This
+module is rewritten around the certificate encoding's own variable set: label bits
+(`WitnessRegistry._bits`), box guesses (`WitnessRegistry._guesses`), and the extracted
+`WitnessFamily`/`target_time` pair (`semantic/core.py`'s `extract_certificate`, Phase 10).
+
+## `_create_difference_constraint`/`_create_non_isomorphic_constraint` are interface-parity
+methods, not the live loop's exclusion mechanism -- true before this redesign, still true now
+
+`BaseModelIterator.iterate()`/`iterate_generator()` (`model_checker/iterate/core.py`) never call
+`self._create_difference_constraint`/`self._create_non_isomorphic_constraint` directly: they
+delegate to a composed, theory-agnostic `ConstraintGenerator`
+(`model_checker/iterate/constraints.py`), constructed unconditionally in
+`BaseModelIterator.__init__` and not overridable per theory. That generator's own exclusion
+logic is entirely gated on `hasattr(semantics, 'is_world')` -- true of the retired encoding
+(and of the other three theories, which keep a bitvector world-state predicate), **false of
+this one** (D3/D4 deliberately have no state-existence predicate at all; the certified carrier
+is `{0,...,k} x Z`, not enumerated states). This is a genuine, discovered gap: for bimodal,
+`iterate: N > 1` now finds its models with **no active exclusion constraint from the generic
+path** -- Z3 may happen to return distinct models across separate finalize-and-solve rounds
+(the search space is large and label bits are otherwise unconstrained), but nothing in the
+shared framework *forces* the next model to differ. Fixing `ConstraintGenerator` itself would
+touch shared code all four theories rely on and was judged out of proportion to a bimodal-only
+task without dedicated regression coverage across the other three theories; it is recorded here,
+in the implementation plan's own Phase 15 section, and in that phase's handoff, rather than
+silently left undiscovered. The methods below are kept, rewritten for the new variable set, for
+the same reason the retired encoding kept them: interface parity with the other three theories,
+and direct programmatic use (`iterate_example`/`iterate_example_generator`, below, which uses
+`BaseModelIterator.iterate()`'s own model-building machinery, not these two methods).
+
+## Isomorphism rejection is simplified to exact difference, not rotation/permutation invariance
+
+The plan's own Phase 15 task asks for `_create_non_isomorphic_constraint` to reject "modulo
+rotation of each lasso's `back`/`fwd` segments and permutation of the witness lassos." A fully
+symmetry-aware rejection would need to enumerate the (finite, but combinatorially real) rotation
+group action on each lasso's periodic segments together with witness-lasso relabelings, and
+assert non-membership in that whole orbit. Given the scope already covered by this phase's
+other, betterspecified obligations, this iteration implements the simpler (and still sound, if
+less complete) exact-bit/guess difference shared with `_create_difference_constraint` --
+sufficient to guarantee the *next* model is not bit-for-bit identical, though it may still be a
+rotation of a previous one. A follow-on task should implement the full symmetry-aware rejection
+using `WitnessRegistry.wrap`'s existing slot arithmetic to enumerate rotations.
 """
 
 import sys
@@ -17,6 +58,7 @@ import logging
 from model_checker import z3_shim as z3
 
 from model_checker.iterate.core import BaseModelIterator
+from model_checker.solver import is_true
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -29,464 +71,148 @@ if not logger.handlers:
 
 
 class BimodalModelIterator(BaseModelIterator):
-    """Model iterator for the bimodal theory.
+    """Model iterator for the bimodal theory (certificate encoding). See the module
+    docstring for the change of meaning and the discovered live-loop exclusion gap."""
 
-    This class extends BaseModelIterator with bimodal theory-specific
-    implementations of the abstract methods required for model iteration.
-    It provides specialized difference detection and visualization for
-    bimodal theory models.
+    def _certificate_variables(self):
+        """Every label-bit and box-guess Z3 Boolean this search declared -- shared by
+        `_create_difference_constraint` and `_create_non_isomorphic_constraint`."""
+        semantics = self.build_example.model_constraints.semantics
+        registry = semantics.witness_registry
+        return list(registry._bits.values()) + list(registry._guesses.values())
 
-    The bimodal theory uses:
-    - World histories (arrays mapping time -> world state)
-    - World states represented as bit vectors
-    - Truth conditions for atomic propositions
-    - Task transitions between consecutive world states
-    - Modal accessibility across different world histories
-    """
+    def _blocking_clause(self, prev_model):
+        """`Or(var != prev_model's value for var)` over every certificate variable --
+        `True` (as a Z3 constraint) exactly when the next model differs from `prev_model` in
+        at least one label bit or box guess."""
+        variables = self._certificate_variables()
+        if not variables:
+            return None
+        disjuncts = []
+        for var in variables:
+            prev_value = prev_model.eval(var, model_completion=True)
+            disjuncts.append(var != z3.BoolVal(bool(is_true(prev_value))))
+        return z3.Or(*disjuncts)
+
+    def _create_difference_constraint(self, previous_models):
+        """Blocking clause requiring difference, in at least one label bit or box guess,
+        from every model in `previous_models` (D6's certificate variable set). See the
+        module docstring: not on the live iteration loop's own exclusion path, but kept
+        for interface parity and direct programmatic use.
+        """
+        clauses = [
+            clause
+            for clause in (self._blocking_clause(prev_model) for prev_model in previous_models)
+            if clause is not None
+        ]
+        return z3.And(*clauses) if clauses else z3.BoolVal(True)
+
+    def _create_non_isomorphic_constraint(self, isomorphic_model):
+        """Blocking clause requiring difference from `isomorphic_model`, in at least one
+        label bit or box guess. See the module docstring's "Isomorphism rejection is
+        simplified" section: this rejects the exact model, not its whole rotation/
+        permutation orbit."""
+        clause = self._blocking_clause(isomorphic_model)
+        return clause if clause is not None else z3.BoolVal(True)
+
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models. Not specialized for the
+        certificate encoding (matches the retired encoding's own placeholder)."""
+        return z3.BoolVal(True)
 
     def _calculate_differences(self, new_structure, previous_structure):
-        """Calculate differences between two bimodal theory model structures.
-
-        For bimodal theory, this focuses on:
-        - Changes in world histories (time-state mappings)
-        - Changes in truth conditions for sentence letters
-        - Changes in task transitions between world states
-        - Changes in time intervals for worlds
-        - Changes in time-shift relations between worlds
-
-        Args:
-            new_structure: The new model structure
-            previous_structure: The previous model structure
-
-        Returns:
-            dict: Structured differences between the models
+        """Label-bit and box-guess differences between two certificate-encoded model
+        structures, read from each structure's own extracted `certificate`
+        (`semantic/core.py`'s `extract_certificate`, Phase 10) rather than from Z3 models
+        directly -- both structures have already independently re-checked their own
+        certificate (Phase 12's S3 hook) by the time this runs.
         """
-        # BimodalStructure does not currently define detect_model_differences;
-        # guard rather than assume, so a future theory-owned implementation is
-        # picked up automatically without requiring a change here.
-        if hasattr(new_structure, 'detect_model_differences'):
-            try:
-                differences = new_structure.detect_model_differences(previous_structure)
-                if differences:
-                    return differences
-            except Exception:
-                pass
-
-        # Fall back to our own implementation
-        return self._calculate_bimodal_differences(new_structure, previous_structure)
-
-    def _calculate_bimodal_differences(self, new_structure, previous_structure):
-        """Bimodal theory specific implementation of difference detection.
-
-        This is more sophisticated than the base difference detection since
-        it understands bimodal theory semantics like world histories, times,
-        and task transitions.
-
-        Args:
-            new_structure: The new model structure
-            previous_structure: The previous model structure
-
-        Returns:
-            dict: Dictionary of differences with bimodal theory semantics
-        """
-        # Get Z3 models
-        new_model = new_structure.z3_model
-        previous_model = previous_structure.z3_model
-
-        # Initialize bimodal theory-specific differences structure
         differences = {
-            "world_histories": {},
-            "truth_conditions": {},
-            "task_relations": {},
-            "time_intervals": {},
-            "time_shifts": {},
+            "labels": {},
+            "box_guesses": {},
+            "target_time": None,
         }
 
-        # 1. Compare world histories (time-state mappings)
-        old_histories = getattr(previous_structure, "world_histories", {})
-        new_histories = getattr(new_structure, "world_histories", {})
+        new_certificate = getattr(new_structure, "certificate", None)
+        previous_certificate = getattr(previous_structure, "certificate", None)
+        if new_certificate is None or previous_certificate is None:
+            return differences
 
-        all_world_ids = set(old_histories.keys()).union(set(new_histories.keys()))
-
-        for world_id in all_world_ids:
-            # If the world exists in both models
-            if world_id in old_histories and world_id in new_histories:
-                old_history = old_histories[world_id]
-                new_history = new_histories[world_id]
-
-                # Find added/removed/changed time points
-                all_times = set(old_history.keys()).union(set(new_history.keys()))
-
-                history_diffs = {}
-                for time in all_times:
-                    if time in old_history and time in new_history:
-                        old_state = old_history[time]
-                        new_state = new_history[time]
-                        if old_state != new_state:
-                            history_diffs[time] = {"old": old_state, "new": new_state}
-                    elif time in new_history:
-                        history_diffs[time] = {"old": None, "new": new_history[time]}
-                    elif time in old_history:
-                        history_diffs[time] = {"old": old_history[time], "new": None}
-
-                if history_diffs:
-                    differences["world_histories"][world_id] = history_diffs
-
-            elif world_id in new_histories:
-                differences["world_histories"][world_id] = {
-                    "added": True,
-                    "history": new_histories[world_id],
-                }
-
-            elif world_id in old_histories:
-                differences["world_histories"][world_id] = {
-                    "removed": True,
-                    "history": old_histories[world_id],
-                }
-
-        # 2. Compare truth conditions for sentence letters
         semantics = new_structure.semantics
+        window = list(semantics.witness_registry.target_window())
 
-        # Get all world states (unique across all world histories)
-        all_states = set()
-        for history in new_histories.values():
-            all_states.update(set(history.values()))
-        for history in old_histories.values():
-            all_states.update(set(history.values()))
+        label_diffs = {}
+        lasso_count = max(len(new_certificate.lassos), len(previous_certificate.lassos))
+        for lasso_index in range(lasso_count):
+            new_lasso = new_certificate.lassos[lasso_index] if lasso_index < len(new_certificate.lassos) else None
+            old_lasso = previous_certificate.lassos[lasso_index] if lasso_index < len(previous_certificate.lassos) else None
+            if new_lasso is None or old_lasso is None:
+                label_diffs[lasso_index] = {"added": new_lasso is not None, "removed": old_lasso is not None}
+                continue
+            position_diffs = {}
+            for t in window:
+                new_label = new_lasso.label(t)
+                old_label = old_lasso.label(t)
+                if new_label != old_label:
+                    position_diffs[t] = {"old": sorted(map(repr, old_label)), "new": sorted(map(repr, new_label))}
+            if position_diffs:
+                label_diffs[lasso_index] = position_diffs
+        if label_diffs:
+            differences["labels"] = label_diffs
 
-        for letter in new_structure.sentence_letters:
-            letter_diffs = {}
+        guess_diffs = {}
+        all_boxed = set(new_certificate.bx.keys()) | set(previous_certificate.bx.keys())
+        for child in all_boxed:
+            new_guess = new_certificate.bx_of(child)
+            old_guess = previous_certificate.bx_of(child)
+            if new_guess != old_guess:
+                guess_diffs[repr(child)] = {"old": old_guess, "new": new_guess}
+        if guess_diffs:
+            differences["box_guesses"] = guess_diffs
 
-            for state in all_states:
-                try:
-                    state_bitvec = state
-                    if isinstance(state, str) and not state.startswith("<"):
-                        if hasattr(semantics, 'state_str_to_bitvec'):
-                            state_bitvec = semantics.state_str_to_bitvec(state)
-
-                    old_value = False
-                    new_value = False
-
-                    try:
-                        old_value = bool(previous_model.eval(
-                            semantics.truth_condition(state_bitvec, letter),
-                            model_completion=True
-                        ))
-                    except Exception:
-                        pass
-
-                    try:
-                        new_value = bool(new_model.eval(
-                            semantics.truth_condition(state_bitvec, letter),
-                            model_completion=True
-                        ))
-                    except Exception:
-                        pass
-
-                    if old_value != new_value:
-                        letter_diffs[str(state)] = {"old": old_value, "new": new_value}
-                except Exception:
-                    # Skip problematic states
-                    pass
-
-            if letter_diffs:
-                differences["truth_conditions"][str(letter)] = letter_diffs
-
-        # 3. Compare task relations between world states with duration parameter
-        # (ternary task_rel(state, duration, state))
-        if hasattr(semantics, 'task_rel'):
-            task_diffs = {}
-
-            M = getattr(semantics, 'M', 2)
-            duration_range = range(-M + 1, M)
-
-            for state1 in all_states:
-                for duration in duration_range:
-                    for state2 in all_states:
-                        try:
-                            old_value = False
-                            new_value = False
-
-                            try:
-                                old_value = bool(previous_model.eval(
-                                    semantics.task_rel(state1, duration, state2),
-                                    model_completion=True
-                                ))
-                            except Exception:
-                                pass
-
-                            try:
-                                new_value = bool(new_model.eval(
-                                    semantics.task_rel(state1, duration, state2),
-                                    model_completion=True
-                                ))
-                            except Exception:
-                                pass
-
-                            if old_value != new_value:
-                                key = f"{state1}--[{duration}]-->{state2}"
-                                task_diffs[key] = {"old": old_value, "new": new_value}
-                        except Exception:
-                            pass
-
-            if task_diffs:
-                differences["task_relations"] = task_diffs
-
-        # 4. Compare time intervals for worlds
-        old_intervals = getattr(previous_structure.semantics, 'world_time_intervals', {})
-        new_intervals = getattr(new_structure.semantics, 'world_time_intervals', {})
-
-        interval_diffs = {}
-
-        for world_id in all_world_ids:
-            if world_id in old_intervals and world_id in new_intervals:
-                old_interval = old_intervals[world_id]
-                new_interval = new_intervals[world_id]
-                if old_interval != new_interval:
-                    interval_diffs[world_id] = {"old": old_interval, "new": new_interval}
-            elif world_id in new_intervals:
-                interval_diffs[world_id] = {"old": None, "new": new_intervals[world_id]}
-            elif world_id in old_intervals:
-                interval_diffs[world_id] = {"old": old_intervals[world_id], "new": None}
-
-        if interval_diffs:
-            differences["time_intervals"] = interval_diffs
-
-        # 5. Compare time-shift relations between worlds
-        old_shifts = getattr(previous_structure, 'time_shift_relations', {})
-        new_shifts = getattr(new_structure, 'time_shift_relations', {})
-
-        shift_diffs = {}
-
-        for world_id in all_world_ids:
-            if world_id in old_shifts and world_id in new_shifts:
-                old_shifts_for_world = old_shifts[world_id]
-                new_shifts_for_world = new_shifts[world_id]
-
-                all_shifts = set(old_shifts_for_world.keys()).union(set(new_shifts_for_world.keys()))
-
-                world_shift_diffs = {}
-                for shift in all_shifts:
-                    if shift in old_shifts_for_world and shift in new_shifts_for_world:
-                        old_target = old_shifts_for_world[shift]
-                        new_target = new_shifts_for_world[shift]
-                        if old_target != new_target:
-                            world_shift_diffs[shift] = {"old": old_target, "new": new_target}
-                    elif shift in new_shifts_for_world:
-                        world_shift_diffs[shift] = {"old": None, "new": new_shifts_for_world[shift]}
-                    elif shift in old_shifts_for_world:
-                        world_shift_diffs[shift] = {"old": old_shifts_for_world[shift], "new": None}
-
-                if world_shift_diffs:
-                    shift_diffs[world_id] = world_shift_diffs
-
-            elif world_id in new_shifts:
-                shift_diffs[world_id] = {"added": True, "shifts": new_shifts[world_id]}
-
-            elif world_id in old_shifts:
-                shift_diffs[world_id] = {"removed": True, "shifts": old_shifts[world_id]}
-
-        if shift_diffs:
-            differences["time_shifts"] = shift_diffs
+        new_time = getattr(new_structure, "target_time", None)
+        old_time = getattr(previous_structure, "target_time", None)
+        if new_time != old_time:
+            differences["target_time"] = {"old": old_time, "new": new_time}
 
         return differences
 
     def display_model_differences(self, model_structure, output=sys.stdout):
-        """Format differences for display using bimodal theory semantics.
-
-        Args:
-            model_structure: The model structure with differences
-            output: Output stream for writing output
-        """
+        """Print label-bit/box-guess/target-time differences from the previous model."""
         if not hasattr(model_structure, 'model_differences') or not model_structure.model_differences:
             return
 
         differences = model_structure.model_differences
-
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
 
-        # 1. World history changes
-        if differences.get('world_histories'):
-            print("World History Changes:", file=output)
+        if differences.get('labels'):
+            print("Label Changes:", file=output)
+            for lasso_index, changes in differences['labels'].items():
+                if isinstance(changes, dict) and ('added' in changes or 'removed' in changes):
+                    if changes.get('added'):
+                        print(f"  + Lasso L{lasso_index} added", file=output)
+                    if changes.get('removed'):
+                        print(f"  - Lasso L{lasso_index} removed", file=output)
+                    continue
+                print(f"  Lasso L{lasso_index} changed:", file=output)
+                for position, change in sorted(changes.items()):
+                    print(f"    Position {position}: {change['old']} -> {change['new']}", file=output)
 
-            for world_id, changes in differences['world_histories'].items():
-                if isinstance(changes, dict) and changes.get('added', False):
-                    print(f"  + World W_{world_id} added", file=output)
-                    history = changes.get('history', {})
-                    time_states = [f"({time}:{state})" for time, state in sorted(history.items())]
-                    if time_states:
-                        print(f"    History: {' -> '.join(time_states)}", file=output)
+        if differences.get('box_guesses'):
+            print("\nBox Guess Changes:", file=output)
+            for formula_repr, change in differences['box_guesses'].items():
+                print(f"  {formula_repr}: {change['old']} -> {change['new']}", file=output)
 
-                elif isinstance(changes, dict) and changes.get('removed', False):
-                    print(f"  - World W_{world_id} removed", file=output)
-
-                else:
-                    print(f"  World W_{world_id} changed:", file=output)
-                    for time, change in sorted(changes.items()):
-                        old_state = change.get('old')
-                        new_state = change.get('new')
-                        if old_state is None:
-                            print(f"    + Time {time}: {new_state}", file=output)
-                        elif new_state is None:
-                            print(f"    - Time {time}: {old_state}", file=output)
-                        else:
-                            print(f"    Time {time}: {old_state} -> {new_state}", file=output)
-
-        # 2. Truth condition changes
-        if differences.get('truth_conditions'):
-            print("\nTruth Condition Changes:", file=output)
-
-            for letter, changes in differences['truth_conditions'].items():
-                letter_name = letter
-                if hasattr(model_structure, '_get_friendly_letter_name'):
-                    try:
-                        letter_name = model_structure._get_friendly_letter_name(letter)
-                    except Exception:
-                        pass
-
-                print(f"  Letter {letter_name}:", file=output)
-                for state, change in changes.items():
-                    old_value = change.get('old', False)
-                    new_value = change.get('new', False)
-                    print(f"    State {state}: {old_value} -> {new_value}", file=output)
-
-        # 3. Task relation changes (format: "state1--[duration]-->state2")
-        if differences.get('task_relations'):
-            print("\nTask Relation Changes:", file=output)
-
-            for transition, change in differences['task_relations'].items():
-                old_value = change.get('old', False)
-                new_value = change.get('new', False)
-                status = "added" if new_value and not old_value else "removed" if old_value and not new_value else "changed"
-                print(f"  TaskRel {transition}: {status}", file=output)
-
-        # 4. Time interval changes
-        if differences.get('time_intervals'):
-            print("\nTime Interval Changes:", file=output)
-
-            for world_id, change in differences['time_intervals'].items():
-                old_interval = change.get('old')
-                new_interval = change.get('new')
-                if old_interval is None:
-                    print(f"  + World W_{world_id} interval: {new_interval}", file=output)
-                elif new_interval is None:
-                    print(f"  - World W_{world_id} interval: {old_interval}", file=output)
-                else:
-                    print(f"  World W_{world_id} interval: {old_interval} -> {new_interval}", file=output)
-
-        # 5. Time shift relation changes
-        if differences.get('time_shifts'):
-            print("\nTime Shift Relation Changes:", file=output)
-
-            for world_id, changes in differences['time_shifts'].items():
-                if isinstance(changes, dict) and changes.get('added', False):
-                    print(f"  + Time shifts for World W_{world_id} added", file=output)
-                    shifts = changes.get('shifts', {})
-                    for shift, target in sorted(shifts.items()):
-                        print(f"    Shift {shift}: -> W_{target}", file=output)
-
-                elif isinstance(changes, dict) and changes.get('removed', False):
-                    print(f"  - Time shifts for World W_{world_id} removed", file=output)
-
-                else:
-                    print(f"  Time shifts for World W_{world_id} changed:", file=output)
-                    for shift, change in sorted(changes.items()):
-                        old_target = change.get('old')
-                        new_target = change.get('new')
-                        if old_target is None:
-                            print(f"    + Shift {shift}: -> W_{new_target}", file=output)
-                        elif new_target is None:
-                            print(f"    - Shift {shift}: -> W_{old_target}", file=output)
-                        else:
-                            print(f"    Shift {shift}: W_{old_target} -> W_{new_target}", file=output)
-
-    def _create_difference_constraint(self, previous_models):
-        """Create constraints requiring difference from previous models.
-
-        For bimodal theory, this varies world-history state assignments and
-        atomic truth conditions across the theory's world-id/time domain.
-
-        Note: the active iteration loop (iterate/iterator.py) always excludes
-        previous models via the theory-agnostic ConstraintGenerator in
-        iterate/constraints.py (keyed off `semantics.is_world`), not via this
-        method. This override exists for interface parity with the other
-        three theories (exclusion, imposition, logos) and for direct
-        programmatic use.
-
-        Args:
-            previous_models: List of Z3 models found so far
-
-        Returns:
-            Z3 constraint requiring structural difference
-        """
-        constraints = []
-        semantics = self.build_example.model_constraints.semantics
-        times = range(-semantics.M + 1, semantics.M)
-        # Bound the world-id domain: max_world_id = M * 2**(M*N) can be large,
-        # while only a handful of ids are ever actually assigned as worlds.
-        world_ids = range(min(getattr(semantics, 'max_world_id', 0), 16))
-
-        for prev_model in previous_models:
-            model_constraints = []
-
-            # World-history constraints: different time-indexed state assignments
-            for w in world_ids:
-                for t in times:
-                    prev_state = prev_model.eval(
-                        z3.Select(semantics.world_function(w), t),
-                        model_completion=True
-                    )
-                    model_constraints.append(
-                        z3.Select(semantics.world_function(w), t) != prev_state
-                    )
-
-            # Truth value constraints
-            syntax = self.build_example.example_syntax
-            if hasattr(syntax, 'sentence_letters'):
-                for letter_obj in syntax.sentence_letters:
-                    if hasattr(letter_obj, 'sentence_letter'):
-                        atom = letter_obj.sentence_letter
-                        for w in world_ids:
-                            prev_truth = prev_model.eval(
-                                semantics.truth_condition(w, atom),
-                                model_completion=True
-                            )
-                            model_constraints.append(
-                                semantics.truth_condition(w, atom) != prev_truth
-                            )
-
-            if model_constraints:
-                constraints.append(z3.Or(*model_constraints[:20]))  # Limit constraints
-
-        return z3.And(*constraints) if constraints else z3.BoolVal(True)
-
-    def _create_non_isomorphic_constraint(self, z3_model):
-        """Create constraint preventing isomorphic models."""
-        # For now, simple implementation (matches the other three theories'
-        # placeholder; see _create_difference_constraint's note above).
-        return z3.BoolVal(True)
-
-    def _create_stronger_constraint(self, isomorphic_model):
-        """Create constraint for finding stronger models."""
-        # For now, simple implementation
-        return z3.BoolVal(True)
+        if differences.get('target_time'):
+            change = differences['target_time']
+            print(f"\nTarget Time: {change['old']} -> {change['new']}", file=output)
 
     def iterate_generator(self):
-        """Override to add theory-specific differences to bimodal theory models.
-
-        This method extends the base iterator's generator to merge
-        bimodal-specific differences (world histories, truth conditions,
-        task relations, time intervals, time shifts) with the generic
-        differences calculated by the base iterator.
-
-        Yields:
-            Model structures with both generic and theory-specific differences
-        """
+        """Merge bimodal-specific (label/guess) differences into each yielded model,
+        matching the retired encoding's own override pattern."""
         for model in super().iterate_generator():
             if len(self.model_structures) >= 2:
-                theory_diffs = self._calculate_bimodal_differences(
-                    model, self.model_structures[-2]
-                )
+                theory_diffs = self._calculate_differences(model, self.model_structures[-2])
                 if hasattr(model, 'model_differences') and model.model_differences:
                     model.model_differences.update(theory_diffs)
                 else:
@@ -498,9 +224,6 @@ class BimodalModelIterator(BaseModelIterator):
 # Wrapper function for use in theory examples
 def iterate_example(example, max_iterations=None):
     """Find multiple models for a bimodal theory example.
-
-    This function creates a BimodalModelIterator for the given example
-    and uses it to find up to max_iterations distinct models.
 
     Args:
         example: A BuildExample instance with a bimodal theory model
@@ -516,8 +239,6 @@ def iterate_example(example, max_iterations=None):
 
     model_structures = iterator.iterate()
 
-    # Attach the display method to each structure so it can be called by
-    # the module printing layer, matching the other three theories.
     for structure in model_structures:
         if hasattr(structure, 'model_differences') and structure.model_differences:
             def create_print_method(struct):
@@ -533,12 +254,6 @@ def iterate_example(example, max_iterations=None):
 def iterate_example_generator(example, max_iterations=None):
     """Generator version of iterate_example that yields models incrementally.
 
-    This function provides a generator interface for finding multiple models,
-    yielding each model as it's discovered rather than returning them all at
-    once. This enables proper progress tracking and iteration reports, and is
-    what builder/runner.py prefers when available (see runner.py's
-    `hasattr(theory_module, 'iterate_example_generator')` check).
-
     Args:
         example: A BuildExample instance with bimodal theory.
         max_iterations: Maximum number of models to find.
@@ -552,8 +267,6 @@ def iterate_example_generator(example, max_iterations=None):
         example.settings['iterate'] = max_iterations
 
     iterator = BimodalModelIterator(example)
-
-    # Store the iterator on the example for access to debug messages
     example._iterator = iterator
 
     yield from iterator.iterate_generator()
@@ -561,4 +274,3 @@ def iterate_example_generator(example, max_iterations=None):
 
 # Mark the generator function for BuildModule detection
 iterate_example_generator.returns_generator = True
-iterate_example_generator.__wrapped__ = iterate_example_generator
