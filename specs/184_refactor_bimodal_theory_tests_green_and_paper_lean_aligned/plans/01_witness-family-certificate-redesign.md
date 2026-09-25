@@ -274,7 +274,19 @@ the subformula closure and the JSON codec the wire contract requires.
 
 ---
 
-### Phase 2: Sentence-to-Formula translation [NOT STARTED]
+### Phase 2: Sentence-to-Formula translation [COMPLETED]
+
+**Deviation note**: the amendment's truth-preservation property test is implemented as two
+independent from-scratch pure-Python evaluators (one mirroring `operators.py`'s ModelChecker
+semantics over a small sentence-shaped AST, one mirroring the Lean `untl`/`snce` semantics over
+the translated `Formula`), compared across several hand-built valuations and a bounded time
+domain -- rather than by extracting a concrete Z3 model from the live (soon-to-be-replaced)
+`BimodalSemantics`. This was a deliberate scoping choice: it avoids depending on the old Z3
+encoding's boundary-vacuity behaviour (which this whole task replaces) while still giving an
+independent, faithful cross-check of `translate`'s fidelity to the original operator
+definitions. As the amendment itself notes for `ground_truth.py`, Box is out of scope for this
+particular property test (recorded, not silently dropped); Box fidelity is discharged by later
+phases' pure-Python re-checker and the `check_certificate` round-trip.
 
 **Goal**: A total, tested translation from ModelChecker bimodal sentence ASTs into Lean-primitive
 `Formula`, with the guard/event swap pinned.

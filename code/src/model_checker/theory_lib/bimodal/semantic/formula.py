@@ -45,12 +45,32 @@ for `json.dumps`.
 identity" and "is therefore rejected outright rather than decoded." `to_json` raises `ValueError`
 on any `Atom` whose `fresh_index` is not `None`, anywhere in the tree, rather than silently
 exporting a formula the Lean side would treat as a different one.
+
+## Sentence-to-Formula translation
+
+`translate` converts a ModelChecker `syntactic.Sentence` (after `Sentence.update_types`, i.e.
+already primitive -- see `Syntax.initialize_sentences`'s `initialize_types`, which recurses
+`DefinedOperator.derived_definition` all the way down) into a `Formula`. It only needs rules for
+the 9 primitive operators bimodal declares as `syntactic.Operator` (`\\neg`, `\\wedge`, `\\vee`,
+`\\bot`, `\\Box`, `\\Future`, `\\Past`, `\\Until`, `\\Since`); the 8 `DefinedOperator` subclasses
+(`\\rightarrow`, `\\leftrightarrow`, `\\top`, `\\Diamond`, `\\future`, `\\past`, `\\next`,
+`\\prev`) never reach it, having already been rewritten into primitives.
+
+**The Until/Since guard/event swap.** ModelChecker's `UntilOperator`/`SinceOperator` are
+event-first (`true_at(self, event_arg, guard_arg, eval_point)`, `operators.py`), so
+`sentence.arguments[0]` is the event and `sentence.arguments[1]` is the guard. `Untl`/`Snce` are
+guard-first. `translate` swaps: `Untl(guard=translate(arguments[1]), event=translate(arguments[0]))`.
+
+**`\\Future`/`\\Past`.** These are ModelChecker *primitives* meaning "always in the future/past"
+(G/H, not F/P), so they are encoded via the Lean-derived double-negation identity
+`G A = ¬F(¬A)` (and its past mirror), using `Untl`/`Snce` with a trivial (`⊤ = Imp(Bot, Bot)`)
+guard -- exactly `future φ := ⊤ until φ` / `past φ := ⊤ since φ` composed with negation.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, FrozenSet, Iterable, Optional, Union
+from typing import Any, Dict, FrozenSet, Iterable, Optional, Union
 
 __all__ = [
     "Atom",
@@ -64,6 +84,7 @@ __all__ = [
     "closure_of",
     "to_json",
     "from_json",
+    "translate",
 ]
 
 
@@ -275,3 +296,84 @@ def from_json(obj: Dict[str, object]) -> Formula:
             event=from_json(obj["event"]),  # type: ignore[arg-type]
         )
     raise ValueError(f"unknown formula tag: {tag!r}")
+
+
+# ---------------------------------------------------------------------------
+# Sentence-to-Formula translation
+# ---------------------------------------------------------------------------
+
+# Memoizing cache keyed by sentence identity (Sentence has no custom __eq__/__hash__, so the
+# default identity-based hash is exactly "keyed by sentence identity"). A plain dict is used
+# rather than functools.lru_cache so the cache is directly inspectable in tests.
+_TRANSLATE_CACHE: Dict[Any, Formula] = {}
+
+
+def translate(sentence: Any) -> Formula:
+    """Translate a type-updated `syntactic.Sentence` into a `Formula`.
+
+    `sentence` must already have gone through `Sentence.update_types` (as every sentence built
+    via `syntactic.Syntax` has): `sentence.operator` is one of the theory's primitive operator
+    classes/instances, or `None` for an atomic sentence letter, and `sentence.arguments` is the
+    list of child `Sentence`s (or `None`/empty for a 0-ary operator).
+
+    Raises `ValueError` for an operator this translation has no rule for (a `DefinedOperator`
+    reaching here would indicate `update_types` was skipped, not that a new rule is needed --
+    see the module docstring's Scope Hypothesis note).
+    """
+    cached = _TRANSLATE_CACHE.get(sentence)
+    if cached is not None:
+        return cached
+    result = _translate_uncached(sentence)
+    _TRANSLATE_CACHE[sentence] = result
+    return result
+
+
+def _translate_uncached(sentence: Any) -> Formula:
+    sentence_letter = getattr(sentence, "sentence_letter", None)
+    if sentence_letter is not None:
+        return Atom(str(sentence_letter))
+
+    operator = sentence.operator
+    if operator is None:
+        raise ValueError(f"sentence {sentence!r} has neither an operator nor a sentence_letter")
+    name = operator.name
+    arguments = sentence.arguments or ()
+
+    if name == "\\bot":
+        return Bot()
+    if name == "\\neg":
+        (a,) = arguments
+        return Imp(translate(a), Bot())
+    if name == "\\wedge":
+        a, b = arguments
+        # A wedge B := not (A -> not B)
+        return Imp(Imp(translate(a), Imp(translate(b), Bot())), Bot())
+    if name == "\\vee":
+        a, b = arguments
+        # A vee B := (not A) -> B
+        return Imp(Imp(translate(a), Bot()), translate(b))
+    if name == "\\Box":
+        (a,) = arguments
+        return Box(translate(a))
+    if name == "\\Future":
+        # Future A = G A = not F(not A) = not (top until (not A))
+        (a,) = arguments
+        top = Imp(Bot(), Bot())
+        return Imp(Untl(top, Imp(translate(a), Bot())), Bot())
+    if name == "\\Past":
+        (a,) = arguments
+        top = Imp(Bot(), Bot())
+        return Imp(Snce(top, Imp(translate(a), Bot())), Bot())
+    if name == "\\Until":
+        # ModelChecker is event-first: true_at(self, event_arg, guard_arg, eval_point).
+        event_arg, guard_arg = arguments
+        return Untl(guard=translate(guard_arg), event=translate(event_arg))
+    if name == "\\Since":
+        event_arg, guard_arg = arguments
+        return Snce(guard=translate(guard_arg), event=translate(event_arg))
+
+    raise ValueError(
+        f"translate has no rule for operator {name!r}: expected one of the 9 bimodal "
+        "primitives (\\neg, \\wedge, \\vee, \\bot, \\Box, \\Future, \\Past, \\Until, \\Since); "
+        "a DefinedOperator reaching translate means Sentence.update_types was not applied"
+    )

@@ -20,6 +20,13 @@ import json
 
 import pytest
 
+from model_checker.syntactic import Syntax
+from model_checker.theory_lib.bimodal.operators import (
+    DefPossibilityOperator,
+    NecessityOperator,
+    NegationOperator,
+    bimodal_operators,
+)
 from model_checker.theory_lib.bimodal.semantic.formula import (
     Atom,
     Bot,
@@ -32,7 +39,17 @@ from model_checker.theory_lib.bimodal.semantic.formula import (
     from_json,
     subformula_closure,
     to_json,
+    translate,
 )
+
+
+def _sentence(infix: str):
+    """Build one fully type-updated `Sentence` for `infix`, via the real `Syntax` pipeline and
+    the theory's own `bimodal_operators` collection -- exactly the object `translate` receives
+    in production (before `update_objects`/`update_proposition`, which only matter for Z3
+    evaluation, not for the syntactic operator/arguments structure `translate` reads)."""
+    syntax = Syntax([infix], [], bimodal_operators)
+    return syntax.premises[0]
 
 
 class TestConstructorIdentityAndHashing:
@@ -241,3 +258,327 @@ class TestFreshAtomGuard:
     def test_non_fresh_atom_is_unaffected(self):
         # fresh_index=None (the default) is the ordinary, exportable atom.
         assert to_json(Atom("p")) == {"tag": "atom", "name": "p"}
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: sentence-to-Formula translation
+# ---------------------------------------------------------------------------
+
+
+class TestScopeHypothesisDefinedOperatorsAreExpandedBeforeTranslate:
+    """Confirms the plan's Scope Hypothesis: `syntactic.DefinedOperator` instances (e.g.
+    `\\Diamond`, the 8 in `operators.py`) are fully expanded into the 9 primitive
+    `syntactic.Operator`s by `Syntax`/`Sentence.update_types` before any sentence reaches
+    `translate` -- so `translate` only needs rules for the 9 primitives. See
+    `Sentence.update_types`'s `derive_type` (recurses via `derived_definition` until
+    `primitive_operator` holds) and `Syntax.initialize_sentences`'s `initialize_types` (applies
+    this recursively down the whole argument tree, not just the root)."""
+
+    def test_diamond_sentence_reaches_translate_as_negation_of_box_of_negation(self):
+        sentence = _sentence("\\Diamond p")
+        assert sentence.operator is not DefPossibilityOperator
+        assert sentence.operator is NegationOperator
+        boxed = sentence.arguments[0]
+        assert boxed.operator is NecessityOperator
+        inner_neg = boxed.arguments[0]
+        assert inner_neg.operator is NegationOperator
+
+    def test_diamond_translates_as_not_box_not(self):
+        p = Atom("p")
+        expected = Imp(Box(Imp(p, Bot())), Bot())
+        assert translate(_sentence("\\Diamond p")) == expected
+
+
+class TestTranslatePrimitives:
+    def test_atom(self):
+        assert translate(_sentence("p")) == Atom("p")
+
+    def test_bot(self):
+        assert translate(_sentence("\\bot")) == Bot()
+
+    def test_negation(self):
+        assert translate(_sentence("\\neg p")) == Imp(Atom("p"), Bot())
+
+    def test_conjunction_is_not_left_arrow_not_right(self):
+        p, q = Atom("p"), Atom("q")
+        expected = Imp(Imp(p, Imp(q, Bot())), Bot())
+        assert translate(_sentence("(p \\wedge q)")) == expected
+
+    def test_disjunction_is_not_left_arrow_right(self):
+        p, q = Atom("p"), Atom("q")
+        expected = Imp(Imp(p, Bot()), q)
+        assert translate(_sentence("(p \\vee q)")) == expected
+
+    def test_box(self):
+        assert translate(_sentence("\\Box p")) == Box(Atom("p"))
+
+    def test_future_is_not_eventually_not(self):
+        """`\\Future A` (G A, "always in the future") translates to `¬F¬A` in Lean primitives:
+        `Imp(Untl(top, Imp(A, Bot)), Bot)`, where `top = Imp(Bot, Bot)` and the untranslated
+        `Untl(top, ¬A)` is `future(¬A)` per the Lean `future φ := ⊤ until φ` derived def."""
+        p = Atom("p")
+        top = Imp(Bot(), Bot())
+        expected = Imp(Untl(top, Imp(p, Bot())), Bot())
+        assert translate(_sentence("\\Future p")) == expected
+
+    def test_past_is_not_previously_not(self):
+        p = Atom("p")
+        top = Imp(Bot(), Bot())
+        expected = Imp(Snce(top, Imp(p, Bot())), Bot())
+        assert translate(_sentence("\\Past p")) == expected
+
+
+class TestTranslateUntilSinceOrderSensitive:
+    """The decisive regression: ModelChecker's `UntilOperator`/`SinceOperator` are event-first
+    (`true_at(self, event_arg, guard_arg, eval_point)`, `operators.py:1055`), while the Lean
+    `Formula.untl`/`Formula.snce` constructors are guard-first. `translate` must swap. This test
+    is deliberately written so that dropping the swap (i.e. passing the ModelChecker argument
+    order straight through) makes it fail -- see the module-level comment below for how to
+    verify that by hand."""
+
+    def test_until_swaps_event_first_to_guard_first(self):
+        # Infix "A \\Until B" parses to prefix [\\Until, A, B], and UntilOperator.true_at's
+        # positional signature (event_arg, guard_arg, ...) means arguments[0]=A is the event and
+        # arguments[1]=B is the guard (see core.py's `operator.true_at(*arguments, eval_point)`).
+        event, guard = Atom("p"), Atom("q")
+        sentence = _sentence("(p \\Until q)")
+        result = translate(sentence)
+        assert result == Untl(guard=guard, event=event)
+        # The order-sensitive assertion: swapping the wire-level guard/event must NOT match.
+        assert result != Untl(guard=event, event=guard)
+
+    def test_since_swaps_event_first_to_guard_first(self):
+        event, guard = Atom("p"), Atom("q")
+        sentence = _sentence("(p \\Since q)")
+        result = translate(sentence)
+        assert result == Snce(guard=guard, event=event)
+        assert result != Snce(guard=event, event=guard)
+
+
+class TestTranslateMemoization:
+    def test_repeated_translation_of_the_same_sentence_object_is_cached(self):
+        sentence = _sentence("\\Box p")
+        first = translate(sentence)
+        second = translate(sentence)
+        assert first == second
+        # Cached: re-translating the identical sentence object must not rebuild fresh Formula
+        # subtrees each time it is looked up (though equal dataclasses would compare equal
+        # regardless, this checks the cache is actually consulted).
+        from model_checker.theory_lib.bimodal.semantic.formula import _TRANSLATE_CACHE
+
+        assert sentence in _TRANSLATE_CACHE
+        assert _TRANSLATE_CACHE[sentence] is first
+
+
+class TestTranslateNestedFormula:
+    def test_box_of_until_of_atoms(self):
+        p, q = Atom("p"), Atom("q")
+        sentence = _sentence("\\Box (p \\Until q)")
+        expected = Box(Untl(guard=q, event=p))
+        assert translate(sentence) == expected
+
+    def test_translate_rejects_non_sentence(self):
+        with pytest.raises((TypeError, AttributeError)):
+            translate(object())
+
+
+# ---------------------------------------------------------------------------
+# Phase 2 amendment: truth-preservation property test
+# ---------------------------------------------------------------------------
+#
+# Phase 5's round-trip against `lake exe check_certificate` compares the Python re-checker and
+# the Lean binary on the *same already-translated* Formula, so it structurally cannot test
+# whether `translate` itself preserves truth against the sentence it started from. This test
+# fills that gap directly, for the propositional-plus-tense fragment, without going through Z3
+# or `BimodalSemantics` at all: it hand-implements two *independent* recursive evaluators --
+# one over a small ModelChecker-sentence-shaped AST, mirroring the mathematical content of
+# `operators.py`'s `true_at` definitions (bounded to a concrete finite time domain, matching
+# `core.py.true_at`'s own "atoms are FALSE outside the world's domain" convention) -- and one
+# over the translated `Formula`, mirroring the Lean `untl`/`snce` semantics -- then checks they
+# agree at every point of several small hand-built valuations.
+#
+# Known, deliberate limitation (recorded, not silently absorbed): this covers only the five
+# non-modal primitives (atom, neg, wedge, vee/bot via encoding, future, past, until, since), not
+# Box -- `oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator has the identical gap,
+# for the identical reason: a faithful Box comparison needs an actual multi-world/multi-history
+# model, which does not exist independently of whichever semantic core (old window-based, or the
+# certificate-based one later phases of this plan install) is under test. Discharging the Box
+# case is left to later phases (the pure-Python re-checker's box-faithfulness condition, and the
+# `check_certificate` round-trip), not claimed here.
+
+_Ast = tuple
+
+
+def _ast_to_infix(ast: _Ast) -> str:
+    tag = ast[0]
+    if tag == "atom":
+        return ast[1]
+    if tag == "bot":
+        return "\\bot"
+    if tag == "neg":
+        return f"\\neg {_ast_to_infix(ast[1])}"
+    if tag == "future":
+        return f"\\Future {_ast_to_infix(ast[1])}"
+    if tag == "past":
+        return f"\\Past {_ast_to_infix(ast[1])}"
+    if tag == "wedge":
+        return f"({_ast_to_infix(ast[1])} \\wedge {_ast_to_infix(ast[2])})"
+    if tag == "vee":
+        return f"({_ast_to_infix(ast[1])} \\vee {_ast_to_infix(ast[2])})"
+    if tag == "until":
+        return f"({_ast_to_infix(ast[1])} \\Until {_ast_to_infix(ast[2])})"
+    if tag == "since":
+        return f"({_ast_to_infix(ast[1])} \\Since {_ast_to_infix(ast[2])})"
+    raise ValueError(f"unknown ast tag: {tag!r}")
+
+
+def _eval_mc_ast(ast: _Ast, valuation, t: int, domain: range) -> bool:
+    """Direct evaluator mirroring `operators.py`'s ModelChecker semantics (event-first Until/
+    Since, `\\Future`/`\\Past` as G/H), restricted to `domain` with atoms false outside it."""
+    tag = ast[0]
+    if tag == "atom":
+        return t in domain and bool(valuation.get(ast[1], {}).get(t, False))
+    if tag == "bot":
+        return False
+    if tag == "neg":
+        return not _eval_mc_ast(ast[1], valuation, t, domain)
+    if tag == "wedge":
+        return _eval_mc_ast(ast[1], valuation, t, domain) and _eval_mc_ast(
+            ast[2], valuation, t, domain
+        )
+    if tag == "vee":
+        return _eval_mc_ast(ast[1], valuation, t, domain) or _eval_mc_ast(
+            ast[2], valuation, t, domain
+        )
+    if tag == "future":
+        # G A: true at t iff A holds at every domain time strictly after t.
+        return all(
+            _eval_mc_ast(ast[1], valuation, s, domain) for s in domain if s > t
+        )
+    if tag == "past":
+        return all(
+            _eval_mc_ast(ast[1], valuation, s, domain) for s in domain if s < t
+        )
+    if tag == "until":
+        # ast[1] is the event, ast[2] is the guard (event-first, matching UntilOperator).
+        event, guard = ast[1], ast[2]
+        for s in domain:
+            if s > t and _eval_mc_ast(event, valuation, s, domain):
+                if all(
+                    _eval_mc_ast(guard, valuation, r, domain)
+                    for r in domain
+                    if t < r < s
+                ):
+                    return True
+        return False
+    if tag == "since":
+        event, guard = ast[1], ast[2]
+        for s in domain:
+            if s < t and _eval_mc_ast(event, valuation, s, domain):
+                if all(
+                    _eval_mc_ast(guard, valuation, r, domain)
+                    for r in domain
+                    if s < r < t
+                ):
+                    return True
+        return False
+    raise ValueError(f"unknown ast tag: {tag!r}")
+
+
+def _eval_lean_formula(formula: Formula, valuation, t: int, domain: range) -> bool:
+    """Direct evaluator over the translated `Formula`, mirroring the Lean `untl`/`snce`
+    semantics (guard-first), independent of `_eval_mc_ast` and of `translate`'s own logic."""
+    if isinstance(formula, Atom):
+        return t in domain and bool(valuation.get(formula.base, {}).get(t, False))
+    if isinstance(formula, Bot):
+        return False
+    if isinstance(formula, Imp):
+        return (not _eval_lean_formula(formula.left, valuation, t, domain)) or _eval_lean_formula(
+            formula.right, valuation, t, domain
+        )
+    if isinstance(formula, Box):
+        raise NotImplementedError("Box is out of scope for this tense-fragment property test")
+    if isinstance(formula, Untl):
+        guard, event = formula.guard, formula.event
+        for s in domain:
+            if s > t and _eval_lean_formula(event, valuation, s, domain):
+                if all(
+                    _eval_lean_formula(guard, valuation, r, domain)
+                    for r in domain
+                    if t < r < s
+                ):
+                    return True
+        return False
+    if isinstance(formula, Snce):
+        guard, event = formula.guard, formula.event
+        for s in domain:
+            if s < t and _eval_lean_formula(event, valuation, s, domain):
+                if all(
+                    _eval_lean_formula(guard, valuation, r, domain)
+                    for r in domain
+                    if s < r < t
+                ):
+                    return True
+        return False
+    raise TypeError(f"not a Formula: {formula!r}")
+
+
+_PROPERTY_ASTS = [
+    ("atom", "p"),
+    ("neg", ("atom", "p")),
+    ("wedge", ("atom", "p"), ("atom", "q")),
+    ("vee", ("atom", "p"), ("atom", "q")),
+    ("future", ("atom", "p")),
+    ("past", ("atom", "p")),
+    ("until", ("atom", "p"), ("atom", "q")),
+    ("since", ("atom", "p"), ("atom", "q")),
+    ("future", ("past", ("atom", "p"))),
+    ("wedge", ("until", ("atom", "p"), ("atom", "q")), ("since", ("atom", "r"), ("atom", "s"))),
+    ("neg", ("future", ("neg", ("atom", "p")))),  # not(G(not p)) == F(p)
+]
+
+_PROPERTY_DOMAIN = range(-3, 4)
+
+
+def _valuations(atoms, domain):
+    """Deterministically enumerate every Boolean valuation of `atoms` over `domain` (small: at
+    most 2 atoms x 7 times x a handful of hand-picked patterns, not the full 2**14 space)."""
+    import itertools
+
+    patterns = [
+        {t: False for t in domain},
+        {t: True for t in domain},
+        {t: (t % 2 == 0) for t in domain},
+        {t: (t >= 0) for t in domain},
+        {t: (t == 0) for t in domain},
+    ]
+    for combo in itertools.product(patterns, repeat=len(atoms)):
+        yield {atom: pattern for atom, pattern in zip(atoms, combo)}
+
+
+def _atoms_in_ast(ast, out=None):
+    if out is None:
+        out = set()
+    if ast[0] == "atom":
+        out.add(ast[1])
+    else:
+        for child in ast[1:]:
+            _atoms_in_ast(child, out)
+    return out
+
+
+class TestTranslateTruthPreservation:
+    @pytest.mark.parametrize("ast", _PROPERTY_ASTS)
+    def test_translate_preserves_truth_across_hand_built_valuations(self, ast):
+        sentence = _sentence(_ast_to_infix(ast))
+        formula = translate(sentence)
+        atoms = sorted(_atoms_in_ast(ast))
+        for valuation in _valuations(atoms, _PROPERTY_DOMAIN):
+            for t in _PROPERTY_DOMAIN:
+                mc_value = _eval_mc_ast(ast, valuation, t, _PROPERTY_DOMAIN)
+                lean_value = _eval_lean_formula(formula, valuation, t, _PROPERTY_DOMAIN)
+                assert mc_value == lean_value, (
+                    f"translate({_ast_to_infix(ast)}) disagrees with the original sentence's "
+                    f"semantics at t={t} under valuation {valuation}: "
+                    f"mc={mc_value} lean={lean_value}"
+                )
