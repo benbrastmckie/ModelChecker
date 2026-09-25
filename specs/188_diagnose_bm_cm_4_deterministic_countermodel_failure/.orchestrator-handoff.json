@@ -1,7 +1,7 @@
 {
   "status": "implemented",
   "phase": "implement",
-  "dispatch_seq": 6,
+  "dispatch_seq": 7,
   "summary": "BM_CM_4 diagnosed as a f9cc081e solve-cost regression; a 25-seed sweep rejected the candidate alpha-rename fix (5/25 undecided vs. baseline's 2/25), so BM_CM_4 is now tracked in UNSTABLE_EXAMPLES (both code/ and oracle/ trees) with corrected comments; core.py is unchanged.",
   "artifacts": [
     {
