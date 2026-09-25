@@ -1,18 +1,18 @@
 {
   "status": "partial",
-  "dispatch_seq": 7,
-  "summary": "Implemented Phases 5-8 of 24: the Lean round-trip differential test (extended, not duplicated), and the full quantifier-free Z3 variable/constraint layer (label-bit registry, local coherence, target selector, fulfilment, box faithfulness). 79 new/extended unit tests green, plus 10/10 integration tests against the live lake exe check_certificate binary. Phase 6 breaks core.py's old WitnessRegistry(N, M) call immediately (128 failed + 87 errored of 339 unit tests, measured) -- this moves the plan's documented red-period start three phases earlier than its Rollback/Contingency section states; corrected inline in the plan. Phases 9-24 (BimodalSemantics/BimodalProposition/BimodalStructure rewrite, operators/iterate/examples migration, oracle rewrite, docs, development-marker removal) remain.",
+  "dispatch_seq": 8,
+  "summary": "Implemented Phases 9-15 of 24: the entire semantic core, BimodalProposition, BimodalStructure (solve/extract/re-check/printing), operators.py, and iterate.py are all rewritten for the certificate encoding. The real end-user pipeline (Syntax -> ModelConstraints -> BimodalStructure -> interpret -> print_to) now works end to end for atomic and compound examples. Phase 15 completed with two reasoned exclusions (isomorphism rotation invariance deferred; a discovered gap in the shared iterate/constraints.py exclusion mechanism, out of scope for a bimodal-only phase). Phases 16-24 (examples migration, test-suite retirement, oracle rewrite, docs, development-marker removal, final verification) remain.",
   "artifacts": [
     {
       "type": "summary",
-      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/01_constraint-generation-groundwork-summary.md",
-      "summary": "Implementation summary for Phases 5-8 of the witness-family certificate redesign."
+      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/02_semantic-core-structure-operators-iterate-summary.md",
+      "summary": "Implementation summary for Phases 9-15 of the witness-family certificate redesign."
     }
   ],
-  "phases_completed": 8,
+  "phases_completed": 15,
   "phases_total": 24,
   "blockers": [],
   "plan_markers_verified": true,
-  "continuation_path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/handoffs/phase-8-handoff-20260925T190500Z.md",
-  "next_action_hint": "Open Phase 9: BimodalSemantics rewrite (settings and framework contract, semantic/core.py). Repairs core.py:86's broken WitnessRegistry construction as its first order of business. Read D3/D4/D5/D6 before starting; the theory stays red through at least Phase 13 by design, so do not treat 'tests green' as this phase's own exit gate."
+  "continuation_path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/handoffs/phase-15-handoff-20260925T203000Z.md",
+  "next_action_hint": "Open Phase 16: examples migration -- settings and expectation audit (examples.py). Replace N/M/contingent/disjoint with back/mid/fwd/max_witnesses in every example; audit every \\Until/\\Since argument order against D2's event-first convention (X \\Until Y means 'Y holds until X happens' -- this bit Phase 12's own A0 test once already, see that phase's handoff); audit every expectation against the paper's axioms, in particular MF_MODAL_FUTURE_TH (cite modal_future_valid/no_witnessFamily_of_MF) and delete the test_bimodal.py comment claiming MF has a countermodel. Read the plan's Phase 15 'Reasoned Exclusions' table before touching iteration again."
 }
