@@ -41,6 +41,8 @@ the following about each of F10's original ten `03-dynamics.typ` items:
 rows and its final coverage-restatement paragraph match F7's table almost verbatim, including the
 identical two-obstruction analysis for C3).
 
+**This narrowing is measured against F10's EDIT list only.** Report 01's separate evidentiary open-items list is not covered by it and remains live; see "Deliberately out of scope, still open" below before treating the primary deliverable as the whole of what task 186 left behind.
+
 ## What this task should actually do
 
 **Primary deliverable**: write `@rem-event-status`'s E1/E3/E4 record for the world-quantifying
@@ -83,6 +85,38 @@ confirm before treating them as done):
 - Touch `code/src/model_checker/**` in the ModelChecker repository — nothing here proposes a
   ModelChecker implementation change; the manual and Lean edits are entirely in the Logos
   repository.
+
+## Deliberately out of scope, still open (evidentiary items)
+
+**Read this section before concluding that the primary deliverable above is all that remains.**
+
+The narrowing described at the top of this specification is measured against report 01's F10
+*edit* list — the manual edits F10 anticipated, almost all of which landed independently. It is
+NOT measured against report 01's *evidentiary* open-items list, which is a separate register and
+is still live. Four of its seven items remain open, each with a deciding test already named:
+
+| Item | Open question | Deciding test named at |
+|---|---|---|
+| 1 | Multi-time realizable minimal settlers at a TENSED antecedent/consequent. Phase 3 measured this NEGATIVELY for CF-constituent antecedents (imposition only ever searches the antecedent verifier's own domain); the tensed case is untested. | `reports/01_family-level-settled-verification.md` §"Where the evidence does not decide", item 1 |
+| 2 | Realizable minimal settlers with non-convex domain (F9.3) — not found on Phase 3's frame at either window; untested on a frame built to produce one. | ibid., item 2 |
+| 3 | Settler Minimality's necessity beyond the finite/bounded-window automatic region. F14's descending-chain sketch is explicitly not a formally checked theorem. | ibid., item 3 |
+| 7 | The world-history completion principle (`@rem-occurrence-possible-states` leg (d)) — its evidentiary test (a frame violating the "nearest times" property, e.g. a dense duration order). Note this specification's "Do not" block covers only the DOCUMENTATION half of leg (d); the measurement is not captured anywhere. | ibid., item 7 |
+
+Report 01 states these should be pursued "only if [they] become load-bearing for a concrete
+downstream use; neither blocks adopting D1-D7." They are parked by choice, not forgotten — but a
+future author reading only this specification would not learn they exist.
+
+**Two items report 01 assigned to Phase 6 that did not land in this specification**, recorded here
+so they are not lost:
+
+- **D3's residual cost analysis** (`reports/01:253`, restated `:261`): the axiom's cost is a fourth
+  existence-postulate of a form no automatic-region argument yet covers outside finite/bounded-window
+  frames. Report 01 marks this "stated for the follow-up specification's author (Phase 6) as an
+  explicit non-blocking record." It is a record for a future reader who might reconsider D3, not an
+  active decision — the "Do not" block above correctly still applies.
+- **Phase 3's escalation commitment** (`plans/01_uniform-clauses-evidence-closure.md`:111, :325-326):
+  Phase 3 undertook to "carry the remaining search to Phase 6's follow-up specification." The
+  remaining search is open items 1 and 2 above; this section is where that escalation lands.
 
 ## Lean landing (recorded, not planned)
 
