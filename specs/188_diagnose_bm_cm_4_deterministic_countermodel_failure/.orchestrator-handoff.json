@@ -11,8 +11,14 @@
     }
   ],
   "phases_completed": 4,
-  "phases_total": 7,
+  "phases_total": 4,
   "blockers": [],
   "session_id": "sess_1790352594_00229e_188",
-  "next_steps": "Task complete. BM_CM_4's unstable marker comes off per its own exit criterion (20 consecutive unstable-watch runs with zero failures, or a genuine encoding fix collapsing the tail across a >= 20-seed sweep with no undecided draw at max_time=120)."
+  "next_steps": "Task complete. BM_CM_4's unstable marker comes off per its own exit criterion (20 consecutive unstable-watch runs with zero failures, or a genuine encoding fix collapsing the tail across a >= 20-seed sweep with no undecided draw at max_time=120).",
+  "phases_skipped": [
+    3,
+    4,
+    5
+  ],
+  "phase_accounting_note": "Branched plan. The plan authors 7 phases, but phases 3-5 (land the alpha-rename, regression diff, full-suite verify) are conditional on Phase 2's decision gate PASSING. It failed: the 25-seed sweep showed the rename produced 5/25 undecided draws vs. the unmodified baseline's 2/25, so the candidate fix was correctly rejected and execution routed to the Phase 7 contingency. phases_total reflects the 4 phases this branch authorizes (1, 2, 6, 7), all completed. It is NOT a claim that phases 3-5 were executed; they were gate-skipped by design and remain [NOT STARTED] in the plan."
 }

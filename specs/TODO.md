@@ -11,25 +11,20 @@ next_project_number: 189
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 186,188 | -- | testing, semantics |
-| 2 | 184 | 188 | semantics |
+| 1 | 184,186 | -- | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
-### Testing
-
-188 [IMPLEMENTING] — BMCM4 fails DETERMINISTICALLY in the bimodal suite and is...
-
 ### Semantics
 
-186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
 184 [PLANNED] — Redesign the bimodal theory around witness-family...
+186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
 
 ## Tasks
 
 ### 188. Diagnose bm cm 4 deterministic countermodel failure
 - **Effort**: small
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
