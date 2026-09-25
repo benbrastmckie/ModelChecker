@@ -4,20 +4,6 @@ next_project_number: 189
 
 # TODO
 
-## Task Order
-
-*Updated 2026-09-25. Generated from state.json dependency graph.*
-
-**Dependency Waves**:
-| Wave | Tasks | Blocked by | Topics |
-|------|-------|------------|--------|
-| 1 | 184 | -- | semantics |
-
-**Grouped by Topic** (indented = depends on parent):
-
-### Semantics
-
-184 [IMPLEMENTING] — Redesign the bimodal theory around witness-family...
 
 ## Tasks
 
@@ -223,13 +209,13 @@ DELIVERABLE. A recommendation naming one clause, the model-based evidence discri
 
 ### 184. Refactor bimodal theory tests green and paper lean aligned
 - **Effort**: large
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: Task 188
 - **Research**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/03_bimodallogic-665-668-alignment.md]
 - **Plan**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md]
-- **Summary**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/02_semantic-core-structure-operators-iterate-summary.md]
+- **Summary**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/03_final-verification-and-completion-summary.md]
 
 **Description**: Redesign the bimodal theory around witness-family certificates for discrete (Z) time, replacing the current window-and-abundance Z3 encoding rather than repairing it. The authority for this task is the research report at specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/01_finite-certificate-redesign.md; read it in full before researching, planning, or implementing anything here.
 

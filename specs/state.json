@@ -36,7 +36,7 @@
     {
       "project_number": 184,
       "project_name": "refactor_bimodal_theory_tests_green_and_paper_lean_aligned",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "topic": "semantics",
       "effort": "large",
@@ -53,14 +53,14 @@
           "summary": "24-phase plan: new certificate semantic core, pure-Python re-checker plus live lake exe check_certificate round-trip, operators/iterate/examples migration, oracle rewrite, development-marker removal."
         },
         {
-          "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/02_semantic-core-structure-operators-iterate-summary.md",
+          "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/03_final-verification-and-completion-summary.md",
           "type": "summary",
-          "summary": "Implementation summary for Phases 9-15 of the witness-family certificate redesign."
+          "summary": "Final summary closing task 184: Phases 22-24 landed, measured final suite numbers recorded, both carried-forward exclusions named explicitly."
         }
       ],
       "created": "2026-09-01T16:35:55Z",
-      "last_updated": "2026-09-25T17:48:28Z",
-      "session_id": "sess_1790358492_1a5334",
+      "last_updated": "2026-09-25T22:32:58Z",
+      "session_id": "sess_1790372317_19a415",
       "next_artifact_number": 2,
       "dependencies": [
         188
