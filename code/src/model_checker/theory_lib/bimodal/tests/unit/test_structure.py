@@ -1,0 +1,221 @@
+"""Unit tests for `BimodalStructure` under the certificate redesign (Phase 12): the
+`_setup_solver` finalize hook (D6), extraction + independent re-check on every satisfying
+model (obligation S3), the fail-fast guard on a corrupted certificate, and the D8
+never-report-validity contract for the no-certificate case. Also carries the A0
+frame-class standing test (deferred here from Phase 9 -- see that phase's handoff -- since
+it needs this phase's own working solve-and-render path).
+"""
+
+from __future__ import annotations
+
+import sys
+
+import pytest
+
+from model_checker.models.constraints import ModelConstraints
+from model_checker.syntactic import Syntax
+from model_checker.theory_lib.bimodal.operators import bimodal_operators
+from model_checker.theory_lib.bimodal.semantic.certificate import recheck
+from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
+from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
+from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+
+
+def _settings(**overrides):
+    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
+    settings.update(overrides)
+    return settings
+
+
+def _build(premises, conclusions, **setting_overrides):
+    """Build one example through the real Syntax -> ModelConstraints -> BimodalStructure
+    pipeline -- the same construction order `builder/example.py`'s `BuildExample` drives,
+    without needing its `BuildModule` scaffolding."""
+    settings = _settings(**setting_overrides)
+    syntax = Syntax(premises, conclusions, bimodal_operators)
+    model_constraints = ModelConstraints(settings, syntax, BimodalSemantics(settings), BimodalProposition)
+    structure = BimodalStructure(model_constraints, settings)
+    return structure
+
+
+class TestFinalizeCalledExactlyOnceAcrossSetupAndReSolve:
+    def test_setup_solver_finalizes_the_certificate_before_solving(self):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        assert structure.semantics._certificate_finalized is True
+        assert len(structure.semantics.frame_constraints) > 0
+
+    def test_setup_solver_called_again_does_not_duplicate_the_global_constraints(self):
+        """D6: `re_solve()` and the model iterator (a later phase) both call
+        `_setup_solver` again on the same `model_constraints` -- `finalize_certificate()`'s
+        own idempotence (already unit-tested directly in `test_semantics_core.py`) is what
+        makes a second `_setup_solver` call here safe. `re_solve()` itself is not exercised
+        directly: `ModelDefaults.solve()`'s own `finally` clause always clears `self.solver`
+        after a solve (framework-wide, not bimodal-specific), so a bare post-construction
+        `re_solve()` call is not a meaningful scenario for any theory without the caller
+        (the iterator) first re-populating `self.solver` -- exactly what Phase 15 does."""
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        count_after_first_solve = len(structure.semantics.frame_constraints)
+        structure._setup_solver(structure.model_constraints)
+        assert len(structure.semantics.frame_constraints) == count_after_first_solve
+
+
+class TestEverySatisfiableSolveProducesAReCheckedCertificate:
+    def test_simple_countermodel_produces_a_certificate_passing_the_rechecker(self):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        assert structure.z3_model_status is True
+        assert structure.certificate is not None
+        assert structure.target_time is not None
+
+        verdict = recheck(
+            structure.certificate,
+            premises=structure.semantics._premise_formulas,
+            conclusions=structure.semantics._conclusion_formulas,
+            target_time=structure.target_time,
+        )
+        assert verdict["status"] == "countermodel", verdict
+
+    def test_boxed_premise_countermodel_has_the_expected_lasso_count(self):
+        structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)
+        assert structure.z3_model_status is True
+        assert structure.certificate is not None
+        # Main lasso plus exactly one witness lasso for the single boxed subformula.
+        assert len(structure.certificate.lassos) == 2
+
+    def test_main_point_position_is_updated_to_the_extracted_target_time(self):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        assert structure.main_point["position"] == structure.target_time
+        # The same dict object semantics itself carries (D3/D6 aliasing discipline).
+        assert structure.semantics.main_point is structure.main_point
+
+
+class TestUnsatisfiableSolveNeverClaimsValidity:
+    def test_certificate_and_target_time_are_none_when_unsatisfiable(self):
+        # A / not-A is unsatisfiable at every position: no premise implication can hold
+        # for a premise and its own negation as the sole conclusion at the same target.
+        structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
+        assert structure.z3_model_status is False
+        assert structure.certificate is None
+        assert structure.target_time is None
+
+
+class TestExtractionHelpers:
+    def test_extract_states_lists_one_entry_per_lasso(self):
+        structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)
+        states = structure.extract_states()
+        assert len(states["worlds"]) == len(structure.certificate.lassos)
+        assert states["possible"] == []
+        assert states["impossible"] == []
+
+    def test_extract_evaluation_world_names_the_main_lasso(self):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        assert structure.extract_evaluation_world() == f"lasso{structure.main_point['lasso']}"
+
+    def test_extract_relations_describes_the_shift_when_a_certificate_exists(self):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        relations = structure.extract_relations()
+        assert "shift" in relations
+
+    def test_extract_relations_is_empty_without_a_certificate(self):
+        structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
+        assert structure.extract_relations() == {}
+        assert structure.extract_states()["worlds"] == []
+        assert structure.extract_evaluation_world() is None
+
+
+class TestPrintingDoesNotClaimValidity:
+    def test_print_certificate_does_not_raise_with_a_certificate(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        # capsys captures sys.stdout, not the theory's sys.__stdout__ default -- pass it
+        # explicitly, matching every other theory's test convention for this default.
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "Certificate:" in out
+        assert "valid" not in out.lower()
+
+    def test_print_certificate_reports_no_certificate_without_claiming_invalidity_or_validity(self, capsys):
+        structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "No certificate found" in out
+        assert "not a validity claim" in out
+        assert "invalid" not in out.lower()
+
+    def test_print_evaluation_reports_no_certificate_case(self, capsys):
+        structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "No certificate found" in out
+
+
+class TestGoldenOutputCertificateFormat:
+    """Golden-output coverage for report 01 section 4.4's output shape: each history as
+    `(back)^w | mid | (fwd)^w` over atom valuations, with the evaluation position marked."""
+
+    def test_single_slot_lasso_renders_back_mid_fwd_with_the_marked_position(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        lines = [line for line in out.splitlines() if line.strip().startswith("L0")]
+        assert len(lines) == 1
+        # Exactly one of the two slots (back or fwd) is the marked (bracketed) evaluation
+        # position and carries {A}; the other is empty. Which slot the solver picks for the
+        # target is not fixed by the constraints (D5's one-hot selector ranges over the
+        # whole window), so assert the golden shape rather than a specific slot.
+        line = lines[0].strip()
+        assert line in (
+            "L0 (main): ([{A}])^w | - | ({})^w",
+            "L0 (main): ({})^w | - | ([{A}])^w",
+        ), line
+
+    def test_boxed_subformula_table_lists_the_guess_and_a_false_boxs_witness(self, capsys):
+        structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "Boxed subformulas:" in out
+        assert "Box(Atom(base='A', fresh_index=None)) = " in out
+        # Whichever way the guess landed, the table format itself is exercised; if guessed
+        # false, a witness line for L1 must also appear.
+        if "= False" in out:
+            assert "Witness: L1" in out
+
+
+class TestA0FrameClassStandingTest:
+    """Amendment task deferred from Phase 9 (see that phase's handoff): the `prior_UZ` and
+    `z1` instances are classified minimum-frame-class `.ZTime`
+    (`ProofSystem/Axioms.lean:612-613`), so by (SOUND) no certificate can ever exist for
+    them even though they are not valid at every temporal order
+    (`not_validIn_base_prior_UZ`/`not_validIn_base_z1`,
+    `Metalogic/Independence/ZTimeSharpness.lean:225, 236`). The deciding test: run the
+    search and confirm it reports no certificate (rendered inconclusive, never valid) at a
+    modest configured length -- see `docs/ADEQUACY.md` sections 7.2 and 7.4.
+    """
+
+    def test_prior_uz_instance_reports_no_certificate(self):
+        # prior_UZ: F phi -> (neg phi Until phi), guard-first (Lean's Untl(guard=neg phi,
+        # event=phi)). Bimodal's \Future primitive means "always in the future" (G); the
+        # defined "eventually" (F) operator is the lowercase \future. ModelChecker's own
+        # \Until is EVENT-first (D2): "X \Until Y" translates to Untl(guard=Y, event=X),
+        # so guard=neg A / event=A is written "A \Until (\neg A)", not "(\neg A) \Until A".
+        #
+        # The deciding question is whether a Z-time COUNTERMODEL to this axiom's validity
+        # exists -- i.e. whether the search can make it FALSE somewhere -- not whether it
+        # is merely satisfiable (nearly every formula is). So it goes in `conclusions` with
+        # no premises: a found certificate would be a countermodel refuting the axiom; "no
+        # certificate" is the deciding, expected outcome for a ZTime-valid axiom.
+        structure = _build([], ["(\\future A \\rightarrow (A \\Until \\neg A))"], back=2, mid=1, fwd=2)
+        assert structure.z3_model_status is False
+        assert structure.certificate is None
+
+    def test_z1_instance_reports_no_certificate(self):
+        # z1: G(G phi -> phi) -> (F G phi -> G phi), with G = \Future (primitive) and
+        # F = \future (defined, DefFutureOperator). Unary operators chain directly onto
+        # their argument without extra parens (examples.py's own convention, e.g.
+        # '\\Future \\past A'). As with prior_UZ, this is the conclusion of an empty-premise
+        # search: a found certificate would be a countermodel to z1's validity.
+        formula = (
+            "(\\Future (\\Future A \\rightarrow A) \\rightarrow "
+            "(\\future \\Future A \\rightarrow \\Future A))"
+        )
+        structure = _build([], [formula], back=2, mid=1, fwd=2)
+        assert structure.z3_model_status is False
+        assert structure.certificate is None

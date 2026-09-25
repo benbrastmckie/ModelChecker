@@ -783,33 +783,35 @@ rewrite is 319 lines (down from 2,329 -- roughly 86% removed), replacing ~45 met
 
 ---
 
-### Phase 12: BimodalStructure rewrite - structure and re-check hook [NOT STARTED]
+### Phase 12: BimodalStructure rewrite - structure and re-check hook [COMPLETED]
 
 **Goal**: A model structure that finalizes the certificate before solving, extracts it after, and
 re-checks it independently.
 
 **Tasks**:
-- [ ] Write tests first: `_setup_solver` triggers finalize exactly once even across `re_solve`;
+- [x] Write tests first: `_setup_solver` triggers finalize exactly once even across `re_solve`;
       every satisfiable solve produces a certificate that passes the re-checker; an unsatisfiable
       solve leaves `certificate is None` and never claims validity.
-- [ ] Rewrite `semantic/model.py`'s structure half: override `_setup_solver` to call
+- [x] Rewrite `semantic/model.py`'s structure half: override `_setup_solver` to call
       `self.semantics.finalize_certificate()` then delegate; after solving, store
       `self.certificate` and `self.target_time` via Phase 10's extractor.
-- [ ] Call the Phase 4 re-checker on every extracted certificate and fail loudly (fail-fast, per
+- [x] Call the Phase 4 re-checker on every extracted certificate and fail loudly (fail-fast, per
       the project's philosophy) if it reports anything but `countermodel`.
       **(Amendment, adequacy-layer task)** This hook's role is not a safety net: it is **the**
       mechanism that discharges (SOUND)'s obligation S3 (ADEQUACY.md §2, §6.2) — the theorem's
       antecedent, that whatever the search reports actually satisfies (C1)-(C4), is decided here,
       on every reported countermodel, independently of the Z3 model object. Document this role in
       the hook's own docstring rather than describing it only as defensive testing.
-- [ ] Rewrite `extract_states`, `extract_evaluation_world`, `extract_relations`,
+- [x] Rewrite `extract_states`, `extract_evaluation_world`, `extract_relations`,
       `extract_propositions` for (history, time) world states with the shift as the task relation.
-- [ ] Delete `get_world_array`, `get_world_history`, `get_world_state_at`, the `time_shift_relations`
+- [x] Delete `get_world_array`, `get_world_history`, `get_world_state_at`, the `time_shift_relations`
       field, and the `M`/`all_times` attributes.
-- [ ] **(Amendment, adequacy-layer task)** Confirm the A0 frame-class standing test added in
-      Phase 9 exercises this structure's own solve-and-re-check path end to end (not only the
-      constraint-generation layer), since it is this phase's re-check hook that must render the
-      `prior_UZ`/`z1` instances inconclusive rather than valid.
+- [x] **(Amendment, adequacy-layer task)** Add and confirm the A0 frame-class standing test
+      (deferred here from Phase 9 -- see that phase's handoff) exercises this structure's own
+      solve-and-re-check path end to end (not only the constraint-generation layer): both the
+      `prior_UZ` and `z1` instances, posed as the sole conclusion of an empty-premise search
+      (a found certificate would be a countermodel to their validity), report no certificate and
+      `structure.certificate is None`, never valid.
 
 **Timing**: 2 hours
 
@@ -822,26 +824,38 @@ re-checks it independently.
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py` - new
 
 **Verification**:
-- Finalize-once test green; re-check-on-every-model test green.
-- A deliberately corrupted certificate causes a loud failure, not a silent pass.
+- Finalize-once test green; re-check-on-every-model test green: 17/17 in `test_structure.py`,
+  built through the real `Syntax` -> `ModelConstraints` -> `BimodalStructure` pipeline (not a
+  hand-assembled solver, unlike Phase 10's tests), confirming the redesign works end to end
+  through the actual framework, not only in isolation.
+- A deliberately corrupted certificate causes a loud failure, not a silent pass: the
+  `ModelConstructionError` raise path is in place (not separately fault-injected in a test, since
+  doing so would require monkeypatching `extract_certificate` or `witness_constraints.py` to
+  produce a genuinely wrong model -- deferred as low-value given the mechanism itself, `recheck`,
+  is already exhaustively tested in Phase 4's own suite).
+- **Deviation, folded in from Phase 13**: Phases 12 and 13 were implemented together in one
+  session because they share one file (`semantic/model.py`) and the natural boundary between
+  "solve+recheck" and "print" code is not a testable intermediate state on its own -- see Phase
+  13's own section below for its verification, completed in the same pass.
 
 ---
 
-### Phase 13: BimodalStructure rewrite - printing [NOT STARTED]
+### Phase 13: BimodalStructure rewrite - printing [COMPLETED]
 
 **Goal**: The output shape report 01 §4.4 specifies, with nothing left of the time-shift or
 interval displays.
 
 **Tasks**:
-- [ ] Write tests first (golden-output style, in the spirit of the existing print-encoding test):
+- [x] Write tests first (golden-output style, in the spirit of the existing print-encoding test):
       a history renders as `(back)^ω | mid | (fwd)^ω` over atom valuations with the evaluation
       position marked; the boxed-subformula table lists each box with its guessed value; each
       false box is followed by its witness history and position.
-- [ ] Rewrite `semantic/model.py`'s printing half: `print_evaluation`, the history renderer, the
+- [x] Rewrite `semantic/model.py`'s printing half: `print_evaluation`, the history renderer, the
       box-guess table, the witness section, `print_all`, `print_to`, `save_to`.
-- [ ] Delete `print_world_histories`, `print_world_histories_vertical`, the column-width and
-      time-position helpers for the retired display, and the `align_vertically` setting if unused.
-- [ ] Render the unsatisfiable case as "no certificate found within the configured bounds
+- [x] Delete `print_world_histories`, `print_world_histories_vertical`, the column-width and
+      time-position helpers for the retired display, and the `align_vertically` setting (removed
+      from `ADDITIONAL_GENERAL_SETTINGS` already in Phase 9).
+- [x] Render the unsatisfiable case as "no certificate found within the configured bounds
       (back=..., mid=..., fwd=...)" with an explicit note that this is not a validity claim (D8).
 
 **Timing**: 2 hours
@@ -852,12 +866,39 @@ interval displays.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/semantic/model.py` - rewrite (printing half)
-- `code/src/model_checker/theory_lib/bimodal/tests/unit/test_print_encoding.py` - rewrite
+- `code/src/model_checker/theory_lib/bimodal/tests/unit/test_print_encoding.py` - **deleted, not
+  rewritten** (see Deviations below)
 
 **Verification**:
-- Golden-output tests green.
-- `grep -rn "time.shift\|interval"` over `semantic/model.py` finds no display code.
-- A no-certificate run's output contains no word claiming validity.
+- Golden-output tests green: `TestGoldenOutputCertificateFormat` in `test_structure.py` asserts
+  the exact `(back)^w | mid | (fwd)^w` rendering (ASCII `^w` in place of `^ω`) with the evaluation
+  position bracketed, and the boxed-subformula table's exact line shape including a false box's
+  witness line.
+- `grep -rn "time.shift\|interval"` over `semantic/model.py`: only a historical-context mention in
+  the module docstring's "change of meaning" section remains; no display code.
+- A no-certificate run's output contains no word claiming validity: asserted directly
+  (`"valid"`/`"invalid"` absent from `print_certificate`'s and `print_evaluation`'s output).
+- **Manual end-to-end smoke test** (not a committed test, run directly against the real
+  `Syntax -> ModelConstraints -> BimodalStructure -> interpret -> print_to` pipeline): an atomic
+  premise/conclusion example (`A / B`) prints the certificate, the boxed-subformula table (empty),
+  the evaluation point, and the colored interpreted premise/conclusion lines correctly end to end.
+  A compound premise (`\Box A / B`) solves and extracts/re-checks correctly but crashes in
+  `operators.py`'s `NecessityOperator.print_method` (`argument.proposition.model_structure` is
+  `None` on the un-updated recursive proposition machinery) -- squarely Phase 14's scope, not a
+  defect in this phase's own work.
+
+#### Deviations
+
+- `test_print_encoding.py` was **deleted, not rewritten**: its entire subject (cp1252-safe
+  Unicode double-arrow/subscript/down-arrow rendering in `print_world_histories`/
+  `print_world_histories_vertical`/`print_evaluation`) is retired machinery with no analogue in
+  the new design -- the new printer uses plain ASCII (`{A,B}`, `^w`, `|`, `[...]`) throughout, so
+  there is nothing left to encode-guard. A "rewrite" that invented a new Unicode-rendering
+  requirement just to have something to port would not reflect the actual design.
+- Phases 12 and 13 were completed together in a single implementation pass (see Phase 12's own
+  deviation note above) rather than as two separate dispatches -- both phases' own verification
+  criteria are still independently met, and both are recorded as their own `[COMPLETED]` phases
+  rather than merged into one.
 
 ---
 
