@@ -1,7 +1,7 @@
 # Implementation Plan: Task #188
 
 - **Task**: 188 - Diagnose BM_CM_4 deterministic countermodel failure
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 8 hours (core path, Phases 1-6); +2 hours if the Phase 7 contingency fires
 - **Dependencies**: None
 - **Research Inputs**: specs/188_diagnose_bm_cm_4_deterministic_countermodel_failure/reports/01_bm-cm-4-cost-regression.md

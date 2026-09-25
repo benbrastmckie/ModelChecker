@@ -1,15 +1,18 @@
 {
-  "status": "planned",
-  "phases_completed": 0,
-  "phases_total": 7,
-  "dispatch_seq": 5,
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 6,
+  "summary": "BM_CM_4 diagnosed as a f9cc081e solve-cost regression; a 25-seed sweep rejected the candidate alpha-rename fix (5/25 undecided vs. baseline's 2/25), so BM_CM_4 is now tracked in UNSTABLE_EXAMPLES (both code/ and oracle/ trees) with corrected comments; core.py is unchanged.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/188_diagnose_bm_cm_4_deterministic_countermodel_failure/plans/01_bm-cm-4-symbol-rename-fix.md",
-      "summary": "7-phase plan (6 core + 1 conditional contingency) for the BM_CM_4 Z3 symbol alpha-rename fix, gated on a >=20-seed sweep and a full 52-example regression diff, with an UNSTABLE_EXAMPLES fallback."
+      "type": "summary",
+      "path": "specs/188_diagnose_bm_cm_4_deterministic_countermodel_failure/summaries/01_bm-cm-4-unstable-marking-summary.md",
+      "summary": "BM_CM_4 diagnosed as a solve-cost regression from commit f9cc081e; a candidate alpha-rename fix was rejected by a 25-seed sweep (5/25 undecided vs. baseline's 2/25), so BM_CM_4 is now tracked in UNSTABLE_EXAMPLES with corrected comments across code/ and oracle/, and core.py is unchanged."
     }
   ],
+  "phases_completed": 4,
+  "phases_total": 7,
+  "blockers": [],
   "session_id": "sess_1790352594_00229e_188",
-  "next_steps": "Run /implement 188 to execute the plan"
+  "next_steps": "Task complete. BM_CM_4's unstable marker comes off per its own exit criterion (20 consecutive unstable-watch runs with zero failures, or a genuine encoding fix collapsing the tail across a >= 20-seed sweep with no undecided draw at max_time=120)."
 }
