@@ -98,6 +98,48 @@ class TestUnsatisfiableSolveNeverClaimsValidity:
         assert structure.target_time is None
 
 
+class TestFailFastGuardOnACorruptedCertificate:
+    """The S3 obligation (`__init__`'s own module docstring): a Z3 model whose extracted
+    certificate fails the independent pure-Python re-check must raise
+    `ModelConstructionError` immediately, never silently accept it. `extract_certificate`
+    is monkeypatched to return a deliberately-corrupted `WitnessFamily` -- a lasso whose
+    `mid` label violates local coherence (an `Imp` node whose membership contradicts its
+    own biconditional) -- confirming the hook (Phase 12's `BimodalStructure.__init__`) is
+    genuinely reached on every satisfiable solve, not merely exercised by coincidence
+    whenever the real encoder happens to produce a bad certificate (Phase 16's own
+    discovery of a real instance of exactly this failure mode, since fixed, is what this
+    test exists to keep caught should it ever recur)."""
+
+    def test_corrupted_certificate_raises_model_construction_error(self, monkeypatch):
+        from model_checker.theory_lib.errors import ModelConstructionError
+        from model_checker.theory_lib.bimodal.semantic.certificate import (
+            LabelledLasso,
+            WitnessFamily,
+        )
+        from model_checker.theory_lib.bimodal.semantic.formula import Atom, Bot, Imp
+        from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
+
+        # An Imp node present in the label but with a left/right combination that
+        # violates the (C1) biconditional: `f in label` should equal
+        # `(f.left not in label) or (f.right in label)`. Here f = (A -> bot) is placed in
+        # the label while A is ALSO in the label and bot is NOT -- the biconditional's RHS
+        # is False, contradicting the LHS `True`.
+        bad_formula = Imp(Atom("A"), Bot())
+        bad_label = frozenset({bad_formula, Atom("A")})
+        corrupted_lasso = LabelledLasso(back=(bad_label,), mid=(), fwd=(bad_label,))
+        corrupted_family = WitnessFamily(bx={}, lassos=(corrupted_lasso,))
+
+        def fake_extract_certificate(self, z3_model):
+            return corrupted_family, 0
+
+        monkeypatch.setattr(
+            BimodalSemantics, "extract_certificate", fake_extract_certificate
+        )
+
+        with pytest.raises(ModelConstructionError, match="obligation S3"):
+            _build(["A"], ["B"], back=1, mid=0, fwd=1)
+
+
 class TestExtractionHelpers:
     def test_extract_states_lists_one_entry_per_lasso(self):
         structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)

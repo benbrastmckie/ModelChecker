@@ -1,7 +1,7 @@
 # Bimodal Theory Tests
 
-Test suite for the bimodal theory implementation: world-history semantics, temporal and modal
-operators, witness constraints, and frame constraints.
+Test suite for the bimodal theory's witness-family certificate encoding: certificate datatypes,
+Z3 constraint generators, the semantics/structure/proposition classes, operators, and iteration.
 
 ## This Suite Is Non-Gating
 
@@ -79,37 +79,42 @@ tests/
 
 | File | Focus |
 |---|---|
-| `test_bimodal.py` | Example tests: every countermodel and theorem example in `examples.py` |
-| `test_bound_var_counter_isolation.py` | Bound-variable counter isolation across semantics instances |
-| `test_enriched_equivalence.py` | Equivalence of the enriched and primitive formulations |
-| `test_foralltime.py` | The `\Foralltime` operator |
-| `test_frame_class_mapping.py` | Frame-class settings to asserted frame constraints |
-| `test_frame_constraints.py` | Individual frame-constraint builders on `BimodalSemantics` |
-| `test_modal_witness_integration.py` | Modal operators against the witness registry |
-| `test_next_prev.py` | The `\Next` and `\Prev` operators |
+| `test_bimodal.py` | Example tests: every countermodel and theorem example in `examples.py` (no exclusions -- `KNOWN_TIMEOUT_EXAMPLES`/`UNSTABLE_EXAMPLES` are both empty) |
+| `test_certificate.py` | `LabelledLasso`/`WitnessFamily` datatypes and the pure-Python re-checker (`recheck`, conditions C1-C4) |
+| `test_certificate_fixtures.py` | Hand-built certificate fixtures, independent of `semantic/`, for exercising the re-checker in isolation |
+| `test_formula.py` | The `Formula` ADT (`atom`/`bot`/`imp`/`box`/`untl`/`snce`) and sentence-to-`Formula` translation |
+| `test_next_prev.py` | The defined `\next`/`\prev` operators (`U(p, bot)`/`S(p, bot)`) |
+| `test_operators.py` | Every primitive/defined operator's `true_at`/`false_at` against `translate`'s own rules; the quantifier-free constraint-set claim |
+| `test_proposition.py` | `BimodalProposition`: label-membership truth values, empty `proposition_constraints`, the no-certificate case |
 | `test_semantic_module_registration.py` | `semantic/` package registration and exports |
-| `test_until_since.py` | The `\Until` and `\Since` operators |
-| `test_witness_constraints.py` | `WitnessConstraintGenerator` |
-| `test_witness_registry.py` | `WitnessRegistry` lifecycle |
+| `test_semantics_core.py` | `BimodalSemantics`: settings, vestigial `N`/`all_states`, `true_at` as translate-then-lookup, certificate extraction |
+| `test_structure.py` | `BimodalStructure`: the finalize hook, the S3 re-check obligation (including its fail-fast guard on a corrupted certificate), printing, and the A0 frame-class standing test |
+| `test_witness_constraints.py` | `WitnessConstraintGenerator`: local coherence, fulfilment, box faithfulness, target constraints -- all quantifier-free |
+| `test_witness_registry.py` | `WitnessRegistry`: `wrap`'s slot arithmetic, label bits, box guesses, witness-lasso allocation |
 
 ### `integration/`
 
 | File | Focus |
 |---|---|
-| `test_api_consistency.py` | Public API shape against the other theories |
-| `test_data_extraction.py` | Model data extraction from a solved structure |
-| `test_injection.py` | Theory injection into the builder pipeline |
-| `test_iterate.py` | `BimodalModelIterator` end to end |
-| `test_strict_semantics.py` | Strict-semantics behaviour |
-| `test_until_since_integration.py` | `\Until`/`\Since` through the full solve path |
+| `test_certificate_lean_agreement.py` | Round-trips a found certificate through BimodalLogic's `lake exe check_certificate` (skipped cleanly when unavailable) |
+| `test_data_extraction.py` | `extract_states`/`extract_evaluation_world`/`extract_relations`/`extract_propositions` against real solved structures |
+| `test_injection.py` | `inject_z3_model_values`: pinning label bits, box guesses, and the target selector from a previous solve |
+| `test_iterate.py` | `BimodalModelIterator`: difference/non-isomorphism constraints over labels and guesses |
+| `test_until_since_integration.py` | `\Until`/`\Since` semantic claims (top-guard equivalence to `future`/`past`, the open guard interval, boundary/immediate-witness behaviour) through the full solve path |
 
 ## Solve Budgets
 
-Bimodal examples are among the most expensive in the repository. Tests that solve real models set
-an explicit `max_time` rather than inheriting `BimodalSemantics`'s 1-second default, which is
-below the actual solve time for most non-trivial bimodal formulas. See
-`code/docs/core/TESTING_GUIDE.md` section 8.6 for the budget-and-headroom policy and section 8.13
-for the enforced floor.
+The certificate encoding is quantifier-free (no `ForAll`/`Exists`/MBQI/E-matching anywhere in the
+search), so every bimodal example now decides in well under 100ms -- measured directly, not
+assumed (see the implementation plan's Phase 17/19 sections for the per-example timings). Every
+example's `max_time` sits at the repository-wide 10s floor (`code/tests/ci/test_example_budget_floor.py`);
+none needs raising for solver-cost reasons. This is a reversal of the retired window-and-abundance
+encoding's status quo, under which bimodal examples were among the most expensive in the
+repository and several needed individually recalibrated budgets (60s-120s) to absorb heavy-tailed
+Z3 solve distributions -- those recalibration records are retired along with the encoding that
+needed them (see `examples.py`'s own historical notes on `BM_CM_1`/`BM_CM_4`). See
+`code/docs/core/TESTING_GUIDE.md` section 8.6 for the general budget-and-headroom policy and
+section 8.13 for the enforced floor.
 
 ## See Also
 

@@ -308,61 +308,23 @@ TN_CM_2_example = [
 # BM_CM_1: ALL FUTURE TO NECESSITY
 # Future A does not imply Box A: a world can have A true at all future times
 # while some other world has A false at the current time.
-# Previously timed out; now finds countermodel quickly with corrected semantics.
+# HISTORY (superseded by the certificate redesign, Phase 19): this example was previously
+# recalibrated to a 60s max_time and marked `unstable` in test_bimodal.py, chasing a
+# heavy-tailed Z3 solve distribution (median ~7-8s, one divergent draw at 600s) rooted in
+# the retired encoding's `ForAllTime`/`ExistsTime`-quantified all_future operator family
+# (see operators.py's old `_fresh_bound_int` discussion, itself retired). The certificate
+# encoding has no such quantifier at all (D1-D4), so that whole cost profile cannot recur
+# by construction, not merely by observation. Measured under the certificate encoding
+# (2026-09-25): decides `match` in ~1ms, confirmed stable across 20 consecutive runs (see
+# test_bimodal.py's own note on removing the `unstable` marking). max_time lowered to the
+# floor and the `unstable` marking removed.
 BM_CM_1_premises = ['\\Future A']
 BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 60,  # Recalibrated 15 -> 60 (2026-08-11); the prior "~8s" basis was
-                      # stale. Measured genuine cost: isolated unseeded runs decide at
-                      # ~13.1-15.1s (straddling the old 15s budget -- observed failing
-                      # ~coin-flip in isolation and reproducibly in
-                      # compare_bimodal_baseline.sh's test_bimodal.py sequence, at
-                      # commits both with and without the neighbouring BM_CM_4
-                      # recalibration, so this is genuine cost growth, not an induced
-                      # regression). A 7-seed pinned probe (smt/sat.random_seed,
-                      # 2026-08-11) measured median ~7.2s with decided draws up to
-                      # ~10s, plus ONE divergent draw undecided at 600s (rlimit 930M =
-                      # ~64x median) -- same divergent-tail class documented for the
-                      # ternary next_A leg in
-                      # oracle/bimodal_logic/tests/test_oracle_interface.py. 60s = ~4x
-                      # the operative ~15s worst decided draw; chosen above the strict
-                      # ~2x convention because the thin decided sample demonstrably
-                      # under-represents the mid-tail. The divergent-draw residual is
-                      # accepted and recorded: no budget closes it, and the
-                      # countermodel is genuinely found on every decided draw. \Future
-                      # is in the all_future operator family whose cost grew with the
-                      # quantifier bound-variable-aliasing fix (see operators.py's
-                      # _fresh_bound_int docstring). Monotone-safe for a countermodel
-                      # expectation; not a soundness change.
-                      #
-                      # Two further empirical anchors (2026-08-12), gathered while
-                      # investigating this as a CI flake rather than re-tuning max_time:
-                      # (1) the actual GitHub Actions failure for this case landed at
-                      # 60.94s call time -- just past the 60s budget above, nowhere
-                      # near the documented 600s divergent-draw extreme, i.e. exactly
-                      # "a near-budget draw tipped over", not a new failure mode.
-                      # (2) An independent 7-seed pinned probe (smt/sat.random_seed in
-                      # {1..7}, 90s probe ceiling) measured 4.76s / 47.78s / 1.99s /
-                      # 7.96s / 11.18s / 6.75s / 16.52s -- 7/7 decided, genuine
-                      # countermodel found on every draw, median ~8s, consistent in
-                      # shape (not exact numbers -- see TESTING_GUIDE.md 8.6 on
-                      # timing variance even under a pinned seed) with the settings
-                      # comment's own 7-seed probe above. A third encoding avenue
-                      # (finite unrolling of ForAllTime/ExistsTime over the
-                      # statically-known time domain) was tried against this same
-                      # sweep and closed as inconclusive-to-negative -- see
-                      # operators.py's _fresh_bound_int docstring for the full
-                      # measurement table. STANDING VERDICT, RE-AFFIRMED NOT
-                      # RE-LITIGATED: no budget closes the divergent-draw tail.
-                      # max_time is NOT to be re-tuned again on the strength of this
-                      # data -- a second recalibration would re-learn what is already
-                      # recorded here. This case is marked `unstable` (see
-                      # test_bimodal.py's UNSTABLE_EXAMPLES entry-criteria block and
-                      # TESTING_GUIDE.md section 8.9) rather than given a new
-                      # max_time.
+    'max_time' : 10,
     'expectation' : True,
 }
 BM_CM_1_example = [
@@ -412,53 +374,25 @@ BM_CM_3_example = [
 # BM_CM_4: POSSIBILITY TO SOME PAST
 # Diamond A does not imply past A: a world can be possibly A (some world has A now)
 # without A being true at any past time in the current world.
-# STATUS (corrected; see UNSTABLE_EXAMPLES in tests/unit/test_bimodal.py for the full
-# entry-criteria record): commit f9cc081e's Skolemized Seriality + Interpolation frame axioms
-# regressed this example from a 4.07s decided `match` to a deterministic `inconclusive` at the
-# 120s budget under Z3's default parameters. It is now tracked as `unstable`, NOT reliably
-# finding a countermodel -- the sentence this comment used to carry ("still genuinely found on
-# every probed seed") is false as of that regression and is corrected here rather than deleted.
+# HISTORY (superseded by the certificate redesign, Phase 19): this example was previously
+# recalibrated to a 120s max_time and marked `unstable` in test_bimodal.py after commit
+# f9cc081e's Skolemized Seriality + Interpolation frame axioms regressed it to a heavy-tailed
+# solve-cost distribution. Both `build_seriality_constraint` and `build_interpolation_constraint`
+# (the axioms responsible) no longer exist anywhere in `semantic/core.py` -- the certificate
+# encoding has no frame-axiom machinery at all (D1-D4) -- so that cost profile cannot recur by
+# construction. Measured under the certificate encoding (2026-09-25): decides `match` in ~1ms,
+# confirmed stable across 20 consecutive runs. max_time lowered to the floor and the `unstable`
+# marking removed. NOTE for Phase 21 (oracle cleanup): the retired-encoding-era comment this
+# replaces asked to "keep in sync with the inline copy in
+# oracle/bimodal_logic/tests/test_boundary_regression.py" -- that oracle-side file is unaffected
+# by this bimodal-side change and is Phase 20/21's own scope to update.
 BM_CM_4_premises = ['\\Diamond A']
 BM_CM_4_conclusions = ['\\past A']
 BM_CM_4_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 120,  # Recalibrated 30 -> 120 (2026-08-11). History: widened 15 -> 30
-                       # when fixing the quantifier bound-variable aliasing defect (see
-                       # operators.py's _fresh_bound_int docstring) removed a Z3
-                       # term-identity-based simplification shortcut PastOperator's
-                       # bound variable used to get "for free" via accidental name
-                       # reuse -- the same effect documented for Box(p)->Box(p) in
-                       # operators.py. The 30s figure rested on a ~15-24s observed
-                       # record that under-sampled the solve-cost tail: a 7-seed
-                       # uncensored probe (pinned smt/sat.random_seed, 120s probe
-                       # budget, 2026-08-11) measured median 6.9s but a 57.1s worst
-                       # draw (rlimit 32.2M) -- 30s misses that draw outright and 60s
-                       # would cover it at only ~1.05x, sitting exactly at the
-                       # boundary. 120s = ~2.1x the measured worst, the same
-                       # ~2x-of-measured-worst convention as the other recalibrated
-                       # slow solves in this line of work.
-                       #
-                       # UPDATE (diagnosis round following the f9cc081e regression): the
-                       # "still genuinely found on every probed seed" claim above is FALSE as of
-                       # commit f9cc081e (added AFTER this comment was written), which added the
-                       # Skolemized Seriality + Interpolation frame axioms and regressed BM_CM_4
-                       # to a deterministic `inconclusive` at 120s under Z3's default
-                       # parameters. A required-before-landing 25-pinned-seed sweep (40s probe
-                       # budget) found the failure is a genuine, non-trivial heavy-tailed
-                       # distribution even under varied seeds -- 2/25 seeds undecided, 23/25
-                       # decided `match` (0.24s-26.46s) -- not a single pathological default
-                       # draw. A candidate fix (alpha-renaming the two axioms' Z3 symbol
-                       # identifiers, logic unchanged) was tested and REJECTED: it produced MORE
-                       # undecided draws (5/25) than the unmodified construction under the same
-                       # sweep, so it was never landed. `max_time` was NOT raised as a remedy --
-                       # this recalibration record stands as history only; widening further
-                       # would hide the undecided-draw rate rather than close it. BM_CM_4 is now
-                       # tracked in `UNSTABLE_EXAMPLES`
-                       # (tests/unit/test_bimodal.py) rather than assumed reliable. Keep in sync
-                       # with the inline copy in
-                       # oracle/bimodal_logic/tests/test_boundary_regression.py.
+    'max_time' : 10,
     'expectation' : True,
 }
 BM_CM_4_example = [
@@ -953,7 +887,7 @@ BX2G_MONO_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 15,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX2G_MONO_U_TH_example = [
@@ -973,7 +907,7 @@ BX2H_MONO_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 15,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX2H_MONO_S_TH_example = [
@@ -992,7 +926,7 @@ BX3_MONO_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 15,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX3_MONO_U_TH_example = [
@@ -1011,7 +945,7 @@ BX3P_MONO_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 15,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX3P_MONO_S_TH_example = [
@@ -1173,7 +1107,7 @@ BX5_ACCUM_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 20,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX5_ACCUM_U_TH_example = [
@@ -1192,7 +1126,7 @@ BX5P_ACCUM_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 20,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX5P_ACCUM_S_TH_example = [
@@ -1211,7 +1145,7 @@ BX6_ABSORB_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 20,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX6_ABSORB_U_TH_example = [
@@ -1230,7 +1164,7 @@ BX6P_ABSORB_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 20,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX6P_ABSORB_S_TH_example = [
@@ -1250,7 +1184,7 @@ BX11_LIN_F_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 20,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX11_LIN_F_TH_example = [
@@ -1268,7 +1202,7 @@ BX11P_LIN_P_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 20,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX11P_LIN_P_TH_example = [
@@ -1287,7 +1221,7 @@ BX13_ENRICH_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 30,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX13_ENRICH_U_TH_example = [
@@ -1306,7 +1240,7 @@ BX13P_ENRICH_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 30,
+    'max_time' : 10,  # Lowered from the retired encoding's budget; measured <50ms under the certificate encoding (Phase 19, 2026-09-25).
     'expectation' : False,
 }
 BX13P_ENRICH_S_TH_example = [

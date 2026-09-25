@@ -274,3 +274,4 @@ def iterate_example_generator(example, max_iterations=None):
 
 # Mark the generator function for BuildModule detection
 iterate_example_generator.returns_generator = True
+iterate_example_generator.__wrapped__ = iterate_example_generator
