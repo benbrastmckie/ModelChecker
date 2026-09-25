@@ -1,7 +1,7 @@
 # Implementation Plan: Task #187
 
 - **Task**: 187 - Establish an adequacy theorem connecting ModelChecker's bimodal countermodels to the paper's task semantics
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 9.5 hours
 - **Dependencies**: None blocking. Layered over the certificate-redesign task (see "Relationship to the certificate redesign" below), which is `planned` but not started; this plan is written so that every phase lands green against the repository as it stands today.
 - **Research Inputs**: specs/187_establish_adequacy_theorem_bimodal_countermodels/reports/01_adequacy-theorem-bimodal-countermodels.md

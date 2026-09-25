@@ -4,7 +4,7 @@
     {
       "project_number": 187,
       "project_name": "establish_adequacy_theorem_bimodal_countermodels",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "formal:logic",
       "topic": "semantics",
       "effort": "large",
@@ -20,12 +20,18 @@
           "path": "specs/187_establish_adequacy_theorem_bimodal_countermodels/plans/01_adequacy-theorem-bimodal-countermodels.md",
           "type": "plan",
           "summary": "Adequacy-layer implementation plan: 6 phases, 9.5 hours, waves [[1,3],[2,4],[5],[6]]."
+        },
+        {
+          "path": "specs/187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md",
+          "type": "summary",
+          "summary": "Full implementation summary for all six phases."
         }
       ],
       "created": "2026-09-25T04:53:08Z",
-      "last_updated": "2026-09-25T05:14:32Z",
+      "last_updated": "2026-09-25T05:53:10Z",
       "session_id": "sess_1790312099_19329d",
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Authored ADEQUACY.md stating and fully proving (SOUND) for the witness-family certificate design with a verified Lean citation table, built and Lean-differentially-validated a window-discriminating certificate fixture corpus, amended the certificate-redesign task's plan (D7, D9, and nine phases) with the corrected proved windows before it was dispatched, and corrected the one false claim about the paper's semantics in the current test suite's exclusion comment."
     },
     {
       "project_number": 184,

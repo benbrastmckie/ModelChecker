@@ -11,7 +11,7 @@ next_project_number: 188
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 184,186,187 | -- | semantics |
+| 1 | 184,186 | -- | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -19,18 +19,18 @@ next_project_number: 188
 
 184 [PLANNED] — Redesign the bimodal theory around witness-family...
 186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
-187 [IMPLEMENTING] — Establish an adequacy theorem connecting ModelChecker's...
 
 ## Tasks
 
 ### 187. Establish adequacy theorem bimodal countermodels
 - **Effort**: large
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: formal:logic
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [187_establish_adequacy_theorem_bimodal_countermodels/reports/01_adequacy-theorem-bimodal-countermodels.md]
 - **Plan**: [187_establish_adequacy_theorem_bimodal_countermodels/plans/01_adequacy-theorem-bimodal-countermodels.md]
+- **Summary**: [187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md]
 
 **Description**: Establish an adequacy theorem connecting ModelChecker's bimodal countermodels to the paper's task semantics: every countermodel the model checker reports must provably entail the existence of a countermodel in the sense of sec:Construction of ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex, and ideally conversely. Refactor the bimodal theory as far as is needed to make that theorem true, stated precisely, and mechanically checkable.
 
