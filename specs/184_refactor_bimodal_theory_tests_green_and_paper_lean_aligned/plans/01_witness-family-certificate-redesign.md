@@ -600,9 +600,12 @@ encoding and carries none of the deleted machinery.
       length, and both must be rendered **inconclusive**, never as validity — a rendering that says
       "valid" on either is a reportable defect. Both axioms are classified minimum-frame-class
       `.ZTime` in `ProofSystem/Axioms.lean:612-613`, so by (SOUND) no certificate can ever exist for
-      them even though they are not valid at every temporal order (e.g. a paper countermodel exists
-      over `D = ℚ`); this test is what makes that permanent gap observable rather than silently
-      forgotten.
+      them even though they are not valid at every temporal order. That second half is now **proved,
+      not cited**: `not_validIn_base_prior_UZ` and `not_validIn_base_z1`
+      (`Metalogic/Independence/ZTimeSharpness.lean:225, 236`) refute both at `FrameClass.Base`, and
+      `prior_UZ_minFrameClass_sharp` / `z1_minFrameClass_sharp` (`:251, 262`) strengthen this to
+      every `fc < FrameClass.ZTime`. This test is what makes that permanent gap observable rather
+      than silently forgotten.
 
 **Timing**: 2 hours
 
