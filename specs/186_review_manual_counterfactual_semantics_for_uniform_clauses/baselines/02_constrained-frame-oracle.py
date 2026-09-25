@@ -483,50 +483,83 @@ def experiment_constrained(times, forbidden_pair: Tuple[str, str], perturb: bool
 
 
 def frame_g2(times):
-    """Task 185 report 01 F8's Frame G2, ported to GeneralFrame with the IDENTITY task
-    relation, so world-histories are exactly the constant histories (F8's embedding
-    witness), letting the recipe's family-level I separate two counterfactuals with the
-    same truth-set over world-histories.
+    """Task 185 report 01 F8's Frame G2 (`specs/185_*/baselines/03_research-witnesses.py`,
+    section (a)), ported VERBATIM (same 8 atoms, same 4 worlds, same letters) to GeneralFrame
+    with the IDENTITY task relation, so world-histories are exactly the constant histories --
+    the family-level analogue of F8's state-level embedding witness.
     """
-    # G2: two atoms p, q; two worlds where p, q differ in a way that separates A []-> B
-    # from C []-> D while keeping their truth sets equal over (constant) histories.
-    atoms = ["p", "q"]
-    worlds = [{"p", "q"}, set()]  # w1 = p.q, w2 = null-ish (neither p nor q)
+    atoms = ["a", "a'", "x", "x'", "y", "c", "b", "b'"]
+    worlds = [
+        {"a", "x", "b'"},
+        {"a", "x", "c", "b"},
+        {"x", "y", "c", "b", "a'"},
+        {"x'", "a", "b"},
+    ]
 
     def rel(s, d, t):
         return s == t  # identity relation: world-histories are exactly constant functions
 
-    fr0 = base.Frame(atoms, worlds, times)
     return GeneralFrame(atoms, worlds, times, rel)
+
+
+def letters_g2(fr):
+    m = fr.mask
+    return {
+        "A": ({m(["a"])}, {m(["a'"])}),
+        "B": ({m(["b"])}, {m(["b'"])}),
+        "C": ({m(["x"])}, {m(["x'"])}),
+        "D": ({m(["b"])}, {m(["b'"])}),  # deliberately == B's letter, per task 185's own frame
+    }
 
 
 def experiment_g2(times):
     print("=" * 78)
     print(f"G2  Family-level hyperintensionality witness (identity relation), window {times}")
     fr = frame_g2(times)
-    m = GeneralModel(fr, {
-        "A": ({fr.mask(["p"])}, {fr.mask(["q"])}),
-        "B": ({fr.mask(["q"])}, {fr.mask(["p"])}),
-        "C": ({fr.mask(["p"])}, {fr.mask(["q"])}),
-        "D": ({fr.mask(["q"])}, {fr.mask(["p"])}),
-    })
+    m = GeneralModel(fr, letters_g2(fr))
     A, B, C, D = Let("A"), Let("B"), Let("C"), Let("D")
-    print(f"  world-histories: {len(fr.histories)} (identity relation restricts to constant functions)")
-    truthA = [m.true(CF(A, B), h, 0) for h in fr.histories]
-    truthC = [m.true(CF(C, D), h, 0) for h in fr.histories]
-    same_truth = truthA == truthC
-    print(f"  A []-> B and C []-> D have the same truth-set over world-histories: {same_truth}")
-    VA, FA = m.recipe(CF(A, B), 0)
-    VC, FC = m.recipe(CF(C, D), 0)
-    distinct = (VA, FA) != (VC, FC)
+    print(f"  world-histories: {len(fr.histories)} of {len(fr.worlds) ** len(fr.times)} possible "
+          f"combinations (identity relation restricts to constant functions)")
+    X, Y = CF(A, B), CF(C, D)
+    truthX = [m.true(X, h, 0) for h in fr.histories]
+    truthY = [m.true(Y, h, 0) for h in fr.histories]
+    same_truth = truthX == truthY
+    print(f"  A []-> B and C []-> D have the same truth-set over world-histories: {same_truth} "
+          f"({sum(truthX)}/{len(truthX)} true)")
+    VX, FX = m.recipe(X, 0)
+    VY, FY = m.recipe(Y, 0)
+    distinct = (VX, FX) != (VY, FY)
     print(f"  their family-level V/F propositions are distinct: {distinct}")
-    if same_truth and distinct:
-        # Find the nested truth-value that separates them (per task 185 report 01 F8's shape).
-        for phi_pair_name, X, Y in [("outer", CF(A, B), CF(C, D))]:
-            nested = Box(X)
-            v = m.true(nested, next(iter(fr.histories)) if fr.histories else {}, 0) if fr.histories else None
-        print("  separating nested truth-value: [](A []-> B) vs [](C []-> D) differ in general because "
-              "I_[]-> reads the family-level verifier sets directly, not merely the truth-set of the inner formula")
+    print(f"  |V_X|={len(VX)} |F_X|={len(FX)}  |V_Y|={len(VY)} |F_Y|={len(FY)}")
+    minVX, minFX = fr.minimal(m._recipe.get((X, 0, "IL-raw"), (set(), set()))[0]), \
+        fr.minimal(m._recipe.get((X, 0, "IL-raw"), (set(), set()))[1])
+    minVY, minFY = fr.minimal(m._recipe.get((Y, 0, "IL-raw"), (set(), set()))[0]), \
+        fr.minimal(m._recipe.get((Y, 0, "IL-raw"), (set(), set()))[1])
+    print(f"  minimal settlers X: {[m.fam_str(p) for p in minVX]}  minimal co-settlers X: {[m.fam_str(p) for p in minFX]}")
+    print(f"  minimal settlers Y: {[m.fam_str(p) for p in minVY]}  minimal co-settlers Y: {[m.fam_str(p) for p in minFY]}")
+
+    # Cross-check against the state-level ILMC result task 185 pinned (F8), using base.Model's
+    # state-level machinery on the same frame at window {0} (a single time behaves like the
+    # untensed fragment).
+    bfr_state = base.Frame(fr.atoms, [{"a", "x", "b'"}, {"a", "x", "c", "b"},
+                                       {"x", "y", "c", "b", "a'"}, {"x'", "a", "b"}], [0])
+    bm_state = base.Model(bfr_state, letters_g2(bfr_state))
+    sVX, sFX = bm_state.state_ilmc(A, B)
+    sVY, sFY = bm_state.state_ilmc(C, D)
+    state_distinct = (sVX, sFX) != (sVY, sFY)
+    print(f"  state-level ILMC cross-check (task 185 report 01 F8): X and Y distinct: {state_distinct} "
+          f"(V_X={sorted(bfr_state.name(s) for s in sVX)}, V_Y={sorted(bfr_state.name(s) for s in sVY)})")
+
+    # Separating nested truth-value: [](A []-> B) vs [](C []-> D), which reads the family-level
+    # verifier/falsifier SETS directly (@lem-necessity-semantics via top []->), so a difference in
+    # V/F at every window carries over to a difference in the nested formula's truth whenever some
+    # history has different verdicts -- report the one nested check the plan asks for.
+    if fr.histories:
+        nested_true = [m.true(Box(X), h, 0) for h in fr.histories]
+        nested_true_y = [m.true(Box(Y), h, 0) for h in fr.histories]
+        print(f"  nested: [](A []-> B) truth-set == [](C []-> D) truth-set: {nested_true == nested_true_y} "
+              f"(both reduce to a single global check per @prop-box-diamond-null-verified, so they "
+              f"agree here; the separating information already lives in V_X != V_Y, not in [](.))")
 
 
 # ----------------------------------------------------------------------------

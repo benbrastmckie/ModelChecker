@@ -339,23 +339,26 @@ follow-up specification rather than extending this phase.
 
 ---
 
-### Phase 4: Frame G2 at the family level (open item 5) [NOT STARTED]
+### Phase 4: Frame G2 at the family level (open item 5) [COMPLETED]
 
 **Goal**: Pin a family-level hyperintensionality witness, closing report 01's open item 5 and
 F8's family-level refutation of report 02's F4 by measurement rather than by embedding argument.
 
 **Tasks**:
-- [ ] Port Frame G2 (task 185 report 01 F8; `specs/185_*/baselines/03_research-witnesses.py`) into
+- [x] Port Frame G2 (task 185 report 01 F8; `specs/185_*/baselines/03_research-witnesses.py`) into
       the general oracle, with the identity task relation so that world-histories are the constant
-      histories.
-- [ ] Run the recipe on `A []-> B` and `C []-> D` at windows `{0}` and `{0,1}`: confirm the two
+      histories. *(completed: verbatim port — same 8 atoms, 4 worlds, letters)*
+- [x] Run the recipe on `A []-> B` and `C []-> D` at windows `{0}` and `{0,1}`: confirm the two
       have the same truth set over world-histories and distinct `V`/`F`, and record the nested
-      truth-value that separates them.
-- [ ] Cross-check against the state-level `ILMC` result task 185 pinned, as E4 did for the 8-atom
-      F3 frame.
-- [ ] Save output as `baselines/02_constrained-frame-oracle-output-g2.txt`.
-- [ ] Append `### F13. Family-level hyperintensionality witness (open item 5)` to
-      `reports/01_family-level-settled-verification.md`.
+      truth-value that separates them. *(completed: same truth-set confirmed at both windows,
+      distinct V/F confirmed at both windows; the nested check `[](A[]->B)` vs `[](C[]->D)` agrees
+      on this particular frame rather than separating — recorded honestly as such in F13 rather
+      than claimed as a separating witness)*
+- [x] Cross-check against the state-level `ILMC` result task 185 pinned, as E4 did for the 8-atom
+      F3 frame. *(completed: matches)*
+- [x] Save output as `baselines/02_constrained-frame-oracle-output-g2.txt`. *(completed)*
+- [x] Append `### F13. Family-level hyperintensionality witness (open item 5)` to
+      `reports/01_family-level-settled-verification.md`. *(completed)*
 
 **Timing**: 0.75 hours
 

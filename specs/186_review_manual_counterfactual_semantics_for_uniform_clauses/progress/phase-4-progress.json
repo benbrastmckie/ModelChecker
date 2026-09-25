@@ -1,0 +1,25 @@
+{
+  "phase": 4,
+  "phase_name": "Frame G2 at the family level (open item 5)",
+  "started_at": "2026-09-25T02:05:00Z",
+  "last_updated": "2026-09-25T02:25:00Z",
+  "objectives": [
+    {"id": 1, "description": "Port Frame G2 into the general oracle with identity task relation", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py"]},
+    {"id": 2, "description": "Run the recipe on A []-> B and C []-> D at windows {0} and {0,1}", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Cross-check against the state-level ILMC result task 185 pinned", "status": "done", "files_touched": []},
+    {"id": 4, "description": "Save output as baselines/02_constrained-frame-oracle-output-g2.txt", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle-output-g2.txt"]},
+    {"id": 5, "description": "Append F13 to report 01", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]}
+  ],
+  "current_objective": 5,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "4.nested",
+      "description": "Record the nested truth-value that separates [](A []-> B) from [](C []-> D).",
+      "type": "altered",
+      "reason": "On this frame the two [](.) truth-sets AGREE rather than separate (both reduce to a single global check per @prop-box-diamond-null-verified, and Frame G2's four histories happen to agree on that global fact). Reported honestly as a non-separating result rather than manufacturing a separating example; open item 5 is still closed since the V/F propositions themselves (not a nested formula) are the F8-style witness, exactly as task 185's own state-level refutation is stated.",
+      "annotation": "*(deviation: altered — the nested [] check does not separate on this frame; the V/F distinctness itself is the witness)*"
+    }
+  ]
+}

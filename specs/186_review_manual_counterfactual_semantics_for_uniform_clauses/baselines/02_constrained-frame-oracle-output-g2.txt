@@ -1,0 +1,20 @@
+==============================================================================
+G2  Family-level hyperintensionality witness (identity relation), window [0]
+  world-histories: 4 of 4 possible combinations (identity relation restricts to constant functions)
+  A []-> B and C []-> D have the same truth-set over world-histories: True (3/4 true)
+  their family-level V/F propositions are distinct: True
+  |V_X|=7 |F_X|=15  |V_Y|=15 |F_Y|=15
+  minimal settlers X: ['{0:b}', '{0:c}', "{0:x'}"]  minimal co-settlers X: ['{0:a.y}', "{0:a.a'}", "{0:b'}", "{0:x.x'}"]
+  minimal settlers Y: ['{0:b}', '{0:c}', "{0:a'}", '{0:y}']  minimal co-settlers Y: ['{0:a.y}', "{0:a.a'}", "{0:b'}", "{0:x.x'}"]
+  state-level ILMC cross-check (task 185 report 01 F8): X and Y distinct: True (V_X=['b', 'c', 'c.b', "x'", "x'.b", "x'.c", "x'.c.b"], V_Y=["a'", "a'.b", "a'.c", "a'.c.b", "a'.y", "a'.y.b", "a'.y.c", "a'.y.c.b", 'b', 'c', 'c.b', 'y', 'y.b', 'y.c', 'y.c.b'])
+  nested: [](A []-> B) truth-set == [](C []-> D) truth-set: True (both reduce to a single global check per @prop-box-diamond-null-verified, so they agree here; the separating information already lives in V_X != V_Y, not in [](.))
+==============================================================================
+G2  Family-level hyperintensionality witness (identity relation), window [0, 1]
+  world-histories: 4 of 16 possible combinations (identity relation restricts to constant functions)
+  A []-> B and C []-> D have the same truth-set over world-histories: True (3/4 true)
+  their family-level V/F propositions are distinct: True
+  |V_X|=7 |F_X|=3291  |V_Y|=15 |F_Y|=3339
+  minimal settlers X: ['{0:b}', '{0:c}', "{0:x'}"]  minimal co-settlers X: ["{0:null, 1:a'.x'}", "{0:a', 1:a}", "{0:null, 1:x.x'}", '{0:a, 1:y}', "{0:a', 1:x'}", "{0:y, 1:x'}", "{0:null, 1:b'}", "{0:null, 1:a.a'}", "{0:null, 1:x'.c}", "{0:null, 1:x'.y}", "{0:b'}", '{0:a.y}', "{0:a.a'}", "{0:x, 1:x'}", '{0:y, 1:a}', '{0:null, 1:a.y}', "{0:a, 1:a'}", "{0:x.x'}"]
+  minimal settlers Y: ['{0:b}', '{0:c}', "{0:a'}", '{0:y}']  minimal co-settlers Y: ["{0:null, 1:a'.x'}", "{0:x', 1:a'}", "{0:x, 1:x'}", "{0:null, 1:x.x'}", '{0:a, 1:y}', "{0:x', 1:y}", "{0:null, 1:b'}", "{0:null, 1:a.a'}", "{0:null, 1:x'.c}", "{0:null, 1:x'.y}", "{0:b'}", "{0:x', 1:x}", '{0:a.y}', "{0:x', 1:c}", "{0:a.a'}", '{0:null, 1:a.y}', "{0:a, 1:a'}", "{0:x.x'}"]
+  state-level ILMC cross-check (task 185 report 01 F8): X and Y distinct: True (V_X=['b', 'c', 'c.b', "x'", "x'.b", "x'.c", "x'.c.b"], V_Y=["a'", "a'.b", "a'.c", "a'.c.b", "a'.y", "a'.y.b", "a'.y.c", "a'.y.c.b", 'b', 'c', 'c.b', 'y', 'y.b', 'y.c', 'y.c.b'])
+  nested: [](A []-> B) truth-set == [](C []-> D) truth-set: True (both reduce to a single global check per @prop-box-diamond-null-verified, so they agree here; the separating information already lives in V_X != V_Y, not in [](.))
