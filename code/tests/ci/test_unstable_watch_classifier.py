@@ -150,6 +150,45 @@ class TestClassifyBMCM1Characterization:
         assert result == "NEW"
 
 
+# code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases
+BM_CM_4_NODEID = (
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::"
+    "test_example_cases[BM_CM_4-example_case9]"
+)
+BM_CM_4_FAILURE_TEXT = "AssertionError: Test failed for example: BM_CM_4"
+
+
+class TestClassifyBMCM4Signature:
+    """BM_CM_4's own MAX_TIME_BY_NODEID_FRAGMENT branch (max_time=120), added alongside its
+    UNSTABLE_EXAMPLES entry in test_bimodal.py. Shares BM_CM_1's generic FAILURE_SIGNATURE --
+    no bespoke assertion message, so no FAILURE_SIGNATURE_BY_NODEID_FRAGMENT override is
+    needed."""
+
+    def test_timing_signature_at_full_duration(self):
+        """duration=120.35 (>= 0.8*120) plus the known failure signature -> TIMING."""
+        result = classify_mod.classify(BM_CM_4_NODEID, 120.35, BM_CM_4_FAILURE_TEXT)
+        assert result == "TIMING"
+
+    def test_fast_failure_is_new(self):
+        """A fast failure (well under 0.8*120) is not the documented timing signature,
+        even with the right node id and message -> NEW."""
+        result = classify_mod.classify(BM_CM_4_NODEID, 5.0, BM_CM_4_FAILURE_TEXT)
+        assert result == "NEW"
+
+    def test_different_message_at_full_duration_is_new(self):
+        """Same node id and duration, but a different assertion message -> NEW."""
+        result = classify_mod.classify(
+            BM_CM_4_NODEID, 120.35, "AssertionError: something else entirely failed"
+        )
+        assert result == "NEW"
+
+    def test_bm_cm_1_classification_unaffected_by_bm_cm_4_entry(self):
+        """Adding BM_CM_4's dict entry must not change BM_CM_1's own classification --
+        MAX_TIME_BY_NODEID_FRAGMENT lookup is keyed per-fragment, not positional."""
+        result = classify_mod.classify(BM_CM_1_NODEID, 60.94, BM_CM_1_FAILURE_TEXT)
+        assert result == "TIMING"
+
+
 # ---------------------------------------------------------------------------
 # New-signature tests: define the gating-floor branch this task adds to
 # classify(). All fail (NameError / AttributeError / wrong result) until

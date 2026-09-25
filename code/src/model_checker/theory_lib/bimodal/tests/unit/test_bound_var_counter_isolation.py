@@ -27,6 +27,22 @@ exists to prevent: that bug is only possible when two calls resolve to the
 same name *within the same Context*, and a freshly reset counter still hands
 out strictly increasing, therefore distinct, suffixes for every call made
 against that instance's (single) Context.
+
+STATUS UPDATE (second occurrence, dated): the seed-history sentence above ("every other tested
+seed ... passes") described the state that held once the counter-reset fix
+(``BimodalSemantics._reset_global_state`` -> ``reset_bound_var_counter()``, semantic/core.py)
+landed, and it stopped holding again after commit f9cc081e added the Skolemized Seriality +
+Interpolation frame axioms: all three of this file's own parametrized states (0, 17, 30) now
+fail BM_CM_4 uniformly, regardless of counter state. This is NOT a reopening of the
+order-dependence bug this file exists to catch -- the counter-reset fix is confirmed still
+working (see ``TestBoundVarCounterResetOnSemanticsInit`` below, and the diagnosis this note
+cites), and uniform failure *independent* of counter state is exactly what a working reset
+predicts. What changed is BM_CM_4 itself: it is now a solve-cost regression tracked in
+``UNSTABLE_EXAMPLES`` (``test_bimodal.py``), heavy-tailed even under a pinned-seed sweep (2/25
+undecided draws against the unmodified construction, 25-seed probe). A future reader who sees
+all three parametrized states fail again should look there, not re-suspect this file's own
+fix -- this is the second time BM_CM_4's own instability, not counter leakage, has been the
+cause.
 """
 
 import itertools

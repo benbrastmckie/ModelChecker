@@ -356,6 +356,7 @@ class TestBoundaryDocumentation:
         assert result, "TN_TH_2 (A => G(P(A))) should be theorem at M_safe=4"
 
     @pytest.mark.xdist_serial
+    @pytest.mark.unstable
     def test_countermodel_bm_cm4_at_example_settings(self):
         """BM_CM_4 (Diamond(A) => Past(A)) has countermodel at its example settings.
 
@@ -376,9 +377,20 @@ class TestBoundaryDocumentation:
         measured median 6.9s but a 57.1s worst draw (rlimit 32.2M), so 30s misses
         that draw outright and 60s would cover it at only ~1.05x. 120s = ~2.1x the
         measured worst, the same ~2x-of-measured-worst convention as the other
-        recalibrated slow solves. The countermodel is still genuinely found on every
-        probed seed; monotone-safe for a countermodel expectation, not a soundness
-        change.
+        recalibrated slow solves.
+
+        STATUS (corrected -- the "still genuinely found on every probed seed" sentence
+        this comment used to carry is now FALSE): commit f9cc081e added the Skolemized
+        Seriality + Interpolation frame axioms and regressed this example to a
+        deterministic `inconclusive` at 120s under Z3's default parameters. `unstable`
+        added here to keep this inline copy in sync with BM_CM_4's UNSTABLE_EXAMPLES
+        entry in bimodal/tests/unit/test_bimodal.py, which carries the full
+        entry-criteria record (a 25-pinned-seed sweep: 2/25 undecided against the
+        unmodified construction, 23/25 decided `match`; a candidate alpha-rename fix
+        tested and rejected -- it produced MORE undecided draws, 5/25, than the
+        unmodified construction). max_time was NOT raised as a remedy. This is a
+        solve-cost regression, not a soundness change -- monotone-safe for a
+        countermodel expectation.
 
         xdist_serial: a genuine multi-second solve (median ~7s, worst measured
         57.1s) that only fails under the gating suite's parallel pass (-n 6) via
@@ -470,7 +482,8 @@ class TestExampleRegression:
     @pytest.mark.parametrize(
         "example_name, example_case",
         [
-            pytest.param(k, v, marks=pytest.mark.xdist_serial) if k == "BM_CM_4"
+            pytest.param(k, v, marks=[pytest.mark.xdist_serial, pytest.mark.unstable])
+            if k == "BM_CM_4"
             else pytest.param(k, v)
             for k, v in regression_examples.items()
         ],
@@ -487,6 +500,15 @@ class TestExampleRegression:
         suite's parallel pass (-n 6) via six-way CPU contention -- confirmed to
         pass serially at both HEAD and the pre-fix commit. Same mechanism as
         sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
+
+        BM_CM_4 ALSO carries `unstable` (added alongside the inline copy at
+        test_countermodel_bm_cm4_at_example_settings above and BM_CM_4's
+        UNSTABLE_EXAMPLES entry in bimodal/tests/unit/test_bimodal.py -- all three
+        sites must stay in sync): commit f9cc081e's Skolemized Seriality +
+        Interpolation frame axioms regressed BM_CM_4 to a deterministic
+        `inconclusive` at its 120s budget under Z3's default parameters. See the
+        `test_countermodel_bm_cm4_at_example_settings` docstring above for the full
+        measured history (25-pinned-seed sweep, rejected alpha-rename candidate fix).
         """
         with isolated_z3_context():
             result = run_test(

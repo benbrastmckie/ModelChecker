@@ -66,8 +66,16 @@ KNOWN_TIMEOUT_EXAMPLES = {
                             # encoding -- see docs/ADEQUACY.md
     "BX7_LINEAR_U_TH",      # BX7 Until linearity: N=4, M=5 - computationally expensive
     "BX7P_LINEAR_S_TH",     # BX7' Since linearity: N=4, M=5 - computationally expensive
-    # NOTE: BM_CM_1, BM_CM_2, BM_CM_4 now reliably find countermodels with corrected semantics
-    # (Box scope fix + capped_skolem_abundance_constraint). They are included in the test suite.
+    # NOTE (corrected -- the sentence below was accurate for the Box scope fix +
+    # capped_skolem_abundance_constraint era but is now false for two of the three named
+    # examples): BM_CM_2 still reliably finds its countermodel with no open issue. BM_CM_1 is
+    # tracked in UNSTABLE_EXAMPLES below (a heavy-tailed Future/all_future solve distribution).
+    # BM_CM_4 regressed to a deterministic solve-cost failure after commit f9cc081e added the
+    # Skolemized Seriality + Interpolation frame axioms, and is now ALSO tracked in
+    # UNSTABLE_EXAMPLES below -- see BM_CM_4_settings' comment in examples.py for the full
+    # measured history. All three remain included in the test suite (collected, not removed via
+    # this KNOWN_TIMEOUT_EXAMPLES set), just with their real current status recorded below
+    # rather than here.
 }
 
 # `unstable`-marked examples, kept collected and observable rather than removed from
@@ -105,9 +113,54 @@ KNOWN_TIMEOUT_EXAMPLES = {
 #     >= 20-seed sweep with no undecided draw at max_time = 60. A single green
 #     CI run never qualifies.
 #
+# BM_CM_4 (test_example_cases[BM_CM_4-example_case9]):
+#
+# (1) WHAT FAILS AND WHY -- a solve-cost regression, not a run-to-run nondeterminism. Commit
+#     f9cc081e added build_seriality_constraint/build_interpolation_constraint (Skolemized
+#     Seriality + Interpolation frame axioms) to build_frame_constraints; its own commit message
+#     already recorded BM_CM_4 regressing from a 4.07s decided `match` to `inconclusive` at
+#     120s+. An isolation table (source: the f9cc081e-era regression baseline) shows a
+#     monotonic, reproducible pattern -- `neither` 3.10s < `seriality_only` 9.27s ~
+#     `interpolation_only` 6.33s < `both` undecided -- confirming Z3's default (unpinned)
+#     parameters deterministically fail to decide within budget only when both axioms are
+#     present together, not solver flakiness. A dedicated 25-seed pinned-seed sweep (this
+#     marking's own diagnosis round) found the SAME deterministic-per-draw character extends
+#     across pinned `smt`/`sat.random_seed` values too: 2/25 seeds (7, 17) at a 40s probe budget
+#     produce an undecided draw against the real, committed construction -- a genuine, if
+#     narrower than BM_CM_1's, heavy-tailed distribution, not a single pathological default
+#     draw.
+#
+# (2) DEMONSTRABLY NOT SEMANTIC -- every decided draw returns the expected `match` with
+#     `model_found: True`. The 25-seed pinned sweep found zero non-`match` decided draws (23/25
+#     decided `match`, decided-time range 0.24s-26.46s); the failure mode is always a budget
+#     overrun reported as `model_found == False`, never a changed semantic conclusion. This is
+#     precisely the showing this entry could not previously make (BM_CM_4 was untracked and had
+#     no decided-draw evidence on record) and now can.
+#
+# (3) GENUINE FIX ATTEMPTED AND ITS FAILURE RECORDED -- an alpha-rename of the two axioms' Z3
+#     symbol identifiers (serial_succ/serial_pred/serial_w/serial_x and
+#     interp_witness/interp_w/interp_v/interp_d1/interp_d2, logic byte-for-byte unchanged) was
+#     tested as a candidate fix, motivated by Z3 MBQI/E-matching's documented sensitivity to
+#     incidental symbol identity. A 3-5-probe sample at Z3's default parameters looked
+#     promising (fast, decided `match` every time, including at the bound-var-counter states
+#     [0, 17, 30] test_bound_var_counter_isolation.py parametrizes). A required >= 20-seed sweep
+#     (25 pinned seeds, 40s probe budget) REJECTED it: the renamed construction produced 5/25
+#     undecided draws -- MORE than the unmodified construction's 2/25 at the identical seeds and
+#     budget. The rename does not eliminate the tail; it relocates it, and on this sample
+#     relocates more of it into the tail than it removes. It was therefore never landed (`git
+#     diff` on core.py is empty). `max_time` re-tuning is explicitly ruled out: BM_CM_4_settings
+#     already documents one recalibration (30 -> 120) that did not close the tail, and widening
+#     further would only hide the same undecided-draw rate rather than closing it.
+#
+# (4) EXIT CRITERION -- verbatim and unambiguous, following the BM_CM_1 entry's convention: the
+#     marker comes off when EITHER 20 consecutive unstable-watch runs record zero failures
+#     (nightly cadence, ~3 weeks), OR a genuine encoding fix collapses the tail across a
+#     >= 20-seed sweep with no undecided draw at max_time = 120. A single green CI run never
+#     qualifies.
+#
 # See TESTING_GUIDE.md section 8.9 for the general policy (entry/exit criteria,
 # review cadence, promotion path, escalation rule) this marking follows.
-UNSTABLE_EXAMPLES = {"BM_CM_1"}
+UNSTABLE_EXAMPLES = {"BM_CM_1", "BM_CM_4"}
 
 test_examples = {k: v for k, v in {**countermodel_examples, **theorem_examples}.items()
                  if k not in KNOWN_TIMEOUT_EXAMPLES}

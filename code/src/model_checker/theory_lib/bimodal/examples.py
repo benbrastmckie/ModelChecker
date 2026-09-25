@@ -420,7 +420,12 @@ BM_CM_3_example = [
 # BM_CM_4: POSSIBILITY TO SOME PAST
 # Diamond A does not imply past A: a world can be possibly A (some world has A now)
 # without A being true at any past time in the current world.
-# Previously timed out with Z3 state issues; now finds countermodel with corrected semantics.
+# STATUS (corrected; see UNSTABLE_EXAMPLES in tests/unit/test_bimodal.py for the full
+# entry-criteria record): commit f9cc081e's Skolemized Seriality + Interpolation frame axioms
+# regressed this example from a 4.07s decided `match` to a deterministic `inconclusive` at the
+# 120s budget under Z3's default parameters. It is now tracked as `unstable`, NOT reliably
+# finding a countermodel -- the sentence this comment used to carry ("still genuinely found on
+# every probed seed") is false as of that regression and is corrected here rather than deleted.
 BM_CM_4_premises = ['\\Diamond A']
 BM_CM_4_conclusions = ['\\past A']
 BM_CM_4_settings = {
@@ -442,9 +447,25 @@ BM_CM_4_settings = {
                        # would cover it at only ~1.05x, sitting exactly at the
                        # boundary. 120s = ~2.1x the measured worst, the same
                        # ~2x-of-measured-worst convention as the other recalibrated
-                       # slow solves in this line of work. The countermodel is still
-                       # genuinely found on every probed seed; raising max_time is
-                       # monotone-safe for a countermodel expectation. Keep in sync
+                       # slow solves in this line of work.
+                       #
+                       # UPDATE (diagnosis round following the f9cc081e regression): the
+                       # "still genuinely found on every probed seed" claim above is FALSE as of
+                       # commit f9cc081e (added AFTER this comment was written), which added the
+                       # Skolemized Seriality + Interpolation frame axioms and regressed BM_CM_4
+                       # to a deterministic `inconclusive` at 120s under Z3's default
+                       # parameters. A required-before-landing 25-pinned-seed sweep (40s probe
+                       # budget) found the failure is a genuine, non-trivial heavy-tailed
+                       # distribution even under varied seeds -- 2/25 seeds undecided, 23/25
+                       # decided `match` (0.24s-26.46s) -- not a single pathological default
+                       # draw. A candidate fix (alpha-renaming the two axioms' Z3 symbol
+                       # identifiers, logic unchanged) was tested and REJECTED: it produced MORE
+                       # undecided draws (5/25) than the unmodified construction under the same
+                       # sweep, so it was never landed. `max_time` was NOT raised as a remedy --
+                       # this recalibration record stands as history only; widening further
+                       # would hide the undecided-draw rate rather than close it. BM_CM_4 is now
+                       # tracked in `UNSTABLE_EXAMPLES`
+                       # (tests/unit/test_bimodal.py) rather than assumed reliable. Keep in sync
                        # with the inline copy in
                        # oracle/bimodal_logic/tests/test_boundary_regression.py.
     'expectation' : True,

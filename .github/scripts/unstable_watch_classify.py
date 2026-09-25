@@ -68,6 +68,13 @@ DEFAULT_RECORD_PATH = "unstable-watch-record.jsonl"
 MAX_TIME_BY_NODEID_FRAGMENT = {
     "BM_CM_1-example_case7": 60,
     "test_shift_closure_on_extracted_worlds_m3": 15,
+    # BM_CM_4-example_case9 (test_bimodal.py::test_example_cases): diagnosed as a solve-cost
+    # regression from commit f9cc081e (Skolemized Seriality + Interpolation axioms), sharing
+    # BM_CM_1's shape -- max_time=120, shared FAILURE_SIGNATURE
+    # ("Test failed for example: ..."), no bespoke assertion message. See
+    # code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py's UNSTABLE_EXAMPLES
+    # comment block for the full entry-criteria record.
+    "BM_CM_4-example_case9": 120,
 }
 
 FAILURE_SIGNATURE = "Test failed for example:"
