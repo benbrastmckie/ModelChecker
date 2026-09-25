@@ -763,10 +763,15 @@ manual driver. Requiring "verify via a full `bash oracle/run-oracle-suite.sh` ru
 gate in an implementation plan is an anti-pattern with three concrete costs, all of them
 observed rather than hypothetical:
 
-- **It is slow enough to distort the work.** Even after 8.14's oracle `development` blanket cut
-  the gating selection to the 49-item soundness core, the *unfiltered* driver remains a
-  multi-pass, tens-of-minutes run. A task that changes no solver code — adding a marker, editing
-  a docstring — learns nothing from it.
+- **It is slow enough to distort the work, historically.** Before the witness-family certificate
+  redesign, even with 8.14's (now-retired) oracle `development` blanket cutting the gating
+  selection to the 49-item soundness core, the *unfiltered* driver remained a multi-pass,
+  tens-of-minutes run. The redesign's own regeneration of the known-conclusive manifest measured
+  the full 274-formula complexity<=5 scan at 8.7-9.4s wall-clock via `oracle/scan_runner.py`
+  directly (a ~400x speedup over the prior ~60-minute figure below) — the pytest-driven
+  `run-oracle-exhaustive-scan.sh` path itself has not been independently re-timed as of this
+  writing, so this bullet's caution still applies until it is. A task that changes no solver
+  code — adding a marker, editing a docstring — learns nothing from a full run either way.
 - **It is contention-sensitive, so a per-task run is often not even evidence.** 8.6 is explicit
   that a loaded machine inflates Z3 solve times past budget and that the remedy is to re-run when
   idle, never to widen a budget. A plan that gates a phase on a full run taken on whatever
@@ -995,9 +1000,9 @@ adding a new gating pytest invocation anywhere in this repository should include
 as a matter of course, not rediscover the need for it —
 `code/tests/ci/test_unstable_deselection_wiring.py` enforces this contract executably across
 `tests.yml`, `flake.nix`, `differential-tests.yml`, `run-oracle-suite.sh`, `packaging.yml`,
-`release.yml`, and `pypi-smoke.yml`. `unstable` is not the only quarantine-style marker deselected
-this way -- see 8.14 for the sibling `development` marker, wired through the same ten invocations
-and the same contract test.
+`release.yml`, and `pypi-smoke.yml`. A sibling quarantine-style marker, `development`, was
+deselected the same way for as long as it existed; see 8.14 for its retirement record now that
+bimodal has exited development.
 
 **The classifier lives in an importable module, not YAML.** `unstable-watch.yml`'s classify step
 invokes `.github/scripts/unstable_watch_classify.py`, unit-tested by
@@ -1355,316 +1360,91 @@ the screen's `-n 4` draws averaged only ~5% slower than `-n 6` (272.8s vs. 260.4
 the ~70s draw-to-draw spread, with the single fastest draw overall actually an `-n 4` draw -- no
 systematic slowdown to project against the backstop.
 
-### 8.14 The `development` Marker
+### 8.14 The `development` Marker (retired)
 
-**What it means.** Registered in `code/pyproject.toml`: "Tests belonging to a theory still under
-active construction (e.g. bimodal), whose current failure is expected and tracked rather than a
-regression. Deselected from gating runs with `-m \"not development\"`." Unlike 8.9's `unstable`
-(an investigated, non-semantic instability in an otherwise-complete theory) and 8.12's
-`xdist_serial` (a routine contention classification applied to a test that already passes),
-`development` covers a test whose behaviour genuinely does not exist yet -- its failure is the
-expected, honest state of an incomplete implementation, not a defect being quarantined pending
-repair. `unstable` and `xdist_serial` both certify "this test is correct but noisy";
-`development` certifies nothing about correctness at all -- it just keeps an incomplete test
-observed instead of either failing the build or being silently skipped.
+**Status: retired.** `development` is no longer a registered pytest marker. It existed from
+1.3.8 through the bimodal witness-family certificate redesign to quarantine bimodal's
+then-incomplete completeness claims (the theory refuted the paper's own MF axiom, needed
+excessive solver budgets, and excluded nine examples) from release gating, while keeping its
+soundness claims fully gating throughout. The redesign resolved the underlying incompleteness —
+every example, including the nine previously excluded, now decides correctly and quickly under a
+quantifier-free encoding — so the marker's single subject exited development and the marker was
+removed rather than left registered and unused. This subsection is a historical record of what it
+did and how it was retired; see git history at the commit removing it for the full mechanism if a
+future reader needs to resurrect an equivalent pattern for a different theory.
 
-**Granularity: per-test by default; theory-wide only on an explicit, recorded declaration.** The
-default is per-test — apply `@pytest.mark.development` to individual test functions, not as a
-module-level `pytestmark` or a theory-wide blanket. The one authorized exception is a theory whose
-owner has explicitly declared *the theory as a whole* to be in development and outside what a
-release run must pass; bimodal is that theory today, and its blanket is recorded under "Currently
-marked" below with the risk it accepts. Nothing else may take a blanket without the same explicit
-declaration and the same written record. The reasoning behind the default still stands, and is
-exactly what makes the exception costly rather than free: a
-module- or theory-level blanket would silently deselect every test in the theory forever,
-including the ones that already pass today -- and it is the version of this marker most capable
-of hiding a real regression, since a newly-broken, already-implemented test would vanish into the
-same blanket exemption as the genuinely-incomplete ones. When *some* tests in a theory need
-marking but the theory as a whole is not declared in development, follow the application
-ergonomics `bimodal`'s own test file already established for `unstable` -- a
-`DEVELOPMENT_EXAMPLES`-style set-membership check (see
-`code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py`'s `UNSTABLE_EXAMPLES` set
-and its use in `pytest.param(..., marks=[pytest.mark.unstable] if name in UNSTABLE_EXAMPLES else
-[])`), not a blanket decorator.
+**What it meant, while it existed.** A test carrying `development` belonged to a theory still
+under active construction, whose failure was expected and tracked rather than a regression.
+Unlike 8.9's `unstable` (an investigated, non-semantic instability in an otherwise-complete
+theory) and 8.12's `xdist_serial` (a routine contention classification), `development` certified
+nothing about correctness — it kept an incomplete test observed instead of either failing the
+build or being silently skipped.
 
-**If a blanket is authorized, apply it with a path-scoped collection hook, not a `pytestmark`.**
-The mechanism is a `pytest_collection_modifyitems` implementation in the theory's own
-`tests/conftest.py` (see bimodal's for the reference implementation). Two details are
-load-bearing:
-
-- **The path check is not optional, and its absence is not caught by an obvious test.** pytest
-  hands a `pytest_collection_modifyitems` implementation the *entire session's* item list once
-  its conftest has been loaded — it is not scoped to that conftest's directory. An unfiltered
-  `for item in items: item.add_marker(...)` therefore marks every test in the repository, and so
-  deselects the entire suite from every gating run. Crucially, this leak only manifests in a run
-  that collects the theory *and* something else — which is precisely the
-  `pytest tests src/model_checker` shape both `tests.yml` and `flake.nix` use, while a
-  single-root check (`pytest -m development <other-theory>`) never loads the theory's conftest and
-  stays green against a fully-leaking hook. Any containment test must include the mixed-root case.
-- **Prefer a marker over a skip.** The point is to keep the tests observed and runnable on demand
-  (`-m development`), not to silence them.
-
-**Entry criteria.** Deliberately lighter than 8.9's four-point quarantine bar -- this is a
-completeness tracker, not an investigated-defect quarantine -- but not a rubber stamp:
-
-1. The behaviour genuinely is not implemented yet, rather than being a workaround for a fixable
-   bug elsewhere in an otherwise-complete theory (a fixable bug belongs to ordinary debugging, or
-   to 8.9's `unstable` if it is a non-semantic instability, not to this marker).
-2. A one-line comment at the marking site names what is missing.
-
-**What it must not hide.** `development` must never be used for differential or
-soundness-oracle tests, or for any test whose pass/fail state encodes a semantic claim about the
-theory's correctness rather than its completeness. This is enforced structurally, not just by
-convention: `development` **is** registered and applied as a blanket in `oracle/conftest.py`
-(kept in sync with `code/pyproject.toml`'s `markers` list, per that file's own docstring), but the
-blanket **exempts exactly the six `_SOUNDNESS_CORE_CLASSES`** -- the differential/soundness core
--- so no soundness-oracle test can register or claim `development`, and the differential/soundness
-harness stays categorically, unconditionally gating.
-
-**Why a bimodal-only edit can still legitimately gate on `differential-tests.yml`.** The repo
-owner's directive to exclude bimodal until it is finished is honored in full for *completeness*
-claims -- both `development` blankets quarantine exactly those -- and is deliberately **not**
-extended to this one *soundness* check: "bimodal is incomplete" and "bimodal is wrong" are
-different claims, and only the first is what the exclusion directive is about. That
-workflow's "Run CI gate tests explicitly" step keeps running unconditionally on every bimodal
-change, with no `-m` filter of any kind, and this is not an oversight left over from before the
-`development` marker existed -- it is a deliberate, permanent exception, now recorded in a comment
-directly above that step and enforced by three assertions in
+**What it never hid.** `development` was never applied to differential or soundness-oracle tests.
+`oracle/conftest.py`'s blanket exempted the six-class differential/soundness core by construction,
+so bimodal's soundness claims stayed unconditionally gating for the marker's entire lifetime —
+`.github/workflows/differential-tests.yml`'s "Run CI gate tests explicitly" step never carried
+`continue-on-error`, never lost its `::TestCIGate` node-id selection, and never had its `paths:`
+trigger narrowed. That property is unaffected by the marker's retirement and remains enforced by
 `code/tests/ci/test_unstable_deselection_wiring.py::TestOracleSoundnessGateStaysUnconditionallyGating`.
-The `development` marker quarantines only *completeness* claims about the `code/`-tree
-implementation -- "this behaviour is not implemented yet." `TestCIGate::test_oracle_baseline_agreement`
-asserts something categorically different: a *soundness* claim, that the `code/`-tree
-implementation's verdict on a formula agrees with the independent reference oracle's verdict. It
-fails only on a real semantic disagreement (resolved-and-wrong), never on a timeout or an
-unresolved formula -- so widening `development`'s reach to this step would not merely track a
-known incompleteness, it would let a genuine correctness regression in bimodal's semantics ship
-unnoticed. Read narrowly, then, criterion (a) ("a bimodal-only change cannot turn any *required*
-CI check red") is scoped to completeness checks: the oracle soundness gate is the one deliberate,
-named, tested exception that stays gating by design, and it must never gain
-`continue-on-error`, lose its `::TestCIGate` node-id selection, or have its `paths:` trigger
-narrowed.
 
-**Where the deselection is wired.** Six of the seven gating drivers carry `and not development`
-directly in an `-m` expression: `.github/workflows/tests.yml`'s parallel and serial passes,
-`flake.nix`'s `checks.default` parallel and serial passes, `oracle/run-oracle-suite.sh`'s two
-passes (defensive there today, now load-bearing there rather than defensive -- see "Currently
-marked" below), `.github/workflows/packaging.yml`'s single packaging-contract invocation,
-`.github/workflows/release.yml`'s two packaging-contract invocations (the `build` job's and the
-`verify-pypi` job's), and `.github/workflows/pypi-smoke.yml`'s single invocation. The seventh,
-`.github/workflows/differential-tests.yml`, achieves the same deselection differently: its one
-remaining step ("Run CI gate tests explicitly") node-id-selects the six soundness-core classes
-directly, none of which is ever `development`-marked (they are the `_SOUNDNESS_CORE_CLASSES`
-exemption in `oracle/conftest.py`), so the step needs no `-m` filter at all to stay clean of
-`development`-marked tests. Ten invocations in total. This is layered on an earlier six, which was
-itself down from seven: `differential-tests.yml` previously ran a redundant first step carrying
-its own `-m "... and not development"` expression, but a `--collect-only` diff proved that step
-selected the byte-identical same 49 node ids as the node-id gate step, so it was removed as a
-proven duplicate -- a redundancy cleanup, not a `development`-deselection-wiring regression. The
-subsequent six-to-ten jump is a real coverage extension, not a redundancy artifact:
-`packaging.yml`, `release.yml`, and `pypi-smoke.yml` all run `code/tests/packaging/` gated on
-`packaging`, and none of the three previously carried `and not development` at all (`packaging.yml`
-carried no `-m` filter beyond `packaging` whatsoever) -- so a `development`-marked packaging test
-(see "Currently marked" below) would have kept running, and failing, in all three. Two of the ten
-live in `oracle/run-oracle-suite.sh`, which is invoked by no CI workflow -- it is a manual `nix
-develop --command bash oracle/run-oracle-suite.sh` driver, and those two carry the filter so a
-local gating-reproduction run does not get a false red from an in-development theory.
-`code/tests/ci/test_unstable_deselection_wiring.py` -- the same executable contract 8.9 names,
-extended rather than duplicated -- enforces both `not unstable` and `not development` across all ten.
-A future author adding a new gating pytest invocation anywhere in this repository should carry the
-same filter as a matter of course, exactly as 8.9 already states for `unstable`.
+**What was removed when the marker retired.**
 
-**Observability.** `.github/scripts/unstable_watch_classify.py` (8.9's classifier module) accepts
-a third, optional JUnit input (`dev_junit_path`, default `/tmp/watch-development.xml`). Every
-testcase collected from it is recorded with `classification == "DEV_STATUS"` and its true
-outcome -- non-gating by construction (it never sets `any_new`, so it can never fail the job) and
-never signature-matched (it never sets `any_failure`, and it is excluded from the fragment-matching
-loop that feeds `unstable`'s own per-test promotion streaks, so a `development`-marked test can
-never corrupt an `unstable` test's streak). Its own progress is tracked separately: a
-`## Development Watch` step-summary section reports each dev node id's pass rate over the current
-run plus its observed history (via `fetch_past_classifications`, generalized with a `field`
-selector so it serves both `unstable`'s classification history and this pass-rate history without
-duplicating the fetch machinery) -- deliberately not using `READY TO PROMOTE` wording or the
-20-run framing, since a pass rate is a progress observation, not a claim that an instability
-resolved.
+- The `pytest_collection_modifyitems` hook in
+  `code/src/model_checker/theory_lib/bimodal/tests/conftest.py` that applied `development` to the
+  whole bimodal test tree.
+- The `development` half of `oracle/conftest.py`'s hook and its `_SOUNDNESS_CORE_CLASSES`/
+  `_is_soundness_core` exemption machinery (the `xdist_serial` half of that hook is unaffected).
+- The marker's registration in `code/pyproject.toml`.
+- `and not development` from every gating `-m` expression: `.github/workflows/tests.yml`'s
+  parallel and serial passes, `flake.nix`'s `checks.default` parallel and serial passes,
+  `oracle/run-oracle-suite.sh`'s two passes, `.github/workflows/packaging.yml`'s packaging-contract
+  invocation, `.github/workflows/release.yml`'s two packaging-contract invocations, and
+  `.github/workflows/pypi-smoke.yml`'s invocation — ten `-m`-bearing gating invocations in total,
+  unchanged in count (only the expression content changed); see 8.9 above for the sibling
+  `unstable` filter these same ten invocations still carry.
+- The three per-test markings outside the bimodal/oracle trees:
+  `test_generate_then_execute[bimodal]` and `test_generate_then_execute_cp1252[bimodal]`
+  (`code/tests/packaging/test_generate_then_execute.py`, via an emptied `_DEVELOPMENT_THEORIES`
+  set kept as an empty set for future reuse rather than deleted), and
+  `test_build_example_bimodal_theory_countermodel`
+  (`code/src/model_checker/builder/tests/unit/test_example.py`), whose settings dict was also
+  updated off the retired `N`/padded-`max_time` shape onto the certificate encoding's own fast
+  default.
+- The CI contract tests that asserted the marker's application, since their entire subject
+  evaporated with the mechanism they tested:
+  `code/tests/ci/test_development_marker_application.py`,
+  `code/tests/ci/test_oracle_development_marker_application.py`, and
+  `code/tests/ci/test_gating_selection_bimodal_decoupling.py` (bimodal's solve cost is no longer
+  something to decouple from — it is fast, like any other gating theory now).
+- `test_run_tests_markers.py`'s illustrative `MARKER_EXPR` constant, updated from `"not
+  development"` to `"not unstable"` (an example string for testing `--markers` passthrough
+  plumbing, not a claim about a real bimodal deselection).
+- `test_unstable_deselection_wiring.py`'s `development`-specific assertions and anchors (see that
+  file directly; `EXPECTED_GATING_MARKER_INVOCATIONS` stays `10` since the invocation *count* did
+  not change, only the expression content within each).
 
-**The producing workflow step is implemented.** `unstable-watch.yml` has a third watch step,
-`watch_development` (mirroring `watch_code`: selects `-m development`, writes
-`/tmp/watch-development.xml`, is `continue-on-error: true`, and tolerates pytest exit codes 0 and
-5 exactly like its siblings), so this path is live in production, not inert. Its shape is asserted
-by `test_unstable_deselection_wiring.py::TestGatingInvocationsDeselectQuarantineMarkers::
-test_watch_development_step_selects_development_and_writes_junit`, which passes. The
-classifier-side mechanism (parsing, `DEV_STATUS` classification, the record schema, and trend
-reporting) is fully implemented and unit-tested as well, so both the producing step and its
-consumer are complete.
+**What was deliberately left alone.** `.github/workflows/unstable-watch.yml`'s `watch_development`
+step and `.github/scripts/unstable_watch_classify.py`'s `DEV_STATUS` classification path are
+untouched: with no test carrying `development` any more, that step now always collects zero items
+(a harmless, `continue-on-error: true` no-op, tolerating pytest's exit 5 exactly as it always
+did). Retiring that step is not required for bimodal's own exit from development and was left for
+whoever next revisits the `unstable-watch.yml` observer, rather than folded into this retirement.
 
-**Exit path.** Per-test: mechanical and immediate -- the marker comes off the moment the
-behaviour is implemented and the test passes, with no waiting window. This is a deliberate
-divergence from 8.9's 20-run promotion wait: `unstable` waits because it is *certifying* that an
-observed instability has genuinely resolved, which takes repeated observation to trust;
-`development` never made an instability claim in the first place, so there is nothing to wait
-out. Theory-level: "no longer in development" means zero remaining `development`-marked tests in
-the theory's test tree, checkable with `pytest --collect-only -m development -q` (a `grep -rn
-"pytest.mark.development"` is not sufficient on its own: a blanket applied by a collection hook
-is one grep hit covering the whole tree, so only a real collection reports the true count). The
-8.9 standing-rule analogue still applies, with its
-own deliberate difference: a stalled marking is escalated against the theory's own milestone
-rather than a fixed two-month calendar window, because "still incomplete after two months" is
-unsurprising for a from-scratch theory the way "still flaky after two months" (8.9's actual
-trigger) is not.
-
-**Marker-choice decision table.**
+**Marker-choice decision table (current).**
 
 | Marker | Meaning | When to use |
 |---|---|---|
-| `development` | A theory still under active construction; the test's failure is expected and tracked, not a regression | A behaviour genuinely not implemented yet, in a theory still being built out |
 | `unstable` | A documented, investigated non-semantic instability in an otherwise-complete theory | A real, already-implemented test with a heavy-tailed or budget-driven failure that survived a genuine repair attempt |
 | `xdist_serial` | A routine contention classification for a real wall-clock assertion | A passing test whose timing assertion has adequate headroom alone but not under `-n`-pool contention |
 | `performance` | A budget too tight for any shared CI runner (sub-10ms class) | A wall-clock assertion that cannot tolerate any shared-runner scheduling variance, parallel or serial |
 
-**Currently marked.** Two authorized blankets, both for bimodal, both applied by a path-scoped
-`pytest_collection_modifyitems` hook in the relevant tree's own `conftest.py`:
-
-1. The **entire `bimodal` test tree** — every test collected under
-   `code/src/model_checker/theory_lib/bimodal/tests/`, 313 items at the time of writing.
-2. The **oracle tree minus its soundness core** — 595 of the 644 items collected under
-   `oracle/bimodal_logic/tests/`, applied by the hook in `oracle/conftest.py`. The 49 exempt
-   items are the six classes listed in `_SOUNDNESS_CORE_CLASSES` there; see "Soundness stays
-   gating" below, which this exemption is what makes true.
-
-Three per-test markings, none a blanket, carry the marker outside these two trees -- see
-"Per-test markings outside bimodal and oracle" below.
-
-*Why the oracle tree took a blanket too.* `oracle/` is bimodal in its entirety — every test file
-in it lives under `oracle/bimodal_logic/tests`, and there is nothing else in the tree. It is a
-separately implemented Z3 encoding used to differentially validate the in-package semantics. The
-same theory-owner declaration that authorizes blanket (1) applies to it: while bimodal is under
-construction, the harness's completeness claims are expected to fail and are tracked rather than
-gated. Concretely, this took `oracle/run-oracle-suite.sh`'s gating selection from 613 tests in
-pass 1 plus 18 in pass 2 (~40 minutes wall clock, and red — 19 failures, overwhelmingly
-`OracleTimeoutError` rather than semantic disagreement) down to the 49-item soundness core alone,
-with pass 2 emptied entirely.
-
-*Why a blanket, and on whose authority.* This is the authorized theory-wide exception the
-"Granularity" paragraph above allows. The theory owner's declaration is explicit: the bimodal
-logic as a whole is in development and is not part of what a release run must pass. That is a
-statement about the theory, not about a list of individually-incomplete behaviours, so a
-per-test set-membership marking would misrepresent it and would need editing on every commit that
-adds a bimodal test.
-
-*What this accepts, stated plainly.* A bimodal test that regresses from passing to failing no
-longer turns any gating run red. That is a real loss of signal and it is the cost of the
-declaration, not an oversight. It is bounded three ways:
-
-- **Soundness stays gating.** This is now preserved by an explicit *exemption* rather than by the
-  marker being unregistered in the oracle tree. `oracle/conftest.py`'s hook skips
-  `_SOUNDNESS_CORE_CLASSES` — the six classes `.github/workflows/differential-tests.yml`'s "Run
-  CI gate tests explicitly" step names by node id — so they carry no `development` marker and
-  survive every gating `-m` expression. Those classes fail only on a real semantic disagreement
-  between the `code/`-tree implementation and the reference oracle, never on a timeout or an
-  unresolved formula. No semantic claim about bimodal's correctness can be quarantined by either
-  blanket — only completeness claims. A theory being incomplete is a reason to stop gating on
-  *completeness*; it is not a reason to stop checking whether the theory is *wrong*. The rejected
-  alternative, recorded so the record shows it was weighed: dropping this gate would require
-  deleting `test_unstable_deselection_wiring.py::TestOracleSoundnessGateStaysUnconditionallyGating`,
-  which exists precisely to prevent that happening by accident, and would leave no independent
-  check that bimodal's semantics are correct while it is under construction.
-- **Containment is executable, for both blankets.**
-  `code/tests/ci/test_development_marker_application.py` covers blanket (1);
-  `code/tests/ci/test_oracle_development_marker_application.py` covers blanket (2), asserting all
-  three properties: complete coverage of the non-core oracle tree, zero leakage outside it
-  (including the mixed-root collection where a leak would otherwise be invisible), and — the one
-  that matters most here — that each of the six soundness-core classes is *not* marked and still
-  survives the gating expression.
-- **The tests stay runnable and visible**, per the opt-in path below.
-
-*Running bimodal on demand.* `-m development` is the opt-in:
-
-```bash
-# From code/ -- run the bimodal suite (or any subset of it)
-PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -m development -v
-
-# Every development-marked test in the repository
-PYTHONPATH=src pytest -m development -v
-```
-
-Note that a bare `PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/` still runs
-the suite: `code/pyproject.toml`'s `addopts` deliberately carries no `-m` filter, so the marker
-changes what the *gating drivers* select and nothing about a local run's default. To reproduce a
-gating run's selection locally, pass the filter explicitly:
-`PYTHONPATH=src pytest tests src/model_checker -m "not development"`.
-
-**Supported local reproduction: `run_tests.py --markers`/`-m`.** The unified runner's
-`--markers`/`-m` passthrough (added alongside this documentation) threads a marker expression
-into every pytest command it builds, so it can reproduce or select the same expressions above
-without dropping to raw `pytest`:
-
-```bash
-# Reproduce the gate: excludes bimodal's in-development tests, as every gating driver's -m
-# expression does. Selects zero bimodal tests and exits 0.
-./run_tests.py bimodal --markers "not development"
-
-# Explicitly select the in-development set (equivalent to a bare `./run_tests.py bimodal`,
-# since bimodal's blanket currently covers its entire tree).
-./run_tests.py bimodal --markers development
-```
-
-This is the supported, documented way to reproduce the gating drivers' selection locally via the
-unified runner; the raw-`pytest` form above remains equally valid for anyone working outside
-`run_tests.py`. With no `--markers` flag at all, `run_tests.py` emits no `-m` token and keeps
-running the full, unfiltered suite for every target -- `./run_tests.py bimodal` still runs
-bimodal's known failures visibly rather than silently filtering them out.
-
-*Exit path for this blanket.* Delete the `pytest_collection_modifyitems` hook from
-`code/src/model_checker/theory_lib/bimodal/tests/conftest.py` when bimodal is no longer in
-development. Nothing else needs to change — the registration, the ten gating `-m` expressions,
-and the classifier are shared infrastructure, not bimodal-specific. Removing the hook will fail
-`test_development_marker_application.py`, which is the intended signal to delete that contract in
-the same commit.
-
-**Per-test markings outside bimodal and oracle.** Three node ids, each marked
-`@pytest.mark.development` individually (the default per-test granularity, not a new blanket),
-following the identified-completeness-claim disposition an audit of every release-gating test
-outside `theory_lib/bimodal/tests/` recorded for each:
-
-1. `code/tests/packaging/test_generate_then_execute.py::test_generate_then_execute[bimodal]` —
-   the *test function* is generic (packaging-journey correctness, applies to any registered
-   theory), but its bimodal parametrize case runs bimodal's full default generated
-   `examples.py` to completion, the single most expensive bimodal-coupled gating test found in
-   the audit. Applied via a `_DEVELOPMENT_THEORIES = {"bimodal"}` set-membership check on the
-   parametrize list, mirroring the `UNSTABLE_EXAMPLES` idiom above.
-2. `code/tests/packaging/test_generate_then_execute.py::test_generate_then_execute_cp1252[bimodal]`
-   — the identical completeness claim, under the cp1252-constrained stdout-encoding leg (see
-   that test's own docstring), marked via the same `_DEVELOPMENT_THEORIES` set.
-3. `code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel`
-   — asserts BuildExample finds a countermodel for bimodal within budget; not a bimodal-specific
-   semantic claim (the assertion is generic BuildExample-integration plumbing), but a
-   completeness claim about bimodal specifically while its frame-axiom cost is unsettled. Its
-   pre-existing timeout-vs-unsat discriminator and `max_time: 30` are unchanged.
-
-`code/tests/ci/test_development_marker_application.py`'s containment contract enumerates these
-three explicitly in `_AUTHORIZED_NON_BIMODAL_DEVELOPMENT` and asserts the non-bimodal
-`development`-marked set matches that allowlist *exactly* — neither a stale entry (a rename or
-un-marking leaving the list wider than reality) nor an unlisted new leak can pass silently.
-
-**A known, accepted consequence: `unstable-watch.yml`'s `watch_development` step now collects and
-reports the `test_generate_then_execute[bimodal]` case.** That step selects `-m development` and
-is `continue-on-error: true`, non-gating by construction (see "Observability" above) — its job is
-to keep an in-development test's outcome *observed*, not to keep it silent. A future reader
-seeing this case newly appear in that step's report should read it as the marker working as
-designed, not as a regression introduced by this change.
-
-**Standing guard against new, unclassified bimodal coupling.**
-`code/tests/ci/test_gating_selection_bimodal_decoupling.py` converts the audit that produced the
-per-test markings above into an executable contract: every file outside
-`theory_lib/bimodal/tests/` that both textually references bimodal as an example fixture and has
-at least one test collected by a gating selection must appear in one of that contract's two
-enumerated constants (a solve-free allowlist, or the single deliberate real-solve retention). A
-new bimodal-coupled fixture that is neither fixed nor classified fails this contract loudly,
-rather than silently re-coupling a gating selection's wall clock to bimodal's solve cost. It is a
-static source check, not a runtime measurement, so it has an honest, documented blind spot
-(covered in its own module docstring); the paired before/after wall-clock record is the
-complementary, empirical evidence that decoupling actually happened.
-
+A future theory that is genuinely still under construction and needs the same quarantine pattern
+should re-register a marker with the same contract this subsection describes historically, apply
+it with a path-scoped `pytest_collection_modifyitems` hook (never a bare `pytestmark`) with an
+explicit containment test covering the mixed-root collection case, and wire `and not <marker>`
+into every gating `-m` expression alongside `not unstable` — not resurrect `development` itself,
+whose name and history are now bimodal-specific.
 ---
 
 ## 9. Output-Encoding Testing

@@ -3,38 +3,29 @@
 Test suite for the bimodal theory's witness-family certificate encoding: certificate datatypes,
 Z3 constraint generators, the semantics/structure/proposition classes, operators, and iteration.
 
-## This Suite Is Non-Gating
+## This Suite Is Gating
 
-**The bimodal theory is under active construction and is deliberately not part of what a release
-run must pass.** Every test collected from this directory carries the `development` marker, and
-all ten release-gating pytest invocations across the repository's CI drivers deselect it with
-`-m "... and not development"`. A failing bimodal test therefore does not turn a gating run red.
+**The bimodal theory is a gating theory again.** The witness-family certificate redesign
+replaced the retired window-and-abundance encoding, restoring the speed and semantic-alignment
+properties that previously justified quarantining this theory: every example (including the nine
+previously excluded) now decides correctly in well under 50ms. The `development` marker that used
+to quarantine this whole tree from release-gating runs is retired — no test here carries it any
+more, and no release-gating pytest invocation filters on it any more. A failing bimodal test now
+turns a gating run red, exactly like any other theory's test.
 
-The marker is applied by the `pytest_collection_modifyitems` hook in this directory's
-`conftest.py`, which is path-scoped so that it can only ever mark tests collected from here.
-`code/docs/core/TESTING_GUIDE.md` section 8.14 is the source of truth: it records why this theory
-is the one authorized theory-wide blanket, what the blanket accepts (a bimodal test regressing
-from passing to failing no longer gates), and what retires it.
+`code/docs/core/TESTING_GUIDE.md` section 8.14 records the marker's full history and retirement
+for anyone who needs the historical context.
 
-Two things this status does **not** mean:
-
-- **It is not a skip.** These tests still run, still report, and are expected to be maintained.
-  They are quarantined from the gate, not silenced.
-- **It does not cover bimodal's soundness.** The cross-oracle differential and soundness
-  regression tests in `oracle/bimodal_logic/tests/` are fully gating and stay that way — the
-  `development` marker is deliberately unregistered in the `oracle/` tree, so no semantic claim
-  about bimodal's correctness can be quarantined by this status.
+The cross-oracle differential and soundness regression tests in `oracle/bimodal_logic/tests/`
+were already fully gating throughout the marker's lifetime and remain so.
 
 ## Running the Tests
 
 From `code/`:
 
 ```bash
-# The whole bimodal suite -- runs normally; addopts carries no -m filter
+# The whole bimodal suite
 PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -v
-
-# Explicit opt-in by marker (equivalent selection; also works from any root)
-PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -m development -v
 
 # Unit tests only / integration tests only
 PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/unit/ -v
@@ -47,22 +38,8 @@ PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/unit/test_bimod
 ./run_tests.py bimodal
 ```
 
-To reproduce a **gating** run's selection locally — i.e. to confirm a change has not broken
-anything outside bimodal — deselect this suite the way CI does:
-
-```bash
-PYTHONPATH=src pytest tests src/model_checker -m "not development"
-
-# Equivalent, via the unified runner's --markers/-m passthrough
-./run_tests.py bimodal --markers "not development"
-```
-
-To explicitly select only the in-development set (equivalent to the whole-suite run above, but
-via the same `--markers` flag used to reproduce the gate):
-
-```bash
-./run_tests.py bimodal --markers development
-```
+This suite runs exactly like any other theory's: no `-m` filter is required to reproduce what a
+gating run collects here, and none is applied by `addopts` or by this directory's `conftest.py`.
 
 ## Directory Structure
 
@@ -70,7 +47,7 @@ via the same `--markers` flag used to reproduce the gate):
 tests/
 ├── README.md      # This file
 ├── __init__.py
-├── conftest.py    # Fixtures, plus the `development` marker application
+├── conftest.py    # Fixtures only -- no marker-application hook (retired; see TESTING_GUIDE.md 8.14)
 ├── unit/          # Component tests: semantics, operators, witness machinery
 └── integration/   # Cross-component tests: iteration, injection, data extraction
 ```

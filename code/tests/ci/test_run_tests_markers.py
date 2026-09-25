@@ -6,8 +6,8 @@ Before this module existed, no test file for `run_tests.py` existed anywhere in 
 `TestConfig.markers` was a dead field: declared on the dataclass and populated via
 `getattr(args, 'markers', [])`, but no argparse option named `markers` was ever registered, so
 the value was always the `[]` default. This meant the unified runner could not reproduce the
-gating drivers' `-m` selection, nor explicitly select the in-development (`development`-marked)
-set, without dropping to raw `pytest` invocations.
+gating drivers' `-m` selection, nor explicitly select a marker-defined subset (e.g. the
+investigated-unstable set), without dropping to raw `pytest` invocations.
 
 This module asserts, in order:
 
@@ -20,12 +20,11 @@ This module asserts, in order:
    a bare `./run_tests.py bimodal` must keep running the full, unfiltered bimodal suite.
 4. `--markers` has no default value: a bare invocation leaves `config.markers` falsy.
 5. Pytest exits 5 ("no tests ran") when an `-m` expression collects tests but deselects all of
-   them -- observed directly: `pytest bimodal/tests -k example -m "not development"` reports
-   "313 deselected" and exits 5, since every bimodal test carries `development`. When the
-   caller explicitly supplied `--markers`, that is the intended selection outcome (e.g.
-   reproducing the gate finds zero in-scope tests), not a failure, so each execution site
-   normalizes a markers-caused exit 5 to 0. Exit 5 is left unmodified when no markers were
-   supplied, since it then signals a genuine collection problem.
+   them -- e.g. `pytest <tree> -m "packaging"` over a tree with no `packaging`-marked test
+   deselects everything and exits 5. When the caller explicitly supplied `--markers`, that is
+   the intended selection outcome (e.g. reproducing the gate finds zero in-scope tests), not a
+   failure, so each execution site normalizes a markers-caused exit 5 to 0. Exit 5 is left
+   unmodified when no markers were supplied, since it then signals a genuine collection problem.
 
 `run_tests.py` is a script, not a package module (no `__init__.py` chain makes it importable by
 name), so it is loaded by absolute path via `importlib.util`, following the established in-repo
@@ -72,7 +71,7 @@ def _load_run_tests():
 
 run_tests_mod = _load_run_tests()
 
-MARKER_EXPR = "not development"
+MARKER_EXPR = "not unstable"
 
 
 def _base_config(module, **overrides):

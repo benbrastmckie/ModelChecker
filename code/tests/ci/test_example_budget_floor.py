@@ -52,14 +52,21 @@ raising a floor never lowers an existing higher value. **This does not conflict 
 per-example recalibration record.** `BM_CM_1`/`BM_CM_4` were deliberately calibrated above 10
 for a documented heavy-tailed Z3 solve distribution (see that record in
 `theory_lib/bimodal/examples.py`); this floor only raises values that sat *below* 10, so the two
-mechanisms operate on disjoint value ranges and neither overrides the other. **One measured
-example is not exercised by CI's collected suite regardless of its raised budget:** `MD_TH_2` in
-`bimodal/examples.py` is separately excluded from `test_bimodal.py`'s collection via
-`KNOWN_TIMEOUT_EXAMPLES`, for reasons unrelated to its `max_time` (a known non-theorem under
-current bimodal semantics) -- the same is true of `TN_CM_1` and `MF_MODAL_FUTURE_TH` (also in
-`KNOWN_TIMEOUT_EXAMPLES`) and of `BM_TH_5` (present in `example_range` but never added to
-`unit_tests`, so it is not collected at all); all four were still measured and raised here
-because this guard reads the source file directly, independent of what pytest collects.
+mechanisms operate on disjoint value ranges and neither overrides the other. **Re-assessed after
+the witness-family certificate redesign (see `theory_lib/bimodal/docs/ARCHITECTURE.md`): the
+exclusions this paragraph previously named no longer exist.** At the time this guard was
+introduced, `MD_TH_2`, `TN_CM_1`, and `MF_MODAL_FUTURE_TH` were excluded from
+`test_bimodal.py`'s collection via `KNOWN_TIMEOUT_EXAMPLES`, and `BM_TH_5` was present in
+`example_range` but never added to `unit_tests`, so none of the four were exercised by CI's
+collected suite regardless of their raised budget (they were still measured and raised here
+because this guard reads the source file directly, independent of what pytest collects). The
+redesign restored all nine previously-excluded examples: `KNOWN_TIMEOUT_EXAMPLES` and
+`UNSTABLE_EXAMPLES` in `test_bimodal.py` are both now empty sets, and `MD_TH_2`, `TN_CM_1`,
+`MF_MODAL_FUTURE_TH`, and `BM_TH_5` are all collected in `unit_tests` today, at the certificate
+encoding's own settings (`back`/`mid`/`fwd`, not the retired `N`/`M` this guard's own AST scan
+never depended on regardless -- see the next paragraph). Their `max_time` values, raised to 10 by
+this guard, remain unaffected by the redesign; this note exists only to correct the historical
+record above, not because anything needed re-raising.
 """
 
 from __future__ import annotations

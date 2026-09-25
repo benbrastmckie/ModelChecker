@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import json
 import os
-import pathlib
 
 import pytest
 
@@ -31,41 +30,6 @@ _XDIST_SERIAL_NODEID_FRAGMENTS = (
     ("test_enriched_vs_primitive_sat_agreement", "[some_past]"),
     ("test_regression_all_active_examples", "[BM_CM_1"),
 )
-
-# This conftest's own directory: the oracle test tree. Used to scope the
-# `development` blanket below to items actually collected from here, since a
-# collection hook is handed the whole session's items regardless of location.
-_ORACLE_DIR = pathlib.Path(__file__).parent.resolve()
-
-# The differential/soundness core, EXEMPT from the `development` blanket. These are
-# the six classes `.github/workflows/differential-tests.yml`'s "Run CI gate tests
-# explicitly" step names by node id. Kept as an explicit tuple rather than derived,
-# so that adding a class to that workflow step without adding it here (or vice
-# versa) is a visible edit rather than a silent divergence. Mirrored in
-# `code/tests/ci/test_oracle_development_marker_application.py`; change both together.
-_SOUNDNESS_CORE_MODULE = "test_cross_oracle_differential.py"
-_SOUNDNESS_CORE_CLASSES = (
-    "TestCIGate",
-    "TestFormulaEnumerator",
-    "TestDifferentialInfrastructure",
-    "TestKnownFormulaBaseline",
-    "TestDifferentialComparison",
-    "TestDifferentialReport",
-)
-
-
-def _is_soundness_core(item: pytest.Item) -> bool:
-    """True for items in the differential/soundness core, which stays gating.
-
-    Matched on the module basename plus an exact `::Class::` node-id segment rather
-    than a bare substring, so a future class whose name merely starts with one of
-    these (e.g. `TestCIGateRegression`) does not silently inherit the exemption.
-    """
-    if _SOUNDNESS_CORE_MODULE not in item.nodeid:
-        return False
-    segments = item.nodeid.split("::")
-    return any(cls in segments for cls in _SOUNDNESS_CORE_CLASSES)
-
 
 def pytest_configure(config: pytest.Config) -> None:
     """Register custom marks used across the oracle/ suite.
@@ -90,16 +54,6 @@ def pytest_configure(config: pytest.Config) -> None:
     )
     config.addinivalue_line(
         "markers",
-        "development: Tests belonging to a theory still under active construction "
-        "(bimodal, today), whose current failure is expected and tracked rather "
-        "than a regression. Deselected from gating runs with "
-        "`-m \"not development\"`. Applied as a tree-level blanket by "
-        "`pytest_collection_modifyitems` below, with the differential/soundness "
-        "core deliberately exempt -- see that hook's docstring and "
-        "code/docs/core/TESTING_GUIDE.md section 8.14.",
-    )
-    config.addinivalue_line(
-        "markers",
         "xdist_serial: Tests whose Z3 solve budget has under ~2x headroom, "
         "which CPU contention under pytest-xdist can push past budget -- "
         "reported as no-countermodel rather than as an error (see "
@@ -109,7 +63,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
-    """Apply `xdist_serial` to contention-sensitive cases, and `development` to the tree.
+    """Apply `xdist_serial` to contention-sensitive cases.
 
     **`xdist_serial`** goes to the parametrized cases that cannot be marked at
     the source without breaking the shared data structures they are built
@@ -118,63 +72,24 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
     `code/docs/core/TESTING_GUIDE.md` section 8.6 for the underlying
     contention mechanism this mark exists to route around).
 
-    **`development`** goes to every test collected from this tree EXCEPT the
-    differential/soundness core (`_SOUNDNESS_CORE_CLASSES`). The oracle tree is
-    bimodal in its entirety, and bimodal is under active construction: its
-    completeness claims are expected to fail and are tracked rather than gated,
-    which is exactly what `development` is defined for in `code/pyproject.toml`.
-    All gating `-m` expressions already carry `and not development` (enforced by
-    `code/tests/ci/test_unstable_deselection_wiring.py`), so claiming the marker
-    here is what actually takes the harness off the gate -- no runner or workflow
-    edit is required, and none was made.
-
-    **This is a tree-level blanket, which TESTING_GUIDE.md section 8.14 otherwise
-    forbids.** It is an explicitly recorded exception on the same grounds as the
-    in-package bimodal blanket in
-    `code/src/model_checker/theory_lib/bimodal/tests/conftest.py`: the *whole*
-    theory, not a list of individually-incomplete behaviours, is in development.
-
-    **What is deliberately NOT quarantined.** `_SOUNDNESS_CORE_CLASSES` are the
-    six classes `.github/workflows/differential-tests.yml`'s "Run CI gate tests
-    explicitly" step names by node id. They fail only on a real semantic
-    disagreement between the code/-tree implementation and the reference oracle,
-    never on a timeout or an unresolved formula. A theory being incomplete is a
-    reason to stop gating on *completeness*; it is not a reason to stop checking
-    whether the theory is *wrong*. That step's unconditional-gating property is
-    separately enforced by `test_unstable_deselection_wiring.py::
-    TestOracleSoundnessGateStaysUnconditionallyGating`, and this exemption is what
-    keeps that enforcement meaningful rather than vacuous.
-
-    Two containment properties keep the blast radius pinned, mirroring the
-    in-package blanket:
-
-    - Scope is enforced by the explicit path check below, NOT by this file's
-      location. A `pytest_collection_modifyitems` implementation in any conftest
-      is handed the *entire* session's item list once that conftest has been
-      loaded, so an unfiltered loop here would mark every test in a run that
-      collected oracle *and* something else.
-    - `code/tests/ci/test_oracle_development_marker_application.py` asserts all
-      three halves: complete coverage of the non-core tree, zero leakage outside
-      it (including the mixed-root case), and the soundness core still gating.
-
-    The harness stays runnable on demand with `-m development`; the marker
-    quarantines it from gating runs without hiding or skipping it.
-
-    **Exit path:** delete the `development` half of this hook when bimodal is no
-    longer in development. The marker registration and gating wiring are shared
-    infrastructure and need no change.
+    **No longer applies `development`.** This hook previously also applied a
+    tree-level `development` blanket to every test collected from `oracle/` except
+    the differential/soundness core, quarantining bimodal's completeness claims
+    from gating while its soundness claims stayed fully gating. The witness-family
+    certificate redesign restored bimodal's speed and semantic-alignment
+    properties, so that blanket -- and the `_is_soundness_core`/
+    `_SOUNDNESS_CORE_CLASSES` exemption machinery it needed -- is deleted outright,
+    per its own documented exit path, rather than left inert. See
+    `code/docs/core/TESTING_GUIDE.md` section 8.14 for the marker's history and
+    this retirement's record; the soundness core's own unconditional-gating
+    property (now simply "the whole tree is gating") remains enforced by
+    `test_unstable_deselection_wiring.py::TestOracleSoundnessGateStaysUnconditionallyGating`.
     """
     serial_marker = pytest.mark.xdist_serial
-    development_marker = pytest.mark.development
     for item in items:
         for func_name, id_fragment in _XDIST_SERIAL_NODEID_FRAGMENTS:
             if func_name in item.nodeid and id_fragment in item.nodeid:
                 item.add_marker(serial_marker)
-
-        item_path = pathlib.Path(str(item.path)).resolve()
-        in_oracle_tree = _ORACLE_DIR == item_path or _ORACLE_DIR in item_path.parents
-        if in_oracle_tree and not _is_soundness_core(item):
-            item.add_marker(development_marker)
 
 
 ##############################################################################

@@ -1,7 +1,14 @@
 """Executable contract: every gating pytest invocation across the repository's CI drivers
-carries `and not unstable` AND `and not development` in its `-m` marker expression, so a test
-marked `@pytest.mark.unstable` or `@pytest.mark.development` is deselected from every
-release-gating run rather than merely from the ones an author remembered to update by hand.
+carries `and not unstable` in its `-m` marker expression, so a test marked
+`@pytest.mark.unstable` is deselected from every release-gating run rather than merely from the
+ones an author remembered to update by hand.
+
+**No longer also enforces `and not development`.** This contract previously enforced a second,
+sibling marker in the same expressions; `development` is retired (see
+`code/docs/core/TESTING_GUIDE.md` section 8.14) now that bimodal has exited development, so this
+file's assertions were narrowed back to `unstable` alone. `EXPECTED_GATING_MARKER_INVOCATIONS`
+stays `10`: the retirement changed what each `-m` expression contains, not how many `-m`-bearing
+invocations exist.
 
 Seven drivers are in scope: `.github/workflows/tests.yml`, `flake.nix`,
 `.github/workflows/differential-tests.yml`, `oracle/run-oracle-suite.sh`,
@@ -11,10 +18,8 @@ Seven drivers are in scope: `.github/workflows/tests.yml`, `flake.nix`,
 `run-oracle-suite.sh` is a newly in-scope driver that TESTING_GUIDE.md section 8.9's "Where the
 deselection is wired" paragraph did not previously need to name. `packaging.yml`, `release.yml`,
 and `pypi-smoke.yml` are newly in scope: all three run `code/tests/packaging/` gated on
-`packaging`, and neither their selector nor this contract's scanned-file list previously accounted
-for the `development` marker applied to `test_generate_then_execute[bimodal]` (see
-`code/tests/packaging/test_generate_then_execute.py`) -- without this extension, that marking
-would be inert against these three drivers.
+`packaging`, and their selector previously needed a defensive `and not unstable` even though no
+packaging test is or should ever be `unstable`-marked.
 
 `.github/workflows/unstable-watch.yml` is DELIBERATELY EXCLUDED from the files scanned below:
 it selects `-m unstable` by design (it is the non-gating observer, not a gating run) and must
@@ -69,78 +74,14 @@ _SCANNED_FILES = [
 # undercounted as "six" in seven documentation anchors before this constant existed to enforce it
 # executably; it was corrected to six (from seven) once differential-tests.yml's redundant `-m`
 # step was removed; it is now ten, following the addition of packaging.yml, release.yml (both
-# packaging-suite steps), and pypi-smoke.yml to the scanned set, each newly carrying
-# `and not development` so the marking applied to
-# `test_generate_then_execute[bimodal]` (`code/tests/packaging/test_generate_then_execute.py`) is
-# not inert against these three drivers. See
+# packaging-suite steps), and pypi-smoke.yml to the scanned set. The retirement of the
+# `development` marker (see code/docs/core/TESTING_GUIDE.md section 8.14) changed what each of
+# these ten `-m` expressions contains, not how many `-m`-bearing invocations exist -- this
+# constant is unaffected by that retirement. See
 # test_total_gating_marker_expression_count_matches_constant below.
 EXPECTED_GATING_MARKER_INVOCATIONS = 10
 
-# Documentation/docstring anchors that state the aggregate gating-invocation count in prose.
-# Each tuple is (path, must_contain, must_not_contain): the corrected "ten" phrasing that must
-# be present, and the stale "six" phrasing that must no longer appear now that packaging.yml,
-# release.yml, and pypi-smoke.yml have joined the scanned set. The "six" -> "ten" direction is
-# itself layered on an earlier "seven" -> "six" correction (differential-tests.yml's redundant
-# `-m`-bearing step being removed as a proven duplicate) -- that older history is preserved in
-# this file's own module docstring and EXPECTED_GATING_MARKER_INVOCATIONS comment rather than
-# deleted, so a future reader does not "correct" either count back to a stale prior value.
 TESTING_GUIDE_MD = REPO_ROOT / "code" / "docs" / "core" / "TESTING_GUIDE.md"
-BIMODAL_CONFTEST_PY = (
-    REPO_ROOT
-    / "code"
-    / "src"
-    / "model_checker"
-    / "theory_lib"
-    / "bimodal"
-    / "tests"
-    / "conftest.py"
-)
-BIMODAL_TESTS_README_MD = (
-    REPO_ROOT / "code" / "src" / "model_checker" / "theory_lib" / "bimodal" / "tests" / "README.md"
-)
-TEST_DEVELOPMENT_MARKER_APPLICATION_PY = (
-    REPO_ROOT / "code" / "tests" / "ci" / "test_development_marker_application.py"
-)
-
-_INVOCATION_COUNT_ANCHORS = [
-    (
-        TESTING_GUIDE_MD,
-        "wired through the same ten invocations",
-        "wired through the same six invocations",
-    ),
-    (
-        TESTING_GUIDE_MD,
-        "Ten invocations in total.",
-        "Six invocations in total.",
-    ),
-    (
-        TESTING_GUIDE_MD,
-        "across all ten.",
-        "across all six.",
-    ),
-    (
-        TESTING_GUIDE_MD,
-        "the ten gating `-m` expressions,",
-        "the six gating `-m` expressions,",
-    ),
-    (
-        BIMODAL_CONFTEST_PY,
-        "All ten release-gating pytest invocations already carry",
-        "All six release-gating pytest invocations already carry",
-    ),
-    (
-        BIMODAL_TESTS_README_MD,
-        "all ten release-gating pytest invocations across the repository's CI drivers deselect "
-        "it with",
-        "all six release-gating pytest invocations across the repository's CI drivers deselect "
-        "it with",
-    ),
-    (
-        TEST_DEVELOPMENT_MARKER_APPLICATION_PY,
-        "all ten gating invocations already carry",
-        "all six gating invocations already carry",
-    ),
-]
 
 _MISSING_REPO_ROOT_FILES = [p for p in _SCANNED_FILES if not p.exists()]
 if _MISSING_REPO_ROOT_FILES:
@@ -192,8 +133,7 @@ def _invocations_for(path: Path) -> list[str]:
 
 
 class TestGatingInvocationsDeselectQuarantineMarkers:
-    """Every invocation carrying an `-m` expression must include both `not unstable` and
-    `not development`."""
+    """Every invocation carrying an `-m` expression must include `not unstable`."""
 
     @pytest.mark.parametrize(
         "path",
@@ -207,7 +147,7 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
             PYPI_SMOKE_YML,
         ],
     )
-    def test_every_marker_expression_excludes_unstable_and_development(self, path):
+    def test_every_marker_expression_excludes_unstable(self, path):
         invocations = _invocations_for(path)
         assert invocations, f"expected at least one pytest invocation in {path}, found none"
 
@@ -225,11 +165,6 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
                 f"{path}: pytest invocation's -m expression {marker_expr!r} does not "
                 f"exclude `unstable` -- an unstable-marked test would run in this gating "
                 f"invocation. Full invocation: {invocation!r}"
-            )
-            assert "not development" in marker_expr, (
-                f"{path}: pytest invocation's -m expression {marker_expr!r} does not "
-                f"exclude `development` -- a development-marked test would run in this "
-                f"gating invocation. Full invocation: {invocation!r}"
             )
 
         if path in (
@@ -267,9 +202,7 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
     def test_total_gating_marker_expression_count_matches_constant(self):
         """The aggregate count of `-m`-bearing gating invocations across all seven scanned
         drivers is fixed at EXPECTED_GATING_MARKER_INVOCATIONS. An uncaught drift here is
-        exactly how "six" went stale across seven documentation anchors before this constant
-        existed, and how those same anchors could just as easily go stale again -- see
-        test_invocation_count_anchor_is_current below for the docs half."""
+        exactly how "six" went stale before this constant existed to enforce it executably."""
         total = sum(
             1
             for path in _SCANNED_FILES
@@ -279,25 +212,6 @@ class TestGatingInvocationsDeselectQuarantineMarkers:
         assert total == EXPECTED_GATING_MARKER_INVOCATIONS, (
             f"expected {EXPECTED_GATING_MARKER_INVOCATIONS} `-m`-bearing gating invocations "
             f"across {[str(p) for p in _SCANNED_FILES]}, found {total}"
-        )
-
-    @pytest.mark.parametrize("path, must_contain, must_not_contain", _INVOCATION_COUNT_ANCHORS)
-    def test_invocation_count_anchor_is_current(self, path, must_contain, must_not_contain):
-        """Each documentation/docstring anchor that states the aggregate gating-invocation
-        count must state six, not seven, now that differential-tests.yml's redundant `-m`-
-        bearing step has been removed. This is genuinely RED before the corresponding prose
-        edit lands -- it is not a guard against a hypothetical future regression, it is the
-        contract that the "seven" -> "six" correction actually happened. History matters here:
-        an earlier drift in this repository saw "six" go stale as an UNDERCOUNT (before this
-        anchor mechanism existed); this correction is the opposite direction -- a real
-        invocation was removed, so "six" is now the true count and must not be "corrected"
-        back to seven."""
-        text = path.read_text()
-        assert must_not_contain not in text, (
-            f"{path}: stale count claim {must_not_contain!r} still present"
-        )
-        assert must_contain in text, (
-            f"{path}: expected corrected count claim {must_contain!r} not found"
         )
 
     def test_differential_tests_yml_gate_step_has_no_marker_expression(self):

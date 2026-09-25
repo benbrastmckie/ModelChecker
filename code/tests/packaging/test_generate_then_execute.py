@@ -34,25 +34,26 @@ pytestmark = [pytest.mark.packaging, pytest.mark.slow]
 # assertion, since output length drifts with unrelated formatting changes.
 _MIN_OUTPUT_LINES = 20
 
-# Theories whose generate-then-execute parametrize case is marked `development`: the *test
-# function* is generic (packaging-journey correctness, applies to any registered theory), but
-# the *subject theory* -- bimodal -- is still under active construction, and its full default
-# generated examples.py is genuinely the most expensive case in this file (measured 81.06s vs.
-# the next-slowest registered theory's 4.31s). This is a completeness claim ("bimodal's
-# example set runs to completion"), not a soundness claim, so `development` is the correct
-# marker per TESTING_GUIDE.md section 8.14 -- applied per-parametrize (the set-membership idiom
-# 8.14 names as the default granularity), never as a file-wide blanket. Applies uniformly to
-# every parametrize-over-registry test in this file (both the ambient-encoding
-# `test_generate_then_execute` and the cp1252-constrained `test_generate_then_execute_cp1252`),
-# since both run the identical bimodal generate-then-execute journey and both would otherwise
-# still pay its cost.
-_DEVELOPMENT_THEORIES = {"bimodal"}
+# Theories whose generate-then-execute parametrize case needed quarantining from gating.
+# Previously `{"bimodal"}`: bimodal's window-and-abundance encoding made its full default
+# generated examples.py genuinely the most expensive case in this file (measured 81.06s vs.
+# the next-slowest registered theory's 4.31s), a completeness claim quarantined via
+# `development` per TESTING_GUIDE.md section 8.14 rather than raising this file's shared
+# timeout. The witness-family certificate redesign replaced that encoding with a
+# quantifier-free search under which every one of bimodal's 53 examples decides in well under
+# 50ms, so the cost this set existed to quarantine no longer exists; bimodal is removed and the
+# set is kept empty (not deleted) for the same greppable-single-point-of-extension reason other
+# now-empty exclusion registries in this codebase are kept rather than removed. Applies
+# uniformly to every parametrize-over-registry test in this file (both the ambient-encoding
+# `test_generate_then_execute` and the cp1252-constrained `test_generate_then_execute_cp1252`).
+_DEVELOPMENT_THEORIES: set = set()
 
 
 def _registry_params() -> list:
-    """`registry.get_registered()`, wrapped so the bimodal entry carries `development` -- the
-    `UNSTABLE_EXAMPLES` set-membership idiom TESTING_GUIDE.md 8.14 names as the established
-    pattern, applied here to `development` instead of `unstable`."""
+    """`registry.get_registered()`, wrapped so any future `_DEVELOPMENT_THEORIES` entry would
+    carry `development` -- the `UNSTABLE_EXAMPLES` set-membership idiom TESTING_GUIDE.md 8.14
+    names as the established pattern, applied here to `development` instead of `unstable`.
+    `_DEVELOPMENT_THEORIES` is currently empty, so every parametrize case here is unmarked."""
     return [
         pytest.param(name, marks=[pytest.mark.development] if name in _DEVELOPMENT_THEORIES else [])
         for name in registry.get_registered()
@@ -82,14 +83,14 @@ def test_generate_then_execute(theory_name, installed_venv, tmp_path):
         env=installed_venv["env"],
         capture_output=True,
         text=True,
-        # bimodal's full default generated examples.py is the slowest case in this file --
-        # measured 81.06s through the installed console script post-axiom, well up from the
-        # ~100s-via-ambient-interpreter figure this comment previously cited from a pre-axiom
-        # measurement, and now quarantined from gating via _DEVELOPMENT_THEORIES
-        # above rather than relied upon to stay under this timeout. 180s remains unchanged --
-        # not raised as a remedy -- since the marker, not a larger timeout, is what removes
-        # this case from the release-gating wall clock; the value is retained as a genuine
-        # hang guard for the (now non-gating) `-m development` opt-in run.
+        # bimodal's full default generated examples.py was previously the slowest case in this
+        # file (measured 81.06s through the installed console script under the retired
+        # window-and-abundance encoding, quarantined from gating via _DEVELOPMENT_THEORIES
+        # above rather than relied upon to stay under this timeout). The witness-family
+        # certificate redesign made every bimodal example decide in well under 50ms, so bimodal
+        # is no longer in _DEVELOPMENT_THEORIES and now runs gating like every other theory.
+        # 180s is retained unchanged as a genuine hang guard for every theory, not raised or
+        # lowered as a consequence of this change.
         timeout=180,
     )
     handle_known_venv_libz3_link_failure(result)

@@ -1712,29 +1712,74 @@ up.
 
 ---
 
-### Phase 23: Remove the development marker and re-enable gating [NOT STARTED]
+### Phase 23: Remove the development marker and re-enable gating [COMPLETED]
 
 **Goal**: Bimodal is a gating theory again, with every quarantine mechanism removed rather than
 left inert.
 
 **Tasks**:
-- [ ] Delete the `pytest_collection_modifyitems` hook from
+- [x] Delete the `pytest_collection_modifyitems` hook from
       `code/src/model_checker/theory_lib/bimodal/tests/conftest.py` (its own docstring names this
       as the exit path).
-- [ ] Delete the `development` half of `oracle/conftest.py`'s hook and the marker registration in
-      `code/pyproject.toml`.
-- [ ] Remove `and not development` from every gating invocation: `flake.nix` (2), `.github/workflows/tests.yml` (2),
+- [x] Delete the `development` half of `oracle/conftest.py`'s hook and the marker registration in
+      `code/pyproject.toml`. The `xdist_serial` half of the same hook, and its
+      `_SOUNDNESS_CORE_CLASSES`/`_is_soundness_core` exemption machinery (now dead, deleted with
+      the `development` half it existed only to support), were the two things touched; the
+      `xdist_serial` marking itself is unaffected.
+- [x] Remove `and not development` from every gating invocation: `flake.nix` (2), `.github/workflows/tests.yml` (2),
       `packaging.yml` (1), `release.yml` (2), `pypi-smoke.yml` (1), `oracle/run-oracle-suite.sh` (2),
-      and the documentation strings in `code/run_tests.py`.
-- [ ] Retire or rewrite the CI contract tests that assert the marker's application:
+      and the documentation strings in `code/run_tests.py`. `code/tests/ci/test_workflow_parity.py`
+      (byte-for-byte parity between `flake.nix` and `tests.yml`) verified green after the edit.
+- [x] Retire or rewrite the CI contract tests that assert the marker's application:
       `test_development_marker_application.py`, `test_oracle_development_marker_application.py`,
-      `test_gating_selection_bimodal_decoupling.py`, and the `development` clauses in
-      `test_run_tests_markers.py` and `test_unstable_deselection_wiring.py`.
-- [ ] Update `code/docs/core/TESTING_GUIDE.md` section 8.14 to record that the marker's single
+      `test_gating_selection_bimodal_decoupling.py` deleted outright (their entire subject
+      evaporated with the mechanisms they tested -- bimodal's solve cost is no longer something to
+      decouple from). `test_run_tests_markers.py`'s illustrative `MARKER_EXPR` constant updated
+      `"not development"` -> `"not unstable"`. `test_unstable_deselection_wiring.py` narrowed from
+      asserting both `not unstable` and `not development` to `not unstable` alone, with the
+      now-dead `_INVOCATION_COUNT_ANCHORS` mechanism (and its `test_invocation_count_anchor_is_current`
+      test) removed -- `EXPECTED_GATING_MARKER_INVOCATIONS` stays `10` unchanged, since the
+      invocation *count* did not change, only each expression's content.
+- [x] Update `code/docs/core/TESTING_GUIDE.md` section 8.14 to record that the marker's single
       subject has exited development, and update `code/tests/README.md` and
-      `bimodal/tests/README.md` accordingly.
-- [ ] Re-assess the `test_example_budget_floor.py` comments that cite bimodal exclusions as
-      justification, since those exclusions no longer exist.
+      `bimodal/tests/README.md` accordingly. Section 8.14 rewritten in full as a retirement
+      record (what it meant, what was removed, what was deliberately left alone, and a
+      guidance note for a future theory needing the same pattern) rather than left as
+      ~310 lines of now-dead procedure; two cross-references (8.9's own mention, and the
+      "oracle suite" section's stale "49-item soundness core"/timing claim) updated alongside it.
+      `code/tests/README.md` needed no change (its own "development" mentions are the unrelated
+      "software development" sense, not the marker). `bimodal/tests/README.md`'s "This Suite Is
+      Non-Gating" section rewritten to "This Suite Is Gating".
+- [x] Re-assess the `test_example_budget_floor.py` comments that cite bimodal exclusions as
+      justification, since those exclusions no longer exist. Confirmed directly (not assumed):
+      `KNOWN_TIMEOUT_EXAMPLES`/`UNSTABLE_EXAMPLES` in `test_bimodal.py` are both empty sets, and
+      `MD_TH_2`/`TN_CM_1`/`MF_MODAL_FUTURE_TH`/`BM_TH_5` are all now collected in `unit_tests`.
+      The stale paragraph naming these four as uncollected was rewritten to record the historical
+      state and the correction, rather than silently deleted.
+
+**Discovered beyond this phase's own task list**: two extra real consumers of the `development`
+marker, not named anywhere in the plan's Phase 23 task list, would have been left broken (an
+unregistered-marker warning) or semantically wrong (still claiming a cost that no longer exists)
+had they not been updated: `code/src/model_checker/builder/tests/unit/test_example.py`'s
+`test_build_example_bimodal_theory_countermodel` (marker removed; its settings dict's retired
+`N`/padded `max_time: 30` also updated to the certificate encoding's own fast default, verified
+green both before and after at 0.18-0.19s) and
+`code/tests/packaging/test_generate_then_execute.py`'s `_DEVELOPMENT_THEORIES` (emptied from
+`{"bimodal"}`, kept as an empty set rather than deleted, matching this codebase's own
+empty-registry convention). A `code/CHANGELOG.md` entry was added under `[Unreleased]` (Keep a
+Changelog convention: never rewrite an already-published version's entry) recording the redesign
+and the marker's retirement, since the 1.3.8 entry that introduced the marker is a published,
+immutable historical record.
+
+**A pre-existing bug from Phase 21's own Reasoned Exclusions table is naturally resolved as a side
+effect, not separately fixed**: `oracle/run-oracle-suite.sh`'s pass 2 ("serial, xdist_serial")
+previously reported "FAILED (exit 5)" because its one real `xdist_serial`-matching test was also
+`development`-marked, and pass 2's own filter excluded `development`-marked tests -- so it could
+never be selected by either pass, root-caused in Phase 21 to a marker-interaction gap dating to
+commit `a7ea2e7f`. With `development` retired, that test is no longer marked, and a live
+`bash oracle/run-oracle-suite.sh` run now shows pass 2 selecting and passing 5 tests (previously
+0, exit 5). This was not a deliberate fix in this phase -- the blocking condition just no longer
+exists -- but it closes a gap Phase 21 explicitly left open as pre-existing and out of scope.
 
 **Timing**: 2 hours
 
@@ -1743,10 +1788,14 @@ left inert.
 **Verification Tier**: full
 
 **Scope Hypothesis**: ten gating invocations carry `and not development` across seven files, and
-five CI contract tests assert the marker. Confirm at implementation time with
-`grep -rn "not development"` across the repository (excluding `specs/`) and report the actual
-counts; the guard that the count is right is `test_unstable_deselection_wiring.py`'s own
-enumeration of the gating invocations.
+five CI contract tests assert the marker. **Confirmed exactly**: `grep -rn "not development"`
+across the repository (excluding `specs/`) found precisely 10 invocations across `flake.nix` (2),
+`.github/workflows/tests.yml` (2), `packaging.yml` (1), `release.yml` (2), `pypi-smoke.yml` (1),
+`oracle/run-oracle-suite.sh` (2), plus documentation strings in `code/run_tests.py` (the 7th file,
+no gating invocation of its own); and precisely 5 CI contract tests
+(`test_development_marker_application.py`, `test_oracle_development_marker_application.py`,
+`test_gating_selection_bimodal_decoupling.py`, `test_run_tests_markers.py`,
+`test_unstable_deselection_wiring.py`). No discrepancy from the hypothesis.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/tests/conftest.py`
@@ -1757,14 +1806,36 @@ enumeration of the gating invocations.
 - `oracle/run-oracle-suite.sh`
 - `code/run_tests.py`
 - `code/tests/ci/test_development_marker_application.py`, `test_oracle_development_marker_application.py`,
-  `test_gating_selection_bimodal_decoupling.py`, `test_run_tests_markers.py`, `test_unstable_deselection_wiring.py`
+  `test_gating_selection_bimodal_decoupling.py` -- all three deleted
+- `code/tests/ci/test_run_tests_markers.py`, `test_unstable_deselection_wiring.py` -- edited
 - `code/docs/core/TESTING_GUIDE.md`
+- `code/src/model_checker/theory_lib/bimodal/tests/README.md` (not in the plan's original list;
+  named explicitly in this phase's own task text above)
+- `code/tests/ci/test_example_budget_floor.py` (not in the original list; the phase's own
+  re-assessment task above)
+- `.github/workflows/README.md` (not in the original list; carried the same `and not development`
+  phrasing in prose form as `tests.yml`/`flake.nix`)
+- `code/src/model_checker/builder/tests/unit/test_example.py`,
+  `code/tests/packaging/test_generate_then_execute.py` (not in the original list; two real
+  marker consumers discovered during implementation, see the Discovered note above)
+- `code/CHANGELOG.md` (not in the original list; a new `[Unreleased]` entry, not an edit to the
+  1.3.8 entry that introduced the marker)
 
 **Verification**:
-- `grep -rn "not development"` outside `specs/` returns nothing (or only historical CHANGELOG text).
-- `pytest code/tests/ci -v` green.
+- `grep -rn "not development"` outside `specs/` returns nothing except historical mentions in
+  `code/CHANGELOG.md`'s published 1.3.8 entry and this phase's own retirement-record prose in
+  `test_unstable_deselection_wiring.py` and `TESTING_GUIDE.md` section 8.14. **CONFIRMED.**
+- `pytest code/tests/ci -v` green. **CONFIRMED**: 136 passed (down from more before three files'
+  deletion, none newly red).
 - The gating expression now collects bimodal's tests: verify with `--collect-only` that the count
-  rises by the bimodal tree's size.
+  rises by the bimodal tree's size. **CONFIRMED**: `pytest src/model_checker/theory_lib/bimodal -m
+  "not packaging and not performance and not unstable and not xdist_serial" --collect-only -q`
+  collects all 366; the same 366 previously collected 0 under the `and not development` form.
+- Additional verification beyond the plan's own bar: `pytest src/model_checker/theory_lib/bimodal/tests/
+  -q` -> 366 passed; `pytest oracle/bimodal_logic/tests/ -q` -> 567 passed, 4 xfailed (identical to
+  Phase 21's own figures, confirming the retirement changed gating wiring, not test outcomes);
+  `bash oracle/run-oracle-suite.sh` -> both passes PASSED (pass 2 now genuinely selects and passes
+  5 tests, see the Discovered note above).
 
 ---
 

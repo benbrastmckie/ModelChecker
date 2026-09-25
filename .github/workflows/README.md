@@ -21,12 +21,12 @@ The release pipeline is documented in [RELEASE_SETUP.md](../RELEASE_SETUP.md).
   - `general-tests`: a `ubuntu-latest` x Python `['3.10', '3.11', '3.12']` matrix that installs
     the PyPI `z3-solver` toolchain and runs `code/tests/` plus the full `code/src/model_checker`
     suite (bimodal included), filtered by
-    `-m "not packaging and not performance and not unstable and not xdist_serial and not development"`,
+    `-m "not packaging and not performance and not unstable and not xdist_serial"`,
     at `-n 4`.
   - `flake-check`: a single job (no matrix -- the flake pins its own Python) that installs Nix and
     runs `nix flake check`, exercising `flake.nix`'s `checks.default` output, which itself now
     covers the same broadened scope
-    (`src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial and not development"`)
+    (`src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial"`)
     inside the nixpkgs-packaged toolchain.
 
 ### Scoping rationale
@@ -64,6 +64,6 @@ The release pipeline is documented in [RELEASE_SETUP.md](../RELEASE_SETUP.md).
   cross-toolchain coverage, not duplicated work.
 
 `checks.default` in `flake.nix` is no longer bimodal-scoped: it now runs
-`src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial and not development" -n 4 -q --timeout=300 --timeout-method=thread`,
+`src/model_checker tests -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread`,
 the same broadened selection `tests.yml`'s `general-tests` job runs (against the PyPI toolchain),
 matching this README.

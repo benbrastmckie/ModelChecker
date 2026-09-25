@@ -305,13 +305,12 @@ class TestConfigValidator:
 
 def _normalize_markers_deselection_exit_code(returncode: int, markers: Optional[str]) -> int:
     """Pytest exits 5 ("no tests ran") when a run collects tests but its `-m` expression
-    deselects every one of them -- e.g. `pytest bimodal/tests -m "not development"` reports
-    "313 deselected" and exits 5, since every bimodal test carries `development`. When the
-    caller explicitly supplied `--markers`, that full-deselection result is the intended
-    selection outcome (reproducing a gating pass finds zero in-scope tests, or an
-    in-development selection finds none), not a failure -- normalize it to 0. Exit 5 with no
-    markers supplied is left unmodified, since it then signals a genuine "nothing collected"
-    problem (e.g. an empty or misnamed test directory)."""
+    deselects every one of them -- e.g. a narrow `--markers` selection that happens to match no
+    test in the targeted component. When the caller explicitly supplied `--markers`, that
+    full-deselection result is the intended selection outcome (reproducing a gating pass finds
+    zero in-scope tests, or a narrow selection finds none), not a failure -- normalize it to 0.
+    Exit 5 with no markers supplied is left unmodified, since it then signals a genuine "nothing
+    collected" problem (e.g. an empty or misnamed test directory)."""
     if markers and returncode == 5:
         return 0
     return returncode
@@ -977,10 +976,10 @@ Examples:
   %(prog)s --component iterate      Force targets as components
 
   # Marker passthrough (reproduce or select the CI gating drivers' -m selection)
-  %(prog)s bimodal --markers "not development"   Reproduce the gate: excludes bimodal's
-                                                  in-development tests, as every gating
-                                                  driver's -m expression does
-  %(prog)s bimodal --markers development         Explicitly select the in-development set
+  %(prog)s bimodal --markers "not unstable"      Reproduce the gate: excludes bimodal's
+                                                  investigated-unstable tests, as every
+                                                  gating driver's -m expression does
+  %(prog)s bimodal --markers unstable            Explicitly select the unstable set
         """
     )
     
@@ -1054,8 +1053,8 @@ Examples:
         metavar="MARKER_EXPR",
         help=(
             "Pass a pytest -m marker expression through to every invoked pytest command "
-            '(e.g. --markers "not development" to reproduce a gating run\'s selection '
-            'locally, or --markers development to select only the in-development set). '
+            '(e.g. --markers "not unstable" to reproduce a gating run\'s selection '
+            'locally, or --markers unstable to select only the investigated-unstable set). '
             "No default -- omitting this flag emits no -m token at all, so a bare "
             "invocation still runs the full, unfiltered suite."
         )

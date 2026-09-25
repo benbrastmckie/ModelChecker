@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- The bimodal theory's semantic core is redesigned around witness-family certificate search over
+  discrete (ℤ) time, replacing the window-and-abundance Z3 encoding introduced in 1.3.8. The new
+  encoding is quantifier-free (no `ForAll`/`Exists`, no frame-axiom ledger), independently
+  re-checks every found countermodel with a pure-Python checker, and never reports validity. All
+  nine previously-excluded examples (including the paper's own MF axiom) now decide correctly,
+  and the theory's `development` pytest marker -- introduced in 1.3.8 to quarantine bimodal's
+  then-incomplete completeness claims from release gating -- is removed: bimodal is a gating
+  theory again. See `code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md` and
+  `docs/ADEQUACY.md` for the design and its soundness proof.
+
 ## [1.3.9] - 2026-09-01
 
 ### Fixed

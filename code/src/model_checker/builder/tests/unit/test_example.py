@@ -432,7 +432,6 @@ class TestBuildExampleIntegration(unittest.TestCase):
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
     
-    @pytest.mark.development
     def test_build_example_bimodal_theory_countermodel(self):
         """Test BuildExample with the bimodal theory, asserting a countermodel is found.
 
@@ -440,27 +439,24 @@ class TestBuildExampleIntegration(unittest.TestCase):
         `config` argument, so it always returns the full bimodal theory regardless of the
         value supplied -- no operator-restricted fragment is being loaded here.
 
-        Marked `development` per TESTING_GUIDE.md section 8.14 and this task's audit report
-        (`specs/181_.../reports/01_gating-tests-coupled-to-bimodal.md`): the subject is
-        BuildExample/countermodel-finding, which is not bimodal-specific plumbing, but the claim
-        is one of completeness ("bimodal finds a countermodel within budget") rather than
-        soundness, of exactly the kind the `development` marker exists to quarantine while
-        bimodal's frame-axiom cost is unsettled. Applied per-test (not a new blanket), stays
-        runnable via `-m development`. Its existing timeout-vs-unsat discriminator below and its
-        `max_time: 30` are both preserved unchanged.
+        Previously marked `development` per TESTING_GUIDE.md section 8.14: the claim here is one
+        of completeness ("bimodal finds a countermodel within budget"), which the `development`
+        marker existed to quarantine while bimodal's retired window-and-abundance encoding's
+        solver cost was unsettled (a real solve took ~1.7-2s in isolation, and over 10s under
+        full-builder-suite CPU contention). The witness-family certificate redesign replaced that
+        encoding with a quantifier-free search under which this same countermodel decides in well
+        under 50ms, so the marker and its settings dict's retired `N`/`max_time: 30` headroom are
+        both removed; `max_time` now uses the certificate encoding's own fast default.
         """
         content = """
 from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Bimodal": theory}
-# Simple premise/conclusion pair over the full bimodal operator set
-# max_time is explicit: the bimodal default is 1s, but the real solve takes ~1.7-2s in
-# isolation and was observed to take just over 10s under full-builder-suite load (Z3
-# state/CPU contention from preceding tests in the same process), so max_time: 10 still
-# flaked. 30s matches the headroom sibling bimodal examples use for CI variance
-# (theory_lib/bimodal/examples.py) and comfortably covers the observed worst case.
-example_range = {"SIMPLE": [["A"], ["B"], {"N": 2, "max_time": 30}]}
+# Simple premise/conclusion pair over the full bimodal operator set, at the certificate
+# encoding's own default segment lengths (back=2, mid=1, fwd=2) -- no headroom padding needed,
+# unlike the retired encoding this test previously accommodated.
+example_range = {"SIMPLE": [["A"], ["B"], {"max_time": 5}]}
 general_settings = {}
 """
         test_file = os.path.join(self.temp_dir, "bimodal_test.py")
