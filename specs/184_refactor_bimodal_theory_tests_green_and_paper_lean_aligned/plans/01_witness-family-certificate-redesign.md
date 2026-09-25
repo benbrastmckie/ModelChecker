@@ -645,40 +645,40 @@ extend to that orchestration.
 
 ---
 
-### Phase 9: BimodalSemantics rewrite - settings and framework contract [NOT STARTED]
+### Phase 9: BimodalSemantics rewrite - settings and framework contract [COMPLETED]
 
 **Goal**: A `BimodalSemantics` that satisfies the framework's contract with the certificate
 encoding and carries none of the deleted machinery.
 
 **Tasks**:
-- [ ] Write tests first: construction with the new settings succeeds; `self.N` and
+- [x] Write tests first: construction with the new settings succeeds; `self.N` and
       `self.all_states` are present (D3); `true_at` returns a label bit; `finalize_certificate()`
       called twice adds constraints only once.
-- [ ] Rewrite `semantic/core.py`: new `DEFAULT_EXAMPLE_SETTINGS` per D4;
+- [x] Rewrite `semantic/core.py`: new `DEFAULT_EXAMPLE_SETTINGS` per D4;
       `ADDITIONAL_GENERAL_SETTINGS` reduced to what the new printer uses; `self.N = 0`,
       `self.all_states = []`; `main_point` as `{"lasso": 0, "position": <selector>}` or the
-      equivalent the printer needs.
-- [ ] Implement `true_at(sentence, eval_point)` / `false_at(...)` as translate-then-look-up against
+      equivalent the printer needs. `ADDITIONAL_GENERAL_SETTINGS` reduced to `{}` (empty): the
+      certificate printer needs no display option analogous to `align_vertically`.
+- [x] Implement `true_at(sentence, eval_point)` / `false_at(...)` as translate-then-look-up against
       the registry, and `premise_behavior` / `conclusion_behavior` per D5.
-- [ ] Implement `finalize_certificate()` (idempotent) appending the global constraints of D6 to
+- [x] Implement `finalize_certificate()` (idempotent) appending the global constraints of D6 to
       `self.frame_constraints`.
-- [ ] Delete every method belonging to the retired encoding: `define_sorts`, `define_primitives`,
+- [x] Delete every method belonging to the retired encoding: `define_sorts`, `define_primitives`,
       `is_valid_duration`, `build_task_rel_at`, the five frame-axiom builders, `ForAllTime`,
       `ExistsTime`, `build_frame_constraints`, the interval/shift helpers, all six abundance
       variants, `build_task_minimization_constraint`, `generate_time_intervals`,
-      `is_time_shifted`, and the whole `extract_model_elements` family.
-- [ ] **(Amendment, adequacy-layer task)** Add the A0 frame-class standing test (ADEQUACY.md §7.2):
-      run the search on `\Future A \rightarrow (\neg A \Until A)` (the `prior_UZ` instance) and on
-      the `z1` instance (`G(Gφ→φ) → (FGφ→Gφ)`); both must report no certificate at every configured
-      length, and both must be rendered **inconclusive**, never as validity — a rendering that says
-      "valid" on either is a reportable defect. Both axioms are classified minimum-frame-class
-      `.ZTime` in `ProofSystem/Axioms.lean:612-613`, so by (SOUND) no certificate can ever exist for
-      them even though they are not valid at every temporal order. That second half is now **proved,
-      not cited**: `not_validIn_base_prior_UZ` and `not_validIn_base_z1`
-      (`Metalogic/Independence/ZTimeSharpness.lean:225, 236`) refute both at `FrameClass.Base`, and
-      `prior_UZ_minFrameClass_sharp` / `z1_minFrameClass_sharp` (`:251, 262`) strengthen this to
-      every `fc < FrameClass.ZTime`. This test is what makes that permanent gap observable rather
-      than silently forgotten.
+      `is_time_shifted`, and the whole `extract_model_elements` family. `verify_model` (unused
+      outside `core.py` itself, confirmed by grep) was deleted alongside them: its role is
+      superseded by the Phase 12 re-check hook.
+- [ ] **(Amendment, adequacy-layer task)** Add the A0 frame-class standing test (ADEQUACY.md §7.2)
+      — **deferred to Phase 12, not implemented here.** DEVIATION: this task asks for an
+      end-to-end "run the search... rendered inconclusive" assertion, which needs a working
+      `BimodalStructure` (solve, extract, render) that does not exist until Phase 12/13 rewrite
+      `semantic/model.py`. Phase 9 is scoped to `core.py` alone (its own "Files to modify" list)
+      and provides only the mechanism the A0 test will call (`finalize_certificate`, unit-tested
+      directly above); Phase 12's own task list already names "confirm the A0 ... test ... exercises
+      this structure's own solve-and-re-check path end to end", so the test itself is added there
+      instead, where it can actually execute. Recorded here rather than silently dropped.
 
 **Timing**: 2 hours
 
@@ -686,20 +686,26 @@ encoding and carries none of the deleted machinery.
 
 **Verification Tier**: interface
 
-**Scope Hypothesis**: `semantic/core.py` currently spans 2,329 lines and roughly 45 methods, of
-which the retired-encoding set enumerated above is the large majority, leaving a core of a few
-hundred lines. Confirm at implementation time with `wc -l` before and after and by grepping the
-rest of the theory (and `oracle/`) for every deleted method name to be sure no live caller remains;
-report the actual counts rather than assuming these.
+**Scope Hypothesis**: CONFIRMED. `semantic/core.py` was 2,329 lines before this phase; the
+rewrite is 319 lines (down from 2,329 -- roughly 86% removed), replacing ~45 methods with 11.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/semantic/core.py` - rewrite
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantics_core.py` - new
 
 **Verification**:
-- Construction and idempotence tests green.
-- `grep -rn` for each deleted method name across `code/src` and `oracle/` returns no live call site
-  (docstring mentions to be cleaned in Phase 22).
+- Construction and idempotence tests green: 14/14 new tests in `test_semantics_core.py` pass.
+- `grep -rn` for each deleted method name across `code/src` and `oracle/`: confirmed **not yet
+  clear** (expected -- Phase 9 only rewrites `core.py`). Live callers remain in
+  `operators.py`, `examples.py`, `semantic/model.py`, `semantic/proposition.py`,
+  `oracle/bimodal_logic/provider.py`, `oracle/bimodal_logic/tests/test_soundness_regression.py`,
+  and unit/integration tests (`test_frame_constraints.py`, `test_frame_class_mapping.py`,
+  `test_bimodal.py`, `test_until_since.py`, `test_foralltime.py`, `test_strict_semantics.py`,
+  `test_modal_witness_integration.py`) -- all scheduled for Phases 10-24. Full bimodal suite: 134
+  failed, 90 errored, 278 passed (up from the Phase 8 handoff's 128 failed/87 errored, as
+  expected: `core.py` no longer defines `self.M`, `world_function`, etc. that those callers read).
+  This confirms the plan's own Rollback/Contingency note that the theory is unavoidably red
+  through Phases 9-13.
 
 ---
 
