@@ -4,7 +4,7 @@
     {
       "project_number": 184,
       "project_name": "refactor_bimodal_theory_tests_green_and_paper_lean_aligned",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "topic": "semantics",
       "effort": "large",
@@ -14,10 +14,15 @@
           "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/03_bimodallogic-665-668-alignment.md",
           "type": "report",
           "summary": "Confirms BimodalLogic tasks 665-667 and the 623 revision exactly implement reports 01/02's recommendations, records the now-fixed certificate JSON wire schema and formula tag vocabulary, notes the live lake exe check_certificate round-trip target, and flags that ZTime tableau invalid verdicts are gated:false today by design (task 668 is unrelated)."
+        },
+        {
+          "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md",
+          "type": "plan",
+          "summary": "24-phase plan: new certificate semantic core, pure-Python re-checker plus live lake exe check_certificate round-trip, operators/iterate/examples migration, oracle rewrite, development-marker removal."
         }
       ],
       "created": "2026-09-01T16:35:55Z",
-      "last_updated": "2026-09-25T01:39:38Z",
+      "last_updated": "2026-09-25T01:53:53Z",
       "session_id": "sess_1790299903_1e1dd5",
       "next_artifact_number": 2
     },

@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 3,
+  "summary": "Authored a 24-phase, 46-hour implementation plan replacing the bimodal window-and-abundance Z3 encoding with witness-family certificates over Z-time, consuming reports 01/02/03 and adopting BimodalLogic's fixed certificate JSON wire contract verbatim.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md",
+      "summary": "24-phase plan: new certificate semantic core, pure-Python re-checker plus live lake exe check_certificate round-trip, operators/iterate/examples migration, oracle rewrite, development-marker removal."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 24,
+  "blockers": []
+}
