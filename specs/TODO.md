@@ -229,6 +229,7 @@ DELIVERABLE. A recommendation naming one clause, the model-based evidence discri
 - **Dependencies**: Task 188
 - **Research**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/03_bimodallogic-665-668-alignment.md]
 - **Plan**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md]
+- **Summary**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/01_certificate-foundation-layer-summary.md]
 
 **Description**: Redesign the bimodal theory around witness-family certificates for discrete (Z) time, replacing the current window-and-abundance Z3 encoding rather than repairing it. The authority for this task is the research report at specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/01_finite-certificate-redesign.md; read it in full before researching, planning, or implementing anything here.
 
