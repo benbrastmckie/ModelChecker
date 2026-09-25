@@ -191,7 +191,7 @@ DELIVERABLE. A recommendation naming one clause, the model-based evidence discri
 - **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: semantics
-- **Dependencies**: None
+- **Dependencies**: Task 188
 - **Research**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/03_bimodallogic-665-668-alignment.md]
 - **Plan**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md]
 

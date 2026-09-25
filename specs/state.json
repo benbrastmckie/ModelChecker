@@ -54,9 +54,12 @@
         }
       ],
       "created": "2026-09-01T16:35:55Z",
-      "last_updated": "2026-09-25T01:53:53Z",
+      "last_updated": "2026-09-25T16:08:07Z",
       "session_id": "sess_1790299903_1e1dd5",
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "dependencies": [
+        188
+      ]
     },
     {
       "project_number": 185,
