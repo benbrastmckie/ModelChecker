@@ -432,30 +432,44 @@ recorded decision, using Phase 1's alignment verdict and Phase 3's constrained-f
 
 ---
 
-### Phase 6: Integrate report 01 and write the follow-up specification [NOT STARTED]
+### Phase 6: Integrate report 01 and write the follow-up specification [COMPLETED]
 
 **Goal**: Leave report 01 internally consistent end to end, and hand the manual/Lean change list
 to a follow-up task as a written specification this task is forbidden to execute.
 
 **Tasks**:
-- [ ] Update report 01's Executive Summary with the alignment verdict (F11) and any bullet that
-      F12-F14 changed; the summary must not still claim as open anything now decided.
-- [ ] Update `## Decisions`: D2 closed per F14; D3 restated with its remaining judgment; D4
+- [x] Update report 01's Executive Summary with the alignment verdict (F11) and any bullet that
+      F12-F14 changed; the summary must not still claim as open anything now decided. *(completed:
+      a round-2 bullet added, plus inline `[Round 2: ...]` corrections to the F5/F9 bullets)*
+- [x] Update `## Decisions`: D2 closed per F14; D3 restated with its remaining judgment; D4
       (Exclusivity form) revised if Phase 3's C2 changed the picture; add a D7 for the alignment
-      verdict if F11 warrants one.
-- [ ] Rewrite `## Where the evidence does not decide, and the test that would`: remove items now
-      decided, keep the rest with their tests, and add any new gap Phases 3-5 opened.
-- [ ] Extend Appendix B's results index with rows for the regression run, C1, C2 and G2, each
+      verdict if F11 warrants one. *(completed: D1-D6 each annotated `[Round 2]` with current
+      status; D7 added for the BimodalLogic alignment verdict)*
+- [x] Rewrite `## Where the evidence does not decide, and the test that would`: remove items now
+      decided, keep the rest with their tests, and add any new gap Phases 3-5 opened. *(completed:
+      items renumbered 1-3 (narrowed/untested residuals), items 4-5 marked CLOSED, item 6 added
+      (F10's confirmed-open item 7), item 7 added (the world-history completion principle, still
+      deferred, with F11's `Completion` template named as the deciding-test direction))*
+- [x] Extend Appendix B's results index with rows for the regression run, C1, C2 and G2, each
       naming its output file; extend Appendix A with the general oracle's description and the
-      direct clauses (a)-(d) implementation.
-- [ ] Update the report's `**Artifacts**` and `**Sources/Inputs**` header lists with the new
-      baselines and the BimodalLogic inputs.
-- [ ] Write `specs/186_.../followup-task-spec.md`: the F10 edit list (ten `03-dynamics.typ` sites,
+      direct clauses (a)-(d) implementation. *(completed)*
+- [x] Update the report's `**Artifacts**` and `**Sources/Inputs**` header lists with the new
+      baselines and the BimodalLogic inputs. *(completed)*
+- [x] Write `specs/186_.../followup-task-spec.md`: the F10 edit list (ten `03-dynamics.typ` sites,
       the two `02-constitutive.typ` sites, the `11-proof-theory.typ` sites), the Lean landing shape
       recorded at the end of F10, the open D3 decision the follow-up's author must make first, and
-      an explicit statement that both target trees are separate repositories.
-- [ ] Re-run `bash .claude/scripts/validate-artifact.sh` on report 01 and on this plan, and fix
-      any reported format defect.
+      an explicit statement that both target trees are separate repositories. *(completed, with a
+      significant correction per the Scope Hypothesis: re-reading every F10-cited anchor at its
+      current line number found the overwhelming majority of the ten-item `03-dynamics.typ` list,
+      both `02-constitutive.typ` items, and all of the `11-proof-theory.typ` items ALREADY LANDED;
+      the spec's primary deliverable narrows to F10 item 7 (the `@rem-event-status` E1/E3/E4
+      record), confirmed still absent by direct re-reading. D3 is NOT posed as an open decision for
+      the follow-up's author — the manual has already decided it (Phase 1/5's finding) — the spec
+      says so explicitly rather than repeating the plan's original framing)*
+- [x] Re-run `bash .claude/scripts/validate-artifact.sh` on report 01 and on this plan, and fix
+      any reported format defect. *(completed: report 01's missing `## Recommendations` section
+      added — a pre-existing defect from round 1, not introduced by this round — both artifacts now
+      PASS with 0 warnings)*
 
 **Timing**: 1.5 hours
 
@@ -488,20 +502,24 @@ where a label no longer exists, say so in the spec rather than carrying the stal
 
 ## Testing & Validation
 
-- [ ] `python3 02_constrained-frame-oracle.py regression` reproduces every E1/E2/E3/E5 conclusion
-      from round 1's saved outputs (Phase 2 gate; blocks Phase 3 on failure).
-- [ ] The direct clauses (a)-(d) `mcs` agrees with round 1's product shortcut on the
+- [x] `python3 02_constrained-frame-oracle.py regression` reproduces every E1/E2/E3/E5 conclusion
+      from round 1's saved outputs (Phase 2 gate; blocks Phase 3 on failure). *(passed, re-run
+      after Phases 3 and 4's additions too)*
+- [x] The direct clauses (a)-(d) `mcs` agrees with round 1's product shortcut on the
       duration-uniform schema, for every bounding family and candidate in `frame_small`.
-- [ ] The constrained frame's certificate assertions pass, and are shown to fail on a deliberately
-      perturbed constraint.
-- [ ] Every new experiment writes a saved output file under `baselines/`, and every numeric or
+      *(131,584/131,584 pairs agree)*
+- [x] The constrained frame's certificate assertions pass, and are shown to fail on a deliberately
+      perturbed constraint. *(verified: perturbation run correctly reports CERTIFICATE FAIL)*
+- [x] Every new experiment writes a saved output file under `baselines/`, and every numeric or
       set-valued claim in F11-F14 is traceable to one of those files or to a stated argument.
-- [ ] `python3 -m py_compile` clean on every script touched.
-- [ ] `bash .claude/scripts/validate-artifact.sh` clean on `plans/01_uniform-clauses-evidence-closure.md`
-      and `reports/01_family-level-settled-verification.md`.
-- [ ] Scope gate, run before each commit: `git status --short` shows no path outside
+- [x] `python3 -m py_compile` clean on every script touched.
+- [x] `bash .claude/scripts/validate-artifact.sh` clean on `plans/01_uniform-clauses-evidence-closure.md`
+      and `reports/01_family-level-settled-verification.md`. *(both PASS, 0 warnings)*
+- [x] Scope gate, run before each commit: `git status --short` shows no path outside
       `specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/`. In particular
       nothing under `~/Projects/Logos/`, `/home/benjamin/Projects/BimodalLogic/`, or `code/`.
+      *(verified before every phase commit; only `specs/TODO.md`/`specs/state.json` — shared
+      task-tracking infrastructure — additionally touched, per the standard commit-scope template)*
 
 ## Artifacts & Outputs
 

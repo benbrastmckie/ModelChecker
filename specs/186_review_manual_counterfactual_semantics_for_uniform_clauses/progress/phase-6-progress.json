@@ -1,0 +1,27 @@
+{
+  "phase": 6,
+  "phase_name": "Integrate report 01 and write the follow-up specification",
+  "started_at": "2026-09-25T02:50:00Z",
+  "last_updated": "2026-09-25T03:20:00Z",
+  "objectives": [
+    {"id": 1, "description": "Update Executive Summary", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 2, "description": "Update Decisions (D2, D3, D4, D7)", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 3, "description": "Rewrite open-items list", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 4, "description": "Extend Appendix A/B", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 5, "description": "Update header Artifacts/Sources-Inputs", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 6, "description": "Write followup-task-spec.md", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/followup-task-spec.md"]},
+    {"id": 7, "description": "Re-run validate-artifact.sh on report and plan; fix defects", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]}
+  ],
+  "current_objective": 7,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "6.followup-spec",
+      "description": "Write followup-task-spec.md: the F10 edit list, the Lean landing shape, the open D3 decision, and the separate-repositories statement.",
+      "type": "altered",
+      "reason": "Re-reading every F10-cited anchor at its current manual line number (the plan's own Scope Hypothesis instruction) found the overwhelming majority of F10's original ten-item edit list, both 02-constitutive.typ items, and all of 11-proof-theory.typ's items already landed by Logos task 406/407. The spec's primary deliverable narrows to F10 item 7 (the @rem-event-status E1/E3/E4 record), confirmed still absent. D3 is presented as already decided (per Phase 1/5's finding), not as an open choice for the follow-up's author.",
+      "annotation": "*(deviation: altered — followup-task-spec.md's scope is narrower than F10 originally implied, and D3 is reported as decided rather than posed as an open choice)*"
+    }
+  ]
+}

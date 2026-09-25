@@ -1,16 +1,26 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 2,
-  "summary": "Wrote a 6-phase, 8.25-hour research-only plan for task 186: the user-requested BimodalLogic 665-668 alignment review, a general-task-relation oracle implementing @def-maximal-compatible-subevolutions clauses (a)-(d) directly, a certified temporally constrained frame closing report 01's open items 1-2, the family-level Frame G2 hyperintensionality witness, the Settler Minimality and padding resolution, and a final report-01 integration plus follow-up manual/Lean change specification. All writes stay under specs/186_*/; the Logos manual, the Logos Lean tree, BimodalLogic and code/ remain read-only per the dispatch SCOPE clause.",
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 4,
+  "summary": "Completed all 6 phases of the round-2 plan for task 186: a BimodalLogic (665-668) alignment review that corroborates but does not supply Settler Minimality's content; a general-task-relation oracle implementing @def-maximal-compatible-subevolutions clauses (a)-(d) directly, regression-verified against round 1's pinned engine; a certified temporally constrained frame closing open items 1 (negative result, recorded) and 2 (positive, confirming F9.1); a directly-computed family-level hyperintensionality witness on Frame G2 closing open item 5; the Settler Minimality/padding resolution closing open items 3-4 (Settler Minimality was found to already be adopted as an axiom in the manual, independent of this task); and a full integration pass on report 01 plus a follow-up specification. A significant discovery reshaped the round: the Logos manual independently adopted almost all of round 1's recommendation between round 1's completion and this round's start, so the follow-up specification's scope narrowed substantially from report 01's original ten-item edit list to essentially one confirmed remaining item (@rem-event-status's missing E1/E3/E4 record for the world-quantifying events).",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/plans/01_uniform-clauses-evidence-closure.md",
-      "summary": "6 phases, waves [[1,2],[3],[4,5],[6]], 8.25 hours; closes report 01's five undecided items and integrates the user-focus alignment review."
+      "type": "report",
+      "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
+      "summary": "Amended with F11 (BimodalLogic alignment), F12 (constrained frame, open items 1-2), F13 (Frame G2 witness, open item 5), F14 (Settler Minimality/padding, open items 3-4), plus a full Executive Summary/Decisions/open-items/appendices integration pass."
+    },
+    {
+      "type": "summary",
+      "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/summaries/01_uniform-clauses-evidence-closure-summary.md",
+      "summary": "Implementation summary for all 6 phases."
+    },
+    {
+      "type": "handoff",
+      "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/followup-task-spec.md",
+      "summary": "Narrowed manual/Lean change specification for a following task, superseding report 01's F10 edit list with a re-audited status table."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
   "blockers": []
 }
