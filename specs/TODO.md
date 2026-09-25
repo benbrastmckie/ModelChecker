@@ -18,17 +18,17 @@ next_project_number: 192
 
 ### Architecture
 
-189 [RESEARCHED] — Fix the shared model iterator's isworld assumption so the...
+189 [PLANNED] — Fix the shared model iterator's isworld assumption so the...
   └─ 190 [NOT STARTED] — Make bimodal iteration reject rotation- and...
 
 ### Testing
 
-191 [RESEARCHED] — Add the A2-triangle encoding-completeness test for the...
+191 [PLANNING] — Add the A2-triangle encoding-completeness test for the...
 
 ## Tasks
 
 ### 191. A2 triangle encoding completeness test
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
@@ -49,11 +49,12 @@ next_project_number: 192
 ---
 
 ### 189. Fix shared iterator is world assumption
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: None
 - **Research**: [189_fix_shared_iterator_is_world_assumption/reports/01_iterator-is-world-extension-point.md]
+- **Plan**: [189_fix_shared_iterator_is_world_assumption/plans/01_iterator-theory-extension-points.md]
 
 **Description**: Fix the shared model iterator's is_world assumption so the bimodal theory can iterate. The shared iteration framework assumes every theory implements semantics.is_world(): model_checker/iterate/models.py calls it unguarded, which makes 'iterate: N > 1' raise AttributeError for bimodal, and model_checker/iterate/constraints.py gates the model-exclusion constraint on hasattr(semantics, 'is_world') (lines 204 and 251), so bimodal's own BimodalModelIterator methods are never consulted by the live loop and previously-seen models would not be excluded even if the crash were fixed. Bimodal's certificate redesign deliberately has no is_world (its models are labelled lassos, not sets of worlds). Introduce a proper theory-specific extension point in the shared iterate framework rather than special-casing, and explicitly do NOT give BimodalSemantics a fake is_world shim. Requires a cross-theory regression plan: logos, imposition and exclusion all currently satisfy the gate and must not regress; bimodal is the beneficiary. Currently documented as a live limitation in theory_lib/bimodal/docs/ITERATE.md, with 'iterate: 1' as the workaround.
 

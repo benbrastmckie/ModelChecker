@@ -1,0 +1,18 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "summary": "Authored a 7-phase sequential implementation plan for the shared iterator's is_world assumption. Core design: three named extension points on iterate/core.py's BaseModelIterator (_pin_theory_specific_values, live-loop-reached _create_difference_constraint with a generic base-class default, _check_model_isomorphism), each behavior-preserving for logos/imposition/exclusion and overridden by BimodalModelIterator over the certificate variable set. No is_world shim. Planning surfaced two facts the research report did not: (1) the shared graph-isomorphism path produces EMPTY graphs for bimodal (z3_world_states never populated) and two empty graphs are isomorphic, so every bimodal model would be falsely skipped even after the crash and exclusion-gap fixes - promoted to in-scope as Phase 4; (2) logos's and imposition's _create_non_isomorphic_constraint/_create_stronger_constraint return z3.BoolVal(True) no-ops, so the research report's recommended replacement of ConstraintGenerator's stronger-constraint path would have removed those theories' only real escape constraint - Phase 3 composes rather than replaces. Phase 6 is an explicit decision gate against Phase 1's captured baselines with a documented contingency narrowing.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/189_fix_shared_iterator_is_world_assumption/plans/01_iterator-theory-extension-points.md",
+      "summary": "7-phase plan: baseline/reproduction/RED test, three extension points, bimodal live green, cross-theory regression gate, docs alignment."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 7,
+  "blockers": [],
+  "next_action_hint": "Run /implement 189; Phase 1 must capture the four-file 19-test baseline and the three defect reproductions before any implementation edit.",
+  "plan_markers_verified": true,
+  "dispatch_seq": 3
+}
