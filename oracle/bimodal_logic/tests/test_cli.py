@@ -197,10 +197,15 @@ class TestCLIInconclusive:
     know" apart from both "valid" and "your input was bad".
     """
 
-    # A temporal formula whose solve dispatches to the M>=3 grounded-abundance
-    # constraint path (measured solve times cluster at several tens of
-    # seconds), so a 1 ms budget cannot possibly decide it.
-    _DEEPLY_NESTED_TEMPORAL_JSON = json.dumps({
+    # A temporal formula, used together with --max-rlimit below to force a
+    # deterministic, load-independent inconclusive result. The certificate
+    # encoding is quantifier-free and decides every formula in single-digit
+    # milliseconds (measured directly), so a --timeout budget can no longer
+    # be relied on to force a genuine timeout the way it reliably did
+    # against the retired encoding's solve-cost profile; --max-rlimit (a
+    # near-zero Z3 resource-unit budget) forces one deterministically
+    # instead, regardless of the formula's own solve speed.
+    _TEMPORAL_JSON = json.dumps({
         "tag": "imp",
         "left": {
             "tag": "snce",
@@ -218,14 +223,14 @@ class TestCLIInconclusive:
         """A budget-exhausted solve exits with code 2, not 0."""
         from bimodal_logic.cli import main
         with pytest.raises(SystemExit) as exc_info:
-            main(["check", self._DEEPLY_NESTED_TEMPORAL_JSON, "--timeout", "1"])
+            main(["check", self._TEMPORAL_JSON, "--max-rlimit", "1"])
         assert exc_info.value.code == 2
 
     def test_inconclusive_result_is_inconclusive(self, capsys):
         """A budget-exhausted solve prints result='inconclusive', not 'valid'."""
         from bimodal_logic.cli import main
         with pytest.raises(SystemExit):
-            main(["check", self._DEEPLY_NESTED_TEMPORAL_JSON, "--timeout", "1"])
+            main(["check", self._TEMPORAL_JSON, "--max-rlimit", "1"])
         captured = capsys.readouterr()
         output = json.loads(captured.out.strip())
         assert output["result"] == "inconclusive"
@@ -234,7 +239,7 @@ class TestCLIInconclusive:
         """A budget-exhausted solve has countermodel=null."""
         from bimodal_logic.cli import main
         with pytest.raises(SystemExit):
-            main(["check", self._DEEPLY_NESTED_TEMPORAL_JSON, "--timeout", "1"])
+            main(["check", self._TEMPORAL_JSON, "--max-rlimit", "1"])
         captured = capsys.readouterr()
         output = json.loads(captured.out.strip())
         assert output["countermodel"] is None

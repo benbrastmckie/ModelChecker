@@ -1,13 +1,17 @@
-"""Tests for Z3OracleProvider and bimodal oracle pipeline.
-
-Task 103: OracleProvider implementation with programmatic pipeline.
+"""Tests for Z3OracleProvider and bimodal oracle pipeline, rewritten against the
+witness-family certificate encoding.
 
 This module tests the Z3OracleProvider class from bimodal_logic, verifying:
 1. Provider property contracts (provider_id, version, frame_classes, capabilities)
-2. find_countermodel() output contract (keys, types, values)
+2. find_countermodel() output contract (keys, types, values) against the
+   certificate-derived shape
 3. State isolation (100 sequential calls produce consistent results)
 4. formula_folded_json presence and validity
-5. 43-example regression via oracle interface
+5. Example regression via the standard pipeline (all bimodal examples now
+   decide correctly with no exclusion list -- see examples.py and
+   test_bimodal.py's own empty KNOWN_TIMEOUT_EXAMPLES/UNSTABLE_EXAMPLES)
+6. Never-claims-validity: a genuine timeout raises OracleTimeoutError, never a
+   silent None
 
 Test Classes:
     TestProviderProperties:    Static property contracts
@@ -15,7 +19,7 @@ Test Classes:
     TestValidateSelf:              validate_self() behavior
     TestStateIsolation:            100-call isolation tests
     TestFormulaFoldedJson:         formula_folded_json output
-    TestOracleExampleRegression:   43-example regression
+    TestOracleExampleRegression:   Full-suite regression via the standard pipeline
     TestOracleOutputCompleteness:  Output completeness for SAT results
 """
 
@@ -78,25 +82,6 @@ ENRICHED_NEG_JSON = {
 # Primitive-only atom formula
 PRIMITIVE_ATOM_JSON = {"tag": "atom", "name": "p"}
 
-# A temporal formula whose solve dispatches to the M>=3 grounded-abundance
-# constraint path (temporal_depth=1, M=max(1+2,3)=3), where measured solve
-# times cluster at several tens of seconds. At timeout_ms=1 the solver
-# cannot possibly decide it, so this formula is used to force a genuine
-# budget-exhausted (inconclusive) outcome rather than an instant UNSAT.
-DEEPLY_NESTED_TEMPORAL_JSON = {
-    "tag": "imp",
-    "left": {
-        "tag": "snce",
-        "event": {"tag": "atom", "name": "p"},
-        "guard": {"tag": "atom", "name": "q"},
-    },
-    "right": {
-        "tag": "untl",
-        "event": {"tag": "atom", "name": "q"},
-        "guard": {"tag": "atom", "name": "p"},
-    },
-}
-
 
 ##############################################################################
 # Phase 1: Provider Properties
@@ -113,14 +98,21 @@ class TestProviderProperties:
         assert self.provider.provider_id == "bmlogic_z3_base_v1"
 
     def test_supported_frame_classes(self):
-        """supported_frame_classes must be frozenset({'Base'})."""
-        assert self.provider.supported_frame_classes == frozenset({"Base"})
+        """supported_frame_classes must be frozenset({'ZTime'}) -- the
+        certificate encoding's own scope (discrete time only); "Base" (the
+        retired encoding's TaskFrame-axiom label) is no longer meaningful and
+        is no longer accepted."""
+        assert self.provider.supported_frame_classes == frozenset({"ZTime"})
 
     def test_capabilities_dict(self):
-        """capabilities must be a dict with required keys."""
+        """capabilities must be a dict with required keys: back/mid/fwd caps
+        in place of the retired encoding's max_N/max_M."""
         caps = self.provider.capabilities
         assert isinstance(caps, dict)
-        required_keys = {"max_N", "max_M", "supports_enriched_tags", "z3_timeout_configurable"}
+        required_keys = {
+            "max_back", "max_mid", "max_fwd",
+            "supports_enriched_tags", "z3_timeout_configurable",
+        }
         for key in required_keys:
             assert key in caps, f"Missing capability key: {key}"
 
@@ -150,9 +142,10 @@ class TestFindCountermodelContract:
         self.provider = Z3OracleProvider()
 
     def test_unsupported_frame_class_returns_none(self):
-        """Passing unsupported frame_class returns None immediately."""
-        result = self.provider.find_countermodel(SIMPLE_SAT_JSON, frame_class="Foo")
-        assert result is None
+        """Passing an unsupported frame_class (including the retired "Base")
+        returns None immediately."""
+        assert self.provider.find_countermodel(SIMPLE_SAT_JSON, frame_class="Foo") is None
+        assert self.provider.find_countermodel(SIMPLE_SAT_JSON, frame_class="Base") is None
 
     def test_sat_formula_returns_dict(self):
         """A known-invalid (SAT) formula returns a dict."""
@@ -161,7 +154,7 @@ class TestFindCountermodelContract:
         assert isinstance(result, dict)
 
     def test_unsat_formula_returns_none(self):
-        """A tautology (UNSAT) returns None."""
+        """A tautology (no certificate found) returns None."""
         result = self.provider.find_countermodel(SIMPLE_UNSAT_JSON)
         assert result is None
 
@@ -171,24 +164,27 @@ class TestFindCountermodelContract:
         assert result is not None
         required_keys = {
             "temporal_depth",
-            "boundary_safe",
-            "time_bound",
+            "segment_lengths",
             "semantics_version",
             "formula_folded_json",
             "trueAtoms",
             "falseAtoms",
-            "world_histories",
-            "task_relation",
+            "certificate",
+            "lasso_count",
         }
         for key in required_keys:
             assert key in result, f"Missing required key: {key}"
 
-    def test_boundary_safe_flag(self):
-        """boundary_safe must be True for simple (depth=0) formulas with M >= 2."""
+    def test_segment_lengths_shape(self):
+        """segment_lengths must carry back/mid/fwd, all non-negative ints
+        with back/fwd >= 1 (WitnessRegistry's own back_ne/fwd_ne invariant)."""
         result = self.provider.find_countermodel(SIMPLE_SAT_JSON)
         assert result is not None
-        # For depth=0, M = max(0+2, 2) = 2, so boundary_safe = (2 > 0+1) = True
-        assert result["boundary_safe"] is True
+        seg = result["segment_lengths"]
+        assert set(seg.keys()) == {"back", "mid", "fwd"}
+        assert seg["back"] >= 1
+        assert seg["fwd"] >= 1
+        assert seg["mid"] >= 0
 
     def test_formula_folded_json_present(self):
         """formula_folded_json must be a dict (not None, not missing)."""
@@ -196,16 +192,22 @@ class TestFindCountermodelContract:
         assert result is not None
         assert isinstance(result["formula_folded_json"], dict)
 
-    def test_task_relation_ternary_format(self):
-        """task_relation entries must have source/duration/target keys."""
+    def test_certificate_has_wire_shape(self):
+        """certificate must be the exact WitnessFamily.to_json wire shape
+        (target/bx/lassos) -- the same shape BimodalLogic's own
+        `lake exe check_certificate` accepts, so a caller can pass this field
+        straight through with no translation layer."""
         result = self.provider.find_countermodel(SIMPLE_SAT_JSON)
         assert result is not None
-        task_rel = result["task_relation"]
-        assert isinstance(task_rel, list)
-        for triple in task_rel:
-            assert "source" in triple, f"Missing 'source' in triple: {triple}"
-            assert "duration" in triple, f"Missing 'duration' in triple: {triple}"
-            assert "target" in triple, f"Missing 'target' in triple: {triple}"
+        cert = result["certificate"]
+        assert set(cert.keys()) == {"target", "bx", "lassos"}
+        assert "premises" in cert["target"]
+        assert "conclusions" in cert["target"]
+        assert "time" in cert["target"]
+        assert isinstance(cert["lassos"], list)
+        assert len(cert["lassos"]) == result["lasso_count"]
+        for lasso in cert["lassos"]:
+            assert set(lasso.keys()) == {"back", "mid", "fwd"}
 
     def test_temporal_depth_is_nonneg_int(self):
         """temporal_depth in result must be a non-negative integer."""
@@ -213,13 +215,6 @@ class TestFindCountermodelContract:
         assert result is not None
         assert isinstance(result["temporal_depth"], int)
         assert result["temporal_depth"] >= 0
-
-    def test_time_bound_is_positive_int(self):
-        """time_bound (M) in result must be a positive integer."""
-        result = self.provider.find_countermodel(SIMPLE_SAT_JSON)
-        assert result is not None
-        assert isinstance(result["time_bound"], int)
-        assert result["time_bound"] > 0
 
     def test_trueAtoms_and_falseAtoms_are_lists(self):
         """trueAtoms and falseAtoms must be lists of dicts with 'name' key."""
@@ -230,11 +225,12 @@ class TestFindCountermodelContract:
         for atom in result["trueAtoms"] + result["falseAtoms"]:
             assert "name" in atom, f"Atom dict missing 'name': {atom}"
 
-    def test_world_histories_is_list(self):
-        """world_histories must be a list of dicts."""
+    def test_lasso_count_is_positive(self):
+        """lasso_count must be at least 1 (the main lasso) for SAT results."""
         result = self.provider.find_countermodel(SIMPLE_SAT_JSON)
         assert result is not None
-        assert isinstance(result["world_histories"], list)
+        assert isinstance(result["lasso_count"], int)
+        assert result["lasso_count"] >= 1
 
     def test_semantics_version_matches_provider(self):
         """result semantics_version must match provider.semantics_version."""
@@ -259,16 +255,22 @@ class TestFindCountermodelContract:
         assert result is not None
         assert isinstance(result, dict)
 
-    def test_budget_exhausted_raises_oracle_timeout_error(self):
-        """A solve that cannot complete within timeout_ms raises OracleTimeoutError.
+    def test_rlimit_exhausted_raises_oracle_timeout_error(self):
+        """A search that cannot complete within its deterministic resource
+        budget raises OracleTimeoutError.
 
         This is the three-valued contract: `None` must mean exclusively
-        "proven no countermodel" (genuine UNSAT), never "the solver gave up".
-        A 1 ms budget on a formula whose solve takes tens of seconds cannot
-        possibly decide, so it must raise rather than return None.
+        "proven no countermodel" (no certificate found), never "the solver
+        gave up". The certificate encoding is quantifier-free and decides
+        every example in well under 100ms (measured directly), so a
+        wall-clock `timeout_ms` budget can no longer be relied on to force a
+        genuine timeout the way the retired encoding's deeply-nested-formula
+        fixture did. `max_rlimit=1` (a near-zero, load-independent resource
+        budget) is used instead: no search, however trivial, can complete in
+        one Z3 resource unit.
         """
         with pytest.raises(OracleTimeoutError):
-            self.provider.find_countermodel(DEEPLY_NESTED_TEMPORAL_JSON, timeout_ms=1)
+            self.provider.find_countermodel(SIMPLE_SAT_JSON, max_rlimit=1)
 
 
 ##############################################################################
@@ -324,7 +326,7 @@ class TestStateIsolation:
             assert isinstance(result, dict), f"Call {i}: expected dict"
             # All calls should have same keys
             assert "temporal_depth" in result
-            assert "world_histories" in result
+            assert "certificate" in result
             if first_result is None:
                 first_result = result
             # Atom sets should be consistent
@@ -395,17 +397,9 @@ class TestFormulaFoldedJson:
     def test_folded_json_for_enriched_input(self):
         """fold_formula is idempotent: enriched input stays enriched."""
         # ENRICHED_NEG_JSON = neg(A) - already enriched, should pass through
-        # neg(A) is SAT -- there's a countermodel where A is true (so neg(A) is false)
-        # Actually neg(A) has a countermodel where A=True (neg(A) is false)
-        # The oracle checks invalidity of neg(A), so it should find countermodel.
-        # This is a tiny depth-0 formula at the default budget, so a genuine
-        # timeout is not expected, but the exception is still handled rather
-        # than silently masked by an `is not None` guard, for consistency
-        # with every other call site in this suite.
-        try:
-            result = self.provider.find_countermodel(ENRICHED_NEG_JSON)
-        except OracleTimeoutError:
-            return
+        # neg(A) has a countermodel where A=True (neg(A) is false there), so
+        # the oracle (checking invalidity of neg(A)) should find one.
+        result = self.provider.find_countermodel(ENRICHED_NEG_JSON)
         assert result is not None, "Expected a countermodel for neg(A) (documented SAT), got None"
         folded = result["formula_folded_json"]
         assert isinstance(folded, dict)
@@ -413,57 +407,16 @@ class TestFormulaFoldedJson:
 
 
 ##############################################################################
-# Phase 5: 43-Example Regression via Oracle Interface
+# Phase 5: Full-Suite Regression via the Standard Pipeline
 ##############################################################################
-
-# Examples excluded from regression testing
-# The base set matches test_boundary_regression.py's exclusions.
-# BM_CM_1 is additionally excluded because it has max_time=15 and consistently
-# times out in both test_boundary_regression.py and here -- it is a pre-existing
-# regression failure that predates task 103.
-REGRESSION_TIMEOUT_EXAMPLES = {
-    "TN_CM_1",
-    "TN_CM_2",
-    "BM_CM_1",  # Pre-existing timeout failure (max_time=15, contingent=True)
-    "BM_CM_3",
-    "MD_TH_2",
-    "BM_TH_1",
-    "BM_TH_2",
-    "MF_MODAL_FUTURE_TH",
-    "BX7_LINEAR_U_TH",
-    "BX7P_LINEAR_S_TH",
-}
+#
+# The retired encoding excluded ten examples from this regression (solver-cost
+# and boundary-vacuity reasons). The certificate encoding has no exclusion
+# list at all -- test_bimodal.py's own KNOWN_TIMEOUT_EXAMPLES/UNSTABLE_EXAMPLES
+# are both empty sets -- so this regression now covers every example
+# unconditionally.
 
 _all_examples = {**countermodel_examples, **theorem_examples}
-regression_examples = {
-    k: v for k, v in _all_examples.items()
-    if k not in REGRESSION_TIMEOUT_EXAMPLES
-}
-
-
-def _example_to_oracle_json(premises: list[str], conclusions: list[str]) -> dict:
-    """Convert a standard pipeline example to an oracle-compatible JSON formula.
-
-    The oracle checks invalidity of a single formula (no premises support).
-    For the regression comparison, we check whether the pipeline finds the same
-    SAT/UNSAT result as the oracle on the conclusion formula.
-
-    For examples with premises: we test the conclusion formula independently
-    (ignoring premises). This means the oracle result may differ from the
-    standard pipeline -- we only compare for the no-premises cases, and for
-    premises cases, we run the oracle and check structural validity.
-
-    Args:
-        premises: List of infix premise strings
-        conclusions: List of infix conclusion strings
-
-    Returns:
-        A JSON formula dict for the first conclusion
-    """
-    # We convert the first conclusion to JSON via infix -> json (not directly supported,
-    # so we use a heuristic: simple atom formulas work directly).
-    # For the regression test, we'll use the standard pipeline and compare.
-    raise NotImplementedError("Use _run_oracle_on_example instead")
 
 
 def _run_oracle_on_example(example_case: list) -> bool | None:
@@ -492,49 +445,27 @@ def _run_oracle_on_example(example_case: list) -> bool | None:
 
 
 class TestOracleExampleRegression:
-    """Regression test: 42 active examples pass through standard pipeline.
-
-    Verifies that the standard bimodal pipeline produces correct SAT/UNSAT
-    results for all non-excluded examples. Uses run_test() which compares
-    z3_model_status against settings['expectation'].
-
-    The oracle regression test uses 42 examples (52 total - 10 excluded).
-    BM_CM_1 is excluded as a pre-existing timeout failure (predates task 103).
-    """
+    """Regression test: every active example passes through the standard pipeline
+    with no exclusions."""
 
     def test_active_example_count(self):
-        """Verify 42 examples are being tested (oracle regression baseline).
-
-        Task 103 adds BM_CM_1 to the exclusion set (pre-existing timeout failure),
-        giving 42 = 52 total - 10 excluded examples.
-        """
-        assert len(regression_examples) == 42, (
-            f"Expected 42 regression examples, got {len(regression_examples)}. "
-            f"Update exclusion list if examples were added/removed."
+        """The full corpus is 53 examples (confirm at implementation time rather
+        than trusting this number to stay fixed as examples are added)."""
+        assert len(_all_examples) == 53, (
+            f"Expected 53 examples in the full corpus, got {len(_all_examples)}. "
+            f"Update this count if examples were added/removed."
         )
 
     @pytest.mark.parametrize(
         "example_name, example_case",
-        [
-            pytest.param(k, v, marks=pytest.mark.xdist_serial) if k == "BM_CM_4"
-            else pytest.param(k, v)
-            for k, v in regression_examples.items()
-        ],
+        list(_all_examples.items()),
     )
     def test_regression_standard_pipeline(self, example_name, example_case):
-        """Standard pipeline produces correct SAT/UNSAT for all 43 active examples.
+        """Standard pipeline produces correct SAT/UNSAT for every active example.
 
         run_test() returns True when z3_model_status matches the expected
         'expectation' setting (both SAT when expectation=True, or both UNSAT
-        when expectation=False). A True result means the oracle agreed with
-        the expected outcome.
-
-        This validates the regression baseline hasn't changed since task 107.
-
-        BM_CM_4 carries xdist_serial: a genuine ~15-24s solve that only fails
-        under the gating suite's parallel pass (-n 6) via six-way CPU contention
-        -- confirmed to pass serially at both HEAD and the pre-fix commit. Same
-        mechanism as sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
+        when expectation=False).
         """
         result = _run_oracle_on_example(example_case)
         assert result is True, (
@@ -552,9 +483,9 @@ class TestOracleOutputCompleteness:
     def test_all_sat_results_have_complete_output(self):
         """SAT results must have all required output keys."""
         required_keys = {
-            "temporal_depth", "boundary_safe", "time_bound",
+            "temporal_depth", "segment_lengths",
             "semantics_version", "formula_folded_json",
-            "trueAtoms", "falseAtoms", "world_histories", "task_relation",
+            "trueAtoms", "falseAtoms", "certificate", "lasso_count",
         }
         sat_formulas = [SIMPLE_SAT_JSON, IMP_SAT_JSON, FUTURE_SAT_JSON]
         for formula in sat_formulas:
@@ -572,49 +503,10 @@ class TestOracleOutputCompleteness:
         assert isinstance(result["temporal_depth"], int)
         assert result["temporal_depth"] >= 0
 
-    def test_boundary_safe_consistency(self):
-        """boundary_safe == (M > depth + 1) for all results.
-
-        All three formulas are documented SAT, so None is a loud failure;
-        an undecided solve is skipped as a tooling/budget concern.
-        """
-        formulas = [SIMPLE_SAT_JSON, IMP_SAT_JSON, FUTURE_SAT_JSON]
-        for formula in formulas:
-            try:
-                result = self.provider.find_countermodel(formula)
-            except OracleTimeoutError:
-                continue
-            assert result is not None, (
-                f"Expected a countermodel for {formula} (documented SAT), got None"
-            )
-            M = result["time_bound"]
-            depth = result["temporal_depth"]
-            expected_safe = M > depth + 1
-            assert result["boundary_safe"] == expected_safe, (
-                f"boundary_safe mismatch for {formula}: "
-                f"M={M}, depth={depth}, expected={expected_safe}, got={result['boundary_safe']}"
-            )
-
-    def test_world_histories_nonempty(self):
-        """world_histories must contain at least one world for SAT results."""
+    def test_certificate_nonempty_lassos(self):
+        """certificate must contain at least one lasso for SAT results."""
         result = self.provider.find_countermodel(SIMPLE_SAT_JSON)
         assert result is not None
-        assert len(result["world_histories"]) >= 1, (
-            "SAT result world_histories must have at least one world"
-        )
-
-    def test_task_relation_nonempty(self):
-        """task_relation should contain at least nullity triples for SAT results."""
-        result = self.provider.find_countermodel(SIMPLE_SAT_JSON)
-        assert result is not None
-        # Nullity axiom: task_rel(s, 0, s) = True for all valid s
-        # So task_relation should have at least one entry
-        # (even a single world at state 0 gives task_rel(0, 0, 0))
-        task_rel = result["task_relation"]
-        assert isinstance(task_rel, list)
-        # Nullity guarantee: at least the main world state should have d=0 self-loop
-        nullity_triples = [t for t in task_rel if t["duration"] == 0 and t["source"] == t["target"]]
-        # At least one nullity triple expected
-        assert len(nullity_triples) >= 1, (
-            f"Expected at least one nullity triple (d=0, s==u), got: {task_rel}"
+        assert len(result["certificate"]["lassos"]) >= 1, (
+            "SAT result certificate must have at least one lasso"
         )

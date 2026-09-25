@@ -69,6 +69,7 @@ guard -- exactly `future φ := ⊤ until φ` / `past φ := ⊤ since φ` compose
 
 from __future__ import annotations
 
+import weakref
 from dataclasses import dataclass
 from typing import Any, Dict, FrozenSet, Iterable, Optional, Union
 
@@ -303,9 +304,17 @@ def from_json(obj: Dict[str, object]) -> Formula:
 # ---------------------------------------------------------------------------
 
 # Memoizing cache keyed by sentence identity (Sentence has no custom __eq__/__hash__, so the
-# default identity-based hash is exactly "keyed by sentence identity"). A plain dict is used
-# rather than functools.lru_cache so the cache is directly inspectable in tests.
-_TRANSLATE_CACHE: Dict[Any, Formula] = {}
+# default identity-based hash is exactly "keyed by sentence identity"). A WeakKeyDictionary is
+# used, not a plain dict: CPython can and does reuse a garbage-collected object's id(), so a
+# plain identity-keyed dict that is never cleared is a genuine cache-poisoning hazard once
+# enough Sentence objects have been created and discarded across many independent Syntax/example
+# constructions in one process (discovered via the oracle test suite's own tight
+# create-and-discard loops, e.g. TestStateIsolation's hundred-plus repeated find_countermodel()
+# calls, which reliably manufactured id() collisions and produced wrong Formula translations for
+# unrelated, later sentences). WeakKeyDictionary automatically drops an entry the moment its
+# Sentence key is garbage collected -- strictly before that id() could be reused by a new
+# object -- closing the hazard without giving up the memoization.
+_TRANSLATE_CACHE: "weakref.WeakKeyDictionary[Any, Formula]" = weakref.WeakKeyDictionary()
 
 
 def translate(sentence: Any) -> Formula:

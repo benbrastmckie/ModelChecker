@@ -829,15 +829,20 @@ class TestEnrichedEquivalence:
     """
 
     def _make_equiv_example(self, conclusion):
-        """Create example dict for an equivalence theorem test."""
+        """Create example dict for an equivalence theorem test.
+
+        Settings migrated from the retired encoding's N/M/contingent/disjoint
+        to the certificate encoding's back/mid/fwd (D4); run_test() requires
+        every key be present explicitly since it does not merge with
+        DEFAULT_EXAMPLE_SETTINGS.
+        """
         return [
             [],
             [conclusion],
             {
-                'N': 2,
-                'M': 2,
-                'contingent': False,
-                'disjoint': False,
+                'back': 2,
+                'mid': 1,
+                'fwd': 2,
                 'max_time': 5,
                 'expectation': False,
             }

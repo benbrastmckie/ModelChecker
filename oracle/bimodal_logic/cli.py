@@ -6,7 +6,7 @@ and prints JSON results to stdout.
 Usage:
     bimodal-logic check '<formula_json>'
     bimodal-logic check '<formula_json>' --timeout 10000
-    bimodal-logic check '<formula_json>' --frame-class Base
+    bimodal-logic check '<formula_json>' --frame-class ZTime
 
 Output format (to stdout):
     {"result": "valid", "countermodel": null}
@@ -59,9 +59,21 @@ def main(argv: Optional[list[str]] = None) -> None:
     )
     check_parser.add_argument(
         '--frame-class',
-        default='Base',
+        default='ZTime',
         metavar='CLASS',
-        help='Frame class to check against (default: Base)',
+        help='Frame class to check against (default: ZTime)',
+    )
+    check_parser.add_argument(
+        '--max-rlimit',
+        type=int,
+        default=None,
+        metavar='UNITS',
+        help=(
+            'Optional deterministic Z3 resource-unit budget, alongside '
+            '--timeout. Load-independent (unlike --timeout, which is '
+            'wall-clock): useful for forcing a reproducible inconclusive '
+            'result regardless of host load or solve speed.'
+        ),
     )
 
     args = parser.parse_args(argv)
@@ -97,6 +109,7 @@ def main(argv: Optional[list[str]] = None) -> None:
                 formula,
                 frame_class=frame_class,
                 timeout_ms=args.timeout,
+                max_rlimit=args.max_rlimit,
             )
         except OracleTimeoutError:
             # The solver did not decide -- this must never be reported as

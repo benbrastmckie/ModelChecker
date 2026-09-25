@@ -192,33 +192,20 @@ def temporal_depth(formula_json: dict) -> int:
     - Temporal enriched (next, prev, some_future, some_past, all_future, all_past):
         1 + depth(arg)
 
-    Boundary Claim (BimodalSemantics finite time domain):
-        For a formula of temporal depth d evaluated at t=0 with M >= d+2,
-        boundary effects cannot create spurious countermodels.
-
-        Formal argument:
-        - BimodalSemantics uses open interval (-M, M), giving 2*M-1 integer time
-          points: {-(M-1), ..., -1, 0, 1, ..., M-1}.
-        - Evaluation is fixed at t=0 (the main_time constraint).
-        - The key invariant for a depth-d formula at time t is: M - 1 - t >= d,
-          i.e., at least d future time points exist beyond t.
-        - At t=0, this becomes M - 1 >= d, equivalently M >= d+1.
-        - For STRICT boundary safety (no vacuous truth at any reachable
-          sub-evaluation point along a depth-d chain), M >= d+2 is required.
-          This ensures the chain t=0 -> t=1 -> ... -> t=d reaches at most t=d
-          which satisfies M - 1 - d >= 1 (at least one more time point available).
-        - Boundary vacuity only arises at t=M-1 (the last future time point).
-          A depth-d formula evaluated from t=0 can reach at most t=d, which is
-          strictly less than M-1 when M >= d+2. Therefore t=M-1 is unreachable.
-        - The recommended minimum M for genuine (non-vacuous) evaluation:
-            M_safe(d) = max(d + 2, 3)
-          Values d=0,1 map to M=3 (the minimum non-trivial domain), d=2->4,
-          d=3->5, etc.
-
-        Note: Many examples use M < d+2 and still produce correct results because
-        boundary vacuity for those specific formulas does not create spurious
-        countermodels. The dynamic M adjustment (M = max(depth+2, 3)) belongs in
-        OracleProvider (task 103), not in BimodalSemantics constraints.
+    RETIRED Boundary Claim (kept as history, not as current guidance): earlier
+    versions of this docstring derived a minimum window size `M_safe(d) =
+    max(d + 2, 3)` for the retired window-and-abundance encoding's bounded
+    `(-M, M)` time domain, to avoid a specific boundary-vacuity artifact of
+    that encoding (a formula evaluated near the edge of the window could come
+    out vacuously true). The witness-family certificate encoding that replaced
+    it has no bounded window to size around: fulfilment is checked over a
+    Lean-proved wide window regardless of segment length
+    (`theory_lib/bimodal/docs/ADEQUACY.md` section 5), so there is no boundary
+    to be vacuous at. `Z3OracleProvider._segment_lengths` still scales its
+    `back`/`fwd` segment lengths with this function's return value, but only
+    to give deeper formulas more periodic room for their witnesses, not to
+    avoid a vacuity artifact -- this function itself (temporal nesting depth)
+    remains a plain, encoding-independent formula metric.
 
     Args:
         formula_json: A dict with a "tag" field and tag-specific fields.

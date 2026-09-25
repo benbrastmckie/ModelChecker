@@ -1372,22 +1372,95 @@ what the plan expected to be mostly confirmation work)
 
 ---
 
-### Phase 20: Oracle provider rewrite [NOT STARTED]
+### Phase 20: Oracle provider rewrite [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: `oracle/bimodal_logic/` speaks the new semantics, and never claims validity.
 
 **Tasks**:
-- [ ] Write tests first against the provider interface: the verdict vocabulary, the frame-class
-      declaration, and the never-claims-validity property.
-- [ ] Rewrite `provider.py`: settings built from segment lengths instead of `N`/`M`/`temporal_depth`;
+- [x] Write tests first against the provider interface: the verdict vocabulary, the frame-class
+      declaration, and the never-claims-validity property. Rewrote `test_oracle_provider.py`
+      against the new contract (property/output/isolation/regression tests); every claim verified
+      against the real provider, not written speculatively.
+- [x] Rewrite `provider.py`: settings built from segment lengths instead of `N`/`M`/`temporal_depth`;
       `capabilities` re-declared (`max_back`/`max_mid`/`max_fwd` in place of `max_N`/`max_M`);
       `supported_frame_classes` re-declared for Z-time; `find_countermodel` returning the
-      certificate-derived countermodel; the timeout contract preserved.
-- [ ] Update `serialization.py` to serialize certificate-derived countermodels, and `translation.py`
-      where it assumes the retired model shape.
-- [ ] Delete the `temporal_depth`/`M = max(depth+2, 3)` sizing logic and its comments.
+      certificate-derived countermodel; the timeout contract preserved. Done:
+      `supported_frame_classes = frozenset({"ZTime"})` (was `{"Base"}`); `find_countermodel`'s
+      own `frame_class` default parameter changed `"Base"` -> `"ZTime"` to match (a detail easy to
+      miss: leaving the old default would have silently broken every unqualified caller);
+      `_segment_lengths(depth)` replaces the retired `M = max(depth+2, 3)` sizing, scaling
+      `back`/`fwd` with depth and clamped to `capabilities`' declared maxima; `provider_version`
+      bumped `0.1.0` -> `0.2.0` and `semantics_version` to `"bimodal-logic-certificate-v0.1.0"`
+      (both changed to signal the encoding change to any external consumer inspecting them).
+- [x] Update `serialization.py` to serialize certificate-derived countermodels, and `translation.py`
+      where it assumes the retired model shape. Done: `serialization.py` fully rewritten --
+      `extract_true_false_atoms` now reads the main lasso's label at the target position (the
+      atom vocabulary is the search's own closure); `extract_task_triples`/
+      `serialize_world_histories` deleted outright (no `task_rel`/`world_histories` exist any
+      more); `serialize_countermodel`'s `certificate` field is `WitnessFamily.to_json`'s own wire
+      shape verbatim -- the same shape BimodalLogic's `lake exe check_certificate` accepts, so a
+      caller wanting Lean-side re-verification can pass it straight through. `translation.py`
+      needed no logic changes (`json_to_prefix`/`prefix_to_infix`/`fold_formula`/`unfold_formula`
+      are pure JSON-tree transforms, confirmed by grep to have zero references to
+      `task_rel`/`world_hist`/model internals); only `temporal_depth`'s docstring's
+      boundary-safety essay was retired per the next task.
+- [x] Delete the `temporal_depth`/`M = max(depth+2, 3)` sizing logic and its comments. Done: the
+      sizing logic itself lived in `provider.py` (now replaced by `_segment_lengths`);
+      `temporal_depth`'s own ~25-line "Boundary Claim" docstring essay (the formal argument for
+      `M_safe(d) = max(d+2,3)`) replaced with a short note that the function itself (a plain,
+      encoding-independent depth metric) survives but the boundary-safety rationale does not.
 
-**Timing**: 2 hours
+**DISCOVERED AND FIXED, beyond this phase's own task list**: while running the rewritten
+`test_oracle_provider.py`'s `TestStateIsolation` class (100+ sequential `find_countermodel()`
+calls), a real, pre-existing cache-poisoning bug surfaced in
+`theory_lib/bimodal/semantic/formula.py`'s `translate()` memoization: `_TRANSLATE_CACHE` was a
+plain `dict` keyed by `Sentence` object identity (`id()`-based, since `Sentence` has no custom
+`__eq__`/`__hash__`) and was **never cleared**. CPython can and does reuse a garbage-collected
+object's `id()`, so under enough create-and-discard churn (exactly what 100+ tight-loop
+`find_countermodel()` calls produce), a later, completely unrelated `Sentence` could collide by
+`id()` with an earlier, now-stale cache entry and receive its **wrong** cached `Formula`
+translation -- silently, with no exception. This reliably broke every one of
+`TestOracleExampleRegression`'s 53 examples when run after the isolation-stress tests in the same
+process, while each passed individually. **Fix**: `_TRANSLATE_CACHE` is now a
+`weakref.WeakKeyDictionary`, which drops an entry the instant its `Sentence` key is garbage
+collected -- strictly before that `id()` could be reused -- closing the hazard without losing the
+memoization. Verified: the full bimodal test tree (366 tests) and the full oracle test tree (463
+tests, excluding the six files explicitly reserved for Phase 21) both pass after the fix.
+
+Also fixed, surfaced by the same full-suite run rather than assumed from Phase 20's own file list:
+`oracle/bimodal_logic/cli.py`'s `--frame-class` default (`"Base"` -> `"ZTime"`, the same
+easy-to-miss default-parameter detail as `provider.py`'s own fix above) plus a new `--max-rlimit`
+flag (mirroring `find_countermodel`'s own parameter, needed because a `--timeout` budget can no
+longer reliably force a timeout for `test_cli.py`'s inconclusive-path tests -- the certificate
+encoding decides every formula in single-digit milliseconds); `test_frame_class_declaration.py`
+deleted (its entire premise -- disambiguating the retired "Base" TaskFrame-axiom label from
+BimodalLogic's proof-system `FrameClass.Base` -- no longer applies, and its own referenced
+in-package sibling test file was already deleted in Phase 18);
+`test_json_translation.py::TestEnrichedEquivalence`'s settings dict migrated `N`/`M` ->
+`back`/`mid`/`fwd`; `test_oracle_interface.py`'s own `REGRESSION_TIMEOUT_EXAMPLES` (11 entries)
+emptied after each was individually re-measured deciding correctly in well under 100ms, mirroring
+`test_bimodal.py`'s own empty `KNOWN_TIMEOUT_EXAMPLES`; one genuine semantic correction inside
+that same file's `TestSpotCheckCrossSignal::test_validate_self_temporal_only` -- three formulas
+(`p -> p U bot`, `(p U q) -> p`, `(p S q) -> p`) the retired encoding's own comment had hedged as
+"VALID in bounded frames" are, under the certificate encoding's genuinely unbounded search, all
+found to have real countermodels; the hedge was the tell that this was a bounded-window artifact,
+not a true validity, and the test now asserts the corrected (and directly measured) outcome.
+
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|---|---|---|
+| `oracle/conftest.py`'s `_KNOWN_TIMEOUT_SKIPS` registry left with two now-dead entries (`test_oracle_regression[TN_TH_2]`, `test_enriched_vs_primitive_sat_agreement[all_future]`) | The "ORACLE TIMEOUT-SKIP INVENTORY" mechanism itself flagged both as `[RESOLVED]` (the formulas now decide, so the `pytest.skip()` sites they document can no longer fire) during this phase's own test runs, and explicitly says to "re-check ... REGRESSION_TIMEOUT_EXAMPLES membership" -- done -- but the registry itself lives in `oracle/conftest.py`, shared oracle-wide infrastructure outside Phase 20's `provider.py`/`serialization.py`/`translation.py`/test file list, and `test_timeout_skip_inventory.py` (which asserts against this exact registry) is explicitly Phase 21's own named file. Cleaning the registry without also updating its dedicated test in the same edit would be half a fix. | `oracle/conftest.py`'s own `_KNOWN_TIMEOUT_SKIPS` dict and its module docstring citing `test_timeout_skip_inventory.py` as the mechanism's own unit test. |
+| `oracle/bimodal_logic/README.md`/`KNOWN_EXTERNAL_DEFECTS.md` not updated | Phase 22 ("Documentation rewrite") explicitly owns `oracle/bimodal_logic/README.md`; touching it now would be done twice. Confirmed neither file blocks any test passing (docs only, not imported). | Phase 22's own task list, this plan. |
+| `oracle/bimodal_logic/__init__.py`'s stale "task 103" docstring reference not fixed | Untouched by this phase's actual code changes (no functional edit needed there), and fixing a bare comment in a file otherwise unrelated to this phase's work was judged out of proportion; left for whoever next edits that file. | Direct inspection: `__init__.py`'s exports needed no changes (`Z3OracleProvider`/`OracleTimeoutError`/translation functions all still exist with the same names). |
+
+This is a legitimate `[COMPLETED WITH EXCLUSIONS]`: all three exclusions are narrow, explicitly
+justified against a specific later phase or a clearly out-of-proportion drive-by fix, not silently
+descoped.
+
+**Timing**: 2 hours (actual: substantially more, given the cache-poisoning bug investigation and
+the wider-than-planned ripple through `cli.py`/`test_json_translation.py`/
+`test_frame_class_declaration.py`/`test_oracle_interface.py`'s own regression catalog)
 
 **Depends on**: 14, 16
 
@@ -1399,10 +1472,25 @@ what the plan expected to be mostly confirmation work)
 - `oracle/bimodal_logic/translation.py` - update
 - `oracle/bimodal_logic/tests/test_oracle_provider.py` - rewrite
 - `oracle/bimodal_logic/tests/test_oracle_interface.py` - update
+- `code/src/model_checker/theory_lib/bimodal/semantic/formula.py` - `_TRANSLATE_CACHE`
+  cache-poisoning fix (not in the plan's original file list; the discovered bug above)
+- `oracle/bimodal_logic/cli.py`, `oracle/bimodal_logic/tests/test_cli.py` - frame-class default
+  and new `--max-rlimit` flag (not in the plan's original file list; surfaced by the full-suite
+  check)
+- `oracle/bimodal_logic/tests/test_json_translation.py` - settings migration (not in the plan's
+  original file list)
+- `oracle/bimodal_logic/tests/test_frame_class_declaration.py` - deleted (not in the plan's
+  original file list)
 
 **Verification**:
-- `pytest oracle/bimodal_logic/tests/test_oracle_provider.py -v` green.
-- No code path returns a verdict that asserts validity.
+- `pytest oracle/bimodal_logic/tests/test_oracle_provider.py -v` green. CONFIRMED: 89 passed.
+- No code path returns a verdict that asserts validity. CONFIRMED by inspection: `find_countermodel`
+  returns `None` only for "no certificate found" or "unsupported frame class", both documented as
+  non-validity claims in the module docstring; a budget-exhausted search always raises
+  `OracleTimeoutError` instead.
+- Additional verification beyond the plan's own bar: the full oracle test tree (`oracle/bimodal_logic/tests/`,
+  excluding the six files explicitly reserved for Phase 21) passes 463/463 (4 xfailed, pre-existing
+  and unrelated).
 
 ---
 

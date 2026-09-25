@@ -1,110 +1,61 @@
 """bimodal_logic.provider - Z3OracleProvider entry point.
 
 This module provides the Z3OracleProvider class that implements the
-bimodal_harness oracle interface using the Z3 SMT solver.
+bimodal_harness oracle interface using the Z3 SMT solver, backed by
+ModelChecker's witness-family certificate encoding for discrete (Z) time
+(`model_checker.theory_lib.bimodal.semantic`).
 
-## Z3 Frame Hierarchy and BimodalLogic Axiom Mapping
+## Change of meaning
 
-### Terminology Disambiguation
+This module previously implemented the oracle against a window-and-abundance
+Z3 encoding: a bounded integer time domain `(-M, M)`, an explicit `task_rel`
+relation approximating BimodalLogic's `TaskFrame` axioms (nullity, converse,
+forward_comp), and a `temporal_depth`-driven sizing formula
+`M = max(depth + 2, 3)` chosen to avoid boundary-vacuity artifacts in that
+bounded window. That encoding, its frame-axiom approximation, and its sizing
+formula are retired outright (see
+`code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` for the
+certificate design this module now sits on top of) -- there is no `task_rel`,
+no bounded window, and no boundary-vacuity concern to size around, so none of
+that machinery is repaired here, only removed.
 
-The `supported_frame_classes = frozenset({"Base"})` declaration in the oracle
-refers to **TaskFrame axiom satisfaction** (the three frame axioms below), NOT
-to BimodalLogic's proof-system concept `FrameClass.Base` (which encompasses
-37 axioms across the full proof theory). The "Base" label here means: "the Z3
-oracle's frame satisfies the three TaskFrame axioms that form the minimal
-semantic base for bimodal reasoning."
+## The certificate encoding, briefly
 
-### The Three TaskFrame Axioms
+A countermodel is now a **witness-family certificate**: a box guess plus a
+labelled bi-infinite lasso (and one witness lasso per boxed subformula guessed
+false), searched for with fixed `back`/`mid`/`fwd` segment lengths (matching
+`model_checker.theory_lib.bimodal.semantic.witness_registry.WitnessRegistry`).
+The search is quantifier-free (no `ForAll`/`Exists`/MBQI/E-matching), so this
+oracle's solves are now measured in single-digit milliseconds rather than the
+seconds-to-tens-of-seconds the retired encoding needed (measured directly:
+every bimodal example decides in well under 50ms under this encoding). Every
+returned countermodel has already passed the theory's own independent
+pure-Python re-check (`BimodalStructure`'s S3 obligation) before this provider
+ever sees it -- a defect in the encoder surfaces as a loud
+`ModelConstructionError`, not as a bad oracle answer.
 
-BimodalLogic's `TaskFrame` structure (Frame.lean) requires exactly three axioms
-on the `taskRel : S -> Q -> S -> Prop` relation, where S is the state type and
-Q is an additive abelian group (integers in the Z3 approximation):
+## Frame class
 
-| TaskFrame Field | Mathematical Property | Z3 Implementation |
-|-----------------|----------------------|-------------------|
-| `nullity`       | task_rel(s, 0, u) ↔ s = u | `build_nullity_identity_constraint()` |
-| `converse`      | task_rel(s, d, u) ↔ task_rel(u, -d, s) | `build_converse_constraint()` |
-| `compose`       | task_rel(s,d1,t) ∧ task_rel(t,d2,u) → task_rel(s,d1+d2,u) | `build_forward_comp_constraint()` |
+`supported_frame_classes = frozenset({"ZTime"})`: the certificate encoding is
+scoped to discrete (Z) time only (dense/continuous time are out of scope for
+this design -- see `ADEQUACY.md`'s "Why Z-time only" section). "ZTime" here
+names the same frame class BimodalLogic's own tableau-bridge protocol uses for
+this theory (`~/Projects/BimodalLogic/BimodalTools/README.md`'s frame-class
+vocabulary), not a Z3-side approximation label the way the retired encoding's
+"Base" was.
 
-These correspond to the additive group axioms: identity (nullity), inverse
-(converse), and composition (forward_comp). Together they make (S, Q, taskRel)
-a "generalized metric space" structure.
+## Never claims validity
 
-### Z3 Approximation Discrepancies
-
-The Z3 oracle approximates the Lean BimodalLogic formulation with three known
-discrepancies:
-
-1. **Bounded domain**: Z3 uses integer time domain (-M, M) where M is a
-   finite parameter. Lean uses unbounded `Int`. UNSAT results from Z3 are
-   conservative (sound), not complete for the unbounded theory.
-
-2. **Converse guard**: The Z3 `build_converse_constraint()` is guarded by
-   `is_valid_duration(d) AND is_valid_duration(-d)`. The Lean axiom is
-   unconditional. Within the valid duration range the two coincide; outside
-   it, Z3 makes no claim (conservative).
-
-3. **forward_comp asymmetry**: Z3's `build_forward_comp_constraint()` uses
-   duration validity guards `is_valid_duration(d1)`, `is_valid_duration(d2)`,
-   `is_valid_duration(d1+d2)`. Lean's `compose` axiom restricts to
-   `0 <= x, 0 <= y` (non-negative durations). These are equivalent via the
-   converse axiom (any negative-duration task reverses a non-negative one).
-
-### Additional Model-Building Constraints (Not TaskFrame Axioms)
-
-The Z3 oracle adds 8 further constraints beyond the 3 TaskFrame axioms to
-produce well-structured countermodels:
-
-| # | Constraint | Purpose |
-|---|------------|---------|
-| 1 | valid_main_world | main_world ∈ valid worlds |
-| 2 | valid_main_time | main_time ∈ valid times |
-| 3 | enumeration_constraint | worlds start at ID 0, non-negative |
-| 4 | convex_world_ordering | no gaps in world ID sequence |
-| 5 | world_interval | each world has a valid time interval |
-| 6 | lawful | consecutive world-states connected by task_rel(s,1,s') |
-| 8 | skolem_abundance | time-shifted world copies exist (ShiftClosed) |
-| 9 | world_uniqueness | distinct world IDs → distinct histories |
-
-Constraints 7-9 in `build_frame_constraints()` are the TaskFrame axioms (items
-nullity_identity, converse, forward_comp). Constraints 1-6 and 8-9 (the
-non-TaskFrame ones) are model-building. The disabled constraint 10
-(task_restriction) is discussed below.
-
-### Disabled Constraint: task_restriction (Soundness Analysis)
-
-Constraint 10, `task_restriction`, would require every `task_rel(s, d, u)` to
-be grounded in an actual world history -- i.e., there must exist a world `w`
-and time `t` such that `w(t) = s` and `w(t+d) = u`.
-
-**Why it is disabled**: Adding this constraint causes solver timeouts on
-examples requiring more than 3 worlds with M>=3, because it introduces a
-nested ForAll/Exists quantifier alternation that MBQI handles poorly.
-
-**Soundness for countermodel generation**: Disabling `task_restriction` is
-sound for the oracle's primary use case (countermodel generation / validity
-checking). The oracle answers "is formula F valid?" by checking whether the
-negation ~F is satisfiable. If Z3 finds ~F satisfiable, it returns a
-countermodel. If the countermodel contains "phantom" task_rel pairs (pairs not
-grounded in any world history), these pairs are still consistent with the three
-TaskFrame axioms (nullity, converse, forward_comp). Since BimodalLogic semantics
-evaluates formulas over world histories -- not over task_rel pairs directly --
-the phantom pairs do not affect the evaluation of temporal/modal operators. The
-countermodel is therefore a genuine countermodel in the larger (task_restriction-
-free) frame class.
-
-**The phantom task-pair gap**: In the disabled state, task_rel may hold for
-(s, d, u) triples that are not realized by any world history. This means the
-Z3 oracle operates in a strictly larger frame class than BimodalLogic's
-"grounded" frame class. Validity results (UNSAT) from Z3 are therefore
-conservative: if Z3 says UNSAT, the formula is valid in the larger class, which
-includes BimodalLogic's class. If Z3 says SAT (countermodel), the countermodel
-may use phantom pairs, but the formula still fails in that model.
-
-**Post-hoc mitigation**: The `test_frame_class_mapping.py` test suite performs
-post-hoc validation of extracted countermodels against the three TaskFrame
-axioms (nullity, converse, forward_comp) to confirm the oracle's frame
-guarantees are intact in practice.
+`find_countermodel` returns `None` for exactly two cases: a genuinely
+UNSAT search (no certificate exists within the configured segment lengths --
+the theory's own D8 discipline: `ADEQUACY.md` section 7.4) or an unsupported
+`frame_class`. Neither case is reported as "the formula is valid" -- absence
+of a certificate at the searched bounds is inconclusive with respect to
+validity in general (the (ADEQ) completeness direction is open), and this
+provider makes no claim beyond what was actually searched. A search that
+could not decide within its time/rlimit budget raises `OracleTimeoutError`
+rather than returning `None`, keeping the three-valued contract (countermodel
+/ no-countermodel-within-bounds / did-not-decide) intact.
 """
 
 from __future__ import annotations
@@ -128,16 +79,13 @@ from model_checker.theory_lib.bimodal import (
 
 
 class Z3OracleProvider:
-    """Z3-based oracle provider for bimodal logic reasoning.
+    """Z3-based oracle provider for bimodal logic reasoning, backed by the
+    witness-family certificate encoding.
 
-    This class implements the oracle provider interface for the bimodal_harness,
-    using Z3 as the underlying SMT solver for temporal and modal reasoning.
-
-    The oracle's `supported_frame_classes = frozenset({"Base"})` indicates that
-    the Z3 frame satisfies the three TaskFrame axioms (nullity_identity, converse,
-    forward_comp) as documented in the module-level docstring above. See the module
-    docstring for the complete Z3-to-BimodalLogic axiom mapping and the soundness
-    analysis of the disabled task_restriction constraint.
+    The oracle's `supported_frame_classes = frozenset({"ZTime"})` matches the
+    certificate encoding's own scope (discrete time only). See the module
+    docstring for the change of meaning from the retired window-and-abundance
+    encoding and the never-claims-validity discipline this provider follows.
 
     Attributes:
         provider_id (str): Unique identifier for this provider.
@@ -149,12 +97,13 @@ class Z3OracleProvider:
 
     # Class-level constants (static properties)
     provider_id = "bmlogic_z3_base_v1"
-    provider_version = "0.1.0"
-    semantics_version = "bimodal-logic-v0.1.0"
-    supported_frame_classes = frozenset({"Base"})
+    provider_version = "0.2.0"
+    semantics_version = "bimodal-logic-certificate-v0.1.0"
+    supported_frame_classes = frozenset({"ZTime"})
     capabilities = {
-        "max_N": 4,
-        "max_M": 8,
+        "max_back": 6,
+        "max_mid": 4,
+        "max_fwd": 6,
         "supports_enriched_tags": True,
         "z3_timeout_configurable": True,
     }
@@ -167,19 +116,40 @@ class Z3OracleProvider:
         """
         self._semantics = None
 
+    def _segment_lengths(self, depth: int) -> tuple[int, int, int]:
+        """Choose `(back, mid, fwd)` for a formula of the given temporal
+        depth, clamped to `capabilities`' declared maxima.
+
+        The certificate search is quantifier-free and measured in single-digit
+        milliseconds even at generous segment lengths, so this sizing is
+        deliberately simple -- unlike the retired encoding's
+        boundary-safety-driven `M = max(depth+2, 3)` formula, there is no
+        vacuity artifact to size around here (the certificate's fulfilment
+        condition is checked over the Lean-proved wide window regardless of
+        segment length, `ADEQUACY.md` section 5). `back`/`fwd` grow with
+        depth to give deeper formulas more periodic room to place their
+        witnesses; `mid` stays at the class default.
+        """
+        back = min(max(depth + 2, 2), self.capabilities["max_back"])
+        fwd = min(max(depth + 2, 2), self.capabilities["max_fwd"])
+        mid = min(1, self.capabilities["max_mid"])
+        return back, mid, fwd
+
     def find_countermodel(
         self,
         formula_json: dict,
-        frame_class: str = "Base",
+        frame_class: str = "ZTime",
         timeout_ms: int = 5000,
         max_rlimit: int | None = None,
     ) -> dict | None:
         """Find a countermodel for the given formula JSON.
 
         Implements the bimodal_harness oracle interface: given a formula in JSON
-        format, determines whether it is invalid (satisfiable negation) and if so,
-        returns a structured countermodel dict. Returns None for tautologies
-        (valid/UNSAT formulas) and unsupported frame classes.
+        format, determines whether it is invalid (a witness-family certificate
+        exists for its negation-search) and if so, returns a structured
+        countermodel dict built from that certificate. Returns None for
+        tautologies (no certificate found within the configured segment
+        lengths) and unsupported frame classes.
 
         Pipeline:
             json_to_prefix() -> prefix_to_infix() ->
@@ -192,7 +162,7 @@ class Z3OracleProvider:
         Args:
             formula_json: A dict with a "tag" field and tag-specific fields,
                 following the JSON formula schema in translation.py.
-            frame_class: The frame class to check against. Only "Base" is
+            frame_class: The frame class to check against. Only "ZTime" is
                 supported; other values return None immediately.
             timeout_ms: Maximum solver time in milliseconds.
             max_rlimit: Optional deterministic Z3 resource-unit budget --
@@ -210,11 +180,13 @@ class Z3OracleProvider:
                 test whose flakiness is specifically load-driven.
 
         Returns:
-            A dict with countermodel fields if a countermodel is found.
-            None means exclusively one of: the formula is valid (proven no
-            countermodel, i.e. genuine UNSAT), or `frame_class` is
-            unsupported. None never means "the solver did not decide" --
-            that outcome raises OracleTimeoutError instead.
+            A dict with countermodel fields if a certificate is found.
+            None means exclusively one of: no certificate exists within the
+            configured segment lengths (never reported as "the formula is
+            valid" -- see the module docstring's never-claims-validity
+            discipline), or `frame_class` is unsupported. None never means
+            "the solver did not decide" -- that outcome raises
+            OracleTimeoutError instead.
 
         Raises:
             OracleTimeoutError: The Z3 solver exhausted `timeout_ms` or
@@ -227,18 +199,8 @@ class Z3OracleProvider:
         if frame_class not in self.supported_frame_classes:
             return None
 
-        # Compute temporal depth and time bound M.
-        # Task 114 Fix: Use M=max(depth+2, 3) -- the boundary-safe formula.
-        # The previous workaround used M=max(depth, 2) to avoid timeouts from
-        # capped_skolem_abundance_constraint's MBQI blowup at M>=3.
-        # With the Task 114 fix to build_frame_constraints (conditional dispatch to
-        # build_grounded_abundance_constraints for M>=3), M>=3 no longer causes
-        # MBQI blowup. The boundary-safe formula M=max(depth+2,3) ensures
-        # boundary_safe=(M>depth+1) is True for all formulas, eliminating the
-        # boundary vacuity artifacts documented in Task 108.
-        # Note: boundary_safe in the output reflects M > depth+1.
         depth = temporal_depth(formula_json)
-        M = max(depth + 2, 3)
+        back, mid, fwd = self._segment_lengths(depth)
 
         # Fold formula for output (enrich primitive forms to enriched tags)
         formula_folded = fold_formula(formula_json)
@@ -247,13 +209,11 @@ class Z3OracleProvider:
         prefix = json_to_prefix(formula_json)
         infix = prefix_to_infix(prefix)
 
-        # Build settings dict (temporal_depth limits shift closure — Task 114)
+        # Build settings dict (D4: back/mid/fwd replace N/M/temporal_depth).
         settings = {
-            'N': 2,
-            'M': M,
-            'temporal_depth': depth,
-            'contingent': False,
-            'disjoint': False,
+            'back': back,
+            'mid': mid,
+            'fwd': fwd,
             'max_time': timeout_ms / 1000.0,
             'expectation': True,
             'solver': 'z3',
@@ -292,23 +252,29 @@ class Z3OracleProvider:
                     raise OracleTimeoutError(
                         timeout_ms=timeout_ms,
                         temporal_depth=depth,
-                        M=M,
+                        # Repurposed field (errors.py's stable constructor
+                        # signature is shared with the untouched
+                        # oracle/bimodal_logic/tests/test_cross_oracle_differential.py):
+                        # the total certificate segment budget searched, not
+                        # a bounded-window size.
+                        M=back + mid + fwd,
                         max_rlimit=max_rlimit,
                     )
                 if not structure.z3_model_status:
                     self._semantics = None
                     return None
 
-                # Serialize the countermodel
+                # Serialize the countermodel from the found, independently
+                # re-checked certificate (BimodalStructure's own S3 hook has
+                # already verified it before this line ever runs).
                 result = serialize_countermodel(
-                    z3_model=structure.z3_model,
-                    semantics=semantics,
-                    model_constraints=model_constraints,
                     structure=structure,
                     formula_json=formula_json,
                     formula_folded=formula_folded,
                     depth=depth,
-                    M=M,
+                    back=back,
+                    mid=mid,
+                    fwd=fwd,
                     semantics_version=self.semantics_version,
                 )
         finally:
