@@ -1,5 +1,5 @@
 ---
-next_project_number: 190
+next_project_number: 192
 ---
 
 # TODO
@@ -11,15 +11,41 @@ next_project_number: 190
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 189 | -- | architecture |
+| 1 | 189,191 | -- | architecture, testing |
+| 2 | 190 | 189 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Architecture
 
 189 [NOT STARTED] — Fix the shared model iterator's isworld assumption so the...
+  └─ 190 [NOT STARTED] — Make bimodal iteration reject rotation- and...
+
+### Testing
+
+191 [NOT STARTED] — Add the A2-triangle encoding-completeness test for the...
 
 ## Tasks
+
+### 191. A2 triangle encoding completeness test
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Add the A2-triangle encoding-completeness test for the bimodal certificate encoding (ADEQUACY section 7.3). The adequacy argument rests on three components agreeing: the pure-Python re-checker (semantic/certificate.py recheck), the Lean 'lake exe check_certificate' binary, and the Z3 constraint encoding that actually searches for models. Only legs (i) and (ii) are currently tested -- tests/integration/test_certificate_lean_agreement.py compares the re-checker against the Lean binary on the fixture corpus, and says so in its own docstring. Leg (iii), whether the Z3 encoding reports SAT exactly when a valid certificate exists, has never been built. Without it, two silent failure modes are uncovered: encoding incompleteness (Z3 reports UNSAT when a certificate exists) and encoding unsoundness (Z3 reports SAT for a configuration the checker would reject). Build an exhaustive enumeration over back=mid=fwd=1 and |C| <= 4 comparing all three verdicts. Originally scoped in the certificate redesign plan's Phase 5, which closed as COMPLETED WITH EXCLUSIONS deferring this to 'the Phase 9 handoff' -- that resumption pointer is broken, as the Phase 9 handoff carries only the A0 frame-class standing test, not A2.
+
+---
+
+### 190. Rotation invariant bimodal isomorphism rejection
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: architecture
+- **Dependencies**: Task 189
+
+**Description**: Make bimodal iteration reject rotation- and permutation-equivalent models. BimodalModelIterator._create_non_isomorphic_constraint (theory_lib/bimodal/iterate.py) currently rejects only exact bit-for-bit differences from previously-seen models, so a model that is a rotation of a prior lasso's periodic segments, or a relabeling of its witness lassos, is treated as genuinely new and returned as a duplicate. Enumerate the rotation group action on each lasso's back/fwd segments plus witness-lasso relabelings (holding lasso 0 fixed), using WitnessRegistry.wrap's slot arithmetic, and extend tests/integration/test_iterate.py accordingly. BLOCKED on the shared-iterator extension point task: until the live iterate loop actually consults bimodal's iterator methods, there is nothing to exercise this against. Recorded as a reasoned exclusion in the bimodal certificate redesign plan's Phase 15 and in iterate.py's own docstring.
+
+---
 
 ### 189. Fix shared iterator is world assumption
 - **Status**: [NOT STARTED]
