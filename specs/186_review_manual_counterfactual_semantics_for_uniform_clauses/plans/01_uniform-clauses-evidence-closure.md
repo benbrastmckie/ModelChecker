@@ -1,7 +1,7 @@
 # Implementation Plan: Task #186
 
 - **Task**: 186 - Review manual counterfactual semantics for uniform clauses
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 8.25 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md` (round 1, complete; F1-F10, D1-D6)

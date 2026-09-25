@@ -11,14 +11,13 @@ next_project_number: 189
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 184,186 | -- | semantics |
+| 1 | 184 | -- | semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Semantics
 
 184 [IMPLEMENTING] — Redesign the bimodal theory around witness-family...
-186 [IMPLEMENTING] — Review the counterfactual semantics of the Logos manual's...
 
 ## Tasks
 
@@ -124,12 +123,12 @@ STARTING POINTS. ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex: :98
 
 ### 186. Review manual counterfactual semantics for uniform clauses
 - **Effort**: large
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: formal:logic
 - **Topic**: semantics
 - **Dependencies**: None
-- **Research**: [186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md]
 - **Plan**: [186_review_manual_counterfactual_semantics_for_uniform_clauses/plans/01_uniform-clauses-evidence-closure.md]
+- **Research**: [186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md]
 
 **Description**: Review the counterfactual semantics of the Logos manual's dynamics chapter (~/Projects/Logos/Theory/typst/manual/chapters/03-dynamics.typ) and identify whether further improvements are available, with the aim of a clean, systematic, and UNIFORM hyperintensional semantics for counterfactual conditionals -- one whose clauses place no restriction on which well-formed sentences may be embedded or interpreted.
 

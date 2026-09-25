@@ -105,7 +105,7 @@
     {
       "project_number": 186,
       "project_name": "review_manual_counterfactual_semantics_for_uniform_clauses",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "formal:logic",
       "topic": "semantics",
       "effort": "large",
@@ -113,20 +113,21 @@
       "dependencies": [],
       "artifacts": [
         {
-          "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
-          "type": "report",
-          "summary": "Research report: the settler recipe stated as one family-level principle (Settled Event Verification) with 10 findings, the null-family convention derived, the strict collapse escaped by minimality, the E3/minimality obstructions named, and the manual edit list"
-        },
-        {
           "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/plans/01_uniform-clauses-evidence-closure.md",
           "type": "plan",
           "summary": "6 phases, waves [[1,2],[3],[4,5],[6]], 8.25 hours; closes report 01's five undecided items and integrates the user-focus alignment review."
+        },
+        {
+          "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
+          "type": "report",
+          "summary": "Amended with F11 (BimodalLogic alignment), F12 (constrained frame, open items 1-2), F13 (Frame G2 witness, open item 5), F14 (Settler Minimality/padding, open items 3-4), plus a full Executive Summary/Decisions/open-items/appendices integration pass."
         }
       ],
       "created": "2026-09-09T02:35:21Z",
-      "last_updated": "2026-09-25T17:48:26Z",
+      "last_updated": "2026-09-25T18:32:05Z",
       "session_id": "sess_1790358492_1a5334",
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Closed all five of report 01's round-1 open items (BimodalLogic alignment corroborates but does not supply Settler Minimality's content; a certified constrained frame confirms realizable pointwise-E3 failure and gives a recorded negative result for multi-time settlers; Frame G2 gives a directly-computed family-level hyperintensionality witness; padding and Settler Minimality are closed, the latter already decided by the manual itself). Discovered the Logos manual independently adopted almost all of round 1's recommendation already, and narrowed the follow-up task's scope accordingly."
     },
     {
       "project_number": 188,
