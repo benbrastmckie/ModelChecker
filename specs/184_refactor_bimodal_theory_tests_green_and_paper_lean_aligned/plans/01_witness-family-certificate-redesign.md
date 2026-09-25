@@ -745,19 +745,20 @@ rewrite is 319 lines (down from 2,329 -- roughly 86% removed), replacing ~45 met
 
 ---
 
-### Phase 11: BimodalProposition rewrite [NOT STARTED]
+### Phase 11: BimodalProposition rewrite [COMPLETED]
 
 **Goal**: Propositions whose truth values come from labels, with atoms free.
 
 **Tasks**:
-- [ ] Write tests first: `truth_value_at` agrees with label membership for atoms and for one
+- [x] Write tests first: `truth_value_at` agrees with label membership for atoms and for one
       compound of each operator class; `proposition_constraints` adds nothing beyond what coherence
       already imposes.
-- [ ] Rewrite `semantic/proposition.py`: `proposition_constraints` reduced to whatever the atom
+- [x] Rewrite `semantic/proposition.py`: `proposition_constraints` reduced to whatever the atom
       part genuinely needs (expected: empty, since atoms are free); `find_extension` /
       `truth_value_at` / `_find_proposition_at` reading labels at (lasso, position);
       `print_proposition` updated to the new eval-point shape.
-- [ ] Remove the `contingent`/`disjoint` constraint paths along with their settings.
+- [x] Remove the `contingent`/`disjoint` constraint paths along with their settings (already
+      removed from settings in Phase 9; `proposition_constraints` here just returns `[]`).
 
 **Timing**: 1.5 hours
 
@@ -770,7 +771,15 @@ rewrite is 319 lines (down from 2,329 -- roughly 86% removed), replacing ~45 met
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_proposition.py` - new
 
 **Verification**:
-- Proposition unit tests green; a compound's printed truth value matches the label's.
+- Proposition unit tests green: 11/11 in `test_proposition.py`, covering atom, negation, box,
+  and until compounds -- a compound's truth value is exactly its own label lookup, no
+  per-operator recursion (local coherence already ties a compound's bit to its constituents').
+  Full suite: 135 failed, 90 errored, 290 passed (up from Phase 10's 134/90/281 -- one more
+  failure, expected: `models/model.py` and other callers of the retired `proposition.py`
+  surface still reference deleted attributes; nine more passing from the new tests). "World
+  state" is redefined here as a lasso index (the certificate encoding has no separate finite
+  state abstraction beneath `(lasso, position)` -- see the module docstring), so
+  `truth_set`/`false_set` are sets of lasso indices rather than bitvector state reprs.
 
 ---
 
