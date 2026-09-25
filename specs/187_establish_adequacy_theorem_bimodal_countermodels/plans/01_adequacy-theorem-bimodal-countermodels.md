@@ -1,7 +1,7 @@
 # Implementation Plan: Task #187
 
 - **Task**: 187 - Establish an adequacy theorem connecting ModelChecker's bimodal countermodels to the paper's task semantics
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 9.5 hours
 - **Dependencies**: None blocking. Layered over the certificate-redesign task (see "Relationship to the certificate redesign" below), which is `planned` but not started; this plan is written so that every phase lands green against the repository as it stands today.
 - **Research Inputs**: specs/187_establish_adequacy_theorem_bimodal_countermodels/reports/01_adequacy-theorem-bimodal-countermodels.md
@@ -124,36 +124,36 @@ tracks (document, corpus) that converge at Phase 6.
 
 ---
 
-### Phase 1: State (SOUND) and its proof in a durable theory document [NOT STARTED]
+### Phase 1: State (SOUND) and its proof in a durable theory document [COMPLETED]
 
 **Goal**: `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` exists and carries the
 soundness half in full: the certificate definition, the statement, the construction, four lemmas
 with proofs, the theorem, and the mapping of every step to its landed Lean counterpart.
 
 **Tasks**:
-- [ ] Create `ADEQUACY.md` with a scope preamble: what the document claims, what it does not
+- [x] Create `ADEQUACY.md` with a scope preamble: what the document claims, what it does not
       (it is not a validity claim and not a claim about the current encoding), and that it is
-      stated for discrete time only.
-- [ ] Write the certificate definition: the pair `(bx, <L_0, ..., L_k>)` with a target time, the
+      stated for discrete time only. *(completed)*
+- [x] Write the certificate definition: the pair `(bx, <L_0, ..., L_k>)` with a target time, the
       three-segment decoding, and conditions (C1) local coherence, (C2) fulfilment, (C3) box
-      faithfulness, (C4) target — including the remark that atoms are deliberately unconstrained.
-- [ ] State (SOUND) verbatim from the report's §2, with its four obligations S1-S4 and each
+      faithfulness, (C4) target — including the remark that atoms are deliberately unconstrained. *(completed)*
+- [x] State (SOUND) verbatim from the report's §2, with its four obligations S1-S4 and each
       obligation's status, and state the architectural point: the antecedent is decided on every
-      reported countermodel rather than the encoder being proved correct.
-- [ ] Write the construction (`D := <Z,+,0,<=>`, `W := {0..k} x Z`, the shift relation, the
-      valuation, the lassos) and the reflection-convention check.
-- [ ] Write Lemma 1 (Frame) with all four constraints proved, Lemma 2 (Histories) with
+      reported countermodel rather than the encoder being proved correct. *(completed)*
+- [x] Write the construction (`D := <Z,+,0,<=>`, `W := {0..k} x Z`, the shift relation, the
+      valuation, the lassos) and the reflection-convention check. *(completed)*
+- [x] Write Lemma 1 (Frame) with all four constraints proved, Lemma 2 (Histories) with
       Corollaries 2.1 (translation closure, derived) and 2.2 (Box's range), Lemma 3 (time-shift
-      preservation, instantiated) with Corollary 3.1, and Lemma 4 (truth lemma) with every case.
-- [ ] Write the remark on why both (C1) and (C2) are needed and where discreteness enters, and
-      the theorem with its proof and the non-vacuity corollary.
-- [ ] Add the Lean citation table of the report's §3.6 (this report's step -> Lean name ->
+      preservation, instantiated) with Corollary 3.1, and Lemma 4 (truth lemma) with every case. *(completed)*
+- [x] Write the remark on why both (C1) and (C2) are needed and where discreteness enters, and
+      the theorem with its proof and the non-vacuity corollary. *(completed)*
+- [x] Add the Lean citation table of the report's §3.6 (this report's step -> Lean name ->
       file:line) and the `IntNormalForm.ofStep` near-miss note recording why it is *not* the
-      mechanization of Lemma 1.
-- [ ] Add the transcription audit table of the report's §3.7 (paper anchor -> Lean definition ->
-      verdict), labelled as an audit discharged by inspection, not as a theorem.
-- [ ] Use only durable anchors: paper line numbers, Lean names with file:line, repository paths.
-      No task numbers, and no `specs/` paths (this file is outside `specs/**`).
+      mechanization of Lemma 1. *(completed)*
+- [x] Add the transcription audit table of the report's §3.7 (paper anchor -> Lean definition ->
+      verdict), labelled as an audit discharged by inspection, not as a theorem. *(completed)*
+- [x] Use only durable anchors: paper line numbers, Lean names with file:line, repository paths.
+      No task numbers, and no `specs/` paths (this file is outside `specs/**`). *(completed)*
 
 **Timing**: 2 hours
 

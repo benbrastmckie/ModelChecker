@@ -19,13 +19,13 @@ next_project_number: 188
 
 184 [PLANNED] — Redesign the bimodal theory around witness-family...
 186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
-187 [PLANNED] — Establish an adequacy theorem connecting ModelChecker's...
+187 [IMPLEMENTING] — Establish an adequacy theorem connecting ModelChecker's...
 
 ## Tasks
 
 ### 187. Establish adequacy theorem bimodal countermodels
 - **Effort**: large
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: formal:logic
 - **Topic**: semantics
 - **Dependencies**: None
