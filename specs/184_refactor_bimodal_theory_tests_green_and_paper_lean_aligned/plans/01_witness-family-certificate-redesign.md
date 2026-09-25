@@ -500,22 +500,22 @@ BimodalLogic's Lean binary.
 
 ---
 
-### Phase 6: Label-bit registry and position algebra [NOT STARTED]
+### Phase 6: Label-bit registry and position algebra [COMPLETED]
 
 **Goal**: The Z3 variable layer: one Boolean per (lasso, position index, closure formula), plus
 witness-lasso allocation, replacing the inert `WitnessRegistry`.
 
 **Tasks**:
-- [ ] Write unit tests first: the position-index wrap function agrees with
+- [x] Write unit tests first: the position-index wrap function agrees with
       `LabelledLasso.label`'s decoding for `t` spanning several periods each side; bit identity is
       stable across repeated lookups; `clear()` releases everything.
-- [ ] Rewrite `semantic/witness_registry.py`: construct from segment lengths
+- [x] Rewrite `semantic/witness_registry.py`: construct from segment lengths
       (`back`, `mid`, `fwd`) and the closure; index set per lasso of size `back + mid + fwd`;
       `wrap(t) -> index`; `bit(lasso, t, formula) -> z3.Bool` memoized; `guess(formula) -> z3.Bool`
       for the box guess; `allocate_witness_lasso(box_formula) -> int` honouring `max_witnesses`.
-- [ ] Keep the public class name `WitnessRegistry` (report 01 §4.4: rewritten, not deleted) and
+- [x] Keep the public class name `WitnessRegistry` (report 01 §4.4: rewritten, not deleted) and
       document the change of meaning at the top of the file.
-- [ ] Expose the position window used for the target selector.
+- [x] Expose the position window used for the target selector (`target_window()`).
 
 **Timing**: 2 hours
 
@@ -528,8 +528,28 @@ witness-lasso allocation, replacing the inert `WitnessRegistry`.
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py` - rewrite
 
 **Verification**:
-- Wrap-function agreement test green across at least two periods in each direction.
-- Bit count equals `lassos * (back + mid + fwd) * |closure|` for a hand-computed case.
+- Wrap-function agreement test green across at least two periods in each direction. 45/45 new
+  unit tests green (`test_witness_registry.py`).
+- Bit count equals `lassos * (back + mid + fwd) * |closure|` for a hand-computed case
+  (`TestBit::test_bit_count_for_a_hand_computed_case`).
+
+**Correction to the plan's Rollback/Contingency section**: that section names "Waves 6-8 (Phases
+9-13)" as the only unavoidably-red stretch and directs taking the pre-rewrite snapshot before
+Phase 9. That is inaccurate for this class specifically: `semantic/core.py:86` (untouched by this
+phase's own file scope) constructs `WitnessRegistry(self.N, self.M)` — the *old* two-argument
+signature — unconditionally in `BimodalSemantics.__init__`, so rewriting the class's constructor
+breaks that call immediately, not at Phase 9. Confirmed by running the full unit-test tree
+immediately after this phase's change: 128 failed + 87 errored out of 339 (all `TypeError:
+WitnessRegistry.__init__() missing 2 required positional arguments`, or an import-time collapse
+of `test_witness_constraints.py`, itself scheduled for rewrite in Phases 7-8). This is the
+expected, accepted cost of a clean-break rewrite of a class `core.py` already depends on (project
+principle: no compatibility layers) — flagged here rather than silently absorbed, since it moves
+the plan's own documented red-period start three phases earlier than written. The correct
+per-phase commit (`git revert`-safe) already serves as the pre-rewrite rollback point this
+class's change needed; no separate `git-snapshot.sh` invocation was necessary since the working
+tree was otherwise clean at this phase's start. `core.py`'s actual instantiation site is repaired
+in Phase 9 as already planned; Phases 7-8 (pure constraint-generator modules, not yet wired into
+`core.py`) do not additionally worsen this.
 
 ---
 
