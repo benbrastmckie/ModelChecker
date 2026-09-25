@@ -32,9 +32,21 @@ from model_checker.theory_lib.bimodal.examples import countermodel_examples, the
 from model_checker.utils.context import isolated_z3_context
 
 # Combine both example sets for testing, excluding known solver timeout cases
-# NOTE: MF_MODAL_FUTURE_TH tests the BX axiom "Box A -> Box(G A)" which is NOT a theorem
-# under current bimodal semantics (countermodel found at N=1, M=2). The related BM_TH_5
-# tests the valid formula "Box A -> Future(Box A)" and is excluded for Z3 state reasons.
+# NOTE: MF_MODAL_FUTURE_TH tests the BX axiom "Box A -> Box(G A)", which IS valid in the
+# paper's task semantics -- proved over the unrestricted frame class by the Lean theorem
+# `modal_future_valid` (Metalogic/Soundness.lean:373), with `no_witnessFamily_of_MF`
+# (Metalogic/Decidability/WitnessFamily/Examples.lean:275) additionally proving that no
+# witness-family certificate at any segment lengths refutes it. The countermodel the current
+# encoding reports at N=1, M=2 is an artifact of the bounded-window encoding's boundary
+# vacuity (ForAllTime's own docstring records that G(p) evaluated at t = M-1 is vacuously
+# true), not evidence that the axiom fails. See
+# code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md for the full proof and the
+# citation table. The exclusion stands only until the window-and-abundance encoding is
+# replaced by the witness-family certificate design, at which point this entry, and the
+# `expectation: False` it currently exempts from the gate, are both corrected -- not before,
+# since removing the exclusion today would turn the suite red against the still-present
+# encoding bug rather than against a real axiom failure. The related BM_TH_5 tests the valid
+# formula "Box A -> Future(Box A)" and is excluded for Z3 state reasons.
 # NOTE: BX7_LINEAR_U_TH, BX7P_LINEAR_S_TH use N=4, M=5 and are computationally expensive;
 # they may time out in CI depending on system resources.
 # NOTE: BM_TH_1, BM_TH_2 are now validated theorems (Box->Future/Past perpetuity principles)
@@ -48,7 +60,10 @@ KNOWN_TIMEOUT_EXAMPLES = {
                             # causes failures in the full suite (sometimes 10-15s, sometimes <5s)
     "MD_TH_2",
     "BM_TH_1", "BM_TH_2",  # Perpetuity theorems: valid with M=3, 30s per test (too slow for CI)
-    "MF_MODAL_FUTURE_TH",   # BX modal_future: Box A -> Box(G A) not valid under bimodal semantics
+    "MF_MODAL_FUTURE_TH",   # BX modal_future: Box A -> Box(G A) IS valid in the paper's semantics
+                            # (modal_future_valid, Metalogic/Soundness.lean:373); the reported
+                            # countermodel is a boundary-vacuity artifact of the current bounded
+                            # encoding -- see docs/ADEQUACY.md
     "BX7_LINEAR_U_TH",      # BX7 Until linearity: N=4, M=5 - computationally expensive
     "BX7P_LINEAR_S_TH",     # BX7' Since linearity: N=4, M=5 - computationally expensive
     # NOTE: BM_CM_1, BM_CM_2, BM_CM_4 now reliably find countermodels with corrected semantics

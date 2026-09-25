@@ -32,6 +32,7 @@
 - [Frame Constraints](#frame-constraints)
 - [Development Status](#development-status)
 - [Known Limitations](#known-limitations)
+- [Adequacy](#adequacy)
 - [References](#references)
 
 ## Overview
@@ -924,6 +925,13 @@ marker's contract, what this status accepts, and what retires it.
 - **Abundance Impact**: The abundance constraint significantly increases computational load
 - **Model Complexity**: The full bimodal semantics creates models that may challenge Z3's capabilities
 - **Memory Usage**: Large models with many worlds and times can consume significant memory
+
+## Adequacy
+
+`docs/ADEQUACY.md` states and proves the soundness correspondence between the witness-family
+certificate design (the target of the redesign this theory is undergoing) and the paper's task
+semantics, and states the open adequacy (converse) direction without asserting it. It is not a
+claim about the window-and-abundance encoding currently in this package.
 
 ## References
 

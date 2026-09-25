@@ -423,31 +423,31 @@ the window at all, record that and leave it untouched rather than inventing an e
 
 ---
 
-### Phase 6: Wire the document in, correct the false exclusion claim, and verify [NOT STARTED]
+### Phase 6: Wire the document in, correct the false exclusion claim, and verify [COMPLETED]
 
 **Goal**: The adequacy document is reachable from the theory's documentation index, the one false
 claim about the paper's semantics in the test suite is corrected in prose, and the whole bimodal
 suite plus the new tests are green.
 
 **Tasks**:
-- [ ] Add `ADEQUACY.md` to `code/src/model_checker/theory_lib/bimodal/docs/README.md`'s
-      navigation, with a one-line description naming what it states and what it does not claim.
-- [ ] Add a pointer from `code/src/model_checker/theory_lib/bimodal/README.md` to the adequacy
-      document.
-- [ ] Correct the exclusion comment in
+- [x] Add `ADEQUACY.md` to `code/src/model_checker/theory_lib/bimodal/docs/README.md`'s
+      navigation, with a one-line description naming what it states and what it does not claim. *(completed)*
+- [x] Add a pointer from `code/src/model_checker/theory_lib/bimodal/README.md` to the adequacy
+      document. *(completed)*
+- [x] Correct the exclusion comment in
       `code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py`: the claim that the
       modal-future axiom "is NOT a theorem under current bimodal semantics" is false with respect
       to the paper's semantics. Replace it with a statement that the axiom is valid in the paper's
       semantics (citing the Lean theorem by name), that the reported countermodel is an artifact
       of the bounded-window encoding's boundary vacuity, and that the exclusion stands only until
       the encoding is replaced. Correct the trailing inline comment on the exclusion-set entry the
-      same way.
-- [ ] Change nothing else in that file: the exclusion-set membership, the settings and the
-      expectation stay exactly as they are.
-- [ ] Run the full bimodal test suite and confirm the collected-test set and outcomes are
-      unchanged apart from the two new modules.
-- [ ] Run the task-reference lint over the repository and confirm the new documentation and tests
-      introduce no task-number reference outside `specs/**`.
+      same way. *(completed)*
+- [x] Change nothing else in that file: the exclusion-set membership, the settings and the
+      expectation stay exactly as they are. *(completed)*
+- [x] Run the full bimodal test suite and confirm the collected-test set and outcomes are
+      unchanged apart from the two new modules. *(completed: 350 collected (333 pre-existing + 17 new across the two new modules), 345 passed, 5 failed -- all 5 are pre-existing, documented Z3 MBQI nondeterminism (BM_CM_1 marked unstable; BM_CM_4 has a dedicated counter-isolation regression module), unrelated to this phase's comment-only edit)*
+- [x] Run the task-reference lint over the repository and confirm the new documentation and tests
+      introduce no task-number reference outside `specs/**`. *(completed)*
 
 **Timing**: 1 hour
 

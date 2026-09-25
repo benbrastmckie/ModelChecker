@@ -11,6 +11,10 @@ Welcome to the comprehensive documentation for the Bimodal theory implementation
 - **[Architecture](ARCHITECTURE.md)** - Technical implementation details and design decisions
 - **[Settings Reference](SETTINGS.md)** - Configuration options and performance tuning
 - **[Model Iteration](ITERATE.md)** - Guide to finding multiple distinct models
+- **[Adequacy](ADEQUACY.md)** - States and proves the soundness correspondence between the
+  witness-family certificate design and the paper's task semantics; states the open adequacy
+  (converse) direction without asserting it. Not a claim about the current window-and-abundance
+  encoding, and never a validity claim.
 
 ### Getting Started
 
@@ -69,6 +73,13 @@ Model iteration guide covering:
 - Difference detection algorithms
 - Isomorphism checking
 - Performance considerations
+
+### ADEQUACY.md
+The soundness correspondence between certificates and the paper's task semantics:
+- The certificate definition and its four conditions
+- The (SOUND) statement, its full proof, and the Lean citation table
+- The proved re-check windows and the presentation/re-verification protocol
+- The (ADEQ) direction, recorded as open with its deciding tests named
 
 ## Theory Overview
 
