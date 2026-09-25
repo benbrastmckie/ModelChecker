@@ -169,36 +169,36 @@ importable place, with the existing Lean-agreement module unchanged in behavior.
 
 ---
 
-### Phase 2: Candidate enumerator and Tier 1 triangle for the box-free closures [NOT STARTED]
+### Phase 2: Candidate enumerator and Tier 1 triangle for the box-free closures [COMPLETED]
 
 **Goal**: A deterministic exhaustive candidate generator plus the leg (i) vs. leg (iii) comparison,
 passing for one SAT and one UNSAT box-free closure.
 
 **Tasks**:
-- [ ] Create `tests/integration/test_certificate_a2_triangle.py` with a module docstring stating
+- [x] Create `tests/integration/test_certificate_a2_triangle.py` with a module docstring stating
       the ADEQUACY section 7.3 obligation, which leg is novel here (iii, encoding completeness),
       and that legs (i)/(ii) on the fixture corpus remain
       `test_certificate_lean_agreement.py`'s job.
-- [ ] Add a `_build(premises, conclusions, **overrides)` equivalent of `test_structure.py`'s
+- [x] Add a `_build(premises, conclusions, **overrides)` equivalent of `test_structure.py`'s
       helper (`Syntax` -> `BimodalSemantics` -> `ModelConstraints` -> `BimodalStructure`), driven
       at `back=1, mid=1, fwd=1`.
-- [ ] Add `_candidates(structure)` yielding every `(WitnessFamily, target_time)` candidate:
+- [x] Add `_candidates(structure)` yielding every `(WitnessFamily, target_time)` candidate:
       closure sorted deterministically (e.g. by `repr`), labels ranging over all `2**|C|` subsets,
       one `LabelledLasso(back=(b,), mid=(m,), fwd=(f,))` per lasso index in
       `structure.semantics._active_lassos`, `bx` over all Boolean assignments to the `Box` children
       of the closure, and `target_time` over `list(structure.semantics.witness_registry.target_window())`
       (`range(-1, 2)` at these lengths).
-- [ ] Assert `len(closure) <= 4` per example, so the ADEQUACY bound is machine-checked.
-- [ ] Add the Tier 1 comparison: count accepted (`status == "countermodel"`) candidates via
+- [x] Assert `len(closure) <= 4` per example, so the ADEQUACY bound is machine-checked.
+- [x] Add the Tier 1 comparison: count accepted (`status == "countermodel"`) candidates via
       `recheck(family, structure.semantics._premise_formulas, structure.semantics._conclusion_formulas, t)`
       and assert `(accepted_count > 0) == structure.z3_model_status`, with a failure message that
       names which of the two ADEQUACY diagnoses applies (accepted-but-UNSAT = encoding
       incompleteness; none-accepted-but-SAT = encoding unsoundness or a re-checker defect).
-- [ ] Parametrize over two box-free closures: `[] / ["(q \\Until p)"]` (expected SAT, 1,536
+- [x] Parametrize over two box-free closures: `[] / ["(q \\Until p)"]` (expected SAT, 1,536
       candidates, accepted > 0) and `["A"] / ["A"]` (expected UNSAT, 24 candidates, accepted == 0). Surface-syntax strings
       are written as Python literals here, so operator backslashes are doubled exactly as in
       `test_structure.py` (`"\\Box A"`, not `"\Box A"`).
-- [ ] Also assert, for the SAT closures, that `structure.certificate` is not `None` and re-checks
+- [x] Also assert, for the SAT closures, that `structure.certificate` is not `None` and re-checks
       as a countermodel — the extracted certificate is itself one of the accepted candidates.
 
 **Timing**: 1.25 hours
