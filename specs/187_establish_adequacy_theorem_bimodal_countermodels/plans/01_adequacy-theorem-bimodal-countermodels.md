@@ -345,59 +345,59 @@ named reason.
 
 ---
 
-### Phase 5: Amend the certificate-redesign plan with the theorem's hard constraints [NOT STARTED]
+### Phase 5: Amend the certificate-redesign plan with the theorem's hard constraints [COMPLETED]
 
 **Goal**: The redesign plan carries the corrected windows, the corrected state-sharing rationale,
 and the new obligations, while it is still `[NOT STARTED]` and before the phases written against
 the wrong bound are dispatched.
 
 **Tasks**:
-- [ ] Rewrite decision D7 in
+- [x] Rewrite decision D7 in
       `specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md`:
       the proved collapse window for local coherence and for fulfilment is `[-2*nb, nm + 2*nf)`,
       the window for box faithfulness is the narrower `[-nb, nm + nf)`, the two are **not** the
       same window, and the reason two periods are needed is that the clause at `t` reads `t-1`
       and `t+1`. Cite the Lean collapse lemmas by name and file:line. Keep D7's own warning that
-      a wrong bound is the most likely silent soundness bug, now discharged rather than pending.
-- [ ] Correct D9's rationale: the blocker to lasso state-sharing is that determinism makes the
+      a wrong bound is the most likely silent soundness bug, now discharged rather than pending. *(completed)*
+- [x] Correct D9's rationale: the blocker to lasso state-sharing is that determinism makes the
       world histories exactly the orbits, hence makes the Box case of the truth lemma go through
       — not Limit and Saturation. The decision itself (design for sharing, do not implement it)
-      stands.
-- [ ] Add an amendment block immediately after the decisions section recording the source of
+      stands. *(completed)*
+- [x] Add an amendment block immediately after the decisions section recording the source of
       these amendments (this task's report path, which is inside `specs/**` and may be cited
-      there), the date, and a one-line index of every phase touched below.
-- [ ] Phase 2 (translation): add the truth-preservation obligation — the round-trip against the
+      there), the date, and a one-line index of every phase touched below. *(completed)*
+- [x] Phase 2 (translation): add the truth-preservation obligation — the round-trip against the
       Lean binary cannot test the sentence-to-formula translation, because both sides consume the
       already-translated formula. Add a property test comparing the theory's own truth evaluation
       against a direct evaluator for the translated formula at every point of a small hand-built
       discrete-time model, and note that the existing brute-force adjudicator covers the tense
-      half only, having no box case.
-- [ ] Phase 3 (datatypes): add the forward-compatibility note's corrected rationale, matching D9.
-- [ ] Phase 4 (re-checker): replace the window reference with the corrected one; add the
+      half only, having no box case. *(completed)*
+- [x] Phase 3 (datatypes): add the forward-compatibility note's corrected rationale, matching D9. *(completed)*
+- [x] Phase 4 (re-checker): replace the window reference with the corrected one; add the
       window-discriminating fixture as an acceptance criterion, pointing at the fixture corpus
-      this task creates as the source of the fixture.
-- [ ] Phase 5 (round-trip): add the three-way differential (re-checker, Lean binary, and whether
+      this task creates as the source of the fixture. *(completed)*
+- [x] Phase 5 (round-trip): add the three-way differential (re-checker, Lean binary, and whether
       the encoding reports SAT) at the smallest segment lengths over a closure of at most four
       formulas, with its three named failure localizations; and add this task's fixture corpus to
-      the round-trip's fixture set.
-- [ ] Phase 8 (fulfilment and box-faithfulness generators): replace the window reference with the
+      the round-trip's fixture set. *(completed)*
+- [x] Phase 8 (fulfilment and box-faithfulness generators): replace the window reference with the
       corrected one, and record that box faithfulness uses the narrower window while fulfilment
-      does not.
-- [ ] Phases 9, 12 and 16: add the frame-class standing test — the two discrete-time-only axiom
+      does not. *(completed)*
+- [x] Phases 9, 12 and 16: add the frame-class standing test — the two discrete-time-only axiom
       instances must report no certificate at every configured length and must render
       inconclusive, never as validity; a rendering that says valid on either is a reportable
-      defect.
-- [ ] Phase 12 (re-check hook): recast the hook's role — it is not a safety net but the mechanism
+      defect. *(completed)*
+- [x] Phase 12 (re-check hook): recast the hook's role — it is not a safety net but the mechanism
       discharging the soundness obligation that whatever the search reports satisfies the
-      certificate conditions.
-- [ ] Phase 16/17 (examples): record that the source of truth for the modal-future axiom's
+      certificate conditions. *(completed)*
+- [x] Phase 16/17 (examples): record that the source of truth for the modal-future axiom's
       expectation is the two Lean theorems (its validity at the unrestricted frame class, and
       that no certificate at any lengths refutes it), and that the current exclusion comment is
-      to be deleted rather than softened.
-- [ ] Phase 22 (documentation): add a task to carry the theorem statement, the four lemmas and
+      to be deleted rather than softened. *(completed)*
+- [x] Phase 22 (documentation): add a task to carry the theorem statement, the four lemmas and
       the Lean citation table into the theory documentation, noting that the adequacy document
-      this task creates is the source.
-- [ ] Touch no phase status marker and no plan-level status field.
+      this task creates is the source. *(completed)*
+- [x] Touch no phase status marker and no plan-level status field. *(completed)*
 
 **Timing**: 1.5 hours
 

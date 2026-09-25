@@ -116,21 +116,59 @@ hook is to override `_setup_solver` in `BimodalStructure` to call `finalize_cert
 delegating to `super()._setup_solver`. It must be idempotent: `re_solve()` and the iterator call
 it again.
 
-**D7 — The fulfilment window must match the re-checker, and `check_certificate` is the authority.**
-Encode fulfilment as a bounded scan (one full `fwd` period past the `mid` segment forward,
-symmetrically one `back` period before the origin), the window collapse that
-`Metalogic/Decidability/WitnessFamily/Decide.lean` proves. Getting this bound wrong is the single
-most likely silent soundness bug in the whole redesign; the guard is that the same bound is
-implemented once in the Python re-checker and that Phase 5's round-trip test compares verdicts
-against the Lean binary on every fixture.
+**D7 — The local-coherence and fulfilment window is wider than the box-faithfulness window, both
+proved and both distinct from a single shared one-period bound, and `check_certificate` is the
+authority.** *(Amended; see the Amendment block below.)* The window collapses are machine-checked
+in `Metalogic/Decidability/WitnessFamily/Decide.lean`: `coherent_iff_window` (`:335`) and
+`fulfil_iff_window` (`:743`) both collapse to **`[-2*nb, nm + 2*nf)`** — **two** periods on each
+side — while `mem_all_iff_window` (`:809`, `:883`), which box faithfulness is built from, collapses
+to the **narrower**, one-period **`[-nb, nm + nf)`**. **These are not the same window.** The reason
+two periods are needed for local coherence and fulfilment is that the clause at position `t` reads
+`t-1` and `t+1` as well as `t` (a representative position needs its whole neighbourhood inside the
+periodic region), whereas box faithfulness reads no neighbours and collapses at one period. Encode
+fulfilment as a bounded scan using the corrected bounds `scan_forward`/`scan_backward`
+(`Decide.lean:192, 212`): a forward witness within `(t, max(t, nm) + nf]`, a backward witness
+within `[min(t, 0) - nb, t)`. Getting this bound wrong is the single most likely silent soundness
+bug in the whole redesign; that risk is now **discharged rather than pending** — the corrected
+windows are proved in Lean, mechanically demonstrated by a window-discriminating certificate
+fixture (`code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/`), and the guard
+remains that the same bound is implemented once in the Python re-checker, with Phase 5's
+round-trip test comparing verdicts against the Lean binary on every fixture including the
+window-discriminating one.
 
 **D8 — ModelChecker never reports validity.** UNSAT within the configured segment lengths means
 "no certificate found within bounds" and must be rendered as inconclusive, never as a validity
 claim. Report 01 §4.2 and `check_certificate`'s own one-sidedness both require this.
 
-**D9 — Lassos are deterministic and do not share states.** Design `LabelledLasso`/`WitnessFamily`
-so sharing could later be added, but do not implement it. Branching families are needed only for
-the stability modal, which is open research in BimodalLogic and must not be promised.
+**D9 — Lassos are deterministic and do not share states.** *(Rationale corrected; see the
+Amendment block below.)* Design `LabelledLasso`/`WitnessFamily` so sharing could later be added,
+but do not implement it. Branching families are needed only for the stability modal, which is open
+research in BimodalLogic and must not be promised. **The real blocker to adding state-sharing is
+not Limit and Saturation** — over `ℤ`, Limit and Saturation are both discharged cheaply, from
+`Int.abs_lt_one_iff` and from subsingleton fibres respectively
+(`Metalogic/Decidability/WitnessFamily/Std.lean:73-80`;
+`Semantics/TaskFrame.saturation_of_fib_subsingleton`, consumed at `Semantics/ShiftSet.lean:171`).
+**The real blocker is `ShiftSet.total_eq_orbit` (`Semantics/ShiftSet.lean:252`) and the Box case
+of the certificate truth lemma.** Determinism is exactly what makes every world history equal to
+one of the lasso orbits (`total_eq_orbit`); if two lassos shared a state, a history could cross
+between them at the shared point, `total_eq_orbit` would fail, the certified frame's history set
+would no longer be exactly the certified lassos, and the Box case of the truth lemma would fail
+with it, since box faithfulness is calibrated against "every position of every lasso" enumerating
+exactly the certified histories. So adding state-sharing later requires re-proving the histories
+lemma and redesigning box faithfulness, not re-arguing Limit or Saturation. See
+`code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md`'s "Why the design is deterministic"
+section for the full argument.
+
+### Amendment (adequacy-layer task, prior to this plan's Phase 1 dispatch)
+
+The following decisions and phases were amended by the report and plan of the adequacy-layer
+task that depends on this plan (see "Relationship to task 184, settled" in that task's own
+research report, filed alongside its plan). Every phase of this plan was still at its initial,
+not-yet-begun status at the time of the amendment, so every change below is an in-place
+correction rather than a revision of completed work. Touched: **D7**, **D9**, and Phases **2, 3, 4, 5, 8, 9, 12, 16, 22** (17's
+amendment is folded into 16's, per that task's Scope Hypothesis finding that Phase 17 carries no
+separate window or expectation reference of its own). No phase status marker and no plan-level
+status field were changed by this amendment.
 
 ## Goals & Non-Goals
 
@@ -252,6 +290,15 @@ the subformula closure and the JSON codec the wire contract requires.
       `\Until(event, guard)` to `Untl(guard, event)` and `\Since` likewise (the swap of D2);
       `\Future A` to `Imp(Untl(Imp(Bot,Bot), Imp(A,Bot)), Bot)` and `\Past A` to the `Snce` mirror.
 - [ ] Add a memoizing cache keyed by sentence identity so repeated translation is free.
+- [ ] **(Amendment, adequacy-layer task)** Add the truth-preservation obligation for this
+      translation: Phase 5's round-trip against `lake exe check_certificate` compares the Python
+      re-checker and the Lean binary on the *same already-translated* `Formula`, so it structurally
+      cannot test whether `translate` itself preserves truth. Add a property test comparing, at
+      every point of a small hand-built discrete-time model, the theory's own `true_at` evaluation
+      against a direct evaluator for `translate(sentence)`. Note that
+      `oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator covers only the tense half
+      of the translation (five primitive tags, no box case), so it cannot discharge the box half of
+      this obligation on its own.
 
 **Timing**: 2 hours
 
@@ -295,7 +342,15 @@ function and serialize to the fixed wire shape.
       "lassos": [{"back": [...], "mid": [...], "fwd": [...]}, ...]}` with `bx` sparse (omitted
       formulas read as false) and `target.time` always explicit.
 - [ ] Leave a documented extension point for later state sharing between lassos (D9) without
-      implementing it.
+      implementing it. **(Amendment, adequacy-layer task)** The extension-point comment must say
+      *why* sharing is deferred, and the corrected reason is: determinism is what makes
+      `ShiftSet.total_eq_orbit` true — every world history equals one of the lasso orbits — which
+      is what makes Box's range exactly the certified histories and hence what makes the Box case
+      of the certificate truth lemma go through (not Limit or Saturation, which are cheap over
+      `ℤ`). Adding sharing later requires re-proving the histories correspondence and redesigning
+      box faithfulness, not re-arguing Limit/Saturation. See D9's amended text above and
+      `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md`'s "Why the design is
+      deterministic" section.
 
 **Timing**: 2 hours
 
@@ -327,13 +382,27 @@ faithfulness and the target, returning the same verdict vocabulary as the Lean b
       `condition` in `{structural, local_coherent, fulfilling, box_faithful, target, unlocalized}`
       plus `lasso`, `position`, `formula`, `detail`.
 - [ ] Implement local coherence as the five biconditional clauses of `LocalCoherentLab`, restricted
-      to closure members, over the finite position window.
-- [ ] Implement fulfilment with the bounded window of D7, with the bound and its justification in
-      a docstring citing `Decide.lean`'s window-collapse lemmas.
+      to closure members, over the finite position window. **(Amendment, adequacy-layer task)** The
+      window is the amended D7's `[-2*nb, nm + 2*nf)`, **not** a single shared one-period window —
+      see D7 above.
+- [ ] Implement fulfilment with the bounded window of the amended D7 (`[-2*nb, nm + 2*nf)`, using
+      the corrected `scan_forward`/`scan_backward` bounds), with the bound and its justification in
+      a docstring citing `Decide.lean`'s window-collapse lemmas (`coherent_iff_window:335`,
+      `fulfil_iff_window:743`).
 - [ ] Implement box faithfulness as the two-directional check (`bx χ` true iff `χ` labelled at
-      every position of every lasso) and the target as the `Γ ⊆ L₀ t`, `Σ ∩ L₀ t = ∅` pair.
+      every position of every lasso), using the **narrower** one-period window `[-nb, nm + nf)`
+      (`mem_all_iff_window`, `Decide.lean:809, 883`) — this window is distinct from local
+      coherence's and fulfilment's, not a rename of the same bound — and the target as the
+      `Γ ⊆ L₀ t`, `Σ ∩ L₀ t = ∅` pair.
 - [ ] Add the positive fixture from report 02 §3 (T3): `□(p ∨ Fp ∨ Pp) ∧ □(p → ¬Pp)` with one lasso
       and `p` only at 0.
+- [ ] **(Amendment, adequacy-layer task)** Acceptance criterion: the re-checker must also pass the
+      window-discriminating fixture at
+      `code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/04_window_discriminator_coherence.json`
+      (that corpus's own `README.md` records the construction and the fulfilment-side negative
+      finding), reporting `rejected`/`local_coherent` at the position in the outer band
+      `[-2*nb, -nb)` — and must report `countermodel` (wrongly) if its window is narrowed to one
+      period, confirming the wider window is load-bearing rather than cosmetic.
 
 **Timing**: 2 hours
 
@@ -367,6 +436,19 @@ BimodalLogic's Lean binary.
       and that a fresh-indexed atom is refused by the Python exporter before it can be sent.
 - [ ] Record the BimodalLogic commit or version the agreement was observed against, in the test
       module docstring.
+- [ ] **(Amendment, adequacy-layer task)** Add this task's own fixture corpus
+      (`code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/`) to the round-trip's
+      fixture set, including the window-discriminating fixture.
+- [ ] **(Amendment, adequacy-layer task)** Add the A2-triangle test (ADEQUACY.md §7.3): at
+      `back = mid = fwd = 1` and a closure `|C| <= 4`, exhaustively enumerate every candidate
+      `(bx, lassos)` over subsets of the closure at those lengths, and compare three verdicts —
+      (i) the Python re-checker, (ii) `lake exe check_certificate`, (iii) whether the Z3 encoding,
+      run at those lengths on the same premises/conclusions, reports SAT — with three named failure
+      localizations: (i) ≠ (ii) localizes a re-checker defect; (iii) false where (i) = (ii) =
+      `countermodel` localizes an encoding incompleteness (a constraint the encoder imposes that
+      (C1)-(C4) do not require); (iii) true where (i) = (ii) = `rejected` localizes an encoding
+      unsoundness (which the fail-fast re-check hook of Phase 12 catches at run time regardless,
+      but this test finds it in the suite instead).
 
 **Timing**: 1.5 hours
 
@@ -459,11 +541,16 @@ faithfulness), with the fulfilment window identical to the re-checker's.
       fulfilment constraints are added; a box guessed true forces its argument everywhere; a box
       guessed false forces an omitting position on some lasso.
 - [ ] Emit fulfilment: for each lasso, position and `untl`/`snce` closure member, a disjunction over
-      the bounded window of D7 of "event at `s`, guard at every `r` strictly between", all indices
+      the bounded window of the amended D7 (`[-2*nb, nm + 2*nf)`, corrected `scan_forward` /
+      `scan_backward` bounds) of "event at `s`, guard at every `r` strictly between", all indices
       through the wrap.
 - [ ] Emit box faithfulness: `guess(χ)` implies `bit(i, t, χ)` for every lasso `i` and position `t`;
       `Not(guess(χ))` implies a disjunction over all (lasso, position) of `Not(bit(i, t, χ))`,
       with the witness lasso allocated for that box included in the disjunction.
+      **(Amendment, adequacy-layer task)** Box faithfulness uses the **narrower** one-period window
+      `[-nb, nm + nf)`, distinct from fulfilment's wider `[-2*nb, nm + 2*nf)` — record this
+      distinction in the module docstring so a future reader does not collapse the two windows
+      into one.
 - [ ] Factor the fulfilment window computation into a single function shared with the Phase 4
       re-checker, so the two cannot drift.
 
@@ -507,6 +594,15 @@ encoding and carries none of the deleted machinery.
       `ExistsTime`, `build_frame_constraints`, the interval/shift helpers, all six abundance
       variants, `build_task_minimization_constraint`, `generate_time_intervals`,
       `is_time_shifted`, and the whole `extract_model_elements` family.
+- [ ] **(Amendment, adequacy-layer task)** Add the A0 frame-class standing test (ADEQUACY.md §7.2):
+      run the search on `\Future A \rightarrow (\neg A \Until A)` (the `prior_UZ` instance) and on
+      the `z1` instance (`G(Gφ→φ) → (FGφ→Gφ)`); both must report no certificate at every configured
+      length, and both must be rendered **inconclusive**, never as validity — a rendering that says
+      "valid" on either is a reportable defect. Both axioms are classified minimum-frame-class
+      `.ZTime` in `ProofSystem/Axioms.lean:612-613`, so by (SOUND) no certificate can ever exist for
+      them even though they are not valid at every temporal order (e.g. a paper countermodel exists
+      over `D = ℚ`); this test is what makes that permanent gap observable rather than silently
+      forgotten.
 
 **Timing**: 2 hours
 
@@ -603,10 +699,19 @@ re-checks it independently.
       `self.certificate` and `self.target_time` via Phase 10's extractor.
 - [ ] Call the Phase 4 re-checker on every extracted certificate and fail loudly (fail-fast, per
       the project's philosophy) if it reports anything but `countermodel`.
+      **(Amendment, adequacy-layer task)** This hook's role is not a safety net: it is **the**
+      mechanism that discharges (SOUND)'s obligation S3 (ADEQUACY.md §2, §6.2) — the theorem's
+      antecedent, that whatever the search reports actually satisfies (C1)-(C4), is decided here,
+      on every reported countermodel, independently of the Z3 model object. Document this role in
+      the hook's own docstring rather than describing it only as defensive testing.
 - [ ] Rewrite `extract_states`, `extract_evaluation_world`, `extract_relations`,
       `extract_propositions` for (history, time) world states with the shift as the task relation.
 - [ ] Delete `get_world_array`, `get_world_history`, `get_world_state_at`, the `time_shift_relations`
       field, and the `M`/`all_times` attributes.
+- [ ] **(Amendment, adequacy-layer task)** Confirm the A0 frame-class standing test added in
+      Phase 9 exercises this structure's own solve-and-re-check path end to end (not only the
+      constraint-generation layer), since it is this phase's re-check hook that must render the
+      `prior_UZ`/`z1` instances inconclusive rather than valid.
 
 **Timing**: 2 hours
 
@@ -745,9 +850,29 @@ the paper rather than carried over.
       source of truth was chosen.
 - [ ] Audit every `expectation` value against the paper's axioms, in particular `MF_MODAL_FUTURE_TH`
       (`□A → □GA`, valid per `thm:MF-valid`) and the perpetuity theorems `BM_TH_1`/`BM_TH_2`.
+      **(Amendment, adequacy-layer task)** For `MF_MODAL_FUTURE_TH` specifically, the source of
+      truth for the expectation flip (to `True`, no countermodel) is two landed, sorry-free Lean
+      theorems, not a re-derivation: `modal_future_valid` (`Metalogic/Soundness.lean:373`) proves
+      MF valid over the **unrestricted** frame class, and `no_witnessFamily_of_MF`
+      (`Metalogic/Decidability/WitnessFamily/Examples.lean:275`) proves no certificate at any
+      segment lengths refutes it. Cite both by name in the audit table's row for MF.
+- [ ] **(Amendment, adequacy-layer task, folded in from the now-merged Phase 17 restoration step
+      for this one example)** In `tests/unit/test_bimodal.py`, delete — not soften — the comment
+      asserting MF "is NOT a theorem under current bimodal semantics (countermodel found at N=1,
+      M=2)" and its trailing inline comment on the `KNOWN_TIMEOUT_EXAMPLES` entry; replace both with
+      a statement that MF is valid in the paper's semantics (citing `modal_future_valid` and
+      `no_witnessFamily_of_MF` as above), that the old countermodel was an artifact of the
+      bounded-window encoding's boundary vacuity, and remove MF from `KNOWN_TIMEOUT_EXAMPLES`
+      (its presence there was itself a mis-filing: the reason was semantic disagreement, not a
+      timeout).
 - [ ] Record the audit as a table in a comment block at the top of the affected section of
       `examples.py`, citing the paper's label for each axiom (no task-number references: this file
       is outside `specs/`).
+- [ ] **(Amendment, adequacy-layer task)** Include the A0 frame-class standing test's two example
+      formulas (Phase 9's `prior_UZ` and `z1` instances) in this audit pass, recording their
+      expected verdict as "no certificate at any configured length, rendered inconclusive" rather
+      than a `True`/`False` expectation — see ADEQUACY.md §7.2 and §7.4's never-report-validity
+      rule.
 
 **Timing**: 2 hours
 
@@ -969,6 +1094,13 @@ duration-guard gap note retired.
       certificate JSON export with a pointer to BimodalLogic's protocol section as the contract.
 - [ ] Check every rewritten file for task-number references and remove them (these files are
       outside `specs/`).
+- [ ] **(Amendment, adequacy-layer task)** Carry the (SOUND) theorem statement, the four lemmas
+      (Frame, Histories, Time-shift preservation, Truth lemma) and the Lean citation table into
+      `docs/ARCHITECTURE.md`, replacing the retired frame-axiom ledger table with this statement
+      rather than leaving that section simply deleted.
+      `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` (created by the adequacy-layer
+      task) is the source for this content — cite it as the fuller treatment and reproduce its
+      statements rather than re-deriving them here.
 
 **Timing**: 2 hours
 

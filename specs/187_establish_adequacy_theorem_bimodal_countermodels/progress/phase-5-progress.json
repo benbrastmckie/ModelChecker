@@ -1,0 +1,114 @@
+{
+  "phase": 5,
+  "phase_name": "Amend the certificate-redesign plan with the theorem's hard constraints",
+  "started_at": "2026-09-25T07:35:00Z",
+  "last_updated": "2026-09-25T08:00:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Rewrite D7 with corrected windows",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Correct D9's rationale",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Amendment block after decisions section",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "Phase 2 translation truth-preservation obligation",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 5,
+      "description": "Phase 3 forward-compatibility note corrected",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 6,
+      "description": "Phase 4 window correction + discriminating fixture criterion",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 7,
+      "description": "Phase 5 three-way differential + fixture corpus",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 8,
+      "description": "Phase 8 window correction",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 9,
+      "description": "Phases 9/12/16 frame-class standing test",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 10,
+      "description": "Phase 12 re-check hook recast",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 11,
+      "description": "Phase 16/17 MF source of truth",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 12,
+      "description": "Phase 22 documentation task",
+      "status": "done",
+      "files_touched": [
+        "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+      ]
+    },
+    {
+      "id": 13,
+      "description": "No phase status marker or plan-level status touched",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "deviations": [],
+  "handoff_count": 0
+}
