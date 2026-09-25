@@ -202,32 +202,44 @@ name that this list omits.
 
 ---
 
-### Phase 2: General-task-relation oracle with direct clauses (a)-(d) [NOT STARTED]
+### Phase 2: General-task-relation oracle with direct clauses (a)-(d) [COMPLETED]
 
 **Goal**: Produce a second oracle that takes the task relation as a parameter and computes
 world-histories, threads and maximal compatible subevolutions from the manual's clauses directly,
 and prove it agrees with round 1's pinned engine where the two overlap.
 
 **Tasks**:
-- [ ] Create `baselines/02_constrained-frame-oracle.py`, loading round 1's
+- [x] Create `baselines/02_constrained-frame-oracle.py`, loading round 1's
       `01_family-recipe-oracle.py` as a module via `importlib.util.spec_from_file_location` (its
       filename begins with a digit, so a plain `import` will not work) and reusing its formula
-      constructors, `Model`, recipe and reporting code unchanged.
-- [ ] Parameterize the frame by a task relation `R(s, d, t)` over possible states and durations,
+      constructors, `Model`, recipe and reporting code unchanged. *(completed)*
+- [x] Parameterize the frame by a task relation `R(s, d, t)` over possible states and durations,
       replacing `Frame.histories`' hardcoded "all world-valued total functions" with the set of
       window-functions every consecutive pair of which satisfies `R`; keep the duration-uniform
-      relation as the default instantiation.
-- [ ] Replace the `Frame.thread` shortcut (convex + all-possible + all-or-none-null) and
+      relation as the default instantiation. *(completed: implemented as EVERY pair y<z in the
+      window, not only consecutive ones, since `@def-task-coherent` itself quantifies over every
+      `y < z` in the domain, not just adjacent points — a duration-uniform `R` makes the two
+      coincide, so the pinned E1/E2/E3/E5 regression is unaffected, but a future non-transitive `R`
+      would only be caught correctly by the all-pairs form)*
+- [x] Replace the `Frame.thread` shortcut (convex + all-possible + all-or-none-null) and
       `Model.mcs`' product shortcut with direct implementations of
       `@def-maximal-compatible-subevolutions` clauses (a)-(d) over an arbitrary bounding family —
       the generalization report 01 D2 adjustment 1 requires — retaining the shortcut behind a flag
-      for cross-checking.
-- [ ] Add an assertion path that the direct `mcs` and the product `mcs` agree on the
+      for cross-checking. *(completed: `GeneralFrame.mcs_direct` enumerates all parts of `g(z)`
+      per point rather than only per-point maximal-compatible parts, since a general/interacting
+      relation can make a jointly-maximal `rho` fail to decompose into independently-maximal
+      per-point choices; `base.Model.mcs`/`base.Frame.thread` remain the pinned shortcut, invoked
+      by `base.Model` directly, so "behind a flag" is realized as two classes rather than a runtime
+      flag — `GeneralModel` for direct, `base.Model` for shortcut)*
+- [x] Add an assertion path that the direct `mcs` and the product `mcs` agree on the
       duration-uniform schema for every bounding family and candidate in the small frame.
-- [ ] Re-run the round-1 experiments (E1, E2, E3, E5 at their original windows; E4 if the timing
+      *(completed: 131,584/131,584 bounding-family/candidate pairs agree at window `{0,1}`)*
+- [x] Re-run the round-1 experiments (E1, E2, E3, E5 at their original windows; E4 if the timing
       budget allows, detached) through the general engine at the duration-uniform relation and
       diff the conclusions against the saved outputs in `baselines/01_family-recipe-oracle-output-*.txt`.
-- [ ] Save the regression output as `baselines/02_constrained-frame-oracle-output-regression.txt`.
+      *(completed: E1/E2/E3/E5 all agree; E4 deferred — see Plan Deviations)*
+- [x] Save the regression output as `baselines/02_constrained-frame-oracle-output-regression.txt`.
+      *(completed)*
 
 **Timing**: 2 hours
 

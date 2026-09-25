@@ -1,0 +1,28 @@
+{
+  "phase": 2,
+  "phase_name": "General-task-relation oracle with direct clauses (a)-(d)",
+  "started_at": "2026-09-25T01:10:00Z",
+  "last_updated": "2026-09-25T01:30:00Z",
+  "objectives": [
+    {"id": 1, "description": "Create 02_constrained-frame-oracle.py loading 01_family-recipe-oracle.py as a module", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py"]},
+    {"id": 2, "description": "Parameterize frame by an arbitrary task relation R(s,d,t)", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py"]},
+    {"id": 3, "description": "Direct implementation of @def-maximal-compatible-subevolutions clauses (a)-(d)", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py"]},
+    {"id": 4, "description": "Assert direct mcs agrees with product mcs on duration-uniform schema", "status": "done", "files_touched": []},
+    {"id": 5, "description": "Re-run E1/E2/E3/E5 (E4 deferred to Phase 4's G2 experiment) through general engine, diff against saved outputs", "status": "done", "files_touched": []},
+    {"id": 6, "description": "Save regression output", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle-output-regression.txt"]}
+  ],
+  "current_objective": 6,
+  "approaches_tried": [
+    {"approach": "First regression run piped through `| tail -100` with default (buffered) stdout", "result": "failed", "reason": "python fully-buffers stdout when writing to a pipe; the 200s timeout killed the process before any buffered output flushed, and the direct (non-shortcut) mcs enumeration was also too slow at that point (no memoization)"}
+  ],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "2.E4",
+      "description": "Re-run E4 (report 02's F3 frame) through the general engine.",
+      "type": "deferred",
+      "reason": "E4's own frame (frame_f3, 8 atoms/256 states) is exactly the case the plan's risk table names as needing a detached background run even at the ORIGINAL pinned engine's speed; deferred to Phase 4, whose G2 experiment already runs the general engine on a small identity-relation frame, and Phase 3's constrained-frame experiments (C1/C2) already exercise the general engine's direct mcs on frame_small at scale. E1/E2/E3/E5 already give a passing regression gate per the plan's own verification criterion (\"every E1/E2/E3/E5 conclusion matches\").",
+      "annotation": "*(deviation: deferred — E4 not re-run through the general engine; E1/E2/E3/E5 regression already passes, and F3's 256-state frame is deferred to a follow-up run if the evidence gap ever becomes load-bearing)*"
+    }
+  ]
+}
