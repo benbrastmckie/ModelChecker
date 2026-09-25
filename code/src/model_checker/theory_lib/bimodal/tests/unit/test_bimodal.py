@@ -32,40 +32,38 @@ from model_checker.theory_lib.bimodal.examples import countermodel_examples, the
 from model_checker.utils.context import isolated_z3_context
 
 # Combine both example sets for testing, excluding known solver timeout cases
-# NOTE: MF_MODAL_FUTURE_TH tests the BX axiom "Box A -> Box(G A)", which IS valid in the
-# paper's task semantics -- proved over the unrestricted frame class by the Lean theorem
-# `modal_future_valid` (Metalogic/Soundness.lean:373), with `no_witnessFamily_of_MF`
-# (Metalogic/Decidability/WitnessFamily/Examples.lean:275) additionally proving that no
-# witness-family certificate at any segment lengths refutes it. The countermodel the current
-# encoding reports at N=1, M=2 is an artifact of the bounded-window encoding's boundary
-# vacuity (ForAllTime's own docstring records that G(p) evaluated at t = M-1 is vacuously
-# true), not evidence that the axiom fails. See
-# code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md for the full proof and the
-# citation table. The exclusion stands only until the window-and-abundance encoding is
-# replaced by the witness-family certificate design, at which point this entry, and the
-# `expectation: False` it currently exempts from the gate, are both corrected -- not before,
-# since removing the exclusion today would turn the suite red against the still-present
-# encoding bug rather than against a real axiom failure. The related BM_TH_5 tests the valid
-# formula "Box A -> Future(Box A)" and is excluded for Z3 state reasons.
-# NOTE: BX7_LINEAR_U_TH, BX7P_LINEAR_S_TH use N=4, M=5 and are computationally expensive;
-# they may time out in CI depending on system resources.
-# NOTE: BM_TH_1, BM_TH_2 are now validated theorems (Box->Future/Past perpetuity principles)
-# using M=3 with capped_skolem_abundance_constraint + box scope fix. Their max_time=30s is
-# intentional: Z3 exhausts the search space (unknown/timeout) before returning no countermodel.
-# They are excluded from the automated suite because 30s per test is too slow for CI.
+# NOTE: MF_MODAL_FUTURE_TH is NOT excluded here. It tests the BX axiom "Box A -> Box(G A)",
+# which IS valid in the paper's task semantics: proved over the unrestricted frame class by
+# the Lean theorem `modal_future_valid` (Metalogic/Soundness.lean:373), with
+# `no_witnessFamily_of_MF` (Metalogic/Decidability/WitnessFamily/Examples.lean:275)
+# additionally proving that no witness-family certificate at any segment lengths refutes it.
+# `MF_MODAL_FUTURE_TH_settings`' `expectation: False` (examples.py) already encodes the
+# correct verdict (no countermodel; a genuine theorem) and was never itself wrong. What the
+# now-retired window-and-abundance encoding got wrong was its own search: it reported a
+# spurious countermodel at N=1, M=2, an artifact of that encoding's bounded-window boundary
+# vacuity (its own `ForAllTime` docstring recorded that G(p) evaluated at t = M-1 is
+# vacuously true there), not a real axiom failure -- so the entry's earlier presence in this
+# set was itself a mis-filing (a wrong-verdict exclusion mislabeled as a timeout, not an
+# actual timeout). Under the certificate encoding this example runs the pure-Python
+# re-checker like every other example and is expected to decide `match`. See
+# `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` for the full proof and
+# citation table. The related BM_TH_5 tests the valid formula "Box A -> Future(Box A)"
+# (paper's TF) and remains excluded below pending Phase 17's re-activation pass.
+# NOTE: BX7_LINEAR_U_TH, BX7P_LINEAR_S_TH previously used N=4, M=5 under the retired
+# window encoding and were computationally expensive there; re-measured under the
+# certificate encoding's back/mid/fwd segment lengths in Phase 17.
+# NOTE: BM_TH_1, BM_TH_2 are validated theorems (Box->Future/Past perpetuity principles,
+# derived from MF+MT+TR -- see their own comments in examples.py). Their max_time=30s budget
+# is retained from the retired encoding's exhaustive-search cost and re-measured in Phase 17.
 KNOWN_TIMEOUT_EXAMPLES = {
-    "TN_CM_1",              # (Previously timed out; not yet re-assessed)
+    "TN_CM_1",              # (Previously timed out; re-assessed in Phase 17)
     "TN_CM_2",              # future A, future B -> future(A/\B): countermodel search times out even at 15s
     "BM_CM_3",              # Diamond A -> future A: finds countermodel in isolation but Z3 state non-determinism
                             # causes failures in the full suite (sometimes 10-15s, sometimes <5s)
     "MD_TH_2",
-    "BM_TH_1", "BM_TH_2",  # Perpetuity theorems: valid with M=3, 30s per test (too slow for CI)
-    "MF_MODAL_FUTURE_TH",   # BX modal_future: Box A -> Box(G A) IS valid in the paper's semantics
-                            # (modal_future_valid, Metalogic/Soundness.lean:373); the reported
-                            # countermodel is a boundary-vacuity artifact of the current bounded
-                            # encoding -- see docs/ADEQUACY.md
-    "BX7_LINEAR_U_TH",      # BX7 Until linearity: N=4, M=5 - computationally expensive
-    "BX7P_LINEAR_S_TH",     # BX7' Since linearity: N=4, M=5 - computationally expensive
+    "BM_TH_1", "BM_TH_2",  # Perpetuity theorems: valid; too slow under the retired encoding for CI
+    "BX7_LINEAR_U_TH",      # BX7 Until linearity: N=4, M=5 under the retired encoding - computationally expensive
+    "BX7P_LINEAR_S_TH",     # BX7' Since linearity: N=4, M=5 under the retired encoding - computationally expensive
     # NOTE (corrected -- the sentence below was accurate for the Box scope fix +
     # capped_skolem_abundance_constraint era but is now false for two of the three named
     # examples): BM_CM_2 still reliably finds its countermodel with no open issue. BM_CM_1 is
@@ -75,7 +73,8 @@ KNOWN_TIMEOUT_EXAMPLES = {
     # UNSTABLE_EXAMPLES below -- see BM_CM_4_settings' comment in examples.py for the full
     # measured history. All three remain included in the test suite (collected, not removed via
     # this KNOWN_TIMEOUT_EXAMPLES set), just with their real current status recorded below
-    # rather than here.
+    # rather than here. Both UNSTABLE_EXAMPLES entries name the retired encoding's own Z3
+    # cost profile and are re-assessed against the certificate encoding in Phase 19.
 }
 
 # `unstable`-marked examples, kept collected and observable rather than removed from

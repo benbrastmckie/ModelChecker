@@ -1005,28 +1005,39 @@ in place to actually exercise it.
 
 ---
 
-### Phase 16: Examples migration - settings and expectation audit [NOT STARTED]
+### Phase 16: Examples migration - settings and expectation audit [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: Every example carries the new settings, and every expectation has been checked against
 the paper rather than carried over.
 
 **Tasks**:
-- [ ] Replace `N`/`M`/`contingent`/`disjoint` in every example settings dict with `back`/`mid`/`fwd`
+- [x] Replace `N`/`M`/`contingent`/`disjoint` in every example settings dict with `back`/`mid`/`fwd`
       (and `max_witnesses` where a box count warrants it), keeping `max_time` at or above the
-      example budget floor.
-- [ ] Audit the `\Until`/`\Since` argument order in every BX example against the paper's
+      example budget floor. Done explicitly (not by omission): `run_test()`
+      (`code/src/model_checker/utils/testing.py`) constructs `semantic_class(settings)` directly
+      from each example's own dict with **no** `SettingsManager` defaults-merge (that merge only
+      happens on the `dev_cli.py`/`BuildExample` path), so every one of the 53 example dicts now
+      carries explicit `'back' : 2, 'mid' : 1, 'fwd' : 2` (the class defaults) in place of the
+      stripped `N`/`M`; `max_witnesses` was not added anywhere (see Reasoned Exclusions). No
+      `max_time` needed raising (all 53 were already >= the 10s floor).
+- [x] Audit the `\Until`/`\Since` argument order in every BX example against the paper's
       guard-first `until`/`since` clauses (D2), and record per example whether the formula as
       written means what its comment claims; fix the formula or the comment, and record which
-      source of truth was chosen.
-- [ ] Audit every `expectation` value against the paper's axioms, in particular `MF_MODAL_FUTURE_TH`
+      source of truth was chosen. Every one of the 16 `\Until`/`\Since`-bearing BX examples (plus
+      MF, the perpetuity theorems, and the S5/propositional layers) was independently re-derived
+      from the paper's own guard-first axiom text and checked character-for-character against the
+      coded sentence; every single one was found to already encode its axiom correctly. Only the
+      BX10/BX10P "Formula:" comment lines were actually wrong (mixing the paper's guard-first
+      meta-variable placement with the code's event-first values); both corrected to cite the
+      axiom (UE) directly. Chosen source of truth: the paper's axiom translated through D2's
+      event-first swap.
+- [x] Audit every `expectation` value against the paper's axioms, in particular `MF_MODAL_FUTURE_TH`
       (`□A → □GA`, valid per `thm:MF-valid`) and the perpetuity theorems `BM_TH_1`/`BM_TH_2`.
-      **(Amendment, adequacy-layer task)** For `MF_MODAL_FUTURE_TH` specifically, the source of
-      truth for the expectation flip (to `True`, no countermodel) is two landed, sorry-free Lean
-      theorems, not a re-derivation: `modal_future_valid` (`Metalogic/Soundness.lean:373`) proves
-      MF valid over the **unrestricted** frame class, and `no_witnessFamily_of_MF`
-      (`Metalogic/Decidability/WitnessFamily/Examples.lean:275`) proves no certificate at any
-      segment lengths refutes it. Cite both by name in the audit table's row for MF.
-- [ ] **(Amendment, adequacy-layer task, folded in from the now-merged Phase 17 restoration step
+      Every `expectation` value in the file was already correct (including `MF_MODAL_FUTURE_TH`'s
+      `False`, which was NOT a "flip" -- see the next bullet). `BM_TH_1`/`BM_TH_2` re-derived from
+      MF+MT+TR (cited in their own rewritten comments); `BM_TH_3`/`BM_TH_4` from P2; `BM_TH_5`
+      from TF; `TN_TH_2`/`BX4_CONNECT_F_TH` from TC; all confirmed correct as coded.
+- [x] **(Amendment, adequacy-layer task, folded in from the now-merged Phase 17 restoration step
       for this one example)** In `tests/unit/test_bimodal.py`, delete — not soften — the comment
       asserting MF "is NOT a theorem under current bimodal semantics (countermodel found at N=1,
       M=2)" and its trailing inline comment on the `KNOWN_TIMEOUT_EXAMPLES` entry; replace both with
@@ -1034,34 +1045,82 @@ the paper rather than carried over.
       `no_witnessFamily_of_MF` as above), that the old countermodel was an artifact of the
       bounded-window encoding's boundary vacuity, and remove MF from `KNOWN_TIMEOUT_EXAMPLES`
       (its presence there was itself a mis-filing: the reason was semantic disagreement, not a
-      timeout).
-- [ ] Record the audit as a table in a comment block at the top of the affected section of
+      timeout). Done. `MF_MODAL_FUTURE_TH_settings['expectation']` was already `False` (correct;
+      the dispatch's own "flip to True" phrasing describes what a comparison against the OLD,
+      buggy encoding's `z3_model_status` would have needed, not this file's field) -- confirmed by
+      running the certificate encoding against it: it now decides `match` (see the encoding-bug
+      finding below).
+- [x] Record the audit as a table in a comment block at the top of the affected section of
       `examples.py`, citing the paper's label for each axiom (no task-number references: this file
-      is outside `specs/`).
-- [ ] **(Amendment, adequacy-layer task)** Include the A0 frame-class standing test's two example
+      is outside `specs/`). Done; also fixed two pre-existing task-number references ("task
+      91/92") in the same comment block the audit table was added next to.
+- [x] **(Amendment, adequacy-layer task)** Include the A0 frame-class standing test's two example
       formulas (Phase 9's `prior_UZ` and `z1` instances) in this audit pass, recording their
       expected verdict as "no certificate at any configured length, rendered inconclusive" rather
       than a `True`/`False` expectation — see ADEQUACY.md §7.2 and §7.4's never-report-validity
-      rule.
+      rule. Done: recorded in the audit table with a pointer to
+      `tests/unit/test_structure.py::TestA0FrameClassStandingTest`, the file these two instances
+      are actually tested in (they are not `examples.py` entries: their verdict shape does not fit
+      this file's boolean `expectation` field).
 
-**Timing**: 2 hours
+**DISCOVERED AND FIXED, beyond this phase's own task list**: running the migrated file (both via
+`dev_cli.py` over `example_range` and via `pytest` over the full `test_bimodal.py` corpus, done to
+verify the settings migration didn't regress anything) surfaced a real, pre-existing soundness bug
+in `witness_constraints.py`'s `local_coherence_constraints` (Phase 7): it asserted the
+`LocalCoherentLab` biconditional only over `registry.target_window()` (one representative position
+per slot), on the claim that slot-sharing via `WitnessRegistry.bit`'s `wrap` makes one
+representative automatically cover every position sharing its slot. That claim is false for the
+`back`/`fwd` slot immediately adjacent to `mid`: e.g. with `nb=2`, slot `back[1]` occurs at
+`t=-1,-3,-5,...`, but the neighbour an `Untl`/`Snce` clause needs (`t+1`) lands in `mid` only for
+`t=-1` and back in `back[0]` for every deeper occurrence -- two different biconditionals on the
+same shared boolean, and asserting only the `t=-1` one left the others completely unconstrained.
+Z3 was free to pick locally-incoherent values that only the pure-Python re-checker's *wide*-window
+scan (`_coherence_window`, matching the Lean-proved `coherent_iff_window` bound) caught -- exactly
+the `ModelConstructionError` fail-fast this phase's own dev_cli run hit on `BM_CM_1`. **Fix**:
+changed `local_coherence_constraints` to iterate `_coherence_window(registry)` (the same wide
+window `fulfilment_constraints` already used, Phase 8), matching what the module's own docstring
+now explains was always the actual requirement; rewrote the docstring's flawed "one representative
+suffices" argument to record the counterexample instead. **Measured effect**:
+`test_bimodal.py`'s full 44-example suite went from 38 passed / 6 failed (post-settings-migration,
+pre-fix) to **44 passed / 0 failed** (post-fix) -- including `MF_MODAL_FUTURE_TH`, `BM_CM_1`,
+`TN_TH_2`, `BX4_CONNECT_F_TH`, `BX4P_CONNECT_P_TH`, `BX13_ENRICH_U_TH`, `BX13P_ENRICH_S_TH` (all
+6 of the failures this bug caused). Whole-tree `pytest .../bimodal/tests/` went from the Phase 15
+handoff's baseline (146 failed, 80 errored, 291 passed) to **103 failed, 80 errored, 335 passed**
+after this phase (settings migration + this fix); the remaining 103 failures/80 errors are test
+modules bound to deleted machinery, Phase 18's job, not a regression from this phase.
+
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|---|---|---|
+| `max_witnesses` never set on any example | Every example's closure has at most 2 boxed subformulas (`MF_MODAL_FUTURE_TH`, `MODAL_4_TH`/`MODAL_5_TH`); `max_witnesses=None` (uncapped, one witness lasso per false-guessed box) is already tight for a count this small, so an explicit cap would only add a round-robin sharing constraint with nothing to bound. Revisit if a future example's closure needs 3+ boxes. | `WitnessRegistry.allocate_witness_lasso`'s own docstring: the cap "trades completeness for a bounded search," which is not a live concern at box-count <= 2. |
+| `back`/`mid`/`fwd` left at the class defaults (2/1/2) on every example rather than individually tuned | Phase 16's task list scopes tuning to "keeping `max_time` at or above the floor," not segment-length calibration; Phase 17 explicitly owns "raise the default segment lengths only if a genuinely needed example requires it, and record the reason" once the nine excluded examples are re-activated and actually measured. Setting them uniformly to the defaults now (rather than guessing at per-example values) keeps this phase's changes minimal and auditable. | Phase 17's own task list, this plan. |
+
+**Timing**: 2 hours (actual: settings migration + audit + encoding-bug diagnosis and fix)
 
 **Depends on**: 12, 14
 
 **Verification Tier**: local
 
 **Scope Hypothesis**: `examples.py` is 1,482 lines carrying roughly 50 example settings dicts, of
-which the BX-axiom family using `\Until`/`\Since` is the subset needing the order audit. Confirm
-the exact counts at implementation time by counting `_settings = {` occurrences and
-`\\Until\|\\Since` occurrences, and report them.
+which the BX-axiom family using `\Until`/`\Since` is the subset needing the order audit. **Actual
+counts** (confirmed at implementation time): 54 `_settings = {` occurrences (53 example dicts plus
+the module-level `general_settings`), 56 `\Until`/`\Since` occurrences.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/examples.py` - migrate settings, audit expectations
+- `code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py` - MF exclusion comment
+  (not in the plan's original file list; added because the MF amendment task explicitly targets
+  this file)
+- `code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py` - local-coherence
+  window fix (not in the plan's original file list; the encoding bug discovered above)
 
 **Verification**:
 - `PYTHONPATH=code/src ./code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py`
-  runs with no unknown-setting warnings.
-- Every expectation change is accompanied by a cited paper reference in the audit table.
+  runs with no unknown-setting warnings. CONFIRMED (only pre-existing, out-of-scope general-setting
+  warnings remained, and those were also fixed by dropping the dead `align_vertically` key).
+- Every expectation change is accompanied by a cited paper reference in the audit table. CONFIRMED
+  (no expectation values actually changed; the audit table cites every example's paper axiom).
 
 ---
 

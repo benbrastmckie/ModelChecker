@@ -21,27 +21,39 @@ certificate conditions:
 
 (C2) Fulfilment and (C3) Box faithfulness are the second half of the rewrite (a later phase).
 
-## Why one representative position per slot suffices
+## Why one representative position per slot is NOT enough (corrected)
 
-`WitnessRegistry.bit(lasso, t, formula)` already collapses every position `t` to its slot's
-variable (`wrap`, `witness_registry.py`): `bit(lasso, t, f)` and `bit(lasso, t', f)` are the
-*identical* Z3 term whenever `t` and `t'` share a slot, by construction, not merely equal under
-every model. So a biconditional written using `bit(lasso, t, f)`, `bit(lasso, t+1, ...)` and
-`bit(lasso, t-1, ...)` denotes the *same* Z3 constraint for every `t` sharing a slot as it does
-for one representative -- enumerating `registry.target_window()` (one representative position per
-slot) therefore asserts local coherence at *every* integer position, not just the ones visited.
-This is a plain fact about Z3 term identity, and is a different (simpler) argument from why the
-pure-Python re-checker (`certificate.py`) needs the *wide*, two-period window
-(`coherent_iff_window`/`fulfil_iff_window`, `docs/ADEQUACY.md` section 5): the re-checker decodes
-concrete labels pointwise and has no notion of "the same variable" to lean on, so it needs the
-Lean-proved window to guarantee it has exercised the periodic region widely enough. The encoder
-needs no such margin because the sharing is definitional, not empirical.
+An earlier version of this module asserted local coherence only over
+`registry.target_window()` (one representative position per slot, `[-nb, nm+nf)`), reasoning that
+`WitnessRegistry.bit(lasso, t, formula)`'s slot-sharing (`wrap`, `witness_registry.py`) makes
+`bit(lasso, t, f)` and `bit(lasso, t', f)` the *identical* Z3 term whenever `t` and `t'` share a
+slot, so a clause written using one representative `t` would "automatically" hold for every other
+`t'` sharing its slot. **That reasoning is false for the two slots adjacent to `mid`** (the last
+`back` slot and the first `fwd` slot), and the fix here is to use the wide window like fulfilment
+already did. The counterexample: with `nb=2`, slot `back[1]` occurs at every odd-magnitude
+negative position `t = -1, -3, -5, ...` (all share the identical `bit(lasso, ., f)` term, by
+`wrap`'s definition). But the *neighbour* an `Untl`/`Snce` clause at `t` needs is `bit(lasso, t+1,
+.)` (or `t-1`), and `t+1`'s *slot* is NOT the same for every occurrence of `t`: at `t=-1`, `t+1=0`
+lands in `mid`; at `t=-3, -5, ...`, `t+1` lands back in `back[0]` -- a different slot from `mid`,
+in general holding a different truth value for the same formula. So the single shared boolean
+`bit(lasso, back[1]-slot, f)` is subject to two genuinely different biconditionals (one pinned to
+`mid`, one pinned to `back[0]`) depending on which position is being checked, and asserting only
+the `t=-1` clause leaves the `t=-3` (and deeper) requirement completely unconstrained -- which is
+exactly the defect this module shipped with: Z3 was free to pick `back[0]`/`back[1]` values that
+satisfy the `t=-1` clause while violating local coherence at `t=-3`, and only the pure-Python
+re-checker's *wide*-window scan (`certificate.py`'s `_coherence_window`, matching the Lean-proved
+`coherent_iff_window` bound) caught it, exactly as the `docs/ADEQUACY.md` section 6.2 S3 fail-fast
+guard is there for. **Fix**: `local_coherence_constraints` below asserts the biconditional at
+*every* position in the wide window, identical in shape to `fulfilment_constraints`, so every
+periodic occurrence of every slot -- not just the one closest to `mid` -- gets its own explicit
+clause. This costs more Z3 atoms per position (still quantifier-free, still a fixed finite table
+per search) but is the actual requirement the Lean development's window-collapse theorem
+establishes, matching what the re-checker already independently verifies.
 
-**This does not extend to fulfilment (part 2, below).** Fulfilment's witness scan bound
-(`scan_forward`/`scan_backward`) is itself a function of `t`, not just of `t`'s slot, so the
-one-representative-per-slot shortcut above is unsound for it: fulfilment is generated over the
-*wide* `_coherence_window`, identical to the re-checker's, imported directly from
-`certificate.py` rather than redefined (see part 2's docstring).
+Fulfilment already used this same wide window and corrected scan bounds
+(`scan_forward`/`scan_backward`, themselves functions of `t`, not just of `t`'s slot) from the
+start (Phase 8), imported directly from `certificate.py` rather than redefined, so this module's
+two constraint families are now consistent in window choice.
 
 ## Atoms are deliberately unconstrained
 
@@ -78,11 +90,12 @@ class WitnessConstraintGenerator:
     # -----------------------------------------------------------------
 
     def local_coherence_constraints(self, lasso: int) -> List["z3.BoolRef"]:
-        """The `LocalCoherentLab` biconditionals for `lasso`, over every closure member and one
-        representative position per slot (see the module docstring for why that suffices)."""
+        """The `LocalCoherentLab` biconditionals for `lasso`, over every closure member and every
+        position in the *wide* `_coherence_window` (see the module docstring's corrected
+        rationale for why the narrower `registry.target_window()` is NOT enough)."""
         registry = self.registry
         constraints: List["z3.BoolRef"] = []
-        for t in registry.target_window():
+        for t in _coherence_window(registry):
             for f in registry.closure:
                 constraints.extend(self._coherence_clause_at(lasso, t, f))
         return constraints

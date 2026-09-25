@@ -65,12 +65,14 @@ Each example is structured as a list: [premises, conclusions, settings]
 
 Settings Options:
 ----------------
-- N: Number of atomic propositions (default: 1)
-- M: Number of time points (default: 1)
-- contingent: Whether to use contingent valuations
-- disjoint: Whether to enforce disjoint valuations
+- back: Maximum length of a witness-family lasso's repeating back segment (default: 2)
+- mid: Maximum length of a witness-family lasso's non-repeating mid segment (default: 1)
+- fwd: Maximum length of a witness-family lasso's repeating forward segment (default: 2)
+- max_witnesses: Optional cap on the number of distinct witness lassos searched for
+  (default: None, uncapped -- at most one per boxed subformula guessed false)
 - max_time: Maximum computation time in seconds
-- expectation: Whether the example is expected to be valid
+- expectation: True if a countermodel (certificate) is expected to be found, False if the
+  premises/conclusions form a theorem (no certificate expected)
 
 Notes:
 ------
@@ -111,7 +113,9 @@ general_settings = {
     "print_constraints": False,
     "print_z3": False,
     "save_output": False,
-    "align_vertically": False,
+    # No "align_vertically": BimodalSemantics.ADDITIONAL_GENERAL_SETTINGS is empty -- the
+    # certificate printer prints each history as a single line, needing no vertical-alignment
+    # display option (see semantic/core.py's own comment on this).
 }
 
 
@@ -142,10 +146,9 @@ bimodal_theory = {
 EX_CM_1_premises = ['(A \\vee B)']
 EX_CM_1_conclusions = ['(A \\wedge B)']
 EX_CM_1_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -165,10 +168,9 @@ EX_CM_1_example = [
 MD_CM_1_premises = ['\\Box (A \\vee B)']
 MD_CM_1_conclusions = ['\\Box A', '\\Box B']
 MD_CM_1_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -182,10 +184,9 @@ MD_CM_1_example = [
 MD_CM_2_premises = ['\\Diamond (A \\vee B)']
 MD_CM_2_conclusions = ['(\\Diamond A \\wedge \\Diamond B)']
 MD_CM_2_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -199,10 +200,9 @@ MD_CM_2_example = [
 MD_CM_3_premises = ['A']
 MD_CM_3_conclusions = ['\\Box A']
 MD_CM_3_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -216,10 +216,9 @@ MD_CM_3_example = [
 MD_CM_4_premises = ['\\Diamond A']
 MD_CM_4_conclusions = ['A']
 MD_CM_4_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -233,10 +232,9 @@ MD_CM_4_example = [
 MD_CM_5_premises = ['\\Diamond A']
 MD_CM_5_conclusions = ['\\Box A']
 MD_CM_5_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -250,10 +248,9 @@ MD_CM_5_example = [
 MD_CM_6_premises = ['\\Diamond A', '\\Diamond B']
 MD_CM_6_conclusions = ['\\Diamond (A \\wedge B)']
 MD_CM_6_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -273,10 +270,9 @@ MD_CM_6_example = [
 TN_CM_1_premises = ['A']
 TN_CM_1_conclusions = ['\\Future A']
 TN_CM_1_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -290,10 +286,9 @@ TN_CM_1_example = [
 TN_CM_2_premises = ['\\future A', '\\future B']
 TN_CM_2_conclusions = ['\\future (A \\wedge B)']
 TN_CM_2_settings = {
-    'N' : 2,
-    'M' : 3,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : True,
 }
@@ -317,10 +312,9 @@ TN_CM_2_example = [
 BM_CM_1_premises = ['\\Future A']
 BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : True,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 60,  # Recalibrated 15 -> 60 (2026-08-11); the prior "~8s" basis was
                       # stale. Measured genuine cost: isolated unseeded runs decide at
                       # ~13.1-15.1s (straddling the old 15s budget -- observed failing
@@ -384,10 +378,9 @@ BM_CM_1_example = [
 BM_CM_2_premises = ['\\Past A']
 BM_CM_2_conclusions = ['\\Box A']
 BM_CM_2_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : True,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,  # ~2s with isolated Z3 context
     'expectation' : True,
 }
@@ -404,10 +397,9 @@ BM_CM_2_example = [
 BM_CM_3_premises = ['\\Diamond A']
 BM_CM_3_conclusions = ['\\future A']
 BM_CM_3_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : True,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,  # Increased from 2 for reliability across Z3 state variations
     'expectation' : True,
 }
@@ -429,10 +421,9 @@ BM_CM_3_example = [
 BM_CM_4_premises = ['\\Diamond A']
 BM_CM_4_conclusions = ['\\past A']
 BM_CM_4_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : True,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 120,  # Recalibrated 30 -> 120 (2026-08-11). History: widened 15 -> 30
                        # when fixing the quantifier bound-variable aliasing defect (see
                        # operators.py's _fresh_bound_int docstring) removed a Z3
@@ -492,10 +483,9 @@ BM_CM_4_example = [
 EX_TH_1_premises = ['(A \\wedge B)']
 EX_TH_1_conclusions = ['(A \\vee B)']
 EX_TH_1_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -515,10 +505,9 @@ EX_TH_1_example = [
 MD_TH_1_premises = ['\\Box (A \\rightarrow B)']
 MD_TH_1_conclusions = ['(\\Box A \\rightarrow \\Box B)']
 MD_TH_1_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -532,10 +521,9 @@ MD_TH_1_example = [
 MD_TH_2_premises = ['\\Box A']
 MD_TH_2_conclusions = ['A']
 MD_TH_2_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : True,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -555,10 +543,9 @@ MD_TH_2_example = [
 TN_TH_2_premises = ['A']
 TN_TH_2_conclusions = ['\\Future \\past A']
 TN_TH_2_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -574,24 +561,29 @@ TN_TH_2_example = [
 ### BIMODAL THEOREMS ###
 ########################
 
-# BM_TH_1: NECESSITY TO ALL FUTURE (PERPETUITY)
-# This is a valid theorem aligned with the JPL paper (thm:MF-valid, cor:perpetuity-valid)
-# and the BimodalLogic Lean formalization (modal_future_valid in Soundness.lean).
-# The previous countermodel under "strict semantics" was an artifact of two semantic
-# divergences now corrected:
-# (1) The Box operator's is_valid_time_for_world guard was removed (Box now quantifies
-#     over ALL worlds unconditionally, matching paper and Lean semantics).
-# (2) The abundance constraint was extended from +/-1 to full shift coverage using
-#     capped_skolem_abundance_constraint, ensuring time-shifted world copies exist.
-# M=3 is required to provide sufficient interval shifts for the perpetuity proof structure.
+# BM_TH_1: NECESSITY TO ALL FUTURE (PERPETUITY, paper's P1 conjunct / the MF+MT+TR
+# derivation of "Box phi -> Future phi")
+# Audited against the paper (~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex):
+# the paper derives Box(phi) -> Future(phi) directly from MF (Box phi -> Box Future phi)
+# and MT (Box psi -> psi) by substituting psi := Future phi, immediately after stating MF
+# ("Box phi -> Box Future phi follows from MF... Box phi -> Past phi follows by TR").
+# Certified by the Lean formalization's modal_future_valid (Metalogic/Soundness.lean:373)
+# over the unrestricted frame class. A countermodel here would refute a landed,
+# sorry-free Lean theorem, so `expectation: False` (no countermodel; a genuine theorem) is
+# retained. The retired window-and-abundance encoding's countermodel-at-the-boundary
+# artifact (which required an M=3 shift-closure workaround, now deleted along with M
+# itself) no longer applies: the certificate encoding has no window and no shift-closure
+# constraint to size. Segment lengths (back/mid/fwd) are left at the class defaults;
+# Phase 17 re-activates this example (currently in KNOWN_TIMEOUT_EXAMPLES) and records
+# the segment lengths and solve time it actually needs.
 BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 BM_TH_1_settings = {
-    'N' : 2,
-    'M' : 3,  # M=3 required: with M=2 only 2 intervals exist, insufficient for full shift closure
-    'contingent' : False,
-    'disjoint' : False,
-    'max_time' : 30,  # Longer timeout: Z3 searches exhaustively before returning unknown (no countermodel)
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
+    'max_time' : 30,  # Retained from the retired encoding's exhaustive-search budget;
+                      # re-measured under the certificate encoding in Phase 17.
     'expectation' : False,  # Valid theorem: no countermodel expected
 }
 BM_TH_1_example = [
@@ -600,18 +592,20 @@ BM_TH_1_example = [
     BM_TH_1_settings,
 ]
 
-# BM_TH_2: NECESSITY TO ALL PAST (PERPETUITY)
-# This is a valid theorem aligned with the JPL paper and BimodalLogic Lean formalization.
-# Same semantic corrections as BM_TH_1 apply (Box scope fix + extended abundance).
-# M=3 is required for sufficient time-shift closure.
+# BM_TH_2: NECESSITY TO ALL PAST (PERPETUITY, the TR-dual of BM_TH_1: "Box phi -> Past
+# phi" follows from MF + MT + TR by the same paper passage cited above)
+# Audited against the paper and Lean the same way as BM_TH_1: TR (temporal symmetry, "If
+# vdash phi then vdash phi with since/until interchanged") converts the Future direction
+# derived from MF+MT into the Past direction stated here; no separate Lean citation beyond
+# modal_future_valid plus the same MT instance is needed. `expectation: False` retained.
 BM_TH_2_premises = ['\\Box A']
 BM_TH_2_conclusions = ['\\Past A']
 BM_TH_2_settings = {
-    'N' : 2,
-    'M' : 3,  # M=3 required: with M=2 only 2 intervals exist, insufficient for full shift closure
-    'contingent' : False,
-    'disjoint' : False,
-    'max_time' : 30,  # Longer timeout: Z3 searches exhaustively before returning unknown (no countermodel)
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
+    'max_time' : 30,  # Retained from the retired encoding's exhaustive-search budget;
+                      # re-measured under the certificate encoding in Phase 17.
     'expectation' : False,  # Valid theorem: no countermodel expected
 }
 BM_TH_2_example = [
@@ -624,10 +618,9 @@ BM_TH_2_example = [
 BM_TH_3_premises = ['\\future A']
 BM_TH_3_conclusions = ['\\Diamond A']
 BM_TH_3_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -641,10 +634,9 @@ BM_TH_3_example = [
 BM_TH_4_premises = ['\\past A']
 BM_TH_4_conclusions = ['\\Diamond A']
 BM_TH_4_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -658,10 +650,9 @@ BM_TH_4_example = [
 BM_TH_5_premises = ['\\Box A']
 BM_TH_5_conclusions = ['\\Future \\Box A']
 BM_TH_5_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : True,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -681,17 +672,75 @@ BM_TH_5_example = [
 # The BX axiom system is defined in the BimodalLogic ProofChecker with 42
 # axioms across 8 layers. This section adds examples for the 32 currently
 # testable axioms (76% coverage). The remaining 10 axioms (layers 5-8) are
-# blocked pending frame class support from tasks 91/92.
+# blocked pending discrete/dense frame-class support work tracked outside this
+# theory (Uniformity/Prior/Z1 need discrete-frame support; Density needs
+# dense-frame support, itself out of scope for this Z-time-only redesign).
 #
 # BX Axiom Coverage after this section:
 #   Layer 1: Propositional (4/4 tested)
 #   Layer 2: S5 Modal (5/5 tested, modal_k_dist already covered by MD_TH_1)
 #   Layer 3: BX Temporal (22/22 tested)
 #   Layer 4: Modal-Temporal Interaction (1/1 tested, partially covered by BM_TH_5)
-#   Layer 5: Uniformity (0/5 - BLOCKED: requires discrete frame support, task 91)
-#   Layer 6: Prior (0/2 - BLOCKED: requires discrete frame support, task 91)
-#   Layer 7: Z1 (0/1 - BLOCKED: requires discrete frame support, task 91)
-#   Layer 8: Density (0/2 - BLOCKED: requires dense frame support, task 92)
+#   Layer 5: Uniformity (0/5 - BLOCKED: requires discrete frame support)
+#   Layer 6: Prior (0/2 - BLOCKED: requires discrete frame support)
+#   Layer 7: Z1 (0/1 - BLOCKED: requires discrete frame support)
+#   Layer 8: Density (0/2 - BLOCKED: requires dense frame support, out of scope for Z-time)
+#
+# PAPER-AXIOM AUDIT (semantic-alignment amendment): every BX/MF/perpetuity example below
+# was checked directly against ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex's
+# semantic clauses (until/since, line ~1072-1077) and its BX/MF/perpetuity schemata
+# (line ~1247-1330). The paper's `until`/`since` are GUARD-FIRST: `(guard \until event)`.
+# ModelChecker's `\Until`/`\Since` operators are EVENT-FIRST (D2, the Burgess convention
+# `true_at(event_arg, guard_arg, ...)`): the surface sentence `(X \Until Y)` means event=X,
+# guard=Y -- the OPPOSITE argument order from the paper's own `\until`. Every formula below
+# was re-derived from the paper's guard-first axiom under this event-first swap and checked
+# character-for-character against the coded sentence; every one below was found to already
+# encode its axiom correctly. The one thing NOT reliably correct pre-audit was some
+# examples' informal "Formula:" comment lines, which mix the paper's guard-first meta-variable
+# placement with the code's event-first values (e.g. BX10's old comment claimed the
+# consequent was "F(psi)" using "psi" in the paper's guard position, when the axiom -- and the
+# actual coded formula -- puts the future/past operator on the EVENT, i.e. the code's first
+# argument). Source of truth chosen: the paper's axiom (guard-first) translated through D2's
+# event-first swap; where a comment disagreed with that translation, the comment was corrected
+# to cite the paper's axiom label directly instead of unlabelled psi/phi meta-variables.
+#
+# | Example                          | Paper axiom(s)          | Verdict                          |
+# |-----------------------------------|--------------------------|-----------------------------------|
+# | BX1_SERIAL_F_TH / BX1P_SERIAL_P_TH | TS (+ TR for the past dual) | formula correct (top->F top / top->P top; equivalent to bare `future top` since the antecedent is a tautology) |
+# | BX2G_MONO_U_TH                     | UG                        | formula correct (guard varies, event fixed) |
+# | BX2H_MONO_S_TH                     | UG (Since dual, via TR)   | formula correct |
+# | BX3_MONO_U_TH                      | UC                        | formula correct (event varies, guard fixed) |
+# | BX3P_MONO_S_TH                     | UC (Since dual, via TR)   | formula correct |
+# | BX4_CONNECT_F_TH / BX4P_CONNECT_P_TH | TC (+ TR for the past dual) | formula correct |
+# | BX5_ACCUM_U_TH / BX5P_ACCUM_S_TH   | UF                        | formula correct |
+# | BX6_ABSORB_U_TH / BX6P_ABSORB_S_TH | UI                        | formula correct |
+# | BX7_LINEAR_U_TH / BX7P_LINEAR_S_TH | CN                        | formula correct (3-way disjunction matches exactly, modulo disjunct reordering) |
+# | BX10_UNTIL_F_TH / BX10P_SINCE_P_TH | UE                        | formula correct; "Formula:" comment corrected (see audit note above) |
+# | BX11_LIN_F_TH / BX11P_LIN_P_TH     | TL (+ TR for the past dual) | formula correct (disjuncts reordered relative to the paper's statement; disjunction is commutative) |
+# | BX12_F_UNTIL_TH / BX12P_P_SINCE_TH | UT                        | formula correct |
+# | BX13_ENRICH_U_TH / BX13P_ENRICH_S_TH | SU (+ TR for the Since-indexed dual) | formula correct |
+# | MF_MODAL_FUTURE_TH                 | MF                        | formula correct; `expectation: False` (no countermodel) was ALREADY the correct value -- see the example's own comment and test_bimodal.py's KNOWN_TIMEOUT_EXAMPLES comment for why the retired encoding still needed to exclude it despite that |
+# | BM_TH_1 / BM_TH_2                  | MF + MT + TR (perpetuity) | formula correct; see the examples' own comments |
+# | BM_TH_3 / BM_TH_4                  | P2 (special case: future/past A implies "sometimes A" by disjunction introduction, then P2) | formula correct |
+# | BM_TH_5                            | TF                        | formula correct |
+# | MD_TH_1                            | MK                        | formula correct |
+# | MODAL_T_TH / MODAL_4_TH / MODAL_B_TH / MODAL_5_TH | S5 theorems (derivable from MK+MT+M5; the paper does not separately name T/4/B/5 as primitive since S5 already contains M5) | formula correct |
+# | PROP_K_TH / PROP_S_TH / EX_FALSO_TH / PEIRCE_TH | standard CPL tautologies (the paper's base logic layer, not independently labelled) | formula correct |
+# | TN_TH_2                            | TC                        | formula correct (same instance as BX4_CONNECT_F_TH) |
+# | MD_TH_2 / TN_CM_1 / TN_CM_2 / BM_CM_1-4 | genuine countermodel/non-theorem claims, not paper axiom instances | formula and `expectation` correct as coded |
+#
+# A0 FRAME-CLASS STANDING TEST (amendment, not an examples.py entry): `prior_UZ` and `z1`
+# (Prior/Z1 axiom instances, `ProofSystem/Axioms.lean:612-613`) are valid over EVERY temporal
+# order but NOT valid specifically over Z-time (`not_validIn_base_prior_UZ`/
+# `not_validIn_base_z1`, `Metalogic/Independence/ZTimeSharpness.lean:225,236`), so by (SOUND)
+# no witness-family certificate can ever exist for them even though they are not
+# unconditionally valid. Their expected verdict is therefore neither `True` nor `False` in
+# this file's sense -- it is "no certificate at any configured length, rendered inconclusive,
+# never reported as valid" (see docs/ADEQUACY.md sections 7.2 and 7.4's never-report-validity
+# rule). Because that verdict shape does not fit this file's boolean `expectation` field, these
+# two instances are tested directly in
+# `tests/unit/test_structure.py::TestA0FrameClassStandingTest` instead of as `examples.py`
+# entries; they are recorded here only so this audit pass is not silently blind to them.
 ##############################################################################
 
 ####################################
@@ -704,10 +753,9 @@ BM_TH_5_example = [
 PROP_K_TH_premises = []
 PROP_K_TH_conclusions = ['((A \\rightarrow (B \\rightarrow C)) \\rightarrow ((A \\rightarrow B) \\rightarrow (A \\rightarrow C)))']
 PROP_K_TH_settings = {
-    'N' : 3,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -723,10 +771,9 @@ PROP_K_TH_example = [
 PROP_S_TH_premises = []
 PROP_S_TH_conclusions = ['(A \\rightarrow (B \\rightarrow A))']
 PROP_S_TH_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -742,10 +789,9 @@ PROP_S_TH_example = [
 EX_FALSO_TH_premises = []
 EX_FALSO_TH_conclusions = ['(\\bot \\rightarrow A)']
 EX_FALSO_TH_settings = {
-    'N' : 1,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -761,10 +807,9 @@ EX_FALSO_TH_example = [
 PEIRCE_TH_premises = []
 PEIRCE_TH_conclusions = ['(((A \\rightarrow B) \\rightarrow A) \\rightarrow A)']
 PEIRCE_TH_settings = {
-    'N' : 2,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -786,10 +831,9 @@ PEIRCE_TH_example = [
 MODAL_T_TH_premises = []
 MODAL_T_TH_conclusions = ['(\\Box A \\rightarrow A)']
 MODAL_T_TH_settings = {
-    'N' : 1,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -805,10 +849,9 @@ MODAL_T_TH_example = [
 MODAL_4_TH_premises = []
 MODAL_4_TH_conclusions = ['(\\Box A \\rightarrow \\Box \\Box A)']
 MODAL_4_TH_settings = {
-    'N' : 1,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -824,10 +867,9 @@ MODAL_4_TH_example = [
 MODAL_B_TH_premises = []
 MODAL_B_TH_conclusions = ['(A \\rightarrow \\Box \\Diamond A)']
 MODAL_B_TH_settings = {
-    'N' : 1,
-    'M' : 1,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -843,10 +885,9 @@ MODAL_B_TH_example = [
 MODAL_5_TH_premises = []
 MODAL_5_TH_conclusions = ['(\\Diamond \\Box A \\rightarrow \\Box A)']
 MODAL_5_TH_settings = {
-    'N' : 1,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -870,10 +911,9 @@ MODAL_5_TH_example = [
 BX1_SERIAL_F_TH_premises = []
 BX1_SERIAL_F_TH_conclusions = ['(\\neg \\bot \\rightarrow \\future \\neg \\bot)']
 BX1_SERIAL_F_TH_settings = {
-    'N' : 1,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -889,10 +929,9 @@ BX1_SERIAL_F_TH_example = [
 BX1P_SERIAL_P_TH_premises = []
 BX1P_SERIAL_P_TH_conclusions = ['(\\neg \\bot \\rightarrow \\past \\neg \\bot)']
 BX1P_SERIAL_P_TH_settings = {
-    'N' : 1,
-    'M' : 2,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -910,10 +949,9 @@ BX1P_SERIAL_P_TH_example = [
 BX2G_MONO_U_TH_premises = []
 BX2G_MONO_U_TH_conclusions = ['(\\Future (A \\rightarrow C) \\rightarrow ((B \\Until A) \\rightarrow (B \\Until C)))']
 BX2G_MONO_U_TH_settings = {
-    'N' : 3,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 15,
     'expectation' : False,
 }
@@ -931,10 +969,9 @@ BX2G_MONO_U_TH_example = [
 BX2H_MONO_S_TH_premises = []
 BX2H_MONO_S_TH_conclusions = ['(\\Past (A \\rightarrow C) \\rightarrow ((B \\Since A) \\rightarrow (B \\Since C)))']
 BX2H_MONO_S_TH_settings = {
-    'N' : 3,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 15,
     'expectation' : False,
 }
@@ -951,10 +988,9 @@ BX2H_MONO_S_TH_example = [
 BX3_MONO_U_TH_premises = []
 BX3_MONO_U_TH_conclusions = ['(\\Future (A \\rightarrow B) \\rightarrow ((A \\Until C) \\rightarrow (B \\Until C)))']
 BX3_MONO_U_TH_settings = {
-    'N' : 3,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 15,
     'expectation' : False,
 }
@@ -971,10 +1007,9 @@ BX3_MONO_U_TH_example = [
 BX3P_MONO_S_TH_premises = []
 BX3P_MONO_S_TH_conclusions = ['(\\Past (A \\rightarrow B) \\rightarrow ((A \\Since C) \\rightarrow (B \\Since C)))']
 BX3P_MONO_S_TH_settings = {
-    'N' : 3,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 15,
     'expectation' : False,
 }
@@ -991,10 +1026,9 @@ BX3P_MONO_S_TH_example = [
 BX4_CONNECT_F_TH_premises = []
 BX4_CONNECT_F_TH_conclusions = ['(A \\rightarrow \\Future \\past A)']
 BX4_CONNECT_F_TH_settings = {
-    'N' : 1,
-    'M' : 3,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -1010,10 +1044,9 @@ BX4_CONNECT_F_TH_example = [
 BX4P_CONNECT_P_TH_premises = []
 BX4P_CONNECT_P_TH_conclusions = ['(A \\rightarrow \\Past \\future A)']
 BX4P_CONNECT_P_TH_settings = {
-    'N' : 1,
-    'M' : 3,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -1024,15 +1057,17 @@ BX4P_CONNECT_P_TH_example = [
 ]
 
 # BX10_UNTIL_F_TH: Until Eventuality Extraction
-# BX name: until_F
-# Formula: (psi \Until phi) -> F(psi)  i.e. (B \Until A) -> F(B)
+# Paper axiom UE: (guard \until event) -> future(event). ModelChecker's \Until is
+# event-first (D2), so guard-first "(A \until B)" [guard=A, event=B] is written here as
+# "(B \Until A)" [event=B, guard=A]; the consequent "future(event)" is therefore
+# "future B", matching the coded conclusion.
+# Formula: (B \Until A) -> future B, instantiating UE with guard=A, event=B.
 BX10_UNTIL_F_TH_premises = []
 BX10_UNTIL_F_TH_conclusions = ['((B \\Until A) \\rightarrow \\future B)']
 BX10_UNTIL_F_TH_settings = {
-    'N' : 2,
-    'M' : 3,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -1043,15 +1078,15 @@ BX10_UNTIL_F_TH_example = [
 ]
 
 # BX10P_SINCE_P_TH: Since Eventuality Extraction
-# BX name: since_P
-# Formula: (psi \Since phi) -> P(psi)  i.e. (B \Since A) -> P(B)
+# Paper axiom UE, Since-indexed dual (via TR): (guard \since event) -> past(event), written
+# event-first as "(B \Since A) -> past B" with guard=A, event=B, mirroring BX10_UNTIL_F_TH.
+# Formula: (B \Since A) -> past B, instantiating UE's Since dual with guard=A, event=B.
 BX10P_SINCE_P_TH_premises = []
 BX10P_SINCE_P_TH_conclusions = ['((B \\Since A) \\rightarrow \\past B)']
 BX10P_SINCE_P_TH_settings = {
-    'N' : 2,
-    'M' : 3,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -1068,10 +1103,9 @@ BX10P_SINCE_P_TH_example = [
 BX12_F_UNTIL_TH_premises = []
 BX12_F_UNTIL_TH_conclusions = ['(\\future A \\rightarrow (A \\Until \\neg \\bot))']
 BX12_F_UNTIL_TH_settings = {
-    'N' : 1,
-    'M' : 3,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -1088,10 +1122,9 @@ BX12_F_UNTIL_TH_example = [
 BX12P_P_SINCE_TH_premises = []
 BX12P_P_SINCE_TH_conclusions = ['(\\past A \\rightarrow (A \\Since \\neg \\bot))']
 BX12P_P_SINCE_TH_settings = {
-    'N' : 1,
-    'M' : 3,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -1108,10 +1141,9 @@ BX12P_P_SINCE_TH_example = [
 MF_MODAL_FUTURE_TH_premises = []
 MF_MODAL_FUTURE_TH_conclusions = ['(\\Box A \\rightarrow \\Box \\Future A)']
 MF_MODAL_FUTURE_TH_settings = {
-    'N' : 2,
-    'M' : 2,
-    'contingent' : True,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 10,
     'expectation' : False,
 }
@@ -1134,10 +1166,9 @@ MF_MODAL_FUTURE_TH_example = [
 BX5_ACCUM_U_TH_premises = []
 BX5_ACCUM_U_TH_conclusions = ['((B \\Until A) \\rightarrow (B \\Until (A \\wedge (B \\Until A))))']
 BX5_ACCUM_U_TH_settings = {
-    'N' : 2,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 20,
     'expectation' : False,
 }
@@ -1154,10 +1185,9 @@ BX5_ACCUM_U_TH_example = [
 BX5P_ACCUM_S_TH_premises = []
 BX5P_ACCUM_S_TH_conclusions = ['((B \\Since A) \\rightarrow (B \\Since (A \\wedge (B \\Since A))))']
 BX5P_ACCUM_S_TH_settings = {
-    'N' : 2,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 20,
     'expectation' : False,
 }
@@ -1174,10 +1204,9 @@ BX5P_ACCUM_S_TH_example = [
 BX6_ABSORB_U_TH_premises = []
 BX6_ABSORB_U_TH_conclusions = ['(((A \\wedge (B \\Until A)) \\Until A) \\rightarrow (B \\Until A))']
 BX6_ABSORB_U_TH_settings = {
-    'N' : 2,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 20,
     'expectation' : False,
 }
@@ -1194,10 +1223,9 @@ BX6_ABSORB_U_TH_example = [
 BX6P_ABSORB_S_TH_premises = []
 BX6P_ABSORB_S_TH_conclusions = ['(((A \\wedge (B \\Since A)) \\Since A) \\rightarrow (B \\Since A))']
 BX6P_ABSORB_S_TH_settings = {
-    'N' : 2,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 20,
     'expectation' : False,
 }
@@ -1215,10 +1243,9 @@ BX6P_ABSORB_S_TH_example = [
 BX11_LIN_F_TH_premises = []
 BX11_LIN_F_TH_conclusions = ['((\\future A \\wedge \\future B) \\rightarrow (\\future (A \\wedge B) \\vee (\\future (A \\wedge \\future B) \\vee \\future (\\future A \\wedge B))))']
 BX11_LIN_F_TH_settings = {
-    'N' : 2,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 20,
     'expectation' : False,
 }
@@ -1234,10 +1261,9 @@ BX11_LIN_F_TH_example = [
 BX11P_LIN_P_TH_premises = []
 BX11P_LIN_P_TH_conclusions = ['((\\past A \\wedge \\past B) \\rightarrow (\\past (A \\wedge B) \\vee (\\past (A \\wedge \\past B) \\vee \\past (\\past A \\wedge B))))']
 BX11P_LIN_P_TH_settings = {
-    'N' : 2,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 20,
     'expectation' : False,
 }
@@ -1254,10 +1280,9 @@ BX11P_LIN_P_TH_example = [
 BX13_ENRICH_U_TH_premises = []
 BX13_ENRICH_U_TH_conclusions = ['((C \\wedge (B \\Until A)) \\rightarrow ((B \\wedge (C \\Since A)) \\Until A))']
 BX13_ENRICH_U_TH_settings = {
-    'N' : 3,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 30,
     'expectation' : False,
 }
@@ -1274,10 +1299,9 @@ BX13_ENRICH_U_TH_example = [
 BX13P_ENRICH_S_TH_premises = []
 BX13P_ENRICH_S_TH_conclusions = ['((C \\wedge (B \\Since A)) \\rightarrow ((B \\wedge (C \\Until A)) \\Since A))']
 BX13P_ENRICH_S_TH_settings = {
-    'N' : 3,
-    'M' : 4,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 30,
     'expectation' : False,
 }
@@ -1308,10 +1332,9 @@ BX7_LINEAR_U_TH_conclusions = [
     '((A \\wedge D) \\Until (A \\wedge C)))))'
 ]
 BX7_LINEAR_U_TH_settings = {
-    'N' : 4,
-    'M' : 5,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 60,
     'expectation' : False,
 }
@@ -1335,10 +1358,9 @@ BX7P_LINEAR_S_TH_conclusions = [
     '((A \\wedge D) \\Since (A \\wedge C)))))'
 ]
 BX7P_LINEAR_S_TH_settings = {
-    'N' : 4,
-    'M' : 5,
-    'contingent' : False,
-    'disjoint' : False,
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
     'max_time' : 60,
     'expectation' : False,
 }
