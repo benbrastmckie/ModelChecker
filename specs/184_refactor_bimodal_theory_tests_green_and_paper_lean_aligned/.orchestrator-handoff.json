@@ -1,16 +1,18 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 3,
-  "summary": "Authored a 24-phase, 46-hour implementation plan replacing the bimodal window-and-abundance Z3 encoding with witness-family certificates over Z-time, consuming reports 01/02/03 and adopting BimodalLogic's fixed certificate JSON wire contract verbatim.",
+  "status": "partial",
+  "dispatch_seq": 5,
+  "summary": "Implemented Phases 1-4 of 24 (the certificate foundation layer: Formula ADT/closure/translation, LabelledLasso/WitnessFamily datatypes, pure-Python re-checker), all green with no regressions. Phases 5-24 (Lean round-trip, Z3 encoding, semantics/operators/iterate/examples rewrite, oracle rewrite, docs, development-marker removal) remain.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md",
-      "summary": "24-phase plan: new certificate semantic core, pure-Python re-checker plus live lake exe check_certificate round-trip, operators/iterate/examples migration, oracle rewrite, development-marker removal."
+      "type": "summary",
+      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/01_certificate-foundation-layer-summary.md",
+      "summary": "Implementation summary for Phases 1-4 of the witness-family certificate redesign."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 4,
   "phases_total": 24,
-  "blockers": []
+  "blockers": [],
+  "plan_markers_verified": true,
+  "continuation_path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/handoffs/phase-4-handoff-20260925T181126Z.md",
+  "next_action_hint": "Open Phase 5: round-trip test against lake exe check_certificate (present and built at ~/Projects/BimodalLogic/.lake/build/bin/check_certificate). Then Phases 6-9 (Z3 label-bit encoding), which the plan's dependency-wave table also requires before Phase 5's A2-triangle sub-item can close."
 }
