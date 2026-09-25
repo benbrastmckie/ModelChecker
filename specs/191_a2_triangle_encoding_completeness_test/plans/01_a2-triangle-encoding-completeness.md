@@ -226,21 +226,27 @@ report, not a number to quietly re-baseline.
 
 ---
 
-### Phase 3: Tier 1 for the single-box closure [NOT STARTED]
+### Phase 3: Tier 1 for the single-box closure [COMPLETED]
 
 **Goal**: The same exhaustive comparison over a closure containing a `Box`, exercising the
 witness-lasso and `bx` dimensions of the candidate space.
 
 **Tasks**:
-- [ ] Add the `["\\Box A"] / ["B"]` closure to the Tier 1 parametrization (`|C| = 3`, one `Box`,
+- [x] Add the `["\\Box A"] / ["B"]` closure to the Tier 1 parametrization (`|C| = 3`, one `Box`,
       two active lassos: main plus one witness lasso).
-- [ ] Confirm the generator picks up the second lasso from `semantics._active_lassos` and the
+- [x] Confirm the generator picks up the second lasso from `semantics._active_lassos` and the
       `bx` dimension from the closure's `Box` children, with `bx` keyed on `Box.child` — matching
       both `extract_certificate` and `_box_faithful`'s `family.bx_of(f.child)`.
-- [ ] Mark this case with the already-registered `slow` marker (`code/pyproject.toml`); do not
+- [x] Mark this case with the already-registered `slow` marker (`code/pyproject.toml`); do not
       introduce a new marker.
-- [ ] Record the measured wall-clock time of this case in the test's own comment, next to the
+- [x] Record the measured wall-clock time of this case in the test's own comment, next to the
       candidate count, so a future slowdown is visible against a stated baseline.
+- [x] **Note (structural, not a task-list item)**: rather than duplicating the Phase 2 test
+      body, extracted it into a shared module-level `_assert_exhaustive_triangle_agrees` helper
+      called by both `TestExhaustiveTriangleBoxFree` (unmarked, parametrized) and the new
+      `TestExhaustiveTriangleWithBox` (single `slow`-marked test) -- the box case has no
+      sibling to parametrize alongside, so its own class keeps the marker off the box-free
+      cases.
 
 **Timing**: 1 hour
 

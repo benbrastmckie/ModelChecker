@@ -157,6 +157,63 @@ def _expected_candidate_count(structure: BimodalStructure, closure_size: int) ->
     return (2 ** closure_size) ** (3 * lassos) * (2 ** boxes) * target_window_len
 
 
+def _assert_exhaustive_triangle_agrees(
+    premises: List[str],
+    conclusions: List[str],
+    expected_closure_size: int,
+    expected_total: int,
+    expected_accepted: int,
+    expected_sat: bool,
+) -> None:
+    """Shared Tier 1 body: build `structure`, enumerate every candidate, and assert the
+    enumeration's aggregate (leg i) agrees with the real Z3 verdict (leg iii) -- used by both
+    `TestExhaustiveTriangleBoxFree` (box-free closures) and `TestExhaustiveTriangleWithBox` (the
+    single-box closure, which additionally carries the `slow` marker at its call site)."""
+    structure = _build(premises, conclusions, back=1, mid=1, fwd=1)
+    closure = structure.semantics.witness_registry.closure
+    assert len(closure) == expected_closure_size, (
+        f"closure size changed: expected {expected_closure_size}, got {len(closure)} for "
+        f"premises={premises!r} conclusions={conclusions!r} -- re-derive the expected "
+        "candidate/accepted counts below from the test's own run output rather than "
+        "editing them blind (Scope Hypothesis, plan Phases 2-3)"
+    )
+
+    total, accepted = _run_exhaustive_triangle(structure)
+
+    expected_formula_total = _expected_candidate_count(structure, expected_closure_size)
+    assert total == expected_formula_total == expected_total, (
+        "candidate count mismatch", total, expected_formula_total, expected_total
+    )
+    assert accepted == expected_accepted, (
+        f"accepted candidate count changed: expected {expected_accepted}, got {accepted} for "
+        f"premises={premises!r} conclusions={conclusions!r}"
+    )
+
+    assert (accepted > 0) == structure.z3_model_status == expected_sat, (
+        f"A2-triangle disagreement for premises={premises!r} conclusions={conclusions!r}: "
+        f"{accepted}/{total} candidates accepted by the re-checker, Z3 reports "
+        f"z3_model_status={structure.z3_model_status!r} -- ADEQUACY.md section 7.3: if "
+        "accepted > 0 and Z3 is UNSAT this is an ENCODING INCOMPLETENESS (a real "
+        "countermodel the encoder's constraints cannot find); if accepted == 0 and Z3 is "
+        "SAT this is an ENCODING UNSOUNDNESS (the encoder accepts something the re-checker "
+        "would reject). Report this as a finding -- do not weaken this assertion or drop "
+        "the closure."
+    )
+
+    if expected_sat:
+        # The extracted certificate is itself one of the accepted candidates -- re-check it
+        # directly rather than searching for it inside the enumeration.
+        assert structure.certificate is not None
+        assert structure.target_time is not None
+        extracted_verdict = recheck(
+            structure.certificate,
+            structure.semantics._premise_formulas,
+            structure.semantics._conclusion_formulas,
+            structure.target_time,
+        )
+        assert extracted_verdict["status"] == "countermodel", extracted_verdict
+
+
 class TestExhaustiveTriangleBoxFree:
     """Legs (i) vs. (iii), exhaustive, over two box-free closures at `back = mid = fwd = 1`:
     one expected SAT, one expected UNSAT -- so a defect that only shows up in one direction
@@ -184,46 +241,29 @@ class TestExhaustiveTriangleBoxFree:
         expected_accepted,
         expected_sat,
     ):
-        structure = _build(premises, conclusions, back=1, mid=1, fwd=1)
-        closure = structure.semantics.witness_registry.closure
-        assert len(closure) == expected_closure_size, (
-            f"closure size changed: expected {expected_closure_size}, got {len(closure)} for "
-            f"premises={premises!r} conclusions={conclusions!r} -- re-derive the expected "
-            "candidate/accepted counts below from the test's own run output rather than "
-            "editing them blind (Scope Hypothesis, plan Phase 2)"
+        _assert_exhaustive_triangle_agrees(
+            premises, conclusions, expected_closure_size, expected_total, expected_accepted,
+            expected_sat,
         )
 
-        total, accepted = _run_exhaustive_triangle(structure)
 
-        expected_formula_total = _expected_candidate_count(structure, expected_closure_size)
-        assert total == expected_formula_total == expected_total, (
-            "candidate count mismatch", total, expected_formula_total, expected_total
-        )
-        assert accepted == expected_accepted, (
-            f"accepted candidate count changed: expected {expected_accepted}, got {accepted} for "
-            f"premises={premises!r} conclusions={conclusions!r}"
-        )
+class TestExhaustiveTriangleWithBox:
+    """Leg (i) vs. (iii) over a closure containing a `Box`, exercising the witness-lasso and
+    `bx` dimensions of the candidate space that the box-free closures above cannot reach: two
+    active lassos (main plus one witness lasso for the boxed subformula) and one `bx` guess.
 
-        assert (accepted > 0) == structure.z3_model_status == expected_sat, (
-            f"A2-triangle disagreement for premises={premises!r} conclusions={conclusions!r}: "
-            f"{accepted}/{total} candidates accepted by the re-checker, Z3 reports "
-            f"z3_model_status={structure.z3_model_status!r} -- ADEQUACY.md section 7.3: if "
-            "accepted > 0 and Z3 is UNSAT this is an ENCODING INCOMPLETENESS (a real "
-            "countermodel the encoder's constraints cannot find); if accepted == 0 and Z3 is "
-            "SAT this is an ENCODING UNSOUNDNESS (the encoder accepts something the re-checker "
-            "would reject). Report this as a finding -- do not weaken this assertion or drop "
-            "the closure."
-        )
+    Measured at plan/implementation time on this host: 1,572,864 candidate re-checks
+    (`512**2 * 2 * 3` -- 512 labels-per-lasso-slot choices squared for two lassos, 2 box-guess
+    assignments, 3 target-window positions), 96 accepted, Z3 verdict SAT, ~11s wall clock. Marked
+    `slow` (already registered in `code/pyproject.toml`) so a `-m "not slow"` local run
+    deselects it while keeping the box-free cases above."""
 
-        if expected_sat:
-            # The extracted certificate is itself one of the accepted candidates -- re-check it
-            # directly rather than searching for it inside the enumeration.
-            assert structure.certificate is not None
-            assert structure.target_time is not None
-            extracted_verdict = recheck(
-                structure.certificate,
-                structure.semantics._premise_formulas,
-                structure.semantics._conclusion_formulas,
-                structure.target_time,
-            )
-            assert extracted_verdict["status"] == "countermodel", extracted_verdict
+    @pytest.mark.slow
+    def test_boxed_closure_enumeration_agrees_with_z3(self):
+        _assert_exhaustive_triangle_agrees(
+            ["\\Box A"], ["B"],
+            expected_closure_size=3,
+            expected_total=1_572_864,
+            expected_accepted=96,
+            expected_sat=True,
+        )
