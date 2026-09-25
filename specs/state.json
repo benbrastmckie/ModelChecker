@@ -4,12 +4,13 @@
     {
       "project_number": 191,
       "project_name": "a2_triangle_encoding_completeness_test",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "python",
       "description": "Add the A2-triangle encoding-completeness test for the bimodal certificate encoding (ADEQUACY section 7.3). The adequacy argument rests on three components agreeing: the pure-Python re-checker (semantic/certificate.py recheck), the Lean 'lake exe check_certificate' binary, and the Z3 constraint encoding that actually searches for models. Only legs (i) and (ii) are currently tested -- tests/integration/test_certificate_lean_agreement.py compares the re-checker against the Lean binary on the fixture corpus, and says so in its own docstring. Leg (iii), whether the Z3 encoding reports SAT exactly when a valid certificate exists, has never been built. Without it, two silent failure modes are uncovered: encoding incompleteness (Z3 reports UNSAT when a certificate exists) and encoding unsoundness (Z3 reports SAT for a configuration the checker would reject). Build an exhaustive enumeration over back=mid=fwd=1 and |C| <= 4 comparing all three verdicts. Originally scoped in the certificate redesign plan's Phase 5, which closed as COMPLETED WITH EXCLUSIONS deferring this to 'the Phase 9 handoff' -- that resumption pointer is broken, as the Phase 9 handoff carries only the A0 frame-class standing test, not A2.",
       "topic": "testing",
       "created": "2026-09-25T23:05:46Z",
-      "last_updated": "2026-09-25T23:05:46Z"
+      "last_updated": "2026-09-25T23:10:27Z",
+      "session_id": "sess_1790377806_2f5155_191"
     },
     {
       "project_number": 190,
@@ -27,12 +28,21 @@
     {
       "project_number": 189,
       "project_name": "fix_shared_iterator_is_world_assumption",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
       "description": "Fix the shared model iterator's is_world assumption so the bimodal theory can iterate. The shared iteration framework assumes every theory implements semantics.is_world(): model_checker/iterate/models.py calls it unguarded, which makes 'iterate: N > 1' raise AttributeError for bimodal, and model_checker/iterate/constraints.py gates the model-exclusion constraint on hasattr(semantics, 'is_world') (lines 204 and 251), so bimodal's own BimodalModelIterator methods are never consulted by the live loop and previously-seen models would not be excluded even if the crash were fixed. Bimodal's certificate redesign deliberately has no is_world (its models are labelled lassos, not sets of worlds). Introduce a proper theory-specific extension point in the shared iterate framework rather than special-casing, and explicitly do NOT give BimodalSemantics a fake is_world shim. Requires a cross-theory regression plan: logos, imposition and exclusion all currently satisfy the gate and must not regress; bimodal is the beneficiary. Currently documented as a live limitation in theory_lib/bimodal/docs/ITERATE.md, with 'iterate: 1' as the workaround.",
       "topic": "architecture",
       "created": "2026-09-25T23:03:41Z",
-      "last_updated": "2026-09-25T23:03:41Z"
+      "last_updated": "2026-09-25T23:26:19Z",
+      "session_id": "sess_1790377806_2f5155",
+      "artifacts": [
+        {
+          "path": "specs/189_fix_shared_iterator_is_world_assumption/reports/01_iterator-is-world-extension-point.md",
+          "type": "report",
+          "summary": "Root-causes the bimodal iterate crash (unguarded is_world call, models.py:91-97) and the silent no-exclusion gap (ConstraintGenerator, constraints.py:204,251); identifies that core.py already declares a per-theory extension point (_create_difference_constraint/_create_non_isomorphic_constraint, lines 709-758) implemented by all four theories but never called by the live loop, and recommends wiring it in plus a symmetric hook for model-rebuild pinning, with a concrete regression baseline (19/19 green) and reproduced crash trace."
+        }
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 187,
