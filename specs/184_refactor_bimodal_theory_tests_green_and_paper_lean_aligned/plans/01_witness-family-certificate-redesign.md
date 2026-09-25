@@ -1451,12 +1451,13 @@ not a true validity, and the test now asserts the corrected (and directly measur
 | Item | Reason | Evidence |
 |---|---|---|
 | `oracle/conftest.py`'s `_KNOWN_TIMEOUT_SKIPS` registry left with two now-dead entries (`test_oracle_regression[TN_TH_2]`, `test_enriched_vs_primitive_sat_agreement[all_future]`) | The "ORACLE TIMEOUT-SKIP INVENTORY" mechanism itself flagged both as `[RESOLVED]` (the formulas now decide, so the `pytest.skip()` sites they document can no longer fire) during this phase's own test runs, and explicitly says to "re-check ... REGRESSION_TIMEOUT_EXAMPLES membership" -- done -- but the registry itself lives in `oracle/conftest.py`, shared oracle-wide infrastructure outside Phase 20's `provider.py`/`serialization.py`/`translation.py`/test file list, and `test_timeout_skip_inventory.py` (which asserts against this exact registry) is explicitly Phase 21's own named file. Cleaning the registry without also updating its dedicated test in the same edit would be half a fix. | `oracle/conftest.py`'s own `_KNOWN_TIMEOUT_SKIPS` dict and its module docstring citing `test_timeout_skip_inventory.py` as the mechanism's own unit test. |
-| `oracle/bimodal_logic/README.md`/`KNOWN_EXTERNAL_DEFECTS.md` not updated | Phase 22 ("Documentation rewrite") explicitly owns `oracle/bimodal_logic/README.md`; touching it now would be done twice. Confirmed neither file blocks any test passing (docs only, not imported). | Phase 22's own task list, this plan. |
-| `oracle/bimodal_logic/__init__.py`'s stale "task 103" docstring reference not fixed | Untouched by this phase's actual code changes (no functional edit needed there), and fixing a bare comment in a file otherwise unrelated to this phase's work was judged out of proportion; left for whoever next edits that file. | Direct inspection: `__init__.py`'s exports needed no changes (`Z3OracleProvider`/`OracleTimeoutError`/translation functions all still exist with the same names). |
+| `oracle/bimodal_logic/README.md`/`KNOWN_EXTERNAL_DEFECTS.md` not updated | Phase 22 ("Documentation rewrite") explicitly owns `oracle/bimodal_logic/README.md`; touching it now would be done twice. Confirmed neither file blocks any test passing (docs only, not imported). **DISCHARGED**: `README.md` gained a "Certificate JSON Export" section in Phase 22 (pointing to BimodalLogic's own protocol document as the fixed external contract). `KNOWN_EXTERNAL_DEFECTS.md`'s "Why ModelChecker is correct" section was independently rewritten during Phase 21's own manifest-regeneration work (before Phase 22 started, for reasons unrelated to this exclusion) -- Phase 22 read the whole file directly and confirmed no further staleness remained, so it needed no additional edit. Both files are current as of task completion. | `oracle/bimodal_logic/README.md`'s "Certificate JSON Export" section (Phase 22); `KNOWN_EXTERNAL_DEFECTS.md`'s "Why ModelChecker is correct" section, direct full-file read confirming currency (Phase 22). |
+| `oracle/bimodal_logic/__init__.py`'s stale "task 103" docstring reference not fixed | Untouched by this phase's actual code changes (no functional edit needed there), and fixing a bare comment in a file otherwise unrelated to this phase's work was judged out of proportion; left for whoever next edits that file. **DISCHARGED**: fixed directly (a drive-by, not tied to any specific phase's own file list) -- replaced "The Z3OracleProvider class will be fully implemented in task 103." with an accurate, durable statement of the provider's actual (long-since-complete) certificate-search design, since the sentence was both stale and, independently, a live violation of the repo's no-task-references-in-deliverables rule that the repo-wide lint cannot catch in `oracle/` (that lint only scans `agent-system/extensions`, `.opencode`, `lua`, `.memory`). | `oracle/bimodal_logic/__init__.py`'s current docstring; `import bimodal_logic` confirmed still working after the edit. |
 
-This is a legitimate `[COMPLETED WITH EXCLUSIONS]`: all three exclusions are narrow, explicitly
-justified against a specific later phase or a clearly out-of-proportion drive-by fix, not silently
-descoped.
+This is a legitimate `[COMPLETED WITH EXCLUSIONS]`: all three exclusions were narrow, explicitly
+justified against a specific later phase or a clearly out-of-proportion drive-by fix at the time
+Phase 20 closed, and all three are now discharged (confirmed above) by the time the task as a
+whole closes -- none were silently descoped or left orphaned.
 
 **Timing**: 2 hours (actual: substantially more, given the cache-poisoning bug investigation and
 the wider-than-planned ripple through `cli.py`/`test_json_translation.py`/
@@ -1935,6 +1936,46 @@ measured rather than asserted.
 status" section still describes `semantic/core.py`/`operators.py` as the retired encoding "as they
 stand today" -- stale since Phases 9-14 landed the rewrite in those files. `ADEQUACY.md` is owned
 by the separate adequacy-layer task (Phase 22's own Amendment note), so this task did not edit it.
+
+**Exclusion audit fold-ins (an external audit surfaced these as assigned to Phases 22/23, or as
+small drive-bys owned by no phase; folded in here at Phase 24 rather than left orphaned)**:
+
+- **Verified `oracle/run-oracle-suite.sh` pass 2 actually goes green, rather than assumed**: it
+  does (`5 passed, 566 deselected`, both passes PASSED) -- this was already directly measured
+  during Phase 23's own verification and is not a new finding, but is confirmed again here per
+  the audit's specific request not to assume it.
+- **Removed the dead `("test_regression_all_active_examples", "[BM_CM_1")` entry** from
+  `oracle/conftest.py`'s `_XDIST_SERIAL_NODEID_FRAGMENTS` (confirmed via `grep -rl` across
+  `oracle/`/`code/` that no test of that name exists anywhere) -- this was the specific dead
+  fragment Phase 21's own Reasoned Exclusions table traced as (jointly with the now-retired
+  `development` marker) the root cause of pass 2's prior "0 selected" condition. Re-ran the full
+  oracle suite (`bash oracle/run-oracle-suite.sh` and `pytest oracle/bimodal_logic/tests/ -q`)
+  after removing it: both passes still PASSED, 567 passed + 4 xfailed unchanged.
+- **Fixed `oracle/bimodal_logic/__init__.py`'s stale "task 103" docstring reference** (a live,
+  repo-lint-invisible violation of the no-task-references-in-deliverables rule, since that lint
+  only scans `agent-system/extensions`/`.opencode`/`lua`/`.memory`, not `oracle/`) -- replaced with
+  an accurate statement of the provider's actual, long-complete certificate-search design.
+  Confirmed `import bimodal_logic` still works.
+- **Removed the dead `test_shift_closure_on_extracted_worlds_m3` entries** from
+  `.github/scripts/unstable_watch_classify.py`'s `MAX_TIME_BY_NODEID_FRAGMENT` and
+  `FAILURE_SIGNATURE_BY_NODEID_FRAGMENT` dicts (the test they characterized lived in
+  `test_soundness_regression.py`, deleted wholesale in Phase 21) -- **and**, since those dict
+  entries had their own dedicated characterization test class
+  (`TestClassifyShiftClosureM3Signature`, 4 tests) in `code/tests/ci/test_unstable_watch_classifier.py`
+  that would otherwise have started failing, removed that class too (confirmed no unique coverage
+  loss: `test_different_message_at_full_duration_is_new` already covers the same "wrong signature
+  -> NEW" behavior generically for `BM_CM_1`). Verified: `test_unstable_watch_classifier.py` ->
+  43 passed (was 47, -4 exactly matching the removed class); `code/tests/ci` -> 132 passed (was
+  136, -4, consistent). **Deliberately left `BM_CM_1`/`BM_CM_4` entries in both files untouched**:
+  unlike the shift-closure entry, their underlying test node ids still exist in `test_bimodal.py`
+  today (just no longer `unstable`-marked, per that file's own now-empty `UNSTABLE_EXAMPLES`), and
+  their own characterization tests are still exercising real, current node ids -- a materially
+  different, larger cleanup than what was requested, and explicitly out of scope for this fold-in.
+
+**Confirmed NOT to fix, per explicit instruction**: the shared `iterate/constraints.py`
+`is_world` exclusion gate, rotation/permutation-invariant isomorphism rejection, and the A2
+encoding-completeness test from Phase 5 -- all three remain excluded and visible, becoming their
+own follow-up tasks rather than being folded into this one.
 
 **Timing**: 1.5 hours
 

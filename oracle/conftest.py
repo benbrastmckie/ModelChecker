@@ -26,9 +26,17 @@ import pytest
 # workers. Matched by both the test function name and a substring of the
 # parametrize id, so a bare id-fragment match cannot spill onto an unrelated
 # parametrize site that happens to share a case name.
+#
+# A second entry, `("test_regression_all_active_examples", "[BM_CM_1")`, was removed here: it had
+# never matched a real test name since its introduction (confirmed via `git log -S` against the
+# commit that introduced it), and its own doubly-dead status (compounded by the `development`
+# marker previously excluding its would-be sibling match) was traced as the root cause of
+# `run-oracle-suite.sh`'s pass 2 selecting zero tests (see the bimodal witness-family certificate
+# redesign's own implementation plan for the full trace). Removing the dead entry here is a
+# documentation/cleanup fix; pass 2 selecting real tests again is a separate, already-resolved
+# consequence of the `development` marker's own retirement.
 _XDIST_SERIAL_NODEID_FRAGMENTS = (
     ("test_enriched_vs_primitive_sat_agreement", "[some_past]"),
-    ("test_regression_all_active_examples", "[BM_CM_1"),
 )
 
 def pytest_configure(config: pytest.Config) -> None:

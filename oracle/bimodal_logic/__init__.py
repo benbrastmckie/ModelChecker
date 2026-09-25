@@ -3,7 +3,11 @@
 This package provides the public API for the Z3-based bimodal logic oracle,
 which implements temporal and modal reasoning for the bimodal_harness.
 
-The Z3OracleProvider class will be fully implemented in task 103.
+`Z3OracleProvider` (see `provider.py`) is fully implemented: it searches for
+witness-family certificates over discrete (Z) time, matching the in-package
+`model_checker.theory_lib.bimodal` witness-family certificate redesign (see
+`code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` for the design
+this provider sits on top of).
 """
 
 from __future__ import annotations

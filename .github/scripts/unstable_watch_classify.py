@@ -67,7 +67,6 @@ DEFAULT_RECORD_PATH = "unstable-watch-record.jsonl"
 # marking.
 MAX_TIME_BY_NODEID_FRAGMENT = {
     "BM_CM_1-example_case7": 60,
-    "test_shift_closure_on_extracted_worlds_m3": 15,
     # BM_CM_4-example_case9 (test_bimodal.py::test_example_cases): diagnosed as a solve-cost
     # regression from commit f9cc081e (Skolemized Seriality + Interpolation axioms), sharing
     # BM_CM_1's shape -- max_time=120, shared FAILURE_SIGNATURE
@@ -85,14 +84,14 @@ FAILURE_SIGNATURE = "Test failed for example:"
 # behavior for every marking added before this dict existed. Add an entry here whenever a new
 # duration-based marking's own assertion message differs from BM_CM_1's
 # "Test failed for example: ..." shape -- e.g. a marking with its own bespoke assertion text.
-FAILURE_SIGNATURE_BY_NODEID_FRAGMENT = {
-    # oracle/bimodal_logic/tests/test_soundness_regression.py::TestShiftClosure::
-    # test_shift_closure_on_extracted_worlds_m3 -- exact string, copied verbatim from that
-    # test's own assertion message.
-    "test_shift_closure_on_extracted_worlds_m3": (
-        "Solver should find SAT for atom 'p' at M=3 with depth-bounded abundance"
-    ),
-}
+#
+# Empty as of the witness-family certificate redesign: this registry previously held exactly one
+# entry (`test_shift_closure_on_extracted_worlds_m3`, from
+# `oracle/bimodal_logic/tests/test_soundness_regression.py`, deleted wholesale along with the
+# retired encoding's abundance/shift-closure machinery it tested), unused since that file no
+# longer exists. Kept as an empty dict (not deleted) for the same greppable-single-point reason
+# `oracle/conftest.py`'s own now-empty `_KNOWN_TIMEOUT_SKIPS` registry is kept.
+FAILURE_SIGNATURE_BY_NODEID_FRAGMENT: dict = {}
 
 # Safety survey: FAILURE_SIGNATURE is the last statement of a *single*-assertion test
 # (`test_example_cases`'s `assert result, f"Test failed for example: {example_name}"` --
