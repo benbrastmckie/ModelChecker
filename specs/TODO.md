@@ -18,7 +18,7 @@ next_project_number: 189
 
 ### Testing
 
-188 [RESEARCHED] — BMCM4 fails DETERMINISTICALLY in the bimodal suite and is...
+188 [PLANNED] — BMCM4 fails DETERMINISTICALLY in the bimodal suite and is...
 
 ### Semantics
 
@@ -29,11 +29,12 @@ next_project_number: 189
 
 ### 188. Diagnose bm cm 4 deterministic countermodel failure
 - **Effort**: small
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [188_diagnose_bm_cm_4_deterministic_countermodel_failure/reports/01_bm-cm-4-cost-regression.md]
+- **Plan**: [188_diagnose_bm_cm_4_deterministic_countermodel_failure/plans/01_bm-cm-4-symbol-rename-fix.md]
 
 **Description**: BM_CM_4 fails DETERMINISTICALLY in the bimodal suite and is neither tracked nor documented as failing. Diagnose it, then either fix it or give it a marker that meets TESTING_GUIDE.md section 8.9's entry criteria. Do not simply widen max_time.
 
