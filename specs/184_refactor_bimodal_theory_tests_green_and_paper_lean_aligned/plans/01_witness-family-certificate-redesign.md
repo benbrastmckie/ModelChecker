@@ -553,22 +553,29 @@ in Phase 9 as already planned; Phases 7-8 (pure constraint-generator modules, no
 
 ---
 
-### Phase 7: Local-coherence and target constraint generators [NOT STARTED]
+### Phase 7: Local-coherence and target constraint generators [COMPLETED]
 
 **Goal**: Quantifier-free Z3 constraints for condition 1 (local coherence) and condition 4 (target,
 via the one-hot selector).
 
 **Tasks**:
-- [ ] Write unit tests first: for a small closure, assert the generated constraint set is
+- [x] Write unit tests first: for a small closure, assert the generated constraint set is
       quantifier-free (no `ForAll`/`Exists` in the AST), and that a hand-built satisfying
       assignment satisfies it while a hand-built incoherent one does not.
-- [ ] Rewrite the first half of `semantic/witness_constraints.py`: for each lasso, each position
+- [x] Rewrite the first half of `semantic/witness_constraints.py`: for each lasso, each position
       index, and each closure member, emit the five `LocalCoherentLab` biconditionals (bot absent;
       `imp` iff; `box` iff guess; `untl`/`snce` unfolding at `t+1`/`t-1` through the wrap).
-- [ ] Emit the one-hot target selector `sel[t]` over the main lasso's position window with
+- [x] Emit the one-hot target selector `sel[t]` over the main lasso's position window with
       exactly-one, and the guarded premise/conclusion implications of D5.
-- [ ] Document, in the module docstring, that atoms are deliberately unconstrained: the valuation
+- [x] Document, in the module docstring, that atoms are deliberately unconstrained: the valuation
       *is* the atom part of the label.
+
+**Note (why one representative position per slot suffices, not the wide re-checker window)**:
+documented in the module docstring -- `WitnessRegistry.bit` already collapses every position
+sharing a slot to the identical Z3 term, so a biconditional asserted once per slot (via
+`registry.target_window()`) is definitionally the same constraint at every integer position, not
+an approximation of it. This is unrelated to (and simpler than) why the pure-Python re-checker
+needs the Lean-proved *wide* window.
 
 **Timing**: 2 hours
 
@@ -581,8 +588,10 @@ via the one-hot selector).
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py` - rewrite
 
 **Verification**:
-- Quantifier-free assertion test green (AST walk finds no quantifier node).
-- Hand-built positive/negative assignment discrimination test green.
+- Quantifier-free assertion test green (AST walk finds no quantifier node). 12/12 new unit tests
+  green.
+- Hand-built positive/negative assignment discrimination test green (bot, box, and until
+  unfolding all separately exercised).
 
 ---
 

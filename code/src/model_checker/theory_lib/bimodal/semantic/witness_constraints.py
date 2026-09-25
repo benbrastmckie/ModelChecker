@@ -1,186 +1,143 @@
+"""Quantifier-free Z3 constraint generators for the witness-family certificate search.
+
+**Change of meaning.** This module previously implemented `WitnessConstraintGenerator` for the
+retired window-and-abundance encoding: a `ForAll`-quantified constraint pinning down an
+`accessible_world` witness function. That encoding is being replaced outright (see
+`docs/ADEQUACY.md` and the implementation plan's decision D1), and `WitnessConstraintGenerator` is
+rewritten to the certificate encoding's own constraint generators rather than deleted (report 01
+section 4.4). There is no relationship between the old and new class bodies beyond the shared
+name.
+
+**What this generator now does (part 1 of 2).** Given a `WitnessRegistry` (the Z3 variable layer;
+`witness_registry.py`), this class emits the quantifier-free constraint set for two of the four
+certificate conditions:
+
+- **(C1) Local coherence** (`local_coherence_constraints`): the five `LocalCoherentLab`
+  biconditionals of `docs/ADEQUACY.md` section 1 -- bottom absent, `imp`/`box`/`untl`/`snce`
+  fixpoint laws -- for every closure member, at every position slot of a given lasso.
+- **(C4) Target** (`target_constraints`): the one-hot selector `sel[t]` over the main lasso's
+  position window (decision D5), with exactly-one and the guarded premise/conclusion
+  implications.
+
+(C2) Fulfilment and (C3) Box faithfulness are the second half of the rewrite (a later phase).
+
+## Why one representative position per slot suffices
+
+`WitnessRegistry.bit(lasso, t, formula)` already collapses every position `t` to its slot's
+variable (`wrap`, `witness_registry.py`): `bit(lasso, t, f)` and `bit(lasso, t', f)` are the
+*identical* Z3 term whenever `t` and `t'` share a slot, by construction, not merely equal under
+every model. So a biconditional written using `bit(lasso, t, f)`, `bit(lasso, t+1, ...)` and
+`bit(lasso, t-1, ...)` denotes the *same* Z3 constraint for every `t` sharing a slot as it does
+for one representative -- enumerating `registry.target_window()` (one representative position per
+slot) therefore asserts local coherence at *every* integer position, not just the ones visited.
+This is a plain fact about Z3 term identity, and is a different (simpler) argument from why the
+pure-Python re-checker (`certificate.py`) needs the *wide*, two-period window
+(`coherent_iff_window`/`fulfil_iff_window`, `docs/ADEQUACY.md` section 5): the re-checker decodes
+concrete labels pointwise and has no notion of "the same variable" to lean on, so it needs the
+Lean-proved window to guarantee it has exercised the periodic region widely enough. The encoder
+needs no such margin because the sharing is definitional, not empirical.
+
+## Atoms are deliberately unconstrained
+
+As in the re-checker, atoms carry no coherence clause: the valuation *is* the atom part of the
+label (`docs/ADEQUACY.md` Lemma 4's atom case -- `M, tau_i, t |= p` iff `(i,t) in |p|` iff
+`atom p in L_i(t)`, an identity, not an appeal to a clause). `bit(lasso, t, Atom(...))` is left
+free for the solver to choose.
 """
-Witness constraint generation implementation for bimodal theory.
 
-This module contains the WitnessConstraintGenerator class that creates
-Z3 constraints defining accessible_world witness predicates for modal operators.
+from __future__ import annotations
 
-Unlike exclusion's three-condition negation semantics, bimodal uses simpler
-modal accessibility constraints: accessible_world must return a valid world
-where the argument formula has a different truth value.
-"""
+from typing import Iterable, List
 
-# Standard library imports
-from typing import Any, List
-
-# Third-party imports
 from model_checker import z3_shim as z3
 
-# Local imports
-# Absolute (not relative) import -- see witness_registry.py's identical comment:
-# a 3-dot relative import to theory_lib/errors.py overflows the top-level
-# package when this file is copied into a flat scaffolded project by
-# `builder.project.BuildProject`.
-from model_checker.theory_lib.errors import WitnessConstraintError
+from .formula import Atom, Bot, Box, Formula, Imp, Snce, Untl
+from .witness_registry import WitnessRegistry
+
+__all__ = ["WitnessConstraintGenerator"]
 
 
 class WitnessConstraintGenerator:
-    """
-    Generates constraints that define accessible_world witness predicates
-    for modal operators in bimodal theory.
+    """Quantifier-free constraint generators for the certificate search, built against a
+    `WitnessRegistry`. See the module docstring for the change of meaning from the retired
+    encoding."""
 
-    For Box operator false_at():
-        accessible_world(eval_world, eval_time) returns a world where
-        the argument is false.
+    def __init__(self, registry: WitnessRegistry) -> None:
+        self.registry = registry
+        self._sel = {}
 
-    The constraints ensure:
-    1. accessible_world returns a valid world ID
-    2. The returned world exists in the model
-    3. eval_time is valid for the accessible world
-    4. The argument has the required truth value at (accessible_world, eval_time)
-    """
+    # -----------------------------------------------------------------
+    # (C1) Local coherence
+    # -----------------------------------------------------------------
 
-    def __init__(self, semantics: Any) -> None:
-        """Initialize constraint generator.
+    def local_coherence_constraints(self, lasso: int) -> List["z3.BoolRef"]:
+        """The `LocalCoherentLab` biconditionals for `lasso`, over every closure member and one
+        representative position per slot (see the module docstring for why that suffices)."""
+        registry = self.registry
+        constraints: List["z3.BoolRef"] = []
+        for t in registry.target_window():
+            for f in registry.closure:
+                constraints.extend(self._coherence_clause_at(lasso, t, f))
+        return constraints
 
-        Args:
-            semantics: BimodalSemantics instance providing semantic methods
-        """
-        self.semantics: Any = semantics
-        self.N: int = semantics.N
-        self.M: int = semantics.M
+    def _coherence_clause_at(self, lasso: int, t: int, f: Formula) -> List["z3.BoolRef"]:
+        registry = self.registry
+        if isinstance(f, Atom):
+            return []  # atoms are deliberately unconstrained (see module docstring)
+        if isinstance(f, Bot):
+            return [z3.Not(registry.bit(lasso, t, f))]
+        if isinstance(f, Imp):
+            lhs = registry.bit(lasso, t, f)
+            rhs = z3.Or(z3.Not(registry.bit(lasso, t, f.left)), registry.bit(lasso, t, f.right))
+            return [lhs == rhs]
+        if isinstance(f, Box):
+            lhs = registry.bit(lasso, t, f)
+            rhs = registry.guess(f.child)
+            return [lhs == rhs]
+        if isinstance(f, Untl):
+            lhs = registry.bit(lasso, t, f)
+            next_event = registry.bit(lasso, t + 1, f.event)
+            next_guard = registry.bit(lasso, t + 1, f.guard)
+            next_self = registry.bit(lasso, t + 1, f)
+            rhs = z3.Or(next_event, z3.And(next_guard, next_self))
+            return [lhs == rhs]
+        if isinstance(f, Snce):
+            lhs = registry.bit(lasso, t, f)
+            prev_event = registry.bit(lasso, t - 1, f.event)
+            prev_guard = registry.bit(lasso, t - 1, f.guard)
+            prev_self = registry.bit(lasso, t - 1, f)
+            rhs = z3.Or(prev_event, z3.And(prev_guard, prev_self))
+            return [lhs == rhs]
+        raise TypeError(f"not a Formula: {f!r}")
 
-    def generate_witness_constraints(
-        self,
-        formula_str: str,
-        formula_ast: Any,
-        accessible_world_pred: z3.FuncDeclRef
-    ) -> List[z3.BoolRef]:
-        """
-        Generate constraints defining accessible_world witness predicate.
+    # -----------------------------------------------------------------
+    # (C4) Target
+    # -----------------------------------------------------------------
 
-        Args:
-            formula_str: String identifier for formula (e.g., "Box_p")
-            formula_ast: AST node for the formula (currently unused, for future extension)
-            accessible_world_pred: Z3 function (Int, Int) → Int
+    def sel(self, t: int) -> "z3.BoolRef":
+        """The one-hot target-position selector for position `t` on the main lasso, memoized."""
+        cached = self._sel.get(t)
+        if cached is not None:
+            return cached
+        var = z3.Bool(f"sel_{t}")
+        self._sel[t] = var
+        return var
 
-        Returns:
-            List of Z3 constraints defining witness behavior
-
-        Raises:
-            WitnessConstraintError: If inputs are invalid
-        """
-        # Validate inputs
-        if not formula_str or not isinstance(formula_str, str):
-            raise WitnessConstraintError(
-                "Cannot generate constraints for empty or invalid formula",
-                context={'formula_str': formula_str},
-                suggestion="Provide a valid non-empty formula string"
-            )
-
-        if accessible_world_pred is None:
-            raise WitnessConstraintError(
-                f"Invalid accessible_world predicate for formula '{formula_str}'",
-                context={'formula_str': formula_str, 'predicate': accessible_world_pred},
-                suggestion="Ensure witness predicate is properly registered"
-            )
-
-        try:
-            constraints = []
-
-            # Generate universal constraints over all eval points
-            eval_world_var = z3.Int(f'{formula_str}_constraint_eval_world')
-            eval_time_var = z3.Int(f'{formula_str}_constraint_eval_time')
-
-            # Get the accessible world for this eval point
-            witness_world = accessible_world_pred(eval_world_var, eval_time_var)
-
-            # Main constraint: ForAll eval_world, eval_time:
-            #   If (eval_world is valid AND eval_time is valid for eval_world)
-            #   Then accessible_world must be a valid world
-            #        AND eval_time must be valid for accessible_world
-            main_constraint = z3.ForAll(
-                [eval_world_var, eval_time_var],
-                z3.Implies(
-                    z3.And(
-                        # Preconditions: eval point is valid
-                        self.semantics.is_world(eval_world_var),
-                        self.semantics.is_valid_time_for_world(eval_world_var, eval_time_var)
-                    ),
-                    z3.And(
-                        # Postcondition 1: witness is a valid world
-                        self.semantics.is_world(witness_world),
-                        # Postcondition 2: eval_time is valid for witness world
-                        self.semantics.is_valid_time_for_world(witness_world, eval_time_var)
-                    )
-                )
-            )
-
-            constraints.append(main_constraint)
-
-            return constraints
-
-        except Exception as e:
-            raise WitnessConstraintError(
-                f"Failed to generate witness constraints for formula '{formula_str}'",
-                context={
-                    'formula_str': formula_str,
-                    'original_error': str(e),
-                    'N': self.N,
-                    'M': self.M
-                },
-                suggestion="Check that semantics methods (is_world, is_valid_time_for_world) are available"
-            ) from e
-
-    def _witness_constraint_for_falsity(
-        self,
-        formula_str: str,
-        argument_ast: Any,
-        accessible_world_pred: z3.FuncDeclRef
-    ) -> z3.BoolRef:
-        """
-        Generate constraint ensuring accessible_world points to a world
-        where the argument is false.
-
-        This is used for Box.false_at() - the witness must satisfy falsity.
-
-        Args:
-            formula_str: String identifier for formula
-            argument_ast: AST for the argument formula
-            accessible_world_pred: The accessible_world predicate
-
-        Returns:
-            Z3 constraint ensuring argument is false at accessible_world
-
-        Note: This method is currently a placeholder for Phase 4 integration.
-        The full constraint requires recursive evaluation of argument_ast,
-        which will be implemented when integrating with NecessityOperator.
-        """
-        # Placeholder for future Phase 4 implementation
-        # Will need to call semantics.false_at(argument_ast, witness_eval_point)
-        # to ensure argument is false at the witness world
-        pass
-
-    def _minimality_constraint(
-        self,
-        formula_str: str,
-        accessible_world_pred: z3.FuncDeclRef
-    ) -> z3.BoolRef:
-        """
-        Generate optional minimality constraint ensuring accessible_world
-        returns the smallest valid world ID satisfying conditions.
-
-        Args:
-            formula_str: String identifier for formula
-            accessible_world_pred: The accessible_world predicate
-
-        Returns:
-            Z3 constraint enforcing minimality
-
-        Note: This is optional and can be omitted for initial implementation.
-        Minimality helps with determinism but isn't required for correctness.
-        """
-        # Optional: Can be implemented if deterministic witness selection is desired
-        # ForAll eval_world, eval_time:
-        #   ForAll other_world < accessible_world(eval_world, eval_time):
-        #     other_world does NOT satisfy the witness conditions
-        pass
+    def target_constraints(
+        self, premises: Iterable[Formula], conclusions: Iterable[Formula]
+    ) -> List["z3.BoolRef"]:
+        """(C4): exactly-one over `sel` across the main lasso's position window, plus the guarded
+        premise/conclusion implications of decision D5 -- `sel[t] -> premise in label(t)` and
+        `sel[t] -> conclusion not in label(t)`, for every `t` in the window."""
+        window = list(self.registry.target_window())
+        sels = [self.sel(t) for t in window]
+        constraints: List["z3.BoolRef"] = [z3.Or(*sels), z3.AtMost(*sels, 1)]
+        premises = list(premises)
+        conclusions = list(conclusions)
+        for t in window:
+            s = self.sel(t)
+            for p in premises:
+                constraints.append(z3.Implies(s, self.registry.bit(0, t, p)))
+            for c in conclusions:
+                constraints.append(z3.Implies(s, z3.Not(self.registry.bit(0, t, c))))
+        return constraints

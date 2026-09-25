@@ -1,312 +1,172 @@
-"""Tests for WitnessConstraintGenerator in BimodalSemantics.
+"""Unit tests for `WitnessConstraintGenerator`'s local-coherence and target generators.
 
-Phase 3: Witness Constraints for Modal Semantics
-Tests written BEFORE implementation following TDD methodology.
+Mirrors `docs/ADEQUACY.md` section 1's `LocalCoherentLab` and `Target`, and the certificate
+re-checker's `_coherent_at`/`_target_holds` (`certificate.py`) -- the encoder and the re-checker
+must agree on what "coherent" and "on target" mean, even though the encoder only ever visits one
+representative position per slot (see `witness_constraints.py`'s module docstring for why that
+suffices).
 """
 
-import pytest
+from __future__ import annotations
+
 import z3
-from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
-from model_checker.theory_lib.bimodal.semantic.witness_constraints import WitnessConstraintGenerator
-from model_checker.theory_lib.errors import WitnessConstraintError
-
-
-@pytest.fixture
-def semantics():
-    """Create BimodalSemantics instance for testing."""
-    settings = {
-        'N': 3,
-        'M': 2,
-        'contingent': False,
-        'disjoint': False,
-        'max_time': 1,
-        'expectation': True,
-        'iterate': 1
-    }
-    return BimodalSemantics(settings)
-
-
-@pytest.fixture
-def generator(semantics):
-    """Create WitnessConstraintGenerator instance."""
-    return WitnessConstraintGenerator(semantics)
-
-
-class TestInitialization:
-    """Tests for WitnessConstraintGenerator initialization."""
-
-    def test_initialization_stores_semantics(self, generator, semantics):
-        """Test that semantics is stored and accessible."""
-        assert generator.semantics == semantics, "Semantics should be stored"
 
-    def test_initialization_stores_N(self, generator):
-        """Test that N is stored from semantics."""
-        assert generator.N == 3, "N should be copied from semantics"
-
-    def test_initialization_stores_M(self, generator):
-        """Test that M is stored from semantics."""
-        assert generator.M == 2, "M should be copied from semantics"
-
-
-class TestGenerateWitnessConstraints:
-    """Tests for generate_witness_constraints method."""
-
-    def test_generate_returns_list(self, generator):
-        """Test that generate_witness_constraints returns a list."""
-        formula_str = "Box_p"
-
-        # Create a mock formula AST (simple structure for testing)
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-
-        # Create a mock accessible_world predicate
-        accessible_world_pred = z3.Function(
-            "Box_p_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        result = generator.generate_witness_constraints(
-            formula_str,
-            formula_ast,
-            accessible_world_pred
-        )
-
-        assert isinstance(result, list), "Should return a list"
-
-    def test_generate_returns_z3_constraints(self, generator):
-        """Test that returned list contains Z3 BoolRef expressions."""
-        formula_str = "Box_p"
-
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-        accessible_world_pred = z3.Function(
-            "Box_p_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        result = generator.generate_witness_constraints(
-            formula_str,
-            formula_ast,
-            accessible_world_pred
-        )
-
-        # Should have at least one constraint
-        assert len(result) > 0, "Should generate at least one constraint"
-
-        # All elements should be Z3 expressions
-        for constraint in result:
-            assert isinstance(constraint, z3.BoolRef), \
-                f"Each constraint should be z3.BoolRef, got {type(constraint)}"
-
-    def test_generate_empty_formula_raises_error(self, generator):
-        """Test that empty formula string raises WitnessConstraintError."""
-        accessible_world_pred = z3.Function(
-            "test_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        with pytest.raises(WitnessConstraintError) as exc_info:
-            generator.generate_witness_constraints("", None, accessible_world_pred)
-
-        assert "empty" in str(exc_info.value).lower() or "invalid" in str(exc_info.value).lower(), \
-            "Error should mention empty/invalid formula"
-
-    def test_generate_none_predicate_raises_error(self, generator):
-        """Test that None predicate raises WitnessConstraintError."""
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-
-        with pytest.raises(WitnessConstraintError) as exc_info:
-            generator.generate_witness_constraints("Box_p", formula_ast, None)
-
-        assert "predicate" in str(exc_info.value).lower() or "invalid" in str(exc_info.value).lower(), \
-            "Error should mention predicate/invalid"
-
-
-class TestConstraintStructure:
-    """Tests for the structure of generated constraints."""
-
-    def test_constraints_contain_forall(self, generator):
-        """Test that constraints use ForAll quantifiers."""
-        formula_str = "Box_p"
-
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-        accessible_world_pred = z3.Function(
-            "Box_p_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        result = generator.generate_witness_constraints(
-            formula_str,
-            formula_ast,
-            accessible_world_pred
-        )
-
-        # Convert constraints to strings to inspect structure
-        constraints_str = "\n".join(str(c) for c in result)
-
-        # Should contain ForAll quantifiers
-        assert "ForAll" in constraints_str or "forall" in constraints_str.lower(), \
-            "Constraints should use ForAll quantifiers"
-
-    def test_constraints_reference_predicate(self, generator):
-        """Test that constraints reference the accessible_world predicate."""
-        formula_str = "Box_p"
-
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-        accessible_world_pred = z3.Function(
-            "Box_p_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        result = generator.generate_witness_constraints(
-            formula_str,
-            formula_ast,
-            accessible_world_pred
-        )
-
-        # Constraints should reference the predicate
-        constraints_str = "\n".join(str(c) for c in result)
-
-        assert "Box_p_accessible_world" in constraints_str, \
-            "Constraints should reference the accessible_world predicate"
-
-    def test_constraints_use_implies(self, generator):
-        """Test that constraints use implication structure."""
-        formula_str = "Box_p"
-
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-        accessible_world_pred = z3.Function(
-            "Box_p_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        result = generator.generate_witness_constraints(
-            formula_str,
-            formula_ast,
-            accessible_world_pred
-        )
-
-        # Constraints should use implication
-        constraints_str = "\n".join(str(c) for c in result)
-
-        assert "Implies" in constraints_str or "=>" in constraints_str or "Or(Not" in constraints_str, \
-            "Constraints should use Implies structure"
-
-
-class TestSemanticReferences:
-    """Tests that constraints reference semantic methods."""
-
-    def test_constraints_reference_is_world(self, generator):
-        """Test that constraints check if witness is a valid world."""
-        formula_str = "Box_p"
-
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-        accessible_world_pred = z3.Function(
-            "Box_p_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        result = generator.generate_witness_constraints(
-            formula_str,
-            formula_ast,
-            accessible_world_pred
-        )
-
-        # Should reference is_world check
-        constraints_str = "\n".join(str(c) for c in result)
-
-        # Looking for is_world or similar validity checks
-        # This is a structural test - actual method names may vary
-        assert len(constraints_str) > 0, "Should generate constraints with world validity checks"
-
-    def test_constraints_check_time_validity(self, generator):
-        """Test that constraints check time validity for worlds."""
-        formula_str = "Box_p"
-
-        class MockFormula:
-            pass
-
-        formula_ast = MockFormula()
-        accessible_world_pred = z3.Function(
-            "Box_p_accessible_world",
-            z3.IntSort(),
-            z3.IntSort(),
-            z3.IntSort()
-        )
-
-        result = generator.generate_witness_constraints(
-            formula_str,
-            formula_ast,
-            accessible_world_pred
-        )
-
-        # Should check is_valid_time_for_world or similar
-        constraints_str = "\n".join(str(c) for c in result)
-
-        # This is a structural test - actual method names may vary
-        assert len(constraints_str) > 0, "Should generate constraints with time validity checks"
-
-
-class TestMultipleFormulas:
-    """Tests for handling multiple formulas."""
-
-    def test_different_formulas_different_constraints(self, generator):
-        """Test that different formulas generate independent constraints."""
-        formula_str1 = "Box_p"
-        formula_str2 = "Box_q"
-
-        class MockFormula:
-            pass
-
-        formula_ast1 = MockFormula()
-        formula_ast2 = MockFormula()
-
-        pred1 = z3.Function("Box_p_accessible_world", z3.IntSort(), z3.IntSort(), z3.IntSort())
-        pred2 = z3.Function("Box_q_accessible_world", z3.IntSort(), z3.IntSort(), z3.IntSort())
-
-        result1 = generator.generate_witness_constraints(formula_str1, formula_ast1, pred1)
-        result2 = generator.generate_witness_constraints(formula_str2, formula_ast2, pred2)
-
-        # Both should generate constraints
-        assert len(result1) > 0, "First formula should generate constraints"
-        assert len(result2) > 0, "Second formula should generate constraints"
-
-        # Constraints should reference different predicates
-        constraints_str1 = "\n".join(str(c) for c in result1)
-        constraints_str2 = "\n".join(str(c) for c in result2)
-
-        assert "Box_p_accessible_world" in constraints_str1, "First should reference Box_p"
-        assert "Box_q_accessible_world" in constraints_str2, "Second should reference Box_q"
+from model_checker.theory_lib.bimodal.semantic.formula import Atom, Bot, Box, Imp, Snce, Untl
+from model_checker.theory_lib.bimodal.semantic.witness_constraints import (
+    WitnessConstraintGenerator,
+)
+from model_checker.theory_lib.bimodal.semantic.witness_registry import WitnessRegistry
+
+P = Atom("p")
+Q = Atom("q")
+BOX_P = Box(P)
+
+
+def _contains_quantifier(expr) -> bool:
+    """Recursively walk a Z3 AST looking for a `ForAll`/`Exists` node."""
+    if z3.is_quantifier(expr):
+        return True
+    return any(_contains_quantifier(child) for child in expr.children())
+
+
+class TestLocalCoherenceIsQuantifierFree:
+    def test_no_quantifier_node_for_a_closure_with_every_connective(self):
+        until = Untl(guard=P, event=Q)
+        since = Snce(guard=P, event=Q)
+        closure = [P, Q, Bot(), Imp(P, Q), BOX_P, until, since]
+        registry = WitnessRegistry(back=2, mid=2, fwd=2, closure=closure)
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.local_coherence_constraints(lasso=0)
+        assert constraints, "expected at least one constraint"
+        for constraint in constraints:
+            assert not _contains_quantifier(constraint)
+
+    def test_target_constraints_are_quantifier_free(self):
+        registry = WitnessRegistry(back=2, mid=2, fwd=2, closure=[P, Q])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.target_constraints(premises=[P], conclusions=[Q])
+        assert constraints
+        for constraint in constraints:
+            assert not _contains_quantifier(constraint)
+
+
+class TestLocalCoherenceDiscrimination:
+    """A hand-built satisfying assignment must be SAT together with the generated constraints;
+    a hand-built incoherent one must be UNSAT."""
+
+    def build(self):
+        closure = [P, BOX_P]
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=closure)
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.local_coherence_constraints(lasso=0)
+        return registry, generator, constraints
+
+    def test_coherent_assignment_is_sat(self):
+        registry, _, constraints = self.build()
+        solver = z3.Solver()
+        solver.add(*constraints)
+        # box_p's guess agrees with its label membership at every position (all positions share
+        # one slot each since back=mid=fwd=1): guess(p) True, box_p present everywhere.
+        solver.add(registry.guess(P) == True)
+        for t in (-1, 0, 1):
+            solver.add(registry.bit(0, t, BOX_P) == True)
+        assert solver.check() == z3.sat
+
+    def test_incoherent_assignment_is_unsat(self):
+        """`bx(p) = False` but the label carries `Box(p)` anyway -- violates the box
+        biconditional (mirrors `TestRecheckLocalCoherentFailure` in `test_certificate.py`)."""
+        registry, _, constraints = self.build()
+        solver = z3.Solver()
+        solver.add(*constraints)
+        solver.add(registry.guess(P) == False)
+        solver.add(registry.bit(0, 0, BOX_P) == True)
+        assert solver.check() == z3.unsat
+
+    def test_bot_is_never_satisfiable_in_a_label(self):
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[Bot()])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.local_coherence_constraints(lasso=0)
+        solver = z3.Solver()
+        solver.add(*constraints)
+        solver.add(registry.bit(0, 0, Bot()) == True)
+        assert solver.check() == z3.unsat
+
+    def test_until_unfolding_is_enforced(self):
+        """`(p U q)` at `t` must agree with `q@(t+1) or (p@(t+1) and (p U q)@(t+1))` -- forcing
+        the until bit true while both disjuncts are false must be UNSAT."""
+        until = Untl(guard=P, event=Q)
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P, Q, until])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.local_coherence_constraints(lasso=0)
+        solver = z3.Solver()
+        solver.add(*constraints)
+        solver.add(registry.bit(0, 0, until) == True)
+        solver.add(registry.bit(0, 1, Q) == False)
+        solver.add(registry.bit(0, 1, P) == False)
+        assert solver.check() == z3.unsat
+
+
+class TestTargetConstraints:
+    def test_exactly_one_selector_is_satisfiable(self):
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.target_constraints(premises=[], conclusions=[])
+        solver = z3.Solver()
+        solver.add(*constraints)
+        assert solver.check() == z3.sat
+
+    def test_two_selectors_true_is_unsat(self):
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.target_constraints(premises=[], conclusions=[])
+        solver = z3.Solver()
+        solver.add(*constraints)
+        window = list(registry.target_window())
+        solver.add(generator.sel(window[0]) == True)
+        solver.add(generator.sel(window[1]) == True)
+        assert solver.check() == z3.unsat
+
+    def test_no_selector_true_is_unsat(self):
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.target_constraints(premises=[], conclusions=[])
+        solver = z3.Solver()
+        solver.add(*constraints)
+        for t in registry.target_window():
+            solver.add(generator.sel(t) == False)
+        assert solver.check() == z3.unsat
+
+    def test_selected_position_must_carry_every_premise(self):
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.target_constraints(premises=[P], conclusions=[])
+        solver = z3.Solver()
+        solver.add(*constraints)
+        t0 = list(registry.target_window())[0]
+        solver.add(generator.sel(t0) == True)
+        solver.add(registry.bit(0, t0, P) == False)
+        assert solver.check() == z3.unsat
+
+    def test_selected_position_must_not_carry_any_conclusion(self):
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.target_constraints(premises=[], conclusions=[P])
+        solver = z3.Solver()
+        solver.add(*constraints)
+        t0 = list(registry.target_window())[0]
+        solver.add(generator.sel(t0) == True)
+        solver.add(registry.bit(0, t0, P) == True)
+        assert solver.check() == z3.unsat
+
+    def test_unselected_positions_are_unconstrained_by_target(self):
+        """A premise absent at a non-selected position must not, by itself, force UNSAT."""
+        registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P])
+        generator = WitnessConstraintGenerator(registry)
+        constraints = generator.target_constraints(premises=[P], conclusions=[])
+        solver = z3.Solver()
+        solver.add(*constraints)
+        window = list(registry.target_window())
+        solver.add(generator.sel(window[0]) == True)
+        solver.add(registry.bit(0, window[0], P) == True)  # satisfy the selected position
+        solver.add(registry.bit(0, window[1], P) == False)  # unselected: unconstrained
+        assert solver.check() == z3.sat
