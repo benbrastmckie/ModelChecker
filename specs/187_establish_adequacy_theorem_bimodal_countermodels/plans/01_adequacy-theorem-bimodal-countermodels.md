@@ -234,44 +234,44 @@ tests, and the recorded reasons for discrete time only.
 
 ---
 
-### Phase 3: Certificate fixture corpus with a self-contained window evaluator [NOT STARTED]
+### Phase 3: Certificate fixture corpus with a self-contained window evaluator [COMPLETED]
 
 **Goal**: A JSON fixture corpus in the wire format, plus a test module that decodes and evaluates
 the four conditions over an explicit window parameter, mechanically demonstrating that the proved
 window catches a violation the one-period window misses.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/` and write a
+- [x] Create `code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/` and write a
       `README.md` there stating the wire contract, that the corpus is checker-independent, and
-      that expected verdicts are adjudicated by the Lean binary where available.
-- [ ] Write a positive fixture: a family that satisfies (C1)-(C4), expected verdict
-      `countermodel`.
-- [ ] Write a coherent-but-not-fulfilling fixture (infinite postponement): an eventuality carried
+      that expected verdicts are adjudicated by the Lean binary where available. *(completed)*
+- [x] Write a positive fixture: a family that satisfies (C1)-(C4), expected verdict
+      `countermodel`. *(completed)*
+- [x] Write a coherent-but-not-fulfilling fixture (infinite postponement): an eventuality carried
       forward at every position with its event never labelled. Expected verdict `rejected` with
-      condition `fulfilling`.
-- [ ] Write a box-faithfulness-only fixture: (C1), (C2) and (C4) hold, `bx` disagrees with actual
-      labelling at some position. Expected verdict `rejected` with condition `box_faithful`.
-- [ ] Write the window-discriminating fixture(s): a violation sited in the outer band
+      condition `fulfilling`. *(completed)*
+- [x] Write a box-faithfulness-only fixture: (C1), (C2) and (C4) hold, `bx` disagrees with actual
+      labelling at some position. Expected verdict `rejected` with condition `box_faithful`. *(completed)*
+- [x] Write the window-discriminating fixture(s): a violation sited in the outer band
       `[-2*nb, -nb)` that no position in `[-nb, nm + nf)` exhibits. Construction sketch: the
       forward region is genuinely one-period-representative (for `t >= nm`, the label triple at
       `t` recurs at `t - nf`), but the back region is not, because a position just left of the
       first repeated back period has the mid segment to its right while its periodic image does
       not — the seam between the repeated `back` period and `mid` is where the neighbourhoods
-      differ. Build the violation at that seam, once for local coherence and once for fulfilment.
-- [ ] Write `expected_verdicts.json` mapping each fixture filename to its expected status,
-      condition, and (where determinate) lasso and position.
-- [ ] Write `code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate_fixtures.py`
+      differ. Build the violation at that seam, once for local coherence and once for fulfilment. *(deviation: altered — only the local-coherence-side seam discriminates; the fulfilment-side seam was attempted and found non-discriminating, per the Scope Hypothesis escape hatch; evidence recorded in fixtures/certificates/README.md)*
+- [x] Write `expected_verdicts.json` mapping each fixture filename to its expected status,
+      condition, and (where determinate) lasso and position. *(completed)*
+- [x] Write `code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate_fixtures.py`
       containing a self-contained decoder (three-segment unroll to a total label function over the
       integers) and direct evaluators for (C1)-(C4) parameterised by a half-open window. The
       module MUST NOT import from `model_checker.theory_lib.bimodal.semantic` — its independence
-      from the theory under test is the point.
-- [ ] Assert, per fixture, that evaluation over `[-2*nb, nm + 2*nf)` yields the expected verdict;
+      from the theory under test is the point. *(completed)*
+- [x] Assert, per fixture, that evaluation over `[-2*nb, nm + 2*nf)` yields the expected verdict;
       and for the discriminating fixture(s), that evaluation over `[-nb, nm + nf)` yields
       *no* violation while evaluation over `[-2*nb, nm + 2*nf)` yields one, with the offending
-      position reported and asserted to lie in the outer band.
-- [ ] Add a test asserting every fixture parses as the wire format: `target` present with `time`
+      position reported and asserted to lie in the outer band. *(completed)*
+- [x] Add a test asserting every fixture parses as the wire format: `target` present with `time`
       present, formula tags drawn from the six-tag vocabulary, every label a list of formulas,
-      `back` and `fwd` non-empty, no atom carrying a fresh index.
+      `back` and `fwd` non-empty, no atom carrying a fresh index. *(completed)*
 
 **Timing**: 2 hours
 

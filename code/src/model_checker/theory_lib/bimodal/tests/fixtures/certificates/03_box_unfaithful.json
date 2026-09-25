@@ -1,0 +1,45 @@
+{
+  "target": {
+    "premises": [],
+    "conclusions": [
+      {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    ],
+    "time": 0
+  },
+  "bx": [
+    [
+      {
+        "tag": "atom",
+        "name": "p"
+      },
+      false
+    ]
+  ],
+  "lassos": [
+    {
+      "back": [
+        [
+          {
+            "tag": "atom",
+            "name": "p"
+          }
+        ]
+      ],
+      "mid": [],
+      "fwd": [
+        [
+          {
+            "tag": "atom",
+            "name": "p"
+          }
+        ]
+      ]
+    }
+  ]
+}

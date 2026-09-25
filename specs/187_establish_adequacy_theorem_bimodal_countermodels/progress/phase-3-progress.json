@@ -1,0 +1,35 @@
+{
+  "phase": 3,
+  "phase_name": "Certificate fixture corpus with a self-contained window evaluator",
+  "started_at": "2026-09-25T06:00:00Z",
+  "last_updated": "2026-09-25T07:10:00Z",
+  "objectives": [
+    {"id": 1, "description": "README.md for fixtures dir", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/README.md"]},
+    {"id": 2, "description": "Positive fixture", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/01_positive_box.json"]},
+    {"id": 3, "description": "Coherent-but-not-fulfilling fixture", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/02_infinite_postponement.json"]},
+    {"id": 4, "description": "Box-faithfulness-only fixture", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/03_box_unfaithful.json"]},
+    {"id": 5, "description": "Window-discriminating fixture(s)", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/04_window_discriminator_coherence.json"]},
+    {"id": 6, "description": "expected_verdicts.json", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/expected_verdicts.json"]},
+    {"id": 7, "description": "test_certificate_fixtures.py self-contained decoder+evaluators", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate_fixtures.py"]},
+    {"id": 8, "description": "Window discrimination assertions", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate_fixtures.py"]},
+    {"id": 9, "description": "Wire-format parse assertions", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate_fixtures.py"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [
+    {
+      "approach": "Construct a fulfilment-side window-discriminating fixture at the back seam (nb=1, mirroring the local-coherence construction), by making an until formula true throughout an unbounded back region with its event withheld.",
+      "result": "failed",
+      "reason": "Keeping (C1) coherent throughout the whole back region while withholding the event forces the guard to be present at every back position too (to sustain the carry-forward fixpoint branch); once the guard is present everywhere, it serves as a witness-guard from any back position all the way to the forward boundary, so fulfilment succeeds uniformly regardless of distance -- no position in the outer band is left violating while the narrow window is clean. Consistent with Decide.lean's own characterisation of the fulfilment window as resting on two separate facts (a bounded witness plus periodicity), not a pure periodicity argument like local coherence and box faithfulness."
+    }
+  ],
+  "deviations": [
+    {
+      "task_id": "3.5",
+      "description": "Build the violation at that seam, once for local coherence and once for fulfilment.",
+      "type": "altered",
+      "reason": "The fulfilment-side seam was attempted and found non-discriminating (see approaches_tried); per the phase's own Scope Hypothesis, the coherence-side fixture ships alone with the negative finding recorded in fixtures/certificates/README.md's dedicated section.",
+      "annotation": "*(deviation: altered — only the local-coherence-side seam discriminates; the fulfilment-side seam was attempted and found non-discriminating, per the Scope Hypothesis escape hatch; evidence recorded in fixtures/certificates/README.md)*"
+    }
+  ],
+  "handoff_count": 0
+}

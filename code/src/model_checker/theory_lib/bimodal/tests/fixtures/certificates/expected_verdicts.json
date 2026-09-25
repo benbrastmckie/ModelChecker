@@ -1,0 +1,28 @@
+{
+  "01_positive_box.json": {
+    "status": "countermodel",
+    "time": 0
+  },
+  "02_infinite_postponement.json": {
+    "status": "rejected",
+    "condition": "fulfilling",
+    "lasso": 0,
+    "position": -2
+  },
+  "03_box_unfaithful.json": {
+    "status": "rejected",
+    "condition": "box_faithful",
+    "lasso": null,
+    "position": null
+  },
+  "04_window_discriminator_coherence.json": {
+    "status": "rejected",
+    "condition": "local_coherent",
+    "lasso": 0,
+    "position": -2,
+    "discriminates_window": true,
+    "outer_band": [-2, -1],
+    "narrow_window": [-1, 1],
+    "wide_window": [-2, 2]
+  }
+}

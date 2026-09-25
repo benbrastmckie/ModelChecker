@@ -1,0 +1,59 @@
+{
+  "target": {
+    "premises": [],
+    "conclusions": [
+      {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "e"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "g"
+        }
+      }
+    ],
+    "time": 0
+  },
+  "bx": [],
+  "lassos": [
+    {
+      "back": [
+        [
+          {
+            "tag": "untl",
+            "event": {
+              "tag": "atom",
+              "name": "e"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "g"
+            }
+          }
+        ]
+      ],
+      "mid": [],
+      "fwd": [
+        [
+          {
+            "tag": "atom",
+            "name": "e"
+          },
+          {
+            "tag": "untl",
+            "event": {
+              "tag": "atom",
+              "name": "e"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "g"
+            }
+          }
+        ]
+      ]
+    }
+  ]
+}

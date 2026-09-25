@@ -1,0 +1,64 @@
+{
+  "target": {
+    "premises": [
+      {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    ],
+    "conclusions": [
+      {
+        "tag": "atom",
+        "name": "q"
+      }
+    ],
+    "time": 0
+  },
+  "bx": [
+    [
+      {
+        "tag": "atom",
+        "name": "p"
+      },
+      true
+    ]
+  ],
+  "lassos": [
+    {
+      "back": [
+        [
+          {
+            "tag": "atom",
+            "name": "p"
+          },
+          {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        ]
+      ],
+      "mid": [],
+      "fwd": [
+        [
+          {
+            "tag": "atom",
+            "name": "p"
+          },
+          {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        ]
+      ]
+    }
+  ]
+}
