@@ -1,0 +1,517 @@
+{
+  "example": "BM_CM_4",
+  "probe_budget": 40,
+  "host_note": "single process, sequential runs (renamed then baseline_control then counter_states), no concurrent solver work",
+  "gate": {
+    "criterion": "renamed arm must show zero undecided draws across >= 20 seeds, with every decided draw match/model_found=true",
+    "result": "FAILED",
+    "reason": "5/25 renamed-arm seeds (5, 7, 13, 15, 24) produced undecided (timeout) draws at the 40s probe budget; the baseline (unmodified) arm at the same seeds and budget produced FEWER undecided draws (2/25: seeds 7, 17), meaning the rename does not clear the bar and does not even outperform the unmodified construction under a genuine seed sweep."
+  },
+  "renamed_arm_seed_sweep": {
+    "example": "BM_CM_4",
+    "arm": "renamed",
+    "axiom": null,
+    "probe_budget": 40.0,
+    "expectation": true,
+    "N": 2,
+    "M": 2,
+    "results": {
+      "1": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 1.45,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 1.46
+      },
+      "2": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.74,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.75
+      },
+      "3": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 6.18,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 6.19
+      },
+      "4": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 37.66,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 37.66
+      },
+      "5": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 40.22,
+        "error": null,
+        "wall_s": 40.23
+      },
+      "6": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.31,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.32
+      },
+      "7": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 40.19,
+        "error": null,
+        "wall_s": 40.19
+      },
+      "8": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 1.38,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 1.38
+      },
+      "9": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 3.21,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 3.22
+      },
+      "10": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 23.01,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 23.02
+      },
+      "11": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 6.93,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 6.93
+      },
+      "12": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 6.92,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 6.92
+      },
+      "13": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 40.21,
+        "error": null,
+        "wall_s": 40.21
+      },
+      "14": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.57,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.57
+      },
+      "15": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 40.2,
+        "error": null,
+        "wall_s": 40.2
+      },
+      "16": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.96,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.96
+      },
+      "17": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 11.34,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 11.34
+      },
+      "18": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 4.17,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 4.17
+      },
+      "19": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 9.56,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 9.56
+      },
+      "20": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 1.21,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 1.21
+      },
+      "21": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 11.41,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 11.41
+      },
+      "22": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 4.08,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 4.08
+      },
+      "23": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.24,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.25
+      },
+      "24": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 40.16,
+        "error": null,
+        "wall_s": 40.17
+      },
+      "25": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.27,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.27
+      }
+    }
+  },
+  "baseline_arm_seed_sweep_control": {
+    "example": "BM_CM_4",
+    "arm": "baseline",
+    "axiom": null,
+    "probe_budget": 40.0,
+    "expectation": true,
+    "N": 2,
+    "M": 2,
+    "results": {
+      "1": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 1.47,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 1.48
+      },
+      "2": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.38,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.38
+      },
+      "3": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.7,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.71
+      },
+      "4": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.26,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.27
+      },
+      "5": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 3.54,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 3.54
+      },
+      "6": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.67,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.67
+      },
+      "7": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 40.17,
+        "error": null,
+        "wall_s": 40.17
+      },
+      "8": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 5.08,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 5.08
+      },
+      "9": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.29,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.3
+      },
+      "10": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 8.0,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 8.0
+      },
+      "11": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.71,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.72
+      },
+      "12": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 1.54,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 1.54
+      },
+      "13": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 3.71,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 3.71
+      },
+      "14": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.49,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.5
+      },
+      "15": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 4.47,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 4.47
+      },
+      "16": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 26.46,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 26.46
+      },
+      "17": {
+        "model_found": false,
+        "timeout": true,
+        "check_result": "inconclusive",
+        "z3_model_status": false,
+        "solving_time": 40.19,
+        "error": null,
+        "wall_s": 40.19
+      },
+      "18": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 1.49,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 1.49
+      },
+      "19": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.81,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.81
+      },
+      "20": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 3.9,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 3.91
+      },
+      "21": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.97,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.97
+      },
+      "22": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.6,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.6
+      },
+      "23": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.32,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.33
+      },
+      "24": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 1.0,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 1.01
+      },
+      "25": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 0.24,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 0.24
+      }
+    }
+  },
+  "renamed_arm_counter_states": {
+    "example": "BM_CM_4",
+    "arm": "renamed",
+    "probe_budget": 40.0,
+    "expectation": true,
+    "results": {
+      "0": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 2.18,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 2.18
+      },
+      "17": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 2.17,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 2.18
+      },
+      "30": {
+        "model_found": true,
+        "timeout": false,
+        "check_result": "match",
+        "z3_model_status": true,
+        "solving_time": 2.13,
+        "error": "Interpretation error: BimodalProposition.truth_value_at() missing 1 required positional argument: 'eval_time'",
+        "wall_s": 2.13
+      }
+    }
+  }
+}
