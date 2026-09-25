@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import pytest
 
+from model_checker import z3_shim as z3
 from model_checker.syntactic import Syntax
 from model_checker.theory_lib.bimodal.operators import bimodal_operators
+from model_checker.theory_lib.bimodal.semantic import certificate as certificate_module
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Atom, Box, translate
 
@@ -149,3 +151,109 @@ class TestFinalizeCertificateIsIdempotent:
         semantics.finalize_certificate()
         assert semantics.frame_constraints is alias
         assert len(alias) > 0
+
+
+def _solve(semantics, premises, conclusions):
+    """Directly assemble and solve the certificate search's constraint set, bypassing
+    ModelConstraints/BimodalStructure (not yet rewritten -- Phase 12). Mirrors exactly what
+    ModelConstraints.__init__ and BimodalStructure._setup_solver will do once they exist:
+    premise/conclusion behavior first (so the closure is fully known), then
+    finalize_certificate(), then solve."""
+    premise_constraints = [semantics.premise_behavior(p) for p in premises]
+    conclusion_constraints = [semantics.conclusion_behavior(c) for c in conclusions]
+    semantics.finalize_certificate()
+
+    solver = z3.Solver()
+    for constraint in semantics.frame_constraints + premise_constraints + conclusion_constraints:
+        solver.add(constraint)
+    result = solver.check()
+    return solver, result
+
+
+class TestCertificateExtraction:
+    def test_extracted_family_from_a_simple_countermodel_passes_the_rechecker(self):
+        """A / B: A true and B false somewhere is trivially satisfiable with no boxes."""
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        premise = _sentence("A")
+        conclusion = _sentence("B")
+        solver, result = _solve(semantics, [premise], [conclusion])
+        assert result == z3.sat
+
+        family, target_time = semantics.extract_certificate(solver.model())
+        verdict = certificate_module.recheck(
+            family,
+            premises=[translate(premise)],
+            conclusions=[translate(conclusion)],
+            target_time=target_time,
+        )
+        assert verdict["status"] == "countermodel", verdict
+
+    def test_extracted_family_for_a_boxed_premise_has_a_witness_lasso_when_guessed_false(self):
+        """\\Box A / B: forces the search to consider a witness lasso for A (the guess may
+        end up true or false depending on segment lengths; either way extraction must
+        round-trip through the re-checker without a structural violation)."""
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        premise = _sentence("\\Box A")
+        conclusion = _sentence("B")
+        solver, result = _solve(semantics, [premise], [conclusion])
+        assert result == z3.sat
+
+        family, target_time = semantics.extract_certificate(solver.model())
+        verdict = certificate_module.recheck(
+            family,
+            premises=[translate(premise)],
+            conclusions=[translate(conclusion)],
+            target_time=target_time,
+        )
+        assert verdict["status"] == "countermodel", verdict
+        # Main lasso plus exactly one witness lasso for the single boxed subformula.
+        assert len(family.lassos) == 2
+
+    def test_export_certificate_json_round_trips_through_recheck_json(self):
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        premise = _sentence("A")
+        conclusion = _sentence("B")
+        solver, result = _solve(semantics, [premise], [conclusion])
+        assert result == z3.sat
+
+        family, target_time = semantics.extract_certificate(solver.model())
+        wire = semantics.export_certificate_json(family, target_time)
+        assert wire["target"]["time"] == target_time
+        assert wire["target"]["premises"] == [{"tag": "atom", "name": "A"}]
+        assert wire["target"]["conclusions"] == [{"tag": "atom", "name": "B"}]
+        verdict = certificate_module.recheck_json(wire)
+        assert verdict["status"] == "countermodel", verdict
+
+
+from model_checker.theory_lib.bimodal.tests.integration.test_certificate_lean_agreement import (  # noqa: E402
+    _SKIP_REASON as _LEAN_SKIP_REASON,
+    _run_check_certificate as _run_lean_check_certificate,
+    PER_FIXTURE_TIMEOUT_SECONDS as _LEAN_TIMEOUT_SECONDS,
+)
+
+
+@pytest.mark.skipif(_LEAN_SKIP_REASON is not None, reason=_LEAN_SKIP_REASON or "")
+class TestExportedCertificateAgreesWithLeanBinary:
+    """Verification criterion: exported JSON for an extracted certificate is accepted by the
+    live `lake exe check_certificate` binary when available (reusing
+    `test_certificate_lean_agreement.py`'s resolution/subprocess plumbing rather than
+    duplicating it -- matching the Phase 8 handoff's precedent of extending, not
+    re-implementing, that module's harness)."""
+
+    def test_exported_json_for_a_simple_countermodel_agrees_with_the_lean_binary(self):
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        premise = _sentence("A")
+        conclusion = _sentence("B")
+        solver, result = _solve(semantics, [premise], [conclusion])
+        assert result == z3.sat
+
+        family, target_time = semantics.extract_certificate(solver.model())
+        wire = semantics.export_certificate_json(family, target_time)
+        python_verdict = certificate_module.recheck_json(wire)
+
+        lean_verdict = _run_lean_check_certificate(wire, _LEAN_TIMEOUT_SECONDS)
+        assert lean_verdict is not None, "lake exe check_certificate did not respond in time"
+        assert lean_verdict["status"] == python_verdict["status"] == "countermodel", (
+            python_verdict,
+            lean_verdict,
+        )

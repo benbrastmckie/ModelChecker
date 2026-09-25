@@ -83,12 +83,14 @@ extraction from a satisfying Z3 model is `extract_certificate` (a later phase).
 
 from __future__ import annotations
 
-from typing import Any, Dict, FrozenSet, List, Optional
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 from model_checker import z3_shim as z3
 
+from model_checker.solver import is_true
 from model_checker.models.semantic import SemanticDefaults
 
+from .certificate import LabelledLasso, WitnessFamily
 from .formula import Box, Formula, subformula_closure, translate
 from .witness_registry import WitnessRegistry
 from .witness_constraints import WitnessConstraintGenerator
@@ -153,6 +155,12 @@ class BimodalSemantics(SemanticDefaults):
         # (Phases 7-8), sharing one closure that grows as premises/conclusions are
         # translated (see _register_closure and D6's module-docstring section).
         self._known_closure: FrozenSet[Formula] = frozenset()
+        # Every premise/conclusion's translation, in the order premise_behavior/
+        # conclusion_behavior were called (matching ModelConstraints.__init__'s own
+        # per-premise/conclusion order) -- Phase 10's extraction and JSON export need
+        # this list; true_at/false_at do not (see their own docstrings).
+        self._premise_formulas: List[Formula] = []
+        self._conclusion_formulas: List[Formula] = []
         self.witness_registry = WitnessRegistry(
             self.back, self.mid, self.fwd,
             closure=frozenset(),
@@ -165,6 +173,12 @@ class BimodalSemantics(SemanticDefaults):
         # by-reference copy (models/constraints.py:80) observes the mutation.
         self.frame_constraints: List["z3.BoolRef"] = []
         self._certificate_finalized = False
+        # Overwritten by finalize_certificate() with the definitive list once every boxed
+        # closure member's witness lasso has been allocated; this default (main lasso
+        # only) is exactly what finalize_certificate() would produce for a closure with no
+        # boxes, so extract_certificate stays correct even if called (unusually) before a
+        # solve that never needed finalize_certificate to allocate anything further.
+        self._active_lassos: List[int] = [0]
 
         # D5: premise/conclusion behaviour is the guarded windowed implication over the
         # one-hot target selector, not a lookup at a fixed evaluation point.
@@ -214,6 +228,7 @@ class BimodalSemantics(SemanticDefaults):
         """D5: `And(Implies(sel[t], bit(0, t, tr(premise))) for t in target_window())`."""
         formula = translate(premise)
         self._register_closure(formula)
+        self._premise_formulas.append(formula)
         window = self.witness_registry.target_window()
         return z3.And(*[
             z3.Implies(
@@ -227,6 +242,7 @@ class BimodalSemantics(SemanticDefaults):
         """D5: the negated form of `_premise_behavior`, for a conclusion."""
         formula = translate(conclusion)
         self._register_closure(formula)
+        self._conclusion_formulas.append(formula)
         window = self.witness_registry.target_window()
         return z3.And(*[
             z3.Implies(
@@ -302,6 +318,10 @@ class BimodalSemantics(SemanticDefaults):
                 if index not in lassos:
                     lassos.append(index)
 
+        # Recorded for extract_certificate (Phase 10): the definitive, ordered list of
+        # lasso indices in this search, main lasso (0) always first.
+        self._active_lassos: List[int] = lassos
+
         for lasso in lassos:
             self.frame_constraints.extend(
                 self.constraint_generator.local_coherence_constraints(lasso)
@@ -317,3 +337,108 @@ class BimodalSemantics(SemanticDefaults):
         self.frame_constraints.extend(
             self.constraint_generator.target_constraints([], [])
         )
+
+    # ------------------------------------------------------------------
+    # Certificate extraction from a satisfying Z3 model (Phase 10)
+    # ------------------------------------------------------------------
+
+    def extract_certificate(self, z3_model: Any) -> Tuple[WitnessFamily, int]:
+        """Build the `WitnessFamily` and target time a satisfying `z3_model` denotes.
+
+        Must be called after `finalize_certificate()` (so `self._active_lassos` and
+        `self.witness_registry.closure` are the final, complete ones) and after a
+        satisfiable solve. For each lasso in `self._active_lassos`, reads one label per
+        position in `self.witness_registry.target_window()` -- exactly one representative
+        position per slot, in `back`-then-`mid`-then-`fwd` order -- and splits that window
+        into the three segments `LabelledLasso` expects. Reads every boxed closure member's
+        guess into `bx`. Reads the one-hot target selector to recover the concrete target
+        time (`self.constraint_generator.sel`); exactly one must be true, since
+        `finalize_certificate` asserts exactly-one over the same selector set.
+
+        Returns `(family, target_time)`. Callers (the Phase 12 structure re-check hook)
+        must independently re-check the returned family via `certificate.recheck` before
+        treating it as a countermodel -- see `docs/ADEQUACY.md` section 6.2 (obligation S3).
+        """
+        registry = self.witness_registry
+        closure = registry.closure
+        window = list(registry.target_window())
+
+        lassos: List[LabelledLasso] = []
+        for lasso_index in self._active_lassos:
+            labels = [
+                frozenset(
+                    formula
+                    for formula in closure
+                    if is_true(
+                        z3_model.eval(registry.bit(lasso_index, t, formula), model_completion=True)
+                    )
+                )
+                for t in window
+            ]
+            back = tuple(labels[: registry.nb])
+            mid = tuple(labels[registry.nb: registry.nb + registry.nm])
+            fwd = tuple(labels[registry.nb + registry.nm:])
+            lassos.append(LabelledLasso(back=back, mid=mid, fwd=fwd))
+
+        bx: Dict[Formula, bool] = {}
+        for formula in closure:
+            if isinstance(formula, Box):
+                bx[formula.child] = is_true(
+                    z3_model.eval(registry.guess(formula.child), model_completion=True)
+                )
+
+        family = WitnessFamily(bx=bx, lassos=tuple(lassos))
+
+        target_time: Optional[int] = None
+        for t in window:
+            selector = self.constraint_generator.sel(t)
+            if is_true(z3_model.eval(selector, model_completion=True)):
+                target_time = t
+                break
+        if target_time is None:
+            raise RuntimeError(
+                "extract_certificate: no position of the one-hot target selector is true "
+                "in this model -- finalize_certificate()'s exactly-one constraint should "
+                "make this impossible for a genuinely satisfying model"
+            )
+
+        return family, target_time
+
+    def export_certificate_json(
+        self, family: WitnessFamily, target_time: int
+    ) -> Dict[str, object]:
+        """Serialize `family` to the certificate wire format (`WitnessFamily.to_json`),
+        using this search's own recorded premises/conclusions (`_premise_formulas`/
+        `_conclusion_formulas`) and `target_time`."""
+        return family.to_json(
+            premises=self._premise_formulas,
+            conclusions=self._conclusion_formulas,
+            target_time=target_time,
+        )
+
+    def inject_z3_model_values(self, z3_model: Any, original_semantics: "BimodalSemantics", model_constraints: Any) -> None:
+        """Pin every label bit, box guess, and target-selector Boolean from a previous
+        iteration's `z3_model` as a concrete constraint on `model_constraints`.
+
+        Rewritten for the certificate encoding's variable set (label bits, box guesses,
+        the one-hot selector) in place of the retired encoding's world/truth_condition/
+        task_rel variables. `original_semantics`'s registry/generator objects are read for
+        their variable tables; the Z3 `BoolRef` objects themselves are reused directly
+        (their names depend only on lasso/slot/formula, or on formula/position -- never on
+        which `BimodalSemantics` instance created them -- so no reconstruction against
+        `self` is needed). Consumed by the model iterator (Phase 15 wires this in).
+        """
+        registry = original_semantics.witness_registry
+        generator = original_semantics.constraint_generator
+
+        for var in registry._bits.values():
+            value = z3_model.eval(var, model_completion=True)
+            model_constraints.all_constraints.append(var if is_true(value) else z3.Not(var))
+
+        for var in registry._guesses.values():
+            value = z3_model.eval(var, model_completion=True)
+            model_constraints.all_constraints.append(var if is_true(value) else z3.Not(var))
+
+        for var in generator._sel.values():
+            value = z3_model.eval(var, model_completion=True)
+            model_constraints.all_constraints.append(var if is_true(value) else z3.Not(var))

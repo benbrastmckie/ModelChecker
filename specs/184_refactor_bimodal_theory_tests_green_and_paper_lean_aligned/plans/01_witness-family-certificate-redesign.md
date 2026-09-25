@@ -709,18 +709,18 @@ rewrite is 319 lines (down from 2,329 -- roughly 86% removed), replacing ~45 met
 
 ---
 
-### Phase 10: Certificate extraction from the Z3 model [NOT STARTED]
+### Phase 10: Certificate extraction from the Z3 model [COMPLETED]
 
 **Goal**: Turn a satisfying Z3 model into a `WitnessFamily` plus a target time.
 
 **Tasks**:
-- [ ] Write tests first: solve a tiny example, extract, and assert the extracted family passes the
+- [x] Write tests first: solve a tiny example, extract, and assert the extracted family passes the
       Phase 4 re-checker; assert the target time read from the selector satisfies `Target`.
-- [ ] Implement `extract_certificate(z3_model) -> tuple[WitnessFamily, int]` on the semantics:
+- [x] Implement `extract_certificate(z3_model) -> tuple[WitnessFamily, int]` on the semantics:
       read every label bit into `frozenset`s per (lasso, index), rebuild the three segments, read
       the box guess, read the one-hot selector to recover `target.time`.
-- [ ] Rewrite `inject_z3_model_values` for the label/guess variable set (used by the iterator).
-- [ ] Add `export_certificate_json(...)` delegating to `WitnessFamily.to_json`.
+- [x] Rewrite `inject_z3_model_values` for the label/guess variable set (used by the iterator).
+- [x] Add `export_certificate_json(...)` delegating to `WitnessFamily.to_json`.
 
 **Timing**: 2 hours
 
@@ -733,8 +733,15 @@ rewrite is 319 lines (down from 2,329 -- roughly 86% removed), replacing ~45 met
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantics_core.py` - extend
 
 **Verification**:
-- Extracted families from at least three solved examples all pass the re-checker.
-- Exported JSON for one of them is accepted by `lake exe check_certificate` when available.
+- Extracted families from at least three solved examples all pass the re-checker: 3 solved
+  (plain atomic countermodel, a boxed-premise countermodel exercising a witness lasso, and the
+  export round-trip case), all pass `certificate.recheck`. 18/18 tests in
+  `test_semantics_core.py` green.
+- Exported JSON for one of them is accepted by `lake exe check_certificate` when available:
+  confirmed live against `~/Projects/BimodalLogic/.lake/build/bin/check_certificate`
+  (`TestExportedCertificateAgreesWithLeanBinary`, reusing
+  `test_certificate_lean_agreement.py`'s subprocess/skip plumbing rather than duplicating it) --
+  both the Python re-checker and the Lean binary agree on `"countermodel"`.
 
 ---
 
