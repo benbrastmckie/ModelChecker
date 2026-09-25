@@ -380,7 +380,7 @@ function and serialize to the fixed wire shape.
 
 ---
 
-### Phase 4: Pure-Python re-checker of the four conditions [NOT STARTED]
+### Phase 4: Pure-Python re-checker of the four conditions [COMPLETED]
 
 **Goal**: An independent checker of structural validity, local coherence, fulfilment, box
 faithfulness and the target, returning the same verdict vocabulary as the Lean binary.

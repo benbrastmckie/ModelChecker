@@ -215,3 +215,215 @@ class TestWitnessFamilyToJson:
         assert {from_json(f) for f in [c for c in wire["target"]["conclusions"]]} == set(conclusions)
         rebuilt_bx = {from_json(f): b for f, b in wire["bx"]}
         assert rebuilt_bx == bx
+
+
+# ---------------------------------------------------------------------------
+# Phase 4: pure-Python re-checker of the four conditions
+# ---------------------------------------------------------------------------
+#
+# `recheck` mirrors the exact Lean predicates in
+# `~/Projects/BimodalLogic/FormalSystem/Metalogic/Decidability/WitnessFamily/Predicates.lean`
+# (`LocalCoherentLab`, `FulfillingLab`, `BoxFaithful`, `Target`) and the proved window collapses
+# in `Decide.lean` (`coherent_iff_window:335`, `fulfil_iff_window:743`, `mem_all_iff_window:809,
+# 883`) -- restated in this repo's own `tests/fixtures/certificates/README.md` and
+# `docs/ADEQUACY.md`. The positive fixture below is a direct port of
+# `Metalogic/Decidability/WitnessFamily/Examples.lean`'s `posFamily` (T3, report 02 section 3),
+# and the negative fixtures reuse the existing checker-independent fixture corpus at
+# `tests/fixtures/certificates/`.
+
+import pathlib
+
+from model_checker.theory_lib.bimodal.semantic.certificate import recheck
+from model_checker.theory_lib.bimodal.semantic.formula import Bot, Imp, Snce, Untl
+
+_FIXTURES_DIR = pathlib.Path(__file__).parent.parent / "fixtures" / "certificates"
+
+TOP = Imp(Bot(), Bot())
+
+
+def _some_future(phi):
+    return Untl(guard=TOP, event=phi)
+
+
+def _some_past(phi):
+    return Snce(guard=TOP, event=phi)
+
+
+def _neg(phi):
+    return Imp(phi, Bot())
+
+
+def _and(phi, psi):
+    return Imp(Imp(phi, _neg(psi)), Bot())
+
+
+def _or(phi, psi):
+    return Imp(_neg(phi), psi)
+
+
+def _load_fixture(name: str):
+    """Load a wire-format fixture into (family, premises, conclusions, target_time)."""
+    with open(_FIXTURES_DIR / name) as f:
+        raw = json.load(f)
+    premises = [from_json(f) for f in raw["target"].get("premises", [])]
+    conclusions = [from_json(f) for f in raw["target"].get("conclusions", [])]
+    target_time = raw["target"]["time"]
+    bx = {from_json(f): b for f, b in raw.get("bx", [])}
+    lassos = tuple(
+        LabelledLasso(
+            back=tuple(frozenset(from_json(f) for f in label) for label in lasso_raw["back"]),
+            mid=tuple(frozenset(from_json(f) for f in label) for label in lasso_raw.get("mid", [])),
+            fwd=tuple(frozenset(from_json(f) for f in label) for label in lasso_raw["fwd"]),
+        )
+        for lasso_raw in raw["lassos"]
+    )
+    family = WitnessFamily(bx=bx, lassos=lassos)
+    return family, premises, conclusions, target_time
+
+
+class TestRecheckPositiveT3Fixture:
+    """A direct port of `Examples.lean`'s `posFamily`: `p` occurs exactly once along the single
+    history, certifying `□(p ∨ Fp ∨ Pp) ∧ □(p → ¬Pp)` satisfiable (report 02 section 3, T3)."""
+
+    def build(self):
+        p = Atom("p")
+        fp = _some_future(p)
+        pp = _some_past(p)
+        occurs = _or(p, _or(fp, pp))
+        once = Imp(p, _neg(pp))
+        phi_pos = _and(Box(occurs), Box(once))
+
+        lab_back = frozenset({TOP, _neg(p), fp, _or(fp, pp), _neg(pp), occurs, Box(occurs), once, Box(once), phi_pos})
+        lab_mid = frozenset({p, TOP, _neg(fp), _neg(pp), occurs, Box(occurs), once, Box(once), phi_pos})
+        lab_fwd = frozenset({TOP, _neg(p), pp, _neg(fp), _or(fp, pp), occurs, Box(occurs), once, Box(once), phi_pos})
+
+        lasso = LabelledLasso(back=(lab_back,), mid=(lab_mid,), fwd=(lab_fwd,))
+        family = WitnessFamily(bx={occurs: True, once: True}, lassos=(lasso,))
+        return family, [phi_pos], [], 0
+
+    def test_countermodel(self):
+        family, premises, conclusions, target_time = self.build()
+        verdict = recheck(family, premises, conclusions, target_time)
+        assert verdict == {"status": "countermodel", "time": 0}
+
+
+class TestRecheckInfinitePostponementFixture:
+    """`02_infinite_postponement.json`: locally coherent but the `until` obligation is deferred
+    forever -- fulfilment must reject it (a checker that tested only local coherence would not)."""
+
+    def test_rejected_fulfilling(self):
+        family, premises, conclusions, target_time = _load_fixture("02_infinite_postponement.json")
+        verdict = recheck(family, premises, conclusions, target_time)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "fulfilling"
+        assert verdict["failed"][0]["lasso"] == 0
+        assert verdict["failed"][0]["position"] == -2
+
+
+class TestRecheckBoxUnfaithfulFixture:
+    def test_rejected_box_faithful(self):
+        family, premises, conclusions, target_time = _load_fixture("03_box_unfaithful.json")
+        verdict = recheck(family, premises, conclusions, target_time)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "box_faithful"
+
+
+class TestRecheckWindowDiscriminatorFixture:
+    """`04_window_discriminator_coherence.json`: the violation sits in the outer band
+    `[-2*nb, -nb)`, reachable only by the proved wide window, not the one-period window."""
+
+    def test_rejected_local_coherent_at_outer_band_position(self):
+        family, premises, conclusions, target_time = _load_fixture(
+            "04_window_discriminator_coherence.json"
+        )
+        verdict = recheck(family, premises, conclusions, target_time)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "local_coherent"
+        assert verdict["failed"][0]["position"] == -2
+
+    def test_the_wide_window_is_load_bearing_not_cosmetic(self):
+        """Directly exercises the window-bound helpers: the wide window strictly contains the
+        one-period window on both sides, and the violating position (-2) is only in the wide
+        one -- so a re-checker using the narrow window would (wrongly) accept this fixture."""
+        from model_checker.theory_lib.bimodal.semantic.certificate import (
+            _box_window,
+            _coherence_window,
+        )
+
+        family, _, _, _ = _load_fixture("04_window_discriminator_coherence.json")
+        lasso = family.main
+        wide = _coherence_window(lasso)
+        narrow = _box_window(lasso)  # the one-period window, reused here as "the narrow one"
+        assert wide.start < narrow.start and wide.stop > narrow.stop
+        assert -2 in wide
+        assert -2 not in narrow
+
+
+class TestRecheckTargetFailure:
+    def test_rejected_target_when_premise_absent(self):
+        p, q = Atom("p"), Atom("q")
+        # q is in the closure (it's a conclusion), so this is a genuine target failure, not a
+        # structural one: the label carries q but never p, so the premise p is absent at t=0.
+        lasso = LabelledLasso(back=(frozenset({q}),), mid=(), fwd=(frozenset({q}),))
+        family = WitnessFamily(bx={}, lassos=(lasso,))
+        verdict = recheck(family, premises=[p], conclusions=[q], target_time=0)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "target"
+
+    def test_rejected_target_when_conclusion_present(self):
+        p = Atom("p")
+        lasso = LabelledLasso(back=(frozenset({p}),), mid=(), fwd=(frozenset({p}),))
+        family = WitnessFamily(bx={}, lassos=(lasso,))
+        verdict = recheck(family, premises=[], conclusions=[p], target_time=0)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "target"
+
+
+class TestRecheckStructuralFailure:
+    def test_rejected_structural_when_a_label_formula_is_outside_the_closure(self):
+        p, q, r = Atom("p"), Atom("q"), Atom("r")
+        # r never appears in premises/conclusions, so it is outside closure_of([Box(p), q]).
+        lasso = LabelledLasso(back=(frozenset({r}),), mid=(), fwd=(frozenset({r}),))
+        family = WitnessFamily(bx={}, lassos=(lasso,))
+        verdict = recheck(family, premises=[Box(p)], conclusions=[q], target_time=0)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "structural"
+
+    def test_bx_key_outside_the_closure_is_not_a_structural_violation(self):
+        """`WitnessFamily.bx : Formula -> Bool` is Lean-side a total, unrestricted function;
+        `LocalCoherentLab`'s box clause only *applies* when `Box(chi)` is itself in the closure
+        (`Formula.box χ ∈ closureOf (Γ ++ Del) -> ...`), so a `bx` entry for a `chi` whose
+        `Box(chi)` never occurs in the closure is simply irrelevant, not a precondition failure
+        -- unlike a label, which `LabelledLasso.label_sub` requires to be a closure subset by
+        construction. This is intentionally *not* the mirror of the label-outside-closure test
+        above."""
+        p, q, r = Atom("p"), Atom("q"), Atom("r")
+        lasso = LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset(),))
+        family = WitnessFamily(bx={r: True}, lassos=(lasso,))
+        verdict = recheck(family, premises=[Box(p)], conclusions=[q], target_time=0)
+        assert verdict["status"] != "error"
+        # (whatever the verdict, it must not be a structural rejection over the stray bx key)
+        if verdict["status"] == "rejected":
+            assert verdict["failed"][0]["condition"] != "structural"
+
+
+class TestRecheckLocalCoherentFailure:
+    def test_rejected_local_coherent_when_bot_is_labelled(self):
+        # Bot() is trivially in closure_of([Bot()]), so this exercises the local-coherence
+        # "bot never labelled" clause rather than the structural label-outside-closure check.
+        lasso = LabelledLasso(back=(frozenset({Bot()}),), mid=(), fwd=(frozenset({Bot()}),))
+        family = WitnessFamily(bx={}, lassos=(lasso,))
+        verdict = recheck(family, premises=[Bot()], conclusions=[], target_time=0)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "local_coherent"
+
+    def test_rejected_local_coherent_when_box_clause_disagrees_with_guess(self):
+        p = Atom("p")
+        boxed = Box(p)
+        # bx says Box(p) is false, but the label carries Box(p) anyway: violates the
+        # `box χ ∈ label ↔ bx χ` biconditional.
+        lasso = LabelledLasso(back=(frozenset({boxed}),), mid=(), fwd=(frozenset({boxed}),))
+        family = WitnessFamily(bx={p: False}, lassos=(lasso,))
+        verdict = recheck(family, premises=[boxed], conclusions=[], target_time=0)
+        assert verdict["status"] == "rejected"
+        assert verdict["failed"][0]["condition"] == "local_coherent"
