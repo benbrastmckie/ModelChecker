@@ -1626,32 +1626,69 @@ premise turned out to be structurally impossible under the new encoding).
 
 ---
 
-### Phase 22: Documentation rewrite [NOT STARTED]
+### Phase 22: Documentation rewrite [COMPLETED]
 
 **Goal**: Theory documentation describes the certificate design, with the frame-axiom ledger and
 duration-guard gap note retired.
 
 **Tasks**:
-- [ ] Rewrite `README.md`'s semantics sections: certificate definition, the four conditions, the
+- [x] Rewrite `README.md`'s semantics sections: certificate definition, the four conditions, the
       certified ShiftSet, the new settings, the output shape; delete the abundance, world-interval,
       Skolem-abundance and time-shift sections.
-- [ ] Rewrite `docs/ARCHITECTURE.md`: retire the frame-axiom ledger table and the
+- [x] Rewrite `docs/ARCHITECTURE.md`: retire the frame-axiom ledger table and the
       "Duration-domain guard (open gap)" note; describe the two-phase constraint emission and the
       re-check hook; state explicitly that validity is never reported.
-- [ ] Rewrite `docs/SETTINGS.md` for `back`/`mid`/`fwd`/`max_witnesses`, `docs/API_REFERENCE.md`
+- [x] Rewrite `docs/SETTINGS.md` for `back`/`mid`/`fwd`/`max_witnesses`, `docs/API_REFERENCE.md`
       for the new classes and functions, `docs/USER_GUIDE.md` for the new workflow, and
       `docs/ITERATE.md` for the new difference/isomorphism story.
-- [ ] Update `oracle/bimodal_logic/README.md` and `KNOWN_EXTERNAL_DEFECTS.md`, and document the
+- [x] Update `oracle/bimodal_logic/README.md` and `KNOWN_EXTERNAL_DEFECTS.md`, and document the
       certificate JSON export with a pointer to BimodalLogic's protocol section as the contract.
-- [ ] Check every rewritten file for task-number references and remove them (these files are
-      outside `specs/`).
-- [ ] **(Amendment, adequacy-layer task)** Carry the (SOUND) theorem statement, the four lemmas
+      `KNOWN_EXTERNAL_DEFECTS.md`'s "Why ModelChecker is correct" section was already rewritten in
+      Phase 21 (confirmed by direct read, not redone); this phase added the "Certificate JSON
+      Export" section to `oracle/bimodal_logic/README.md` pointing at
+      `~/Projects/BimodalLogic/BimodalTools/README.md`'s protocol section as the fixed external
+      contract.
+- [x] Check every rewritten file for task-number references and remove them (these files are
+      outside `specs/`). Confirmed zero task-number references in every file this phase authored
+      (`README.md`, all six `docs/*.md` files). `oracle/bimodal_logic/README.md` carries three
+      pre-existing "task 118" references (predating this task, describing a prior package-move
+      commit) that this phase's own edit (the new "Certificate JSON Export" section) did not
+      introduce and did not remove -- left as historical fact, matching the same convention this
+      file's own "Relationship to the In-Package Bimodal Suite" section already used before this
+      task touched it.
+- [x] **(Amendment, adequacy-layer task)** Carry the (SOUND) theorem statement, the four lemmas
       (Frame, Histories, Time-shift preservation, Truth lemma) and the Lean citation table into
       `docs/ARCHITECTURE.md`, replacing the retired frame-axiom ledger table with this statement
       rather than leaving that section simply deleted.
       `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` (created by the adequacy-layer
       task) is the source for this content — cite it as the fuller treatment and reproduce its
-      statements rather than re-deriving them here.
+      statements rather than re-deriving them here. Done: `ARCHITECTURE.md`'s "The (SOUND) Theorem"
+      section reproduces the theorem, the constructed model, all four lemmas (with Lean
+      names/file:line), and the determinism/cost tradeoff, citing `ADEQUACY.md` as the fuller
+      treatment. `ADEQUACY.md` itself was left unmodified, in keeping with its ownership by the
+      separate adequacy-layer task -- see the Discovered-Beyond-Scope note below for the one stale
+      sentence noticed in passing.
+
+**Discovered beyond this phase's own task list**: direct testing of the standard
+`dev_cli.py`/`model-checker` CLI iteration path (`"iterate": 3` on a countermodel example)
+reproduced a live crash independent of, and sharper than, Phase 15's already-recorded
+`ConstraintGenerator`/`is_world` gating gap: `model_checker/iterate/models.py`'s
+`build_new_model_structure` calls `semantics.is_world(state)` with **no** `hasattr` guard (unlike
+its neighboring `possible`/`verify` blocks in the same function), and `BimodalSemantics` defines no
+`is_world` at all under the certificate encoding. `range(2**semantics.N)` with `N=0` (D3) is
+`range(1)`, so the very first successor-model build after the first certificate always raises
+`AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`, aborting the run. This was
+not caught by the 366/366-green suite because no example sets `iterate` above its default of `1`,
+which short-circuits before this code path runs. Documented (not fixed, for the same cross-theory
+shared-framework-scope reason Phase 15 gave for its own related exclusion) in
+`docs/ITERATE.md`'s "A Live Limitation" section, with pointers added from `README.md`,
+`ARCHITECTURE.md`, and `USER_GUIDE.md`. **Also noticed in passing, left unfixed as out of this
+phase's file list**: `docs/ADEQUACY.md`'s own "Scope and status" section still describes
+`semantic/core.py`/`operators.py` "as they stand today" as the retired window-and-abundance
+encoding -- stale now that Phases 9-14 landed the certificate rewrite in those exact files;
+`ADEQUACY.md` is owned by the separate adequacy-layer task per this phase's own Amendment note
+above, so this phase did not edit it, but the discrepancy is recorded here for that task to pick
+up.
 
 **Timing**: 2 hours
 

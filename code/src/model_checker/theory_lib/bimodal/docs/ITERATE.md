@@ -1,6 +1,8 @@
 # Bimodal Theory Model Iteration Guide
 
-This guide explains how to find multiple distinct models for bimodal logic formulas using the model iteration feature.
+This guide explains how to find multiple distinct witness-family certificates for bimodal logic
+formulas using the model iteration feature, and states plainly what is and is not currently
+guaranteed by it.
 
 ## Table of Contents
 
@@ -8,410 +10,236 @@ This guide explains how to find multiple distinct models for bimodal logic formu
 - [Basic Usage](#basic-usage)
 - [Configuration](#configuration)
 - [Understanding Results](#understanding-results)
+- [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)
+- [A Live Limitation: `iterate: N > 1` Currently Crashes](#a-live-limitation-iterate-n--1-currently-crashes)
 - [Performance Tips](#performance-tips)
-- [Examples](#examples)
+- [Troubleshooting](#troubleshooting)
+- [See Also](#see-also)
 
 ## Overview
 
-Model iteration in bimodal theory allows you to find multiple distinct models that satisfy your premises while violating your conclusions. This is particularly useful for:
+Model iteration searches for additional witness-family certificates that satisfy the same
+premises and violate the same conclusions as the first. This module was rewritten around the
+certificate encoding's own variables — label bits and box guesses — rather than the retired
+encoding's world histories, task relations, and time-shift tables. See
+`ARCHITECTURE.md`'s "Model Iteration" section and `iterate.py`'s own module docstring for the full
+technical account this guide summarizes.
 
-- **Exploring semantic space**: Understanding different ways temporal-modal formulas can be satisfied
-- **Testing robustness**: Checking if countermodels exist across various world history configurations
-- **Research applications**: Investigating the relationship between temporal and modal dimensions
-- **Educational purposes**: Demonstrating non-uniqueness of models
-
-The bimodal iterator specifically handles:
-- World histories (time-indexed sequences of states)
-- Time intervals for each world
-- Task transitions between consecutive states
-- Modal accessibility across worlds at fixed times
-- Time-shift relations between world histories
+**Read this whole document, especially the limitation section below, before relying on
+`iterate: N > 1` for anything beyond N=1.** This redesign narrowed iteration's scope on purpose
+(see [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)) and,
+independently, exposed a pre-existing framework gap that currently makes `iterate: N > 1` fail
+outright through the standard `dev_cli.py`/`model-checker` CLI path
+(see [A Live Limitation](#a-live-limitation-iterate-n--1-currently-crashes)). Neither is
+speculative; both are demonstrated below.
 
 ## Basic Usage
 
-### Simple Iteration
+### Simple Iteration (N = 1, the safe case)
 
 ```python
 from model_checker import BuildExample
 from model_checker.theory_lib import bimodal
 from model_checker.theory_lib.bimodal.iterate import iterate_example
 
-# Get theory
 theory = bimodal.get_theory()
 
-# Create example
 example = BuildExample("modal_temporal", theory, [
-    ["\\Box p"],           # p is necessary
-    ["\\Future \\Box p"],  # In the future, p will be necessary
-    {"M": 3, "N": 1, "iterate": 3}  # Request 3 models
+    ["\\Box p"],
+    ["\\Future \\Box p"],
+    {"back": 2, "mid": 1, "fwd": 2, "iterate": 1}
 ])
 
-# Find multiple models
-models = iterate_example(example)
-print(f"Found {len(models)} distinct models")
-
-# Display each model
-for i, model in enumerate(models):
-    print(f"\n=== Model {i+1} ===")
-    model.print_world_histories_vertical()
+models = iterate_example(example, max_iterations=1)
+print(f"Found {len(models)} certificate(s)")
+models[0].print_certificate()
 ```
 
-### Using the Iterator Class Directly
+### Requesting more than one certificate
 
 ```python
-from model_checker.theory_lib.bimodal.iterate import BimodalModelIterator
-
-# Create iterator
-iterator = BimodalModelIterator(example)
-
-# Configure iteration
-iterator.max_iterations = 5
-
-# Perform iteration
-models = iterator.iterate()
-
-# Access iteration statistics
-print(f"Total models checked: {iterator.checked_model_count}")
-print(f"Isomorphic models skipped: {iterator.isomorphic_model_count}")
+models = iterate_example(example, max_iterations=3)
 ```
+
+As of this writing, this call **raises** rather than returning up to three certificates — see
+[A Live Limitation](#a-live-limitation-iterate-n--1-currently-crashes). It is documented here in
+its intended shape so the gap is visible against what the API is meant to do, not silently
+omitted.
 
 ## Configuration
 
 ### Iteration Settings
 
-The `iterate` setting in your example configuration controls iteration behavior:
-
 ```python
 settings = {
-    "M": 3,                    # Number of time points
-    "N": 2,                    # Number of atomic propositions
-    "iterate": 5,              # Find up to 5 models
-    "max_time": 10,           # Overall timeout for first model
+    "back": 2,
+    "mid": 1,
+    "fwd": 2,
+    "iterate": 1,       # Safe; see the limitation below for N > 1
+    "max_time": 10,
 }
 ```
 
-### Iterator Configuration
+### Difference Detection
 
-When using the iterator directly, you can configure:
+`BimodalModelIterator._calculate_differences` reports differences in exactly two things now:
 
-```python
-iterator = BimodalModelIterator(example)
+1. **Label bits**: which closure formulas were added to or removed from a lasso's label at a
+   given position
+2. **Box guesses**: which boxed subformulas changed their guessed value between models
 
-# Maximum models to find
-iterator.max_iterations = 10
-
-# Enable debug output
-import logging
-logging.getLogger('model_checker.theory_lib.bimodal.iterate').setLevel(logging.DEBUG)
-```
-
-### Difference Detection Settings
-
-The bimodal iterator tracks differences in:
-1. **World histories**: Changes in state sequences over time
-2. **Truth conditions**: Different valuations for atomic propositions
-3. **Task relations**: Changes in allowed state transitions
-4. **Time intervals**: Different temporal extents for worlds
-5. **Time-shift relations**: How worlds relate through time translation
+The retired encoding's five categories (world histories, truth conditions, task relations, time
+intervals, time-shift relations) no longer apply — there are no world arrays or time-shift tables
+to diff any more; a "model," under this encoding, *is* a label/guess assignment.
 
 ## Understanding Results
 
-### Model Differences
-
-Each generated model includes difference information:
-
-```python
-model = models[1]  # Second model
-if hasattr(model, 'model_differences'):
-    diffs = model.model_differences
-    
-    # World history changes
-    if 'world_histories' in diffs:
-        for world_id, changes in diffs['world_histories'].items():
-            print(f"World {world_id} changed:")
-            for time, change in changes.items():
-                print(f"  Time {time}: {change['old']} -> {change['new']}")
-```
-
 ### Displayed Differences
 
-The iterator automatically displays differences between consecutive models:
+`display_model_differences` prints label and guess differences directly:
 
 ```
 === DIFFERENCES FROM PREVIOUS MODEL ===
 
-World History Changes:
-  World W_0 changed:
-    Time -1: a -> b
-    Time 0: a -> a,b
-  + World W_2 added
-    History: (-1:b) -> (0:a) -> (1:∅)
+Label Changes:
+  L0, position -1: + Box(A)
+  L1, position 0: - A
 
-Truth Condition Changes:
-  Letter a:
-    State b: False -> True
-
-Time Interval Changes:
-  World W_2 interval: None -> (-1, 1)
-
-Time Shift Relations:
-  World W_2 shifts:
-    + Shift +1: -> W_1
-    + Shift -1: -> W_0
+Box Guess Changes:
+  Box(A): False -> True
 ```
 
 ### Interpreting Bimodal Differences
 
-Key aspects to understand:
+- A **label change** means a closure formula's membership at a `(lasso, position slot)` flipped.
+- A **box guess change** means a boxed subformula's global truth value (by box faithfulness, C3)
+  flipped between the two certificates.
 
-1. **World Histories**: Show how states evolve over time within each world
-2. **Time Intervals**: Indicate the temporal extent of each world
-3. **Task Relations**: Define allowed transitions between states
-4. **Truth Conditions**: Determine which propositions hold in which states
-5. **Time Shifts**: Show how worlds relate through temporal translation
+## How Model Diversity Is Actually Enforced
+
+`BaseModelIterator.iterate()`/`iterate_generator()` (`model_checker/iterate/core.py`) never call
+`BimodalModelIterator`'s own `_create_difference_constraint`/`_create_non_isomorphic_constraint`
+directly. They delegate to a composed, theory-agnostic `ConstraintGenerator`
+(`model_checker/iterate/constraints.py`), constructed unconditionally in
+`BaseModelIterator.__init__` and not overridable per theory. That generator's own exclusion logic
+is entirely gated on `hasattr(semantics, 'is_world')` — true of the other three theories (which
+keep a bitvector world-state predicate), **false of bimodal by design**: D3/D4 deliberately have no
+state-existence predicate at all, because the certified carrier is `{0,...,k} x Z`, not a set of
+enumerated states.
+
+**Consequence**: for bimodal, the generic framework path contributes *no* active exclusion
+constraint. `BimodalModelIterator._create_difference_constraint`/
+`_create_non_isomorphic_constraint` exist for interface parity with the other three theories and
+for direct, standalone use — they are exercised directly by
+`tests/integration/test_iterate.py` — but are not invoked by the live search loop.
+
+`_create_non_isomorphic_constraint` is additionally **simplified to exact difference, not
+rotation/permutation invariance**: a fully symmetry-aware rejection would need to enumerate the
+rotation group action on each lasso's periodic `back`/`fwd` segments together with witness-lasso
+relabelings. This redesign implements the simpler exact-bit/guess difference shared with
+`_create_difference_constraint` instead — sufficient to guarantee the *next* certificate is not
+bit-for-bit identical, but not sufficient to guarantee it is not a rotation of a previous one.
+
+Both points are recorded, not silently descoped, in the implementation plan's own Phase 15
+section: a future task should (1) close the shared `ConstraintGenerator` extension-point gap with
+its own cross-theory regression plan, and (2) implement the full rotation/permutation-invariant
+rejection once (1) is in place, using `WitnessRegistry.wrap`'s existing slot arithmetic to
+enumerate rotations.
+
+## A Live Limitation: `iterate: N > 1` Currently Crashes
+
+Beyond the scope narrowing above, direct testing of the standard `dev_cli.py`/`model-checker` CLI
+path (`iterate: 3` set on an example) surfaces a sharper, pre-existing framework gap:
+`model_checker/iterate/models.py`'s `build_new_model_structure` — the shared routine every
+theory's iterator uses to build each successor model — contains
+
+```python
+for state in range(2**semantics.N):
+    is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
+    ...
+```
+
+with **no `hasattr` guard**, unlike its neighboring `possible`/`verify`/`falsify` blocks in the
+same function (which are each guarded). Bimodal's `BimodalSemantics` fixes `N = 0` (D3: a
+vestigial attribute the shared framework reads unconditionally) and defines no `is_world` method
+at all (D3/D4: the certificate encoding has no state-existence predicate). `range(2**0)` is `[0]`,
+so this loop body runs exactly once and immediately raises:
+
+```
+AttributeError: 'BimodalSemantics' object has no attribute 'is_world'
+```
+
+which the framework wraps as `ModelExtractionError: Failed to extract model 1: ...`. This was
+reproduced directly (`dev_cli.py` against a countermodel example with `"iterate": 3` in its
+settings): the first certificate is found and printed normally, and the attempt to build the
+*second* one fails with exactly this error, aborting the run.
+
+**Why this was not caught by the 366/366-green test suite**: no example in `examples.py` sets
+`iterate` above its default of `1`, and `max_iterations == 1` short-circuits before this code path
+is ever reached. `tests/integration/test_iterate.py` exercises `BimodalModelIterator`'s own
+methods directly (deliberately, per its own module docstring) rather than driving a live
+`iterate: N > 1` run end to end, for exactly the scope-narrowing reason above — but that same
+choice is why this second, independent crash was not previously surfaced against the live path.
+
+**Scope of the fix**: `model_checker/iterate/models.py` is shared framework code all four theories
+depend on; adding a `hasattr(semantics, 'is_world')` guard around this block (mirroring its own
+`possible`/`verify` neighbors) is the natural fix, but it is cross-theory code requiring its own
+regression coverage across all four theories, not a bimodal-only change. It is recorded here as a
+known, reproduced limitation — not fixed as part of this documentation pass — for the same reason
+the `ConstraintGenerator` gap above was left for a follow-on task.
+
+**Practical guidance**: use `iterate: 1` (the default) until this is fixed. `iterate_example`/
+`iterate_example_generator`'s programmatic API is unaffected for `max_iterations=1` and is exactly
+as reliable as a single ordinary solve.
 
 ## Performance Tips
 
-### 1. Optimize Initial Settings
-
-Start with minimal settings and increase as needed:
+### 1. Start with the default segment lengths
 
 ```python
-# Start small
-settings = {"M": 2, "N": 1, "iterate": 3}
-
-# Increase if no models found
-settings = {"M": 3, "N": 2, "iterate": 5}
+settings = {"back": 2, "mid": 1, "fwd": 2, "iterate": 1}
 ```
 
-### 2. Use Appropriate Timeouts
+Raise `back`/`mid`/`fwd` only if a specific formula's refutation needs a longer period than the
+defaults allow — every one of the theory's 53 examples decides at the defaults in well under
+50ms.
 
-Balance between finding models and performance:
+### 2. Use appropriate timeouts
 
 ```python
-settings = {
-    "max_time": 5,            # Initial model timeout
-}
+settings = {"max_time": 10}
 ```
 
-### 3. Limit Iteration Count
-
-For complex formulas, limit iterations:
-
-```python
-# For exploration
-models = iterate_example(example, max_iterations=3)
-
-# For exhaustive search (careful with performance)
-models = iterate_example(example, max_iterations=20)
-```
-
-### 4. Monitor Progress
-
-Enable debug logging for long-running iterations:
+### 3. Enable debug logging
 
 ```python
 import logging
-logger = logging.getLogger('model_checker.theory_lib.bimodal.iterate')
-logger.setLevel(logging.INFO)
-
-# Now iteration will show progress
-models = iterate_example(example)
+logging.getLogger('model_checker.theory_lib.bimodal.iterate').setLevel(logging.DEBUG)
 ```
-
-### 5. Understand Complexity
-
-Bimodal models are complex due to:
-- Multiple worlds with independent histories
-- Time intervals that can overlap or be disjoint
-- Task relations creating a transition graph
-- Modal accessibility at each time point
-
-Complexity grows with:
-- Number of time points (M)
-- Number of propositions (N)
-- Number of worlds found
-
-## Examples
-
-### Example 1: Temporal-Modal Interaction
-
-Find models showing different relationships between necessity and future:
-
-```python
-# "Necessary p" doesn't imply "Always p in the future"
-example = BuildExample("necessity_vs_future", theory, [
-    ["\\Box p"],
-    ["\\Future p"],
-    {"M": 3, "N": 1, "iterate": 5}
-])
-
-models = iterate_example(example)
-
-# Examine how different world structures satisfy Box p but not Future p
-for i, model in enumerate(models):
-    print(f"\nModel {i+1}:")
-    print("World histories where p is necessary at time 0:")
-    for world_id, history in model.world_histories.items():
-        # Check if p is true at time 0 in all worlds
-        if 0 in history:
-            print(f"  W_{world_id} at t=0: {history[0]}")
-```
-
-### Example 2: Exploring Contingency
-
-Find models with different contingency patterns:
-
-```python
-# Contingent propositions with temporal operators
-example = BuildExample("contingent_temporal", theory, [
-    ["\\Future p \\vee \\Past p"],
-    [],  # No conclusions - just explore
-    {
-        "M": 4, 
-        "N": 2, 
-        "contingent": True,  # Force contingent valuations
-        "iterate": 4
-    }
-])
-
-models = iterate_example(example)
-
-# Analyze contingency patterns
-for i, model in enumerate(models):
-    print(f"\nModel {i+1} contingency pattern:")
-    for letter in ['a', 'b']:
-        true_states = set()
-        false_states = set()
-        
-        for world_id, history in model.world_histories.items():
-            for time, state in history.items():
-                if letter in state:
-                    true_states.add(state)
-                else:
-                    false_states.add(state)
-        
-        print(f"  {letter}: true in {len(true_states)} states, false in {len(false_states)} states")
-```
-
-### Example 3: Complex Bimodal Patterns
-
-Explore intricate temporal-modal relationships:
-
-```python
-# Complex formula with nested operators
-example = BuildExample("complex_bimodal", theory, [
-    ["\\Diamond \\Future p", "\\Box \\Past q"],
-    ["\\Future (\\Diamond p \\wedge \\Box q)"],
-    {
-        "M": 3,
-        "N": 2,
-        "iterate": 6,
-        "align_vertically": True  # Better visualization
-    }
-])
-
-models = iterate_example(example)
-
-# Focus on time-shift relations
-for i, model in enumerate(models[1:], 1):
-    print(f"\nModel {i} time-shift structure:")
-    for source_id, shifts in model.time_shift_relations.items():
-        print(f"  W_{source_id}:")
-        for shift, target_id in shifts.items():
-            if shift != 0:  # Skip identity
-                print(f"    shift by {shift:+d} -> W_{target_id}")
-```
-
-### Example 4: Performance Comparison
-
-Compare iteration performance with different settings:
-
-```python
-import time
-
-configs = [
-    {"M": 2, "N": 1, "iterate": 5},
-    {"M": 3, "N": 1, "iterate": 5},
-    {"M": 3, "N": 2, "iterate": 5},
-]
-
-for config in configs:
-    example = BuildExample("perf_test", theory, [
-        ["\\Box p \\vee \\Diamond q"],
-        ["\\Future (p \\wedge q)"],
-        config
-    ])
-    
-    start = time.time()
-    models = iterate_example(example)
-    elapsed = time.time() - start
-    
-    print(f"Config {config}: {len(models)} models in {elapsed:.2f}s")
-    print(f"  Average: {elapsed/len(models):.2f}s per model")
-```
-
-## Advanced Topics
-
-### How Model Diversity Is Actually Enforced
-
-The search for each additional model is driven by the theory-agnostic
-`ConstraintGenerator` in `model_checker.iterate.constraints`, shared by all
-four theories: it excludes each previously-found model by requiring at
-least one `is_world(world_id)` assignment to flip, for a bounded range of
-world IDs. `BimodalModelIterator` does not override this at search time --
-its `_create_difference_constraint` / `_create_non_isomorphic_constraint` /
-`_create_stronger_constraint` methods exist for interface parity with the
-other three theories and for direct programmatic use, but are not invoked
-by the active search loop.
-
-What `BimodalModelIterator` **does** own is presentation: once a new model
-is found, `_calculate_bimodal_differences` computes a bimodal-specific
-difference report (world histories, truth conditions, task relations, time
-intervals, time-shift relations) purely for display via
-`display_model_differences` / `print_model_differences` -- it does not
-influence which model Z3 returns.
-
-Because bimodal's frame constraints (task relation transitivity, lawful
-world-function definedness) are heavier than the flatter state-based
-theories, the generic `is_world`-based search can take noticeably longer to
-find a second, non-isomorphic model for the same `max_time` budget. If
-iteration stalls, see "No Additional Models Found" below.
-
-### Isomorphism Detection
-
-Isomorphic models are detected and skipped by the shared
-`IsomorphismChecker` in `model_checker.iterate.graph` (NetworkX-backed when
-available), not by bimodal-specific logic.
 
 ## Troubleshooting
 
-### No Additional Models Found
+### `AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`
 
-If iteration stops after one model:
-- Increase `M` (time points) for more structural variety
-- Add more atomic propositions (`N`)
-- Check if your formula heavily constrains the model space
-- Try relaxing constraints (e.g., remove `contingent` requirement)
+This is the crash documented above. Set `iterate: 1` (or omit the setting; `1` is the default).
 
-### Slow Iteration
+### No additional certificates found (once the crash above is fixed upstream)
 
-If iteration is taking too long:
-- Reduce `max_time` in settings
-- Limit `max_iterations`
-- Simplify your formula
-- Use smaller values for `M` and `N`
+- Raise `back`/`mid`/`fwd` for more structural variety in the periodic segments.
+- Raise `max_witnesses` if the formula has several boxed subformulas.
+- Check whether your formula heavily constrains the label assignment — a highly determined
+  formula may genuinely admit very few distinct certificates.
 
-### Many Isomorphic Models
+### Repeated (rotated) certificates
 
-If seeing "Skipped isomorphic model" frequently:
-- This is normal and indicates the iterator is working correctly
-- The iterator will eventually escape the isomorphic loop
-- Consider whether your formula admits limited structural variety
+- Expected under the current exact-difference rejection (see
+  [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)); this is
+  not a bug to work around locally, it is the documented scope of this redesign's iteration
+  support.
 
 ## See Also
 
-- [API Reference](API_REFERENCE.md#model-iteration) - Detailed API documentation
+- [API Reference](API_REFERENCE.md#model-iteration) - API documentation
 - [Architecture](ARCHITECTURE.md#model-iteration) - Implementation details
-- [User Guide](USER_GUIDE.md#advanced-usage) - General usage patterns
-- [Settings Reference](SETTINGS.md#iteration-settings) - Configuration options
+- [User Guide](USER_GUIDE.md) - General usage patterns
+- [Settings Reference](SETTINGS.md) - Configuration options

@@ -147,6 +147,32 @@ only sanctioned signal that a run finished. `run-oracle-exhaustive-scan.sh`'s su
 this marker explicitly and reports "scan did not reach completion" if it is absent, even if the
 process itself exited.
 
+## Certificate JSON Export
+
+`Z3OracleProvider.find_countermodel` (`provider.py`) now finds **witness-family certificates**
+over discrete (ℤ) time, matching the in-package `model_checker.theory_lib.bimodal` redesign (see
+`code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` for the design this oracle sits on
+top of) — there is no `task_rel`, world array, or abundance constraint in this provider any more.
+`serialization.py`'s `serialize_countermodel` emits a `"certificate"` field carrying the found
+`WitnessFamily` in the exact wire shape `WitnessFamily.to_json` produces:
+
+```json
+{"target": {"premises": [...], "conclusions": [...], "time": 0},
+ "bx":     [[<formula>, true], [<formula>, false], ...],
+ "lassos": [{"back": [<label>, ...], "mid": [<label>, ...], "fwd": [<label>, ...]}, ...]}
+```
+
+**The contract for this shape is external and fixed**: `~/Projects/BimodalLogic/BimodalTools/README.md`'s
+"Certificate re-verification protocol" section is the authority, not this file or
+`serialization.py`'s own docstring — both describe the contract, neither defines it. That same
+shape is exactly what BimodalLogic's `lake exe check_certificate` executable accepts on stdin, so
+a caller wanting a second, independent (Lean-side) verification of a countermodel this oracle
+reports can pass the `"certificate"` field straight through with no translation layer. The
+in-package theory's own `tests/integration/test_certificate_lean_agreement.py` exercises exactly
+this round trip against its own fixture corpus (skipping cleanly when BimodalLogic/`lake` is
+unavailable locally); this oracle package does not duplicate that test, since its own
+`find_countermodel` is exercised end-to-end by the differential suite below instead.
+
 ## Known External Oracle Defects
 
 The differential test suite (`tests/test_cross_oracle_differential.py`) compares this package's

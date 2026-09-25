@@ -1,121 +1,145 @@
 # Bimodal Theory Settings Documentation
 
-This document describes all available settings for the bimodal theory implementation in ModelChecker.
+This document describes all available settings for the bimodal theory implementation in
+ModelChecker under the witness-family certificate design. See `../README.md` and
+`ARCHITECTURE.md` for the design these settings configure.
 
 ## Overview
 
-The bimodal theory implements a two-dimensional modal logic with both world states and time points, enabling reasoning about temporal evolution and task transitions. Settings control the model dimensions, constraints, and display options.
+The bimodal theory searches for a **witness-family certificate**: a box guess plus a small family
+of labelled bi-infinite lassos, quantifier-free in Z3's own encoding. Settings control the maximum
+size of that searched family, the witness-lasso budget, and the standard solver/testing knobs
+every theory shares. There is no model dimension setting analogous to the retired `N` (a fixed
+number of world states) or `M` (a fixed window of times): the certified model is infinite by
+construction, and these settings bound only how large a *search* the solver is asked to perform.
 
 ## Example Settings
 
-These settings control model generation for specific examples:
+### Segment-Length Settings
 
-### Dimension Settings
+- **`back`** (integer, default: `2`): maximum length of a lasso's `back` segment — the labels
+  strictly before position `0`, repeated cyclically leftward forever. Must be positive
+  (`LabelledLasso.back_ne`).
 
-- **N** (integer, default: 2): Number of world states in the model. Each world state represents a distinct configuration or situation.
+- **`mid`** (integer, default: `1`): maximum length of a lasso's `mid` segment — the labels at
+  positions `[0, mid)`, read directly (not repeated). May be `0`.
 
-- **M** (integer, default: 2): Number of time points in the model. This creates a temporal dimension for reasoning about change over time.
+- **`fwd`** (integer, default: `2`): maximum length of a lasso's `fwd` segment — the labels at
+  positions `mid` and beyond, repeated cyclically rightward forever. Must be positive
+  (`LabelledLasso.fwd_ne`).
 
-### Constraint Settings
+Together, `back + mid + fwd` is the number of distinct Z3 label-bit variables allocated per
+`(lasso, closure formula)` pair (`WitnessRegistry`'s slot arithmetic) — raising any of the three
+enlarges the search, not the reported model's size, which is always infinite once a certificate is
+found.
 
-- **contingent** (boolean, default: False): When enabled, sentence letters are assigned to contingent propositions (true in some world-time pairs, false in others).
+### Witness Budget
 
-- **disjoint** (boolean, default: False): When enabled, sentence letters are assigned to distinct (non-overlapping) world states.
+- **`max_witnesses`** (integer or `None`, default: `None`): optional cap on the number of distinct
+  witness-lasso indices `WitnessRegistry.allocate_witness_lasso` will ever hand out. `None` (the
+  default) is uncapped — one witness lasso per boxed subformula guessed false. Lower this only to
+  bound solver cost on formulas with many boxed subformulas; it can make the search
+  under-complete for that formula (fewer witness lassos than false boxes need is unsatisfiable by
+  construction, not merely slow).
 
 ### Solver Settings
 
-- **max_time** (integer, default: 1): Maximum time in seconds for the Z3 solver to find a model.
+- **`max_time`** (number, default: `1`): maximum time in seconds for the Z3 solver to search for a
+  certificate.
 
-- **expectation** (boolean, default: True): Expected result for testing. Set to True if a model should exist, False if not.
+- **`expectation`** (boolean, default: `True`): expected result for testing — `True` if a
+  certificate should be found, `False` if the search should report none.
 
-- **iterate** (integer, default: 1): Number of model iterations to generate. Useful for finding multiple distinct models.
+- **`iterate`** (integer, default: `1`): number of distinct certificates to search for. See
+  `ITERATE.md` for what "distinct" means under this encoding (exact label/guess difference, not
+  full isomorphism rejection).
+
+- **`solver`** (string, default: `'z3'`): solver backend, `'z3'` or `'cvc5'`.
 
 ## General Settings
 
-The bimodal theory supports all standard general settings plus:
-
-### Display Settings
-
-- **align_vertically** (boolean, default: True): When enabled, displays world histories vertically in the output, making temporal evolution easier to visualize. This is particularly useful for bimodal models where you want to see how worlds evolve over time.
-
-For other general settings, see the [main settings documentation](../../settings/README.md).
+The bimodal theory defines **no** bimodal-specific general (display) setting. The retired
+`align_vertically` option no longer applies: the certificate printer shows each lasso as a single
+`(back)^w | mid | (fwd)^w` line (see `../README.md`'s "Sample Output"), so there is no vertical/
+horizontal layout choice to make. All standard general settings (`print_constraints`, `print_z3`,
+`save_output`, `maximize`, etc.) apply unchanged; see the
+[main settings documentation](../../settings/README.md).
 
 ## Usage Examples
 
-### Simple Temporal Model
+### Default (small) search
+
 ```python
-bimodal_simple_settings = {
-    'N': 2,  # Two world states
-    'M': 3,  # Three time points
-    'contingent': True,  # Allow change over time
-    'disjoint': False,
+bimodal_default_settings = {
+    'back': 2,
+    'mid': 1,
+    'fwd': 2,
     'max_time': 1,
 }
 ```
 
-### Complex Task Transition Model
+### Formula needing a longer periodic segment
+
 ```python
-bimodal_complex_settings = {
-    'N': 4,  # Four world states for richer structure
-    'M': 5,  # Five time points for extended sequences
-    'contingent': True,
-    'disjoint': True,  # Distinct world states
-    'max_time': 10,  # More time for complex models
-    'iterate': 3,  # Find multiple models
+bimodal_longer_period_settings = {
+    'back': 3,
+    'mid': 2,
+    'fwd': 3,
+    'max_time': 10,
 }
 ```
 
-### Testing Modal Principles
+### Formula with several boxed subformulas, witness budget bounded
+
 ```python
-bimodal_test_settings = {
-    'N': 3,
-    'M': 2,
-    'contingent': False,  # Fixed truth values
-    'disjoint': False,
-    'expectation': False,  # Expect no model
+bimodal_bounded_witness_settings = {
+    'back': 2,
+    'mid': 1,
+    'fwd': 2,
+    'max_witnesses': 4,
+    'max_time': 10,
+}
+```
+
+### Expecting no certificate (a theorem)
+
+```python
+bimodal_theorem_settings = {
+    'back': 2,
+    'mid': 1,
+    'fwd': 2,
+    'expectation': False,  # Expect no certificate within these bounds
     'max_time': 5,
 }
 ```
 
 ## Theory-Specific Behavior
 
-The bimodal theory implements several features that interact with these settings:
-
-1. **Two-Dimensional Structure**: Models have both world states (N) and time points (M), creating an N×M grid of world-time pairs.
-
-2. **Task Transitions**: The theory includes task transitions that can change world states over time.
-
-3. **Temporal Operators**: Supports reasoning about what's true "always", "sometimes", and at specific times.
-
-4. **Vertical Display**: The align_vertically setting helps visualize temporal evolution by showing each world's history as a column.
-
-## Display Format Example
-
-With align_vertically = True:
-```
-World 0: [State at t0] → [State at t1] → [State at t2]
-World 1: [State at t0] → [State at t1] → [State at t2]
-```
-
-With align_vertically = False:
-```
-Time 0: World 0: [State], World 1: [State]
-Time 1: World 0: [State], World 1: [State]
-```
+1. **Segment-length search, not a fixed model size**: `back`/`mid`/`fwd` bound how much periodic
+   label data the solver may allocate per lasso; the model a found certificate denotes is always
+   infinite (see `ARCHITECTURE.md`).
+2. **Witness lassos are allocated on demand**: one is requested only when a boxed subformula is
+   guessed false; `max_witnesses` caps that allocation.
+3. **No task-transition setting**: the shift relation between `(lasso, position)` points holds by
+   construction of the certified `ShiftSet`, not via an asserted transition axiom, so there is no
+   analogue of the retired `task_restriction`/`task_minimization` constraints to toggle.
 
 ## Tips and Best Practices
 
-1. **Start small**: Begin with N=2, M=2 to understand the basic structure before increasing dimensions.
-
-2. **Use vertical alignment**: The default align_vertically=True is usually clearer for understanding temporal evolution.
-
-3. **Balance dimensions**: Very large N or M values can make models hard to interpret and slow to compute.
-
-4. **Contingency for dynamics**: Enable contingent=True when modeling systems that change over time.
-
-5. **Disjoint for clarity**: Enable disjoint=True when you want sentence letters to pick out specific world states.
+1. **Start with the defaults** (`back=2, mid=1, fwd=2`): every one of the theory's 53 examples,
+   including the previously-excluded MF axiom and BX7 linearity theorems, decides correctly at
+   these defaults in well under 50ms.
+2. **Raise segment lengths, not a world/time count, if a formula needs a longer period**: a
+   formula whose refutation genuinely needs a longer periodic pattern will need larger `back`/
+   `mid`/`fwd`, not a larger `N`/`M` (which no longer exist).
+3. **Use `max_witnesses` only to bound cost, not to force a specific witness structure**: an
+   overly small cap makes the search under-complete rather than simply faster.
+4. **`iterate` finds distinct label/guess assignments, not guaranteed non-isomorphic models**: see
+   `ITERATE.md` before relying on `iterate: N` for exhaustive exploration.
 
 ## See Also
 
 - [General Settings Documentation](../../settings/README.md)
 - [Bimodal Theory README](../README.md)
+- [Architecture](ARCHITECTURE.md)
+- [Adequacy](ADEQUACY.md)

@@ -2,74 +2,95 @@
 
 ## Overview
 
-The Bimodal theory implements temporal-modal logic, combining reasoning about time and possibility. This theory allows you to express and validate formulas that involve both temporal operators (what happens at different times) and modal operators (what is possible or necessary), making it suitable for reasoning about dynamic systems and temporal necessity.
+The bimodal theory implements temporal-modal logic, combining reasoning about time and
+possibility, by **searching for witness-family certificates** over discrete (ℤ) time. A
+countermodel is not a fixed finite structure you configure the size of; it is a small, checkable
+certificate — a box guess plus a family of labelled bi-infinite lassos — that denotes an infinite
+model by construction. See `../README.md`'s "The Certificate Search" and `ARCHITECTURE.md` for the
+full design; this guide is a practical, task-oriented walkthrough.
 
 ## Key Features
 
-- **Temporal Operators**: Future (⏵) and Past (⏴) for temporal reasoning
-- **Modal Operators**: Necessity (□) and Possibility (◇) for modal reasoning
-- **Extensional Base**: Full support for classical propositional logic
-- **World Histories**: Models represent sequences of states over time
-- **Dual Dimensions**: Simultaneous reasoning about time and modality
+- **Temporal Operators**: `\Future`/`\Past` (all future/past times) and `\Until`/`\Since`
+  (guarded eventualities) for temporal reasoning
+- **Modal Operators**: `\Box`/`\Diamond` for necessity/possibility, decided by a box guess plus,
+  when guessed false, an explicit witness lasso
+- **Extensional Base**: full support for classical propositional logic
+- **Certified Models**: every reported certificate denotes an infinite model whose four defining
+  properties (local coherence, fulfilment, box faithfulness, target) hold by construction, and are
+  independently re-verified by a pure-Python checker before being reported
+- **Never claims validity**: an unsuccessful search is always reported as "no certificate found
+  within the configured bounds," never as a proof
 
 ## Available Operators
 
-The bimodal theory provides operators for both temporal and modal reasoning:
+The bimodal theory provides operators for both temporal and modal reasoning (LaTeX names, as used
+in formula strings):
 
 ### Extensional Operators
-- **¬** (negation): Classical negation
-- **∧** (conjunction): Classical conjunction
-- **∨** (disjunction): Classical disjunction
-- **→** (conditional): Material conditional
-- **↔** (biconditional): Material biconditional
+- **`\neg`** (negation): classical negation
+- **`\wedge`** (conjunction): classical conjunction
+- **`\vee`** (disjunction): classical disjunction
+- **`\rightarrow`** (conditional): material conditional (defined)
+- **`\leftrightarrow`** (biconditional): material biconditional (defined)
 
 ### Modal Operators
-- **□** (necessity): "It is necessary that..."
-- **◇** (possibility): "It is possible that..."
+- **`\Box`** (necessity): "it is necessary that..." — true when the box guess for the argument is
+  `true`
+- **`\Diamond`** (possibility): "it is possible that..." (defined, via `\neg \Box \neg`)
 
 ### Temporal Operators
-- **⏵** (future): "In the future..."
-- **⏴** (past): "In the past..."
+- **`\Future`** (all future): "it will always be the case that..."
+- **`\Past`** (all past): "it has always been the case that..."
+- **`\Until`** (guarded eventuality): `g \Until e` — guard-first internally; the paper's guarded
+  until
+- **`\Since`** (guarded past eventuality): the backward mirror of `\Until`
+- **`\future`**/**`\past`** (defined, some future/past time), **`\next`**/**`\prev`** (defined,
+  the immediately following/preceding position)
 
 ### Extremal Operators
-- **⊤** (top): Logical truth
-- **⊥** (bottom): Logical falsehood
+- **`\top`** (top): logical truth (defined)
+- **`\bot`** (bottom): logical falsehood (primitive)
 
-## Understanding Bimodal Models
+## Understanding Certificate Search
 
-### Time Points and Worlds
+### Lassos and Positions
 
-Bimodal models consist of:
-- **Time Points**: Discrete moments (0, 1, 2, ...)
-- **Worlds**: Alternative possibilities at each time point
-- **World Histories**: Sequences of worlds across time
+A certificate search produces:
+- **Lassos**: labelled bi-infinite histories, each `(back)^w | mid | (fwd)^w` — a periodic
+  backward segment, a finite middle segment, and a periodic forward segment. Position `0` starts
+  `mid`.
+- **A box guess table**: for each boxed subformula in the closure, whether it is `true` (holds at
+  every position of every lasso) or `false` (fails at some position of some witness lasso)
+- **A target position**: the position on the main lasso (`L0`) where every premise holds and no
+  conclusion does
 
-### Model Parameters
+### Settings That Bound the Search
 
-- **M**: Number of time points in the model
-- **N**: Number of atomic propositions
-- **World Structure**: How worlds are connected across time and modality
+- `back`/`mid`/`fwd`: the maximum lengths of the searched lasso family's three segments
+- `max_witnesses`: an optional cap on distinct witness lassos
+
+There is no analogue of the retired `N` (a world count) or `M` (a window of times): the certified
+model is always infinite once a certificate is found; these settings only bound the *search*.
 
 ## Formula Examples
 
 ### Pure Temporal Reasoning
 
 ```python
-# Future necessity
-premises = ["□p"]
-conclusions = ["⏵□p"]
-settings = {"M": 3, "N": 1}
+premises = ["\\Box p"]
+conclusions = ["\\Future \\Box p"]
+settings = {"back": 2, "mid": 1, "fwd": 2}
 
-# What is necessary now will be necessary in the future
+# What is necessary now is necessarily always going to be necessary (the paper's MF axiom)
 ```
 
 ### Pure Modal Reasoning
 
 ```python
-# Necessity and possibility
-premises = ["□p"]
-conclusions = ["¬◇¬p"]
-settings = {"M": 1, "N": 1}
+premises = ["\\Box p"]
+conclusions = ["\\neg \\Diamond \\neg p"]
+settings = {"back": 2, "mid": 1, "fwd": 2}
 
 # What is necessary is not possibly false
 ```
@@ -77,21 +98,20 @@ settings = {"M": 1, "N": 1}
 ### Combined Temporal-Modal
 
 ```python
-# Temporal necessity
-premises = ["□⏵p"]
-conclusions = ["⏵□p"]
-settings = {"M": 3, "N": 1}
+premises = ["\\Box \\Future p"]
+conclusions = ["\\Future \\Box p"]
+settings = {"back": 2, "mid": 1, "fwd": 2, "expectation": True}
 
-# It is necessary that p will be true vs. it will be necessary that p is true
+# It is necessary that p will always be true vs. it will (at every future time) be necessary --
+# these come apart: expect a certificate
 ```
 
 ### Complex Interactions
 
 ```python
-# Past and future interaction
-premises = ["⏴p", "⏵q"]
-conclusions = ["⏴p ∧ ⏵q"]
-settings = {"M": 3, "N": 2}
+premises = ["\\Past p", "\\Future q"]
+conclusions = ["(\\Past p \\wedge \\Future q)"]
+settings = {"back": 2, "mid": 1, "fwd": 2}
 
 # Combining past and future information
 ```
@@ -103,11 +123,11 @@ settings = {"M": 3, "N": 2}
 ```python
 from model_checker.theory_lib.bimodal import get_examples, get_test_examples
 
-# Get curated examples for exploration
+# Get the curated 25-example demonstration set
 examples = get_examples()
 print(f"Available examples: {list(examples.keys())}")
 
-# Get comprehensive test suite
+# Get the full 53-example test suite
 test_examples = get_test_examples()
 print(f"Test examples: {len(test_examples)} total")
 ```
@@ -115,19 +135,17 @@ print(f"Test examples: {len(test_examples)} total")
 ### Running Specific Examples
 
 ```python
-from model_checker import BuildExample
+from model_checker import BuildExample, ModelConstraints
 from model_checker.theory_lib.bimodal import get_theory, get_examples
 
 theory = get_theory()
 examples = get_examples()
 
-# Run a specific example
-if "EX_CM_1" in examples:
-    example_case = examples["EX_CM_1"]
-    example = BuildExample("extensional_test", theory, example_case)
-    result = example.check_result()
-    
-    print(f"Example EX_CM_1 result: {result['model_found']}")
+example_case = examples["BM_CM_1"]
+example = BuildExample("bimodal_test", theory, example_case)
+result = example.check_result()
+
+print(f"BM_CM_1 result: {result['model_found']}")
 ```
 
 ## Settings and Configuration
@@ -136,223 +154,206 @@ if "EX_CM_1" in examples:
 
 ```python
 settings = {
-    "M": 3,                   # Number of time points (crucial for temporal reasoning)
-    "N": 2,                   # Number of atomic propositions
-    "max_time": 15,          # Solver timeout (bimodal can be complex)
-    "contingent": True,      # Often useful for interesting temporal patterns
-    "disjoint": False,       # Usually not needed for temporal-modal logic
+    "back": 2,           # Maximum back-segment length
+    "mid": 1,            # Maximum mid-segment length
+    "fwd": 2,             # Maximum fwd-segment length
+    "max_time": 10,      # Solver timeout
+    "max_witnesses": None,  # Uncapped witness-lasso allocation
 }
 ```
 
 ### Bimodal-Specific Considerations
 
-- **M (Time Points)**: Critical parameter - determines temporal depth
-  - M=1: Pure modal logic (no temporal reasoning)
-  - M=2-3: Simple temporal sequences  
-  - M=4+: Complex temporal patterns (performance impact)
-
-- **N (Propositions)**: Affects complexity exponentially
-  - N=1-2: Good for exploring basic patterns
-  - N=3+: Complex interactions between propositions over time
+- **`back`/`mid`/`fwd`**: raise these if a formula's refutation genuinely needs a longer periodic
+  pattern; the theory's own 53 examples, including previously-excluded ones (the paper's MF axiom,
+  the BX7 linearity theorems), all decide at the defaults (`back=2, mid=1, fwd=2`) in well under
+  50ms.
+- **`max_witnesses`**: only lower this to bound cost on formulas with many boxed subformulas — an
+  overly small cap makes the search under-complete for that formula, not merely slower.
 
 For detailed settings documentation, see [SETTINGS.md](SETTINGS.md).
 
 ## Model Iteration
 
-Explore multiple models for bimodal examples:
+Explore multiple certificates for bimodal examples:
 
 ```python
 from model_checker.theory_lib.bimodal import iterate_example
 
-# Create example
 example = BuildExample("test", theory, example_case)
-
-# Find multiple models
 models = iterate_example(example, max_iterations=3)
 
-print(f"Found {len(models)} different models")
+print(f"Found {len(models)} certificates")
 for i, model in enumerate(models):
-    print(f"Model {i+1}: {model.z3_model_status}")
+    print(f"Certificate {i+1}: {model.z3_model_status}")
+    model.print_certificate()
 ```
+
+Successive certificates are guaranteed to differ in at least one label bit or box guess (an exact
+blocking clause), **not** guaranteed to be non-isomorphic. Also, as of this writing, requesting
+more than one certificate (`max_iterations > 1` / `iterate: N > 1`) currently raises an
+`AttributeError` through a pre-existing, reproduced shared-framework gap — use `max_iterations=1`
+(the default) until it is fixed. See [ITERATE.md](ITERATE.md) for the full story.
 
 ## Common Use Cases
 
 ### 1. Temporal Logic Validation
 
 ```python
-# Test temporal principles
 example_case = [
-    [],                       # No premises
-    ["⏵⏵p → ⏵p"],           # Future operator transitivity
-    {"M": 4, "N": 1, "expectation": True}
+    [],
+    ["(\\future \\future p \\rightarrow \\future p)"],  # Future-operator transitivity
+    {"back": 2, "mid": 1, "fwd": 2, "expectation": False}
 ]
 ```
 
 ### 2. Modal Logic with Time
 
 ```python
-# Necessity over time
 example_case = [
-    ["□p"],                   # p is necessary
-    ["⏵□p"],                 # In the future, p will be necessary
-    {"M": 3, "N": 1}
+    ["\\Box p"],
+    ["\\Future \\Box p"],
+    {"back": 2, "mid": 1, "fwd": 2}
 ]
 ```
 
 ### 3. Temporal-Modal Interactions
 
 ```python
-# Explore interaction between temporal and modal operators
 example_case = [
-    ["□⏵p"],                 # It's necessary that p will be true
-    ["⏵□p"],                 # In the future, p will be necessary
-    {"M": 3, "N": 1, "expectation": False}  # These are different!
+    ["\\Box \\Future p"],
+    ["\\Future \\Box p"],
+    {"back": 2, "mid": 1, "fwd": 2, "expectation": True}  # These come apart!
 ]
 ```
 
 ### 4. Dynamic System Modeling
 
 ```python
-# Model state changes over time
 example_case = [
-    ["p", "⏵¬p", "⏵⏵p"],   # p oscillates: true, false, true
-    ["◇⏵⏵⏵p"],             # Eventually p will be true again
-    {"M": 4, "N": 1}
+    ["p", "\\next \\neg p", "\\next \\next p"],  # p oscillates: true, false, true
+    ["\\Diamond \\future p"],
+    {"back": 2, "mid": 2, "fwd": 2}
 ]
 ```
 
 ## Advanced Topics
 
-### World History Semantics
+### Lasso Semantics
 
-Bimodal models use world histories - sequences of worlds across time:
+A certificate's carrier is the disjoint union of its lassos' `(index, position)` points, with the
+shift `(i, t) ⇒_x (i, t+x)` as the task relation for every integer `x`:
 
 ```
-Time:    0    1    2
-World A: w₀ → w₁ → w₂
-World B: w₀ → w₁' → w₂'
+L0: ... {A} {A} | {A} | {A} {A} ...     (main lasso: A holds throughout)
+L1: ... {}  {}  | {}  | {}  {}  ...     (witness lasso: A fails throughout)
 ```
 
-Each history represents a possible way the world could evolve over time.
-
-### Accessibility Relations
-
-The theory uses two accessibility relations:
-- **Temporal**: Connects time points (t₀ → t₁ → t₂)
-- **Modal**: Connects possible worlds at each time point
+Each lasso, together with every one of its integer translates, is one possible world history.
+`\Box A` ranges over exactly these certified histories — see `ARCHITECTURE.md`'s "The (SOUND)
+Theorem" for why this correspondence is exact, not approximate.
 
 ### Evaluation Points
 
-Formulas are evaluated at specific (world, time) pairs:
-- **⏵p** at (w,t): p is true at (w,t+1)
-- **□p** at (w,t): p is true at all worlds accessible from w at time t
+Formulas are evaluated at `(lasso, position)` pairs, not `(world, time)` pairs:
+- `\Future p` at `(L, t)`: `p`'s label bit is set at every position strictly after `t` on `L`
+- `\Box p` at `(L, t)`: the box guess for `p` is `true` — equivalently, `p`'s label bit is set at
+  every position of every lasso
 
 ## Tips and Best Practices
 
-### Performance Optimization
-- Start with small M and N values (M=2-3, N=1-2)
-- Increase max_time for complex temporal formulas
-- Use contingent=True to avoid trivial models
+### Performance
+- Start with the default segment lengths (`back=2, mid=1, fwd=2`); raise them only if a specific
+  formula's refutation needs a longer period.
+- The search is quantifier-free, so solver cost scales with `back + mid + fwd` and the closure
+  size, not with an exponential state space — there is no `N`/`M` product to worry about.
 
 ### Formula Construction
-- Use ⏵/⏴ for temporal operators, not classical conditionals
-- Remember □/◇ work within each time point
-- Combine operators carefully - order matters
+- Use `\Future`/`\Past`/`\Until`/`\Since` for temporal reasoning; `\Until`'s arguments are
+  guard-first (`g \Until e`), matching the paper's own convention.
+- `\Box`/`\Diamond` range over the whole certified history family, not over a per-time-point set
+  of alternatives.
 
 ### Model Interpretation
-- Check both temporal progression and modal alternatives
-- Use iteration to explore different world histories
-- Pay attention to the distinction between □⏵p and ⏵□p
+- Check `model.certificate.bx_of(formula)` to see a box's guessed value directly.
+- Use iteration to explore alternative label/guess assignments; remember they may be rotations of
+  each other (see [ITERATE.md](ITERATE.md)).
+- Pay attention to the distinction between `\Box \Future p` and `\Future \Box p`
+  (`MF_MODAL_FUTURE_TH` is the paper's own axiom relating the two).
 
 ### Debugging
-- Start with pure temporal or pure modal formulas
-- Use print_constraints=True to understand the model structure
-- Compare with simpler theories to isolate temporal-modal effects
+- Start with pure temporal or pure modal formulas.
+- Use `print_constraints=True` to inspect the raw Z3 constraint set.
+- Use `certificate.recheck(family, premises, conclusions, target_time)` directly, outside a Z3
+  solve, to debug a specific certificate.
 
 ## Common Patterns
 
 ### Temporal Sequences
 
 ```python
-# Simple progression
-"p ∧ ⏵q ∧ ⏵⏵r"           # p now, q next, r after that
-
-# Temporal loops
-"p ∧ ⏵¬p ∧ ⏵⏵p"          # p oscillates
-
-# Eventually patterns
-"◇⏵p"                     # Eventually p will be true
+"(p \\wedge (\\next q \\wedge \\next \\next r))"   # p now, q next, r after that
+"(p \\wedge \\next \\neg p \\wedge \\next \\next p)"  # p oscillates
+"\\Diamond \\future p"                              # Eventually p will be true
 ```
 
 ### Modal Combinations
 
 ```python
-# Necessary possibility
-"□◇p"                     # It's necessary that p is possible
-
-# Possible necessity  
-"◇□p"                     # It's possible that p is necessary
-
-# Temporal necessity
-"□⏵p"                     # It's necessary that p will be true
+"\\Box \\Diamond p"    # It's necessary that p is possible
+"\\Diamond \\Box p"    # It's possible that p is necessary
+"\\Box \\Future p"     # It's necessary that p will always be true
 ```
 
 ### Complex Interactions
 
 ```python
-# Past necessity, future possibility
-"⏴□p ∧ ⏵◇q"              # p was necessary, q will be possible
-
-# Temporal modal sequences
-"□p ∧ ⏵◇¬p ∧ ⏵⏵□p"      # Necessary, then possibly not, then necessary again
+"(\\Past \\Box p \\wedge \\Future \\Diamond q)"        # p was always necessary, q will be possible
+"(\\Box p \\wedge \\Future \\Diamond \\neg p)"          # Necessary now, but possibly not later
 ```
 
 ## Theoretical Background
 
-The bimodal theory combines:
-
-1. **Temporal Logic**: Linear time with discrete time points
-2. **Modal Logic**: Possible worlds at each time point  
-3. **Truthmaker Semantics**: States verify/falsify propositions
-4. **World Histories**: Branching temporal structures
-
-This creates a rich framework for reasoning about:
-- How possibilities change over time
-- When necessities persist or change
-- Dynamic systems with modal uncertainty
+The bimodal theory's certificate search targets the source paper's task-semantics
+(`app:TaskSemantics`, `def:BL-semantics`): world histories are lawful sequences of world states
+evolving over discrete time, sentence letters are assigned at world states alone (times are
+exogenous), and every history has infinite temporal extent in both directions. A certificate
+denotes such a model directly — see `ARCHITECTURE.md`'s "The (SOUND) Theorem" and `ADEQUACY.md`
+for the full correspondence, including the four Lean-proved lemmas that establish it.
 
 ## Troubleshooting
 
 ### Common Issues
 
-**Solver Timeouts**:
-- Reduce M (time points) or N (propositions)
-- Increase max_time setting
-- Simplify complex temporal-modal combinations
+**No certificate found when one is expected**:
+- Raise `back`/`mid`/`fwd` — the refutation may need a longer periodic pattern than the defaults
+  allow.
+- Raise `max_witnesses` if the formula has several boxed subformulas.
 
-**Unexpected Results**:
-- Check the difference between □⏵p and ⏵□p
-- Remember that time is linear but worlds branch
-- Use small examples to understand operator interactions
+**Unexpected "no certificate" results**:
+- Remember this theory never asserts validity (D8): "no certificate found within the configured
+  bounds" is a bounded-search fact, not a proof — see `ARCHITECTURE.md`.
+- Check the distinction between `\Box \Future p` and `\Future \Box p`.
 
-**Performance Issues**:
-- Bimodal logic is computationally intensive
-- State space grows as O(2^(M×N))
-- Consider using simpler theories for initial exploration
+**Solver timeouts**:
+- Increase `max_time`.
+- The search is quantifier-free and typically fast (well under 50ms for every one of the theory's
+  53 examples at the default segment lengths); a timeout usually indicates segment lengths set far
+  larger than the formula needs, not an inherent hardness.
 
 ### Getting Help
 
-- Review the example files for usage patterns
-- Check [ARCHITECTURE.md](ARCHITECTURE.md) for technical details
-- Use model iteration to explore different interpretations
-- Compare with pure temporal or modal theories
+- Review `examples.py` for 53 worked examples across every operator combination.
+- Check [ARCHITECTURE.md](ARCHITECTURE.md) for the certificate search's technical details and the
+  (SOUND) theorem.
+- Check [ADEQUACY.md](ADEQUACY.md) for the full soundness proof and the open adequacy direction.
+- Use model iteration to explore alternative certificates.
 
 ## Integration with Other Theories
 
 Compare bimodal results with other approaches:
 
 ```python
-# Example comparison with other theories
 from model_checker.theory_lib.bimodal.examples import semantic_theories
 
 for theory_name, theory_config in semantic_theories.items():
@@ -363,11 +364,14 @@ for theory_name, theory_config in semantic_theories.items():
 
 ## Further Reading
 
-- **Temporal Logic**: Understanding time in logic
-- **Modal Logic**: Necessity and possibility
-- **Bimodal Logic Theory**: Combining temporal and modal reasoning
-- **World History Semantics**: Branching time structures
+- **`../README.md`**: overview, settings, the certificate search, and sample output
+- **`ARCHITECTURE.md`**: the two-phase constraint emission, the (SOUND) theorem, and the retired
+  designs this theory replaced
+- **`ADEQUACY.md`**: the full soundness proof, the Lean citation table, and the open adequacy
+  (completeness) direction
+- **`ITERATE.md`**: model iteration and its isomorphism-rejection scope
 
 ---
 
-**Navigation**: [README](../README.md) | [Architecture](ARCHITECTURE.md) | [Settings](SETTINGS.md) | [Operators](OPERATORS.md)
+**Navigation**: [README](../README.md) | [Architecture](ARCHITECTURE.md) | [Adequacy](ADEQUACY.md)
+| [Settings](SETTINGS.md) | [API Reference](API_REFERENCE.md) | [Iteration](ITERATE.md)

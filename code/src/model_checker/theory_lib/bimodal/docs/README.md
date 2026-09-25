@@ -12,9 +12,8 @@ Welcome to the comprehensive documentation for the Bimodal theory implementation
 - **[Settings Reference](SETTINGS.md)** - Configuration options and performance tuning
 - **[Model Iteration](ITERATE.md)** - Guide to finding multiple distinct models
 - **[Adequacy](ADEQUACY.md)** - States and proves the soundness correspondence between the
-  witness-family certificate design and the paper's task semantics; states the open adequacy
-  (converse) direction without asserting it. Not a claim about the current window-and-abundance
-  encoding, and never a validity claim.
+  witness-family certificate design (implemented in `semantic/`) and the paper's task semantics;
+  states the open adequacy (converse) direction without asserting it. Never a validity claim.
 
 ### Getting Started
 
@@ -54,25 +53,22 @@ Practical guide covering:
 
 ### ARCHITECTURE.md
 Technical deep-dive including:
-- World history semantics implementation
-- Time interval management
-- Task relation constraints
-- Modal accessibility
-- Performance optimizations
+- The witness-family certificate search and the quantifier-free variable layer
+- The two-phase constraint emission and the independent re-check (obligation S3)
+- The (SOUND) theorem, its four lemmas, and the Lean citation table
+- Why the design is ℤ-time only, and the retired designs it replaced
 
 ### SETTINGS.md
 Configuration reference with:
-- Core settings (N, M, max_time)
-- Bimodal-specific settings (align_vertically)
-- Performance impact analysis
+- Core settings (`back`, `mid`, `fwd`, `max_witnesses`, `max_time`)
+- Why there is no bimodal-specific general (display) setting any more
 - Example configurations
 
 ### ITERATE.md
 Model iteration guide covering:
-- Finding multiple models for formulas
-- Difference detection algorithms
-- Isomorphism checking
-- Performance considerations
+- Finding multiple certificates for formulas via label/guess blocking clauses
+- Why isomorphism rejection is exact-difference, not rotation/permutation invariant
+- The live `iterate: N > 1` crash this redesign surfaced (documented, not fixed)
 
 ### ADEQUACY.md
 The soundness correspondence between certificates and the paper's task semantics:
@@ -84,15 +80,20 @@ The soundness correspondence between certificates and the paper's task semantics
 ## Theory Overview
 
 The bimodal theory combines temporal and modal operators to reason about:
-- What is true at different **times** (temporal dimension)
-- What is true in different **possible worlds** (modal dimension)
+- What is true at different **times** (temporal dimension, discrete ℤ)
+- What is true in different **possible worlds** (modal dimension, certified histories)
 - How truth values evolve across world histories
 
-Key innovations:
-- World histories as sequences of states over time
-- Time intervals with negative time support
-- Sophisticated constraint generation for temporal-modal interactions
-- Efficient model iteration with theory-specific optimizations
+Key design points:
+- A countermodel is a finite, checkable **witness-family certificate** — a box guess plus a
+  small family of labelled bi-infinite lassos — not a fixed finite frame
+- The certificate denotes an infinite **certified `ShiftSet` model** by construction; Box ranges
+  over exactly the certified histories
+- The Z3 search is fully quantifier-free: no `ForAll`/`Exists`, no MBQI, no E-matching pattern
+- Every found certificate is independently re-checked by a pure-Python checker before being
+  reported, and can be round-tripped through BimodalLogic's own `lake exe check_certificate`
+- Validity is never reported — only "a certificate was/was not found within the configured
+  bounds"
 
 ## Related Documentation
 

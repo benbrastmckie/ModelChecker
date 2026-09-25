@@ -15,21 +15,19 @@
   - [Theory Configuration](#theory-configuration)
 - [Key Classes](#key-classes)
   - [BimodalSemantics](#bimodalsemantics)
-  - [BimodalProposition](#bimodalpropositon)
+  - [BimodalProposition](#bimodalproposition)
   - [BimodalStructure](#bimodalstructure)
 - [Bimodal Language](#bimodal-language)
   - [Necessity Operator](#necessity-operator-box)
   - [Future Operator](#future-operator-future)
   - [Past Operator](#past-operator-past)
+  - [Until and Since Operators](#until-and-since-operators)
 - [Important Theorems](#important-theorems)
-- [Implementation Details](#implementation-details)
-  - [World and Time Representation](#world-and-time-representation)
-  - [Time-Shift Relations](#time-shift-relations)
-  - [Model Extraction Process](#model-extraction-process)
+- [The Certificate Search](#the-certificate-search)
+  - [What Is Searched](#what-is-searched)
+  - [The Certified Model](#the-certified-model)
+  - [Sample Output](#sample-output)
 - [Model Iteration](#model-iteration)
-  - [Iterator Functionality](#iterator-functionality)
-  - [Difference Detection](#difference-detection)
-- [Frame Constraints](#frame-constraints)
 - [Development Status](#development-status)
 - [Known Limitations](#known-limitations)
 - [Adequacy](#adequacy)
@@ -37,77 +35,127 @@
 
 ## Overview
 
-The bimodal theory provides **15 operators** (9 primitive, 6 defined) across **3 categories** with **22 test examples**:
+The bimodal theory provides **17 operators** (9 primitive, 8 defined) across three categories,
+with **53 example formulas** covering extensional, modal, tense, and bimodal (BX-axiom)
+fragments:
 
-1. **Temporal operators** (4 operators): For reasoning about different times (past and future)
-   - Future (`\Future`), Past (`\Past`), and their duals
-2. **Modal operators** (2 operators): For reasoning about different world histories  
-   - Necessity (`\Box`) and Possibility (`\Diamond`)
-3. **Extensional operators** (9 operators): For classical reasoning
-   - Negation, conjunction, disjunction, conditional, biconditional, top, bottom
+1. **Temporal operators** (4 primitive: `\Future`, `\Past`, `\Until`, `\Since`; 2 defined duals):
+   for reasoning about different times (past and future)
+2. **Modal operators** (1 primitive: `\Box`; 1 defined dual `\Diamond`): for reasoning about
+   different world histories
+3. **Extensional operators** (4 primitive: `\neg`, `\wedge`, `\vee`, `\bot`; 4 defined: `\rightarrow`,
+   `\leftrightarrow`, `\top`, plus `\Next`/`\Prev` duals): for classical reasoning
 
-This implementation provides a framework to study bimodal logics where:
+This implementation searches for **witness-family certificates** over discrete (ℤ) time: a
+countermodel to an inference is presented as a finite, checkable object — a Boolean guess for
+every boxed subformula plus a small family of labelled bi-infinite lassos — that denotes an
+infinite **certified `ShiftSet` model** by construction, not by an assertion the solver is asked
+to trust. This is a from-scratch redesign, not a repair, of an earlier window-and-abundance Z3
+encoding; see [The Certificate Search](#the-certificate-search) and `docs/ARCHITECTURE.md` for
+why, and `docs/ADEQUACY.md` for the full soundness proof.
 
-- World histories are sequences of world states evolving over time
-- Each world state is an instantaneous configuration of the system
-- Sentence letters are assigned truth-values at world states alone (times are exogenous)
-- World states are not inherently indexed to any time or times
-- World histories follow lawful transitions between consecutive world states
-- Times can be negative, zero, or positive integers
-- Each world history has a temporal interval that includes 0 (the evaluation time)
-- World histories may be temporally shifted by including the same sequence of world states
-- Every world history that can be temporally shifted has a temporally shifted counterpart
+Within that design:
 
-The abundance of temporally shifted worlds ensures that world states are agnostic about the times at which they occur.
-It follows that what is necessarily the case is always the case, and what is sometimes the case is possible.
+- World histories are the certified lassos and their integer translates, not finite arrays.
+- Sentence letters are assigned truth values at `(lasso, position)` points; a certificate's label
+  at each position fixes exactly the closure members true there.
+- World histories follow lawful (shift) transitions between consecutive positions by
+  construction — no separate task-relation axiom is asserted.
+- Times are the integers `ℤ`; a lasso's label is finite data (`back`/`mid`/`fwd` segments) but
+  denotes an infinite bi-directional history.
+- `\Box` ranges over exactly the certified histories (every lasso and every one of its integer
+  translates) — never over a finite enumerated set and never over a bounded window.
+- The search never reports validity: "no certificate found within the configured segment
+  lengths" is the only verdict an unsatisfiable search can produce.
 
 ### Package Contents
 
 This package includes the following core modules:
 
-- `semantic.py`: Defines the core semantics and model structure for bimodal logic
-- `operators.py`: Implements all primitive and derived logical operators
-- `examples.py`: Contains example formulas for testing and demonstration
-- `__init__.py`: Exposes package definitions for external use
+- `semantic/core.py`: `BimodalSemantics` — settings, the Z3 variable layer, and the two-phase
+  constraint emission that discharges (C1)-(C4)
+- `semantic/model.py`: `BimodalStructure` — certificate extraction, the independent pure-Python
+  re-check, and printing
+- `semantic/proposition.py`: `BimodalProposition` — truth-value lookups against a found
+  certificate's labels
+- `semantic/formula.py`: the Lean-mirroring `Formula` ADT (`atom | bot | imp | box | untl |
+  snce`), subformula closure, sentence translation, and the JSON wire codec
+- `semantic/certificate.py`: `LabelledLasso`/`WitnessFamily`, the certificate wire-format writer,
+  and the independent pure-Python re-checker (`recheck`)
+- `semantic/witness_registry.py`: the quantifier-free Z3 variable layer (label bits, box guesses,
+  witness-lasso allocation)
+- `semantic/witness_constraints.py`: the quantifier-free constraint generators for all four
+  certificate conditions
+- `operators.py`: implements all primitive and defined logical operators as label-lookup
+  generators
+- `iterate.py`: `BimodalModelIterator` — iteration by blocking clauses on labels and guesses
+- `examples.py`: 53 example formulas for testing and demonstration
+- `__init__.py`: exposes package definitions for external use
 
 ## Key Classes
 
 ### BimodalSemantics
 
-The `BimodalSemantics` class defines the semantic models for the language, including:
+`BimodalSemantics` (`semantic/core.py`) owns the certificate search's settings and its
+quantifier-free variable/constraint layer:
 
-- **Primitive relations**: Task transitions between world states
-- **Frame constraints**: Rules that define valid model structures
-- **Truth conditions**: How to evaluate atomic propositions at world states
+- **Settings**: `back`/`mid`/`fwd` (maximum lasso segment lengths) and `max_witnesses` (an
+  optional cap on distinct witness lassos) in place of the retired `N`/`M`/`contingent`/
+  `disjoint`
+- **The variable layer**: one `WitnessRegistry` (`semantic/witness_registry.py`) holding a
+  Boolean per `(lasso, position slot, closure formula)` label bit and a Boolean box guess per
+  boxed closure member — no `ForAll`/`Exists`, no MBQI, no E-matching pattern
+- **Truth conditions**: `true_at`/`false_at` are label-membership lookups
+  (`witness_registry.bit(lasso, position, formula)`), not quantified Z3 formulas
+- **Two-phase emission**: per-premise/conclusion constraints are built as each is translated;
+  `finalize_certificate()` appends the remaining box-faithfulness, target-selector, and
+  per-lasso local-coherence/fulfilment constraints once every witness lasso a boxed subformula
+  might need has been allocated
 
-The semantics is independent of the operators defined over the semantics.
-This modular design makes it easy to compare semantic theories for the same operators as well as to compare operators for the same semantics.
+The semantics is independent of the operators defined over it. This modular design makes it easy
+to compare semantic theories for the same operators as well as to compare operators for the same
+semantics.
 
 ### BimodalProposition
 
-The `BimodalProposition` class handles the interpretation and representation of sentences over a model.
-This includes:
+`BimodalProposition` (`semantic/proposition.py`) handles the interpretation and representation of
+sentences over a found certificate:
 
-- **Extension calculation**: Computing truth/falsity across worlds and times
-- **Truth evaluation**: Checking truth values at specific world-time pairs
-- **Proposition display**: Visualizing propositions in the model
+- **Extension calculation**: `find_extension()` computes `{lasso_index: (true_positions,
+  false_positions)}` directly from certificate labels — not by recursing through operator
+  `find_truth_condition` methods, which no primitive operator defines any more
+- **Truth evaluation**: `truth_value_at(eval_lasso, eval_position)` reads a single label
+  membership fact
+- **Proposition display**: prints truth values per lasso, matching the certificate's own printed
+  shape
 
-Although sentence letters may be evaluated at world states on their own, tense and modal operators can only be interpreted at a world history and time.
+Although sentence letters may be evaluated at `(lasso, position)` points on their own, tense and
+modal operators can only be interpreted relative to a whole labelled lasso family.
 
 ### BimodalStructure
 
-The `BimodalStructure` class manages the model structure extracted from a Z3 model:
+`BimodalStructure` (`semantic/model.py`) manages the certificate search's result:
 
-- **Time intervals**: Valid intervals for each world history
-- **World arrays**: Mappings from time points to world states
-- **Time-shift relations**: Relationships between shifted world histories
-- **Visualization**: Methods to display the resulting model structure
+- **Certificate extraction and independent re-check**: on every satisfying Z3 model, extracts a
+  `WitnessFamily` and immediately re-checks it against the four certificate conditions with a
+  pure-Python checker, independent of the Z3 model object (see
+  [The Certificate Search](#the-certificate-search) and `docs/ADEQUACY.md` section 6.2) — a verdict
+  other than "countermodel" raises `ModelConstructionError` immediately, so nothing downstream
+  ever sees an unverified certificate
+- **Never reports validity**: an unsatisfiable solve leaves `self.certificate = None` and
+  `self.target_time = None`; every print path renders this as "no certificate found within the
+  configured bounds," never as a validity claim
+- **Visualization**: `print_certificate`/`print_evaluation`/`print_all` display every lasso, the
+  boxed-subformula guess table, and each false box's witness
 
 ## Basic Usage
 
-The bimodal theory provides a framework for working with temporal and modal operators in combination. This section explains how to use the theory's main components and run examples.
+The bimodal theory provides a framework for searching for witness-family certificates that
+refute a bimodal inference over discrete time. This section explains how to use the theory's main
+components and run examples.
 
-For comprehensive documentation of all available settings including theory-specific options like `M` (time points) and `align_vertically`, see **[docs/SETTINGS.md](docs/SETTINGS.md)**.
+For comprehensive documentation of all available settings, see
+**[docs/SETTINGS.md](docs/SETTINGS.md)**.
 
 For general settings that apply across all theories, see the [main settings documentation](../../settings/README.md).
 
@@ -117,36 +165,31 @@ The bimodal theory supports the following configurable settings:
 
 ```python
 DEFAULT_EXAMPLE_SETTINGS = {
-    # Number of world_states
-    'N': 2,
-    # Number of times - specific to bimodal's temporal dimension
-    'M': 2,
-    # Whether sentence_letters are assigned to contingent propositions
-    'contingent': False,
-    # Whether sentence_letters are assigned to distinct world_states
-    'disjoint': False,
+    # Maximum back/mid/fwd segment lengths for the searched LabelledLasso family
+    # (matching WitnessRegistry's nb/nm/nf). Small defaults, raised on demand.
+    'back': 2,
+    'mid': 1,
+    'fwd': 2,
+    # Optional cap on the number of distinct witness-lasso indices ever handed out;
+    # None (the default) means uncapped -- one witness lasso per boxed subformula.
+    'max_witnesses': None,
     # Maximum time Z3 is permitted to look for a model
     'max_time': 1,
     # Whether a model is expected or not (used for unit testing)
     'expectation': True,
-}
-
-# Bimodal-specific general settings that affect display format
-DEFAULT_GENERAL_SETTINGS = {
-    "print_impossible": False,
-    "print_constraints": False,
-    "print_z3": False, 
-    "save_output": False,
-    "maximize": False,
-    "align_vertically": True,  # Bimodal-specific setting for timeline visualization
+    # Number of model iterations to generate
+    'iterate': 1,
+    # Solver backend: 'z3' or 'cvc5'
+    'solver': 'z3',
 }
 ```
 
-The bimodal theory defines two unique settings not found in other theories:
-
-1. **M**: Controls the number of time points in the temporal dimension. Higher values allow for longer world histories but increase computational complexity.
-
-2. **align_vertically**: When set to `True`, displays world histories with time flowing vertically (top to bottom) which is often easier to read for bimodal models. When set to `False`, displays world histories horizontally.
+`back`, `mid`, and `fwd` replace `N`/`M`: they bound the maximum size of the searched lasso family
+rather than the size of a fixed finite frame, and `max_witnesses` replaces `temporal_depth`.
+`contingent`/`disjoint` no longer exist — there is no proposition-level machinery left for them to
+gate. The bimodal theory defines no bimodal-specific *general* (display) setting any more: the
+certificate printer needs no vertical-alignment option, since every history prints as a single
+`(back)^w | mid | (fwd)^w` line (see [Sample Output](#sample-output)).
 
 ### Example Structure
 
@@ -157,9 +200,10 @@ Each example is structured as a list containing three elements:
 ```
 
 Where:
-- `premises`: List of formulas that must be true in the model
-- `conclusions`: List of formulas to check (invalid if all premises are true and at least one conclusion is false)
-- `settings`: Dictionary of settings for this example
+- `premises`: list of formulas that must be true in the model
+- `conclusions`: list of formulas to check (invalid if all premises are true and at least one
+  conclusion is false)
+- `settings`: dictionary of settings for this example
 
 Here's a complete example definition:
 
@@ -168,11 +212,10 @@ Here's a complete example definition:
 BM_CM_1_premises = ['\\Future A']
 BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
-    'N': 1,
-    'M': 2,
-    'contingent': False,
-    'disjoint': False,
-    'max_time': 5,
+    'back': 2,
+    'mid': 1,
+    'fwd': 2,
+    'max_time': 10,
     'expectation': True,  # Expects to find a countermodel
 }
 BM_CM_1_example = [
@@ -192,14 +235,11 @@ You can run examples in several ways:
 # Run the default example from examples.py
 model-checker path/to/examples.py
 
-# Run with constraints printed 
+# Run with constraints printed
 model-checker -p path/to/examples.py
 
 # Run with Z3 output
 model-checker -z path/to/examples.py
-
-# Force vertical alignment for display (bimodal-specific)
-model-checker -a path/to/examples.py
 ```
 
 #### 2. In VSCodium/VSCode
@@ -223,9 +263,6 @@ For development purposes, you can use the `dev_cli.py` script from the project r
 
 # Run with Z3 output and constraints printed (combined flags)
 ./dev_cli.py -z path/to/examples.py
-
-# Run with vertical alignment (bimodal-specific)
-./dev_cli.py -a path/to/examples.py
 ```
 
 #### 4. Using the API
@@ -249,9 +286,8 @@ semantics = BimodalSemantics(settings)
 model_constraints = ModelConstraints(semantics, bimodal_operators)
 model = BimodalStructure(model_constraints, settings)
 
-# Check a formula
-prop = BimodalProposition("\\Box A", model)
-is_true = prop.truth_value_at(model.main_world, model.main_time)
+# Inspect the certificate (None if no certificate was found within the configured bounds)
+model.print_certificate()
 ```
 
 ### Theory Configuration
@@ -268,7 +304,7 @@ bimodal_theory = {
 
 # Define which theories to use when running examples
 semantic_theories = {
-    "Brast-McKie" : bimodal_theory,
+    "Bimodal" : bimodal_theory,
     # additional theories will require translation dictionaries
 }
 ```
@@ -282,11 +318,10 @@ Examples that are expected to have countermodels may be presented as follows:
 BM_CM_1_premises = ['\\Future A']
 BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
-    'N': 1,
-    'M': 2,
-    'contingent': False,
-    'disjoint': False,
-    'max_time': 5,
+    'back': 2,
+    'mid': 1,
+    'fwd': 2,
+    'max_time': 10,
     'expectation': True,  # Expects to find a countermodel
 }
 BM_CM_1_example = [
@@ -307,11 +342,10 @@ Examples that are not expected to have countermodels may be presented as follows
 BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 BM_TH_1_settings = {
-    'N': 1,
-    'M': 2,
-    'contingent': False,
-    'disjoint': False,
-    'max_time': 5,
+    'back': 2,
+    'mid': 1,
+    'fwd': 2,
+    'max_time': 10,
     'expectation': False,  # Expects NOT to find a countermodel
 }
 BM_TH_1_example = [
@@ -321,40 +355,34 @@ BM_TH_1_example = [
 ]
 ```
 
-**BM_TH_1:** Shows that "Box A → Future A" is valid (no countermodel exists).
+**BM_TH_1:** No certificate is found for "Box A → Future A" within the configured bounds. Per
+the theory's own never-report-validity rule (D8, see [The Certificate Search](#the-certificate-search)),
+this is reported as "no certificate found," not asserted as a proof of validity — deciding
+validity is the tableau/proof system's job, not this search's.
 
 ### Testing
 
-The examples are then collected into dictionaries with `name_string : example` entries:
+The examples are collected into dictionaries with `name_string : example` entries:
 
 ```python
 example_range = {
-    # Selected examples for current use
-    "BM_CM_2": BM_CM_2_example,
-    "BM_TH_1": BM_TH_1_example,
-}
-```
-
-The `semantic_theories` are then used to evaluate the examples in the `example_range` given the `general_settings`.
-It is typical to include many examples, most of which are commented out in order to focus on particular cases.
-
-An optional `test_example_range` may be provided for automating testing when developing semantic theories:
-
-```python
-test_example_range = {
-    # All examples for testing
+    # Curated subset for the default demonstration run
     "BM_CM_1": BM_CM_1_example,
     "BM_TH_1": BM_TH_1_example,
-    # ... more examples
+    # ... 25 examples total
 }
 ```
 
-See the [README.md](test/README.md) in the `test/` directory for further details on setting up unit testing.py` is run.
+`test_example_range` (aliasing `unit_tests`) carries the full 53-example suite used by the test
+framework, spanning extensional, modal, tense, and bimodal (BX-axiom) fragments, with every
+formerly-excluded example restored (see [Development Status](#development-status)).
+
+See [tests/README.md](tests/README.md) for the full running guide.
 
 ## Bimodal Language
 
 > [NOTE] The code blocks included below are abridged for readability.
-> Consult the `operators.py` for the complete implementation of the semantic clauses for the language.
+> Consult `operators.py` for the complete implementation of the semantic clauses for the language.
 
 Formal languages implemented in the `model-checker` must conform to the following specifications:
 
@@ -363,579 +391,259 @@ Formal languages implemented in the `model-checker` must conform to the followin
 - Parentheses must be included around sentences whose main connective is a binary operator.
 - Parentheses must NOT be included around sentences whose main connective is a unary operator.
 
+Every primitive operator's `true_at`/`false_at` mirrors its own case in `semantic/formula.py`'s
+`translate` dispatch (report 01 section 4.4): it reconstructs the `Formula` its combinator
+produces from its already-translated arguments, then looks up
+`self.semantics.witness_registry.bit(eval_point["lasso"], eval_point["position"], formula)`. There
+is exactly one rule per operator, stated in two places (the translation table and the operator's
+own `true_at`), not two independently-evolving encodings of the same rule.
+
 ### Necessity Operator (`\\Box`)
 
-The necessity operator (`\\Box`) evaluates whether a formula holds across all possible worlds at a given time.
-
-This operator implements 'It is necessarily the case that' which takes one sentence as an argument.
-The operator evaluates whether its argument is true in every possible world at the evaluation time.
+The necessity operator (`\\Box`) evaluates whether a formula holds across every certified world
+history at the same evaluation position.
 
 **Key Properties:**
 
-- Evaluates truth across all possible worlds at a fixed evaluation time (purely modal)
-- Returns true only if the argument is true in ALL possible worlds
-- Returns false if there exists ANY possible world where the argument is false
+- Evaluates truth across every lasso and every one of its integer translates (purely modal)
+- Returns true only if the box guess `bx(A)` is `true` — which, by box faithfulness (C3), holds
+  exactly when `A` belongs to the label at every position of every lasso in the family
+- Returns false if `bx(A)` is `false`, in which case the certificate carries a **witness lasso**
+  whose label omits `A` at some position
 
 #### Truth Condition
 
-`\\Box A` is true in `eval_world` at `eval_time` if and only if `A` is true in all world histories at `eval_time`.
+`\\Box A` is true at `(lasso, position)` if and only if `Box(A)` is in the label at that position
+— by (C1)'s box clause, this holds for every position of every lasso exactly when `bx(A) = true`.
 
 ```python
-def true_at(self, argument, eval_world, eval_time):
-    return z3.ForAll(
-        other_world,
-        z3.Implies(
-            semantics.is_world(other_world),
-            semantics.true_at(argument, other_world, eval_time)
-        )
+def true_at(self, argument, eval_point):
+    formula = Box(translate(argument.sentence_letter or argument, ...))
+    return self.semantics.witness_registry.bit(
+        eval_point["lasso"], eval_point["position"], formula
     )
 ```
 
 #### Falsity Condition
 
-`\\Box A` is false in `eval_world` at `eval_time` if and only if `A` is false in some world history at `eval_time`.
-
-```python
-def false_at(self, argument, eval_world, eval_time):
-    return z3.Exists(
-        other_world,
-        z3.And(
-            semantics.is_world(other_world),
-            semantics.false_at(argument, other_world, eval_time)
-        )
-    )
-```
+`\\Box A` is false at `(lasso, position)` if and only if `bx(A) = false`, in which case the
+certificate's witness lasso for `A` (allocated by `WitnessRegistry.allocate_witness_lasso`)
+demonstrates a position where `A`'s label is absent.
 
 ### Future Operator (`\\Future`)
 
-The future operator (`\\Future`) evaluates whether a formula holds at all future times in a given world history.
-
-This operator implements 'It will always be the case that' which takes one sentence as an argument.
-The operator evaluates whether its argument is true at every future time point in the current world history.
-Future times are understood to exclude the present time of evaluation.
+The future operator (`\\Future`) evaluates whether a formula holds at every strictly later
+position of the same lasso.
 
 **Key Properties:**
 
-- Evaluates truth across all future times in the current world history (purely temporal)
-- Returns true only if the argument is true at ALL future times
-- Returns false if there exists ANY future time where the argument is false
+- Evaluates truth across every future position of the current lasso (purely temporal)
+- Defined via `\\Until`: `\\Future A` is `\\neg (\\top \\Until \\neg A)` — "there is no future
+  point where `A` first fails while `\\top` holds throughout," i.e. `A` holds at every future
+  point
+- Future positions exclude the present position of evaluation
 
 #### Truth Condition
 
-`\Future A` is true at world `w` at time `t` if and only if A is true at all future times in world `w`.
-
-```python
-def true_at(self, argument, eval_world, eval_time):
-    return z3.ForAll(
-        time,
-        z3.Implies(
-            z3.And(
-                semantics.is_valid_time_for_world(eval_world, time),
-                eval_time < time
-            ),
-            semantics.true_at(argument, eval_world, time)
-        )
-    )
-```
-
-#### Falsity Condition
-
-`\Future A` is false at world `w` at time `t` if and only if A is false at at least one future time in world `w`.
+`\Future A` is true at `(lasso, position)` if and only if `A`'s label bit is set at every strictly
+later position of the same lasso — read directly from the periodic label, not from a bounded
+window.
 
 ### Past Operator (`\Past`)
 
-The past operator `\Past A` has a purely temporal semantics:
+The past operator `\Past A` is the temporal mirror of `\Future`, defined via `\\Since`, and reads
+`A`'s label bit at every strictly earlier position of the same lasso.
 
-#### Truth Condition
+### Until and Since Operators
 
-`\Past A` is true at world `w` at time `t` if and only if A is true at all past times in world `w`.
-
-```python
-def true_at(self, argument, eval_world, eval_time):
-    return z3.ForAll(
-        time,
-        z3.Implies(
-            z3.And(
-                semantics.is_valid_time_for_world(eval_world, time),
-                eval_time > time
-            ),
-            semantics.true_at(argument, eval_world, time)
-        )
-    )
-```
-
-#### Falsity Condition
-
-`\Past A` is false at world `w` at time `t` if and only if A is false at at least one past time in world `w`.
+`\\Until` and `\\Since` are primitive, guard-first (matching the Lean `untl`/`snce`
+constructors — argument order is `(guard, event)`, the opposite of ModelChecker's historical
+event-first `UntilOperator`/`SinceOperator` argument order, so translation swaps them; see
+`semantic/formula.py`'s module docstring). `g \\Until e` is true at a position exactly when (C1)'s
+fixpoint clause holds there — `e`'s label bit is set at the next position, or `g`'s label bit is
+set at the next position and `g \\Until e` recurses — and (C2) fulfilment guarantees this fixpoint
+is never satisfied merely by infinite postponement: there must be an actual later position where
+`e` holds with `g` holding at every position strictly in between. `\\Since` is the backward
+mirror.
 
 ## Important Theorems
 
-The bimodal semantics validates several important theorems that demonstrate the interaction between modal and temporal operators:
+The bimodal semantics validates several important theorems that demonstrate the interaction
+between modal and temporal operators, all decided by the certificate search at the default
+`back=2/mid=1/fwd=2` segment lengths:
 
-1. **Box-Future Theorem**: `\Box A → \Future A`
-   - If A is necessarily true, then it is always true in the future
-2. **Box-Past Theorem**: `\Box A → \Past A`
-   - If A is necessarily true, then it was always true in the past
-3. **Possibility-Future Theorem**: `\future A → \Diamond A`
-   - If A is possibly true in the future, then A is possible
-4. **Possibility-Past Theorem**: `\past A → \Diamond A`
-   - If A was possibly true in the past, then A is possible
-   - This theorem connects past possibility to general possibility
+1. **Box-Future Theorem** (`BM_TH_1`): `\Box A → \Future A`
+2. **Box-Past Theorem** (`BM_TH_2`): `\Box A → \Past A`
+3. **Modal-Future Theorem** (`MF_MODAL_FUTURE_TH`): `\Box A → \Box \Future A` — the paper's own
+   bimodal axiom MF. The retired window-and-abundance encoding refuted this axiom (a countermodel
+   at `N=1, M=2`), which is the decisive evidence that encoding was not a model of the paper's
+   semantics rather than merely slow or incomplete; see `docs/ARCHITECTURE.md`. The certificate
+   encoding finds no certificate for its negation, matching the paper.
+4. The **BX axiom system** (`BX6`/`BX6P`/`BX7`/`BX7P`/`BX11`/`BX11P`/`BX13`/`BX13P`): linearity,
+   absorption, and enrichment theorems over `\\Until`/`\\Since`, including `BX7_LINEAR_U_TH` and
+   `BX7P_LINEAR_S_TH`, both of which the retired encoding excluded for solver-cost reasons and
+   which now decide correctly in well under 50ms each.
 
-## Implementation Details
+## The Certificate Search
 
-### World and Time Representation
+### What Is Searched
 
-The bimodal implementation uses these key representations:
+Fix the premises and conclusions of an inference and let `C` be the subformula closure of their
+union (`semantic/formula.py`'s `closure_of`). A **certificate** is:
 
-- **World states**: Represented as bitvectors (fusions of atomic states)
-- **World IDs**: Integer identifiers for world histories (starting at 0)
-- **Time points**: Integers allowing negative, zero, and positive values
-- **World histories**: Arrays mapping time points to world states
-- **Time intervals**: Each world history has a valid interval within which it's defined
-- **Evaluation point**: Fixed at world ID 0, time 0
+- a **box guess** `bx : C → Bool` for every boxed subformula in `C`;
+- a **main lasso** `L0`, plus one **witness lasso** for every boxed subformula guessed false (at
+  most one more than the number of boxes; lassos may be shared but sharing is not implemented —
+  see `semantic/certificate.py`'s "Extension point" note);
+- each lasso given as `(back, mid, fwd)` segments, a subset of `C` (a **label**) at every
+  position, with positions left of the origin repeating `back` and positions at or after `mid`'s
+  length repeating `fwd`.
 
-The semantic model defines several Z3 sorts used throughout the implementation:
+A certificate must satisfy four conditions at every lasso and every position (`docs/ADEQUACY.md`
+section 1 has the full statement; this is the informal shape):
 
-```python
-# Define the Z3 sorts used in the bimodal logic model
-self.WorldStateSort = z3.BitVecSort(self.N)  # World states as bitvectors
-self.TimeSort = z3.IntSort()                 # Time points as integers
-self.WorldIdSort = z3.IntSort()              # World IDs as integers
+1. **Local coherence (C1)**: `⊥` is never in a label; `a → b`, `Box(χ)`, `g Until e`, and `g Since
+   e` are each in a label exactly when their defining biconditional holds there. Atoms are
+   deliberately unconstrained — the search is free to choose them, and Lemma 4's atom case
+   (`docs/ADEQUACY.md`) shows this is sound, not a gap.
+2. **Fulfilment (C2)**: every `Until`/`Since` obligation in a label has an actual later/earlier
+   witness position with the guard holding throughout — this is what stops (C1)'s fixpoint law
+   from being satisfied by infinite postponement.
+3. **Box faithfulness (C3)**: a box guessed true has its argument in every label of every lasso; a
+   box guessed false has some position of some lasso omitting it.
+4. **Target (C4)**: some position of the main lasso carries every premise and no conclusion.
+
+### The Certified Model
+
+The certificate denotes the `ShiftSet` whose carrier is the disjoint union of the lassos'
+`(index, position)` points, with the shift `(i, t) ⇒_x (i, t + x)` as the task relation for every
+integer `x`, and an atom true at `(i, t)` exactly when it is in that position's label. Seriality,
+compositionality, Limit, and Saturation hold **by construction** of this carrier, not by an
+asserted axiom — see `docs/ADEQUACY.md`'s Lemma 1. Its possible worlds are exactly the lasso
+orbits (Lemma 2), so `\\Box` ranges over exactly the certified histories, and the model has
+infinitely many world states and infinite durations. `docs/ADEQUACY.md` proves the (SOUND)
+theorem: whenever the search reports a certificate, the certified model genuinely refutes the
+inference.
+
+**Soundness is unconditional; completeness is not claimed.** ModelChecker's own soundness does
+not depend on any open theorem — (SOUND) is proved in full in `docs/ADEQUACY.md`. The converse
+direction (every ℤ-refutable inference has a certificate within some length bound) is the open
+"compression lemma" of a separate Lean development, and it determines only whether "no
+certificate found within bounds" carries information — it never licenses reporting validity. This
+theory never reports validity for exactly this reason (D8): "no certificate found" is always
+rendered as a bounded-search fact, never as a proof.
+
+Independent of that open direction, every model this theory reports is checked twice: once by the
+Z3 constraints that produced it, and once more by a pure-Python re-checker
+(`semantic/certificate.py`'s `recheck`) that re-verifies all four conditions from the extracted
+labels alone, with no access to the Z3 model object. A verdict other than "countermodel" raises
+immediately — an encoder bug becomes a loud rejection, never a false report.
+
+### Sample Output
+
+A countermodel (`BM_CM_1`, `\\Future A ⊭ \\Box A`):
+
+```
+Certificate:
+  L0 (main): ([{A}], {A})^w | {A} | ({A}, {A})^w
+  L1 (witness 1): ({}, {})^w | {} | ({}, {})^w
+
+Boxed subformulas:
+  Box(Atom(base='A', fresh_index=None)) = False
+    Witness: L1 at position -2 (({}, {})^w | {} | ({}, {})^w)
+
+Evaluation Point:
+  Main lasso: L0
+  Target position: -2
 ```
 
-### Time-Shift Relations
+`L0` is `(back)^w | mid | (fwd)^w`: `A` holds throughout the back and fwd segments and at `mid`,
+so `\\Future A` holds at the target position; `Box(A)` is guessed `False` because `L1`, the
+witness lasso, has an empty label everywhere — `A` fails at every position of `L1`, so `A` is not
+true in every history, and `\\Box A` correctly fails.
 
-Each world has a valid time interval defined by two functions:
+A no-certificate case (`MF_MODAL_FUTURE_TH`, the paper's MF axiom):
 
-```python
-# Define interval tracking functions
-self.world_interval_start = z3.Function(
-    'world_interval_start',
-    self.WorldIdSort,  # World ID
-    self.TimeSort      # Start time of interval
-)
-
-self.world_interval_end = z3.Function(
-    'world_interval_end',
-    self.WorldIdSort,  # World ID
-    self.TimeSort      # End time of interval
-)
+```
+EXAMPLE MF_MODAL_FUTURE_TH: there is no countermodel.
 ```
 
-Time intervals are required to be convex (no gaps) and are generated within the range [-M+1, M-1]:
-
-```python
-def generate_time_intervals(self, M):
-    """Generate all valid time intervals of length M that include time 0."""
-    intervals = []
-    for start in range(-M+1, 1):  # Start points from -M+1 to 0
-        end = start + M - 1       # Each interval has exactly M time points
-        intervals.append((start, end))
-    return intervals
-```
-
-### World Function and Task Relation
-
-The core of the bimodal implementation includes:
-
-1. The world function that maps world IDs to their history arrays:
-
-```python
-# Mapping from world IDs to world histories (arrays from time to state)
-self.world_function = z3.Function(
-    'world_function',
-    self.WorldIdSort,                          # Input: world ID
-    z3.ArraySort(self.TimeSort, self.WorldStateSort)  # Output: world history
-)
-```
-
-2. The task relation specifying valid transitions between world states:
-
-```python
-# Define the task relation between world states
-self.task = z3.Function(
-    "Task",
-    self.WorldStateSort,  # From state
-    self.WorldStateSort,  # To state
-    z3.BoolSort()         # Is valid transition?
-)
-```
-
-The model extraction process follows these steps:
-
-The Skolem abundance constraint ensures that time-shifted worlds exist where needed. This optimization uses Skolem functions to directly define the shifted worlds:
-
-```python
-# Define Skolem functions that directly compute the necessary worlds
-forward_of = z3.Function('forward_of', self.WorldIdSort, self.WorldIdSort)
-backward_of = z3.Function('backward_of', self.WorldIdSort, self.WorldIdSort)
-```
-
-For example, if world ID 0 can be shifted forward by 1, then the world `forward_of(0)` must exist and must be a properly time-shifted version of world 0.
-
-This constraint is critical for correctly modeling the interaction between modal and temporal operators in bimodal logic.
-
-### Model Extraction Process
-
-The model extraction process follows these steps:
-
-1. Extract valid world IDs (`_extract_valid_world_ids`)
-2. Extract world arrays for each world ID (`_extract_world_arrays`)
-3. Extract time intervals for each world (`_extract_time_intervals`)
-4. Build time-state mappings for each world history (`_extract_world_histories`)
-5. Determine time-shift relations between worlds (`_extract_time_shift_relations`)
-
-This highly structured extraction process helps manage the complexity of bimodal models.
-
-## Frame Constraints
-
-The bimodal logic is defined by the following key frame constraints that determine the structure of models, as implemented in `build_frame_constraints()`:
-
-### 1. Valid World Constraint
-
-Every model must have at least one world history (designated as world 0) that is marked as valid.
-
-```python
-valid_main_world = self.is_world(self.main_world)
-```
-
-### 2. Valid Time Constraint
-
-Every model must have a valid evaluation time (designated as time 0).
-
-```python
-valid_main_time = self.is_valid_time(self.main_time)
-```
-
-### 3. World Enumeration Constraint
-
-World histories must be enumerated in sequence starting from 0.
-
-```python
-enumeration_constraint = z3.ForAll(
-    [enumerate_world],
-    z3.Implies(
-        # If enumerate_world is a world
-        self.is_world(enumerate_world),
-        # Then it's non-negative
-        enumerate_world >= 0,
-    )
-)
-```
-
-### 4. Convex World Ordering Constraint
-
-There can be no gaps in the enumeration of worlds, ensuring worlds are created in sequence.
-
-```python
-convex_world_ordering = z3.ForAll(
-    [convex_world],
-    z3.Implies(
-        # If both:
-        z3.And(
-            # The convex_world is a world
-            self.is_world(convex_world),
-            # And greater than 0
-            convex_world > 0,
-        ),
-        # Then world_id - 1 must be valid
-        self.is_world(convex_world - 1)
-    )
-)
-```
-
-### 5. Lawful Transition Constraint
-
-Each world history must follow lawful transitions between consecutive states.
-
-```python
-lawful = z3.ForAll(
-    [lawful_world, lawful_time],
-    # If for any lawful_world and lawful time
-    z3.Implies(
-        z3.And(
-            # The lawful_world is a valid world
-            self.is_world(lawful_world),
-            # The lawful_time is in (-M - 1, M - 1), so has a successor
-            self.is_valid_time(lawful_time, -1),
-            # The lawful_time is in the lawful_world
-            self.is_valid_time_for_world(lawful_world, lawful_time),
-            # The successor of the lawful_time is in the lawful_world
-            self.is_valid_time_for_world(lawful_world, lawful_time + 1),
-        ),
-        # Then there is a task
-        self.task(
-            # From the lawful_world at the lawful_time
-            z3.Select(self.world_function(lawful_world), lawful_time),
-            # To the lawful_world at the successor of the lawful_time
-            z3.Select(self.world_function(lawful_world), lawful_time + 1)
-        )
-    )
-)
-```
-
-### 6. Skolem Abundance Constraint
-
-An optimized version of the abundance constraint using Skolem functions to eliminate nested quantifiers, improving Z3 performance.
-
-```python
-# Define Skolem functions that directly compute the necessary worlds
-forward_of = z3.Function('forward_of', self.WorldIdSort, self.WorldIdSort)
-backward_of = z3.Function('backward_of', self.WorldIdSort, self.WorldIdSort)
-
-# Use Skolem functions instead of existential quantifiers
-return z3.ForAll(
-    [source_world],
-    z3.Implies(
-        # If the source_world is a valid world
-        self.is_world(source_world),
-        # Then both:
-        z3.And(
-            # Forwards condition - if source can shift forward
-            z3.Implies(
-                self.can_shift_forward(source_world),
-                z3.And(
-                    # The forward_of function must produce a valid world
-                    self.is_world(forward_of(source_world)),
-                    # The produced world must be properly shifted
-                    self.is_shifted_by(source_world, 1, forward_of(source_world))
-                )
-            ),
-            # Backwards condition - if source can shift backwards
-            z3.Implies(
-                self.can_shift_backward(source_world),
-                z3.And(
-                    # The backward_of function must produce a valid world
-                    self.is_world(backward_of(source_world)),
-                    # The produced world must be properly shifted
-                    self.is_shifted_by(source_world, -1, backward_of(source_world))
-                )
-            )
-        )
-    )
-)
-```
-
-### 7. World Uniqueness Constraint
-
-No two worlds can have identical histories over their entire intervals.
-
-```python
-world_uniqueness = z3.ForAll(
-    [world_one, world_two],
-    z3.Implies(
-        z3.And(
-            self.is_world(world_one),
-            self.is_world(world_two),
-            world_one != world_two
-        ),
-        # Worlds must differ at some time point that is valid for both
-        z3.Exists(
-            [some_time],
-            z3.And(
-                self.is_valid_time(some_time),
-                self.is_valid_time_for_world(world_one, some_time),
-                self.is_valid_time_for_world(world_two, some_time),
-                z3.Select(self.world_function(world_one), some_time) !=
-                z3.Select(self.world_function(world_two), some_time)
-            )
-        )
-    )
-)
-```
-
-### 8. Time Interval Constraint
-
-An optimized version of the world interval constraint that directly defines interval bounds for each world.
-
-```python
-# Generate valid time intervals
-time_intervals = self.generate_time_intervals(self.M)
-
-# Create direct mapping for interval bounds
-interval_constraints = []
-
-# For each valid world ID, create direct interval constraints
-for world_id in range(self.max_world_id):
-    # A world must have exactly one of the valid intervals if it exists
-    world_constraint = z3.Implies(
-        self.is_world(world_id),
-        z3.Or(*world_interval_options)
-    )
-
-    interval_constraints.append(world_constraint)
-
-# Combine all world constraints
-return z3.And(*interval_constraints)
-```
-
-### Additional Optional Constraints
-
-The semantic model also defines several optional constraints that can be enabled as needed:
-
-#### Task Restriction Constraint
-
-Ensures the task relation only holds between states in lawful world histories.
-
-```python
-task_restriction = z3.ForAll(
-    [some_state, next_state],
-    z3.Implies(
-        # If there is a task from some_state to next_state
-        self.task(some_state, next_state),
-        # Then for some task_world at time_shifted:
-        z3.Exists(
-            [task_world, time_shifted],
-            z3.And(
-                # The task_world is a valid world
-                self.is_world(task_world),
-                # The successor or time_shifted is a valid time
-                self.is_valid_time(time_shifted, -1),
-                # Where time_shifted is a time in the task_world,
-                self.is_valid_time_for_world(task_world, time_shifted),
-                # The successor of time_shifted is a time in the task_world
-                self.is_valid_time_for_world(task_world, time_shifted + 1),
-                # The task_world is in some_state at time_shifted
-                some_state == z3.Select(self.world_function(task_world), time_shifted),
-                # And the task_world is in next_state at the successor of time_shifted
-                next_state == z3.Select(self.world_function(task_world), time_shifted + 1)
-            )
-        )
-    )
-)
-```
-
-#### Task Minimization Constraint
-
-Guides Z3 to prefer solutions where consecutive world states are identical when possible, reducing unnecessary state changes.
-
-```python
-task_minimization = z3.ForAll(
-    [world_id, time_point],
-    z3.Implies(
-        z3.And(
-            self.is_world(world_id),
-            self.is_valid_time_for_world(world_id, time_point),
-            self.is_valid_time_for_world(world_id, time_point + 1)
-        ),
-        # Encourage identical states if possible (soft constraint)
-        z3.Select(self.world_function(world_id), time_point) ==
-        z3.Select(self.world_function(world_id), time_point + 1)
-    )
-)
-```
-
-The frame constraints are applied in a specific order to guide Z3's model search efficiently.
+No `Certificate:`/`Evaluation Point:` block is printed for the no-model case — see D8 above.
 
 ## Model Iteration
 
-The bimodal theory supports finding multiple distinct models through the `BimodalModelIterator` class, which extends the core iteration framework with bimodal-specific features.
-
-### Iterator Functionality
-
-The iterator can find multiple non-isomorphic models that satisfy the same logical constraints:
+The bimodal theory supports finding multiple certificates through the `BimodalModelIterator`
+class:
 
 ```python
 from model_checker.theory_lib.bimodal import iterate_example
 
-# Find up to 3 distinct models
+# Find up to 3 distinct certificates
 models = iterate_example(example, max_iterations=3)
 
-# Each model has different structural properties
 for i, model in enumerate(models):
-    print(f"Model {i+1}:")
-    model.print_all()
+    print(f"Certificate {i+1}:")
+    model.print_certificate()
 ```
 
-### Difference Detection
-
-The bimodal iterator tracks five categories of differences between consecutive models:
-
-1. **World History Changes**: Modifications to time-state mappings
-   - Added/removed worlds
-   - Changed states at specific times
-   - Modified time points within histories
-
-2. **Truth Condition Changes**: How sentence letters are evaluated
-   - Truth value changes at specific states
-   - New/removed truth assignments
-
-3. **Task Relation Changes**: Transitions between world states
-   - Added/removed task transitions
-   - Modified transition relationships
-
-4. **Time Interval Changes**: Valid time ranges for worlds
-   - Extended/shortened intervals
-   - Shifted interval boundaries
-
-5. **Time Shift Relations**: Relationships between temporally shifted worlds
-   - New/removed shift relationships
-   - Changed shift targets
-
-Example output:
-```
-=== DIFFERENCES FROM PREVIOUS MODEL ===
-
-World History Changes:
-  World W_0 changed:
-    Time -1: a -> b
-  + World W_2 added
-    History: (-1:a) -> (0:a) -> (1:b)
-
-Truth Condition Changes:
-  Letter A:
-    State b: False -> True
-
-Task Relation Changes:
-  Task a->b: added
-
-Time Interval Changes:
-  World W_0 interval: (-1, 1) -> (-2, 2)
-
-Time Shift Relation Changes:
-  Time shifts for World W_0 changed:
-    Shift -1: W_1 -> W_2
-```
-
-These comprehensive differences help understand how the iterator explores the model space and what structural variations exist between models.
+Successive certificates are required to differ in at least one label bit or box guess (a blocking
+clause built directly against the previous solved model). **`iterate: N > 1` currently raises**
+through the standard CLI/`iterate_example` path — a pre-existing shared-framework gap
+(`model_checker/iterate/models.py` calls `semantics.is_world(...)` with no guard, and bimodal
+defines no `is_world`), reproduced and recorded, not fixed, in
+[docs/ITERATE.md](docs/ITERATE.md#a-live-limitation-iterate-n--1-currently-crashes). Use the
+default `iterate: 1` until that shared code is fixed. See `docs/ITERATE.md` for the full story,
+including the isomorphism-rejection scope this redesign deliberately narrowed (exact-difference
+blocking rather than full rotation/permutation-invariant rejection).
 
 ## Development Status
 
-**This theory is under active construction and its test suite is non-gating.** Every test under
-`tests/` carries the `development` marker and is deselected from every release-gating CI run, so a
-failing bimodal test does not turn the repository's build red. The tests still run and are still
-maintained — they are quarantined from the gate, not silenced — and bimodal's soundness and
-differential-oracle tests in `oracle/bimodal_logic/tests/` remain fully gating regardless.
+**This theory is gating again.** The `development` marker that previously quarantined every test
+under `tests/` from release-gating CI has been removed: the certificate redesign restored the
+speed and semantic-alignment aims that motivated the marker in the first place (see
+`code/docs/core/TESTING_GUIDE.md` section 8.14 for the marker's history and its retirement
+record).
 
-Run the suite explicitly:
+Run the suite:
 
 ```bash
 cd code && PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -v
 ```
 
-See [`tests/README.md`](tests/README.md) for the full running guide, and
-[`code/docs/core/TESTING_GUIDE.md`](../../../../docs/core/TESTING_GUIDE.md) section 8.14 for the
-marker's contract, what this status accepts, and what retires it.
+See [`tests/README.md`](tests/README.md) for the full running guide.
 
 ## Known Limitations
 
-- **Performance**: Models with many time points or complex formulas may run slowly
-- **Z3 Timeouts**: Complex models may hit solver timeouts (adjust the `max_time` setting)
-- **Abundance Impact**: The abundance constraint significantly increases computational load
-- **Model Complexity**: The full bimodal semantics creates models that may challenge Z3's capabilities
-- **Memory Usage**: Large models with many worlds and times can consume significant memory
+- **Determinism, not branching**: certified frames have no branching at a shared state (lassos
+  never share positions); this is without loss for the current language (Z-frame validity equals
+  validity over recurrence-free Z-frames), but a future stability-modal extension would need
+  branching witness families, which is open research and not promised here.
+- **Discrete time only**: dense/continuous time is out of scope — see `docs/ARCHITECTURE.md`'s
+  "Why ℤ-time only" for the structural reason (a finite carrier over a dense order collapses
+  every small-duration fibre to a singleton).
+- **`iterate: N > 1` currently crashes** via the standard CLI/`iterate_example` path (a
+  pre-existing shared-framework gap, reproduced and recorded, not fixed); use `iterate: 1` (the
+  default) until it is. Independently, isomorphism rejection during iteration is exact-difference,
+  not rotation/permutation invariant, so even once fixed a repeated run may surface rotations of
+  earlier certificates; see [docs/ITERATE.md](docs/ITERATE.md).
+- **No fixed-frame model-checking mode**: checking a given finite digraph directly (rather than
+  searching for a certificate) is a distinct, currently out-of-scope feature.
 
 ## Adequacy
 
-`docs/ADEQUACY.md` states and proves the soundness correspondence between the witness-family
-certificate design (the target of the redesign this theory is undergoing) and the paper's task
-semantics, and states the open adequacy (converse) direction without asserting it. It is not a
-claim about the window-and-abundance encoding currently in this package.
+`docs/ADEQUACY.md` states and proves the (SOUND) soundness correspondence between the
+witness-family certificate design implemented in this package and the paper's task semantics, and
+states the open adequacy (converse) direction without asserting it. `docs/ARCHITECTURE.md` carries
+forward the theorem statement, the four lemmas, and the Lean citation table for quick reference;
+`docs/ADEQUACY.md` is the fuller treatment.
 
 ## References
 
 For more information on bimodal logics and related topics, see:
 
-- The full ModelChecker documentation in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/README.md`
+- `docs/ARCHITECTURE.md` for the certificate design, the two-phase constraint emission, and the
+  (SOUND) theorem
+- `docs/ADEQUACY.md` for the full soundness proof and the open adequacy direction
 - The test suite in [`tests/`](tests/), documented in [`tests/README.md`](tests/README.md)
+- The differential oracle in `oracle/bimodal_logic/`, documented in its own
+  [`README.md`](../../../../../oracle/bimodal_logic/README.md)
