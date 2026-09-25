@@ -65,7 +65,7 @@
     {
       "project_number": 186,
       "project_name": "review_manual_counterfactual_semantics_for_uniform_clauses",
-      "status": "planning",
+      "status": "planned",
       "task_type": "formal:logic",
       "topic": "semantics",
       "effort": "large",
@@ -76,11 +76,16 @@
           "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
           "type": "report",
           "summary": "Research report: the settler recipe stated as one family-level principle (Settled Event Verification) with 10 findings, the null-family convention derived, the strict collapse escaped by minimality, the E3/minimality obstructions named, and the manual edit list"
+        },
+        {
+          "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/plans/01_uniform-clauses-evidence-closure.md",
+          "type": "plan",
+          "summary": "6 phases, waves [[1,2],[3],[4,5],[6]], 8.25 hours; closes report 01's five undecided items and integrates the user-focus alignment review."
         }
       ],
       "created": "2026-09-09T02:35:21Z",
-      "last_updated": "2026-09-25T01:32:02Z",
-      "session_id": "sess_1790299903_1e1dd5_186",
+      "last_updated": "2026-09-25T01:39:39Z",
+      "session_id": "sess_1790299903_1e1dd5",
       "next_artifact_number": 2
     }
   ],
