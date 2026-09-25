@@ -1,18 +1,25 @@
 {
-  "status": "planned",
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 3,
   "task_number": 187,
-  "phase": "plan",
-  "session_id": "sess_1790312099_19329d_187",
-  "dispatch_seq": 2,
-  "phases_completed": 0,
+  "session_id": "sess_1790312099_19329d",
+  "summary": "All six plan phases completed: ADEQUACY.md states and fully proves (SOUND) with a verified Lean citation table, records (ADEQ) as open, a checker-independent certificate fixture corpus mechanically demonstrates and Lean-validates the proved re-check windows, the certificate-redesign task's plan is amended (D7, D9, nine phases) with the corrected constraints before dispatch, and the false exclusion-comment claim is corrected in prose.",
+  "phases_completed": 6,
   "phases_total": 6,
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/187_establish_adequacy_theorem_bimodal_countermodels/plans/01_adequacy-theorem-bimodal-countermodels.md",
-      "summary": "Adequacy-layer implementation plan: 6 phases, 9.5 hours, waves [[1,3],[2,4],[5],[6]]."
+      "type": "summary",
+      "path": "specs/187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md",
+      "summary": "Full implementation summary for all six phases."
+    },
+    {
+      "type": "doc",
+      "path": "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+      "summary": "States and proves (SOUND) in full; records (ADEQ) as open."
     }
   ],
-  "next_steps": "Run /implement 187 to execute the plan",
-  "notes": "Layered over the certificate-redesign task (option (a)); subsumes none of its phases. Phase 5 amends that plan's D7 window while it is still NOT STARTED."
+  "blockers": [],
+  "next_steps": "Task complete. The amended certificate-redesign task (specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/) now carries the corrected windows and state-sharing rationale and can proceed against its own plan.",
+  "notes": "The fulfilment-side window-discriminating fixture was attempted per the plan's Scope Hypothesis and found non-discriminating; the finding is recorded in fixtures/certificates/README.md and the local-coherence-side fixture ships alone, exactly as the plan's escape hatch permits. Full bimodal suite: 345/350 passed; the 5 failures are pre-existing, documented Z3 MBQI nondeterminism (BM_CM_1/BM_CM_4), unrelated to this task's comment-only edit to test_bimodal.py."
 }

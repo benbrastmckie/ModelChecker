@@ -471,14 +471,14 @@ suite plus the new tests are green.
 
 ## Testing & Validation
 
-- [ ] The fixture corpus is green under the self-contained evaluator, and the discriminating
+- [x] The fixture corpus is green under the self-contained evaluator, and the discriminating
       assertion demonstrably fails when the window is narrowed to one period.
-- [ ] The Lean differential is green with a recorded commit, or cleanly skipped with a named
+- [x] The Lean differential is green with a recorded commit, or cleanly skipped with a named
       reason.
-- [ ] The full bimodal suite is unchanged apart from the two new modules.
-- [ ] The amended redesign plan validates and retains all 24 phases at their original statuses.
-- [ ] Every Lean name cited in the adequacy document resolves in the Lean development.
-- [ ] No task-number reference is introduced outside `specs/**`.
+- [x] The full bimodal suite is unchanged apart from the two new modules.
+- [x] The amended redesign plan validates and retains all 24 phases at their original statuses.
+- [x] Every Lean name cited in the adequacy document resolves in the Lean development.
+- [x] No task-number reference is introduced outside `specs/**`.
 
 ## Artifacts & Outputs
 
