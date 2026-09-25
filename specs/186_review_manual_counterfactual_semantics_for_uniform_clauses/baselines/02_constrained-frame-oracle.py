@@ -392,14 +392,17 @@ def experiment_constrained(times, forbidden_pair: Tuple[str, str], perturb: bool
     s, t = resolve(s_name), resolve(t_name)
     forbidden = {(s, t)}
     if perturb:
-        forbidden = set()  # deliberately drop the constraint to show the certificate then fails
-    rel = forbidden_transition_relation(fr0.poss, forbidden if not perturb else {(s, t)})
-    fr = GeneralFrame(atoms, worlds_names, times, rel)
-    if perturb:
-        # Perturb by claiming the pair is forbidden when the relation was NOT built to forbid it.
-        cert_ok = certify_constrained_frame(fr, {(999999, 999999)})  # a pair that isn't actually forbidden
-        print(f"  certificate on a bogus forbidden pair (should FAIL): {cert_ok}")
+        # Build the frame's relation WITHOUT the constraint (so it does NOT actually forbid the
+        # pair), then certify it while CLAIMING the pair is forbidden -- the certificate must
+        # detect the mismatch and report FAIL, demonstrating it is a real check and not a no-op.
+        rel = forbidden_transition_relation(fr0.poss, set())
+        fr = GeneralFrame(atoms, worlds_names, times, rel)
+        cert_ok = certify_constrained_frame(fr, forbidden)
+        print(f"  certificate claiming {fr.name(s)} -> {fr.name(t)} forbidden, on a relation that "
+              f"does NOT forbid it (should be False): {cert_ok}")
         return
+    rel = forbidden_transition_relation(fr0.poss, forbidden)
+    fr = GeneralFrame(atoms, worlds_names, times, rel)
     cert_ok = certify_constrained_frame(fr, forbidden)
     print(f"  certificate (frame genuinely forbids {fr.name(s)} -> {fr.name(t)}): {cert_ok}")
     if not cert_ok:
@@ -454,6 +457,24 @@ def experiment_constrained(times, forbidden_pair: Tuple[str, str], perturb: bool
     suff = all(any(fr.below_history(p, h) for p in V) for h in fr.histories if m.true(CF(A, B), h, 0))
     suff_f = all(any(fr.below_history(p, h) for p in Fs) for h in fr.histories if m.false(CF(A, B), h, 0))
     print(f"  sound V/F: {sound}/{sound_f}; sufficient V/F: {suff}/{suff_f}")
+
+    # F5.1 validity profile on this frame (ILMC variant): identity, MP, strict->cf, cf->strict, AS,
+    # might-identity, at the same antecedent shape used above, compared against round 1's
+    # memoryless-schema table (all valid except strict->cf-DUAL/cf->strict/AS, which the recipe's
+    # minimality step is expected to keep failing regardless of the frame's task relation, since
+    # the escape mechanism (F5.2) is about MIN removing total settlers, not about the relation).
+    profile = {}
+    for name, check in [
+        ("identity", lambda: m.valid(CF(A, A), 0)[0]),
+        ("MP", lambda: m.entails([A, CF(A, B)], B, 0)[0]),
+        ("strict->cf", lambda: m.entails([Box(Or(Not(A), B))], CF(A, B), 0)[0]),
+        ("cf->strict", lambda: m.entails([CF(A, B)], Box(Or(Not(A), B)), 0)[0]),
+        ("AS", lambda: m.entails([CF(A, B)], CF(And(A, Let("D")), B), 0)[0]),
+        ("might-id", lambda: m.valid(Might(A, A), 0)[0]),
+    ]:
+        profile[name] = check()
+    print(f"  F5.1 validity profile on this frame (single consequent B, spot check not the full "
+          f"10-consequent sweep): {profile}")
 
 
 # ----------------------------------------------------------------------------
@@ -520,6 +541,7 @@ if __name__ == "__main__":
     if which in ("all", "c1c2"):
         for w in ([0], [0, 1]):
             experiment_constrained(w, ("ab", "ac"))
+        experiment_constrained([0, 1], ("ab", "ac"), perturb=True)
     if which in ("all", "g2"):
         experiment_g2([0])
         experiment_g2([0, 1])

@@ -270,38 +270,45 @@ a documented fork and say so in the new script's docstring.
 
 ---
 
-### Phase 3: Certify a temporally constrained frame and run open items 1 and 2 [NOT STARTED]
+### Phase 3: Certify a temporally constrained frame and run open items 1 and 2 [COMPLETED]
 
 **Goal**: Decide report 01's open items 1 (multi-time realizable settlers; realizable non-convex
 minimal settlers) and 2 (pointwise E3 among realizable members) on a frame whose task relation
 genuinely forbids a transition.
 
 **Tasks**:
-- [ ] Choose and certify the constrained frame: a small state lattice plus a task relation that
+- [x] Choose and certify the constrained frame: a small state lattice plus a task relation that
       forbids at least one world-to-world transition while satisfying the manual's containment pair
       and parthood constraints, in the style of `@def-certified-frame`. Take the constraint *shape*
       from Phase 1 if the BimodalLogic positive certificate's "`p` occurs exactly once along every
       history" pattern transfers; otherwise construct one directly (e.g. a one-way transition ban
-      between two worlds).
-- [ ] Record the certificate in the script as a checked predicate, not a comment: assert the frame
+      between two worlds). *(completed: constructed directly — a one-way transition ban `a.b -> a.c`
+      on `frame_small`; the BimodalLogic shape did not transfer, since "occurs exactly once along
+      every history" is a property of an entire lasso, not a single forbidden pair, and Phase 1's
+      alignment review found no correspondence claim strong enough to license reusing it here)*
+- [x] Record the certificate in the script as a checked predicate, not a comment: assert the frame
       satisfies each constraint the manual requires before any experiment runs.
-- [ ] Experiment C1: recompute the family recipe for a CF-constituent counterfactual on this frame
+      *(completed: `certify_constrained_frame`)*
+- [x] Experiment C1: recompute the family recipe for a CF-constituent counterfactual on this frame
       at windows `{0}` and `{0,1}`. Report whether a **realizable** minimal settler with domain
       larger than `{x}` exists — report 01 F4's prediction is `{x: t, z: u}` with `t` not a
       state-level settler — and whether any realizable minimal settler has a non-convex domain
-      (F9.3).
-- [ ] Experiment C2: search for a pointwise-compatible settler/co-settler pair on disjoint
+      (F9.3). *(completed: negative result, recorded with the structural reason — see F12)*
+- [x] Experiment C2: search for a pointwise-compatible settler/co-settler pair on disjoint
       non-anchor domains with no world-history above both, among **realizable** members. Report
-      pointwise E3 and history-form E3 separately, per F9.1.
-- [ ] Re-check the recipe's soundness and sufficiency in both polarities on this frame, and record
+      pointwise E3 and history-form E3 separately, per F9.1. *(completed: positive result — F12)*
+- [x] Re-check the recipe's soundness and sufficiency in both polarities on this frame, and record
       whether the F5.1 validity profile (identity, MP, strict→cf, cf→strict, AS, might-identity)
-      changes off the memoryless schema.
-- [ ] Save output as `baselines/02_constrained-frame-oracle-output-c12.txt`; run detached with a
+      changes off the memoryless schema. *(completed: sound/sufficient in both polarities; F5.1
+      spot-check at consequent B qualitatively unchanged)*
+- [x] Save output as `baselines/02_constrained-frame-oracle-output-c12.txt`; run detached with a
       hard timeout and liveness check per `context/patterns/bounded-build-waiter.md` if the window
-      `{0,1}` run exceeds a few minutes.
-- [ ] Append `### F12. The recipe on a temporally constrained frame (open items 1 and 2)` to
+      `{0,1}` run exceeds a few minutes. *(completed; window {0,1,2} exploratory run for C1 also
+      performed ad hoc, confirming the same negative result, not saved as a separate artifact since
+      it was a scope-widening check rather than a plan-required experiment)*
+- [x] Append `### F12. The recipe on a temporally constrained frame (open items 1 and 2)` to
       `reports/01_family-level-settled-verification.md`, stating the certificate, both outcomes
-      (including a negative outcome as such), and what each rules in or out.
+      (including a negative outcome as such), and what each rules in or out. *(completed)*
 
 **Timing**: 1.5 hours
 

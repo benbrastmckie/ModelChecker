@@ -1,0 +1,22 @@
+{
+  "phase": 3,
+  "phase_name": "Certify a temporally constrained frame and run open items 1 and 2",
+  "started_at": "2026-09-25T01:35:00Z",
+  "last_updated": "2026-09-25T02:00:00Z",
+  "objectives": [
+    {"id": 1, "description": "Choose and certify a constrained frame", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py"]},
+    {"id": 2, "description": "Record the certificate as a checked predicate", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py"]},
+    {"id": 3, "description": "Experiment C1: multi-time/non-convex realizable minimal settlers", "status": "done", "files_touched": []},
+    {"id": 4, "description": "Experiment C2: pointwise-compatible settler/co-settler pair with no common history", "status": "done", "files_touched": []},
+    {"id": 5, "description": "Re-check soundness/sufficiency and F5.1 validity profile on this frame", "status": "done", "files_touched": []},
+    {"id": 6, "description": "Save output as baselines/02_constrained-frame-oracle-output-c12.txt", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle-output-c12.txt"]},
+    {"id": 7, "description": "Append F12 to report 01", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]}
+  ],
+  "current_objective": 7,
+  "approaches_tried": [
+    {"approach": "Forbid a.b -> a.c and search for a multi-time realizable minimal settler of A []-> B at windows {0,1} and {0,1,2}", "result": "negative (recorded)", "reason": "A and B are both CF-constituent (state-level exact); alt()'s imposition step restricts its search to the antecedent verifier's own domain regardless of the outer candidate settler's domain, so a transition constraint strictly after the anchor cannot recruit a later time into a minimal settler for this antecedent/consequent shape. See F12's precise mechanism paragraph and the named deciding test (a tensed antecedent/consequent)."},
+    {"approach": "First perturbation-certificate test used an out-of-range state id (999999) as the bogus forbidden pair", "result": "failed", "reason": "an invalid state id is never in `poss`, so the base relation vacuously reports it as 'not related' and the certificate incorrectly PASSED; fixed by instead building the frame's relation WITHOUT the constraint and certifying a claim that the (valid, resolvable) pair IS forbidden, which correctly reports CERTIFICATE FAIL"}
+  ],
+  "handoff_count": 0,
+  "deviations": []
+}
