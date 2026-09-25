@@ -1,7 +1,7 @@
 # Implementation Plan: Task #188
 
 - **Task**: 188 - Diagnose BM_CM_4 deterministic countermodel failure
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 8 hours (core path, Phases 1-6); +2 hours if the Phase 7 contingency fires
 - **Dependencies**: None
 - **Research Inputs**: specs/188_diagnose_bm_cm_4_deterministic_countermodel_failure/reports/01_bm-cm-4-cost-regression.md
@@ -107,30 +107,30 @@ the measurement phases must not contend for CPU with each other, since the quant
 measured is solve wall time. Phase 7 is conditional and executes only on the trigger stated in
 its Goal.
 
-### Phase 1: Rerunnable Harness and Pre-Change Baseline [NOT STARTED]
+### Phase 1: Rerunnable Harness and Pre-Change Baseline [COMPLETED]
 
 **Goal**: Stand up a rerunnable, seed-pinnable measurement harness under this task's
 `baselines/` directory, and capture the current (unmodified-tree) verdicts for all bimodal
 examples so Phase 4 has a same-host "before" reference.
 
 **Tasks**:
-- [ ] Create `specs/188_diagnose_bm_cm_4_deterministic_countermodel_failure/baselines/`.
-- [ ] Adapt `specs/archive/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/01_frame-axiom-regression-script.py`
+- [x] Create `specs/188_diagnose_bm_cm_4_deterministic_countermodel_failure/baselines/`.
+- [x] Adapt `specs/archive/153_assert_missing_frame_axioms_in_bimodal_semantics/baselines/01_frame-axiom-regression-script.py`
       into `01_symbol-rename-harness.py`. Keep its structure: `sys.path.insert` to `code/src`,
       `isolated_z3_context()` per example, `run_enhanced_test`, incremental JSON writes, and
       monkeypatch-with-restore in a `finally`.
-- [ ] Give the harness three arms: `baseline` (unmodified on-disk methods), `renamed` (both
+- [x] Give the harness three arms: `baseline` (unmodified on-disk methods), `renamed` (both
       axioms' Z3 symbols alpha-renamed), and `renamed_single` (one axiom only, selectable) --
       the last preserves the report's SS5 single-axiom finding as a rerunnable check.
-- [ ] Add a seed-pinning option (`z3.set_param` on `smt.random_seed` / `sat.random_seed`,
+- [x] Add a seed-pinning option (`z3.set_param` on `smt.random_seed` / `sat.random_seed`,
       matching the convention BM_CM_1_settings and BM_CM_4_settings already cite) and a
       probe-budget override so sweeps can cap at 40s instead of 120s.
-- [ ] Add a bound-var-counter poisoning option (set `bimodal.operators._bound_var_counter` to a
+- [x] Add a bound-var-counter poisoning option (set `bimodal.operators._bound_var_counter` to a
       given `itertools.count(k)` start) so the isolation test's [0, 17, 30] states are
       reproducible from the harness.
-- [ ] Run the `baseline` arm over all bimodal examples, writing
+- [x] Run the `baseline` arm over all bimodal examples, writing
       `baselines/01_pre-change-verdicts.json`.
-- [ ] Confirm the harness reproduces the known failure: BM_CM_4 `baseline` is
+- [x] Confirm the harness reproduces the known failure: BM_CM_4 `baseline` is
       `inconclusive`/`timeout` and BM_CM_1 is whatever it is today (recorded, not asserted --
       BM_CM_1 is out of scope).
 
