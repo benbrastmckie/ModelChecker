@@ -95,13 +95,6 @@ from .formula import Box, Formula, subformula_closure, translate
 from .witness_registry import WitnessRegistry
 from .witness_constraints import WitnessConstraintGenerator
 
-# Process-global bound-variable counter reset. Retained here (not removed alongside the
-# rest of the retired encoding) because operators.py still owns `_fresh_bound_int` and
-# `reset_bound_var_counter` until Phase 14 of the implementation plan deletes them
-# together with the last `ForAll`/`Exists` construction in this theory; Phase 14's own
-# task list names dropping this call as its own step, not this one's.
-from ..operators import reset_bound_var_counter
-
 
 ##############################################################################
 ######################### SEMANTICS AND PROPOSITIONS #########################
@@ -202,12 +195,14 @@ class BimodalSemantics(SemanticDefaults):
 
         See `SemanticDefaults._reset_global_state`'s own docstring for the general
         contract. This override resets only what genuinely survives across
-        `BimodalSemantics` instances: the process-global bound-variable counter
-        `operators.py` still owns (retained until Phase 14 deletes it, see the module
-        docstring) and a stale `model_structure` back-reference from a previous example.
+        `BimodalSemantics` instances: a stale `model_structure` back-reference from a
+        previous example. The process-global bound-variable counter this method used to
+        reset (`operators.py`'s `reset_bound_var_counter`) was deleted in Phase 14 along
+        with the last `ForAll`/`Exists` construction it existed to protect -- the
+        certificate encoding is quantifier-free (D6), so there is no longer any
+        aliasing hazard for it to guard against.
         """
         super()._reset_global_state()
-        reset_bound_var_counter()
 
         if hasattr(self, 'model_structure'):
             delattr(self, 'model_structure')

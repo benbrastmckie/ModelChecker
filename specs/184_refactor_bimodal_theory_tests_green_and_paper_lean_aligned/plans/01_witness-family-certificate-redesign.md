@@ -902,22 +902,22 @@ interval displays.
 
 ---
 
-### Phase 14: Operators rewrite [NOT STARTED]
+### Phase 14: Operators rewrite [COMPLETED]
 
 **Goal**: Operators as label-constraint generators plus print methods, with all quantifier
 machinery gone.
 
 **Tasks**:
-- [ ] Write tests first: each operator's `true_at` returns the label bit of its translated formula
+- [x] Write tests first: each operator's `true_at` returns the label bit of its translated formula
       at the eval point; `\Box`'s generator introduces the guess variable and, when the guess is
       false, requests a witness lasso through the registry.
-- [ ] Rewrite `operators.py`: each primitive operator carries its translation rule and its
+- [x] Rewrite `operators.py`: each primitive operator carries its translation rule and its
       `true_at`/`false_at` as bit lookup; the defined operators keep their `derived_definition`s
       unchanged (they already reduce to primitives).
-- [ ] Delete `_fresh_bound_int`, the process-global bound-variable counter and its reset, and every
+- [x] Delete `_fresh_bound_int`, the process-global bound-variable counter and its reset, and every
       `ForAll`/`Exists` construction; drop `reset_bound_var_counter` from `core.py`'s
       `_reset_global_state`.
-- [ ] Keep and update each operator's `print_method` for the new eval-point shape.
+- [x] Keep and update each operator's `print_method` for the new eval-point shape.
 
 **Timing**: 2 hours
 
@@ -925,11 +925,15 @@ machinery gone.
 
 **Verification Tier**: interface
 
-**Scope Hypothesis**: `operators.py` is currently 1,777 lines across 9 primitive and 8 defined
-operator classes; the rewrite is expected to remove the large majority of it (the per-operator Z3
-quantifier bodies) and leave translation rules plus print methods. Confirm with `wc -l` before and
-after, and by asserting in a test that no quantifier node appears anywhere in a fully built
-constraint set for a nested-modal example.
+**Scope Hypothesis**: CONFIRMED with a correction. `operators.py` was 1,777 lines; the rewrite is
+654 lines (~63% removed) -- less reduction than a naive "quantifier bodies only" estimate might
+suggest, because `NegationOperator`/`AndOperator`/`OrOperator` needed **no change at all** (they
+already delegated to `semantics.true_at`/`false_at` recursively, which is D5's contract already)
+and every docstring explaining *why* a design choice was made (e.g. the `\Until`/`\Since`
+event-first convention, D2's argument swap) was kept rather than stripped, since that reasoning is
+exactly what the next phase (16, the BX example audit) needs. Confirmed via
+`test_operators.py`'s `TestConstraintSetIsQuantifierFree`: no quantifier node anywhere in the
+fully built constraint set for a nested `\Box \Future A` example.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/operators.py` - rewrite
@@ -938,8 +942,16 @@ constraint set for a nested-modal example.
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py` - delete
 
 **Verification**:
-- Per-operator tests green.
+- Per-operator tests green: 12/12 in `test_operators.py`.
 - Whole-constraint-set quantifier-free assertion green for a nested `\Box\Future` example.
+- Manual end-to-end smoke test: a compound premise (`\Box A / B`) now solves, extracts,
+  re-checks, and **prints correctly through the real pipeline**, including the recursive
+  `INTERPRETED PREMISE` display of `\Box A` and its nested `A` -- the crash recorded in Phase
+  12/13's handoff (`NecessityOperator.print_method` reading a `None` `model_structure`) is
+  resolved by `general_print`'s uniform, eval-point-shape-agnostic recursion.
+- Full suite: 148 failed, 80 errored, 292 passed (Phase 13 was 149/90/283 -- 10 fewer errors
+  from `test_bound_var_counter_isolation.py`/`test_foralltime.py` being deleted outright, plus
+  the new `test_operators.py` tests passing).
 
 ---
 

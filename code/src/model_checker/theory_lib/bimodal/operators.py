@@ -27,137 +27,77 @@ Temporal Operators:
     - DefFutureOperator: Possibility of future truth (defined)
     - DefPastOperator: Possibility of past truth (defined)
 
+## Change of meaning (witness-family certificate redesign)
+
+Every primitive operator's `true_at`/`false_at` used to build a quantified Z3 formula
+(`ForAll`/`Exists` over world IDs or time, via `_fresh_bound_int`-suffixed bound variables to
+avoid the aliasing hazard documented below). That machinery is retired outright (see
+`semantic/core.py`'s own module docstring): the certificate encoding is quantifier-free, and
+truth values are label-membership lookups (D5). **Each primitive operator's `true_at` now
+mirrors its own case in `semantic/formula.py`'s `translate` dispatch** (report 01 section 4.4:
+"each primitive operator carries its translation rule and its `true_at`/`false_at` as bit
+lookup") -- reconstructing the `Formula` its own combinator produces from its
+already-translated arguments, then looking up
+`self.semantics.witness_registry.bit(eval_point["lasso"], eval_point["position"], formula)`.
+This is not a second, independently-maintained copy of `translate`'s dispatch table: each
+operator mirrors only its own single case, exactly as `translate` already states it, so there is
+one rule per operator, asserted in exactly two places by construction (not two independently
+evolving encodings of the same rule).
+
+`NegationOperator`/`AndOperator`/`OrOperator` needed **no change at all**: their `true_at`/
+`false_at` already delegate recursively to `self.semantics.true_at`/`false_at` on their
+arguments, which is D5's translate-then-lookup contract already, and their `find_truth_condition`
+already only manipulates the generic `{key: (true_positions, false_positions)}` shape
+`BimodalProposition.extension` still uses (Phase 11) -- nothing here inspects a `world_id`'s
+*meaning*, only its role as a dict key, so nothing broke. `BotOperator`, `NecessityOperator`
+(`\\Box`), `FutureOperator`, `PastOperator`, `UntilOperator`, and `SinceOperator` did need
+rewriting: they built quantified Z3 formulas or read `eval_point["world"]`/`eval_point["time"]`
+directly, both retired.
+
+**`find_truth_condition` is deleted from every primitive operator.** Nothing calls it any more:
+`BimodalProposition.find_extension` (Phase 11) computes truth values directly from certificate
+labels, not by recursing through operators. Retaining a method nobody calls, referencing
+attributes (`self.semantics.M`, `self.semantics.world_time_intervals`,
+`self.semantics.all_false`) that no longer exist, would be dead, actively misleading code, not a
+harmless leftover.
+
+**Every `print_method` now delegates to `self.general_print`** (the base `syntactic.Operator`
+method, unchanged and already eval-point-shape-agnostic: it prints the sentence's own
+proposition, then recurses into each argument sentence at the *same* `eval_point`).
+`print_over_worlds`/`print_over_times` (also base-class, shared across theories) are retired
+from every call site here: they read `eval_point["world"]`/`["time"]` and bitvector-specific
+display logic that has no analogue for `(lasso, position)` points, and the certificate's own
+boxed-subformula table (`semantic/model.py`'s `print_certificate`, Phase 13) already gives box
+guesses and false-box witnesses their own dedicated display -- there is no remaining need for a
+per-operator "show me this argument evaluated at every alternative world/time" listing.
+
+The defined operators (`\\rightarrow`, `\\leftrightarrow`, `\\top`, `\\Diamond`, `\\future`,
+`\\past`, `\\next`, `\\prev`) keep their `derived_definition`s completely unchanged -- they
+already reduce to primitives before `translate` (or any operator's own `true_at`) ever sees them
+-- and only needed their `print_method`s updated to `general_print` for the same reason as the
+primitives.
+
+**The process-global bound-variable counter (`_fresh_bound_int`/`reset_bound_var_counter`) is
+deleted along with the last `ForAll`/`Exists` construction it existed to protect** -- see
+`semantic/core.py`'s `_reset_global_state`, which no longer calls `reset_bound_var_counter`
+(this was the last consumer).
+
 All operators adhere to a fail-fast philosophy, raising explicit errors when
 required data is missing or invalid rather than attempting fallbacks.
 """
 
-import itertools
-
 from model_checker import z3_shim as z3
 
-
 from model_checker import syntactic
-from model_checker.utils import pretty_set_print
-from model_checker.solver import is_true
 
-# Process-global counter backing _fresh_bound_int(), below. Deliberately a
-# plain module-level itertools.count() (not thread-local or call-local
-# state): its only job is to guarantee the suffixed name below is never
-# reused *within the Z3 Context it is used against*, which is sufficient to
-# prevent the z3.Int() aliasing this counter exists to avoid (see
-# _fresh_bound_int's docstring). CPython's GIL makes count().__next__()
-# atomic, so this is safe under pytest-xdist (separate worker processes, no
-# shared counter needed across workers) without further synchronization.
-#
-# reset_bound_var_counter(), below, is called once per fresh BimodalSemantics
-# instance (see BimodalSemantics._reset_global_state()). This is safe -- not
-# a reintroduction of the aliasing bug -- because every BimodalSemantics
-# instance is built inside its own fresh Z3 Context (see
-# model_checker.utils.context.isolated_z3_context, which swaps in a new
-# z3.Context() per example the same way it resets the AtomSort cache). The
-# aliasing hazard only arises from two calls resolving to the same name
-# *within one Context*; a counter reset to 0 at the start of each Context's
-# lifetime still hands out strictly increasing, therefore distinct, suffixes
-# for every call made against that Context. Leaving the counter unreset
-# across examples was itself a defect: the numeric suffix baked into bound
-# variable names then depended on how many prior examples had run in the
-# same process, and that leaked, run-order-dependent naming was enough to
-# perturb Z3's MBQI-driven quantifier instantiation path and flip individual
-# examples (e.g. BM_CM_4) between success and failure depending on test
-# order -- see test_bound_var_counter_isolation.py for the empirical
-# reproduction.
-_bound_var_counter = itertools.count()
+from .semantic.formula import Bot, Box, Imp, Snce, Untl, translate
 
 
-def reset_bound_var_counter() -> None:
-    """Reset the process-global bound-variable counter to 0.
+def _bit(semantics, eval_point, formula):
+    """Look up `formula`'s label bit at `eval_point` (D5's translate-then-lookup contract),
+    shared by every primitive operator's `true_at` below."""
+    return semantics.witness_registry.bit(eval_point["lasso"], eval_point["position"], formula)
 
-    Called once per fresh BimodalSemantics instance (from
-    BimodalSemantics._reset_global_state()) so that every example's
-    bound-variable names are reproducible and independent of how many prior
-    examples ran in the same process. Safe to call because each
-    BimodalSemantics instance is built inside its own fresh Z3 Context (see
-    the module-level comment above _bound_var_counter for the full
-    rationale).
-    """
-    global _bound_var_counter
-    _bound_var_counter = itertools.count()
-
-
-def _fresh_bound_int(prefix: str):
-    """Return a Z3 Int constant guaranteed distinct from every other call.
-
-    Why not `z3.Int(prefix)`: Z3 interns `Int` constants by `(name, sort)`,
-    so two calls with the same name return the literal same term. A
-    quantified operator that declares its bound variable with a fixed name
-    is therefore aliasing-unsafe whenever its own recursion passes that
-    not-yet-bound term back down as another instance of the same primitive
-    operator's `eval_time` -- the inner call's "fresh" variable resolves to
-    the identical term the outer call already holds, producing a
-    self-referential comparison that Z3's term simplifier folds to a
-    Boolean constant before either quantifier closes (see the module
-    docstring in oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py
-    for the full soundness analysis).
-
-    Why not `z3.FreshInt(prefix)` (Z3's own built-in remedy for exactly this
-    problem): empirically, on this codebase's tuned Z3 configuration
-    (`smt.mbqi=True`, `smt.ematching=True`, `smt.mbqi.max_iterations=1000`
-    -- see model_checker.solver.z3_adapter.Z3SolverAdapter), swapping a
-    quantified operator's fixed-name `z3.Int` for `z3.FreshInt` causes even
-    single, non-nested instances of that operator (formulas with no
-    aliasing hazard at all, e.g. a lone `F(p)`) to go from solving in
-    ~1-2s to not deciding within a 60s budget. This reproduces deterministically
-    (not solver-seed noise) and is specific to `z3.FreshInt`'s own
-    internal term/declaration bookkeeping interacting badly with this
-    solver's MBQI configuration -- confirmed by holding the encoding
-    otherwise identical and varying only Int-vs-FreshInt. A counter-suffixed
-    plain `z3.Int` name achieves the same per-call distinctness (so the
-    aliasing class of bug is equally impossible: no two calls, nested or
-    not, can ever produce the same name) without that performance cliff,
-    because it is an ordinary named constant as far as Z3's internals are
-    concerned, not a `FreshInt`-created one.
-
-    Third closed avenue -- finite unrolling of `ForAllTime`/`ExistsTime`
-    (investigated 2026-08-12; distinct from the two avenues above, which
-    were investigated and closed in an earlier round of work): the time
-    domain `D = (-M, M)` is always finite and statically known (M is a
-    plain Python int at `BimodalSemantics` construction), so it is
-    tempting to replace the genuine `z3.ForAll`/`z3.Exists` quantifier over
-    time with an explicit ground conjunction/disjunction --
-    `z3.substitute(body, (time_var, z3.IntVal(t)))` for each valid `t` in
-    `D` -- removing MBQI-driven instantiation from the time dimension
-    entirely (the world dimension is left genuinely quantified; only time
-    is unrolled). A 7-seed sweep of BM_CM_1 (`smt`/`sat.random_seed` in
-    {1..7}, 90s probe ceiling, quantified baseline vs. unrolled) found this
-    is NOT a reliable fix: seeds 2, 3, 4, 6, 7 decided, several
-    substantially faster (seed 6: 7.16s -> 0.23s, ~30x; seed 2: 45.14s ->
-    5.88s, ~8x; seed 7: 16.14s -> 4.04s, ~4x), but seeds 1 and 5 -- both of
-    which decided comfortably under the quantified baseline -- did not
-    decide at all within the same 90s probe under the unrolled encoding, a
-    regression rather than an improvement for those draws. Verdict: not
-    adopted. `ForAllTime`/`ExistsTime` back every temporal operator in this
-    module, not just the Future operator's all_future leg, so adopting a change that
-    helps some draws and regresses others would require a full soundness
-    and regression pass across the whole bimodal suite for an approach not
-    demonstrated to help on net -- out of proportion to what this
-    investigation was scoped to do. See `examples.py`'s `BM_CM_1_settings`
-    comment for the corresponding real-CI and seed-sweep data this avenue
-    was tested against, and this repository's
-    `01_bimodal-flake-and-unstable-category.md` research report ("New
-    experiment: finite unrolling of `ForAllTime`/`ExistsTime`") for the
-    full measurement table.
-
-    Args:
-        prefix: A human-readable name fragment, kept as a prefix purely for
-            readability in solver output/models -- it plays no role in
-            uniqueness.
-
-    Returns:
-        A `z3.Int` (via `z3_shim`) whose name is `f"{prefix}!{n}"` for a
-        monotonically increasing `n`, distinct on every call for the life
-        of the process.
-    """
-    return z3.Int(f"{prefix}!{next(_bound_var_counter)}")
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################
@@ -165,16 +105,16 @@ def _fresh_bound_int(prefix: str):
 
 class NegationOperator(syntactic.Operator):
     """Logical negation operator that inverts the truth value of its argument.
-    
+
     This operator implements classical logical negation (¬). When applied to a formula A,
     it returns true when A is false and false when A is true.
-    
+
     Key Properties:
         - Involutive: ¬¬A ≡ A
         - Preserves excluded middle: A ∨ ¬A is a tautology
         - Preserves non-contradiction: ¬(A ∧ ¬A) is a tautology
         - Extensional: Value depends only on truth value of argument
-        
+
     Example:
         If p means "it's raining", then ¬p means "it's not raining"
     """
@@ -183,45 +123,12 @@ class NegationOperator(syntactic.Operator):
     arity = 1
 
     def true_at(self, argument, eval_point):
-        """Returns true if argument is false.
-        
-        Args:
-            argument: The argument to negate
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
+        """Returns true if argument is false."""
         return self.semantics.false_at(argument, eval_point)
 
     def false_at(self, argument, eval_point):
-        """Returns false if argument is true.
-        
-        Args:
-            argument: The argument to negate
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
+        """Returns false if argument is true."""
         return self.semantics.true_at(argument, eval_point)
-
-    def find_truth_condition(self, argument, eval_point):
-        """Gets truth-condition for the negation of an argument.
-        
-        Args:
-            argument: The argument to negate
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-            
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
-                 where the true and false times are swapped from the argument's extension
-        """
-        new_truth_condition = {}
-        for world_id, temporal_profile in argument.proposition.extension.items():
-            true_times, false_times = temporal_profile
-            new_truth_condition[world_id] = (false_times, true_times)
-        return new_truth_condition
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -230,10 +137,10 @@ class NegationOperator(syntactic.Operator):
 
 class AndOperator(syntactic.Operator):
     """Logical conjunction operator that returns true when both arguments are true.
-    
+
     This operator implements classical logical conjunction (∧). When applied to formulas
     A and B, it returns true when both A and B are true, and false otherwise.
-    
+
     Key Properties:
         - Commutative: A ∧ B ≡ B ∧ A
         - Associative: (A ∧ B) ∧ C ≡ A ∧ (B ∧ C)
@@ -241,9 +148,9 @@ class AndOperator(syntactic.Operator):
         - Annihilator: A ∧ ⊥ ≡ ⊥
         - Idempotent: A ∧ A ≡ A
         - Extensional: Value depends only on truth values of arguments
-        
+
     Example:
-        If p means "it's raining" and q means "it's cold", then (p ∧ q) means 
+        If p means "it's raining" and q means "it's cold", then (p ∧ q) means
         "it's raining and it's cold"
     """
 
@@ -251,15 +158,7 @@ class AndOperator(syntactic.Operator):
     arity = 2
 
     def true_at(self, leftarg, rightarg, eval_point):
-        """Returns true if both arguments are true.
-        
-        Args:
-            leftarg: The left argument of the conjunction
-            rightarg: The right argument of the conjunction
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
+        """Returns true if both arguments are true."""
         semantics = self.semantics
         return z3.And(
             semantics.true_at(leftarg, eval_point),
@@ -267,53 +166,12 @@ class AndOperator(syntactic.Operator):
         )
 
     def false_at(self, leftarg, rightarg, eval_point):
-        """Returns true if either argument is false.
-        
-        Args:
-            leftarg: The left argument of the conjunction
-            rightarg: The right argument of the conjunction
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
+        """Returns true if either argument is false."""
         semantics = self.semantics
         return z3.Or(
             semantics.false_at(leftarg, eval_point),
             semantics.false_at(rightarg, eval_point)
         )
-
-    def find_truth_condition(self, leftarg, rightarg, eval_point):
-        """Gets truth-condition for the conjunction of two arguments.
-        
-        Args:
-            leftarg: The left argument of the conjunction
-            rightarg: The right argument of the conjunction
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-            
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
-                 where true_times are the intersection of both arguments' true times,
-                 and false_times are the union of both arguments' false times
-        """
-        leftarg_truth_condition = leftarg.proposition.extension
-        rightarg_truth_condition = rightarg.proposition.extension
-        new_truth_condition = {}
-        
-        for world_id, temporal_profile in leftarg_truth_condition.items():
-            left_true_times, left_false_times = temporal_profile
-            right_true_times, right_false_times = rightarg_truth_condition[world_id]
-            
-            # Find intersection while preserving order from left_true_times
-            new_true_times = [t for t in left_true_times if t in right_true_times]
-            
-            # Find union while preserving order and removing duplicates
-            new_false_times = sorted(set(left_false_times) | set(right_false_times))
-            
-            new_truth_condition[world_id] = (new_true_times, new_false_times)
-            
-        return new_truth_condition
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -322,10 +180,10 @@ class AndOperator(syntactic.Operator):
 
 class OrOperator(syntactic.Operator):
     """Logical disjunction operator that returns true when at least one argument is true.
-    
+
     This operator implements classical logical disjunction (∨). When applied to formulas
     A and B, it returns true when either A or B (or both) are true, and false otherwise.
-    
+
     Key Properties:
         - Commutative: A ∨ B ≡ B ∨ A
         - Associative: (A ∨ B) ∨ C ≡ A ∨ (B ∨ C)
@@ -333,9 +191,9 @@ class OrOperator(syntactic.Operator):
         - Annihilator: A ∨ ⊤ ≡ ⊤
         - Idempotent: A ∨ A ≡ A
         - Extensional: Value depends only on truth values of arguments
-        
+
     Example:
-        If p means "it's raining" and q means "it's cold", then (p ∨ q) means 
+        If p means "it's raining" and q means "it's cold", then (p ∨ q) means
         "it's raining or it's cold (or both)"
     """
 
@@ -343,15 +201,7 @@ class OrOperator(syntactic.Operator):
     arity = 2
 
     def true_at(self, leftarg, rightarg, eval_point):
-        """Returns true if either argument is true.
-        
-        Args:
-            leftarg: The left argument of the disjunction
-            rightarg: The right argument of the disjunction
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
+        """Returns true if either argument is true."""
         semantics = self.semantics
         return z3.Or(
             semantics.true_at(leftarg, eval_point),
@@ -359,54 +209,13 @@ class OrOperator(syntactic.Operator):
         )
 
     def false_at(self, leftarg, rightarg, eval_point):
-        """Returns true if both arguments are false.
-        
-        Args:
-            leftarg: The left argument of the disjunction
-            rightarg: The right argument of the disjunction
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
+        """Returns true if both arguments are false."""
         semantics = self.semantics
         return z3.And(
             semantics.false_at(leftarg, eval_point),
             semantics.false_at(rightarg, eval_point)
         )
 
-    def find_truth_condition(self, leftarg, rightarg, eval_point):
-        """Gets truth-condition for the disjunction of two arguments.
-        
-        Args:
-            leftarg: The left argument of the disjunction
-            rightarg: The right argument of the disjunction
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-            
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
-                 where true_times are the union of both arguments' true times,
-                 and false_times are the intersection of both arguments' false times
-        """
-        leftarg_truth_condition = leftarg.proposition.extension
-        rightarg_truth_condition = rightarg.proposition.extension
-        new_truth_condition = {}
-        
-        for world_id, temporal_profile in leftarg_truth_condition.items():
-            left_true_times, left_false_times = temporal_profile
-            right_true_times, right_false_times = rightarg_truth_condition[world_id]
-            
-            # Find union of true times
-            new_true_times = sorted(set(left_true_times) | set(right_true_times))
-            
-            # Find intersection of false times
-            new_false_times = [t for t in left_false_times if t in right_false_times]
-            
-            new_truth_condition[world_id] = (new_true_times, new_false_times)
-            
-        return new_truth_condition
-    
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
@@ -418,16 +227,22 @@ class OrOperator(syntactic.Operator):
 
 class BotOperator(syntactic.Operator):
     """Bottom element of the space of propositions is false at all worlds and times.
-    
+
     This operator implements logical falsity (⊥). It evaluates to false at every world
     and time point in the model structure.
-    
+
     Key Properties:
         - Always evaluates to false regardless of context
         - Identity element for disjunction: ⊥ ∨ A ≡ A
         - Annihilator for conjunction: ⊥ ∧ A ≡ ⊥
         - Negation gives top: ¬⊥ ≡ ⊤
-        
+
+    Under the certificate encoding, `⊥`'s label bit is forced false at every position by
+    local coherence itself (`witness_constraints.py`'s coherence clause for `Bot`:
+    `Not(bit(lasso, t, Bot()))`) -- `true_at` looks it up rather than hard-coding `False`
+    directly, so a corrupted encoding that failed to assert that clause would surface as an
+    unconstrained (not silently-correct) variable.
+
     Example:
         ⊥ represents a logical contradiction like "it's raining and not raining"
     """
@@ -436,43 +251,16 @@ class BotOperator(syntactic.Operator):
     arity = 0
 
     def true_at(self, eval_point):
-        """Returns true if world state != itself (always false)."""
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-        # Get the world array from the world ID
-        world_array = self.semantics.world_function(eval_world)
-        world_state = z3.Select(world_array, eval_time)
-        return world_state != world_state
+        """Looks up `Bot()`'s label bit -- forced false by local coherence."""
+        return _bit(self.semantics, eval_point, Bot())
 
     def false_at(self, eval_point):
-        """Returns true if world state == itself (always true)."""
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-        # Get the world array from the world ID
-        world_array = self.semantics.world_function(eval_world)
-        world_state = z3.Select(world_array, eval_time)
-        return world_state == world_state
-
-    def find_truth_condition(self, eval_point):
-        """Returns the extension where all times are false at all worlds.
-        
-        Args:
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-            
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
-                 where for each world, no times are true and all times are false
-        """
-        return self.semantics.all_false
+        """`Not(true_at(...))`."""
+        return z3.Not(self.true_at(eval_point))
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
-
 
 
 ##############################################################################
@@ -482,180 +270,41 @@ class BotOperator(syntactic.Operator):
 class NecessityOperator(syntactic.Operator):
     """Modal operator that evaluates whether a formula holds in all possible worlds.
 
-    This operator implements 'it is necessary that'. It evaluates whether its argument
-    holds in all possible worlds at the current time.
+    This operator implements 'it is necessary that'. Under the certificate encoding, "all
+    possible worlds" means every certified history (every lasso in the found `WitnessFamily`)
+    at every position -- exactly what (C3) box faithfulness certifies (`docs/ADEQUACY.md`
+    Corollary 2.2: the certificate's lassos and their translates are exactly `H_F`).
 
     Key Properties:
-        - Evaluates truth across all possible worlds at the current time
-        - Returns true only if the argument is true in ALL possible worlds
-        - Returns false if there exists ANY possible world where the argument is false
         - Dual of possibility: □A ≡ ¬◇¬A
-        - Only considers worlds within the valid model structure
-
-    Methods:
-        true_at: Returns true if argument holds in all possible worlds
-        false_at: Returns true if argument fails in some possible world
-        find_truth_condition: Computes temporal profiles for all worlds
-        print_method: Displays evaluation across different possible worlds
+        - `true_at`/`false_at` are a direct lookup of the box guess `bx(translate(argument))`
+          mirroring `translate`'s own `\\Box` case (`Box(translate(a))`) -- the guess variable
+          itself, not a fresh quantifier, is what (C3)'s constraints (Phase 8) tie to "true in
+          every lasso" / "false in some lasso, somewhere".
 
     Example:
         If p means "it's raining", then □p means "it is necessarily raining"
-        (true in all possible worlds at the current time).
+        (true in every certified history).
     """
     name = "\\Box"
     arity = 1
 
     def true_at(self, argument, eval_point):
-        """Returns true if argument is true in all possible worlds at the eval_time.
-
-        Paper/Lean-aligned semantics: Box quantifies over ALL valid world histories
-        unconditionally, with no domain guard on the evaluation time. For atoms,
-        truth at times outside a world's interval is already false by definition
-        (atom_false_of_not_domain). This means Box phi at time t requires phi to
-        be true at ALL worlds at time t, including worlds whose interval does not
-        contain t -- for which atoms are always false.
-
-        This aligns with:
-        - JPL paper: M,tau,x |= Box phi iff M,sigma,x |= phi for ALL sigma in H_F
-        - Lean BimodalLogic: box phi := forall sigma in Omega, truth_at M Omega sigma t phi
-        """
-        semantics = self.semantics
-
-        # Extract time from eval_point
-        eval_time = eval_point["time"]
-
-        # The argument must be true in all worlds at the eval_time
-        # NOTE: z3.Int('name') interns by (name, sort) -- every call with the same
-        # name returns the identical Z3 term. A quantified operator whose argument
-        # recurses into another instance of the same primitive operator would then
-        # receive, as its "fresh" bound variable, the exact term the outer call
-        # already passed down, producing a self-comparison that Z3's simplifier
-        # folds to a constant before either quantifier closes. _fresh_bound_int()
-        # guarantees a distinct term on every call regardless of name reuse or
-        # nesting depth, eliminating that aliasing hazard -- see its docstring for
-        # why a counter-suffixed z3.Int is used here instead of z3.FreshInt.
-        other_world = _fresh_bound_int('nec_true_world')
-        # For any other_world -- no is_valid_time_for_world guard (paper-aligned)
-        # Task 144 dead end 9: an explicit patterns=[is_world(other_world)]
-        # trigger was tried here (legal: is_world is a genuine z3.Function
-        # application covering the sole bound variable, extending the
-        # build_forward_comp_constraint precedent). Measured (paired, 5-seed,
-        # 7-run round against test_mixed_and_box_next, the only Phase 1
-        # target formula this operator affects): median rlimit was
-        # unchanged (130120813 vs baseline 130120807, ~0.00%), and the
-        # per-seed delta was negative on only 2 of 5 seeds (seeds 1, 3
-        # improved; seeds 2 worsened; seeds 0, 4 unchanged) -- failing both
-        # the >=20% median-improvement and >=4-of-5-seed-consistency
-        # acceptance rules. A genuinely neutral/inconsistent result, not a
-        # regression: left unpatterned per the neutral-candidates-are-
-        # reverted policy.
-        return z3.ForAll(
-            other_world,
-            z3.Implies(
-                # If other_world is a valid world (no domain guard on eval_time)
-                semantics.is_world(other_world),
-                # Then the argument is true in other_world at the eval_time
-                semantics.true_at(argument, {"world": other_world, "time": eval_time})
-            )
-        )
+        """Looks up the label bit of `Box(translate(argument))` -- mirrors `translate`'s own
+        `\\Box` rule (`semantic/formula.py`)."""
+        formula = Box(translate(argument))
+        return _bit(self.semantics, eval_point, formula)
 
     def false_at(self, argument, eval_point):
-        """Returns true if argument is false in any possible worlds at the eval_time.
+        """`Not(true_at(...))`."""
+        return z3.Not(self.true_at(argument, eval_point))
 
-        Paper/Lean-aligned semantics: Box is false at (world, t) iff there EXISTS
-        some world sigma (unconditionally, no domain guard) where the argument is
-        false at (sigma, t). This is dual to true_at: Box phi is false iff negation
-        of phi is true somewhere.
-
-        This aligns with:
-        - JPL paper: NOT(M,tau,x |= Box phi) iff exists sigma in H_F: NOT(M,sigma,x |= phi)
-        - Lean BimodalLogic: dual of box truth via negation
-        """
-        semantics = self.semantics
-
-        # Extract time from eval_point
-        eval_time = eval_point["time"]
-
-        # The argument must be false in some world at the eval_time
-        other_world = _fresh_bound_int('nec_true_world')
-        # There is some other_world -- no is_valid_time_for_world guard (paper-aligned)
-        return z3.Exists(
-            other_world,
-            z3.And(
-                # Where other_world is a valid world (no domain guard on eval_time)
-                semantics.is_world(other_world),
-                # And the argument is false in other_world at the eval_time
-                semantics.false_at(argument, {"world": other_world, "time": eval_time})
-            )
-        )
-
-    # TODO: should this use eval_point?
-    def find_truth_condition(self, argument, eval_point):
-        """Gets truth-condition for: 'It is necessary that: argument'.
-        
-        Args:
-            argument: The argument to apply necessity to
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context (not used)
-                - "time": The time for evaluation context (not used)
-            
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs.
-                 Box A is true at test_time in current_world if:
-                 - A is true in any_world in all_worlds at the test_time.
-                 And false otherwise.
-        """
-        semantics = argument.proposition.model_structure.semantics
-        all_worlds = argument.proposition.model_structure.world_arrays.keys()
-        argument_extension = argument.proposition.extension
-        # Initialize result dictionary to eventually return
-        new_truth_condition = {}
-
-        # For each world in the model
-        for current_world in all_worlds:
-            # Get the time interval for this world
-            start_time, end_time = semantics.world_time_intervals[current_world]
-            # Generate a list of all valid times for this world
-            world_time_interval = list(range(start_time, end_time + 1))
-            # # Skip worlds that do not include the eval_time
-            # if eval_time not in world_time_interval:
-            #     continue
-            # Initialize lists to store times when necessity is true/false
-            true_times, false_times = [], []
-
-            # For each time point in this world's interval
-            for test_time in world_time_interval:
-                # Check if argument is false at this time in any possible world
-                is_false_in_some_world = any(
-                    test_time in argument_extension[any_world][1]
-                    for any_world in all_worlds
-                )
-                # If false in any world
-                if is_false_in_some_world:
-                    # Then the necessity is false at this time
-                    false_times.append(test_time)
-                else:
-                    # Otherwise the necessity is true at this time
-                    true_times.append(test_time)
-
-            # Store the temporal profile for this world
-            new_truth_condition[current_world] = (true_times, false_times)
-
-        # Return result dictionary
-        return new_truth_condition
-            
-    def print_method(self, argument, eval_point, indent_num, use_colors):
-        """Print the modal operator and its argument across all possible worlds.
-        """
-        # Get the model structure and all world IDs
-        model_structure = argument.proposition.model_structure
-        
-        # Get all worlds (IDs) for evaluation
-        all_worlds = list(model_structure.world_arrays.keys())
-        
-        # Pass the worlds to print_over_worlds
-        self.print_over_worlds(argument, eval_point, all_worlds, indent_num, use_colors)
-   
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the proposition and its arguments. The boxed-subformula table
+        (`semantic/model.py`'s `print_certificate`) is where a false box's witness history
+        and position are shown; this method only prints `\\Box A`'s own truth value at
+        `eval_point`."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 ##############################################################################
@@ -665,383 +314,77 @@ class NecessityOperator(syntactic.Operator):
 class FutureOperator(syntactic.Operator):
     """Temporal operator that evaluates whether a formula holds at all future times.
 
-    This operator implements the 'it will always be the case that'. It evaluates
-    whether its argument holds at all future times within the eval_world (after the present).
-
-    Key Properties:
-        - Evaluates truth across all future times in the current world
-        - Returns true only if the argument is true at ALL future times
-        - Returns false if there exists ANY future time where the argument is false
-        - Vacuously true if there are no future times (e.g., at the end of the timeline)
-        - Only considers times within the valid interval for the current world
-
-    Methods:
-        true_at: Returns true if argument holds at all future times
-        false_at: Returns true if argument fails at some future time
-        find_truth_condition: Computes temporal profiles for all worlds
-        print_method: Displays evaluation across different time points
+    This operator implements 'it will always be the case that' (G). Mirrors `translate`'s
+    own `\\Future` rule: `G A := ¬(⊤ U ¬A)` (`semantic/formula.py`) -- `\\Future` is the
+    "always" primitive, not "eventually" (that is the defined `\\future`, `DefFutureOperator`
+    below).
 
     Example:
         If p means "it's raining", then ⏵p means "it will always be raining"
-        (from all times after the preset).
+        (true at every future position of the certified history).
     """
     name = "\\Future"
     arity = 1
 
     def true_at(self, argument, eval_point):
-        """Returns true if argument is true at all future times in this world's interval."""
-        semantics = self.semantics
+        """Looks up the label bit of `¬(⊤ U ¬argument)` -- mirrors `translate`'s own
+        `\\Future` rule."""
+        top = Imp(Bot(), Bot())
+        formula = Imp(Untl(top, Imp(translate(argument), Bot())), Bot())
+        return _bit(self.semantics, eval_point, formula)
 
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        # _fresh_bound_int() (not z3.Int) -- see NecessityOperator.true_at's comment above:
-        # a fixed name would alias with a nested \Future's own bound variable.
-        future_time = _fresh_bound_int('future_true_time')
-        return semantics.ForAllTime(
-            eval_world,
-            future_time,
-            z3.Implies(
-                # Time is in the future of eval_time
-                eval_time < future_time,
-                # Then the argument is true in the eval_world at the future_time
-                semantics.true_at(argument, {"world": eval_world, "time": future_time})
-            )
-        )
-    
     def false_at(self, argument, eval_point):
-        """Returns true if argument is false at at least one future time in this world's interval.
-
-        Args:
-            argument: The argument to apply the future operator to
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
-        semantics = self.semantics
-
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        future_time = _fresh_bound_int('future_false_time')
-        return semantics.ExistsTime(
-            eval_world,
-            future_time,
-            z3.And(
-                # Time is in the future of eval_time
-                eval_time < future_time,
-                # And the argument is false in the eval_world at the future_time
-                semantics.false_at(argument, {"world": eval_world, "time": future_time})
-            )
-        )
-    
-    def find_truth_condition(self, argument, eval_point):
-        """Gets truth-condition for 'It will always be the case that: argument'.
-
-        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
-        world's interval. Arguments at times outside the world's interval are evaluated
-        via semantics.true_at(), which returns FALSE for atoms (via is_valid_time_for_world)
-        and evaluates complex formulas (e.g., negations) recursively.
-
-        Args:
-            argument: The argument to apply the future operator to
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
-                 where a time is in the true_times if the argument is true in all
-                 future times and the time is in the false_times otherwise
-
-        Raises:
-            KeyError: If world_time_intervals information is missing for a required world_id.
-                      This follows the fail-fast philosophy to make errors explicit.
-        """
-        model_structure = argument.proposition.model_structure
-        semantics = model_structure.semantics
-        argument_extension = argument.proposition.extension
-        truth_condition = {}
-
-        # Domain D: all valid times (not world-specific)
-        # Using semantics.M to get the time domain range (-M+1, M-1)
-        all_D_times = list(range(-semantics.M + 1, semantics.M))
-
-        # For any current_world with a temporal_profile of true and false times
-        for current_world, temporal_profile in argument_extension.items():
-            true_times, false_times = temporal_profile
-
-            # Start with empty lists for past/future times
-            new_true_times, new_false_times = [], []
-
-            # Find the time_interval for the current_world (for iteration over evaluation points)
-            start_time, end_time = semantics.world_time_intervals[current_world]
-            time_interval = list(range(start_time, end_time + 1))
-
-            # Calculate which times the argument always will be true
-            for time_point in time_interval:
-
-                # Check if there are any times strictly after this time_point in domain D
-                has_future_times = any(any_time > time_point for any_time in all_D_times)
-
-                # If there are no future times in domain D, the Future operator is vacuously true
-                if not has_future_times:
-                    new_true_times.append(time_point)
-                    continue
-
-                # ProofChecker alignment: check all times in D that are > time_point
-                # Times outside the world's interval are evaluated via semantics.true_at()
-                future_false = False
-                for future_time in all_D_times:
-                    if future_time > time_point:
-                        if future_time in time_interval:
-                            # Time is in world's interval: check argument extension
-                            if future_time in false_times:
-                                future_false = True
-                                break
-                        else:
-                            # Time is outside world's interval: evaluate argument using
-                            # semantics.true_at() which handles atoms (FALSE via
-                            # is_valid_time_for_world) and complex formulas (recursive eval)
-                            truth_expr = semantics.true_at(
-                                argument.proposition.sentence,
-                                {"world": current_world, "time": future_time}
-                            )
-                            if not is_true(argument.proposition.z3_model.evaluate(truth_expr)):
-                                future_false = True
-                                break
-
-                if future_false:
-                    new_false_times.append(time_point)
-                else:
-                    new_true_times.append(time_point)
-
-            # Store the results for this world_id
-            truth_condition[current_world] = (new_true_times, new_false_times)
-
-        # Return result dictionary
-        return truth_condition
+        """`Not(true_at(...))`."""
+        return z3.Not(self.true_at(argument, eval_point))
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print temporal operator evaluation across different time points."""
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class PastOperator(syntactic.Operator):
     """Temporal operator that evaluates whether an argument holds at all past times.
 
-    This operator implements the 'it has always been the case that'. It evaluates
-    whether its argument is true at all past times within the eval_world (before the present).
-
-    Key Properties:
-        - Evaluates truth across all past times in the current world
-        - Returns true only if the argument is true at ALL past times
-        - Returns false if there exists ANY past time where the argument is false
-        - Vacuously true if there are no past times (e.g., at the start of the timeline)
-        - Only considers times within the valid interval for the current world
-
-    Methods:
-        true_at: Returns true if argument holds at all past times
-        false_at: Returns true if argument fails at some past time
-        find_truth_condition: Computes temporal profiles for all worlds
-        print_method: Displays evaluation across different time points
+    This operator implements 'it has always been the case that' (H). Mirrors `translate`'s
+    own `\\Past` rule: `H A := ¬(⊤ S ¬A)` (`semantic/formula.py`).
 
     Example:
         If p means "it's raining", then ⏴p means "it has always been raining"
-        (from all times before the present).
+        (true at every past position of the certified history).
     """
-
     name = "\\Past"
     arity = 1
 
     def true_at(self, argument, eval_point):
-        """Returns true if argument is true at all past times in this world's interval.
-
-        Args:
-            argument: The argument to apply the past operator to
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
-        semantics = self.semantics
-
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        # _fresh_bound_int() (not z3.Int) -- see NecessityOperator.true_at's comment above:
-        # a fixed name would alias with a nested \Past's own bound variable.
-        past_time = _fresh_bound_int('past_true_time')
-        return semantics.ForAllTime(
-            eval_world,
-            past_time,
-            z3.Implies(
-                # The past_time is before the eval_time
-                past_time < eval_time,
-                # Then the argument is true at the past_time in the eval_world
-                semantics.true_at(argument, {"world": eval_world, "time": past_time})
-            )
-        )
+        """Looks up the label bit of `¬(⊤ S ¬argument)` -- mirrors `translate`'s own
+        `\\Past` rule."""
+        top = Imp(Bot(), Bot())
+        formula = Imp(Snce(top, Imp(translate(argument), Bot())), Bot())
+        return _bit(self.semantics, eval_point, formula)
 
     def false_at(self, argument, eval_point):
-        """Returns true if argument is false at at least one past time in this world's interval.
-
-        Args:
-            argument: The argument to apply the past operator to
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-        """
-        semantics = self.semantics
-
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        past_time = _fresh_bound_int('past_false_time')
-        return semantics.ExistsTime(
-            eval_world,
-            past_time,
-            z3.And(
-                # The past_time is before the eval_time
-                past_time < eval_time,
-                # And the argument is false at the past_time in the eval_world
-                semantics.false_at(argument, {"world": eval_world, "time": past_time})
-            )
-        )
-
-    def find_truth_condition(self, argument, eval_point):
-        """Gets truth-condition for 'It has always been the case that: argument'.
-
-        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
-        world's interval. Arguments at times outside the world's interval are evaluated
-        via semantics.true_at(), which returns FALSE for atoms (via is_valid_time_for_world)
-        and evaluates complex formulas (e.g., negations) recursively.
-
-        Args:
-            argument: The argument to apply the past operator to
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
-                 where a time is in the true_times if the argument is true in all
-                 past times and the time is in the false_times otherwise
-
-        Raises:
-            KeyError: If world_time_intervals information is missing for a world_id.
-                     This follows the fail-fast philosophy to make errors explicit.
-        """
-        model_structure = argument.proposition.model_structure
-        semantics = model_structure.semantics
-        argument_extension = argument.proposition.extension
-        truth_condition = {}
-
-        # Domain D: all valid times (not world-specific)
-        all_D_times = list(range(-semantics.M + 1, semantics.M))
-
-        # For any current_world with a temporal_profile of true and false times
-        for current_world, temporal_profile in argument_extension.items():
-            true_times, false_times = temporal_profile
-
-            # Start with empty lists for past/future times
-            new_true_times, new_false_times = [], []
-
-            # Find the time_interval for the current_world (for iteration over evaluation points)
-            start_time, end_time = semantics.world_time_intervals[current_world]
-            time_interval = list(range(start_time, end_time + 1))
-
-            # Calculate which times the argument always has been true
-            for time_point in time_interval:
-
-                # Check if there are any times strictly before this time_point in domain D
-                has_past_times = any(any_time < time_point for any_time in all_D_times)
-
-                # If there are no past times in domain D, the Past operator is vacuously true
-                if not has_past_times:
-                    new_true_times.append(time_point)
-                    continue
-
-                # ProofChecker alignment: check all times in D that are < time_point
-                # Times outside the world's interval are evaluated via semantics.true_at()
-                past_false = False
-                for past_time in all_D_times:
-                    if past_time < time_point:
-                        if past_time in time_interval:
-                            # Time is in world's interval: check argument extension
-                            if past_time in false_times:
-                                past_false = True
-                                break
-                        else:
-                            # Time is outside world's interval: evaluate argument using
-                            # semantics.true_at() which handles atoms (FALSE via
-                            # is_valid_time_for_world) and complex formulas (recursive eval)
-                            truth_expr = semantics.true_at(
-                                argument.proposition.sentence,
-                                {"world": current_world, "time": past_time}
-                            )
-                            if not is_true(argument.proposition.z3_model.evaluate(truth_expr)):
-                                past_false = True
-                                break
-
-                if past_false:
-                    new_false_times.append(time_point)
-                else:
-                    new_true_times.append(time_point)
-
-            # Store the results for this world_id
-            truth_condition[current_world] = (new_true_times, new_false_times)
-
-        # Return result dictionary
-        return truth_condition
+        """`Not(true_at(...))`."""
+        return z3.Not(self.true_at(argument, eval_point))
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print the sentence over all time points.
-
-        Args:
-            sentence_obj: The sentence to print
-            eval_point: The evaluation point (world ID and time)
-            indent_num: The indentation level
-            use_colors: Whether to use colors in output
-        """
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class UntilOperator(syntactic.Operator):
     """Temporal operator U(event, guard): event holds at some future time s > t,
     and guard holds for all times in the open interval (t, s).
 
-    This operator implements the temporal Until operator following the Burgess convention
-    and ProofChecker semantics. U(event, guard) is true at time t if there exists a
-    strictly future time s where the event holds, and the guard holds at all times
-    strictly between t and s.
+    This operator implements the temporal Until operator following the Burgess convention:
+    `true_at(self, event_arg, guard_arg, eval_point)` is **event-first** -- the opposite
+    order from the Lean development's guard-first `untl` constructor (D2). Mirrors
+    `translate`'s own `\\Until` rule, which performs exactly this swap:
+    `Untl(guard=translate(guard_arg), event=translate(event_arg))`.
 
     Key Properties:
-        - Strict witness: The event time s must be strictly greater than evaluation time t
-        - Open guard interval: Guard must hold for all r in (t, s), excluding endpoints
-        - Current time excluded: Guard does NOT need to hold at time t
-        - Witness time excluded: Guard does NOT need to hold at time s
-        - Vacuously false at last time: No future times means no witness can exist
-        - Burgess convention: untl(event, guard) - event is what eventually happens
-
-    Semantics (from ProofChecker Truth.lean):
-        U(phi, psi) is true at t iff:
-        exists s > t: phi(s) AND forall r in (t,s): psi(r)
-
-    Methods:
-        true_at: Returns true if there exists a future witness with guard holding in between
-        false_at: Returns true if no such witness exists
-        find_truth_condition: Computes temporal profiles for all worlds
-        print_method: Displays evaluation across different time points
+        - Strict witness: the event time s must be strictly greater than evaluation time t
+        - Open guard interval: guard holds for all r in (t, s), excluding both endpoints
+        - Burgess convention: U(event, guard) -- event is what eventually happens
 
     Example:
         If p means "the train arrives" and q means "waiting", then U(p, q) means
@@ -1052,451 +395,65 @@ class UntilOperator(syntactic.Operator):
     arity = 2
 
     def true_at(self, event_arg, guard_arg, eval_point):
-        """Returns true if Until condition is satisfied: exists witness s > t where
-        event holds at s and guard holds for all times in (t, s).
-
-        Args:
-            event_arg: The event formula (what eventually holds)
-            guard_arg: The guard formula (what holds until then)
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-
-        Returns:
-            Z3 expression representing the Until truth condition with nested quantifiers
-        """
-        semantics = self.semantics
-
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        # _fresh_bound_int() (not z3.Int) -- distinct names alone do not avoid
-        # collision: z3.Int('name') interns by (name, sort), so a nested
-        # \Until in the event or guard position would receive, as its own
-        # "uniquely named" variable, the identical term this call already
-        # bound. _fresh_bound_int() guarantees distinctness across calls
-        # regardless of name or nesting depth (see its docstring).
-        witness_time = _fresh_bound_int('until_witness_time')
-        guard_time = _fresh_bound_int('until_guard_time')
-
-        # U(event, guard) is true at t iff:
-        # exists s > t: event(s) AND forall r in (t,s): guard(r)
-        return semantics.ExistsTime(
-            eval_world,
-            witness_time,
-            z3.And(
-                # Strict witness: s > t
-                eval_time < witness_time,
-                # Event holds at witness time
-                semantics.true_at(event_arg, {"world": eval_world, "time": witness_time}),
-                # Guard holds for all r in the open interval (t, s)
-                semantics.ForAllTime(
-                    eval_world,
-                    guard_time,
-                    z3.Implies(
-                        z3.And(eval_time < guard_time, guard_time < witness_time),
-                        semantics.true_at(guard_arg, {"world": eval_world, "time": guard_time})
-                    )
-                )
-            )
-        )
+        """Looks up the label bit of `Untl(guard=translate(guard_arg),
+        event=translate(event_arg))` -- mirrors `translate`'s own `\\Until` rule, including
+        its event/guard argument swap (D2)."""
+        formula = Untl(guard=translate(guard_arg), event=translate(event_arg))
+        return _bit(self.semantics, eval_point, formula)
 
     def false_at(self, event_arg, guard_arg, eval_point):
-        """Returns true if Until condition is not satisfied: for all potential witnesses,
-        either event fails or guard fails at some intermediate point.
-
-        Args:
-            event_arg: The event formula (what eventually holds)
-            guard_arg: The guard formula (what holds until then)
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-
-        Returns:
-            Z3 expression representing the negation of Until condition
-        """
-        semantics = self.semantics
-
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        # Create uniquely named time variables
-        witness_time = _fresh_bound_int('until_false_witness_time')
-        guard_time = _fresh_bound_int('until_false_guard_time')
-
-        # U(event, guard) is false at t iff:
-        # forall s > t: event is false at s OR exists r in (t,s): guard is false at r
-        return semantics.ForAllTime(
-            eval_world,
-            witness_time,
-            z3.Implies(
-                eval_time < witness_time,
-                z3.Or(
-                    # Event fails at potential witness
-                    semantics.false_at(event_arg, {"world": eval_world, "time": witness_time}),
-                    # Or guard fails at some intermediate point
-                    semantics.ExistsTime(
-                        eval_world,
-                        guard_time,
-                        z3.And(
-                            eval_time < guard_time,
-                            guard_time < witness_time,
-                            semantics.false_at(guard_arg, {"world": eval_world, "time": guard_time})
-                        )
-                    )
-                )
-            )
-        )
-
-    def find_truth_condition(self, event_arg, guard_arg, eval_point):
-        """Computes the extension for Until operator by checking each time point.
-
-        ProofChecker Alignment: Considers all times in domain D. Arguments at times
-        outside the world's interval are evaluated via semantics.true_at(), which returns
-        FALSE for atoms (via is_valid_time_for_world) and evaluates complex formulas
-        (e.g., negations) recursively.
-
-        For each time t, Until is true if there exists a witness time s > t where:
-        - event holds at s
-        - guard holds for all times in the open interval (t, s)
-
-        Args:
-            event_arg: The event formula (what eventually holds)
-            guard_arg: The guard formula (what holds until then)
-            eval_point: Dictionary containing evaluation parameters
-
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs
-        """
-        model_structure = event_arg.proposition.model_structure
-        semantics = model_structure.semantics
-        event_extension = event_arg.proposition.extension
-        guard_extension = guard_arg.proposition.extension
-        truth_condition = {}
-
-        # Domain D: all valid times (not world-specific)
-        all_D_times = list(range(-semantics.M + 1, semantics.M))
-
-        # For each world in the model
-        for world_id in event_extension.keys():
-            event_true_times = event_extension[world_id][0]
-            guard_true_times = guard_extension[world_id][0]
-
-            # Get the time interval for this world
-            start_time, end_time = semantics.world_time_intervals[world_id]
-            time_interval = list(range(start_time, end_time + 1))
-
-            true_times, false_times = [], []
-
-            # For each time point t in this world
-            for t in time_interval:
-                # Check if Until holds at time t
-                found_witness = False
-
-                # Search for a witness s > t where event holds
-                # Note: Witnesses are limited to the world's interval for event evaluation
-                for s in range(t + 1, end_time + 1):
-                    if s in event_true_times:
-                        # Check if guard holds for all r in open interval (t, s) within domain D
-                        # ProofChecker alignment: times outside world's interval evaluated via true_at()
-                        guard_ok = True
-                        for r in all_D_times:
-                            if t < r < s:
-                                if r in time_interval:
-                                    # Time inside world's interval: check guard extension
-                                    if r not in guard_true_times:
-                                        guard_ok = False
-                                        break
-                                else:
-                                    # Time outside world's interval: evaluate guard using
-                                    # semantics.true_at() which handles atoms (FALSE via
-                                    # is_valid_time_for_world) and complex formulas (recursive eval)
-                                    truth_expr = semantics.true_at(
-                                        guard_arg.proposition.sentence,
-                                        {"world": world_id, "time": r}
-                                    )
-                                    if not is_true(guard_arg.proposition.z3_model.evaluate(truth_expr)):
-                                        guard_ok = False
-                                        break
-                        if guard_ok:
-                            found_witness = True
-                            break
-
-                if found_witness:
-                    true_times.append(t)
-                else:
-                    false_times.append(t)
-
-            truth_condition[world_id] = (true_times, false_times)
-
-        return truth_condition
+        """`Not(true_at(...))`."""
+        return z3.Not(self.true_at(event_arg, guard_arg, eval_point))
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print the Until operator evaluation across different time points.
-
-        Args:
-            sentence_obj: The sentence to print
-            eval_point: The evaluation point (world ID and time)
-            indent_num: The indentation level
-            use_colors: Whether to use colors in output
-        """
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class SinceOperator(syntactic.Operator):
     """Temporal operator S(event, guard): event held at some past time s < t,
     and guard held for all times in the open interval (s, t).
 
-    This operator implements the temporal Since operator following the Burgess convention
-    and ProofChecker semantics. S(event, guard) is true at time t if there exists a
-    strictly past time s where the event held, and the guard held at all times
-    strictly between s and t.
-
-    Key Properties:
-        - Strict witness: The event time s must be strictly less than evaluation time t
-        - Open guard interval: Guard must hold for all r in (s, t), excluding endpoints
-        - Current time excluded: Guard does NOT need to hold at time t
-        - Witness time excluded: Guard does NOT need to hold at time s
-        - Vacuously false at first time: No past times means no witness can exist
-        - Burgess convention: snce(event, guard) - event is what previously happened
-
-    Semantics (from ProofChecker Truth.lean):
-        S(phi, psi) is true at t iff:
-        exists s < t: phi(s) AND forall r in (s,t): psi(r)
-
-    Methods:
-        true_at: Returns true if there exists a past witness with guard holding in between
-        false_at: Returns true if no such witness exists
-        find_truth_condition: Computes temporal profiles for all worlds
-        print_method: Displays evaluation across different time points
+    Event-first, mirroring `UntilOperator`'s own convention and `translate`'s `\\Since`
+    rule, which performs the same guard/event swap as `\\Until` (D2).
 
     Example:
-        If p means "the alarm rang" and q means "sleeping", then S(p, q) means
-        "the alarm rang and since then we have been sleeping" (actually: "and before
-        that we were sleeping")
+        If p means "the announcement was made" and q means "waiting", then S(p, q) means
+        "the announcement was made and we had been waiting until then"
     """
 
     name = "\\Since"
     arity = 2
 
     def true_at(self, event_arg, guard_arg, eval_point):
-        """Returns true if Since condition is satisfied: exists witness s < t where
-        event held at s and guard held for all times in (s, t).
-
-        Args:
-            event_arg: The event formula (what previously held)
-            guard_arg: The guard formula (what held since then)
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-
-        Returns:
-            Z3 expression representing the Since truth condition with nested quantifiers
-        """
-        semantics = self.semantics
-
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        # _fresh_bound_int() (not z3.Int) -- see UntilOperator.true_at's comment above:
-        # a fixed name would alias with a nested \Since's own bound variable.
-        witness_time = _fresh_bound_int('since_witness_time')
-        guard_time = _fresh_bound_int('since_guard_time')
-
-        # S(event, guard) is true at t iff:
-        # exists s < t: event(s) AND forall r in (s,t): guard(r)
-        return semantics.ExistsTime(
-            eval_world,
-            witness_time,
-            z3.And(
-                # Strict witness: s < t
-                witness_time < eval_time,
-                # Event held at witness time
-                semantics.true_at(event_arg, {"world": eval_world, "time": witness_time}),
-                # Guard held for all r in the open interval (s, t)
-                semantics.ForAllTime(
-                    eval_world,
-                    guard_time,
-                    z3.Implies(
-                        z3.And(witness_time < guard_time, guard_time < eval_time),
-                        semantics.true_at(guard_arg, {"world": eval_world, "time": guard_time})
-                    )
-                )
-            )
-        )
+        """Looks up the label bit of `Snce(guard=translate(guard_arg),
+        event=translate(event_arg))` -- mirrors `translate`'s own `\\Since` rule."""
+        formula = Snce(guard=translate(guard_arg), event=translate(event_arg))
+        return _bit(self.semantics, eval_point, formula)
 
     def false_at(self, event_arg, guard_arg, eval_point):
-        """Returns true if Since condition is not satisfied: for all potential witnesses,
-        either event failed or guard failed at some intermediate point.
-
-        Args:
-            event_arg: The event formula (what previously held)
-            guard_arg: The guard formula (what held since then)
-            eval_point: Dictionary containing evaluation parameters:
-                - "world": The world ID for evaluation context
-                - "time": The time for evaluation context
-
-        Returns:
-            Z3 expression representing the negation of Since condition
-        """
-        semantics = self.semantics
-
-        # Extract world and time from eval_point
-        eval_world = eval_point["world"]
-        eval_time = eval_point["time"]
-
-        # Create uniquely named time variables
-        witness_time = _fresh_bound_int('since_false_witness_time')
-        guard_time = _fresh_bound_int('since_false_guard_time')
-
-        # S(event, guard) is false at t iff:
-        # forall s < t: event was false at s OR exists r in (s,t): guard was false at r
-        return semantics.ForAllTime(
-            eval_world,
-            witness_time,
-            z3.Implies(
-                witness_time < eval_time,
-                z3.Or(
-                    # Event failed at potential witness
-                    semantics.false_at(event_arg, {"world": eval_world, "time": witness_time}),
-                    # Or guard failed at some intermediate point
-                    semantics.ExistsTime(
-                        eval_world,
-                        guard_time,
-                        z3.And(
-                            witness_time < guard_time,
-                            guard_time < eval_time,
-                            semantics.false_at(guard_arg, {"world": eval_world, "time": guard_time})
-                        )
-                    )
-                )
-            )
-        )
-
-    def find_truth_condition(self, event_arg, guard_arg, eval_point):
-        """Computes the extension for Since operator by checking each time point.
-
-        ProofChecker Alignment: Considers all times in domain D. Arguments at times
-        outside the world's interval are evaluated via semantics.true_at(), which returns
-        FALSE for atoms (via is_valid_time_for_world) and evaluates complex formulas
-        (e.g., negations) recursively.
-
-        For each time t, Since is true if there exists a witness time s < t where:
-        - event held at s
-        - guard held for all times in the open interval (s, t)
-
-        Args:
-            event_arg: The event formula (what previously held)
-            guard_arg: The guard formula (what held since then)
-            eval_point: Dictionary containing evaluation parameters
-
-        Returns:
-            dict: A dictionary mapping world_ids to (true_times, false_times) pairs
-        """
-        model_structure = event_arg.proposition.model_structure
-        semantics = model_structure.semantics
-        event_extension = event_arg.proposition.extension
-        guard_extension = guard_arg.proposition.extension
-        truth_condition = {}
-
-        # Domain D: all valid times (not world-specific)
-        all_D_times = list(range(-semantics.M + 1, semantics.M))
-
-        # For each world in the model
-        for world_id in event_extension.keys():
-            event_true_times = event_extension[world_id][0]
-            guard_true_times = guard_extension[world_id][0]
-
-            # Get the time interval for this world
-            start_time, end_time = semantics.world_time_intervals[world_id]
-            time_interval = list(range(start_time, end_time + 1))
-
-            true_times, false_times = [], []
-
-            # For each time point t in this world
-            for t in time_interval:
-                # Check if Since holds at time t
-                found_witness = False
-
-                # Search for a witness s < t where event held
-                # Note: Witnesses are limited to the world's interval for event evaluation
-                for s in range(start_time, t):
-                    if s in event_true_times:
-                        # Check if guard held for all r in open interval (s, t) within domain D
-                        # ProofChecker alignment: times outside world's interval evaluated via true_at()
-                        guard_ok = True
-                        for r in all_D_times:
-                            if s < r < t:
-                                if r in time_interval:
-                                    # Time inside world's interval: check guard extension
-                                    if r not in guard_true_times:
-                                        guard_ok = False
-                                        break
-                                else:
-                                    # Time outside world's interval: evaluate guard using
-                                    # semantics.true_at() which handles atoms (FALSE via
-                                    # is_valid_time_for_world) and complex formulas (recursive eval)
-                                    truth_expr = semantics.true_at(
-                                        guard_arg.proposition.sentence,
-                                        {"world": world_id, "time": r}
-                                    )
-                                    if not is_true(guard_arg.proposition.z3_model.evaluate(truth_expr)):
-                                        guard_ok = False
-                                        break
-                        if guard_ok:
-                            found_witness = True
-                            break
-
-                if found_witness:
-                    true_times.append(t)
-                else:
-                    false_times.append(t)
-
-            truth_condition[world_id] = (true_times, false_times)
-
-        return truth_condition
+        """`Not(true_at(...))`."""
+        return z3.Not(self.true_at(event_arg, guard_arg, eval_point))
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print the Since operator evaluation across different time points.
-
-        Args:
-            sentence_obj: The sentence to print
-            eval_point: The evaluation point (world ID and time)
-            indent_num: The indentation level
-            use_colors: Whether to use colors in output
-        """
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 ##############################################################################
-######################## DEFINED EXTENSIONAL OPERATORS #######################
+######################## DEFINED EXTENSIONAL OPERATORS ########################
 ##############################################################################
 
 class ConditionalOperator(syntactic.DefinedOperator):
     """Material conditional operator that returns true unless the antecedent is true and consequent false.
-    
-    This operator implements classical material implication (→). When applied to formulas
-    A and B, it returns true when either A is false or B is true, and false otherwise.
-    
-    Key Properties:
-        - Defined as: A → B ≡ ¬A ∨ B
-        - Vacuously true when antecedent is false
-        - Extensional: Value depends only on truth values of arguments
-        - Not equivalent to natural language "if-then"
-        - Supports modus ponens: From A and A → B, infer B
-        - Supports modus tollens: From ¬B and A → B, infer ¬A
-        
+
+    This operator implements classical material implication (→), defined as
+    `A → B ≡ ¬A ∨ B`. `derived_definition` reduces it to primitives before any `true_at`
+    (this operator's own, or any other's) ever sees it -- it has no `true_at`/`false_at` of
+    its own, matching every other `DefinedOperator` in this module.
+
     Example:
-        If p means "it's raining" and q means "the ground is wet", then (p → q) means 
+        If p means "it's raining" and q means "the ground is wet", then (p → q) means
         "if it's raining then the ground is wet" (in the material sense)
     """
 
@@ -1505,7 +462,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
 
     def derived_definition(self, leftarg, rightarg):  # type: ignore
         return [OrOperator, [NegationOperator, leftarg], rightarg]
-    
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
@@ -1514,20 +471,12 @@ class ConditionalOperator(syntactic.DefinedOperator):
 
 class BiconditionalOperator(syntactic.DefinedOperator):
     """Material biconditional operator that returns true when both arguments have the same truth value.
-    
-    This operator implements classical material biconditional (↔). When applied to formulas
-    A and B, it returns true when A and B have the same truth value (both true or both false).
-    
-    Key Properties:
-        - Defined as: A ↔ B ≡ (A → B) ∧ (B → A)
-        - Commutative: A ↔ B ≡ B ↔ A
-        - Reflexive: A ↔ A is a tautology
-        - Extensional: Value depends only on truth values of arguments
-        - Not equivalent to natural language "if and only if"
-        - Represents logical equivalence between formulas
-        
+
+    This operator implements classical material biconditional (↔), defined as
+    `A ↔ B ≡ (A → B) ∧ (B → A)`.
+
     Example:
-        If p means "it's raining" and q means "there are clouds", then (p ↔ q) means 
+        If p means "it's raining" and q means "there are clouds", then (p ↔ q) means
         "it's raining if and only if there are clouds" (in the material sense)
     """
 
@@ -1538,12 +487,11 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         right_to_left = [ConditionalOperator, leftarg, rightarg]
         left_to_right = [ConditionalOperator, rightarg, leftarg]
         return [AndOperator, right_to_left, left_to_right]
-    
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition for sentence_obj, increases the indentation
         by 1, and prints both of the arguments."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
-
 
 
 ##############################################################################
@@ -1552,16 +500,9 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 
 class TopOperator(syntactic.DefinedOperator):
     """Top element of the space of propositions is true at all worlds and times.
-    
-    This operator implements logical truth (⊤). It evaluates to true at every world
-    and time point in the model structure.
-    
-    Key Properties:
-        - Always evaluates to true regardless of context
-        - Identity element for conjunction: ⊤ ∧ A ≡ A
-        - Annihilator for disjunction: ⊤ ∨ A ≡ ⊤
-        - Negation gives bottom: ¬⊤ ≡ ⊥
-        
+
+    This operator implements logical truth (⊤), defined as `⊤ ≡ ¬⊥`.
+
     Example:
         ⊤ represents a logical tautology like "it's raining or not raining"
     """
@@ -1578,7 +519,6 @@ class TopOperator(syntactic.DefinedOperator):
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
-
 ##############################################################################
 ####################### DEFINED INTENSIONAL OPERATORS ########################
 ##############################################################################
@@ -1586,23 +526,12 @@ class TopOperator(syntactic.DefinedOperator):
 class DefPossibilityOperator(syntactic.DefinedOperator):
     """Modal operator that evaluates whether a formula holds in at least one possible world.
 
-    This operator implements 'it is possible that'. It evaluates whether its argument
-    holds in at least one possible world at the current time.
-
-    Key Properties:
-        - Evaluates truth across all possible worlds at the current time
-        - Returns true if the argument is true in ANY possible world
-        - Returns false if the argument is false in ALL possible worlds
-        - Defined as the dual of necessity: ◇A ≡ ¬□¬A
-        - Only considers worlds within the valid model structure
-
-    Methods:
-        derived_definition: Defines possibility in terms of negation and necessity
-        print_method: Displays evaluation across different possible worlds
+    This operator implements 'it is possible that', defined as the dual of necessity:
+    `◇A ≡ ¬□¬A`.
 
     Example:
         If p means "it's raining", then ◇p means "it is possible that it's raining"
-        (true in at least one possible world at the current time).
+        (true in at least one certified history).
     """
     name = "\\Diamond"
     arity = 1
@@ -1610,19 +539,10 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     def derived_definition(self, argument):  # type: ignore
         """Define possibility in terms of negation and necessity."""
         return [NegationOperator, [NecessityOperator, [NegationOperator, argument]]]
-    
-    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print the possibility operator and its argument across all possible worlds.
-        """
-        # Get the model structure and all world IDs
-        model_structure = sentence_obj.proposition.model_structure
-        
-        # Get all worlds (IDs) for evaluation
-        all_worlds = list(model_structure.world_arrays.keys())
-        
-        # Pass the worlds to print_over_worlds
-        self.print_over_worlds(sentence_obj, eval_point, all_worlds, indent_num, use_colors)
 
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 ##############################################################################
@@ -1632,24 +552,12 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
 class DefFutureOperator(syntactic.DefinedOperator):
     """Temporal operator that evaluates whether a formula holds at some future time.
 
-    This operator implements 'it will at some point be the case that'. It evaluates
-    whether its argument is true at at least one future time within the eval_world
-    (after the present).
-
-    Key Properties:
-        - Evaluates truth across all future times in the current world
-        - Returns true if the argument is true at ANY future time
-        - Returns false if the argument is false at ALL future times
-        - Defined as the dual of future necessity: ⏵A ≡ ¬⏵¬A
-        - Only considers times within the valid interval for the current world
-
-    Methods:
-        derived_definition: Defines future possibility in terms of negation and future necessity
-        print_method: Displays evaluation across different time points
+    This operator implements 'it will at some point be the case that' (F), defined as the
+    dual of `\\Future`'s "always" (G): `⏵A ≡ ¬⏵_G¬A`.
 
     Example:
         If p means "it's raining", then ⏵p means "it will at some point be raining"
-        (true at at least one future time).
+        (true at some future position of the certified history).
     """
 
     name = "\\future"
@@ -1657,16 +565,15 @@ class DefFutureOperator(syntactic.DefinedOperator):
 
     def derived_definition(self, argument):  # type: ignore
         return [NegationOperator, [FutureOperator, [NegationOperator, argument]]]
-    
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print temporal operator evaluation across different time points."""
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class DefPastOperator(syntactic.DefinedOperator):
+    """Temporal operator that evaluates whether a formula held at some past time (P),
+    defined as the dual of `\\Past`'s "always" (H): `⏴A ≡ ¬⏴_H¬A`."""
 
     name = "\\past"
     arity = 1
@@ -1675,11 +582,8 @@ class DefPastOperator(syntactic.DefinedOperator):
         return [NegationOperator, [PastOperator, [NegationOperator, argument]]]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print temporal operator evaluation across different time points."""
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class DefNextOperator(syntactic.DefinedOperator):
@@ -1688,15 +592,6 @@ class DefNextOperator(syntactic.DefinedOperator):
     Defined as Next(phi) = U(phi, bot): phi holds at some future time s > t with bot (falsity)
     holding in the open interval (t, s). Since bot is never true, the interval (t, s) must be
     empty, meaning s is the immediately next time after t.
-
-    Key Properties:
-        - Arity 1: unary operator
-        - Defined in terms of UntilOperator with BotOperator as the guard
-        - Semantics: true at time t iff argument is true at the next time t+1
-
-    Methods:
-        derived_definition: Returns [UntilOperator, argument, [BotOperator]]
-        print_method: Displays evaluation across different time points
     """
 
     name = "\\next"
@@ -1706,11 +601,8 @@ class DefNextOperator(syntactic.DefinedOperator):
         return [UntilOperator, argument, [BotOperator]]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print temporal operator evaluation across different time points."""
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 class DefPrevOperator(syntactic.DefinedOperator):
@@ -1719,15 +611,6 @@ class DefPrevOperator(syntactic.DefinedOperator):
     Defined as Prev(phi) = S(phi, bot): phi held at some past time s < t with bot (falsity)
     holding in the open interval (s, t). Since bot is never true, the interval (s, t) must be
     empty, meaning s is the immediately previous time before t.
-
-    Key Properties:
-        - Arity 1: unary operator
-        - Defined in terms of SinceOperator with BotOperator as the guard
-        - Semantics: true at time t iff argument was true at the previous time t-1
-
-    Methods:
-        derived_definition: Returns [SinceOperator, argument, [BotOperator]]
-        print_method: Displays evaluation across different time points
     """
 
     name = "\\prev"
@@ -1737,13 +620,8 @@ class DefPrevOperator(syntactic.DefinedOperator):
         return [SinceOperator, argument, [BotOperator]]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
-        """Print temporal operator evaluation across different time points."""
-        eval_world = eval_point["world"]
-        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
-        eval_world_times = eval_world_history.keys()
-        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
-
-
+        """Prints the proposition and its arguments."""
+        self.general_print(sentence_obj, eval_point, indent_num, use_colors)
 
 
 bimodal_operators = syntactic.OperatorCollection(
@@ -1774,4 +652,3 @@ bimodal_operators = syntactic.OperatorCollection(
     DefNextOperator,
     DefPrevOperator,
 )
-
