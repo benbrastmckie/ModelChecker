@@ -1,7 +1,7 @@
 # Implementation Plan: Task #184
 
 - **Task**: 184 - Redesign the bimodal theory around witness-family certificates (discrete Z-time)
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 46 hours
 - **Dependencies**: None (the five previously-dependent bimodal tasks 154, 172, 176, 178, 183 were
   abandoned in the operation that created this revision; BimodalLogic tasks 665/666/667 are
@@ -237,7 +237,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Lean-mirroring Formula ADT and closure [NOT STARTED]
+### Phase 1: Lean-mirroring Formula ADT and closure [COMPLETED]
 
 **Goal**: A Python `Formula` type that is structurally identical to BimodalLogic's `Formula`, with
 the subformula closure and the JSON codec the wire contract requires.
