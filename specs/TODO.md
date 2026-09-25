@@ -17,8 +17,8 @@ next_project_number: 189
 
 ### Semantics
 
-184 [PLANNED] — Redesign the bimodal theory around witness-family...
-186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
+184 [IMPLEMENTING] — Redesign the bimodal theory around witness-family...
+186 [IMPLEMENTING] — Review the counterfactual semantics of the Logos manual's...
 
 ## Tasks
 
@@ -124,7 +124,7 @@ STARTING POINTS. ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex: :98
 
 ### 186. Review manual counterfactual semantics for uniform clauses
 - **Effort**: large
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: formal:logic
 - **Topic**: semantics
 - **Dependencies**: None
@@ -224,7 +224,7 @@ DELIVERABLE. A recommendation naming one clause, the model-based evidence discri
 
 ### 184. Refactor bimodal theory tests green and paper lean aligned
 - **Effort**: large
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: Task 188

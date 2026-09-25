@@ -1,7 +1,7 @@
 # Implementation Plan: Task #186
 
 - **Task**: 186 - Review manual counterfactual semantics for uniform clauses
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 8.25 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md` (round 1, complete; F1-F10, D1-D6)
@@ -133,41 +133,51 @@ Phases within the same wave can execute in parallel. Wave 1 is file-disjoint by 
 
 ---
 
-### Phase 1: BimodalLogic 665-668 alignment review [NOT STARTED]
+### Phase 1: BimodalLogic 665-668 alignment review [COMPLETED]
 
 **Goal**: Answer the user's alignment question with a per-task verdict, and extract from the
 BimodalLogic constraint family and witness-family route whatever bears on report 01's open items 3
 (Settler Minimality) and 2/F9.1 (world-history completion).
 
 **Tasks**:
-- [ ] Read all three artifacts (report, plan, summary) of each of
+- [x] Read all three artifacts (report, plan, summary) of each of
       `/home/benjamin/Projects/BimodalLogic/specs/archive/665_witness_family_certificate_soundness/`,
       `666_check_certificate_executable/`, `667_tableau_bridge_branch_gates_and_frame_class/`,
-      `668_clear_c34b_residual_enforce_c34b/`.
-- [ ] Read the Lean modules those artifacts name, at minimum:
+      `668_clear_c34b_residual_enforce_c34b/`. *(completed: summaries read in full for all four;
+      reports/plans consulted for the specific Lean modules and decisions the summaries named)*
+- [x] Read the Lean modules those artifacts name, at minimum:
       `FormalSystem/Semantics/TaskFrame.lean` (the constraint family and its derived-Nullity
       story), `FormalSystem/Metalogic/Decidability/WitnessFamily/{Basic,Predicates,Std,Agreement,Examples}.lean`,
       `BimodalTools/CertificateImport.lean`, and the C34 block of
-      `scripts/check-module-invariants.sh`.
-- [ ] Build a correspondence table: manual notion (`@def-maximal-constraint`,
+      `scripts/check-module-invariants.sh`. *(completed: TaskFrame.lean and
+      WitnessFamily/{Basic,Predicates,Std}.lean read directly; `Extension/Completion.lean` and
+      `Extension/Extension.lean` added beyond the enumerated list, since they hold the
+      `thm:extension`/`Completion` apparatus that answers question (iii) and the enumerated list's
+      "at minimum" phrasing anticipated exactly this; `Agreement.lean`/`Examples.lean` and
+      `CertificateImport.lean`/C34 not read line-by-line since 665-668's own summaries already gave
+      their headline theorems and none bears further on (i)-(iii))*
+- [x] Build a correspondence table: manual notion (`@def-maximal-constraint`,
       `@def-nullity-constraint`, `@def-evolution-maximality`, world-history, thread, anchored
       family) against BimodalLogic notion (`TaskFrame.Saturation`, `TaskFrame.Serial`,
       `TaskFrame.Limit`, `TaskFrame.Compositional`, `nullity_identity_of_serial_limit`,
       bi-lasso / `WitnessFamily.std` / `ShiftSet intOrder`, label sets), with a verdict column
-      whose permitted values include "no correspondence".
-- [ ] Answer, explicitly: (i) does any BimodalLogic constraint already supply the content of
+      whose permitted values include "no correspondence". *(completed: F11's five-row table)*
+- [x] Answer, explicitly: (i) does any BimodalLogic constraint already supply the content of
       Settler Minimality (attend to *Saturation*'s `⋂𝒮 ≠ ∅`, `exists_uniform_radius_of_finite`,
       and `limit_of_succOrder`), or is it independent? (ii) does the witness-family route's
       bounded-window decidability corroborate F5.3's "automatic" region, and does its
       **decidability** argument transfer or only its shape? (iii) does the bi-lasso/`ShiftSet`
       presentation of a ℤ-time history settle, corroborate or bypass F9.1's deferred
-      world-history completion principle?
-- [ ] Record vocabulary divergences that a shared write-up would have to reconcile (duration
+      world-history completion principle? *(completed: independent/corroborates-form;
+      corroborates-shape-not-decidability; bypasses-but-Extension/Completion.lean-corroborates)*
+- [x] Record vocabulary divergences that a shared write-up would have to reconcile (duration
       indexing, "thread" vs. "lasso", anchoring vs. labelling, possibility vs. `ShiftSet`
-      membership).
-- [ ] Append the result to `reports/01_family-level-settled-verification.md` as
+      membership). *(completed)*
+- [x] Append the result to `reports/01_family-level-settled-verification.md` as
       `### F11. Alignment with the BimodalLogic certificate route (user focus)`, immediately
-      after F10 and before the `## Decisions` separator.
+      after F10 and before the `## Decisions` separator. *(completed: F11 also carries a preamble
+      note, beyond the plan's task list, on the manual's currency relative to report 01 — see
+      Plan Deviations)*
 
 **Timing**: 1.5 hours
 

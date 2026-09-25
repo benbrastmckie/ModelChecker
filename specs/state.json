@@ -36,7 +36,7 @@
     {
       "project_number": 184,
       "project_name": "refactor_bimodal_theory_tests_green_and_paper_lean_aligned",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "python",
       "topic": "semantics",
       "effort": "large",
@@ -54,8 +54,8 @@
         }
       ],
       "created": "2026-09-01T16:35:55Z",
-      "last_updated": "2026-09-25T16:08:07Z",
-      "session_id": "sess_1790299903_1e1dd5",
+      "last_updated": "2026-09-25T17:48:28Z",
+      "session_id": "sess_1790358492_1a5334",
       "next_artifact_number": 2,
       "dependencies": [
         188
@@ -105,7 +105,7 @@
     {
       "project_number": 186,
       "project_name": "review_manual_counterfactual_semantics_for_uniform_clauses",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "formal:logic",
       "topic": "semantics",
       "effort": "large",
@@ -124,8 +124,8 @@
         }
       ],
       "created": "2026-09-09T02:35:21Z",
-      "last_updated": "2026-09-25T01:39:39Z",
-      "session_id": "sess_1790299903_1e1dd5",
+      "last_updated": "2026-09-25T17:48:26Z",
+      "session_id": "sess_1790358492_1a5334",
       "next_artifact_number": 2
     },
     {

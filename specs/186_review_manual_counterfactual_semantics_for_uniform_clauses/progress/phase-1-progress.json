@@ -1,0 +1,26 @@
+{
+  "phase": 1,
+  "phase_name": "BimodalLogic 665-668 alignment review",
+  "started_at": "2026-09-25T00:00:00Z",
+  "last_updated": "2026-09-25T01:00:00Z",
+  "objectives": [
+    {"id": 1, "description": "Read all three artifacts of tasks 665-668", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Read the named Lean modules", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Build correspondence table", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 4, "description": "Answer (i),(ii),(iii)", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 5, "description": "Record vocabulary divergences", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]},
+    {"id": 6, "description": "Append F11 to report 01", "status": "done", "files_touched": ["specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md"]}
+  ],
+  "current_objective": 6,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "1.discovery",
+      "description": "Additional discovery not in the original task list: the manual has moved since report 01 (Logos task 406 implementation phases, committed ~3.5 hours after report 01 completed) and now adopts most of F2/F6/F7/D1/D3 verbatim, including the Minimal Settler Constraint as an unconditional axiom (closing open item 3 independent of BimodalLogic).",
+      "type": "altered",
+      "reason": "Discovered while reading the manual to build the correspondence table; material to the alignment review's own conclusions and to Phase 5/6, so recorded as a preamble to F11 rather than silently omitted.",
+      "annotation": "*(deviation: altered — added a manual-currency preamble to F11 beyond the plan's task list)*"
+    }
+  ]
+}
