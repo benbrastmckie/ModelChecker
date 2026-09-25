@@ -1,5 +1,5 @@
 ---
-next_project_number: 188
+next_project_number: 189
 ---
 
 # TODO
@@ -21,6 +21,30 @@ next_project_number: 188
 186 [PLANNED] — Review the counterfactual semantics of the Logos manual's...
 
 ## Tasks
+
+### 188. Diagnose bm cm 4 deterministic countermodel failure
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: --
+
+**Description**: `BM_CM_4` fails DETERMINISTICALLY in the bimodal suite and is neither tracked nor documented as failing. Diagnose it, then either fix it or give it a marker meeting `TESTING_GUIDE.md` 8.9's entry criteria. Do NOT simply widen `max_time`.
+
+MEASURED (2026-09-25): full bimodal suite = 345 passed, 5 failed in 699s. One failure is `BM_CM_1` (legitimately tracked as the sole `UNSTABLE_EXAMPLES` member, with four entry criteria and an exit criterion -- NOT this task). The other four are all `BM_CM_4`, which is in no marker list.
+
+WHY "Z3 nondeterminism" IS THE WRONG LABEL: (1) the isolation test parametrizes exactly `[0, 17, 30]` and ALL THREE fail, though its own docstring records seeds 0 and 30 as passing -- uniform failure across every seed is a deterministic signature; (2) re-running the example test alone failed 3/3, giving seven consecutive failures across two modules and three seeds with zero successes; (3) the counter-reset fix IS present and working (`semantic/core.py:122`) -- results no longer VARY, the example itself fails; (4) `BM_CM_4_settings` (`examples.py:426-446`) asserts "the countermodel is still genuinely found on every probed seed", now false, with wall time exceeding the 120s budget.
+
+SETTLE FIRST: (a) solve-cost regression, (b) countermodel unreachable at N=2, M=2, or (c) genuine semantic failure. Bisect for the last passing commit -- the adequacy-theorem work changed NO semantic source file, so the cause predates it.
+
+CRITICAL: the encoding is independently known UNSOUND (see `docs/ADEQUACY.md`), so a `BM_CM_4` verdict is untrustworthy in EITHER direction. This makes 8.9's entry criterion 2 ("demonstrably not semantic") a real obligation, not a formality: `BM_CM_1` met it via decided draws always finding the countermodel; `BM_CM_4` has no decided draws at all, so an unstable marking is unavailable until one is exhibited or the verdict is independently confirmed.
+
+OUTCOMES, preferred order: (1) genuine fix, green across a >= 20-seed sweep; (2) corrected expected verdict IF the paper semantics say so -- justified against `ADEQUACY.md`, never against the encoder's own output; (3) a compliant `UNSTABLE_EXAMPLES` entry with the false settings sentence corrected. Raising `max_time` is explicitly NOT acceptable.
+
+ALSO CORRECT: the stale claim at `tests/unit/test_bimodal.py:69` that `BM_CM_1`, `BM_CM_2`, `BM_CM_4` "now reliably find countermodels".
+
+SCOPE: bimodal tests, `examples.py` settings/comments, and `semantic/` only if a real fix is warranted. Do NOT let this grow into the encoding replacement -- hand that over if the diagnosis points there.
+
+---
 
 ### 187. Establish adequacy theorem bimodal countermodels
 - **Effort**: large
