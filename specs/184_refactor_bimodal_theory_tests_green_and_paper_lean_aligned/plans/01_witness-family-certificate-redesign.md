@@ -336,7 +336,7 @@ widened scope.
 
 ---
 
-### Phase 3: Certificate datatypes and JSON writer [NOT STARTED]
+### Phase 3: Certificate datatypes and JSON writer [COMPLETED]
 
 **Goal**: `LabelledLasso` and `WitnessFamily` dataclasses that decode to a bi-infinite label
 function and serialize to the fixed wire shape.
