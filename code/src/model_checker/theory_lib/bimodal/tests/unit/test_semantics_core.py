@@ -225,11 +225,15 @@ class TestCertificateExtraction:
         assert verdict["status"] == "countermodel", verdict
 
 
-from model_checker.theory_lib.bimodal.tests.integration.test_certificate_lean_agreement import (  # noqa: E402
-    _SKIP_REASON as _LEAN_SKIP_REASON,
-    _run_check_certificate as _run_lean_check_certificate,
-    PER_FIXTURE_TIMEOUT_SECONDS as _LEAN_TIMEOUT_SECONDS,
+from model_checker.theory_lib.bimodal.tests._lean_check import (  # noqa: E402
+    SKIP_REASON as _LEAN_SKIP_REASON,
+    run_check_certificate as _run_lean_check_certificate,
 )
+
+# This module's own per-invocation timeout bound, matching
+# `test_certificate_lean_agreement.py`'s `PER_FIXTURE_TIMEOUT_SECONDS` (not shared via the
+# helper: that name is specific to the fixture-corpus consumer).
+_LEAN_TIMEOUT_SECONDS = 30
 
 
 @pytest.mark.skipif(_LEAN_SKIP_REASON is not None, reason=_LEAN_SKIP_REASON or "")

@@ -20,103 +20,33 @@ whole module -- cleanly, with a named reason, never a failure -- if either is un
 a bounded probe of `lake exe check_certificate` does not succeed within the module's hard
 timeout. See `context/patterns/bounded-build-waiter.md` for the general discipline this module's
 probe-then-run structure follows.
+
+The checkout/`lake` resolution, the subprocess invocation, and the skip-reason computation
+itself now live in the shared `bimodal/tests/_lean_check.py` helper -- this module only imports
+them, so a second consumer needing the identical plumbing (`test_certificate_a2_triangle.py`)
+does not duplicate it.
 """
 
 from __future__ import annotations
 
 import json
-import os
-import shutil
-import subprocess
 from pathlib import Path
 
 import pytest
 
 from model_checker.theory_lib.bimodal.semantic.certificate import recheck_json
+from model_checker.theory_lib.bimodal.tests._lean_check import (
+    SKIP_REASON,
+    run_check_certificate as _run_check_certificate,
+)
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "certificates"
 
-# Hard timeout bounds, explicit in source rather than implicit in the test harness.
-PROBE_TIMEOUT_SECONDS = 60
+# Hard timeout bound for this module's own per-fixture invocations, explicit in source rather
+# than implicit in the test harness. The probe timeout lives with the shared helper.
 PER_FIXTURE_TIMEOUT_SECONDS = 30
 
-BIMODAL_LOGIC_COMMIT = "6529c6e853f1c29358a7e74a76055f64f68b7ff7"
-
-
-def _resolve_bimodal_logic_path() -> Path | None:
-    env_path = os.environ.get("BIMODAL_LOGIC_PATH")
-    if env_path:
-        candidate = Path(env_path).expanduser()
-    else:
-        candidate = Path("~/Projects/BimodalLogic").expanduser()
-    if candidate.is_dir() and (candidate / "lakefile.toml").is_file():
-        return candidate
-    return None
-
-
-def _resolve_lake() -> str | None:
-    return shutil.which("lake")
-
-
-BIMODAL_LOGIC_PATH = _resolve_bimodal_logic_path()
-LAKE = _resolve_lake()
-
-_SKIP_REASON: str | None = None
-if BIMODAL_LOGIC_PATH is None:
-    _SKIP_REASON = (
-        "BimodalLogic checkout not found (set BIMODAL_LOGIC_PATH or check out to "
-        "~/Projects/BimodalLogic)"
-    )
-elif LAKE is None:
-    _SKIP_REASON = "`lake` not found on PATH"
-
-
-def _run_check_certificate(payload: dict, timeout: int) -> dict | None:
-    """Run `lake exe check_certificate` on one JSON payload. Returns the parsed verdict, or
-    None if the process failed or timed out (the caller decides how to report that)."""
-    try:
-        result = subprocess.run(
-            [LAKE, "exe", "check_certificate"],
-            input=json.dumps(payload),
-            capture_output=True,
-            text=True,
-            cwd=str(BIMODAL_LOGIC_PATH),
-            timeout=timeout,
-        )
-    except subprocess.TimeoutExpired:
-        return None
-    if result.returncode != 0:
-        return None
-    line = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
-    try:
-        return json.loads(line)
-    except (json.JSONDecodeError, IndexError):
-        return None
-
-
-def _probe() -> str | None:
-    """Probe the binary once, under a hard timeout, before the fixture loop. Returns an error
-    string on failure, or None on success."""
-    trivial = {
-        "target": {"premises": [], "conclusions": [{"tag": "atom", "name": "p"}], "time": 0},
-        "bx": [],
-        "lassos": [{"back": [[]], "mid": [], "fwd": [[]]}],
-    }
-    verdict = _run_check_certificate(trivial, PROBE_TIMEOUT_SECONDS)
-    if verdict is None:
-        return (
-            f"`lake exe check_certificate` did not respond within {PROBE_TIMEOUT_SECONDS}s "
-            "or failed to build"
-        )
-    if verdict.get("status") != "countermodel":
-        return f"probe certificate produced unexpected verdict: {verdict!r}"
-    return None
-
-
-if _SKIP_REASON is None:
-    _SKIP_REASON = _probe()
-
-pytestmark = pytest.mark.skipif(_SKIP_REASON is not None, reason=_SKIP_REASON or "")
+pytestmark = pytest.mark.skipif(SKIP_REASON is not None, reason=SKIP_REASON or "")
 
 
 def _load_expected_verdicts() -> dict:

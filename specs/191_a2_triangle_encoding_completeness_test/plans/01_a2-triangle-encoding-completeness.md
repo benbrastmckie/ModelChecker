@@ -1,7 +1,7 @@
 # Implementation Plan: A2-triangle encoding-completeness test
 
 - **Task**: 191 - A2 triangle encoding completeness test
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 4.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/191_a2_triangle_encoding_completeness_test/reports/01_a2-triangle-encoding-completeness.md
@@ -119,25 +119,33 @@ No `roadmap_path` was provided in this dispatch; no roadmap consultation perform
 Phases within the same wave can execute in parallel. This plan is fully sequential: Phases 2-4 all
 write the same new test module, so they are deliberately not parallelized.
 
-### Phase 1: Extract the shared Lean-check helper [NOT STARTED]
+### Phase 1: Extract the shared Lean-check helper [COMPLETED]
 
 **Goal**: The `lake exe check_certificate` invocation and skip-resolution plumbing lives in one
 importable place, with the existing Lean-agreement module unchanged in behavior.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py` holding
+- [x] Create `code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py` holding
       `_resolve_bimodal_logic_path`, `_resolve_lake`, `run_check_certificate(payload, timeout)`,
       the trivial-payload `probe()`, the resolved `BIMODAL_LOGIC_PATH`/`LAKE` values, the
       `BIMODAL_LOGIC_COMMIT` constant, and the computed skip reason — exported under public names
       (no leading underscore on what other modules import).
-- [ ] Re-point `tests/integration/test_certificate_lean_agreement.py` at the helper via an
+- [x] Re-point `tests/integration/test_certificate_lean_agreement.py` at the helper via an
       absolute import (`from model_checker.theory_lib.bimodal.tests._lean_check import ...`);
       `tests/` is a package (`tests/__init__.py` exists) but `tests/integration/` is not, so do
       not use a relative import.
-- [ ] Keep that module's `pytestmark = pytest.mark.skipif(...)` semantics identical: skip with a
+- [x] Keep that module's `pytestmark = pytest.mark.skipif(...)` semantics identical: skip with a
       named reason, never fail, when the checkout, `lake`, or the probe is unavailable.
-- [ ] Note in the helper's docstring that the module-level probe now runs once per session shared
+- [x] Note in the helper's docstring that the module-level probe now runs once per session shared
       across consumers, rather than once per consuming module.
+- [x] **Deviation (not in original task list)**: the plan's own verification step below assumed
+      `test_certificate_lean_agreement.py`'s moved names had no other importer, but
+      `tests/unit/test_semantics_core.py` imported `_SKIP_REASON`/`_run_check_certificate`/
+      `PER_FIXTURE_TIMEOUT_SECONDS` from it directly (`TestExportedCertificateAgreesWithLeanBinary`).
+      Re-pointed that import at `_lean_check.py`'s public `SKIP_REASON`/`run_check_certificate`,
+      with a local `_LEAN_TIMEOUT_SECONDS = 30` replacing the borrowed
+      `PER_FIXTURE_TIMEOUT_SECONDS` (that name stayed fixture-corpus-specific, not promoted to
+      the shared helper). Verified via the same test run as the rest of this phase.
 
 **Timing**: 0.75 hours
 
