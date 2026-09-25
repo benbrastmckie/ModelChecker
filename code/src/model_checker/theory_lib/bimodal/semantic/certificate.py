@@ -54,9 +54,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, FrozenSet, Iterable, List, Mapping, Optional, Tuple
 
-from .formula import Atom, Bot, Box, Formula, Imp, Snce, Untl, closure_of, to_json
+from .formula import Atom, Bot, Box, Formula, Imp, Snce, Untl, closure_of, from_json, to_json
 
-__all__ = ["LabelledLasso", "WitnessFamily", "recheck"]
+__all__ = ["LabelledLasso", "WitnessFamily", "recheck", "recheck_json"]
 
 
 Label = FrozenSet[Formula]
@@ -419,3 +419,46 @@ def recheck(
         )
 
     return {"status": "countermodel", "time": target_time}
+
+
+# ---------------------------------------------------------------------------
+# JSON-boundary wrapper
+# ---------------------------------------------------------------------------
+#
+# `recheck` takes an already-decoded `WitnessFamily` plus an already-typed `target_time`, so it
+# never sees a raw wire payload and never reports `"error"` (see its docstring). `recheck_json`
+# is the protocol boundary: it decodes a raw wire-format `dict` (as produced by `WitnessFamily.
+# to_json`, or read directly from JSON text) and mirrors `check_certificate`'s own
+# protocol-vs-condition distinction (`docs/ADEQUACY.md` section 6.1) -- a certificate missing
+# `target` or `target.time` is `"error"`, never `"rejected"`, since `error` covers input that
+# fails the *protocol* and `rejected` covers input that parses but fails a *condition*.
+
+
+def _lasso_from_wire(raw: Mapping[str, object]) -> "LabelledLasso":
+    def _segment(key: str) -> Tuple[Label, ...]:
+        return tuple(frozenset(from_json(f) for f in label) for label in raw.get(key, []))
+
+    return LabelledLasso(back=_segment("back"), mid=_segment("mid"), fwd=_segment("fwd"))
+
+
+def recheck_json(raw: Mapping[str, object]) -> Dict[str, object]:
+    """Decode a raw wire-format certificate and re-check it, at the JSON boundary.
+
+    Returns `{"status": "error", "message": ...}` if `target` or `target.time` is missing --
+    matching `check_certificate`'s protocol-level error, which `recheck` itself cannot produce
+    since it never sees raw JSON. Otherwise decodes `bx`/`lassos`/`target` via `from_json` and
+    delegates to `recheck`.
+    """
+    if "target" not in raw:
+        return {"status": "error", "message": "missing 'target'"}
+    target = raw["target"]
+    if "time" not in target:
+        return {"status": "error", "message": "missing 'target.time'"}
+
+    premises = [from_json(f) for f in target.get("premises", [])]
+    conclusions = [from_json(f) for f in target.get("conclusions", [])]
+    target_time = target["time"]
+    bx = {from_json(f): bool(v) for f, v in raw.get("bx", [])}
+    lassos = tuple(_lasso_from_wire(lasso_raw) for lasso_raw in raw.get("lassos", []))
+    family = WitnessFamily(bx=bx, lassos=lassos)
+    return recheck(family, premises, conclusions, target_time)

@@ -32,6 +32,8 @@ from pathlib import Path
 
 import pytest
 
+from model_checker.theory_lib.bimodal.semantic.certificate import recheck_json
+
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "certificates"
 
 # Hard timeout bounds, explicit in source rather than implicit in the test harness.
@@ -157,7 +159,11 @@ class TestLeanAgreement:
 
 class TestErrorPaths:
     """A certificate missing `target`, or missing `target.time`, must be answered `error`,
-    never `rejected` -- ADEQUACY.md Section 6.1's protocol-vs-condition distinction."""
+    never `rejected` -- ADEQUACY.md Section 6.1's protocol-vs-condition distinction. Checked on
+    *both* sides: the Lean binary and this theory's own JSON-boundary wrapper, `recheck_json`
+    (`semantic/certificate.py`), which cannot be exercised by `recheck` directly since `recheck`
+    takes an already-decoded, already-typed target time and so never sees a raw payload that
+    could be missing either field."""
 
     def test_missing_target_is_error(self):
         payload = {
@@ -168,6 +174,9 @@ class TestErrorPaths:
         assert verdict is not None, "lake exe check_certificate did not respond in time"
         assert verdict["status"] == "error", (
             f"a certificate missing 'target' must be 'error', got {verdict!r}"
+        )
+        assert recheck_json(payload)["status"] == "error", (
+            "the Python-side recheck_json must agree with the Lean side on this payload"
         )
 
     def test_missing_target_time_is_error(self):
@@ -181,3 +190,40 @@ class TestErrorPaths:
         assert verdict["status"] == "error", (
             f"a certificate missing 'target.time' must be 'error', got {verdict!r}"
         )
+        assert recheck_json(payload)["status"] == "error", (
+            "the Python-side recheck_json must agree with the Lean side on this payload"
+        )
+
+
+class TestPythonRecheckerAgreesWithLean:
+    """Direct agreement, on the whole fixture corpus, between this theory's own re-checker
+    (`recheck_json`, decoding through the same `WitnessFamily`/`LabelledLasso` datatypes the Z3
+    encoding will build) and `lake exe check_certificate`. `TestLeanAgreement` above compares the
+    Lean verdict against `expected_verdicts.json`, itself adjudicated by an independent,
+    checker-agnostic evaluator (`tests/unit/test_certificate_fixtures.py`); this class instead
+    exercises the theory's actual re-checker end to end, which is the object the periodicity
+    obligation (ADEQUACY.md section 5.3) is about."""
+
+    @pytest.mark.parametrize("fixture_path", _fixture_files(), ids=lambda p: p.name)
+    def test_recheck_json_status_matches_lean(self, fixture_path):
+        with open(fixture_path) as f:
+            payload = json.load(f)
+
+        lean_verdict = _run_check_certificate(payload, PER_FIXTURE_TIMEOUT_SECONDS)
+        assert lean_verdict is not None, (
+            f"{fixture_path.name}: lake exe check_certificate did not respond within "
+            f"{PER_FIXTURE_TIMEOUT_SECONDS}s"
+        )
+        python_verdict = recheck_json(payload)
+        assert python_verdict["status"] == lean_verdict["status"], (
+            f"{fixture_path.name}: recheck_json says {python_verdict['status']!r}, "
+            f"lake exe check_certificate says {lean_verdict['status']!r} -- the Lean predicates "
+            "are the contract, so this is a Python-side defect, not a Lean-side one"
+        )
+        if lean_verdict["status"] == "rejected":
+            python_conditions = {entry.get("condition") for entry in python_verdict.get("failed", [])}
+            lean_conditions = {entry.get("condition") for entry in lean_verdict.get("failed", [])}
+            assert python_conditions & lean_conditions, (
+                f"{fixture_path.name}: recheck_json's failed condition(s) {python_conditions!r} "
+                f"share nothing with Lean's {lean_conditions!r}"
+            )

@@ -21,6 +21,7 @@ import pytest
 from model_checker.theory_lib.bimodal.semantic.certificate import (
     LabelledLasso,
     WitnessFamily,
+    recheck_json,
 )
 from model_checker.theory_lib.bimodal.semantic.formula import Atom, Box, from_json, to_json
 
@@ -427,3 +428,55 @@ class TestRecheckLocalCoherentFailure:
         verdict = recheck(family, premises=[boxed], conclusions=[], target_time=0)
         assert verdict["status"] == "rejected"
         assert verdict["failed"][0]["condition"] == "local_coherent"
+
+
+# ---------------------------------------------------------------------------
+# Phase 5: the JSON-boundary wrapper, `recheck_json`
+# ---------------------------------------------------------------------------
+#
+# `recheck` never reports `"error"` since it takes an already-decoded `WitnessFamily` and an
+# already-typed `target_time` (see its own docstring). `recheck_json` is the protocol boundary
+# a raw wire payload actually crosses, and it must mirror `check_certificate`'s
+# protocol-vs-condition distinction (`docs/ADEQUACY.md` section 6.1): a certificate missing
+# `target` or `target.time` is `"error"`, never `"rejected"`.
+
+
+class TestRecheckJsonErrorPaths:
+    def test_missing_target_is_error(self):
+        raw = {"bx": [], "lassos": [{"back": [[]], "mid": [], "fwd": [[]]}]}
+        verdict = recheck_json(raw)
+        assert verdict == {"status": "error", "message": "missing 'target'"}
+
+    def test_missing_target_time_is_error(self):
+        raw = {
+            "target": {"premises": [], "conclusions": []},
+            "bx": [],
+            "lassos": [{"back": [[]], "mid": [], "fwd": [[]]}],
+        }
+        verdict = recheck_json(raw)
+        assert verdict == {"status": "error", "message": "missing 'target.time'"}
+
+
+class TestRecheckJsonAgreesWithRecheck:
+    """`recheck_json` must decode a raw fixture identically to the hand-decoding `_load_fixture`
+    performs, and delegate to the same `recheck` -- so its verdict on every fixture in the corpus
+    must be exactly `recheck`'s verdict on the hand-decoded family."""
+
+    @pytest.mark.parametrize(
+        "fixture_name",
+        [
+            "01_positive_box.json",
+            "02_infinite_postponement.json",
+            "03_box_unfaithful.json",
+            "04_window_discriminator_coherence.json",
+        ],
+    )
+    def test_agrees_with_recheck_on_the_hand_decoded_family(self, fixture_name):
+        family, premises, conclusions, target_time = _load_fixture(fixture_name)
+        expected = recheck(family, premises, conclusions, target_time)
+
+        with open(_FIXTURES_DIR / fixture_name) as f:
+            raw = json.load(f)
+        actual = recheck_json(raw)
+
+        assert actual == expected

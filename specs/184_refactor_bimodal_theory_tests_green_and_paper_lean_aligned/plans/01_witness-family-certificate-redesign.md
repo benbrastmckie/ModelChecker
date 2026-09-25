@@ -433,34 +433,50 @@ faithfulness and the target, returning the same verdict vocabulary as the Lean b
 
 ---
 
-### Phase 5: Round-trip against `lake exe check_certificate` [NOT STARTED]
+### Phase 5: Round-trip against `lake exe check_certificate` [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: Every fixture certificate receives the same verdict from the Python re-checker and from
 BimodalLogic's Lean binary.
 
 **Tasks**:
-- [ ] Write the integration test first: locate `~/Projects/BimodalLogic` and `lake`, skip with a
+- [x] Write the integration test first: locate `~/Projects/BimodalLogic` and `lake`, skip with a
       clear reason when either is absent, otherwise pipe each fixture's JSON to
-      `lake exe check_certificate` on stdin and parse the single output line.
-- [ ] Assert verdict agreement (`countermodel` vs `rejected` vs `error`) on the whole fixture
-      corpus from Phases 3-4, positive and negative.
-- [ ] Assert that a certificate missing `target` or `target.time` produces `error` from both sides,
-      and that a fresh-indexed atom is refused by the Python exporter before it can be sent.
-- [ ] Record the BimodalLogic commit or version the agreement was observed against, in the test
-      module docstring.
-- [ ] **(Amendment, adequacy-layer task)** Add this task's own fixture corpus
+      `lake exe check_certificate` on stdin and parse the single output line. **Deviation**: this
+      was already built by a dependent, already-completed adequacy-layer task, landed under
+      `tests/integration/test_certificate_lean_agreement.py` rather than the
+      `test_certificate_roundtrip.py` this phase's own "Files to modify" line names, complete with
+      the probe-then-skip discipline, `BIMODAL_LOGIC_PATH`/`lake` resolution, and per-fixture
+      subprocess wrapper this task lists. Creating a second, near-duplicate harness in a new file
+      would have duplicated that plumbing rather than reused it, so this phase extended the
+      existing module in place instead of creating a new one.
+- [x] Assert verdict agreement (`countermodel` vs `rejected` vs `error`) on the whole fixture
+      corpus from Phases 3-4, positive and negative. **Note**: the pre-existing module's
+      `TestLeanAgreement` compared the Lean verdict against `expected_verdicts.json` (itself
+      adjudicated by an independent, checker-agnostic evaluator in
+      `tests/unit/test_certificate_fixtures.py`), not against this task's own Phase 3/4
+      `WitnessFamily`/`recheck` datatypes. This phase added `TestPythonRecheckerAgreesWithLean`,
+      which runs the theory's actual `recheck_json` (new, see below) against
+      `lake exe check_certificate` directly on every corpus fixture, so the object the periodicity
+      obligation (ADEQUACY.md §5.3) is about is the one actually exercised end to end.
+- [x] Assert that a certificate missing `target` or `target.time` produces `error` from both sides,
+      and that a fresh-indexed atom is refused by the Python exporter before it can be sent. Added
+      `recheck_json` (`semantic/certificate.py`) as the JSON-boundary wrapper `recheck` itself
+      cannot be, since `recheck` takes an already-decoded `WitnessFamily` and an already-typed
+      `target_time` and so never sees a raw payload that could be missing either field (the Phase 4
+      handoff flagged this gap explicitly). `TestErrorPaths` now asserts `recheck_json` agrees with
+      the Lean side on both missing-field payloads. The fresh-atom-refused-before-sending half was
+      already discharged by Phase 3's `to_json`/`_reject_fresh_atoms`, tested in
+      `test_formula.py::TestFreshAtomRejection` — confirmed, not re-implemented.
+- [x] Record the BimodalLogic commit or version the agreement was observed against, in the test
+      module docstring. Already present (module docstring, commit `6529c6e8...`); unchanged.
+- [x] **(Amendment, adequacy-layer task)** Add this task's own fixture corpus
       (`code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/`) to the round-trip's
-      fixture set, including the window-discriminating fixture.
-- [ ] **(Amendment, adequacy-layer task)** Add the A2-triangle test (ADEQUACY.md §7.3): at
-      `back = mid = fwd = 1` and a closure `|C| <= 4`, exhaustively enumerate every candidate
-      `(bx, lassos)` over subsets of the closure at those lengths, and compare three verdicts —
-      (i) the Python re-checker, (ii) `lake exe check_certificate`, (iii) whether the Z3 encoding,
-      run at those lengths on the same premises/conclusions, reports SAT — with three named failure
-      localizations: (i) ≠ (ii) localizes a re-checker defect; (iii) false where (i) = (ii) =
-      `countermodel` localizes an encoding incompleteness (a constraint the encoder imposes that
-      (C1)-(C4) do not require); (iii) true where (i) = (ii) = `rejected` localizes an encoding
-      unsoundness (which the fail-fast re-check hook of Phase 12 catches at run time regardless,
-      but this test finds it in the suite instead).
+      fixture set, including the window-discriminating fixture. Already done by the same prior
+      module; `TestPythonRecheckerAgreesWithLean` iterates the identical `_fixture_files()` corpus.
+- [ ] **(Amendment, adequacy-layer task)** Add the A2-triangle test (ADEQUACY.md §7.3) — **carried
+      forward, not dropped**: it requires the Z3 encoding of Phases 6-9 to exist (verdict (iii) is
+      "does the Z3 encoding report SAT"), which is not built yet at this point in the plan. Tracked
+      to be added once Phase 9 lands; see the Phase 9 handoff for the resumption pointer.
 
 **Timing**: 1.5 hours
 
@@ -469,10 +485,17 @@ BimodalLogic's Lean binary.
 **Verification Tier**: local
 
 **Files to modify**:
-- `code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_roundtrip.py` - new
+- `code/src/model_checker/theory_lib/bimodal/semantic/certificate.py` - add `recheck_json`
+- `code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate.py` - add
+  `TestRecheckJsonErrorPaths`, `TestRecheckJsonAgreesWithRecheck`
+- `code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py` -
+  extend (not `test_certificate_roundtrip.py`; see deviation above)
 
 **Verification**:
 - Test green on a host with BimodalLogic present; cleanly skipped (not errored) on one without.
+  Verified green on this host (BimodalLogic + `lake` present): 10/10 in
+  `test_certificate_lean_agreement.py`, 6 new unit tests in `test_certificate.py` (36/36 in that
+  module).
 - Any disagreement is treated as a Python-side defect, since the Lean predicates are the contract.
 
 ---
