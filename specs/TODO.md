@@ -6,7 +6,7 @@ next_project_number: 187
 
 ## Task Order
 
-*Updated 2026-09-24. Generated from state.json dependency graph.*
+*Updated 2026-09-25. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
@@ -17,14 +17,14 @@ next_project_number: 187
 
 ### Semantics
 
-184 [NOT STARTED] — Redesign the bimodal theory around witness-family certificates fo
-186 [RESEARCHED] — Review the counterfactual semantics of the Logos manual's dynamic
+184 [RESEARCHED] — Redesign the bimodal theory around witness-family...
+186 [PLANNING] — Review the counterfactual semantics of the Logos manual's...
 
 ## Tasks
 
 ### 186. Review manual counterfactual semantics for uniform clauses
 - **Effort**: large
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: formal:logic
 - **Topic**: semantics
 - **Dependencies**: None
@@ -123,10 +123,11 @@ DELIVERABLE. A recommendation naming one clause, the model-based evidence discri
 
 ### 184. Refactor bimodal theory tests green and paper lean aligned
 - **Effort**: large
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
+- **Research**: [184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/03_bimodallogic-665-668-alignment.md]
 
 **Description**: Redesign the bimodal theory around witness-family certificates for discrete (Z) time, replacing the current window-and-abundance Z3 encoding rather than repairing it. The authority for this task is the research report at specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/reports/01_finite-certificate-redesign.md; read it in full before researching, planning, or implementing anything here.
 
