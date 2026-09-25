@@ -1,0 +1,29 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, xdist-3.8.0, hypothesis-6.151.10, cov-7.1.0
+collected 19 items
+
+code/src/model_checker/theory_lib/logos/tests/integration/test_iterate.py . [  5%]
+..                                                                       [ 15%]
+code/src/model_checker/theory_lib/logos/tests/integration/test_iterate_generator.py . [ 21%]
+..                                                                       [ 31%]
+code/src/model_checker/theory_lib/imposition/tests/integration/test_iterate.py . [ 36%]
+..                                                                       [ 47%]
+code/src/model_checker/theory_lib/exclusion/tests/integration/test_iterate.py . [ 52%]
+.                                                                        [ 57%]
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py . [ 63%]
+.......                                                                  [100%]
+
+============================== slowest durations ===============================
+10.01s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate_generator.py::TestLogosGeneratorInterface::test_generator_yields_incrementally
+1.03s call     src/model_checker/theory_lib/exclusion/tests/integration/test_iterate.py::TestExclusionIterator::test_iterate_example_function
+0.34s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate_generator.py::TestLogosGeneratorInterface::test_logos_generator_interface
+0.14s call     src/model_checker/theory_lib/exclusion/tests/integration/test_iterate.py::TestExclusionIterator::test_basic_iteration
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate.py::TestLogosIterator::test_basic_iteration
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate.py::TestLogosIterator::test_iterate_example_function
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate.py::TestLogosIterator::test_difference_detection
+
+(50 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================= 19 passed in 12.01s ==============================

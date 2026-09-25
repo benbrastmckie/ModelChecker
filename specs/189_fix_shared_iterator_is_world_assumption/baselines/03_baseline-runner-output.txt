@@ -1,0 +1,39 @@
+
+ITERATION REPORT
+    Model 1: Initial model (0.01s)
+
+Total: 1/3 models found, 0 isomorphic models skipped, 2.56s elapsed
+
+========================================
+=== logos ===
+models yielded (after first): 0
+total model_structures (incl. first): 1
+checked_model_count: 31
+isomorphic_model_count: 30
+
+
+ITERATION REPORT
+    Model 1: Initial model (0.01s)
+
+Total: 1/3 models found, 0 isomorphic models skipped, 2.10s elapsed
+
+========================================
+=== imposition ===
+models yielded (after first): 0
+total model_structures (incl. first): 1
+checked_model_count: 31
+isomorphic_model_count: 30
+
+
+ITERATION REPORT
+    Model 1: Initial model (0.00s)
+
+Total: 1/3 models found, 0 isomorphic models skipped, 9.73s elapsed
+
+========================================
+=== exclusion ===
+models yielded (after first): 0
+total model_structures (incl. first): 1
+checked_model_count: 31
+isomorphic_model_count: 30
+

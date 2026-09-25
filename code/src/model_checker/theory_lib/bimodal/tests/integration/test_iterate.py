@@ -23,6 +23,13 @@ import pytest
 
 from model_checker import z3_shim as z3
 from model_checker.builder.example import BuildExample
+from model_checker.solver import is_true
+from model_checker.theory_lib.bimodal import get_theory
+from model_checker.theory_lib.bimodal.examples import (
+    BM_CM_1_conclusions,
+    BM_CM_1_premises,
+    BM_CM_1_settings,
+)
 from model_checker.theory_lib.bimodal.iterate import (
     BimodalModelIterator,
     iterate_example,
@@ -174,3 +181,69 @@ class TestIterateExampleFunction:
             result = iterate_example(mock_example, max_iterations=1)
             assert isinstance(result, list)
             assert len(result) >= 1
+
+
+def _real_build_example(premises, conclusions, settings, iterate_count):
+    """A real, non-mocked `BuildExample` -- no Mock stands in for the solver, the model,
+    or the semantics -- matching the construction pattern already used by the other three
+    theories' own `test_iterate.py` (`BuildExample(mock_module, semantic_theory,
+    example_case)`; only the surrounding `BuildModule` is a Mock, never the model-checking
+    path itself)."""
+    theory = get_theory()
+    general_settings = dict(settings)
+    general_settings['iterate'] = iterate_count
+    mock_module = Mock()
+    mock_module.semantic_theories = {"bimodal": theory}
+    mock_module.general_settings = general_settings
+    mock_module.raw_general_settings = general_settings
+    mock_module.module_flags = SimpleNamespace(
+        contingent=False, disjoint=False, non_empty=False, non_null=False,
+        print_constraints=False, save_output=False, print_impossible=False,
+        print_z3=False, maximize=False,
+    )
+    example_case = [premises, conclusions, general_settings]
+    return BuildExample(mock_module, theory, example_case)
+
+
+class TestLiveIteration:
+    """Live, non-mocked end-to-end `iterate: 3` coverage against a real
+    `BuildExample`/`BimodalModelIterator` pair -- the RED test this plan's rest of the
+    phases must turn GREEN. Deliberately not mocked at any point on the model-building
+    path: this is exactly the path that crashes today with
+    `AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`
+    (surfaced as `ModelExtractionError`) -- see the task baselines' Defect 1 reproduction.
+    """
+
+    def test_iterate_three_yields_three_pairwise_distinct_certificates(self):
+        example = _real_build_example(
+            BM_CM_1_premises, BM_CM_1_conclusions, BM_CM_1_settings, iterate_count=3
+        )
+        iterator = BimodalModelIterator(example)
+
+        structures = list(iterator.iterate_generator())
+
+        # (a) no exception raised getting here at all.
+        # (b) three model structures yielded (the generator excludes the first model,
+        #     which BuildExample already solved; iterate: 3 means 2 more from the generator).
+        assert len(structures) == 2
+        assert len(iterator.model_structures) == 3
+
+        # (c) each has a non-None certificate.
+        all_structures = [example.model_structure] + structures
+        for structure in all_structures:
+            assert structure.certificate is not None
+
+        # (d) certificates pairwise distinct in at least one label bit or box guess.
+        semantics = example.model_constraints.semantics
+        registry = semantics.witness_registry
+        variables = list(registry._bits.values()) + list(registry._guesses.values())
+        models = [example.model_structure.z3_model] + iterator.found_models
+        assert len(models) == 3
+        for i in range(len(models)):
+            for j in range(i + 1, len(models)):
+                differs = any(
+                    bool(is_true(models[i].eval(var, model_completion=True)))
+                    != bool(is_true(models[j].eval(var, model_completion=True)))
+                    for var in variables
+                )
+                assert differs, f"models {i} and {j} agree on every certificate variable"

@@ -1,7 +1,7 @@
 # Implementation Plan: Theory-Specific Extension Points in the Shared Model Iterator
 
 - **Task**: 189 - Fix the shared model iterator's `is_world` assumption so the bimodal theory can iterate
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 11.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/189_fix_shared_iterator_is_world_assumption/reports/01_iterator-is-world-extension-point.md`
@@ -131,7 +131,7 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 Phases 2, 3 and 4 all edit `iterate/core.py` and `theory_lib/bimodal/iterate.py`, so parallel
 execution would put them in direct territory conflict.
 
-### Phase 1: Baseline, Reproduction, and Failing Live Test [NOT STARTED]
+### Phase 1: Baseline, Reproduction, and Failing Live Test [COMPLETED]
 
 **Goal**: Freeze the current behavior of all four theories as a comparable baseline, confirm all
 three defects empirically (including Defect 3, which research recorded as harmless), and land the
@@ -194,6 +194,33 @@ the phase record — Phase 4 then closes as `[COMPLETED WITH EXCLUSIONS]` citing
   `ModelExtractionError`), not for a fixture or import error.
 - The working tree contains no implementation edit at phase close — `git status` shows only the
   new baseline files and the test file.
+
+#### Evidence (recorded at implementation time)
+
+- Baseline command confirmed exactly as hypothesized: 4 files, 19 tests, all passing
+  (`baselines/01_pre-change-regression.txt`).
+- Per-theory live `iterate: 3` baseline recorded for logos, imposition and exclusion
+  (`baselines/02_per-theory-live-iterate3-baseline.md`, `03_baseline-runner-output.txt`): all
+  three land on the same generic termination condition (`checked_model_count > 30`,
+  "Insufficient progress") for the representative examples chosen, 1 model found, 30 isomorphic
+  skips, 31 checked — recorded as the pre-change fact for Phase 6 to diff against, not evaluated
+  as a defect (the plan's Non-Goals exclude fixing `ConstraintGenerator`'s solver-management
+  responsibilities).
+- Defect 1 reproduced exactly as hypothesized: `AttributeError: 'BimodalSemantics' object has no
+  attribute 'is_world'` at `iterate/models.py`'s `build_new_model_structure`, surfaced as
+  `ModelExtractionError` (`baselines/04_defect1-traceback.txt`).
+- Defect 2 reproduced: `ConstraintGenerator.create_extended_constraints(...)` returns `[]` for a
+  real bimodal `build_example` (`baselines/05_defect2-3-reproduction.md`,
+  `06_defect2-3-repro.py`).
+- Defect 3 **is live** (Scope Hypothesis confirmed, not the "harmless no-op" research recorded):
+  `z3_world_states` is entirely absent (not merely empty) on `BimodalStructure` instances, so
+  `IsomorphismChecker.check_isomorphism` reports two genuinely different bimodal models as
+  isomorphic. Phase 4 proceeds as planned (not `[COMPLETED WITH EXCLUSIONS]`).
+- Temporary guard reverted before this phase closed: `git diff code/src/model_checker/iterate/models.py`
+  is empty.
+- New live RED test (`TestLiveIteration::test_iterate_three_yields_three_pairwise_distinct_certificates`)
+  fails with `ModelExtractionError` (Defect 1), exactly as required; the 8 pre-existing tests in
+  the same file remain green.
 
 ---
 

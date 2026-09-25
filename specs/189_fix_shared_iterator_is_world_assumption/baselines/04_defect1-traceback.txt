@@ -1,0 +1,33 @@
+Failed to build model structure: 'BimodalSemantics' object has no attribute 'is_world'
+Traceback (most recent call last):
+  File "/home/benjamin/Projects/ModelChecker/code/src/model_checker/iterate/models.py", line 93, in build_new_model_structure
+    is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
+                                 ^^^^^^^^^^^^^^^^^^
+AttributeError: 'BimodalSemantics' object has no attribute 'is_world'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-benjamin-Projects-ModelChecker/91e7747d-0f48-40c8-8794-c3d721439914/scratchpad/baseline_probe.py", line 115, in <module>
+    probe_bimodal()
+    ~~~~~~~~~~~~~^^
+  File "/tmp/claude-1000/-home-benjamin-Projects-ModelChecker/91e7747d-0f48-40c8-8794-c3d721439914/scratchpad/baseline_probe.py", line 91, in probe_bimodal
+    run_theory("bimodal", theory, ['\\Future A'], ['\\Box A'], settings, BimodalModelIterator)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-1000/-home-benjamin-Projects-ModelChecker/91e7747d-0f48-40c8-8794-c3d721439914/scratchpad/baseline_probe.py", line 36, in run_theory
+    structures = list(iterator.iterate_generator())
+  File "/home/benjamin/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/iterate.py", line 213, in iterate_generator
+    for model in super().iterate_generator():
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/benjamin/Projects/ModelChecker/code/src/model_checker/iterate/core.py", line 296, in iterate_generator
+    new_structure = self.model_builder.build_new_model_structure(new_model)
+  File "/home/benjamin/Projects/ModelChecker/code/src/model_checker/iterate/models.py", line 158, in build_new_model_structure
+    raise ModelExtractionError(
+    ...<3 lines>...
+    ) from e
+model_checker.iterate.errors.ModelExtractionError: Failed to extract model 1: 'BimodalSemantics' object has no attribute 'is_world'. Suggestion: Check that the Z3 model is complete and valid [Context: model_num=1, reason='BimodalSemantics' object has no attribute 'is_world', suggestion=Check that the Z3 model is complete and valid]
+Warning: Flag 'contingent' doesn't correspond to any known setting
+Warning: Flag 'disjoint' doesn't correspond to any known setting
+Warning: Flag 'non_empty' doesn't correspond to any known setting
+Warning: Flag 'non_null' doesn't correspond to any known setting
+bimodal FAILED (expected -- Defect 1)
