@@ -224,8 +224,8 @@ elementary.
 
 ### 4.1 Every step, mapped to a landed, sorry-free Lean counterpart
 
-`grep -c sorry` returns `0` for `Semantics/ShiftSet.lean`, `WitnessFamily/Agreement.lean` and
-`WitnessFamily/Decide.lean`; the only `sorry` occurrences anywhere in `WitnessFamily/` and
+`grep -c sorry` returns `0` for `Semantics/ShiftSet.lean`, `WitnessFamily/Agreement.lean`,
+`WitnessFamily/Decide.lean` and `Metalogic/Independence/ZTimeSharpness.lean`; the only `sorry` occurrences anywhere in `WitnessFamily/` and
 `Metalogic/Soundness.lean` are in docstring prose, not in proof terms. `FormalSystem/` declares no
 axioms (`FormalSystem/MainResults.lean` runs `#print axioms` at build time as a pinned audit).
 
@@ -246,6 +246,9 @@ axioms (`FormalSystem/MainResults.lean` runs `#print axioms` at build time as a 
 | Theorem, single-conclusion | `not_consequence_ztime`, `not_consequence_base` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:203, 219` |
 | The modal-future axiom is valid | `modal_future_valid` | `Metalogic/Soundness.lean:373` |
 | No certificate refutes the modal-future axiom | `no_witnessFamily_of_MF` | `Metalogic/Decidability/WitnessFamily/Examples.lean:275` |
+| A0: `prior_UZ` is not Base-valid | `not_validIn_base_prior_UZ` | `Metalogic/Independence/ZTimeSharpness.lean:225` |
+| A0: `z1` is not Base-valid | `not_validIn_base_z1` | `Metalogic/Independence/ZTimeSharpness.lean:236` |
+| A0: the `.ZTime` tag is minimal for both | `prior_UZ_minFrameClass_sharp`, `z1_minFrameClass_sharp` | `Metalogic/Independence/ZTimeSharpness.lean:251, 262` |
 
 `joint_countermodel`'s statement is literally (SOUND)'s consequent:
 
@@ -558,14 +561,21 @@ particular task frame, and one countermodel suffices. **(ADEQ) does not run the 
 `FrameClass.Base.Sat F = F.IsRegular`. Two axioms are classified minimum-frame-class `.ZTime`:
 
 - `Axiom.prior_UZ φ : Fφ → (¬φ U φ)` (`ProofSystem/Axioms.lean:341, 612`) — "every definable
-  future set has a least element"; cited to Reynolds 1992 §10, Venema 1993 axiom (W).
+  future set has a least element"; Reynolds 1992 §10, Venema 1993 axiom (W). Its
+  non-Base-validity is machine-checked: `not_validIn_base_prior_UZ`
+  (`Metalogic/Independence/ZTimeSharpness.lean:225`).
 - `Axiom.z1 φ : G(Gφ → φ) → (FGφ → Gφ)` (`ProofSystem/Axioms.lean:353, 613`) — the
-  `IsSuccArchimedean` characteristic axiom; cited to Doets 1987 Claim 10, Reynolds 1994 §10.
+  `IsSuccArchimedean` characteristic axiom; Doets 1987 Claim 10, Reynolds 1994 §10. Its
+  non-Base-validity is machine-checked: `not_validIn_base_z1`
+  (`Metalogic/Independence/ZTimeSharpness.lean:236`).
 
 By (SOUND), **no certificate can ever exist for these**: any certificate would exhibit a ℤ-time
-countermodel, contradicting their ℤ-time validity. Yet they are not Base-valid — a paper
-countermodel exists at a non-discrete temporal order (e.g. `D = ℚ`). So the search is, by design
-and **permanently**, silent on a nonempty class of paper-invalid inferences, independently of A1,
+countermodel, contradicting their ℤ-time validity. Yet they are not Base-valid, and that half is
+now **proved rather than cited**: `not_validIn_base_prior_UZ` and `not_validIn_base_z1`
+(`Metalogic/Independence/ZTimeSharpness.lean:225, 236`) refute both at `FrameClass.Base`, and
+`prior_UZ_minFrameClass_sharp` / `z1_minFrameClass_sharp` (`:251, :262`) strengthen this to every
+`fc < FrameClass.ZTime` — so the `.ZTime` tag of `Axiom.minFrameClass` is minimal for both, not
+merely asserted. So the search is, by design and **permanently**, silent on a nonempty class of paper-invalid inferences, independently of A1,
 A2 and A3. Even a fully proved A1 upgrades "no certificate within bounds" to "ℤ-time valid",
 never to "valid".
 
