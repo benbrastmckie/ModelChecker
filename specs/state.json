@@ -53,9 +53,9 @@
           "summary": "24-phase plan: new certificate semantic core, pure-Python re-checker plus live lake exe check_certificate round-trip, operators/iterate/examples migration, oracle rewrite, development-marker removal."
         },
         {
-          "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/01_constraint-generation-groundwork-summary.md",
+          "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/02_semantic-core-structure-operators-iterate-summary.md",
           "type": "summary",
-          "summary": "Implementation summary for Phases 5-8 of the witness-family certificate redesign."
+          "summary": "Implementation summary for Phases 9-15 of the witness-family certificate redesign."
         }
       ],
       "created": "2026-09-01T16:35:55Z",
