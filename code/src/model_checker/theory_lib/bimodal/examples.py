@@ -573,17 +573,18 @@ TN_TH_2_example = [
 # retained. The retired window-and-abundance encoding's countermodel-at-the-boundary
 # artifact (which required an M=3 shift-closure workaround, now deleted along with M
 # itself) no longer applies: the certificate encoding has no window and no shift-closure
-# constraint to size. Segment lengths (back/mid/fwd) are left at the class defaults;
-# Phase 17 re-activates this example (currently in KNOWN_TIMEOUT_EXAMPLES) and records
-# the segment lengths and solve time it actually needs.
+# constraint to size. Segment lengths (back/mid/fwd) left at the class defaults; Phase 17
+# measured this example (previously excluded via KNOWN_TIMEOUT_EXAMPLES) at these
+# defaults: decides `match` in ~2ms (2026-09-25), ~15000x headroom under the 10s floor, so
+# `max_time` is lowered from the retired encoding's 30s exhaustive-search budget to the
+# floor.
 BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 BM_TH_1_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 30,  # Retained from the retired encoding's exhaustive-search budget;
-                      # re-measured under the certificate encoding in Phase 17.
+    'max_time' : 10,
     'expectation' : False,  # Valid theorem: no countermodel expected
 }
 BM_TH_1_example = [
@@ -604,8 +605,8 @@ BM_TH_2_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 30,  # Retained from the retired encoding's exhaustive-search budget;
-                      # re-measured under the certificate encoding in Phase 17.
+    'max_time' : 10,  # Lowered from 30s: Phase 17 measured ~2ms at these defaults
+                      # (2026-09-25), matching BM_TH_1's measurement.
     'expectation' : False,  # Valid theorem: no countermodel expected
 }
 BM_TH_2_example = [
@@ -1134,10 +1135,13 @@ BX12P_P_SINCE_TH_example = [
     BX12P_P_SINCE_TH_settings,
 ]
 
-# MF_MODAL_FUTURE_TH: Modal-Temporal Interaction
+# MF_MODAL_FUTURE_TH: Modal-Temporal Interaction (paper axiom MF)
 # BX name: modal_future (Layer 4)
 # Formula: Box phi -> Box(G phi)  i.e. Box A -> Box(Future A)
 # NOTE: This is the same pattern as BM_TH_5, adding canonical Layer 4 name.
+# Phase 17: previously excluded via KNOWN_TIMEOUT_EXAMPLES (the retired encoding reported a
+# spurious countermodel at N=1, M=2 -- see test_bimodal.py's own comment on this entry).
+# Under the certificate encoding, decides `match` in ~3ms at these defaults (2026-09-25).
 MF_MODAL_FUTURE_TH_premises = []
 MF_MODAL_FUTURE_TH_conclusions = ['(\\Box A \\rightarrow \\Box \\Future A)']
 MF_MODAL_FUTURE_TH_settings = {
@@ -1324,6 +1328,9 @@ BX13P_ENRICH_S_TH_example = [
 #          ((psi and chi) \Until (phi and chi)) or
 #          ((phi and theta) \Until (phi and chi))
 # Where: psi=B, phi=A, theta=D, chi=C (binary infix form)
+# Phase 17: previously excluded via KNOWN_TIMEOUT_EXAMPLES under the retired encoding's
+# N=4/M=5 window cost. Under the certificate encoding, decides `match` in ~5ms at the
+# default segment lengths (2026-09-25); max_time lowered from 60s to the floor.
 BX7_LINEAR_U_TH_premises = []
 BX7_LINEAR_U_TH_conclusions = [
     '(((B \\Until A) \\wedge (D \\Until C)) \\rightarrow '
@@ -1335,7 +1342,7 @@ BX7_LINEAR_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 60,
+    'max_time' : 10,
     'expectation' : False,
 }
 BX7_LINEAR_U_TH_example = [
@@ -1361,7 +1368,8 @@ BX7P_LINEAR_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
     'fwd' : 2,
-    'max_time' : 60,
+    'max_time' : 10,  # Lowered from 60s: Phase 17 measured ~5ms at these defaults
+                      # (2026-09-25), matching BX7_LINEAR_U_TH's measurement.
     'expectation' : False,
 }
 BX7P_LINEAR_S_TH_example = [
@@ -1416,6 +1424,7 @@ theorem_examples = {
     "BM_TH_2" : BM_TH_2_example,
     "BM_TH_3" : BM_TH_3_example,
     "BM_TH_4" : BM_TH_4_example,
+    "BM_TH_5" : BM_TH_5_example,
 
     # BX Axiom System - Layer 1: Propositional
     "PROP_K_TH" : PROP_K_TH_example,
@@ -1492,13 +1501,13 @@ example_range = {
 
     # Tense Countermodels
     "TN_CM_1" : TN_CM_1_example,
-    "TN_CM_2" : TN_CM_2_example, # No countermodel
-    
+    "TN_CM_2" : TN_CM_2_example,
+
     # Bimodal Countermodel
-    "BM_CM_1" : BM_CM_1_example, # No countermodel
-    "BM_CM_2" : BM_CM_2_example, # No countermodel
-    "BM_CM_3" : BM_CM_3_example, # Doesn't find countermodel if run in isolation
-    "BM_CM_4" : BM_CM_4_example, # Countermodel has true conclusion
+    "BM_CM_1" : BM_CM_1_example,
+    "BM_CM_2" : BM_CM_2_example,
+    "BM_CM_3" : BM_CM_3_example,
+    "BM_CM_4" : BM_CM_4_example,
 
     ### THEOREMS ###
 
@@ -1512,12 +1521,21 @@ example_range = {
     # Tense Theorems
     "TN_TH_2" : TN_TH_2_example,
 
-    # Bimodal Theorems
-    "BM_TH_1" : BM_TH_1_example, # Has countermodel
-    "BM_TH_2" : BM_TH_2_example, # Has countermodel
+    # Bimodal Theorems (all five decide correctly under the certificate encoding at the
+    # default back=2/mid=1/fwd=2 segment lengths, well under 50ms each -- measured
+    # 2026-09-25; no segment lengths needed raising, see Phase 17's plan record)
+    "BM_TH_1" : BM_TH_1_example,
+    "BM_TH_2" : BM_TH_2_example,
     "BM_TH_3" : BM_TH_3_example,
     "BM_TH_4" : BM_TH_4_example,
     "BM_TH_5" : BM_TH_5_example,
+
+    # BX Axiom System (Layer 3/4): the three examples the retired encoding excluded for
+    # solver-cost reasons all decide correctly at the default segment lengths, well under
+    # 50ms each, under the certificate encoding -- measured 2026-09-25.
+    "MF_MODAL_FUTURE_TH" : MF_MODAL_FUTURE_TH_example,
+    "BX7_LINEAR_U_TH" : BX7_LINEAR_U_TH_example,
+    "BX7P_LINEAR_S_TH" : BX7P_LINEAR_S_TH_example,
 }
 
 

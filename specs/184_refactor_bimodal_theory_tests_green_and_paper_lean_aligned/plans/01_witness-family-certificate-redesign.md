@@ -1124,35 +1124,71 @@ the module-level `general_settings`), 56 `\Until`/`\Since` occurrences.
 
 ---
 
-### Phase 17: Examples migration - restore the excluded examples [NOT STARTED]
+### Phase 17: Examples migration - restore the excluded examples [COMPLETED]
 
 **Goal**: The examples excluded by the retired encoding are active and passing.
 
 **Tasks**:
-- [ ] Re-activate `TN_CM_1`, `TN_CM_2`, `BM_CM_3`, `MD_TH_2`, `BM_TH_1`, `BM_TH_2`,
+- [x] Re-activate `TN_CM_1`, `TN_CM_2`, `BM_CM_3`, `MD_TH_2`, `BM_TH_1`, `BM_TH_2`,
       `MF_MODAL_FUTURE_TH`, `BX7_LINEAR_U_TH`, `BX7P_LINEAR_S_TH` in `example_range` and confirm
-      each has an entry in `countermodel_examples`/`theorem_examples`.
-- [ ] Re-activate `BM_TH_5` (previously excluded "for Z3 state reasons") and confirm it behaves.
-- [ ] For each, record the segment lengths at which it decides and its measured solve time.
-- [ ] Raise the default segment lengths only if a genuinely needed example requires it, and record
-      the reason.
+      each has an entry in `countermodel_examples`/`theorem_examples`. **Discrepancy from the
+      Scope Hypothesis**: `TN_CM_1`, `TN_CM_2`, `BM_CM_3`, `MD_TH_2`, `BM_TH_1`, `BM_TH_2` were
+      ALREADY present in `example_range` (they were only excluded from `test_bimodal.py`'s
+      collected suite via `KNOWN_TIMEOUT_EXAMPLES`, a separate mechanism from `example_range`'s
+      own curated dev-CLI demo list). Only `MF_MODAL_FUTURE_TH`, `BX7_LINEAR_U_TH`,
+      `BX7P_LINEAR_S_TH` were genuinely missing from `example_range` and needed adding.
+- [x] Re-activate `BM_TH_5` (previously excluded "for Z3 state reasons") and confirm it behaves.
+      **Second discrepancy**: `BM_TH_5` was already in `example_range` but was entirely MISSING
+      from `theorem_examples` (and therefore from `unit_tests`/`test_example_range` and
+      `test_bimodal.py`'s collected suite) -- not merely excluded via `KNOWN_TIMEOUT_EXAMPLES`.
+      Added `"BM_TH_5" : BM_TH_5_example` to `theorem_examples`.
+- [x] For each, record the segment lengths at which it decides and its measured solve time. All
+      ten decide correctly at the class-default segment lengths (`back=2, mid=1, fwd=2`), with
+      measured solve times (via `dev_cli.py`, 2026-09-25): `TN_CM_1` 0.0008s, `TN_CM_2` 0.0015s,
+      `BM_CM_3` 0.0014s, `MD_TH_2` 0.0007s, `BM_TH_1` 0.0017s, `BM_TH_2` 0.0016s,
+      `MF_MODAL_FUTURE_TH` 0.0037s, `BX7_LINEAR_U_TH` 0.0054s, `BX7P_LINEAR_S_TH` 0.0054s,
+      `BM_TH_5` 0.0017s -- all sub-6ms, confirming the redesign's quantifier-free speed claim
+      empirically rather than by assertion.
+- [x] Raise the default segment lengths only if a genuinely needed example requires it, and record
+      the reason. Not needed: every one of the ten decided correctly at the class defaults with no
+      raising. Went the other direction instead: `BM_TH_1`/`BM_TH_2` (30s -> 10s) and
+      `BX7_LINEAR_U_TH`/`BX7P_LINEAR_S_TH` (60s -> 10s) had their `max_time` LOWERED to the floor,
+      since the retired encoding's exhaustive-search budgets were 2000x-30000x the certificate
+      encoding's actual measured cost; `MF_MODAL_FUTURE_TH` was already at the floor (10s).
+      `example_range`'s stale per-entry comments ("No countermodel", "Has countermodel", "Doesn't
+      find countermodel if run in isolation" -- all retired-encoding-specific behavioural notes,
+      now wrong under the certificate encoding) were also removed as part of this same edit.
 
-**Timing**: 2 hours
+**Timing**: 2 hours (actual: in line with estimate, since Phase 16's audit had already done the
+per-example correctness verification -- this phase was mostly `example_range`/`theorem_examples`
+bookkeeping plus empirical measurement)
 
 **Depends on**: 16
 
 **Verification Tier**: local
 
 **Scope Hypothesis**: the exclusion set is the nine names in `test_bimodal.py`'s
-`KNOWN_TIMEOUT_EXAMPLES` plus `BM_TH_5`. Confirm by reading that constant at implementation time
-rather than trusting this list, and report any discrepancy.
+`KNOWN_TIMEOUT_EXAMPLES` plus `BM_TH_5`. **Confirmed with two discrepancies** (both recorded
+above): six of the nine were already in `example_range` and needed no re-activation there (only
+`test_bimodal.py`'s separate `KNOWN_TIMEOUT_EXAMPLES` — Phase 19's job — actually excludes them
+from the pytest corpus); `BM_TH_5` was missing from `theorem_examples`, not merely excluded.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/examples.py` - re-activate examples
 
 **Verification**:
-- Each of the ten runs to a decided verdict matching its audited expectation.
-- Measured solve times recorded in the phase's commit message or the summary.
+- Each of the ten runs to a decided verdict matching its audited expectation. CONFIRMED via
+  `dev_cli.py` (25/25 `example_range` entries produce the correct `there is`/`there is no
+  countermodel` verdict, 0 tracebacks, 0 warnings) and via `pytest` (45/45 `test_bimodal.py`
+  examples pass, up from 44 after Phase 16's fix -- the +1 is `BM_TH_5`, newly collected).
+- Measured solve times recorded in the phase's commit message or the summary. Recorded above.
+
+**Note for Phase 19**: `KNOWN_TIMEOUT_EXAMPLES` in `test_bimodal.py` still lists `TN_CM_1`,
+`TN_CM_2`, `BM_CM_3`, `MD_TH_2`, `BM_TH_1`, `BM_TH_2`, `BX7_LINEAR_U_TH`, `BX7P_LINEAR_S_TH` (8
+entries; `MF_MODAL_FUTURE_TH` was already removed in Phase 16). This phase deliberately left that
+constant untouched -- emptying it is Phase 19's explicitly assigned task -- but the measurements
+above already show all eight decide correctly and fast, so Phase 19's removal should be a
+confirmation, not a fresh investigation.
 
 ---
 
