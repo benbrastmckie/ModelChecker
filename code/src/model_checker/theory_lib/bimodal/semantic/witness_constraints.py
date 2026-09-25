@@ -37,6 +37,12 @@ concrete labels pointwise and has no notion of "the same variable" to lean on, s
 Lean-proved window to guarantee it has exercised the periodic region widely enough. The encoder
 needs no such margin because the sharing is definitional, not empirical.
 
+**This does not extend to fulfilment (part 2, below).** Fulfilment's witness scan bound
+(`scan_forward`/`scan_backward`) is itself a function of `t`, not just of `t`'s slot, so the
+one-representative-per-slot shortcut above is unsound for it: fulfilment is generated over the
+*wide* `_coherence_window`, identical to the re-checker's, imported directly from
+`certificate.py` rather than redefined (see part 2's docstring).
+
 ## Atoms are deliberately unconstrained
 
 As in the re-checker, atoms carry no coherence clause: the valuation *is* the atom part of the
@@ -51,6 +57,7 @@ from typing import Iterable, List
 
 from model_checker import z3_shim as z3
 
+from .certificate import _box_window, _coherence_window, _scan_backward_bound, _scan_forward_bound
 from .formula import Atom, Bot, Box, Formula, Imp, Snce, Untl
 from .witness_registry import WitnessRegistry
 
@@ -140,4 +147,82 @@ class WitnessConstraintGenerator:
                 constraints.append(z3.Implies(s, self.registry.bit(0, t, p)))
             for c in conclusions:
                 constraints.append(z3.Implies(s, z3.Not(self.registry.bit(0, t, c))))
+        return constraints
+
+    # -----------------------------------------------------------------
+    # (C2) Fulfilment
+    # -----------------------------------------------------------------
+    #
+    # Unlike local coherence, fulfilment is generated over the *wide*, two-period window
+    # (`_coherence_window`) and the corrected scan bounds (`_scan_forward_bound`/
+    # `_scan_backward_bound`), imported directly from `certificate.py` rather than redefined --
+    # both duck-typed on `.nb`/`.nm`/`.nf`, which `WitnessRegistry` also carries (Phase 8: "factor
+    # the fulfilment window computation into a single function shared with the re-checker"). See
+    # the module docstring for why the one-representative-per-slot shortcut used above for local
+    # coherence does *not* extend here: the scan bound is itself a function of `t`, not of `t`'s
+    # slot alone.
+
+    def fulfilment_constraints(self, lasso: int) -> List["z3.BoolRef"]:
+        """The `FulfillingLab` obligations for `lasso`: every `untl`/`snce` closure member true at
+        a position must have a later/earlier witness within the corrected scan bound, with the
+        guard holding at every position strictly between."""
+        registry = self.registry
+        constraints: List["z3.BoolRef"] = []
+        for t in _coherence_window(registry):
+            for f in registry.closure:
+                if isinstance(f, Untl):
+                    hi = _scan_forward_bound(registry, t)
+                    disjuncts = [
+                        z3.And(
+                            registry.bit(lasso, s, f.event),
+                            *[registry.bit(lasso, r, f.guard) for r in range(t + 1, s)],
+                        )
+                        for s in range(t + 1, hi + 1)
+                    ]
+                    constraints.append(z3.Implies(registry.bit(lasso, t, f), z3.Or(*disjuncts)))
+                elif isinstance(f, Snce):
+                    lo = _scan_backward_bound(registry, t)
+                    disjuncts = [
+                        z3.And(
+                            registry.bit(lasso, s, f.event),
+                            *[registry.bit(lasso, r, f.guard) for r in range(s + 1, t)],
+                        )
+                        for s in range(t - 1, lo - 1, -1)
+                    ]
+                    constraints.append(z3.Implies(registry.bit(lasso, t, f), z3.Or(*disjuncts)))
+        return constraints
+
+    # -----------------------------------------------------------------
+    # (C3) Box faithfulness
+    # -----------------------------------------------------------------
+    #
+    # The narrower, one-period window (`_box_window`, imported from `certificate.py` -- amended
+    # D7's distinct, narrower bound from fulfilment's wide window; see that function's docstring
+    # and `docs/ADEQUACY.md` section 5.2's window table). Do not collapse the two windows into
+    # one: box faithfulness reads no neighbouring positions, so it needs no margin beyond one
+    # period, while fulfilment's neighbour-scanning does.
+
+    def box_faithfulness_constraints(self, lassos: Iterable[int]) -> List["z3.BoolRef"]:
+        """The `BoxFaithful` biconditional for every boxed closure member: `guess(chi)` implies
+        `chi` is in every label of every lasso in `lassos`, over the narrow window; `Not(guess
+        (chi))` implies some (lasso, position) pair in `lassos` omits `chi`. The caller is
+        responsible for including, among `lassos`, any witness lasso allocated for a box guessed
+        false (`WitnessRegistry.allocate_witness_lasso`) -- this generator only quantifies over
+        the lassos it is given."""
+        registry = self.registry
+        lassos = list(lassos)
+        window = list(_box_window(registry))
+        constraints: List["z3.BoolRef"] = []
+        for f in registry.closure:
+            if not isinstance(f, Box):
+                continue
+            guess = registry.guess(f.child)
+            everywhere = z3.And(
+                *[registry.bit(i, t, f.child) for i in lassos for t in window]
+            )
+            somewhere_absent = z3.Or(
+                *[z3.Not(registry.bit(i, t, f.child)) for i in lassos for t in window]
+            )
+            constraints.append(z3.Implies(guess, everywhere))
+            constraints.append(z3.Implies(z3.Not(guess), somewhere_absent))
         return constraints

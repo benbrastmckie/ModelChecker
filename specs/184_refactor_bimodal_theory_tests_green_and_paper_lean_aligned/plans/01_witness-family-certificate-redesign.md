@@ -595,28 +595,35 @@ needs the Lean-proved *wide* window.
 
 ---
 
-### Phase 8: Fulfilment and box-faithfulness constraint generators [NOT STARTED]
+### Phase 8: Fulfilment and box-faithfulness constraint generators [COMPLETED]
 
 **Goal**: Quantifier-free Z3 constraints for condition 2 (fulfilment) and condition 3 (box
 faithfulness), with the fulfilment window identical to the re-checker's.
 
 **Tasks**:
-- [ ] Write unit tests first: a family that is locally coherent but unfulfilled is UNSAT once the
+- [x] Write unit tests first: a family that is locally coherent but unfulfilled is UNSAT once the
       fulfilment constraints are added; a box guessed true forces its argument everywhere; a box
       guessed false forces an omitting position on some lasso.
-- [ ] Emit fulfilment: for each lasso, position and `untl`/`snce` closure member, a disjunction over
+- [x] Emit fulfilment: for each lasso, position and `untl`/`snce` closure member, a disjunction over
       the bounded window of the amended D7 (`[-2*nb, nm + 2*nf)`, corrected `scan_forward` /
       `scan_backward` bounds) of "event at `s`, guard at every `r` strictly between", all indices
       through the wrap.
-- [ ] Emit box faithfulness: `guess(χ)` implies `bit(i, t, χ)` for every lasso `i` and position `t`;
+- [x] Emit box faithfulness: `guess(χ)` implies `bit(i, t, χ)` for every lasso `i` and position `t`;
       `Not(guess(χ))` implies a disjunction over all (lasso, position) of `Not(bit(i, t, χ))`,
       with the witness lasso allocated for that box included in the disjunction.
       **(Amendment, adequacy-layer task)** Box faithfulness uses the **narrower** one-period window
       `[-nb, nm + nf)`, distinct from fulfilment's wider `[-2*nb, nm + 2*nf)` — record this
       distinction in the module docstring so a future reader does not collapse the two windows
       into one.
-- [ ] Factor the fulfilment window computation into a single function shared with the Phase 4
+- [x] Factor the fulfilment window computation into a single function shared with the Phase 4
       re-checker, so the two cannot drift.
+
+**Note**: `box_faithfulness_constraints(lassos)` takes the caller-supplied lasso-index list rather
+than discovering lassos itself — the caller (Phase 9's `finalize_certificate()`) is responsible
+for including any witness lasso allocated via `allocate_witness_lasso` among `lassos`, matching
+D6's "quantifies over all lassos, and a box discovered late adds a lasso." This phase's own file
+scope (`witness_constraints.py`, plus reusing `certificate.py`'s existing window helpers) does not
+extend to that orchestration.
 
 **Timing**: 2 hours
 
@@ -630,9 +637,11 @@ faithfulness), with the fulfilment window identical to the re-checker's.
 - `code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py` - extend
 
 **Verification**:
-- The unfulfilled-family UNSAT test green.
-- A grep confirms exactly one definition of the fulfilment window, imported by both the encoder and
-  the re-checker.
+- The unfulfilled-family UNSAT test green (until and since directions both exercised). 22/22 unit
+  tests green (10 new: 4 fulfilment, 6 box faithfulness).
+- A grep confirms exactly one definition of the fulfilment window (`_coherence_window`,
+  `_scan_forward_bound`, `_scan_backward_bound` each occur once, in `certificate.py`), imported by
+  both the encoder (`witness_constraints.py`) and the re-checker.
 
 ---
 

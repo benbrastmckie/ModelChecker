@@ -195,6 +195,18 @@ class WitnessFamily:
 # parameter -- see the certificate-export/round-trip phase for the JSON-boundary wrapper.
 
 
+# These four window helpers are deliberately duck-typed on `.nb`/`.nm`/`.nf` rather than typed
+# strictly to `LabelledLasso`: `semantic/witness_constraints.py`'s encoder-side fulfilment
+# generator imports `_coherence_window`/`_scan_forward_bound`/`_scan_backward_bound` directly and
+# calls them with a `WitnessRegistry` (which carries the identical `nb`/`nm`/`nf` attributes,
+# `witness_registry.py`) in place of a `LabelledLasso`, so the encoder and the re-checker share
+# exactly one definition of the fulfilment window and scan bounds and cannot drift apart (the
+# implementation plan's Phase 8). Box faithfulness's narrower `_box_window` is *not* shared this
+# way: the encoder's equivalent (`WitnessRegistry.target_window`) is independently defined,
+# since it is also reused for the unrelated one-hot target selector and the two are simple,
+# identical one-line formulas rather than the fulfilment window's more delicate corrected bounds.
+
+
 def _coherence_window(lasso: "LabelledLasso") -> range:
     """`[-2*nb, nm + 2*nf)` -- the proved window for local coherence and fulfilment
     (`coherent_iff_window`/`fulfil_iff_window`)."""
