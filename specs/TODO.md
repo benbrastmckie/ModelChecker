@@ -1,11 +1,78 @@
 ---
-next_project_number: 192
+next_project_number: 196
 ---
 
 # TODO
 
+## Task Order
+
+*Updated 2026-09-26. Generated from state.json dependency graph.*
+
+**Dependency Waves**:
+| Wave | Tasks | Blocked by | Topics |
+|------|-------|------------|--------|
+| 1 | 192,193,194 | -- | documentation, testing, semantics |
+| 2 | 195 | 192 | architecture |
+
+**Grouped by Topic** (indented = depends on parent):
+
+### Documentation
+
+192 [NOT STARTED] — Write a companion report in...
+
+### Architecture
+
+195 [NOT STARTED] — Research and recommend a route to actually prove, rather than...
+
+### Testing
+
+193 [NOT STARTED] — Extend the A2-triangle encoding-completeness test's...
+
+### Semantics
+
+194 [NOT STARTED] — Close the two residual encoder-versus-specification gaps in...
 
 ## Tasks
+
+### 195. Research encoder spec proof routes
+- **Status**: [NOT STARTED]
+- **Task Type**: formal
+- **Topic**: architecture
+- **Dependencies**: Task 192
+
+**Description**: Research and recommend a route to actually prove, rather than test, that the bimodal certificate encoder emits exactly the conjunction of conditions (C1)-(C4) over windows at least as wide as ADEQUACY.md section 5.2's. The mathematical content is already machine-checked and sorry-free; the open obligation is the code-to-specification bridge that section 5.3 argues a proof does not discharge for a specific piece of Python. Evaluate at least three routes and recommend one with a cost estimate: (a) a verified generator, emitting the constraint set from Lean-verified code or extracting the encoder from it; (b) translation validation, or a proof-producing encoder that certifies per run that its emitted clause set matches a verified specification -- the only route that establishes the property for the code that actually runs; and (c) a second independent implementation plus differential, which is what the standing A2-triangle test already is, assessed honestly as evidence rather than proof. Weigh each against the proportionality constraint the adequacy document itself establishes: A3 is vacuous until A1 supplies f, and A0 caps the strongest honest claim at "Z-time valid" permanently, so a fully discharged A2 hardens section 7.4's never-report-validity rule, which already has a runtime fail-fast guard, rather than upgrading the headline result. Deliver a report with a recommendation and a staged path, not an implementation.
+
+---
+
+### 194. Close a2 selector and window drift gaps
+- **Status**: [NOT STARTED]
+- **Task Type**: z3
+- **Topic**: semantics
+- **Dependencies**: None
+
+**Description**: Close the two residual encoder-versus-specification gaps in the A2 encoding-completeness argument that are small enough to discharge directly. First, one-hot selector conservativity: decision D5 makes the target position a one-hot sel selector rather than a fixed origin, which is structure absent from conditions (C1)-(C4) entirely, so ADEQUACY.md section 7.3's "the Z3 constraint set is exactly the conjunction of (C1)-(C4)" does not cover it. Establish and record that the selector is conservative -- the encoding is SAT with some sel[t] exactly when a certificate satisfying (C1)-(C4) exists with target time t -- and exercise it directly in a test, so the selector cannot itself be the over-constraint that a future encoding incompleteness gets wrongly blamed on. Second, window drift: WitnessRegistry.target_window() is independently defined rather than imported, unlike _coherence_window, _box_window, _scan_forward_bound and _scan_backward_bound, which witness_constraints.py takes directly from certificate.py. certificate.py's own comment records the split as deliberate, since target_window is also reused for the one-hot selector and both are simple one-line formulas, but it remains the one place encoder and re-checker can silently diverge on a window. Either share a single definition or assert that the two formulas agree across the configured range of nb, nm and nf. Verify against the full bimodal suite and the four-theory gate; no behavioral change is intended.
+
+---
+
+### 193. Extend a2 triangle grid to nb nf 2
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Extend the A2-triangle encoding-completeness test's exhaustive grid beyond back=mid=fwd=1 to cover nb=nf=2. tests/integration/test_certificate_a2_triangle.py currently enumerates exhaustively only at back=mid=fwd=1, per ADEQUACY.md section 7.3's stated test, and that regime is provably blind to the one A2 violation known to have actually occurred: witness_constraints.py's module docstring records that local coherence was once generated over the narrow WitnessRegistry.target_window() instead of the proved wide _coherence_window, and that the counterexample requires nb=2, since slot back[1] recurs at every odd-magnitude position. The defect is therefore invisible at nb=1, which makes raising the grid the highest-value strengthening available short of a proof. Measure before committing to unconditional execution: the single-box closure already reaches 1,572,864 candidates at nb=nf=1 and roughly 11.5 seconds of recheck time, so compute the nb=nf=2 candidate count first and tier or mark the test accordingly (the slow marker is already registered) rather than assuming it is affordable. Keep the existing three closures' coverage intact, and keep Tier 2's clean-skip discipline when no BimodalLogic checkout is present. Report any genuine three-way disagreement as a finding: diagnosing the encoder is out of scope for this task.
+
+---
+
+### 192. A2 proof vs implementation gap report
+- **Status**: [NOT STARTED]
+- **Task Type**: markdown
+- **Topic**: documentation
+- **Dependencies**: None
+
+**Description**: Write a companion report in code/src/model_checker/theory_lib/bimodal/docs/ explaining the proof-versus-implementation gap in the A2 encoding-completeness argument: what is missing is not mathematics but a proof that the running Python emits what the mathematics specifies. Place it alongside ADEQUACY.md, whose sections 5.2, 5.3 and 7.3 it extends, and cross-reference it from ADEQUACY.md section 7.3. The core thesis is section 5.3's own claim about the re-checker, transferred to the encoder: that a specific piece of Python correctly implements the finite-window reduction it is credited with "is not something a proof discharges". The report must (a) separate what IS machine-checked -- the window collapses coherent_iff_window, fulfil_iff_window, mem_all_iff_window, scan_forward and scan_backward, sorry-free, plus the fact that witness_constraints.py imports _coherence_window, _box_window, _scan_forward_bound and _scan_backward_bound directly from certificate.py so encoder and re-checker cannot drift on those bounds -- from what is not; (b) enumerate the full emitted-constraint surface that "no extra constraint" quantifies over, which is wider than the four condition emitters: finalize_certificate()'s in-place writes to frame_constraints (which ModelConstraints reads by reference), premise_behavior and conclusion_behavior per formula, and proposition_constraints; (c) name the one-hot sel selector (decision D5) as structure genuinely absent from conditions (C1)-(C4), so it needs its own conservativity argument rather than being covered by them; (d) record WitnessRegistry.target_window() as the one remaining independently-defined window, deliberately not shared with certificate.py's _box_window; (e) present the historical local-coherence defect recorded in witness_constraints.py's module docstring -- the encoder generated over the narrow target_window instead of the proved wide window, the counterexample requires nb=2, and it was caught by section 6.2's fail-fast differential rather than by any proof -- as concrete evidence that this defect class is real and that the standing A2-triangle test at back=mid=fwd=1 cannot see it; and (f) state honestly what a bounded exhaustive test does and does not establish. Documentation only: no source or test changes.
+
+---
 
 ### 191. A2 triangle encoding completeness test
 - **Status**: [COMPLETED]
