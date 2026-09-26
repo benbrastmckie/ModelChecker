@@ -581,7 +581,7 @@ constraint-enforced rather than incidental.
 
 ---
 
-### Phase 6: Cross-Theory Regression Gate (Decision Gate) [NOT STARTED]
+### Phase 6: Cross-Theory Regression Gate (Decision Gate) [COMPLETED]
 
 **Goal**: Decide, on measurement rather than assumption, whether routing logos/imposition/exclusion
 through their own `_create_difference_constraint` overrides is behavior-preserving — and fall back
@@ -628,6 +628,33 @@ plan's numbers.
 - Per-theory model counts match the Phase 1 baseline, or the contingency branch was taken and its
   own re-run matches.
 - The decision and the measurement behind it are recorded in the plan phase body.
+
+#### Decision and Evidence (recorded at implementation time)
+
+**Gate criterion MET. No narrowing/contingency branch needed.** Full detail, including the
+one nuance found (exclusion's `checked_model_count` varies run-to-run because it terminates via
+a wall-clock `max_time` timeout rather than the logical "insufficient progress" cap the other two
+theories hit, and a structural proof that this is timing noise rather than a constraint-content
+change), is recorded in
+`specs/189_fix_shared_iterator_is_world_assumption/baselines/09_phase6-comparison.md`. Summary:
+
+- Phase 1's exact four-file, 19-test baseline command: re-run in
+  `baselines/08_phase6-regression-rerun.txt`, all 19 still pass (plus 7 new bimodal tests added
+  since Phase 1, for 26 total, 0 failing).
+- Per-theory live `iterate: 3` re-run: logos and imposition byte-identical to the Phase 1 baseline
+  (31 checked / 30 isomorphic / 1 model found); exclusion's checked/isomorphic counts drift
+  (27-31 across repeated runs) purely because it hits `max_time`'s wall-clock cutoff rather than
+  the logical cap -- and **models found stays at 1 in every run, both before and after**, which is
+  the actual gate criterion. `git diff` between the pre- and post-Phase-3 commits on
+  `constraints.py` shows a docstring-only change (zero constraint-content difference), and every
+  check in these particular runs passes a one-element `previous_models` list (only model 1 is
+  ever found), for which the new and old call paths construct the identical Z3 expression by
+  construction -- so the drift cannot be a code-caused regression.
+- Broader suites: `PYTHONPATH=code/src pytest theory_lib/{logos,imposition,exclusion}/tests/
+  iterate/tests/ -q` -> **830 passed, 0 failed**
+  (`baselines/10_phase6-full-suite-output.txt`).
+- No changes made to `iterate/core.py`'s hook-preference wiring; the contingency branch's opt-in
+  narrowing was not needed.
 
 ---
 
