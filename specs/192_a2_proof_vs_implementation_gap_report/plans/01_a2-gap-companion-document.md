@@ -1,7 +1,7 @@
 # Implementation Plan: Task #192
 
 - **Task**: 192 - A2 proof-vs-implementation gap companion report
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/192_a2_proof_vs_implementation_gap_report/reports/01_a2-proof-implementation-gap.md
@@ -135,17 +135,17 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 each append distinct sections to the single file phase 1 creates, so they must not run
 concurrently even though their content is independent.
 
-### Phase 1: Create A2_GAP.md — scope, the category argument, and the three-status table [NOT STARTED]
+### Phase 1: Create A2_GAP.md — scope, the category argument, and the three-status table [COMPLETED]
 
 **Goal**: The document exists at its final path with the full section outline fixed, and its first
 three sections written: what this document is, the category argument, and the sharp separation of
 machine-checked / shared-by-import / unchecked.
 
 **Tasks**:
-- [ ] Re-read `TRUST_PIPELINE.md`'s "What this document is", Stage 2, and "The trust base"
+- [x] Re-read `TRUST_PIPELINE.md`'s "What this document is", Stage 2, and "The trust base"
       sections, plus `ADEQUACY.md` sections 5.2, 5.3 and 7.3, so the new document's opener can
       cite them precisely rather than paraphrase.
-- [ ] Create `code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md` with an H1 title and the
+- [x] Create `code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md` with an H1 title and the
       eleven-section outline (as H2s) this plan fixes: (1) What this document is; (2) The category
       argument; (3) What is machine-checked, what is shared by import, what is neither; (4) The
       emitted-constraint surface, emitter by emitter; (5) The one-hot selector (D5); (6) The one
@@ -153,11 +153,11 @@ machine-checked / shared-by-import / unchecked.
       cannot see it; (8) What a bounded exhaustive test does and does not establish; (9) The
       trust-base consequence of S3; (10) What closing the gap would require, route by route;
       (11) See also.
-- [ ] Write section 1: this document extends `ADEQUACY.md` sections 5.2, 5.3 and 7.3 and assumes
+- [x] Write section 1: this document extends `ADEQUACY.md` sections 5.2, 5.3 and 7.3 and assumes
       `TRUST_PIPELINE.md`'s Stage 2 and trust-base discussion; it does not restate either. State
       the thesis in one sentence: what is missing for A2 is not mathematics but a proof that the
       running Python emits what the mathematics specifies.
-- [ ] Write section 2, the category argument, in the report's three steps: what the Lean theorems
+- [x] Write section 2, the category argument, in the report's three steps: what the Lean theorems
       are statements about (mathematical functions, `Decidable` instances, quantified over every
       `t : ℤ`); what "the encoder is correct" would have to mean (a proof-preserving link:
       extraction, direct verification against a formal semantics of the host language and the Z3
@@ -166,7 +166,7 @@ machine-checked / shared-by-import / unchecked.
       behaviour), with the CompCert comparison as the standard of what closing such a gap looks
       like. Quote `ADEQUACY.md` section 5.3's own sentence about the re-checker as the template
       being transferred to the encoder.
-- [ ] Write section 3 as a three-status presentation: (i) machine-checked in Lean, sorry-free —
+- [x] Write section 3 as a three-status presentation: (i) machine-checked in Lean, sorry-free —
       `coherent_iff_window`, `fulfil_iff_window`, `mem_all_iff_window`, `scan_forward`,
       `scan_backward`, and the four `Decidable` instances built from them; (ii) structurally
       shared by import — `witness_constraints.py` takes `_coherence_window`, `_box_window`,
@@ -175,7 +175,7 @@ machine-checked / shared-by-import / unchecked.
       agreement between two independent definitions because there is no second definition; (iii)
       neither — the clause shapes built from those windows, `finalize_certificate`'s assembly
       order and in-place mutation, the selector, and the independently-defined target window.
-- [ ] Ensure every code reference in these sections is module-path-plus-symbol, with no line
+- [x] Ensure every code reference in these sections is module-path-plus-symbol, with no line
       numbers, matching `TRUST_PIPELINE.md`'s citation register.
 
 **Timing**: 1 hour
@@ -205,46 +205,46 @@ machine-checked / shared-by-import / unchecked.
 
 ---
 
-### Phase 2: Section 4 — the complete emitted-constraint surface, emitter by emitter [NOT STARTED]
+### Phase 2: Section 4 — the complete emitted-constraint surface, emitter by emitter [COMPLETED]
 
 **Goal**: Section 4 enumerates every emission call site with its clause shape, the assembly into
 the four tracked solver groups, the reference-mutation contract, and the call-order invariant —
 the depth the SCOPE NOTE asks for beyond `TRUST_PIPELINE.md`'s naming of the surface.
 
 **Tasks**:
-- [ ] Open with the correction: "the four condition emitters" undercounts; the surface "no extra
+- [x] Open with the correction: "the four condition emitters" undercounts; the surface "no extra
       constraint" quantifies over is seven call sites collapsing into four solver-visible groups.
-- [ ] Write the (C1) local-coherence emitter with its per-formula clause table (`Atom` —
+- [x] Write the (C1) local-coherence emitter with its per-formula clause table (`Atom` —
       deliberately unconstrained; `Bot`; `Imp`; `Box`; `Untl` at `t+1`; `Snce` at `t-1`), stating
       that it ranges over the **wide** `_coherence_window` and over the whole closure.
-- [ ] Write the (C2) fulfilment emitter's clause shape for `Untl` and `Snce`, naming
+- [x] Write the (C2) fulfilment emitter's clause shape for `Untl` and `Snce`, naming
       `_scan_forward_bound` / `_scan_backward_bound` as the scan limits and the same wide window
       as the position range.
-- [ ] Write the (C3) box-faithfulness emitter's two implications (guess true forces the child at
+- [x] Write the (C3) box-faithfulness emitter's two implications (guess true forces the child at
       every position of every active lasso; guess false forces some position to fail), noting it
       is emitted **once, jointly across lassos**, over the **narrow** `_box_window`.
-- [ ] Write the (C4) target emitter, and state explicitly that `finalize_certificate` invokes it
+- [x] Write the (C4) target emitter, and state explicitly that `finalize_certificate` invokes it
       with empty premise and conclusion lists so that only the at-least-one and at-most-one
       clauses are emitted there — the guarded per-position implications come from elsewhere.
-- [ ] Write the per-premise and per-conclusion behaviour call sites: their guarded-implication
+- [x] Write the per-premise and per-conclusion behaviour call sites: their guarded-implication
       clause shapes over the target window, their opposite polarity, that they run **earlier**
       (during `ModelConstraints.__init__`'s translation, before `_setup_solver` and therefore
       before `finalize_certificate`), and their closure-registration side effect.
-- [ ] State the call-order invariant this creates: `finalize_certificate`'s guard prevents only a
+- [x] State the call-order invariant this creates: `finalize_certificate`'s guard prevents only a
       second call, so "the closure is complete when `finalize_certificate` runs" is guaranteed by
       `ModelConstraints.__init__`'s fixed call order — external to the class whose correctness
       depends on it.
-- [ ] Write the `proposition_constraints` hook: currently vacuous by design (atoms deliberately
+- [x] Write the `proposition_constraints` hook: currently vacuous by design (atoms deliberately
       unconstrained, per `ADEQUACY.md` Lemma 4's atom case being an identity), yet part of the
       surface because `ModelConstraints` calls it unconditionally and any future settings change
       reintroducing per-atom constraints flows through it without touching `finalize_certificate`.
-- [ ] Write the assembly paragraph: the seven call sites reach Z3 as exactly four tracked groups
+- [x] Write the assembly paragraph: the seven call sites reach Z3 as exactly four tracked groups
       (frame, model, premises, conclusions), each asserted individually for unsat-core extraction;
       `ModelConstraints` reads `frame_constraints` **by reference** at construction while
       `finalize_certificate` later `extend`s that same list object in place, never rebinding it —
       the contract that makes the two-phase design work, true of this object graph by
       construction rather than by proof.
-- [ ] Close with the net correction sentence: "no extra constraint" is a claim about the
+- [x] Close with the net correction sentence: "no extra constraint" is a claim about the
       conjunction of all seven, assembled through a reference-mutation contract and gated by an
       externally-enforced call-order invariant.
 
@@ -283,7 +283,7 @@ the report's number.
 
 ---
 
-### Phase 3: Sections 5 and 6 — the one-hot selector, and the last independently-defined window [NOT STARTED]
+### Phase 3: Sections 5 and 6 — the one-hot selector, and the last independently-defined window [COMPLETED]
 
 **Goal**: The selector is named as structure genuinely absent from (C1)-(C4), given its own
 conservativity argument with that argument's own limits stated; and `target_window()` is recorded
@@ -291,37 +291,43 @@ as the one remaining independently-defined window, with the deliberateness of th
 concrete latent risk both stated.
 
 **Tasks**:
-- [ ] Write section 5's opening: `ADEQUACY.md` section 1 states (C4) as a bare existential over
+- [x] Write section 5's opening: `ADEQUACY.md` section 1 states (C4) as a bare existential over
       `t₀ ∈ ℤ`; decision D5 implements it with fresh one-hot `sel` variables, an exactly-one
       cardinality constraint, and guarded implications. Nothing resembling `sel` appears in
       (C1)-(C4), in the window-collapse theorems, or in the `Decidable` instances — so the four
       conditions' own proofs do not cover it and it needs its own argument.
-- [ ] Write the conservativity claim and its three-step argument: the reduction from `∃t₀ ∈ ℤ` to
+- [x] Write the conservativity claim and its three-step argument: the reduction from `∃t₀ ∈ ℤ` to
       `∃ slot` is an identity because `bit` returns the same variable for every position sharing a
       slot under `wrap` and the target window enumerates each slot exactly once; the guarded
       implications are vacuous when `sel` is false, making the encoding a Skolemization; the
       at-least-one clause exactly restates the existential and the at-most-one clause costs
       nothing, with both directions spelled out.
-- [ ] Write the status paragraph: the argument is correct, self-contained, and recorded in this
+- [x] Write the status paragraph: the argument is correct, self-contained, and recorded in this
       codebase's documentation for the first time — and it is not machine-checked and does not
       verify the Python that is supposed to implement it. Name concrete violations it would not
       see: an off-by-one in the target window's bounds, a swapped implication polarity between
       premise and conclusion, a stale selector memo. Tie this back to section 2 explicitly: even a
       correct informal proof about constraint *meaning* does not discharge a claim about
       constraint *code*, which is the category point recurring one level down.
-- [ ] Write section 6: `WitnessRegistry.target_window()` and `certificate._box_window` compute the
+- [x] Write section 6: `WitnessRegistry.target_window()` and `certificate._box_window` compute the
       numerically identical range from two separately written one-line formulas in two modules,
       with no shared call — the one window left where encoder and re-checker could silently
       diverge, by construction rather than by oversight. Record `certificate.py`'s own reason for
       the split: `target_window` also serves the selector, which has no place in the re-checker's
       vocabulary, while `_box_window` exists to match `mem_all_iff_window`'s bound.
-- [ ] State why this is worth naming precisely: the two agree today and are simple, yet this is
+- [x] State why this is worth naming precisely: the two agree today and are simple, yet this is
       exactly the shape of the historical defect (section 7) — a wide/narrow window distinction
       duplicated by hand. If a future Lean-side revision moved `mem_all_iff_window`'s bound,
       `_box_window` would need updating and nothing would force a matching update to
       `target_window()`, reintroducing the same defect class at the selector.
-- [ ] Reference the separately-scoped work that would close both items by description only —
+- [x] Reference the separately-scoped work that would close both items by description only —
       never by task or project number.
+      *(deviation: altered — a concurrently-dispatched sibling task landed committed changes to
+      `witness_registry.py`/`certificate.py` mid-implementation, delegating `target_window()`
+      directly to `_box_window` and adding a swept-range regression test pinning their agreement.
+      Section 6 was rewritten to describe the gap as closed (historical framing, matching section
+      7's pattern) rather than document a now-false "independently defined" claim; section 3(ii)/
+      (iii) and section 10's route (e) were updated to match. See the implementation summary.)*
 
 **Timing**: 1 hour
 
@@ -346,17 +352,17 @@ concrete latent risk both stated.
 
 ---
 
-### Phase 4: Sections 7 and 8 — the historical defect, the test's provable blindness, and what a bounded exhaustive test establishes [NOT STARTED]
+### Phase 4: Sections 7 and 8 — the historical defect, the test's provable blindness, and what a bounded exhaustive test establishes [COMPLETED]
 
 **Goal**: The historical local-coherence defect is presented as concrete evidence that this defect
 class is real, the standing A2-triangle test's blindness to it is shown to be provable rather than
 suspected, and the limits of bounded exhaustive testing are stated exactly.
 
 **Tasks**:
-- [ ] Re-read `witness_constraints.py`'s module docstring in full and
+- [x] Re-read `witness_constraints.py`'s module docstring in full and
       `tests/integration/test_certificate_a2_triangle.py`'s module docstring, so the narrative is
       taken from the source rather than from the research report's paraphrase.
-- [ ] Write section 7's defect narrative: local coherence was once asserted only over the narrow
+- [x] Write section 7's defect narrative: local coherence was once asserted only over the narrow
       target window on the false reasoning that slot-sharing made one representative clause cover
       every position sharing that slot; why the reasoning is false for the slots adjacent to
       `mid`, using the docstring's own construction; that the counterexample requires `nb = 2` and
@@ -364,16 +370,16 @@ suspected, and the limits of bounded exhaustive testing are stated exactly.
       scan disagreeing with the encoder — `ADEQUACY.md` section 6.2's fail-fast differential —
       and not by any proof; and the fix, asserting the biconditional at every position of the wide
       `_coherence_window`, matching the Lean-proved bound.
-- [ ] Note the window-discriminator fixture as the permanent regression fixture for the
+- [x] Note the window-discriminator fixture as the permanent regression fixture for the
       re-checker's side of the wide/narrow distinction, while stating accurately that it targets
       the general window-collapse property rather than reproducing the encoder defect's `nb = 2`
       shape.
-- [ ] Write the blindness argument: the standing test's exhaustive tier fixes `back = mid = fwd =
+- [x] Write the blindness argument: the standing test's exhaustive tier fixes `back = mid = fwd =
       1`, the defect provably requires `nb = 2`, therefore the test would pass whether or not this
       defect — or its analogue in another emitter — were reintroduced. State that this is a
       provable gap derivable from the docstring's own counterexample, not a suspected weakness,
       and that it is not a criticism of the test in general.
-- [ ] Write section 8: within its own region the exhaustive tier is a decision, not a sample — a
+- [x] Write section 8: within its own region the exhaustive tier is a decision, not a sample — a
       complete case analysis over a finite space, stronger than a property test, and should be
       said so. Then the two exact limits: nothing transfers to a larger closure or wider window
       without re-running the enumeration there, with no monotonicity argument available (the
@@ -382,7 +388,7 @@ suspected, and the limits of bounded exhaustive testing are stated exactly.
       the encoder, the re-checker and the Lean checker. Close by placing this in
       `TRUST_PIPELINE.md`'s "property-tested" evidence category, applied to its strongest instance
       here.
-- [ ] Reference the separately-scoped grid-widening work by description only, never by number.
+- [x] Reference the separately-scoped grid-widening work by description only, never by number.
 
 **Timing**: 1 hour
 
@@ -408,18 +414,18 @@ suspected, and the limits of bounded exhaustive testing are stated exactly.
 
 ---
 
-### Phase 5: Sections 9, 10 and 11 — the S3 trust-base consequence, the per-route analysis, and See also [NOT STARTED]
+### Phase 5: Sections 9, 10 and 11 — the S3 trust-base consequence, the per-route analysis, and See also [COMPLETED]
 
 **Goal**: The document states why the A2 gap is a completeness matter rather than a soundness one,
 draws the trust-base corollaries, gives the route-by-route analysis of what closing the gap would
 require, and closes with a "See also" matching the sibling documents' convention.
 
 **Tasks**:
-- [ ] Write section 9's premise: `ADEQUACY.md` section 2's S3 is discharged by *deciding* the
+- [x] Write section 9's premise: `ADEQUACY.md` section 2's S3 is discharged by *deciding* the
       antecedent on every reported certificate — twice and independently, per section 6.2 — rather
       than by proving the producer correct, which is possible exactly because (C1)-(C4) are
       decidable. State that this is the design's load-bearing property, not a convenience.
-- [ ] Trace the consequence exhaustively through the two failure branches: a wrongly-constraining
+- [x] Trace the consequence exhaustively through the two failure branches: a wrongly-constraining
       or under-constraining encoder yields something that fails to decode or fails (C1)-(C4), and
       the fail-fast step rejects loudly; an over-constraining encoder yields UNSAT where a
       countermodel exists, reported as "no certificate found within these bounds", which
@@ -427,7 +433,7 @@ require, and closes with a "See also" matching the sibling documents' convention
       validity claim — a completeness cost only. State explicitly that there is no third branch,
       and why: passing the re-check *is* what satisfying (C1)-(C4) means, decided directly rather
       than inferred from the encoder's intent.
-- [ ] State the corollary: the Z3 encoder, the decoder and Z3 itself are not in the soundness
+- [x] State the corollary: the Z3 encoder, the decoder and Z3 itself are not in the soundness
       trust base at all; the soundness trust base is Lean's kernel, the S2 transcription audit,
       the re-checker implementation (mitigated, not eliminated, by the dual Python/Lean check),
       and the translation (S4). Then the ranking corollary: S4, not A2, is the weakest joint in
@@ -435,26 +441,26 @@ require, and closes with a "See also" matching the sibling documents' convention
       invisible to the round-trip by construction because both sides consume the same
       already-translated formula, and the box half of the translation has no property-test
       coverage.
-- [ ] State the honesty point: a "countermodel" verdict — from the Python re-checker, from the
+- [x] State the honesty point: a "countermodel" verdict — from the Python re-checker, from the
       Lean certificate checker, or from their agreement — says only that the four `Decidable`
       instances returned true on the family rebuilt from the wire. It is not a kernel-checked
       proof for that particular certificate; only the soundness theorem is a proof, and it is a
       proof of the implication applied to whatever the decision procedures certify.
-- [ ] Write section 10 as the per-route table with a row each for extraction, direct verification
+- [x] Write section 10 as the per-route table with a row each for extraction, direct verification
       against a formal semantics of the host language and the Z3 API, reflection inside the
       kernel, widening the exhaustive differential grid, making the selector argument and the
       window agreement executable, and consuming a proof-producing Lean checker — each with what
       it would require, what it would buy, and its cost or status.
-- [ ] Write section 10's honest ranking: only the first three satisfy section 2's category
+- [x] Write section 10's honest ranking: only the first three satisfy section 2's category
       argument on its own terms, and all three are substantial and unstarted; the grid and
       selector routes are concrete and valuable but strengthen evidence within a region and cannot
       become a proof however far the grid is widened, because a finite enumeration is bounded by
       what it enumerates; the proof-producing-checker route addresses the re-checker rather than
       the encoder this document is scoped to.
-- [ ] Write section 11, "See also", pointing at `ADEQUACY.md` (sections 5.2, 5.3, 7.3), 
+- [x] Write section 11, "See also", pointing at `ADEQUACY.md` (sections 5.2, 5.3, 7.3), 
       `TRUST_PIPELINE.md` (Stage 2, the trust base, what remains), `ARCHITECTURE.md`, and the
       relevant source modules by path, matching the sibling documents' See-also style.
-- [ ] Re-read the whole document end to end for register consistency with `ADEQUACY.md` and
+- [x] Re-read the whole document end to end for register consistency with `ADEQUACY.md` and
       `TRUST_PIPELINE.md` (terse, table-heavy, citation-precise) and for the risk named in Risks:
       that no passage can be read as claiming the encoder is verified.
 
