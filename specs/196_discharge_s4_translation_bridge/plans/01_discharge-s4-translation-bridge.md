@@ -1,7 +1,7 @@
 # Implementation Plan: Discharge obligation S4 (Sentence-to-Formula translation bridge)
 
 - **Task**: 196 - Discharge obligation S4, the Sentence-to-Formula translation bridge
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 9 hours
 - **Dependencies**: 193, 194 (sequencing, user-directed: both touch the same bimodal test tree,
   and 193 adds closure formulas to `test_certificate_a2_triangle.py`; this task's normalization
@@ -752,7 +752,7 @@ that no sixth location still asserts the gap; if one appears, fix it too and say
 
 ---
 
-### Phase 9: Full gate [NOT STARTED]
+### Phase 9: Full gate [COMPLETED]
 
 **Goal**: the whole repository is green with the normalization and the new tests in place, and the
 outcome is recorded.
