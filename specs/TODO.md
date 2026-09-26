@@ -11,9 +11,9 @@ next_project_number: 201
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 192,193,194,196,197,198,200 | -- | documentation, testing, semantics |
-| 2 | 195 | 192 | architecture |
-| 3 | 199 | 193,194,195,196,197,198 | documentation |
+| 1 | 192,193,194,196,198 | -- | documentation, testing, semantics |
+| 2 | 195,197 | 192,196 | architecture, semantics |
+| 3 | 199,200 | 193,194,195,197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -33,10 +33,11 @@ next_project_number: 201
 ### Semantics
 
 194 [NOT STARTED] — Close the two residual encoder-versus-specification gaps in...
+  └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 196 [NOT STARTED] — Discharge obligation S4, the Sentence-to-Formula translation...
-197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
+  └─ 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
+    └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability... (see above)
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
-200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 
 ## Tasks
 
@@ -44,7 +45,7 @@ next_project_number: 201
 - **Status**: [NOT STARTED]
 - **Task Type**: z3
 - **Topic**: semantics
-- **Dependencies**: None
+- **Dependencies**: Task 193, Task 194, Task 197
 
 **Description**: Extend the bimodal theory to the language with the stability modal, once the verified side supplies a state-sharing witness structure, its histories characterization, its redesigned box condition, and a compression bound. The modal is absent from this theory entirely today: operators.py defines negation, conjunction, disjunction, bottom, Box, Future, Past, Until, Since and the defined operators, with no stability modal, and ADEQUACY.md states it is out of scope throughout. Adding it is not an operator definition plus a truth clause. The received account of why this design is deterministic is explicit that the obstruction is not Limit or Saturation but the histories characterization and the box case of the truth lemma: determinism is what makes every world history one of the lasso orbits, so sharing states between lassos lets a history cross from one lasso to another, breaks that characterization and the corollary that the frame's history set is exactly the certified histories, and breaks box faithfulness, which is calibrated against "every position of every lasso" and stops enumerating the history set once histories recombine. Consequently this task's scope is: add the operator and its truth conditions; replace the certificate datatype with the verified side's branching structure; re-encode the conditions for Z3 over that structure, box faithfulness in particular, which can no longer be a conjunction over lasso positions; extend the wire contract and the re-checker in step, coordinating the breaking change with the producing side; and set search bounds from the new compression function. Also revisit the iteration machinery: the symmetry group for orbit-distinctness (rotation per lasso, permutation of witness lassos) is defined for a family of lassos and will need a different group action on a branching structure. BLOCKED on the four verified-side tasks (decidability provenance gate, state-sharing structure and box-condition redesign, agreement lemma over all walks, compression and assembly); until the agreement lemma lands there is no soundness argument for any certificate this encoding could emit, and emitting one anyway would violate the never-report-validity discipline in the opposite direction, by reporting countermodels nothing certifies.
 
@@ -76,7 +77,7 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 - **Status**: [NOT STARTED]
 - **Task Type**: z3
 - **Topic**: semantics
-- **Dependencies**: None
+- **Dependencies**: Task 196
 
 **Description**: Harden the certificate wire protocol on two axes, so that acceptance becomes a kernel-checked entailment and deserialization leaves the trust base. First, proof-carrying acceptance: ADEQUACY.md section 6.2 is explicit that a "countermodel" verdict says only that the four Decidable instances returned true on the family rebuilt from the wire input, and is not a kernel-checked proof for that particular certificate. Once BimodalLogic's proof-producing check_certificate lands -- whose success path applies WitnessFamily.joint_countermodel to a decided hypothesis, constructing the paper-countermodel existence term rather than printing a verdict -- consume that mode here: extend the wire's output contract to carry it, and record in the presentation path that the Python re-checker has become a fast pre-filter rather than part of the trust base. Second, parse-echo verification: the Lean side parses the exported JSON, so a parser defect could mean the verified side certifies a different certificate than the one exported. Pair with BimodalLogic's canonical-printer and parse-after-print round-trip theorem by having the Lean side echo back what it parsed and comparing it bytewise against what this repository sent, treating any mismatch as a protocol error rather than a rejection. Preserve the existing output contract's discipline throughout: exactly one line, never a validity claim, and the error-versus-rejected distinction (error covers input failing the protocol, rejected covers input that parses but fails a condition). BLOCKED on the two BimodalLogic counterpart tasks (proof-producing check_certificate, and the canonical wire round-trip theorem); the wire contract is an export contract per section 6.1, so renaming or extending any of back, mid, fwd, bx, lassos or target is a breaking change requiring coordination with the producing side, not a local refactor.
 
