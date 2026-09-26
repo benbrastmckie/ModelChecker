@@ -161,9 +161,13 @@ class BimodalSemantics(SemanticDefaults):
         )
         self.constraint_generator = WitnessConstraintGenerator(self.witness_registry)
 
-        # D6: frame_constraints starts empty. finalize_certificate() is the sole writer,
-        # mutating this list in place (never reassigning it) so ModelConstraints's
-        # by-reference copy (models/constraints.py:80) observes the mutation.
+        # D6: frame_constraints starts empty. Within a single solve, finalize_certificate() is
+        # the sole writer inside this class, mutating this list in place (never reassigning it)
+        # so ModelConstraints's by-reference copy (models/constraints.py:80) observes the
+        # mutation. A second writer exists outside this class: iterate.py's
+        # _pin_theory_specific_values appends unit-literal pins directly to this same list
+        # during model iteration (iterate.py:266, :280), after finalize_certificate has already
+        # run once on that instance -- see docs/A2_GAP.md section 4, call site (8).
         self.frame_constraints: List["z3.BoolRef"] = []
         self._certificate_finalized = False
         # Overwritten by finalize_certificate() with the definitive list once every boxed

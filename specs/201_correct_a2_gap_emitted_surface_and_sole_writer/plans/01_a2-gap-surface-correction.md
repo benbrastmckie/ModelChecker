@@ -119,14 +119,14 @@ edit list rather than deferring them.
 
 ---
 
-### Phase 2: Narrow the D6 sole-writer comment in semantic/core.py [NOT STARTED]
+### Phase 2: Narrow the D6 sole-writer comment in semantic/core.py [COMPLETED]
 
 **Goal**: `core.py`'s D6 comment no longer asserts the false "sole writer" claim; it states the
 narrower true claim, keeps the by-reference-alias rationale, and points at section 4's call site (8).
 
 **Tasks**:
-- [ ] Replace the three-line D6 comment block at `code/src/model_checker/theory_lib/bimodal/semantic/core.py:164-166` with the report's Correction 2 text: within a single solve `finalize_certificate()` is the sole writer *inside this class*, mutating in place and never reassigning so `models/constraints.py:80`'s by-reference copy observes the mutation; a second writer exists outside this class — `iterate.py`'s `_pin_theory_specific_values` appends unit-literal pins to the same list during model iteration (`iterate.py:266`, `:280`), after `finalize_certificate` has already run once on that instance — see `docs/A2_GAP.md` section 4, call site (8)
-- [ ] Confirm the edit hunk is confined to that comment block: no change to `self.frame_constraints: List["z3.BoolRef"] = []` or any surrounding statement, and no change to the D4 monotonicity commentary elsewhere in the file (sibling task territory)
+- [x] Replace the three-line D6 comment block at `code/src/model_checker/theory_lib/bimodal/semantic/core.py:164-166` with the report's Correction 2 text: within a single solve `finalize_certificate()` is the sole writer *inside this class*, mutating in place and never reassigning so `models/constraints.py:80`'s by-reference copy observes the mutation; a second writer exists outside this class — `iterate.py`'s `_pin_theory_specific_values` appends unit-literal pins to the same list during model iteration (`iterate.py:266`, `:280`), after `finalize_certificate` has already run once on that instance — see `docs/A2_GAP.md` section 4, call site (8) *(completed)*
+- [x] Confirm the edit hunk is confined to that comment block: no change to `self.frame_constraints: List["z3.BoolRef"] = []` or any surrounding statement, and no change to the D4 monotonicity commentary elsewhere in the file (sibling task territory) *(completed: single hunk verified via git diff, D4 comment at line 141 unchanged)*
 
 **Timing**: 0.25 hours
 
