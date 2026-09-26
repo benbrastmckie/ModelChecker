@@ -64,6 +64,7 @@ from model_checker import z3_shim as z3
 from model_checker.iterate.core import BaseModelIterator
 from model_checker.solver import is_true
 from model_checker.theory_lib.bimodal.semantic import symmetry
+from model_checker.theory_lib.bimodal.semantic import certificate
 from model_checker.theory_lib.bimodal.semantic.certificate import WitnessFamily
 
 # Configure logging
@@ -79,6 +80,88 @@ if not logger.handlers:
 class BimodalModelIterator(BaseModelIterator):
     """Model iterator for the bimodal theory (certificate encoding). See the module
     docstring for the change of meaning and the discovered live-loop exclusion gap."""
+
+    def __init__(self, build_example):
+        super().__init__(build_example)
+        self._ensure_frame_constraints_in_search_solver()
+
+    def _ensure_frame_constraints_in_search_solver(self):
+        """Defensive workaround for a bug discovered while testing Phase 4's orbit
+        exclusion: the live loop's persistent search solver
+        (`self.constraint_generator.solver`, `iterate/constraints.py`) can start with
+        **none** of `semantics.frame_constraints` asserted -- confirmed empirically,
+        `len(self.constraint_generator.solver.assertions())` is `0` right after
+        construction for a real `BuildExample`.
+
+        Root cause, traced into `models/structure.py`'s shared `ModelDefaults.solve()`:
+        it does `self.stored_solver = self.solver` *before* calling `_setup_solver`,
+        which then reassigns `self.solver` to a *different*, freshly populated solver
+        object and returns it -- `stored_solver` is left pointing at the solver's
+        pristine, pre-population state (a brand-new, always-empty `create_solver(...)`
+        result) forever. `ConstraintGenerator._create_persistent_solver` reads
+        `model_structure.solver` first and falls back to `stored_solver` only when
+        `.solver` is `None` -- which it is here, since this theory's certificate
+        S3 recheck (`semantic/model.py`) runs after `_cleanup_solver_resources()` has
+        already cleared it. The live loop therefore searches against an
+        under-constrained problem (no local coherence, fulfilment, box-faithfulness,
+        *or the actual premise/conclusion* asserted at all): "differs in at least one
+        `_bits`/`_guesses`/`_sel` variable" can then be satisfied by flipping a bit
+        that carries no real information -- `build_new_model_structure`'s independent
+        rebuild-and-recheck (S3) re-derives it to the same value regardless -- so a
+        "genuinely new" Z3 model can decode to the *identical* certificate, defeating
+        `_create_difference_constraint` and this plan's orbit exclusion alike. This is
+        a bug in the shared engine (`models/structure.py`'s `solve()`), out of this
+        task's file scope (`theory_lib/bimodal/` only). The fix here is a theory-local,
+        defensive re-assertion at iterator construction, mirroring the already-
+        established precedent `_pin_theory_specific_values` sets for working around a
+        generic-framework assumption this theory's certificate encoding does not fit.
+
+        Re-asserts `semantics.frame_constraints` (mutated in place by
+        `finalize_certificate`, and therefore up to date by the time this constructor
+        runs -- `example.model_structure` already exists and was already solved) *and*
+        `model_constraints.model_constraints`/`.premise_constraints`/
+        `.conclusion_constraints` -- **not** `model_constraints.all_constraints`. An
+        earlier version of this fix read `all_constraints` directly and produced a
+        search solver that still accepted a `sel[t]` choice the *guarded premise
+        implication* would reject (confirmed empirically: `Implies(sel[-2], lab_..._
+        Imp(Untl, Bot))` evaluated `False` under a model the under-constrained search
+        solver nonetheless reported `sat`). Root cause: `ModelConstraints.__init__`
+        computes `all_constraints = frame_constraints + model_constraints + ...` via
+        list concatenation (a *snapshot*, copying elements at that moment) *before*
+        `finalize_certificate()` ever runs (that happens later, from `BimodalStructure.
+        __init__` -> `_setup_solver`) -- so `all_constraints` permanently misses every
+        coherence/fulfilment/box-faithfulness/target constraint, even though `model_
+        constraints.frame_constraints` itself (the plain attribute, not the snapshot)
+        stays correctly aliased to `semantics.frame_constraints` and does pick them up.
+        `model_constraints.model_constraints`/`premise_constraints`/
+        `conclusion_constraints` are unaffected by this timing gap (nothing mutates
+        them after `ModelConstraints.__init__` returns), so reading those three
+        directly, alongside the live `semantics.frame_constraints`, is both correct
+        and complete.
+
+        Defensive about test doubles: several existing unit/integration tests
+        construct the iterator against `_mock_build_example`, whose `model_
+        constraints` is a bare `Mock()` -- `.model_constraints`/`.premise_constraints`/
+        `.conclusion_constraints` on that double are auto-created `Mock` attributes,
+        not real lists, and must not be concatenated onto the constraint list (would
+        raise `TypeError` or silently corrupt it). Each of the four sources is only
+        used when it is an actual `list`; a test double simply contributes nothing
+        beyond whatever real `semantics.frame_constraints` it was given (matching
+        this method's original, narrower behavior for those tests).
+        """
+        model_constraints = self.build_example.model_constraints
+        semantics = model_constraints.semantics
+        solver = self.constraint_generator.solver
+        constraints: list = []
+        frame = getattr(semantics, "frame_constraints", None)
+        if isinstance(frame, list):
+            constraints.extend(frame)
+        for attr in ("model_constraints", "premise_constraints", "conclusion_constraints"):
+            value = getattr(model_constraints, attr, None)
+            if isinstance(value, list):
+                constraints.extend(value)
+        for constraint in constraints:
+            solver.add(constraint)
 
     def _certificate_variables(self):
         """Every label-bit and box-guess Z3 Boolean this search declared -- shared by
@@ -108,16 +191,76 @@ class BimodalModelIterator(BaseModelIterator):
         `WitnessRegistry`) for every new model, so the variables to pin must be read
         from that same fresh instance -- the original search's own registry holds a
         disjoint set of Z3 constants.
+
+        **Second discovered bug, fixed here defensively.** `iterate/models.py`'s
+        `build_new_model_structure` calls this hook *before* constructing the
+        `model_structure_class` instance whose `_setup_solver` is what actually calls
+        `finalize_certificate()` on the fresh semantics (`semantic/model.py`'s
+        `BimodalStructure._setup_solver`). At the point this method runs, the fresh
+        registry has therefore only allocated bits for whatever `_premise_behavior`/
+        `_conclusion_behavior` touched during `ModelConstraints.__init__` -- confirmed
+        empirically: `10` of the `70` bits this search actually needs, `0` of `1`
+        guesses, no witness lasso allocated at all. Pinning that partial set leaves
+        every *other* certificate variable (most of them) completely free for the
+        rebuild's later solve, so it converges on whatever assignment Z3 finds first
+        for the *fresh* problem -- deterministically reproducing the very first model
+        every time, regardless of which candidate `z3_model` this call was asked to
+        pin. Calling `finalize_certificate()` here first (idempotent, per its own
+        docstring, so the later call from `_setup_solver` is a no-op) allocates every
+        witness lasso and creates every `_bits`/`_guesses` entry this search will ever
+        need *before* they are read below, so the full set gets pinned.
         """
         semantics = model_constraints.semantics
+        semantics.finalize_certificate()
         registry = semantics.witness_registry
         variables = list(registry._bits.values()) + list(registry._guesses.values())
         for var in variables:
             value = z3_model.eval(var, model_completion=True)
-            if is_true(value):
-                temp_solver.add(var)
-            else:
-                temp_solver.add(z3.Not(var))
+            pinned = var if is_true(value) else z3.Not(var)
+            temp_solver.add(pinned)
+            # **Third discovered bug, fixed here defensively.** `build_new_model_
+            # structure` (`iterate/models.py`) stores this method's `temp_solver`
+            # assertions into `model_constraints.all_constraints` ("so the model will
+            # use them", per its own comment) -- but `models/structure.py`'s
+            # `_setup_solver` (called next, from `BimodalStructure.__init__` via
+            # `_setup_solver`'s own override, which just delegates to the base class)
+            # never reads `all_constraints` at all: it reads `model_constraints.
+            # frame_constraints`/`.model_constraints`/`.premise_constraints`/
+            # `.conclusion_constraints` -- four separate lists, built once at
+            # `ModelConstraints.__init__` time, well before any pin exists. Every pin
+            # this method adds to `temp_solver` is therefore silently discarded before
+            # it ever reaches the solver that actually builds the rebuilt structure --
+            # confirmed empirically: rebuilding against a candidate model that
+            # genuinely differs from the search's previous model, bit for bit,
+            # nonetheless decoded to a certificate byte-for-byte identical to the
+            # first one, every time, since the rebuild solve was effectively
+            # unconstrained by any of these pins and simply reproduced the same
+            # deterministic first solution to the fresh (unpinned) problem. This is a
+            # bug in the shared engine (`iterate/models.py`), out of this task's file
+            # scope. The fix here: also append directly to `semantics.frame_
+            # constraints`, which *is* one of the four lists `_setup_solver` reads,
+            # and which `model_constraints.frame_constraints` aliases by reference
+            # (D6's own aliasing discipline, `semantic/model.py`'s `_setup_solver`
+            # docstring) -- so this pin reaches the solver regardless of the dead
+            # `all_constraints` path. `temp_solver.add(pinned)` above is kept
+            # unchanged for interface parity with the existing unit tests
+            # (`TestPinTheorySpecificValues`), which assert against `temp_solver`
+            # directly.
+            semantics.frame_constraints.append(pinned)
+
+        # Also pin the one-hot target selector (`_sel`), for the same reason as
+        # `_bits`/`_guesses` above: `premise_constraints`/`conclusion_constraints`
+        # (`ModelConstraints.__init__`) are guarded implications keyed by `sel[t]`,
+        # and leaving every `sel[t]` free lets the fresh rebuild's solver pick any
+        # position satisfying `target_constraints`'s exactly-one requirement -- not
+        # necessarily the same position the search's own model selected. Pinning it
+        # removes that remaining, otherwise-unconstrained degree of freedom.
+        for t in registry.target_window():
+            var = semantics.constraint_generator.sel(t)
+            value = z3_model.eval(var, model_completion=True)
+            pinned = var if is_true(value) else z3.Not(var)
+            temp_solver.add(pinned)
+            semantics.frame_constraints.append(pinned)
 
     def _check_model_isomorphism(self, new_structure, new_model):
         """Real orbit-key detector: reports `(True, previous_model)` when
@@ -210,13 +353,120 @@ class BimodalModelIterator(BaseModelIterator):
         ]
         return z3.And(*clauses) if clauses else z3.BoolVal(True)
 
+    def _orbit_variables(self):
+        """Every variable `_create_non_isomorphic_constraint`'s orbit clause may range
+        over: every label bit and box guess (`_certificate_variables()`'s own set) plus
+        the one-hot target-selector Booleans
+        (`WitnessConstraintGenerator._sel`). Deliberately a *different* method from
+        `_certificate_variables()`, not an extension of it in place: `_create_
+        difference_constraint`'s variable set stays exactly `_bits` + `_guesses` (Non-
+        Goal 1) -- only the orbit clause needs the selector, since C4 (what the
+        selector encodes) is exactly what a lasso-`0` rotation moves (see
+        `semantic/symmetry.py`'s `selector_action`)."""
+        semantics = self.build_example.model_constraints.semantics
+        registry = semantics.witness_registry
+        generator = semantics.constraint_generator
+        return (
+            list(registry._bits.values())
+            + list(registry._guesses.values())
+            + list(generator._sel.values())
+        )
+
+    def _orbit_blocking_clause(self, isomorphic_model):
+        """The orbit-exclusion clause for `isomorphic_model`: one disjunctive conjunct
+        per element of `isomorphic_model`'s certificate's rotation/permutation orbit
+        (`semantic/symmetry.py`) that survives a `certificate.recheck` gate (decision
+        D-C) -- dropping any element whose transform is not itself a valid certificate
+        (D-A: rotation is not generally condition-preserving).
+
+        `isomorphic_model`'s certificate is decoded once (`extract_certificate`), not
+        once per group element. For each retained element `g`, the conjunct is built
+        over `_orbit_variables()`'s three families -- `_bits` (moved by
+        `symmetry.slot_action`), `_guesses` (never moved -- box guesses are global to
+        the family, not per-lasso/per-position), and `_sel` (moved by
+        `symmetry.selector_action`) -- each disjunct reading `isomorphic_model`'s value
+        at a variable's *preimage* under `g` and asserting the variable itself differs
+        from that value. This is what actually excludes `g`'s image of the model, not
+        merely `g`'s representative.
+        """
+        semantics = self.build_example.model_constraints.semantics
+        registry = semantics.witness_registry
+        generator = semantics.constraint_generator
+        family, target_time = semantics.extract_certificate(isomorphic_model)
+        lasso_count = len(family.lassos)
+
+        conjuncts = []
+        for element in symmetry.enumerate_group(registry.nb, registry.nf, lasso_count):
+            transformed_family, transformed_target_time = symmetry.apply(element, family, target_time)
+            verdict = certificate.recheck(
+                transformed_family,
+                semantics._premise_formulas,
+                semantics._conclusion_formulas,
+                transformed_target_time,
+            )
+            if verdict.get("status") != "countermodel":
+                continue
+
+            disjuncts = []
+            for old_key, new_key in symmetry.slot_action(registry, element).items():
+                old_var = registry._bits[old_key]
+                new_var = registry._bits[new_key]
+                value = is_true(isomorphic_model.eval(old_var, model_completion=True))
+                disjuncts.append(new_var != z3.BoolVal(value))
+            for var in registry._guesses.values():
+                value = is_true(isomorphic_model.eval(var, model_completion=True))
+                disjuncts.append(var != z3.BoolVal(value))
+            for old_t, new_t in symmetry.selector_action(registry, element).items():
+                old_var = generator.sel(old_t)
+                new_var = generator.sel(new_t)
+                value = is_true(isomorphic_model.eval(old_var, model_completion=True))
+                disjuncts.append(new_var != z3.BoolVal(value))
+
+            if disjuncts:
+                conjuncts.append(z3.Or(*disjuncts))
+
+        if not conjuncts:
+            return z3.BoolVal(True)
+        if len(conjuncts) == 1:
+            return conjuncts[0]
+        return z3.And(*conjuncts)
+
     def _create_non_isomorphic_constraint(self, isomorphic_model):
-        """Blocking clause requiring difference from `isomorphic_model`, in at least one
-        label bit or box guess. See the module docstring's "Isomorphism rejection is
-        simplified" section: this rejects the exact model, not its whole rotation/
-        permutation orbit."""
-        clause = self._blocking_clause(isomorphic_model)
-        return clause if clause is not None else z3.BoolVal(True)
+        """Blocking clause requiring difference from every recheck-valid element of
+        `isomorphic_model`'s rotation/permutation orbit (`_orbit_blocking_clause`), not
+        just `isomorphic_model` itself. See `semantic/symmetry.py`'s module docstring
+        for the group this excludes and D-A/D-B/D-C for why exclusion recheck-gates
+        each element. `_create_difference_constraint` above is deliberately unchanged
+        (Non-Goal 1): it keeps ranging over `_certificate_variables()` only.
+
+        **Direct-assert workaround for a discovered bug in the shared engine.**
+        `BaseModelIterator._build_stronger_constraint` (`iterate/core.py`) composes this
+        method's return value into a *local* `extended_constraints` list, but the live
+        loop's `continue` -- taken immediately after an isomorphic hit -- returns to the
+        top of the search `while` loop, which recomputes `extended_constraints` from
+        `_build_exclusion_constraints` alone and never revisits the list the composed
+        constraint was appended to. The orbit-blocking clause this method returns is
+        therefore silently discarded before it ever reaches
+        `ConstraintGenerator.check_satisfiability`, and the search re-finds the exact
+        same isomorphic model forever (confirmed empirically: with the Phase 3 detector
+        live and this bug unworked-around, `TestLiveIteration` regresses to `0`
+        genuinely-new models found, `isomorphic_model_count` never advancing past the
+        same repeated match). This is a bug in `iterate/core.py`, out of this task's
+        file scope (`theory_lib/bimodal/` only, plus one sentence in
+        `iterate/README.md` -- see the plan's Risk table). Rather than edit the shared
+        engine, this method also asserts its own clause directly onto the persistent
+        solver (`self.constraint_generator.solver` -- `iterate/constraints.py`'s
+        `ConstraintGenerator`, not to be confused with `semantics.constraint_generator`,
+        this theory's own `WitnessConstraintGenerator`) as a side effect, so the
+        exclusion takes effect on the *next* `check_satisfiability` call regardless of
+        whether the caller's bookkeeping honors the return value. The return value
+        itself is unchanged in meaning, kept for interface parity and direct
+        programmatic use (e.g. the existing `TestNonIsomorphicOrbitExclusion` suite,
+        which calls this method directly without going through the live loop at all).
+        """
+        clause = self._orbit_blocking_clause(isomorphic_model)
+        self.constraint_generator.solver.add(clause)
+        return clause
 
     def _create_stronger_constraint(self, isomorphic_model):
         """Create constraint for finding stronger models. Not specialized for the

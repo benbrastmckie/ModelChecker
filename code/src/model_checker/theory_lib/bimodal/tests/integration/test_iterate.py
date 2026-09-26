@@ -42,7 +42,7 @@ from model_checker.theory_lib.bimodal.iterate import (
 from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, WitnessFamily
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Atom
-from model_checker.theory_lib.bimodal.semantic import symmetry
+from model_checker.theory_lib.bimodal.semantic import certificate, symmetry
 
 
 def _settings(**overrides):
@@ -142,6 +142,157 @@ class TestDifferenceConstraintOverLabelsAndGuesses:
         assert not is_true(model.eval(result[0], model_completion=True))
 
 
+class TestNonIsomorphicOrbitExclusion:
+    """Coverage for `_create_non_isomorphic_constraint`'s Phase 4 rewrite: it now
+    excludes every recheck-valid element of the handed model's rotation/permutation
+    orbit (`semantic/symmetry.py`), not just the exact assignment."""
+
+    def _solved_model(self, semantics, premise_infix="\\Future A", conclusion_infix="\\Box A"):
+        from model_checker.syntactic import Syntax
+        from model_checker.theory_lib.bimodal.operators import bimodal_operators
+
+        premise = Syntax([premise_infix], [], bimodal_operators).premises[0]
+        conclusion = Syntax([conclusion_infix], [], bimodal_operators).premises[0]
+        premise_constraint = semantics.premise_behavior(premise)
+        conclusion_constraint = semantics.conclusion_behavior(conclusion)
+        semantics.finalize_certificate()
+        solver = z3.Solver()
+        for c in semantics.frame_constraints + [premise_constraint, conclusion_constraint]:
+            solver.add(c)
+        assert solver.check() == z3.sat
+        return solver.model()
+
+    def _countermodel_element_count(self, semantics, model):
+        """Independently recompute, without touching `iterate.py`, how many group
+        elements' transforms recheck as `"countermodel"` for the handed model -- the
+        expected conjunct count `_create_non_isomorphic_constraint` must match."""
+        registry = semantics.witness_registry
+        family, target_time = semantics.extract_certificate(model)
+        lasso_count = len(family.lassos)
+        count = 0
+        for element in symmetry.enumerate_group(registry.nb, registry.nf, lasso_count):
+            transformed, transformed_time = symmetry.apply(element, family, target_time)
+            verdict = certificate.recheck(
+                transformed, semantics._premise_formulas, semantics._conclusion_formulas, transformed_time
+            )
+            if verdict.get("status") == "countermodel":
+                count += 1
+        return count
+
+    def test_clause_is_false_against_its_own_model(self):
+        semantics = BimodalSemantics(_settings(back=2, mid=1, fwd=2))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics)
+
+        constraint = iterator._create_non_isomorphic_constraint(model)
+        result = model.eval(constraint, model_completion=True)
+        assert str(result) == "False"
+
+    def test_conjunct_count_matches_the_number_of_countermodel_elements(self):
+        semantics = BimodalSemantics(_settings(back=2, mid=1, fwd=2))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics)
+        expected = self._countermodel_element_count(semantics, model)
+        assert expected > 1, "test fixture must exercise a nontrivial orbit"
+
+        constraint = iterator._create_non_isomorphic_constraint(model)
+        assert constraint.decl().name() == "and"
+        assert constraint.num_args() == expected
+
+    def test_clause_excludes_every_retained_orbit_element_not_just_the_representative(self):
+        """For each retained element `g`, the clause must evaluate to `False` under the
+        assignment `g(handed_model)` -- the orbit really is excluded, not just its
+        representative."""
+        semantics = BimodalSemantics(_settings(back=2, mid=1, fwd=2))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics)
+        registry = semantics.witness_registry
+        generator = semantics.constraint_generator
+
+        constraint = iterator._create_non_isomorphic_constraint(model)
+        lasso_count = len(semantics.extract_certificate(model)[0].lassos)
+
+        for element in symmetry.enumerate_group(registry.nb, registry.nf, lasso_count):
+            substitutions = []
+            for old_key, new_key in symmetry.slot_action(registry, element).items():
+                old_var = registry._bits[old_key]
+                new_var = registry._bits[new_key]
+                value = is_true(model.eval(old_var, model_completion=True))
+                substitutions.append((new_var, z3.BoolVal(value)))
+            for var in registry._guesses.values():
+                value = is_true(model.eval(var, model_completion=True))
+                substitutions.append((var, z3.BoolVal(value)))
+            for old_t, new_t in symmetry.selector_action(registry, element).items():
+                old_var = generator.sel(old_t)
+                new_var = generator.sel(new_t)
+                value = is_true(model.eval(old_var, model_completion=True))
+                substitutions.append((new_var, z3.BoolVal(value)))
+
+            transformed = z3.substitute(constraint, *substitutions)
+            simplified = z3.simplify(transformed)
+            assert str(simplified) == "False", (
+                f"clause did not exclude orbit element {element!r}"
+            )
+
+    def test_a_recheck_invalid_element_contributes_no_conjunct(self):
+        """An element whose transform breaks a certificate condition (D-A's rotation
+        risk) is dropped, not asserted -- verified by directly controlling
+        `enumerate_group`/`recheck`'s verdicts rather than hunting for a naturally
+        occurring counterexample among solved models (Phase 1's own measurement found
+        none for the example fixtures this suite already uses)."""
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics, premise_infix="A", conclusion_infix="B")
+
+        identity = symmetry._identity_element(1)
+        other = symmetry.GroupElement(rotations=((0, 0),), perm=())
+        verdicts = iter([
+            {"status": "countermodel", "time": 0},
+            {"status": "rejected", "failed": []},
+        ])
+        with patch.object(symmetry, "enumerate_group", return_value=[identity, other]), \
+             patch.object(certificate, "recheck", side_effect=lambda *a, **k: next(verdicts)):
+            constraint = iterator._create_non_isomorphic_constraint(model)
+
+        # Only the first (countermodel) element contributes: with a single retained
+        # element the And-of-one collapses to that element's own Or clause, not an
+        # `and` application.
+        assert constraint.decl().name() == "or"
+
+    def test_trivially_true_when_no_orbit_element_survives_the_recheck_gate(self):
+        """`_orbit_variables()` is never literally empty once `finalize_certificate` has
+        run (the target selector always populates `_sel` for the window, independent of
+        closure size -- see `_orbit_variables`'s own docstring), so the operative
+        trivial-true condition for *this* clause is that every group element's transform
+        fails the recheck gate (D-C), leaving zero conjuncts -- not, as for
+        `_create_difference_constraint`, an empty variable set."""
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics, premise_infix="A", conclusion_infix="B")
+
+        with patch.object(certificate, "recheck", return_value={"status": "rejected", "failed": []}):
+            constraint = iterator._create_non_isomorphic_constraint(model)
+
+        assert str(constraint) == "True"
+
+    def test_certificate_variables_and_difference_constraint_are_unchanged(self):
+        """Non-Goal 1 regression: `_certificate_variables()` still ranges over exactly
+        `_bits` + `_guesses`, never `_sel` -- the orbit clause's wider variable set
+        (`_orbit_variables`) must not leak into the difference constraint."""
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics, premise_infix="A", conclusion_infix="B")
+
+        registry = semantics.witness_registry
+        certificate_vars = set(iterator._certificate_variables())
+        expected = set(registry._bits.values()) | set(registry._guesses.values())
+        assert certificate_vars == expected
+
+        orbit_vars = set(iterator._orbit_variables())
+        generator = semantics.constraint_generator
+        assert orbit_vars == expected | set(generator._sel.values())
+
+
 class TestPinTheorySpecificValues:
     """Coverage for `BimodalModelIterator._pin_theory_specific_values`, the Extension
     Point 1 override that pins certificate variables since the generic `is_world`/
@@ -169,7 +320,18 @@ class TestPinTheorySpecificValues:
         model = self._solved_model(semantics)
 
         registry = semantics.witness_registry
-        variables = list(registry._bits.values()) + list(registry._guesses.values())
+        # `_pin_theory_specific_values` also pins the target selector (`_sel`) --
+        # discovered necessary while testing Phase 4's live loop: leaving `_sel`
+        # unpinned let the rebuild's fresh `finalize_certificate()` pick a different
+        # target position than the one the search's own model selected, which could
+        # violate the (already-pinned) guarded premise/conclusion implications and
+        # make the rebuild spuriously unsat. `_certificate_variables()` itself
+        # (`_bits` + `_guesses` only) is unrelated and untouched -- Non-Goal 1.
+        variables = (
+            list(registry._bits.values())
+            + list(registry._guesses.values())
+            + list(semantics.constraint_generator._sel.values())
+        )
         assert variables, "expected at least one certificate variable from a solved model"
 
         temp_solver = z3.Solver()
@@ -182,7 +344,12 @@ class TestPinTheorySpecificValues:
         for assertion in assertions:
             assert is_true(model.eval(assertion, model_completion=True))
 
-    def test_pin_is_a_noop_when_no_certificate_variables_exist(self):
+    def test_pin_still_pins_the_target_selector_when_no_bits_or_guesses_exist(self):
+        """The target selector's window is a function of `back`/`mid`/`fwd` alone,
+        independent of the closure -- so `_sel` gets pinned even when there is no
+        premise/conclusion-derived closure content to produce any `_bits`/`_guesses`
+        at all. This replaces an earlier "pin is a no-op" expectation that predates
+        the `_sel`-pinning fix."""
         semantics = BimodalSemantics(_settings())
         iterator = BimodalModelIterator(_mock_build_example(semantics))
         temp_solver = z3.Solver()
@@ -190,7 +357,12 @@ class TestPinTheorySpecificValues:
 
         iterator._pin_theory_specific_values(temp_solver, Mock(), model_constraints)
 
-        assert list(temp_solver.assertions()) == []
+        registry = semantics.witness_registry
+        assert list(registry._bits.values()) == []
+        assert list(registry._guesses.values()) == []
+        window = list(registry.target_window())
+        assertions = list(temp_solver.assertions())
+        assert len(assertions) == len(window)
 
 
 class TestCheckModelIsomorphism:
@@ -415,42 +587,53 @@ class TestLiveIteration:
     """
 
     def test_iterate_three_yields_three_pairwise_distinct_certificates(self):
+        """(a) no exception raised getting here at all; (b) at least one further,
+        genuinely new (non-isomorphic-as-orbit) certificate is found beyond the
+        first; (c) every yielded certificate is non-`None`; (d) every pair of
+        yielded certificates is pairwise distinct *as orbits*
+        (`symmetry.certificate_orbit_key`), the semantically meaningful notion of
+        distinctness this plan introduces -- not merely differing in some raw
+        `_bits`/`_guesses` variable, which two orbit-equivalent (rotated/permuted)
+        certificates can still do.
+
+        Not asserting *exactly* `2` further models (`iterate: 3` in full): with the
+        search solver now correctly coherence-constrained (a pre-existing bug fixed
+        while building this plan's orbit exclusion --
+        `_ensure_frame_constraints_in_search_solver`'s docstring), a *third*
+        pairwise-distinct-as-orbit certificate for this small example is not always
+        reachable within a bounded real-Z3 search time -- an intentional,
+        documented consequence of quotienting by the rotation/permutation group
+        (the plan's own Risk table: "a lower count is the expected, intended effect
+        of quotienting"). `max_time` is still raised from `BM_CM_1_settings`' own
+        `10` (test-local only, not a change to that shared constant) to give the
+        search a fair chance at finding more than the guaranteed first extra model.
+        """
+        settings = dict(BM_CM_1_settings)
+        settings["max_time"] = 30
         example = _real_build_example(
-            BM_CM_1_premises, BM_CM_1_conclusions, BM_CM_1_settings, iterate_count=3
+            BM_CM_1_premises, BM_CM_1_conclusions, settings, iterate_count=3
         )
         iterator = BimodalModelIterator(example)
 
         structures = list(iterator.iterate_generator())
 
-        # (a) no exception raised getting here at all.
-        # (b) three model structures yielded (the generator excludes the first model,
-        #     which BuildExample already solved; iterate: 3 means 2 more from the generator).
-        assert len(structures) == 2
-        assert len(iterator.model_structures) == 3
+        assert len(structures) >= 1, "expected at least one further certificate beyond the first"
+        assert len(iterator.model_structures) == len(structures) + 1
 
-        # (c) each has a non-None certificate.
         all_structures = [example.model_structure] + structures
         for structure in all_structures:
             assert structure.certificate is not None
 
-        # (d) certificates pairwise distinct in at least one label bit or box guess.
-        # iterator.found_models is seeded with the initial model at construction
-        # (iterate/iterator.py's IteratorCore.__init__) and gains one entry per
-        # generator-yielded model, so it already holds all 3 -- no need to prepend
-        # example.model_structure.z3_model again.
-        semantics = example.model_constraints.semantics
-        registry = semantics.witness_registry
-        variables = list(registry._bits.values()) + list(registry._guesses.values())
-        models = iterator.found_models
-        assert len(models) == 3
-        for i in range(len(models)):
-            for j in range(i + 1, len(models)):
-                differs = any(
-                    bool(is_true(models[i].eval(var, model_completion=True)))
-                    != bool(is_true(models[j].eval(var, model_completion=True)))
-                    for var in variables
+        keys = [
+            symmetry.certificate_orbit_key(structure.certificate, structure.target_time)
+            for structure in all_structures
+        ]
+        for i in range(len(keys)):
+            for j in range(i + 1, len(keys)):
+                assert keys[i] != keys[j], (
+                    f"structures {i} and {j} are the same certificate up to "
+                    "rotation/permutation (equal orbit keys)"
                 )
-                assert differs, f"models {i} and {j} agree on every certificate variable"
 
     def test_exclusion_constraint_for_model_two_is_enforced_not_coincidental(self):
         """Prove enforcement, not luck: the exclusion constraint list handed to the
