@@ -616,6 +616,26 @@ writing — see the task's implementation summary for the observed verdicts and 
 `test_certificate_lean_agreement.py` remains the fixture corpus's own leg (i)/(ii) coverage; see
 that module's docstring.
 
+**The one-hot selector is conservative.** Decision D5 makes the target position a one-hot
+selector `sel[t]` rather than a fixed origin — structure the A2-triangle test above does not
+itself probe, since (C1)–(C4) as stated say nothing about `sel`. The selector is conservative
+because it is a *lossless Skolemization* of (C4) `Target`'s existential target time: (C4) asks
+only that *some* position satisfy the premise/conclusion condition, and `sel`'s domain,
+`WitnessRegistry.target_window()`, supplies exactly one representative position per position
+slot (`[-nb, nm+nf)`, now shared by construction with box faithfulness's proved
+`mem_all_iff_window` window — see §5.2). Because `LabelledLasso.label` is exactly periodic,
+every position outside the window shares its slot's label with the in-window representative, so
+restricting `sel`'s domain to the window can discard only *duplicate* representations of an
+in-window target time — never a target time the window omits, and never a satisfying position
+the wide space of all integers would have found but the window does not. Consequently, "the Z3
+constraint set is exactly the conjunction of (C1)–(C4)" is not weakened by the selector's
+presence: `target_constraints` is satisfiable with some `sel[t]` true exactly when a certificate
+satisfying (C1)–(C4) exists with target time `t`. `TestSelectorConservativity`
+(`tests/unit/test_witness_constraints.py`) pins this directly — with only `target_constraints`
+asserted (no (C1)–(C3)), a hand-built family's satisfying `sel[t]` positions agree, one for one,
+with `certificate._target_holds` — and a companion, solver-free test pins the periodicity
+corollary the argument above depends on.
+
 ### 7.4 The never-report-validity rule
 
 The search must never report that a formula or inference is **valid**, on two independent

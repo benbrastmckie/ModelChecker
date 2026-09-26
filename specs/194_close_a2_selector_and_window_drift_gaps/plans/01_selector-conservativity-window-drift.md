@@ -309,14 +309,14 @@ A2-triangle disagreement cannot be wrongly attributed to the selector mechanism.
 
 ---
 
-### Phase 4: Record the conservativity argument and the shared window [NOT STARTED]
+### Phase 4: Record the conservativity argument and the shared window [COMPLETED]
 
 **Goal**: Move F1 from tribal knowledge into the documents that A2 is argued in, and retire the
 now-inaccurate "two gaps remain" prose.
 
 **Tasks**:
-- [ ] Re-read each target file immediately before editing.
-- [ ] `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` §7.3: add a short paragraph
+- [x] Re-read each target file immediately before editing.
+- [x] `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` §7.3: add a short paragraph
       (after the A2-triangle test block, before §7.4) stating that the one-hot selector `sel[t]` is
       a *lossless Skolemization* of (C4)'s existential target time — conservative because
       `target_window()` supplies exactly one representative position per slot and
@@ -325,27 +325,28 @@ now-inaccurate "two gaps remain" prose.
       and therefore that "exactly the conjunction of (C1)-(C4)" is not weakened by the selector's
       presence. Name the deciding unit test for this claim (`TestSelectorConservativity` in
       `tests/unit/test_witness_constraints.py`) the way §7.3 already names the A2-triangle test.
-- [ ] `docs/TRUST_PIPELINE.md`, Stage-2 "What is nonetheless known about the encoder" paragraph:
+- [x] `docs/TRUST_PIPELINE.md`, Stage-2 "What is nonetheless known about the encoder" paragraph:
       change "Three of the four window bounds are shared by import" to all four, and replace the
       "Two gaps remain" sentence with the closed state — the window is now shared by construction,
       and the selector's conservativity is argued in ADEQUACY.md §7.3 and pinned by
       `TestSelectorConservativity`.
-- [ ] `docs/TRUST_PIPELINE.md`, "What remains" -> "In this repository" table: remove or rewrite the
+- [x] `docs/TRUST_PIPELINE.md`, "What remains" -> "In this repository" table: remove or rewrite the
       row "**Selector conservativity, and the last unshared window**" to reflect that both halves
       are discharged (keep the separate "Widen the A2 grid to `nb = nf = 2`" row untouched — that is
-      an explicit non-goal here).
-- [ ] `semantic/witness_constraints.py`: extend `sel`'s and `target_constraints`' docstrings with a
+      an explicit non-goal here). Removed the row (both halves discharged, nothing left to track).
+- [x] `semantic/witness_constraints.py`: extend `sel`'s and `target_constraints`' docstrings with a
       reference to the conservativity argument, mirroring how the module docstring already carries
       the corresponding reasoning for local coherence's wide window.
-- [ ] `semantic/witness_constraints.py` module docstring, the sentence describing
+- [x] `semantic/witness_constraints.py` module docstring, the sentence describing
       `registry.target_window()`: note it is now the shared `_box_window` definition.
-- [ ] Verify no task-number references were introduced into any file outside `specs/**` (per
+- [x] Verify no task-number references were introduced into any file outside `specs/**` (per
       `.claude/rules/no-task-references-in-deliverables.md`): cite ADEQUACY.md section numbers,
       test class names, and file names as anchors, never "task 194". Pre-existing phrasings in
-      these files are left as they are.
-- [ ] Diff read-through confirming every changed hunk lies inside markdown prose or a docstring —
-      zero code or signature changes in this phase.
-- [ ] Commit (`task 194 phase 4.1: record selector conservativity and the shared window`).
+      these files are left as they are. Confirmed via grep: no "task 194" occurrence introduced.
+- [x] Diff read-through confirming every changed hunk lies inside markdown prose or a docstring —
+      zero code or signature changes in this phase. Confirmed (`git diff --stat` on the three
+      touched files; every hunk is prose/docstring).
+- [x] Commit (`task 194 phase 4.1: record selector conservativity and the shared window`).
 
 **Timing**: 1 hour
 

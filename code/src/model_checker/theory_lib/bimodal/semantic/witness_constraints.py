@@ -24,7 +24,8 @@ certificate conditions:
 ## Why one representative position per slot is NOT enough (corrected)
 
 An earlier version of this module asserted local coherence only over
-`registry.target_window()` (one representative position per slot, `[-nb, nm+nf)`), reasoning that
+`registry.target_window()` (one representative position per slot, `[-nb, nm+nf)` -- now the
+shared `certificate._box_window` definition, see `witness_registry.py`), reasoning that
 `WitnessRegistry.bit(lasso, t, formula)`'s slot-sharing (`wrap`, `witness_registry.py`) makes
 `bit(lasso, t, f)` and `bit(lasso, t', f)` the *identical* Z3 term whenever `t` and `t'` share a
 slot, so a clause written using one representative `t` would "automatically" hold for every other
@@ -135,7 +136,8 @@ class WitnessConstraintGenerator:
     # -----------------------------------------------------------------
 
     def sel(self, t: int) -> "z3.BoolRef":
-        """The one-hot target-position selector for position `t` on the main lasso, memoized."""
+        """The one-hot target-position selector for position `t` on the main lasso, memoized.
+        Conservative: see `target_constraints`'s docstring and `docs/ADEQUACY.md` section 7.3."""
         cached = self._sel.get(t)
         if cached is not None:
             return cached
@@ -148,7 +150,16 @@ class WitnessConstraintGenerator:
     ) -> List["z3.BoolRef"]:
         """(C4): exactly-one over `sel` across the main lasso's position window, plus the guarded
         premise/conclusion implications of decision D5 -- `sel[t] -> premise in label(t)` and
-        `sel[t] -> conclusion not in label(t)`, for every `t` in the window."""
+        `sel[t] -> conclusion not in label(t)`, for every `t` in the window.
+
+        The selector is structure (C1)-(C4) do not themselves contain, but it is conservative: it
+        is a lossless Skolemization of (C4) `Target`'s existential target time, since the window
+        (`registry.target_window()`, the shared `_box_window`) supplies exactly one
+        representative position per slot and `LabelledLasso.label` is exactly periodic, so
+        restricting `sel`'s domain to the window can discard only duplicate representations of an
+        in-window target time, never a satisfying one. See `docs/ADEQUACY.md` section 7.3 for the
+        full argument and `TestSelectorConservativity`
+        (`tests/unit/test_witness_constraints.py`) for the pinning test."""
         window = list(self.registry.target_window())
         sels = [self.sel(t) for t in window]
         constraints: List["z3.BoolRef"] = [z3.Or(*sels), z3.AtMost(*sels, 1)]

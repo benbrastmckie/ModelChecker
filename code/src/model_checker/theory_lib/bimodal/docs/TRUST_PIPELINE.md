@@ -100,14 +100,16 @@ So encoder defects cost **completeness** or raise an **error**. They cannot manu
 "here is a countermodel". This is why encoding completeness (**A2**) belongs to the (ADEQ)
 direction and never to (SOUND).
 
-**What is nonetheless known about the encoder.** Three of the four window bounds are *shared by
-import* — `witness_constraints.py` takes `_coherence_window`, `_box_window`,
-`_scan_forward_bound` and `_scan_backward_bound` directly from `certificate.py`, so the encoder
-and re-checker cannot drift on them. That is structurally stronger than a proof of agreement,
-because there is no second definition to diverge. Two gaps remain: `WitnessRegistry.target_window()`
-is independently defined (deliberately — it also serves the one-hot selector), and the one-hot
-`sel` selector is structure absent from (C1)–(C4) entirely, so "exactly (C1)–(C4)" does not cover
-it and it needs its own conservativity argument.
+**What is nonetheless known about the encoder.** All four window bounds are *shared by import* —
+`witness_constraints.py` takes `_coherence_window`, `_box_window`, `_scan_forward_bound` and
+`_scan_backward_bound` directly from `certificate.py`, and `WitnessRegistry.target_window()` now
+delegates to `_box_window` too, so the encoder and re-checker cannot drift on any of them. That is
+structurally stronger than a proof of agreement, because there is no second definition to
+diverge. The one remaining piece of encoder structure absent from (C1)–(C4) entirely is the
+one-hot `sel` selector, so "exactly (C1)–(C4)" needed its own conservativity argument to cover
+it — that argument is now made in `docs/ADEQUACY.md` section 7.3 (the selector is a lossless
+Skolemization of (C4)'s existential target time) and pinned by `TestSelectorConservativity`
+(`tests/unit/test_witness_constraints.py`).
 
 **A defect of exactly this class has occurred.** `witness_constraints.py`'s module docstring
 records that local coherence was once generated over the narrow `target_window()` instead of the
@@ -245,7 +247,6 @@ exactly the bug that once happened.
 |------|----------------|
 | **Discharge S4** — verify the translation, or relocate the elimination into verified code | The weakest link in the direction already asserted. The box half has no coverage at all. Relocating deletes the obligation rather than testing it. |
 | **Widen the A2 grid to `nb = nf = 2`** | The regime the one known A2 violation lived in. Highest value per hour on the (ADEQ) side. Measure the candidate count first: the single-box closure already reaches 1,572,864 candidates at `nb = nf = 1`. |
-| **Selector conservativity, and the last unshared window** | The one-hot `sel` selector is outside (C1)–(C4), so an incompleteness could be misattributed to the encoder when the selector is the real over-constraint. `target_window()` is the last place encoder and re-checker can silently diverge. |
 | **Consume a proof-producing checker; verify the parse** | Turns a `countermodel` verdict into a constructed entailment, and removes the Python re-checker from the trust base. Compare an echo of what Lean parsed against the bytes sent. |
 | **Compute bounds from the closure (A3)** | Once `f` exists, set lengths from `|C|` and report "exhaustive at this closure" versus "bounded" honestly. Blocked until the Lean side supplies `f`. |
 | **The stability modal** | See below. Blocked on four Lean-side results. |
