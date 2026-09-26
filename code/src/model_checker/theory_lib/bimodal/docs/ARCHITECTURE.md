@@ -40,6 +40,7 @@ bimodal/
 │   ├── certificate.py        # LabelledLasso/WitnessFamily, JSON writer, pure-Python re-checker
 │   ├── witness_registry.py   # The Z3 variable layer (label bits, box guesses, lasso allocation)
 │   ├── witness_constraints.py # Quantifier-free constraint generators for (C1)-(C4)
+│   ├── symmetry.py            # Rotation/permutation group, its actions, orbit-invariant key
 │   ├── core.py                # BimodalSemantics: settings, variable layer, two-phase emission
 │   ├── model.py                # BimodalStructure: extraction, re-check, printing
 │   └── proposition.py          # BimodalProposition: label-membership truth lookups
@@ -234,21 +235,21 @@ three of the shared iterate framework's theory-specific extension points on `Bas
    `iterate/models.py`'s `build_new_model_structure` performs (world states, `verify`/`falsify`)
    cannot reach this theory's model content at all — D3/D4 deliberately have no state-existence
    predicate; the certified carrier is `{0,...,k} x Z`, not a set of enumerated states.
-2. **`_build_exclusion_constraints`** (by way of `_create_difference_constraint`): the actual
-   exclusion constraint the live `iterate: N > 1` loop enforces for this theory — a blocking
+2. **`_build_exclusion_constraints`** (by way of `_create_difference_constraint`): a blocking
    clause requiring difference, in at least one label bit or box guess, from every
-   previously-found model. **Distinctness is exact-bit/guess difference, not
-   rotation/permutation invariance**: a fully symmetry-aware rejection would enumerate the
-   rotation group action on each lasso's periodic segments together with witness-lasso
-   relabelings; this redesign implements the simpler, still-sound (if less complete)
-   exact-bit/guess difference instead. A follow-on task should implement the full
-   rotation/permutation-invariant rejection using `WitnessRegistry.wrap`'s existing slot
-   arithmetic.
-3. **`_check_model_isomorphism`**: always reports "not isomorphic" for this theory. The shared
-   graph-based isomorphism check (`iterate/graph.py`) is built from `z3_world_states`, which the
-   certificate encoding never populates, so two bimodal models would otherwise always produce two
-   empty graphs and be falsely reported isomorphic — confirmed live, not merely a theoretical
-   concern, by a regression test in `iterate/tests/`.
+   previously-found model. Deliberately still exact-bit/guess difference (`_bits` + `_guesses`
+   only, never the target selector) -- the fallback constraint used when the shared framework's
+   generic escape path is composed in, not this theory's primary distinctness mechanism.
+3. **`_check_model_isomorphism`**: opts out of the shared graph-based isomorphism check
+   (`iterate/graph.py`) permanently -- it is built from `z3_world_states`, which the certificate
+   encoding never populates, so two bimodal models would otherwise always produce two empty
+   graphs and be falsely reported isomorphic (confirmed live, not merely a theoretical concern,
+   by a regression test in `iterate/tests/`) -- while performing its own real detection: an
+   orbit-invariant canonical key (`semantic/symmetry.py`'s `certificate_orbit_key`) over the
+   certificate's rotation/permutation symmetry group. When a match is found,
+   `_create_non_isomorphic_constraint` excludes every recheck-valid element of that whole orbit,
+   not just the exact bit pattern that was found -- see "Rotation/permutation-invariant
+   isomorphism rejection" below.
 
 See `ITERATE.md`'s
 [How Model Diversity Is Actually Enforced](ITERATE.md#how-model-diversity-is-actually-enforced)
@@ -288,13 +289,14 @@ terminates over `ℤ` — over a dense order it would not.
   sharing is compatible with the certificate datatype in principle but would require re-proving
   the histories correspondence (Lemma 2) and redesigning box faithfulness around it — deliberately
   not attempted here.
-- **Rotation/permutation-invariant isomorphism rejection** (iteration): the shared iterate
-  framework's three theory-specific extension points now route the live loop through this
-  theory's own `_create_difference_constraint`/`_check_model_isomorphism` overrides (see
-  "Model Iteration" above); what remains as follow-on work is making that rejection
-  symmetry-aware (reject modulo rotation of each lasso's periodic segments and permutation of the
-  witness lassos), not merely exact-bit/guess difference, using `WitnessRegistry.wrap`'s existing
-  slot arithmetic to enumerate rotations.
+- **Rotation/permutation-invariant isomorphism rejection** (iteration): implemented. The shared
+  iterate framework's three theory-specific extension points route the live loop through this
+  theory's own overrides (see "Model Iteration" above), and isomorphism detection/exclusion is
+  rotation/permutation-invariant over `semantic/symmetry.py`'s shared group definition -- rotation
+  of each lasso's periodic `back`/`fwd` segments and permutation of the witness-lasso indices --
+  rather than merely exact-bit/guess difference (which `_create_difference_constraint` still
+  implements, deliberately, as the fallback used when the shared framework's generic escape path
+  is composed in).
 - **A fixed-frame model-checking mode** (checking a given finite digraph directly, rather than
   searching for a certificate) is a distinct, optional feature, out of scope for this design.
 - **The tableau/proof-system bridge**: wiring BimodalLogic's Lean tableau as a differential oracle
@@ -335,6 +337,7 @@ tests/
 │   ├── test_certificate_fixtures.py       # Fixture certificates for round-trip tests
 │   ├── test_witness_registry.py           # The Z3 variable layer
 │   ├── test_witness_constraints.py        # The (C1)-(C4) constraint generators
+│   ├── test_symmetry.py                   # Rotation/permutation group, actions, orbit key
 │   ├── test_semantics_core.py             # BimodalSemantics settings and two-phase emission
 │   ├── test_structure.py                  # BimodalStructure extraction, re-check, printing
 │   ├── test_proposition.py                # BimodalProposition label lookups

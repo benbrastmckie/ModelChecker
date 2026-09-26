@@ -276,8 +276,9 @@ Formulas are evaluated at `(lasso, position)` pairs, not `(world, time)` pairs:
 
 ### Model Interpretation
 - Check `model.certificate.bx_of(formula)` to see a box's guessed value directly.
-- Use iteration to explore alternative label/guess assignments; remember they may be rotations of
-  each other (see [ITERATE.md](ITERATE.md)).
+- Use iteration to explore alternative label/guess assignments; a certificate that is only a
+  rotation of an earlier lasso's `back`/`fwd` segments, or a permutation of its witness lassos,
+  is treated as the same model and will not be reported again (see [ITERATE.md](ITERATE.md)).
 - Pay attention to the distinction between `\Box \Future p` and `\Future \Box p`
   (`MF_MODAL_FUTURE_TH` is the paper's own axiom relating the two).
 

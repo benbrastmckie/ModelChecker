@@ -38,22 +38,39 @@ live `iterate: N > 1` search enforces, not merely an interface-parity stub. See
 
 `_create_non_isomorphic_constraint` remains reachable a second way too: `_build_stronger_constraint`
 (`iterate/core.py`) composes it with the generic `ConstraintGenerator` escape constraint when the
-live loop hits a (graph-)isomorphic model -- moot for this theory in practice, since
-`_check_model_isomorphism` below always reports "not isomorphic", so that composition path is
-never exercised for bimodal specifically, only for the other three theories.
+live loop hits an isomorphic model. `_check_model_isomorphism` below now performs real detection
+(see the next section) rather than the constant "not isomorphic" it used to return, so this
+composition path *is* exercised for bimodal too, not only for the other three theories.
 
-## Isomorphism rejection is simplified to exact difference, not rotation/permutation invariance
+## Isomorphism detection and rejection are rotation/permutation-invariant
 
-The plan's own Phase 15 task asks for `_create_non_isomorphic_constraint` to reject "modulo
-rotation of each lasso's `back`/`fwd` segments and permutation of the witness lassos." A fully
-symmetry-aware rejection would need to enumerate the (finite, but combinatorially real) rotation
-group action on each lasso's periodic segments together with witness-lasso relabelings, and
-assert non-membership in that whole orbit. Given the scope already covered by this phase's
-other, betterspecified obligations, this iteration implements the simpler (and still sound, if
-less complete) exact-bit/guess difference shared with `_create_difference_constraint` --
-sufficient to guarantee the *next* model is not bit-for-bit identical, though it may still be a
-rotation of a previous one. A follow-on task should implement the full symmetry-aware rejection
-using `WitnessRegistry.wrap`'s existing slot arithmetic to enumerate rotations.
+`_check_model_isomorphism` and `_create_non_isomorphic_constraint` both consult
+`semantic/symmetry.py`'s single shared definition of the rotation/permutation group
+`(Z/nb x Z/nf)^L (rtimes) S_{L-1}` acting on a certificate (`L` lassos: the main lasso plus
+`L - 1` witness lassos): each lasso may be independently rotated within its own `back`/`fwd`
+segments, and the witness-lasso indices `1..L-1` may be permuted, holding the main lasso (index
+`0`) fixed. Group size is `(nb * nf)**L * factorial(L - 1)`, capped
+(`symmetry.DEFAULT_GROUP_CAP`) with a documented reduced generating-set fallback once the full
+group would be impractically large to enumerate.
+
+**Detection** (`_check_model_isomorphism`) compares `symmetry.certificate_orbit_key` between the
+new structure's certificate and every previously-found structure's -- a pure-Python, orbit-
+invariant canonical key, no Z3 involved. It is self-validating and needs no re-check of its own:
+every certificate it compares was already independently re-checked (`semantic/model.py`'s S3
+hook) before this method ever sees it, so any matching key witnesses a transform whose image is
+already known valid.
+
+**Exclusion** (`_create_non_isomorphic_constraint`) builds a conjunction, one disjunctive
+conjunct per group element whose transform of the handed model's certificate independently
+re-checks as `"countermodel"` (`certificate.recheck`) -- discarding elements that don't, since
+permutation is provably condition-preserving but a nontrivial rotation is not in general (a
+rotation moves the `back`/`mid` and `mid`/`fwd` boundaries the local-coherence and fulfilment
+biconditionals read across, so it can leave the certificate space; see `symmetry.py`'s own
+docstring for the argument). Each retained conjunct ranges over `_orbit_variables()` --
+`_bits` + `_guesses` (`_certificate_variables()`'s own set, deliberately unchanged: the exact-bit
+`_create_difference_constraint` still ranges over exactly those two, never the selector) plus the
+one-hot target selector `_sel`, since a lasso-`0` rotation moves which position the target
+condition reads.
 """
 
 import sys

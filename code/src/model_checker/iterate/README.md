@@ -303,7 +303,10 @@ model is hit.
 
 The bimodal theory (`theory_lib/bimodal/iterate.py`) overrides all three hooks — see its module
 docstring for a complete worked example, including why its `_check_model_isomorphism` override
-unconditionally opts out of the shared graph representation.
+opts out of the shared graph representation permanently (`ModelGraph` is never constructed for
+this theory) while still performing real isomorphism detection of its own, via an
+orbit-invariant key over the certificate encoding's rotation/permutation symmetry group
+(`theory_lib/bimodal/semantic/symmetry.py`).
 
 2. **Register in Theory's __init__.py**:
 ```python

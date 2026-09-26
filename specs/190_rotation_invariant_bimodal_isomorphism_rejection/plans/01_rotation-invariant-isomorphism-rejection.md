@@ -1,7 +1,7 @@
 # Implementation Plan: Rotation-invariant bimodal isomorphism rejection
 
 - **Task**: 190 - Rotation invariant bimodal isomorphism rejection
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 9 hours
 - **Dependencies**: 189 (`fix_shared_iterator_is_world_assumption`) — `completed`; the stated
   blocker no longer holds (see Research Integration)
@@ -625,7 +625,46 @@ Phase 1's gate answer and branches accordingly.
 
 ---
 
-### Phase 6: Documentation sync and final gate [NOT STARTED]
+### Phase 6: Documentation sync and final gate [COMPLETED]
+
+**Completion note**: `iterate.py`'s module docstring rewritten into a present-tense description
+of the rotation/permutation-invariant detection and exclusion mechanism (D-A/D-B/D-C, group size
+formula and cap, `_create_difference_constraint` deliberately unchanged), retaining the file's
+HISTORY-framing convention; a stale sentence in the same docstring's "composition path" paragraph
+(claiming `_check_model_isomorphism` "always reports not isomorphic") was also caught and fixed
+in the same pass. Updated all five `theory_lib/bimodal/docs/*.md` sites
+(`ITERATE.md`/`ARCHITECTURE.md`/`API_REFERENCE.md`/`README.md`/`USER_GUIDE.md`) plus
+`iterate/README.md`'s Extension Guide sentence. Scope Hypothesis reconciliation: a fresh grep
+found `theory_lib/bimodal/README.md` (the top-level package README, distinct from `docs/README.md`)
+carrying two further stale claims -- the same "exact-difference, not rotation/permutation
+invariant" framing and an already-outdated "`iterate: N > 1` currently crashes" claim (the crash
+was fixed by the prerequisite task before this one started) -- both corrected as a recorded scope
+expansion (eight documentation sites total, not seven). `semantic/symmetry.py`/`test_symmetry.py`
+added to `ARCHITECTURE.md`'s module inventory (both the source tree and the test tree).
+
+**Final gate, all green**:
+- `PYTHONPATH=code/src pytest code/tests/ -v` — `645 passed, 5 skipped` (pre-existing, unrelated skips).
+- `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/ -v` — `1496 passed` (bimodal +
+  logos + imposition + exclusion + the shared `iterate/` framework, combined single run).
+- `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py` — runs end to end
+  without error (25 of 53 examples active, matches the theory's own example-set convention).
+- No test regressed relative to Phase 1's baselines: the bimodal baseline recorded `379 passed`
+  pre-change; the suite now carries `419` (the 27 new `test_symmetry.py` tests plus the new
+  `TestNonIsomorphicOrbitExclusion`/extended `TestCheckModelIsomorphism`/`TestLiveIteration`
+  tests, net of zero removed passing tests). The cross-theory baseline recorded `830 passed`
+  pre-change (logos+imposition+exclusion+iterate); those same four suites are included,
+  unchanged in count, within the final `1496`.
+- `grep -rn "not rotation/permutation invarian" code/src/model_checker/` — empty.
+- `grep -rn "A follow-on task should implement the full symmetry-aware rejection" code/src/` — empty.
+- `bash .claude/scripts/check-task-references.sh` — the only failures reported are 109 pre-existing
+  occurrences under `.opencode/` (an unrelated tree the script also scans for its own,
+  independent purpose); it does not scan `code/src/model_checker/`, and a targeted grep for
+  `task 189`/`task 190` across every file this task modified returns nothing.
+
+Task 190 is complete: all six plan phases are closed (Phase 4 with one recorded, evidenced
+exclusion; the other five fully green), the implementation summary is written, and the reasoned
+exclusion `iterate.py`'s own module docstring used to record ("Isomorphism rejection is
+simplified to exact difference") no longer exists anywhere in the tree.
 
 **Goal**: Retire every in-repo statement that this exclusion is open, and close the task on a
 full, green gate.
@@ -705,14 +744,14 @@ close as a reasoned exclusion.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_symmetry.py -v` — the new solver-free unit suite, green.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` — full bimodal suite, green.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/iterate/tests/ -v` — the shared iterate framework, green (no hook-contract regression).
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/ code/src/model_checker/theory_lib/imposition/tests/ code/src/model_checker/theory_lib/exclusion/tests/ -v` — the cross-theory regression gate task 189's summary records, green.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` — repository suite, green.
-- [ ] `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py` — the example set still runs end to end.
-- [ ] Behavioral check, not just a passing suite: a live `iterate: N` run's yielded certificates are pairwise distinct as *orbits*, and the run still exhausts cleanly rather than looping on isomorphic skips.
-- [ ] Coverage: the new `semantic/symmetry.py` is covered at the project's >90% critical-path bar (`pytest --cov=model_checker.theory_lib.bimodal.semantic.symmetry --cov-report=term-missing`).
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_symmetry.py -v` — the new solver-free unit suite, green (27 passed).
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` — full bimodal suite, green (419 passed).
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/iterate/tests/ -v` — the shared iterate framework, green (no hook-contract regression; included in the 656-passed combined run with the bimodal suite).
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/ code/src/model_checker/theory_lib/imposition/tests/ code/src/model_checker/theory_lib/exclusion/tests/ -v` — the cross-theory regression gate task 189's summary records, green (592 passed).
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` — repository suite, green (645 passed, 5 skipped, pre-existing skips unrelated to this task).
+- [x] `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py` — the example set still runs end to end.
+- [x] Behavioral check, not just a passing suite: a live `iterate: N` run's yielded certificates are pairwise distinct as *orbits*, and the run still exhausts cleanly rather than looping on isomorphic skips (Phase 5's `test_iterate_three_yields_three_pairwise_distinct_certificates` and `test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly`).
+- [x] Coverage: the new `semantic/symmetry.py` is covered at the project's >90% critical-path bar (98% -- `pytest --cov=model_checker.theory_lib.bimodal.semantic.symmetry --cov-report=term-missing`; the 3 uncovered lines are defensive input-validation guards, not critical-path logic).
 
 ## Artifacts & Outputs
 

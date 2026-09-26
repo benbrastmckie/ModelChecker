@@ -587,14 +587,12 @@ for i, model in enumerate(models):
 ```
 
 Successive certificates are required to differ in at least one label bit or box guess (a blocking
-clause built directly against the previous solved model). **`iterate: N > 1` currently raises**
-through the standard CLI/`iterate_example` path — a pre-existing shared-framework gap
-(`model_checker/iterate/models.py` calls `semantics.is_world(...)` with no guard, and bimodal
-defines no `is_world`), reproduced and recorded, not fixed, in
-[docs/ITERATE.md](docs/ITERATE.md#a-live-limitation-iterate-n--1-currently-crashes). Use the
-default `iterate: 1` until that shared code is fixed. See `docs/ITERATE.md` for the full story,
-including the isomorphism-rejection scope this redesign deliberately narrowed (exact-difference
-blocking rather than full rotation/permutation-invariant rejection).
+clause built directly against the previous solved model), and isomorphism detection/exclusion is
+rotation/permutation-invariant over the certificate's own symmetry group -- a certificate that is
+only a rotation of an earlier one's `back`/`fwd` segments, or a permutation of its witness
+lassos, is treated as the same model, not reported again. See `docs/ITERATE.md` for the full
+story, including `_check_model_isomorphism`/`_create_non_isomorphic_constraint`'s three
+shared-iterator extension points and `semantic/symmetry.py`'s group definition.
 
 ## Development Status
 
@@ -621,11 +619,12 @@ See [`tests/README.md`](tests/README.md) for the full running guide.
 - **Discrete time only**: dense/continuous time is out of scope — see `docs/ARCHITECTURE.md`'s
   "Why ℤ-time only" for the structural reason (a finite carrier over a dense order collapses
   every small-duration fibre to a singleton).
-- **`iterate: N > 1` currently crashes** via the standard CLI/`iterate_example` path (a
-  pre-existing shared-framework gap, reproduced and recorded, not fixed); use `iterate: 1` (the
-  default) until it is. Independently, isomorphism rejection during iteration is exact-difference,
-  not rotation/permutation invariant, so even once fixed a repeated run may surface rotations of
-  earlier certificates; see [docs/ITERATE.md](docs/ITERATE.md).
+- **`iterate: N > 1`**: the shared-framework extension points this theory needs (`_pin_theory_
+  specific_values`, `_build_exclusion_constraints`, `_check_model_isomorphism`) are wired in and
+  exercised by a real, non-mocked live test; isomorphism rejection during iteration is
+  rotation/permutation-invariant over the certificate's symmetry group (rotating each lasso's
+  `back`/`fwd` segments, permuting witness-lasso indices), not merely exact-difference; see
+  [docs/ITERATE.md](docs/ITERATE.md).
 - **No fixed-frame model-checking mode**: checking a given finite digraph directly (rather than
   searching for a certificate) is a distinct, currently out-of-scope feature.
 

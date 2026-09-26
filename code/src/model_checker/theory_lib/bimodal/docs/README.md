@@ -67,8 +67,9 @@ Configuration reference with:
 ### ITERATE.md
 Model iteration guide covering:
 - Finding multiple certificates for formulas via label/guess blocking clauses
-- Why isomorphism rejection is exact-difference, not rotation/permutation invariant
-- The live `iterate: N > 1` crash this redesign surfaced (documented, not fixed)
+- Rotation/permutation-invariant isomorphism detection and orbit exclusion
+  (`semantic/symmetry.py`'s shared group definition)
+- The three shared-iterator extension points this theory's live `iterate: N > 1` path relies on
 
 ### ADEQUACY.md
 The soundness correspondence between certificates and the paper's task semantics:

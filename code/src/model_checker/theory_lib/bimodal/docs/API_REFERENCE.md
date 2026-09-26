@@ -358,9 +358,14 @@ Generator version of `iterate_example`, yielding each `BimodalStructure` increme
   differences (not the retired world-array differences)
 - `_create_difference_constraint(previous_models)`: a blocking clause over label bits and box
   guesses
-- `_create_non_isomorphic_constraint(isomorphic_model)`: **interface-parity only** — implemented as
-  the same exact-difference blocking clause, not a rotation/permutation-invariant rejection; see
-  `ITERATE.md`
+- `_create_non_isomorphic_constraint(isomorphic_model)`: excludes every recheck-valid element of
+  `isomorphic_model`'s rotation/permutation orbit (`semantic/symmetry.py`), not just its exact bit
+  pattern — the live loop's actual escape-from-isomorphism constraint when `_check_model_
+  isomorphism` reports a match; see `ITERATE.md`
+- `_check_model_isomorphism(new_structure, new_model)`: opts out of the shared graph-based
+  isomorphism check permanently (`ModelGraph` is never constructed for this theory), but performs
+  its own real detection via `symmetry.certificate_orbit_key`, an orbit-invariant canonical key
+  over the certificate's rotation/permutation symmetry group
 - `display_model_differences(model_structure, output=sys.stdout)`: format label/guess differences
 
 ## Type Definitions

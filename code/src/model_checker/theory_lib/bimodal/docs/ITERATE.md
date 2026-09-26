@@ -25,10 +25,10 @@ encoding's world histories, task relations, and time-shift tables. See
 technical account this guide summarizes.
 
 **Read [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)
-before relying on `iterate: N > 1`.** This redesign narrows iteration's diversity guarantee on
-purpose: distinctness is exact-bit/guess difference, not rotation/permutation invariance (see
-that section, and the ["Repeated (rotated) certificates"](#repeated-rotated-certificates)
-troubleshooting entry).
+before relying on `iterate: N > 1`.** Distinctness is enforced up to the certificate's own
+rotation/permutation symmetry: two certificates that are rotations of each other's `back`/`fwd`
+segments, or permutations of their witness lassos, are treated as the *same* model, not reported
+twice (see that section).
 
 ## Basic Usage
 
@@ -127,27 +127,28 @@ is not merely interface parity or a standalone helper — it is the mechanism th
 `iterate: N > 1` search enforces distinctness with.
 
 The shared framework's other two extension points matter here too:
-`_pin_theory_specific_values` pins every certificate variable (label bit, box guess) of a newly
-found model into the fresh solve that builds its `ModelStructure`, and `_check_model_isomorphism`
-is overridden to always report "not isomorphic" for this theory — the shared graph-based
-isomorphism check is built from `z3_world_states`, which the certificate encoding never
-populates, so two bimodal models would otherwise always produce two empty graphs and be
-(falsely) reported isomorphic. See `iterate.py`'s own module docstring, and
-`model_checker/iterate/README.md`'s Extension Guide, for the full three-hook contract shared
-across all four theories.
+`_pin_theory_specific_values` pins every certificate variable (label bit, box guess, and the
+target selector) of a newly found model into the fresh solve that builds its `ModelStructure`,
+and `_check_model_isomorphism` opts out of the shared graph-based isomorphism check permanently
+(it is built from `z3_world_states`, which the certificate encoding never populates, so two
+bimodal models would otherwise always produce two empty graphs and be falsely reported
+isomorphic) while still performing its own real detection. See `iterate.py`'s own module
+docstring, and `model_checker/iterate/README.md`'s Extension Guide, for the full three-hook
+contract shared across all four theories.
 
-**Distinctness is exact-bit/guess difference, not rotation/permutation invariance.**
-`_create_non_isomorphic_constraint` (used when the shared framework's generic escape path is
-composed in for other theories — moot for bimodal specifically, since `_check_model_isomorphism`
-above never reports an isomorphic hit for this theory to escape from) and
-`_create_difference_constraint` both reject only exact label-bit/box-guess equality. A fully
-symmetry-aware rejection would need to enumerate the rotation group action on each lasso's
-periodic `back`/`fwd` segments together with witness-lasso relabelings; this redesign implements
-the simpler exact-bit/guess difference instead — sufficient to guarantee the *next* certificate is
-not bit-for-bit identical to a previous one, but not sufficient to guarantee it is not a rotation
-of one. A follow-on task should implement the full symmetry-aware rejection using
-`WitnessRegistry.wrap`'s existing slot arithmetic to enumerate rotations — see
-["Repeated (rotated) certificates"](#repeated-rotated-certificates) below.
+**Distinctness is rotation/permutation-invariant, not merely exact-bit/guess difference.**
+`_check_model_isomorphism` compares certificates via `symmetry.certificate_orbit_key`, an
+orbit-invariant canonical key over the certificate's own symmetry group: independent rotation of
+each lasso's `back`/`fwd` segments, and permutation of the witness-lasso indices (holding the
+main lasso fixed). When a live search finds a certificate in the same orbit as one already found,
+`_create_non_isomorphic_constraint` excludes every recheck-valid element of that whole orbit, not
+just the exact bit pattern -- so the search keeps making progress instead of cycling through
+orbit members one bit-flip at a time. `_create_difference_constraint` is deliberately left
+unchanged (it still rejects only exact label-bit/box-guess equality, over `_bits` + `_guesses`
+only): it is the fallback used when the shared framework's generic escape path is composed in,
+not the primary detector. See `semantic/symmetry.py`'s own module docstring for the group
+definition, its size formula and cap, and why permutation is provably condition-preserving while
+rotation is not in general.
 
 ## Performance Tips
 
@@ -185,12 +186,15 @@ logging.getLogger('model_checker.theory_lib.bimodal.iterate').setLevel(logging.D
   once the admitted space is exhausted (a `"solver returned unsat"` debug message), rather than
   hanging or looping forever.
 
-### Repeated (rotated) certificates
+### Fewer models than requested
 
-- Expected under the current exact-difference rejection (see
-  [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)); this is
-  not a bug to work around locally, it is the documented scope of this redesign's iteration
-  support.
+- Expected once orbit-quotienting is taken into account (see
+  [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)): the
+  live loop stops once it has exhausted the rotation/permutation orbits reachable within
+  `max_time`, which is a *smaller* number than the raw bit-pattern count a purely exact-difference
+  search would report. A genuine rotation or witness-permutation of an earlier certificate is no
+  longer reported as a separate model at all — this is the intended effect of the feature, not a
+  bug to work around locally.
 
 ## See Also
 
