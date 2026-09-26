@@ -42,6 +42,7 @@ from model_checker.theory_lib.bimodal.iterate import (
 from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, WitnessFamily
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Atom
+from model_checker.theory_lib.bimodal.semantic import symmetry
 
 
 def _settings(**overrides):
@@ -194,8 +195,10 @@ class TestPinTheorySpecificValues:
 
 class TestCheckModelIsomorphism:
     """Coverage for `BimodalModelIterator._check_model_isomorphism`, the Extension
-    Point 3 opt-out override -- see its docstring for why this theory cannot use the
-    shared `ModelGraph`-based check at all."""
+    Point 3 override: a real orbit-key detector (Phase 3 of the rotation-invariant
+    isomorphism-rejection plan) that remains a complete opt-out of the shared
+    `ModelGraph` path -- see the method's own docstring for why this theory cannot use
+    graph-based checking at all."""
 
     def test_short_circuits_without_constructing_a_model_graph(self):
         semantics = BimodalSemantics(_settings())
@@ -206,6 +209,117 @@ class TestCheckModelIsomorphism:
 
         assert result == (False, None)
         mock_model_graph.assert_not_called()
+
+    def _nontrivial_family_and_target(self):
+        """`back=2, mid=1, fwd=2` (nontrivial group: `(2*2)**1 * 0! = 4` elements)."""
+        atom = Atom("A")
+        main = LabelledLasso(
+            back=(frozenset({atom}), frozenset()),
+            mid=(frozenset(),),
+            fwd=(frozenset({atom}), frozenset()),
+        )
+        return WitnessFamily(bx={}, lassos=(main,)), -1
+
+    def test_a_rotation_of_a_previous_certificate_is_detected(self):
+        semantics = BimodalSemantics(_settings(back=2, mid=1, fwd=2))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        family, target_time = self._nontrivial_family_and_target()
+
+        prev_model = Mock(name="prev_z3_model")
+        prev_structure = SimpleNamespace(certificate=family, target_time=target_time)
+        iterator.model_structures = [prev_structure]
+        iterator.found_models = [prev_model]
+
+        element = symmetry.GroupElement(rotations=((1, 1),), perm=())
+        rotated_family, rotated_time = symmetry.apply(element, family, target_time)
+        new_structure = SimpleNamespace(certificate=rotated_family, target_time=rotated_time)
+
+        result = iterator._check_model_isomorphism(new_structure, Mock())
+        assert result == (True, prev_model)
+
+    def test_a_witness_permuted_duplicate_is_detected(self):
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1, max_witnesses=None))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        atom_p, atom_q = Atom("P"), Atom("Q")
+        main = LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset(),))
+        w1 = LabelledLasso(back=(frozenset({atom_p}),), mid=(), fwd=(frozenset({atom_p}),))
+        w2 = LabelledLasso(back=(frozenset({atom_q}),), mid=(), fwd=(frozenset({atom_q}),))
+        family = WitnessFamily(bx={}, lassos=(main, w1, w2))
+
+        prev_model = Mock(name="prev_z3_model")
+        prev_structure = SimpleNamespace(certificate=family, target_time=0)
+        iterator.model_structures = [prev_structure]
+        iterator.found_models = [prev_model]
+
+        permuted = symmetry.permute_witnesses(family, (2, 1))
+        new_structure = SimpleNamespace(certificate=permuted, target_time=0)
+
+        result = iterator._check_model_isomorphism(new_structure, Mock())
+        assert result == (True, prev_model)
+
+    def test_a_mid_difference_is_not_detected_as_isomorphic(self):
+        semantics = BimodalSemantics(_settings(back=1, mid=1, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        atom = Atom("A")
+        prev_main = LabelledLasso(back=(frozenset(),), mid=(frozenset({atom}),), fwd=(frozenset(),))
+        new_main = LabelledLasso(back=(frozenset(),), mid=(frozenset(),), fwd=(frozenset(),))
+        prev_family = WitnessFamily(bx={}, lassos=(prev_main,))
+        new_family = WitnessFamily(bx={}, lassos=(new_main,))
+
+        prev_model = Mock(name="prev_z3_model")
+        prev_structure = SimpleNamespace(certificate=prev_family, target_time=0)
+        iterator.model_structures = [prev_structure]
+        iterator.found_models = [prev_model]
+        new_structure = SimpleNamespace(certificate=new_family, target_time=0)
+
+        result = iterator._check_model_isomorphism(new_structure, Mock())
+        assert result == (False, None)
+
+    def test_new_structure_with_no_certificate_returns_false_none_without_raising(self):
+        semantics = BimodalSemantics(_settings())
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        family, target_time = self._nontrivial_family_and_target()
+        prev_structure = SimpleNamespace(certificate=family, target_time=target_time)
+        iterator.model_structures = [prev_structure]
+        iterator.found_models = [Mock()]
+
+        new_structure = SimpleNamespace(certificate=None, target_time=None)
+        result = iterator._check_model_isomorphism(new_structure, Mock())
+        assert result == (False, None)
+
+    def test_a_previous_structure_with_no_certificate_is_skipped_not_matched(self):
+        semantics = BimodalSemantics(_settings())
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        family, target_time = self._nontrivial_family_and_target()
+
+        prev_structure = SimpleNamespace(certificate=None, target_time=None)
+        iterator.model_structures = [prev_structure]
+        iterator.found_models = [Mock()]
+        new_structure = SimpleNamespace(certificate=family, target_time=target_time)
+
+        result = iterator._check_model_isomorphism(new_structure, Mock())
+        assert result == (False, None)
+
+    def test_returned_model_is_the_one_at_the_matching_index_zip_pairing_convention(self):
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        atom = Atom("A")
+        distinct_main = LabelledLasso(back=(frozenset({atom}),), mid=(), fwd=(frozenset(),))
+        distinct_family = WitnessFamily(bx={}, lassos=(distinct_main,))
+        matching_main = LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset(),))
+        matching_family = WitnessFamily(bx={}, lassos=(matching_main,))
+
+        model_for_distinct = Mock(name="model_0")
+        model_for_matching = Mock(name="model_1")
+        iterator.model_structures = [
+            SimpleNamespace(certificate=distinct_family, target_time=0),
+            SimpleNamespace(certificate=matching_family, target_time=0),
+        ]
+        iterator.found_models = [model_for_distinct, model_for_matching]
+
+        new_structure = SimpleNamespace(certificate=matching_family, target_time=0)
+        result = iterator._check_model_isomorphism(new_structure, Mock())
+        assert result == (True, model_for_matching)
 
 
 class TestCalculateDifferences:

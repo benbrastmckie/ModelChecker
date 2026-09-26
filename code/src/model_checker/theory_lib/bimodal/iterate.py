@@ -63,6 +63,8 @@ from model_checker import z3_shim as z3
 
 from model_checker.iterate.core import BaseModelIterator
 from model_checker.solver import is_true
+from model_checker.theory_lib.bimodal.semantic import symmetry
+from model_checker.theory_lib.bimodal.semantic.certificate import WitnessFamily
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -118,8 +120,11 @@ class BimodalModelIterator(BaseModelIterator):
                 temp_solver.add(z3.Not(var))
 
     def _check_model_isomorphism(self, new_structure, new_model):
-        """Opt out of the shared graph-isomorphism check entirely: always report "not
-        isomorphic".
+        """Real orbit-key detector: reports `(True, previous_model)` when
+        `new_structure`'s certificate lies in the same rotation/permutation orbit
+        (`semantic/symmetry.py`'s `certificate_orbit_key`) as a previously-found one,
+        `(False, None)` otherwise. Remains a **complete opt-out of the shared
+        `ModelGraph` path** -- this is not a re-adoption of graph-based checking.
 
         The shared `ModelGraph` representation (`iterate/graph.py`) is built from
         `model_structure.z3_world_states`, which this theory's certificate encoding
@@ -128,15 +133,55 @@ class BimodalModelIterator(BaseModelIterator):
         therefore both produce an *empty* graph, and NetworkX reports two empty graphs
         as isomorphic -- a false positive, not "no information": left un-overridden,
         every model after the first would be wrongly declared a duplicate of the
-        first and skipped forever (see `iterate/tests/`'s regression test
-        documenting this exact false positive on two empty-graph `ModelGraph`s).
+        first and skipped forever (see `iterate/tests/`'s regression test documenting
+        this exact false positive on two empty-graph `ModelGraph`s). `ModelGraph` is
+        therefore never constructed for this theory, exactly as before -- what changes
+        here is that "not isomorphic" is no longer the *only* answer this method can
+        give: it is now a real, orbit-key-based comparison, not merely a stub with
+        nothing meaningful to compare.
 
-        Distinctness for this theory is enforced instead by
-        `_create_difference_constraint`'s certificate blocking clause, reached by the
-        live loop via `BaseModelIterator._build_exclusion_constraints`
-        (`iterate/core.py`) since this theory's certificate-redesign Extension Point 2
-        wiring -- not by this hook, which has nothing meaningful to compare.
+        Detection is self-validating and needs no re-check of its own: it only ever
+        compares `new_structure`'s already-independently-rechecked certificate
+        (`semantic/model.py`'s S3 hook) against a previous certificate that was
+        rechecked the same way when it was found -- no unverified transform is ever
+        asserted valid by this method (decision D-B). Orbit *exclusion* -- making sure
+        the next search actually avoids the whole orbit, not just this one model -- is
+        `_create_non_isomorphic_constraint`'s job, not this one's.
+
+        Mirrors the base class's own `zip(previous_structures, previous_models)`
+        pairing convention (`iterate/graph.py`'s `IsomorphismChecker.check_isomorphism`)
+        by reading `self.model_structures`/`self.found_models` directly, since this
+        override's signature (matching the extension point) is not handed those lists
+        as arguments.
         """
+        new_certificate = getattr(new_structure, "certificate", None)
+        if not isinstance(new_certificate, WitnessFamily):
+            return False, None
+        new_target_time = getattr(new_structure, "target_time", None)
+        new_key = symmetry.certificate_orbit_key(new_certificate, new_target_time)
+
+        # Memoize each previously-found structure's orbit key by identity, so a search
+        # that checks many new models against the same growing `model_structures` list
+        # recomputes each *previous* structure's key at most once rather than once per
+        # comparison.
+        memo = getattr(self, "_orbit_key_memo", None)
+        if memo is None:
+            memo = {}
+            self._orbit_key_memo = memo
+
+        for previous_structure, previous_model in zip(self.model_structures, self.found_models):
+            previous_certificate = getattr(previous_structure, "certificate", None)
+            if not isinstance(previous_certificate, WitnessFamily):
+                continue
+            cache_key = id(previous_structure)
+            previous_key = memo.get(cache_key)
+            if previous_key is None:
+                previous_target_time = getattr(previous_structure, "target_time", None)
+                previous_key = symmetry.certificate_orbit_key(previous_certificate, previous_target_time)
+                memo[cache_key] = previous_key
+            if new_key == previous_key:
+                return True, previous_model
+
         return False, None
 
     def _blocking_clause(self, prev_model):

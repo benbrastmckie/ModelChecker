@@ -316,7 +316,31 @@ in the phase note, not a silent edit.
 
 ---
 
-### Phase 3: `_check_model_isomorphism` becomes a real detector (TDD) [NOT STARTED]
+### Phase 3: `_check_model_isomorphism` becomes a real detector (TDD) [COMPLETED]
+
+**Completion note**: `_check_model_isomorphism` now compares `symmetry.certificate_orbit_key`
+across `zip(self.model_structures, self.found_models)`, memoized per previous structure by
+`id()`. Six new tests added to `TestCheckModelIsomorphism`, all green; the pre-existing
+`test_short_circuits_without_constructing_a_model_graph` still passes unmodified (an
+`isinstance(..., WitnessFamily)` guard makes the detector a no-op, not a crash, against the raw
+`Mock()` inputs that test uses, and `ModelGraph` is still never constructed for this theory).
+
+**Investigated, not silently accepted, per this phase's own verification requirement**: with the
+detector live but `_create_non_isomorphic_constraint` still the pre-Phase-4 bit-exact clause,
+`TestLiveIteration`'s two tests fail -- `test_iterate_three_yields_three_pairwise_distinct_certificates`
+now finds `0` further models (down from `2`) and
+`test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly` times out instead of hitting
+`"solver returned unsat"`. Root cause, confirmed against Phase 1's own measurement (8 of 16 group
+elements for this example are distinct-from-original valid certificates -- a large orbit relative
+to the whole small search space): the detector now correctly recognizes that most of the models
+the bit-exact difference constraint still permits are orbit-equivalent to model 1, but the
+excluder can only rule out one exact bit pattern per detected match, so the live loop cycles
+through the orbit one bit-pattern at a time rather than escaping it, exhausting `max_time` without
+progress. This is the exact gap Phase 4 (`_create_non_isomorphic_constraint` excludes the whole
+orbit, not one bit pattern) exists to close, and the two phases are wave-serialized for exactly
+this reason (Phase 4 depends on Phase 3). `TestLiveIteration` is expected to stay red until Phase
+4's exclusion clause lands; it is not treated as accepted here, and Phase 4 re-verifies it green
+below.
 
 **Goal**: Replace the unconditional `(False, None)` with an orbit-key scan over previously-found
 models, while keeping the override a total opt-out of the shared `ModelGraph` path.
