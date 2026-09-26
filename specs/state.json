@@ -151,13 +151,13 @@
     {
       "project_number": 194,
       "project_name": "close_a2_selector_and_window_drift_gaps",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "z3",
       "topic": "semantics",
       "description": "Close the two residual encoder-versus-specification gaps in the A2 encoding-completeness argument that are small enough to discharge directly. First, one-hot selector conservativity: decision D5 makes the target position a one-hot sel selector rather than a fixed origin, which is structure absent from conditions (C1)-(C4) entirely, so ADEQUACY.md section 7.3's \"the Z3 constraint set is exactly the conjunction of (C1)-(C4)\" does not cover it. Establish and record that the selector is conservative -- the encoding is SAT with some sel[t] exactly when a certificate satisfying (C1)-(C4) exists with target time t -- and exercise it directly in a test, so the selector cannot itself be the over-constraint that a future encoding incompleteness gets wrongly blamed on. Second, window drift: WitnessRegistry.target_window() is independently defined rather than imported, unlike _coherence_window, _box_window, _scan_forward_bound and _scan_backward_bound, which witness_constraints.py takes directly from certificate.py. certificate.py's own comment records the split as deliberate, since target_window is also reused for the one-hot selector and both are simple one-line formulas, but it remains the one place encoder and re-checker can silently diverge on a window. Either share a single definition or assert that the two formulas agree across the configured range of nb, nm and nf. Verify against the full bimodal suite and the four-theory gate; no behavioral change is intended.",
       "dependencies": [],
       "created": "2026-09-26T07:24:26Z",
-      "last_updated": "2026-09-26T18:40:28Z",
+      "last_updated": "2026-09-26T19:02:06Z",
       "session_id": "sess_1790440270_1867f0",
       "artifacts": [
         {
@@ -169,9 +169,15 @@
           "path": "specs/194_close_a2_selector_and_window_drift_gaps/plans/01_selector-conservativity-window-drift.md",
           "type": "plan",
           "summary": "5-phase plan closing the A2 selector-conservativity and window-drift gaps."
+        },
+        {
+          "path": "specs/194_close_a2_selector_and_window_drift_gaps/summaries/01_selector-conservativity-window-drift-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: selector conservativity argued and pinned, window drift closed by delegating target_window() to _box_window; full bimodal suite and four-theory gate green."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Closed both A2 encoder-versus-specification gaps: WitnessRegistry.target_window() now delegates to certificate._box_window (no more independent definition), and the one-hot target selector's conservativity is argued in ADEQUACY.md section 7.3 and pinned by a new TestSelectorConservativity unit test against the re-checker's _target_holds. Full bimodal suite (441 passed) and the four-theory gate (parallel: 2944 passed/1 skipped; serial: 9 passed/3074 deselected) are green; no behavioral change."
     },
     {
       "project_number": 195,

@@ -2,7 +2,7 @@
 
 - **Task**: 194 - Close the two residual encoder-versus-specification gaps in the A2
   encoding-completeness argument
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/194_close_a2_selector_and_window_drift_gaps/reports/01_selector-conservativity-window-drift.md`

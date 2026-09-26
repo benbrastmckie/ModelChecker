@@ -1,17 +1,18 @@
 {
-  "status": "planned",
-  "task_number": 194,
-  "phase": "plan",
-  "session_id": "sess_1790440270_1867f0_194",
-  "dispatch_seq": 7,
-  "phases_completed": 0,
-  "phases_total": 5,
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 12,
+  "summary": "Closed both A2 gaps: target_window() now delegates to certificate._box_window, and the one-hot selector's conservativity is argued in ADEQUACY.md section 7.3 and pinned by a new TestSelectorConservativity test. Full bimodal suite (441 passed) and both four-theory-gate passes are green; no behavioral change.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/194_close_a2_selector_and_window_drift_gaps/plans/01_selector-conservativity-window-drift.md",
-      "summary": "5-phase plan closing the A2 selector-conservativity and window-drift gaps."
+      "type": "summary",
+      "path": "specs/194_close_a2_selector_and_window_drift_gaps/summaries/01_selector-conservativity-window-drift-summary.md",
+      "summary": "Implementation summary: selector conservativity argued and pinned, window drift closed by delegating target_window() to _box_window; full bimodal suite and four-theory gate green."
     }
   ],
-  "next_steps": "Run /implement 194 to execute the plan"
+  "phases_completed": 5,
+  "phases_total": 5,
+  "blockers": [],
+  "plan_markers_verified": true,
+  "next_steps": "Task 194 implementation complete; ready for /orchestrate to advance status."
 }

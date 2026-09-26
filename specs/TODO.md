@@ -11,10 +11,9 @@ next_project_number: 201
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 194,195,198 | -- | architecture, semantics |
-| 2 | 196 | 194 | semantics |
-| 3 | 197 | 196 | semantics |
-| 4 | 199,200 | 195,197,198 | documentation, semantics |
+| 1 | 195,196,198 | -- | architecture, semantics |
+| 2 | 197 | 196 | semantics |
+| 3 | 199,200 | 195,197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -28,10 +27,9 @@ next_project_number: 201
 
 ### Semantics
 
-194 [IMPLEMENTING] — Close the two residual encoder-versus-specification gaps in...
-  └─ 196 [PLANNED] — Discharge obligation S4, the Sentence-to-Formula translation...
-    └─ 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
-      └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
+196 [PLANNED] — Discharge obligation S4, the Sentence-to-Formula translation...
+  └─ 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
+    └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 
 ## Tasks
@@ -102,12 +100,13 @@ ADDENDUM, two findings that constrain this research and must be accounted for ra
 ---
 
 ### 194. Close a2 selector and window drift gaps
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [194_close_a2_selector_and_window_drift_gaps/reports/01_selector-conservativity-window-drift.md]
 - **Plan**: [194_close_a2_selector_and_window_drift_gaps/plans/01_selector-conservativity-window-drift.md]
+- **Summary**: [194_close_a2_selector_and_window_drift_gaps/summaries/01_selector-conservativity-window-drift-summary.md]
 
 **Description**: Close the two residual encoder-versus-specification gaps in the A2 encoding-completeness argument that are small enough to discharge directly. First, one-hot selector conservativity: decision D5 makes the target position a one-hot sel selector rather than a fixed origin, which is structure absent from conditions (C1)-(C4) entirely, so ADEQUACY.md section 7.3's "the Z3 constraint set is exactly the conjunction of (C1)-(C4)" does not cover it. Establish and record that the selector is conservative -- the encoding is SAT with some sel[t] exactly when a certificate satisfying (C1)-(C4) exists with target time t -- and exercise it directly in a test, so the selector cannot itself be the over-constraint that a future encoding incompleteness gets wrongly blamed on. Second, window drift: WitnessRegistry.target_window() is independently defined rather than imported, unlike _coherence_window, _box_window, _scan_forward_bound and _scan_backward_bound, which witness_constraints.py takes directly from certificate.py. certificate.py's own comment records the split as deliberate, since target_window is also reused for the one-hot selector and both are simple one-line formulas, but it remains the one place encoder and re-checker can silently diverge on a window. Either share a single definition or assert that the two formulas agree across the configured range of nb, nm and nf. Verify against the full bimodal suite and the four-theory gate; no behavioral change is intended.
 
