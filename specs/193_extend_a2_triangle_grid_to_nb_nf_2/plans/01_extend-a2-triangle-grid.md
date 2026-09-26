@@ -203,20 +203,40 @@ actual measured wall clock for the class in the docstring rather than copying th
 
 ---
 
-### Phase 3: Measurement gate — select a box-carrying closure of size 2 for nb=nf=2 [NOT STARTED]
+### Phase 3: Measurement gate — select a box-carrying closure of size 2 for nb=nf=2 [COMPLETED]
 
 **Goal**: One concrete boxed closure is selected for the `nb=nf=2` `slow` case, with its closure
 size, candidate total, accepted count, Z3 verdict, and idle-host wall clock all measured directly
 rather than assumed.
 
 **Tasks**:
-- [ ] Write a scratchpad measurement script (under the session scratchpad directory, not the repository) that imports the test module's own generalized `_candidates`, `_run_exhaustive_triangle`, `_expected_candidate_count`, and `_build`, and for each candidate formula reports: closure size, candidate total, accepted count, `z3_model_status`, and wall clock.
-- [ ] Measure candidate A: `[] |- ["\\Box A"]` at `back=2, mid=1, fwd=2` — preferred if it is closure size 2 and SAT, because a SAT boxed case additionally exercises the extracted-certificate `recheck` leg that `_assert_exhaustive_triangle_agrees` runs only when `expected_sat` is true.
-- [ ] Measure candidate B: `["\\Box A"] |- ["A"]` at `back=2, mid=1, fwd=2` — research-measured fallback (closure size 2, 10,485,760 candidates, 0 accepted, UNSAT, 65.47s).
-- [ ] Apply the gate, in order: (a) closure size must be 2 (size 3 is out of scope per Non-Goals; a larger size blows the enumeration); (b) idle-host wall clock must be <= 100s, giving >=3x headroom under CI's 300s ceiling with `-n 4` parallel load; (c) prefer SAT over UNSAT among candidates passing (a) and (b).
-- [ ] Contingency branch, taken only if no candidate passes (a)+(b): select candidate B at the one-sided grid `back=2, mid=1, fwd=1` (closure size 2, 2 lassos, 1 box, 4 slots => 524,288 candidates, expected well under 10s), which still covers the `nb=2` slot-recurrence dimension the historical defect required. Measure it before selecting it.
-- [ ] Record the selected formula, grid, all four measured values, and the gate outcome in the phase body of this plan (or the progress file) so Phase 4 pins numbers from a measurement, not from this plan's prose.
-- [ ] No repository file is modified in this phase; nothing to commit.
+- [x] Write a scratchpad measurement script (under the session scratchpad directory, not the repository) that imports the test module's own generalized `_candidates`, `_run_exhaustive_triangle`, `_expected_candidate_count`, and `_build`, and for each candidate formula reports: closure size, candidate total, accepted count, `z3_model_status`, and wall clock.
+- [x] Measure candidate A: `[] |- ["\\Box A"]` at `back=2, mid=1, fwd=2` — preferred if it is closure size 2 and SAT, because a SAT boxed case additionally exercises the extracted-certificate `recheck` leg that `_assert_exhaustive_triangle_agrees` runs only when `expected_sat` is true.
+- [x] Measure candidate B: `["\\Box A"] |- ["A"]` at `back=2, mid=1, fwd=2` — research-measured fallback (closure size 2, 10,485,760 candidates, 0 accepted, UNSAT, 65.47s).
+- [x] Apply the gate, in order: (a) closure size must be 2 (size 3 is out of scope per Non-Goals; a larger size blows the enumeration); (b) idle-host wall clock must be <= 100s, giving >=3x headroom under CI's 300s ceiling with `-n 4` parallel load; (c) prefer SAT over UNSAT among candidates passing (a) and (b).
+- [x] Contingency branch: not needed — candidate A passed the gate outright.
+- [x] Record the selected formula, grid, all four measured values, and the gate outcome in the phase body of this plan (or the progress file) so Phase 4 pins numbers from a measurement, not from this plan's prose.
+- [x] No repository file is modified in this phase; nothing to commit.
+
+#### Measured Results
+
+Scratchpad script:
+`/tmp/claude-1000/-home-benjamin-Projects-ModelChecker/c6800b62-620d-4473-85dc-e0a7f2cd7e64/scratchpad/measure_boxed_nb2.py`
+(imports `_build`, `_run_exhaustive_triangle`, `_expected_candidate_count` from the test module
+directly; not part of the repository).
+
+| Candidate | premises / conclusions | closure_size | total (matches closed form) | accepted | z3_model_status | wall clock |
+|---|---|---|---|---|---|---|
+| A | `[]` / `["\Box A"]` | 2 | 10,485,760 (match) | 5,115 | SAT | 64.52s |
+| B | `["\Box A"]` / `["A"]` | 2 | 10,485,760 (match) | 0 | UNSAT | 67.09s |
+
+**Gate outcome**: both candidates pass (a) closure size == 2 and (b) wall clock <= 100s. Per (c),
+prefer SAT among passing candidates -> **candidate A selected**: `premises=[]`,
+`conclusions=["\Box A"]`, `back=2, mid=1, fwd=2`, `expected_closure_size=2`,
+`expected_total=10_485_760`, `expected_accepted=5_115`, `expected_sat=True`. This additionally
+exercises the extracted-certificate `recheck` leg (only run when `expected_sat` is true),
+covering strictly more of `_assert_exhaustive_triangle_agrees` than candidate B would. The
+contingency branch (one-sided `back=2, mid=1, fwd=1`) is not needed.
 
 **Timing**: 45 minutes (dominated by ~1-3 minutes of compute per full-grid measurement)
 
