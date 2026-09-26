@@ -1,18 +1,23 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "summary": "Authored a 7-phase sequential implementation plan for the shared iterator's is_world assumption. Core design: three named extension points on iterate/core.py's BaseModelIterator (_pin_theory_specific_values, live-loop-reached _create_difference_constraint with a generic base-class default, _check_model_isomorphism), each behavior-preserving for logos/imposition/exclusion and overridden by BimodalModelIterator over the certificate variable set. No is_world shim. Planning surfaced two facts the research report did not: (1) the shared graph-isomorphism path produces EMPTY graphs for bimodal (z3_world_states never populated) and two empty graphs are isomorphic, so every bimodal model would be falsely skipped even after the crash and exclusion-gap fixes - promoted to in-scope as Phase 4; (2) logos's and imposition's _create_non_isomorphic_constraint/_create_stronger_constraint return z3.BoolVal(True) no-ops, so the research report's recommended replacement of ConstraintGenerator's stronger-constraint path would have removed those theories' only real escape constraint - Phase 3 composes rather than replaces. Phase 6 is an explicit decision gate against Phase 1's captured baselines with a documented contingency narrowing.",
+  "status": "implemented",
+  "phase": "implement",
+  "summary": "All 7 plan phases COMPLETED. Introduced three theory-specific extension points on iterate/core.py's BaseModelIterator (_pin_theory_specific_values, _build_exclusion_constraints/_build_stronger_constraint around _create_difference_constraint, _check_model_isomorphism), each behavior-preserving by default and overridden by BimodalModelIterator over the certificate variable set -- no is_world shim added to BimodalSemantics. iterate: N > 1 now works end-to-end for bimodal: a live, non-mocked iterate:3 run on BM_CM_1 yields 3 pairwise-distinct certificates, 0 isomorphic false-positive skips, with a genuine Z3 blocking clause proven (not merely observed) to exclude each previous model. Phase 6's cross-theory regression gate measured (not assumed) that logos/imposition/exclusion model counts are unchanged; the one measured discrepancy (exclusion's checked_model_count drifting under a wall-clock max_time timeout) was proven structurally to be timing noise, not a constraint-content regression, since constraints.py's diff between the pre/post-Phase-3 commits is docstring-only. Combined final regression run (bimodal+logos+imposition+exclusion+iterate+code/tests, all in one pytest invocation): 1854 passed, 5 skipped, 0 failed, 379.22s -- explicitly including test_iterate.py::TestLiveIteration::test_iterate_three_yields_three_pairwise_distinct_certificates (the Phase 1 RED reproduction test), confirmed green both in that combined run and in three separate isolated re-runs.",
   "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/189_fix_shared_iterator_is_world_assumption/summaries/01_iterator-theory-extension-points-summary.md",
+      "summary": "Implementation summary for all 7 completed phases: three extension points, bimodal fix, cross-theory regression gate, documentation alignment."
+    },
     {
       "type": "plan",
       "path": "specs/189_fix_shared_iterator_is_world_assumption/plans/01_iterator-theory-extension-points.md",
-      "summary": "7-phase plan: baseline/reproduction/RED test, three extension points, bimodal live green, cross-theory regression gate, docs alignment."
+      "summary": "7-phase plan, all phases marked [COMPLETED] with per-phase Evidence subsections recording actual measured outcomes."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 7,
   "phases_total": 7,
   "blockers": [],
-  "next_action_hint": "Run /implement 189; Phase 1 must capture the four-file 19-test baseline and the three defect reproductions before any implementation edit.",
+  "next_action_hint": "Task complete. No further /implement dispatch needed for this plan round.",
   "plan_markers_verified": true,
-  "dispatch_seq": 3
+  "dispatch_seq": 5
 }
