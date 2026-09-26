@@ -201,10 +201,13 @@ class WitnessFamily:
 # calls them with a `WitnessRegistry` (which carries the identical `nb`/`nm`/`nf` attributes,
 # `witness_registry.py`) in place of a `LabelledLasso`, so the encoder and the re-checker share
 # exactly one definition of the fulfilment window and scan bounds and cannot drift apart (the
-# implementation plan's Phase 8). Box faithfulness's narrower `_box_window` is *not* shared this
-# way: the encoder's equivalent (`WitnessRegistry.target_window`) is independently defined,
-# since it is also reused for the unrelated one-hot target selector and the two are simple,
-# identical one-line formulas rather than the fulfilment window's more delicate corrected bounds.
+# implementation plan's Phase 8). Box faithfulness's narrower `_box_window` is now shared the
+# same way: `WitnessRegistry.target_window` delegates to `_box_window` directly, serving both
+# box faithfulness's proved `mem_all_iff_window` bound and the encoder's one-hot target selector
+# (decision D5) -- the selector's own conservativity argument (`docs/ADEQUACY.md` section 7.3)
+# requires exactly the same one-representative-position-per-slot window box faithfulness's proof
+# establishes, so sharing this definition too is the technically correct outcome, not merely a
+# convenience. All four window helpers are now shared by import; none is independently defined.
 
 
 def _coherence_window(lasso: "LabelledLasso") -> range:

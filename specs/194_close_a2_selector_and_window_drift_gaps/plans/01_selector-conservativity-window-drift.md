@@ -168,38 +168,42 @@ cycle. Do not manufacture an artificial failure to simulate one.
 
 ---
 
-### Phase 2: Delegate `target_window()` to `_box_window` [NOT STARTED]
+### Phase 2: Delegate `target_window()` to `_box_window` [COMPLETED]
 
 **Goal**: Remove the last independently-defined window in the encoder, so encoder and re-checker
 share exactly one definition of `[-nb, nm+nf)` and cannot drift.
 
 **Tasks**:
-- [ ] Re-read `semantic/witness_registry.py` and `semantic/certificate.py` immediately before
+- [x] Re-read `semantic/witness_registry.py` and `semantic/certificate.py` immediately before
       editing.
-- [ ] Confirm no import cycle: `cd /home/benjamin/Projects/ModelChecker && PYTHONPATH=code/src python -c "from model_checker.theory_lib.bimodal.semantic import witness_registry; print('ok')"`
+- [x] Confirm no import cycle: `cd /home/benjamin/Projects/ModelChecker && PYTHONPATH=code/src python -c "from model_checker.theory_lib.bimodal.semantic import witness_registry; print('ok')"`
       after adding the import (`certificate.py`'s only intra-package import is `.formula`, so this
-      is a confirmation, not an open question).
-- [ ] In `semantic/witness_registry.py`: add `from .certificate import _box_window` alongside the
+      is a confirmation, not an open question). Confirmed: `ok`.
+- [x] In `semantic/witness_registry.py`: add `from .certificate import _box_window` alongside the
       existing `from .formula import Box, Formula`, and change `target_window()`'s body to
       `return _box_window(self)`.
-- [ ] Rewrite `target_window()`'s docstring: it is now the *shared* definition, identical to box
+- [x] Rewrite `target_window()`'s docstring: it is now the *shared* definition, identical to box
       faithfulness's proved `mem_all_iff_window` bound (`docs/ADEQUACY.md` §5.2), reused for the
       one-hot selector because F1's completeness argument requires exactly one representative
       position per slot — state that both uses require exactly `[-nb, nm+nf)`, so sharing is the
       technically correct outcome rather than a convenience.
-- [ ] In `semantic/certificate.py`, update the four-window-helpers comment block (the paragraph
+- [x] In `semantic/certificate.py`, update the four-window-helpers comment block (the paragraph
       beginning "These four window helpers are deliberately duck-typed"): remove the
       "`WitnessRegistry.target_window` is independently defined" language, which is no longer
       accurate, and record that all four helpers are now shared by import, `_box_window` serving
       both box faithfulness and the encoder's selector/extraction window.
-- [ ] Update `semantic/witness_registry.py`'s module docstring where it describes the position-slot
+- [x] Update `semantic/witness_registry.py`'s module docstring where it describes the position-slot
       model, if it asserts an independent target window (re-read to confirm before editing; do not
-      edit speculatively).
-- [ ] Run the two directly affected unit modules plus the extraction/iterate consumers:
+      edit speculatively). Re-read: the module docstring makes no independence claim, so no edit
+      was made there (nothing to fix, not skipped).
+- [x] Run the two directly affected unit modules plus the extraction/iterate consumers:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate.py code/src/model_checker/theory_lib/bimodal/tests/unit/test_symmetry.py -v`.
-- [ ] Run the full bimodal suite (this phase's tier is `full`):
+      (131 passed)
+- [x] Run the full bimodal suite (this phase's tier is `full`):
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -v`.
-- [ ] Commit (`task 194 phase 2.1: share one window definition between encoder and re-checker`).
+      (420 passed in 70.43s, including the `slow`-marked A2-triangle cases -- this repo's
+      `addopts` does not deselect `slow` by default)
+- [x] Commit (`task 194 phase 2.1: share one window definition between encoder and re-checker`).
 
 **Timing**: 0.75 hours
 

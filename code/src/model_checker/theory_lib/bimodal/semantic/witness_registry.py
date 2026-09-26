@@ -66,6 +66,7 @@ from model_checker import z3_shim as z3
 
 from model_checker.theory_lib.errors import WitnessRegistryError
 
+from .certificate import _box_window
 from .formula import Box, Formula
 
 __all__ = ["WitnessRegistry"]
@@ -169,8 +170,17 @@ class WitnessRegistry:
 
     def target_window(self) -> range:
         """The position window used for the one-hot target selector (decision D5): one
-        representative position per slot, `[-back, mid+fwd)`. Every slot is hit exactly once."""
-        return range(-self.nb, self.nm + self.nf)
+        representative position per slot, `[-back, mid+fwd)`. Every slot is hit exactly once.
+
+        Now the *shared* definition: identical to box faithfulness's proved `mem_all_iff_window`
+        bound (`docs/ADEQUACY.md` section 5.2), reused here because the selector's own
+        completeness argument (a lossless Skolemization of (C4)'s existential target time --
+        `docs/ADEQUACY.md` section 7.3) requires exactly one representative position per slot,
+        the identical requirement box faithfulness's proof establishes. Both uses independently
+        require exactly `[-nb, nm+nf)`, so delegating to `certificate._box_window` is the
+        technically correct outcome, not a mere convenience -- see that function's docstring and
+        `certificate.py`'s four-window-helpers comment block for the shared-import rationale."""
+        return _box_window(self)
 
     def clear(self) -> None:
         """Release every allocated Z3 variable and witness-lasso assignment, resetting the
