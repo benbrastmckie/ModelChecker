@@ -328,9 +328,12 @@ class BaseModelIterator:
                             break
                         continue
                         
-                    # Check for isomorphism with previous models
-                    is_isomorphic, isomorphic_model = self.isomorphism_checker.check_isomorphism(
-                        new_structure, new_model, self.model_structures, self.found_models
+                    # Check for isomorphism with previous models -- routed through the
+                    # polymorphic _check_model_isomorphism extension point so a theory
+                    # can opt out of the shared graph representation entirely (see its
+                    # docstring and the bimodal override).
+                    is_isomorphic, isomorphic_model = self._check_model_isomorphism(
+                        new_structure, new_model
                     )
                     
                     if is_isomorphic:
@@ -716,6 +719,38 @@ class BaseModelIterator:
         logger.debug("BaseModelIterator reset to initial state")
     
     
+    def _check_model_isomorphism(
+        self, new_structure: Any, new_model: 'z3.ModelRef'
+    ) -> Tuple[bool, Optional['z3.ModelRef']]:
+        """Extension point: decide whether `new_structure` is isomorphic to a
+        previously-found model, or opt out of the check entirely.
+
+        The base implementation delegates to `self.isomorphism_checker.check_isomorphism`
+        -- byte-identical behavior to what `iterate_generator` called directly before
+        this hook existed, for every theory that does not override it.
+
+        A theory overrides this to opt out when the shared `ModelGraph` representation
+        (`graph.py`) cannot represent its models at all: `ModelGraph._create_graph`
+        reads `model_structure.z3_world_states`, which only the three `is_world`
+        theories populate. A theory whose models have no such attribute gets an
+        *empty* graph for every model, and NetworkX reports two empty graphs as
+        isomorphic -- a false positive that would silently declare every later model a
+        duplicate of the first, not "no information" (see
+        `theory_lib/bimodal/iterate.py`'s override and its regression test in
+        `iterate/tests/` for a concrete demonstration of this false positive).
+
+        Args:
+            new_structure: The newly-built model structure to check.
+            new_model: The Z3 model backing `new_structure`.
+
+        Returns:
+            `(is_isomorphic, isomorphic_model)`: whether `new_structure` duplicates a
+            previous model, and if so, which Z3 model it duplicates (else `None`).
+        """
+        return self.isomorphism_checker.check_isomorphism(
+            new_structure, new_model, self.model_structures, self.found_models
+        )
+
     def _pin_theory_specific_values(
         self, temp_solver: 'z3.Solver', z3_model: 'z3.ModelRef', model_constraints: Any
     ) -> None:

@@ -387,9 +387,13 @@ grep actually returns, including any call site this plan did not anticipate.
   Post-edit, the grep for the specific two bypassed names returns only the two
   `_orchestrated_iterate` occurrences (verification criterion below, satisfied for the live
   loop).
-- `iterate/tests/` full suite: 238 passed (224 prior + 14 new: `test_core.py`'s
-  `TestIsTriviallyTrue`/`TestBuildExclusionConstraints`/`TestBuildStrongerConstraint`), after
-  updating `test_core_abstract_methods.py::test_abstract_methods_required` for
+- `iterate/tests/` full suite: 236 passed (224 prior + 12 new: `test_core.py`'s
+  `TestIsTriviallyTrue`/`TestBuildExclusionConstraints`/`TestBuildStrongerConstraint`, 4 tests
+  each; `test_core.py`'s own file total goes from 2 pre-existing no-op tests to 14 -- **correction**:
+  this bullet originally read "238 passed (224 prior + 14 new)" here, conflating "14 tests now in
+  that one file" with "14 new tests overall"; corrected during Phase 4 once the running total made
+  the arithmetic visibly off by exactly 2 -- see Phase 4's own Evidence), after updating
+  `test_core_abstract_methods.py::test_abstract_methods_required` for
   `_create_difference_constraint`'s new non-raising default (now asserts `None` for an empty
   `previous_models` list rather than `NotImplementedError`; the other two hooks' raising default
   is unchanged, per this phase's scope).
@@ -411,7 +415,7 @@ grep actually returns, including any call site this plan did not anticipate.
 
 ---
 
-### Phase 4: Extension Point 3 — Isomorphism Participation [NOT STARTED]
+### Phase 4: Extension Point 3 — Isomorphism Participation [COMPLETED]
 
 **Goal**: Stop the shared graph-isomorphism path from declaring every bimodal model a duplicate of
 the first (empty-graph false positive), via an opt-out hook rather than a special case at the call
@@ -465,6 +469,35 @@ site the grep returns.
 - Phase 1's baseline four-file command green.
 - A live bimodal `iterate: 3` run reports zero isomorphic skips (previously: every model skipped).
 - The empty-graph regression test documents the false positive and passes.
+
+#### Evidence (recorded at implementation time)
+
+- `grep -n 'check_isomorphism' code/src/model_checker/iterate/*.py` before this phase's edits
+  confirmed exactly 3 occurrences: `graph.py`'s own `check_isomorphism` definition, one live-loop
+  call site in `iterate_generator` (`core.py`), one in dead/uncalled `_orchestrated_iterate`
+  (`core.py`), and one in `iterator.py`'s `IteratorCore.iterate()` -- explicitly named as dead
+  code in this plan's own Non-Goals. Only the `iterate_generator` call site was replaced.
+- **The Phase 1 RED test is now GREEN**: `test_iterate_three_yields_three_pairwise_distinct_certificates`
+  passes -- 3/3 models found, 0 isomorphic models skipped (previously 1/3, every later model
+  false-positive-isomorphic). One test-authoring bug was found and fixed while turning it green:
+  the test double-counted the initial model (`iterator.found_models` is already seeded with it at
+  construction, per `iterate/iterator.py`'s `IteratorCore.__init__`); fixed to read
+  `iterator.found_models` directly rather than prepending `example.model_structure.z3_model` again.
+- `iterate/tests/` full suite: 238 passed (236 prior + 2 new: `test_core.py`'s
+  `TestCheckModelIsomorphism` and `test_graph_isomorphism_integration.py`'s
+  `TestEmptyGraphFalsePositive`, both confirmed by direct run at 238/238 -- this run also confirmed
+  the running-total arithmetic that surfaced and fixed Phase 3's `238` -> `236` correction above).
+- `bimodal/tests/integration/test_iterate.py` + the Phase 1 four-file baseline: 24 passed (19
+  baseline + 5 bimodal tests added since Phase 1: the RED->GREEN live test, 2
+  `TestPinTheorySpecificValues` tests, 1 `_build_exclusion_constraints` test, 1
+  `TestCheckModelIsomorphism` test).
+- New coverage: `iterate/tests/unit/test_core.py`'s `TestCheckModelIsomorphism` (base default
+  delegates to `IsomorphismChecker.check_isomorphism` with the exact same four arguments
+  `iterate_generator` used to pass directly); `iterate/tests/integration/test_graph_isomorphism_integration.py`'s
+  `TestEmptyGraphFalsePositive` (two structures with no `z3_world_states` attribute at all --
+  `hasattr` false, not merely an empty list -- are reported isomorphic by `IsomorphismChecker`,
+  confirmed live); `bimodal/tests/integration/test_iterate.py`'s `TestCheckModelIsomorphism` (the
+  override returns `(False, None)` without ever constructing a `ModelGraph`).
 
 ---
 

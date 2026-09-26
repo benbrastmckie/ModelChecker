@@ -271,6 +271,41 @@ class TestGraphIsomorphismIntegration(unittest.TestCase):
             pass
 
 
+class TestEmptyGraphFalsePositive(unittest.TestCase):
+    """Regression test documenting the shared-framework fact discovered while fixing
+    the iterator's `is_world` assumption: a model structure with no `z3_world_states`
+    attribute at all (not merely an empty list -- the bimodal `BimodalStructure` shape;
+    `ModelDefaults` never defines a default either) produces an *empty* `ModelGraph`,
+    and NetworkX reports two empty graphs as isomorphic. This is a genuine false
+    positive, not a harmless no-op: left unguarded, it silently declares every model
+    after the first a duplicate of the first and skips it forever. See
+    `theory_lib/bimodal/iterate.py`'s `_check_model_isomorphism` override, which exists
+    specifically to opt a theory with no `z3_world_states` out of this path rather than
+    rely on it."""
+
+    def test_two_structures_with_no_z3_world_states_are_reported_isomorphic(self):
+        checker = IsomorphismChecker()
+
+        # Mock(spec=[...]) with z3_world_states deliberately excluded from the spec
+        # list, so hasattr(structure, 'z3_world_states') is False -- exactly the
+        # BimodalStructure shape, not merely "has an empty list".
+        structure1 = Mock(spec=['semantics', 'model_constraints'])
+        structure2 = Mock(spec=['semantics', 'model_constraints'])
+        self.assertFalse(hasattr(structure1, 'z3_world_states'))
+        self.assertFalse(hasattr(structure2, 'z3_world_states'))
+
+        is_isomorphic, isomorphic_model = checker.check_isomorphism(
+            structure2, Mock(), [structure1], [Mock()]
+        )
+
+        self.assertTrue(
+            is_isomorphic,
+            "two structures with no z3_world_states attribute produce two empty "
+            "graphs, which NetworkX reports as isomorphic -- this is the false "
+            "positive, confirmed live rather than assumed",
+        )
+
+
 class TestGraphManagerCacheBehavior(unittest.TestCase):
     """Test IsomorphismChecker cache management."""
     

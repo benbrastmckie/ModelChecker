@@ -113,6 +113,28 @@ class BimodalModelIterator(BaseModelIterator):
             else:
                 temp_solver.add(z3.Not(var))
 
+    def _check_model_isomorphism(self, new_structure, new_model):
+        """Opt out of the shared graph-isomorphism check entirely: always report "not
+        isomorphic".
+
+        The shared `ModelGraph` representation (`iterate/graph.py`) is built from
+        `model_structure.z3_world_states`, which this theory's certificate encoding
+        never populates (D3/D4 have no state-existence predicate to enumerate at all --
+        see this module's own docstring). Two structures that both lack the attribute
+        therefore both produce an *empty* graph, and NetworkX reports two empty graphs
+        as isomorphic -- a false positive, not "no information": left un-overridden,
+        every model after the first would be wrongly declared a duplicate of the
+        first and skipped forever (see `iterate/tests/`'s regression test
+        documenting this exact false positive on two empty-graph `ModelGraph`s).
+
+        Distinctness for this theory is enforced instead by
+        `_create_difference_constraint`'s certificate blocking clause, reached by the
+        live loop via `BaseModelIterator._build_exclusion_constraints`
+        (`iterate/core.py`) since this theory's certificate-redesign Extension Point 2
+        wiring -- not by this hook, which has nothing meaningful to compare.
+        """
+        return False, None
+
     def _blocking_clause(self, prev_model):
         """`Or(var != prev_model's value for var)` over every certificate variable --
         `True` (as a Z3 constraint) exactly when the next model differs from `prev_model` in

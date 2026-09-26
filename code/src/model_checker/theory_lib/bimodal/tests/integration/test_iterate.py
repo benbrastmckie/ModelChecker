@@ -187,6 +187,22 @@ class TestPinTheorySpecificValues:
         assert list(temp_solver.assertions()) == []
 
 
+class TestCheckModelIsomorphism:
+    """Coverage for `BimodalModelIterator._check_model_isomorphism`, the Extension
+    Point 3 opt-out override -- see its docstring for why this theory cannot use the
+    shared `ModelGraph`-based check at all."""
+
+    def test_short_circuits_without_constructing_a_model_graph(self):
+        semantics = BimodalSemantics(_settings())
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+
+        with patch("model_checker.iterate.graph.ModelGraph") as mock_model_graph:
+            result = iterator._check_model_isomorphism(Mock(), Mock())
+
+        assert result == (False, None)
+        mock_model_graph.assert_not_called()
+
+
 class TestCalculateDifferences:
     def _certificate(self, atom_in_main):
         main_label = frozenset({atom_in_main}) if atom_in_main else frozenset()
@@ -299,10 +315,14 @@ class TestLiveIteration:
             assert structure.certificate is not None
 
         # (d) certificates pairwise distinct in at least one label bit or box guess.
+        # iterator.found_models is seeded with the initial model at construction
+        # (iterate/iterator.py's IteratorCore.__init__) and gains one entry per
+        # generator-yielded model, so it already holds all 3 -- no need to prepend
+        # example.model_structure.z3_model again.
         semantics = example.model_constraints.semantics
         registry = semantics.witness_registry
         variables = list(registry._bits.values()) + list(registry._guesses.values())
-        models = [example.model_structure.z3_model] + iterator.found_models
+        models = iterator.found_models
         assert len(models) == 3
         for i in range(len(models)):
             for j in range(i + 1, len(models)):

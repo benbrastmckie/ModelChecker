@@ -137,5 +137,32 @@ class TestBuildStrongerConstraint(unittest.TestCase):
         self.assertEqual(children, {'generic_real', 'theory_real'})
 
 
+class TestCheckModelIsomorphism(unittest.TestCase):
+    """`_check_model_isomorphism` (Extension Point 3) must delegate to
+    `IsomorphismChecker` by default, with byte-identical arguments to what
+    `iterate_generator` passed directly before this hook existed."""
+
+    def test_base_default_delegates_with_the_expected_arguments(self):
+        new_structure = Mock()
+        new_model = Mock()
+        model_structures = [Mock()]
+        found_models = [Mock()]
+        expected = (True, found_models[0])
+
+        fake = SimpleNamespace(
+            isomorphism_checker=Mock(),
+            model_structures=model_structures,
+            found_models=found_models,
+        )
+        fake.isomorphism_checker.check_isomorphism = Mock(return_value=expected)
+
+        result = BaseModelIterator._check_model_isomorphism(fake, new_structure, new_model)
+
+        self.assertEqual(result, expected)
+        fake.isomorphism_checker.check_isomorphism.assert_called_once_with(
+            new_structure, new_model, model_structures, found_models
+        )
+
+
 if __name__ == '__main__':
     unittest.main()
