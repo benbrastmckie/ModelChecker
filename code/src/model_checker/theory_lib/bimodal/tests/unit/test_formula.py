@@ -16,7 +16,9 @@ union of the single-formula `subformulaClosure` over a context (list) of formula
 
 from __future__ import annotations
 
+import importlib.util
 import json
+from pathlib import Path
 
 import pytest
 
@@ -41,6 +43,28 @@ from model_checker.theory_lib.bimodal.semantic.formula import (
     to_json,
     translate,
 )
+
+
+def _load_certificate_model():
+    """Load `_certificate_model.py` by file path.
+
+    `pyproject.toml` sets `--import-mode=importlib`, under which a plain
+    `import _certificate_model` does not resolve (no directory-based `sys.path` insertion for
+    a sibling test file) -- see that module's own docstring for why it exists as a relocation
+    out of `test_certificate_fixtures.py` rather than a second, independently-maintained copy.
+    """
+    path = Path(__file__).parent / "_certificate_model.py"
+    spec = importlib.util.spec_from_file_location("_certificate_model", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_certificate_model = _load_certificate_model()
+_cert_parse_formula = _certificate_model.parse_formula
+_CertLasso = _certificate_model.Lasso
+_cert_coherent_at = _certificate_model.coherent_at
+_cert_box_faithful = _certificate_model.box_faithful
 
 
 def _sentence(infix: str):
@@ -397,14 +421,14 @@ class TestTranslateNestedFormula:
 # over the translated `Formula`, mirroring the Lean `untl`/`snce` semantics -- then checks they
 # agree at every point of several small hand-built valuations.
 #
-# Known, deliberate limitation (recorded, not silently absorbed): this covers only the five
-# non-modal primitives (atom, neg, wedge, vee/bot via encoding, future, past, until, since), not
-# Box -- `oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator has the identical gap,
-# for the identical reason: a faithful Box comparison needs an actual multi-world/multi-history
-# model, which does not exist independently of whichever semantic core (old window-based, or the
-# certificate-based one later phases of this plan install) is under test. Discharging the Box
-# case is left to later phases (the pure-Python re-checker's box-faithfulness condition, and the
-# `check_certificate` round-trip), not claimed here.
+# The Box case is covered directly by `TestTranslateTruthPreservationBox` below (a sibling test
+# class), over hand-built multi-lasso label families -- it cannot be inherited from
+# `oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator, which covers only the five
+# primitive tense tags and has no Box case of its own, for the same underlying reason a faithful
+# Box comparison needs an actual multi-world/multi-history model. `\Box` is family-global: it
+# quantifies over every position of every lasso in the family, per `NecessityOperator`'s own
+# docstring and (C3) box faithfulness -- not a per-point quantifier the way `\Future`/`\Past`/
+# `\Until`/`\Since` are.
 
 _Ast = tuple
 
@@ -432,43 +456,48 @@ def _ast_to_infix(ast: _Ast) -> str:
         return f"({_ast_to_infix(ast[1])} \\Until {_ast_to_infix(ast[2])})"
     if tag == "since":
         return f"({_ast_to_infix(ast[1])} \\Since {_ast_to_infix(ast[2])})"
+    if tag == "box":
+        return f"\\Box {_ast_to_infix(ast[1])}"
     raise ValueError(f"unknown ast tag: {tag!r}")
 
 
-def _eval_mc_ast(ast: _Ast, valuation, t: int, domain: range) -> bool:
+def _eval_mc_ast(ast: _Ast, family, i: int, t: int, domain: range) -> bool:
     """Direct evaluator mirroring `operators.py`'s ModelChecker semantics (guard-first Until/
-    Since, `\\Future`/`\\Past` as G/H), restricted to `domain` with atoms false outside it."""
+    Since, `\\Future`/`\\Past` as G/H, family-global `\\Box`), restricted to `domain` with atoms
+    false outside it. `family` is a tuple of `_certificate_model.Lasso`; `i` selects the lasso
+    this AST is evaluated against for every clause except `box`, which quantifies over every
+    lasso of `family`."""
     tag = ast[0]
     if tag == "atom":
-        return t in domain and bool(valuation.get(ast[1], {}).get(t, False))
+        return t in domain and (("atom", ast[1]) in family[i].lab(t))
     if tag == "bot":
         return False
     if tag == "neg":
-        return not _eval_mc_ast(ast[1], valuation, t, domain)
+        return not _eval_mc_ast(ast[1], family, i, t, domain)
     if tag == "wedge":
-        return _eval_mc_ast(ast[1], valuation, t, domain) and _eval_mc_ast(
-            ast[2], valuation, t, domain
+        return _eval_mc_ast(ast[1], family, i, t, domain) and _eval_mc_ast(
+            ast[2], family, i, t, domain
         )
     if tag == "vee":
-        return _eval_mc_ast(ast[1], valuation, t, domain) or _eval_mc_ast(
-            ast[2], valuation, t, domain
+        return _eval_mc_ast(ast[1], family, i, t, domain) or _eval_mc_ast(
+            ast[2], family, i, t, domain
         )
     if tag == "future":
-        # G A: true at t iff A holds at every domain time strictly after t.
+        # G A: true at t iff A holds at every domain time strictly after t, within lasso i.
         return all(
-            _eval_mc_ast(ast[1], valuation, s, domain) for s in domain if s > t
+            _eval_mc_ast(ast[1], family, i, s, domain) for s in domain if s > t
         )
     if tag == "past":
         return all(
-            _eval_mc_ast(ast[1], valuation, s, domain) for s in domain if s < t
+            _eval_mc_ast(ast[1], family, i, s, domain) for s in domain if s < t
         )
     if tag == "until":
         # ast[1] is the guard, ast[2] is the event (guard-first, matching UntilOperator).
         guard, event = ast[1], ast[2]
         for s in domain:
-            if s > t and _eval_mc_ast(event, valuation, s, domain):
+            if s > t and _eval_mc_ast(event, family, i, s, domain):
                 if all(
-                    _eval_mc_ast(guard, valuation, r, domain)
+                    _eval_mc_ast(guard, family, i, r, domain)
                     for r in domain
                     if t < r < s
                 ):
@@ -477,36 +506,52 @@ def _eval_mc_ast(ast: _Ast, valuation, t: int, domain: range) -> bool:
     if tag == "since":
         guard, event = ast[1], ast[2]
         for s in domain:
-            if s < t and _eval_mc_ast(event, valuation, s, domain):
+            if s < t and _eval_mc_ast(event, family, i, s, domain):
                 if all(
-                    _eval_mc_ast(guard, valuation, r, domain)
+                    _eval_mc_ast(guard, family, i, r, domain)
                     for r in domain
                     if s < r < t
                 ):
                     return True
         return False
+    if tag == "box":
+        # Family-global: true at (i, t) iff the child holds at EVERY position of EVERY lasso
+        # in the family (NecessityOperator's own docstring; (C3) box faithfulness), not merely
+        # every position of lasso i.
+        return all(
+            _eval_mc_ast(ast[1], family, j, u, domain)
+            for j in range(len(family))
+            for u in domain
+        )
     raise ValueError(f"unknown ast tag: {tag!r}")
 
 
-def _eval_lean_formula(formula: Formula, valuation, t: int, domain: range) -> bool:
-    """Direct evaluator over the translated `Formula`, mirroring the Lean `untl`/`snce`
-    semantics (guard-first), independent of `_eval_mc_ast` and of `translate`'s own logic."""
+def _eval_lean_formula(formula: Formula, family, i: int, t: int, domain: range) -> bool:
+    """Direct evaluator over the translated `Formula`, mirroring the Lean `untl`/`snce`/`box`
+    semantics (guard-first Until/Since, family-global Box), independent of `_eval_mc_ast` and of
+    `translate`'s own logic. Never calls `translate`, and shares no helper with `_eval_mc_ast`
+    beyond the `family`/`domain` data it both read -- a reference evaluator routed through
+    `translate` would pass under the very bug this differential targets."""
     if isinstance(formula, Atom):
-        return t in domain and bool(valuation.get(formula.base, {}).get(t, False))
+        return t in domain and (("atom", formula.base) in family[i].lab(t))
     if isinstance(formula, Bot):
         return False
     if isinstance(formula, Imp):
-        return (not _eval_lean_formula(formula.left, valuation, t, domain)) or _eval_lean_formula(
-            formula.right, valuation, t, domain
-        )
+        return (
+            not _eval_lean_formula(formula.left, family, i, t, domain)
+        ) or _eval_lean_formula(formula.right, family, i, t, domain)
     if isinstance(formula, Box):
-        raise NotImplementedError("Box is out of scope for this tense-fragment property test")
+        return all(
+            _eval_lean_formula(formula.child, family, j, u, domain)
+            for j in range(len(family))
+            for u in domain
+        )
     if isinstance(formula, Untl):
         guard, event = formula.guard, formula.event
         for s in domain:
-            if s > t and _eval_lean_formula(event, valuation, s, domain):
+            if s > t and _eval_lean_formula(event, family, i, s, domain):
                 if all(
-                    _eval_lean_formula(guard, valuation, r, domain)
+                    _eval_lean_formula(guard, family, i, r, domain)
                     for r in domain
                     if t < r < s
                 ):
@@ -515,9 +560,9 @@ def _eval_lean_formula(formula: Formula, valuation, t: int, domain: range) -> bo
     if isinstance(formula, Snce):
         guard, event = formula.guard, formula.event
         for s in domain:
-            if s < t and _eval_lean_formula(event, valuation, s, domain):
+            if s < t and _eval_lean_formula(event, family, i, s, domain):
                 if all(
-                    _eval_lean_formula(guard, valuation, r, domain)
+                    _eval_lean_formula(guard, family, i, r, domain)
                     for r in domain
                     if s < r < t
                 ):
@@ -570,6 +615,27 @@ def _atoms_in_ast(ast, out=None):
     return out
 
 
+def _family_from_valuation(valuation, domain):
+    """Wrap a `{atom: {t: bool}}` valuation (over `domain`) in a one-lasso family, so the
+    existing tense-fragment regression test can reuse the family-aware evaluators unchanged.
+    Assumes `domain` is a contiguous range with at least one negative position (as
+    `_PROPERTY_DOMAIN` is): `back` covers the negative positions in one exact cycle (no
+    wraparound within `domain`), `mid` covers the non-negative positions directly, and `fwd` is
+    a single unread filler segment -- every clause above bounds its quantification to `domain`
+    explicitly, so `Lasso.lab` is never consulted past it."""
+    atoms = sorted(valuation.keys())
+
+    def _label(t):
+        return [{"tag": "atom", "name": a} for a in atoms if valuation[a].get(t, False)]
+
+    neg_positions = sorted(t for t in domain if t < 0)
+    nonneg_positions = sorted(t for t in domain if t >= 0)
+    back = [_label(t) for t in neg_positions]
+    mid = [_label(t) for t in nonneg_positions]
+    fwd = [[]]
+    return (_CertLasso(back=back, mid=mid, fwd=fwd),)
+
+
 class TestTranslateTruthPreservation:
     @pytest.mark.parametrize("ast", _PROPERTY_ASTS)
     def test_translate_preserves_truth_across_hand_built_valuations(self, ast):
@@ -577,9 +643,10 @@ class TestTranslateTruthPreservation:
         formula = translate(sentence)
         atoms = sorted(_atoms_in_ast(ast))
         for valuation in _valuations(atoms, _PROPERTY_DOMAIN):
+            family = _family_from_valuation(valuation, _PROPERTY_DOMAIN)
             for t in _PROPERTY_DOMAIN:
-                mc_value = _eval_mc_ast(ast, valuation, t, _PROPERTY_DOMAIN)
-                lean_value = _eval_lean_formula(formula, valuation, t, _PROPERTY_DOMAIN)
+                mc_value = _eval_mc_ast(ast, family, 0, t, _PROPERTY_DOMAIN)
+                lean_value = _eval_lean_formula(formula, family, 0, t, _PROPERTY_DOMAIN)
                 assert mc_value == lean_value, (
                     f"translate({_ast_to_infix(ast)}) disagrees with the original sentence's "
                     f"semantics at t={t} under valuation {valuation}: "

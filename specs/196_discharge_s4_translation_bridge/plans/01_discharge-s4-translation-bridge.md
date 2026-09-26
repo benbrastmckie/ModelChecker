@@ -488,7 +488,7 @@ recorded before verification work begins.
 
 ---
 
-### Phase 5: Import the independent label-family decoder and add the Box clause [NOT STARTED]
+### Phase 5: Import the independent label-family decoder and add the Box clause [COMPLETED]
 
 **Goal**: `_eval_mc_ast` and `_eval_lean_formula` in
 `code/src/model_checker/theory_lib/bimodal/tests/unit/test_formula.py` evaluate at a point
