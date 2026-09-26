@@ -40,6 +40,11 @@
           "path": "specs/196_discharge_s4_translation_bridge/plans/01_discharge-s4-translation-bridge.md",
           "type": "plan",
           "summary": "Revised 9-phase plan (v2): guard-first Until/Since normalization across ModelChecker and the oracle lands first (phases 1-4), then the two-axis differential property test discharging S4's box half (phases 5-9). Route 2 taken; Route 1 recorded infeasible; Lean cross-check deferred."
+        },
+        {
+          "path": "specs/196_discharge_s4_translation_bridge/summaries/02_discharge-s4-translation-bridge-summary.md",
+          "type": "summary",
+          "summary": "Discharged S4 for both tense and box halves via a differential property test in test_formula.py, after a scope-added guard-first Until/Since normalization across ModelChecker and the oracle. Route 2 taken; Route 1 recorded infeasible; Lean cross-check deferred. All 9 phases completed; bimodal (508 passed), oracle (567 passed, 4 xfailed), and four-theory-gate (645 passed, 5 skipped) suites all green."
         }
       ],
       "next_artifact_number": 3
