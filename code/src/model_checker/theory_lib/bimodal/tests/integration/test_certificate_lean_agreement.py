@@ -1,13 +1,18 @@
 """Differential test: the certificate fixture corpus against `lake exe check_certificate`.
 
-This is the mechanical discharge of `ADEQUACY.md` Section 5.3's periodicity obligation and
-Section 7.3's A2-triangle test's re-checker leg: the fixture corpus's expected verdicts
-(adjudicated by `test_certificate_fixtures.py`'s self-contained Python evaluator) must agree with
-`lake exe check_certificate`, the executable built directly on the four `Decidable` instances
-`WitnessFamily.joint_countermodel` consumes
+This is the mechanical discharge of `ADEQUACY.md` Section 5.3's periodicity obligation: the
+fixture corpus's expected verdicts (adjudicated by `test_certificate_fixtures.py`'s
+self-contained Python evaluator) must agree with `lake exe check_certificate`, the executable
+built directly on the four `Decidable` instances `WitnessFamily.joint_countermodel` consumes
 (`~/Projects/BimodalLogic/FormalSystem/Metalogic/Decidability/WitnessFamily/Agreement.lean:232`).
 Where the Lean predicates and the Python re-checker disagree, the Lean predicates are the
 contract (ADEQUACY.md Section 5.3) -- a disagreement here is a Python-side defect by definition.
+
+**Scope correction.** This module covers legs (i) (the Python re-checker) and (ii)
+(`lake exe check_certificate`) of Section 7.3's A2-triangle test, but only on the fixture corpus
+-- it does not build a live `BimodalStructure`/Z3 search, so it cannot exercise leg (iii)
+(encoding completeness). The full three-leg triangle, including leg (iii), lives in
+`test_certificate_a2_triangle.py`; see that module's docstring.
 
 **Agreement observed against BimodalLogic commit**: `6529c6e853f1c29358a7e74a76055f64f68b7ff7`
 (2026-09-24T22:21:44-07:00). Re-run this module after updating the BimodalLogic checkout to

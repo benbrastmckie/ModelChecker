@@ -1,7 +1,7 @@
 # Implementation Plan: A2-triangle encoding-completeness test
 
 - **Task**: 191 - A2 triangle encoding completeness test
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/191_a2_triangle_encoding_completeness_test/reports/01_a2-triangle-encoding-completeness.md
@@ -334,22 +334,32 @@ exceeds the existing Lean module's runtime by more than about 3x, lower
 
 ---
 
-### Phase 5: Documentation and full-suite verification [NOT STARTED]
+### Phase 5: Documentation and full-suite verification [COMPLETED]
 
 **Goal**: The A2 deciding test is recorded as standing where the adequacy argument is stated, the
 stale claim about which legs are covered is corrected, and the whole bimodal suite is green.
 
 **Tasks**:
-- [ ] Update `bimodal/docs/ADEQUACY.md` section 7.3 to record the deciding test as standing in
+- [x] Update `bimodal/docs/ADEQUACY.md` section 7.3 to record the deciding test as standing in
       this repository's suite, naming `tests/integration/test_certificate_a2_triangle.py`, the
       three closures, and the two-tier structure (exhaustive Python; bounded Lean) — mirroring
       section 7.2's existing "standing in this repository's suite" wording for A0.
-- [ ] Correct `test_certificate_lean_agreement.py`'s docstring claim that it discharges "Section
+- [x] Correct `test_certificate_lean_agreement.py`'s docstring claim that it discharges "Section
       7.3's A2-triangle test's re-checker leg": state that it covers legs (i)/(ii) on the fixture
       corpus and point at the new module for the full triangle including leg (iii).
-- [ ] Add the new module to `bimodal/tests/README.md` if that file enumerates test modules
-      (check first; do not invent a section).
-- [ ] Run the full bimodal suite and the repo test suite gate.
+- [x] Add the new module to `bimodal/tests/README.md` (the file does enumerate test modules, in
+      the `integration/` table).
+- [x] Run the full bimodal suite and the repo test suite gate. **Finding, not caused by this
+      task**: `bimodal/tests/integration/test_iterate.py::TestLiveIteration::
+      test_iterate_three_yields_three_pairwise_distinct_certificates` fails
+      (`assert 0 == 2`) on this working tree. Confirmed via `git log` this is task 189's own
+      deliberately-red reproduction test (`task 189 phase 1: baseline, reproduction, and failing
+      live test`, committed mid-way through this task's own phases on the shared working tree,
+      per the dispatch's Territory concurrency note) for an unrelated iterator defect
+      (`fix_shared_iterator_is_world_assumption`) still being fixed by that task, not this one.
+      With that single foreign test deselected, the full bimodal suite (374 tests, including
+      every test this task added) and the full `code/tests/` repo gate (645 passed, 5 skipped)
+      are both green.
 
 **Timing**: 0.75 hours
 

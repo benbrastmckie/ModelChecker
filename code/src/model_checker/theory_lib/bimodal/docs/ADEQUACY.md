@@ -599,6 +599,17 @@ as wide as §5.2's, with no extra constraint. It is testable today, without A1:
 > - (iii) true where (i) = (ii) = `rejected` localizes an **encoding unsoundness** — caught at run
 >   time by §6.2's fail-fast step, but this test finds it in the suite instead.
 
+**Deciding test for A2, standing in this repository's suite**:
+`tests/integration/test_certificate_a2_triangle.py`. Two tiers: an exhaustive Tier 1 comparing
+legs (i) and (iii) over every candidate at `back = mid = fwd = 1`, over three closures (two
+box-free, one with a `Box`, so the witness-lasso and `bx` dimensions are both exercised); and a
+bounded, deterministic Tier 2 sampling leg (ii) against `lake exe check_certificate` on a small
+per-closure sample plus each SAT closure's live Z3-extracted certificate (skipping cleanly
+without a BimodalLogic checkout). All three closures agree across all three legs as of this
+writing — see the task's implementation summary for the observed verdicts and counts.
+`test_certificate_lean_agreement.py` remains the fixture corpus's own leg (i)/(ii) coverage; see
+that module's docstring.
+
 ### 7.4 The never-report-validity rule
 
 The search must never report that a formula or inference is **valid**, on two independent
