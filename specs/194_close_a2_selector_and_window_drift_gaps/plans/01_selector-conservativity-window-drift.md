@@ -381,31 +381,43 @@ must be edited, not skipped).
 
 ---
 
-### Phase 5: Full-suite and four-theory-gate verification [NOT STARTED]
+### Phase 5: Full-suite and four-theory-gate verification [COMPLETED]
 
 **Goal**: Confirm the task's explicit "no behavioral change is intended" claim against the full
 bimodal suite and the repository's gating selection.
 
 **Tasks**:
-- [ ] Re-read `git status --short` and `git log --oneline -5` first: confirm no foreign
+- [x] Re-read `git status --short` and `git log --oneline -5` first: confirm no foreign
       uncommitted modification or foreign commit from a sibling task is in the tree. If one is
       present, STOP and report it rather than proceeding (dispatch concurrency note, item 5).
-- [ ] Full bimodal suite, including the `slow`-marked A2-triangle cases:
+      Confirmed foreign in-flight edits throughout (siblings 192/193 editing
+      `test_certificate_a2_triangle.py`, `ADEQUACY.md`, `TRUST_PIPELINE.md`, and their own plan
+      files); every commit in `git log` outside this task's own three phase commits is a
+      legitimate sibling commit (`task 192 ...`, `task 193 ...`), not a foreign uncommitted
+      modification -- left untouched throughout, per the concurrency note.
+- [x] Full bimodal suite, including the `slow`-marked A2-triangle cases:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -v`.
-- [ ] Four-theory gate, matching `.github/workflows/tests.yml`'s two-pass shape (parallel pass
+      **441 passed, 0 failed, 0 errors** in 150.51s (up from 420 at Phase 2's check-in --
+      sibling tasks 192/193 added cases concurrently; none of the increase is this task's).
+- [x] Four-theory gate, matching `.github/workflows/tests.yml`'s two-pass shape (parallel pass
       excluding `xdist_serial`, then the serial pass over exactly those):
       `cd code && PYTHONPATH=src pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread`
       then
       `cd code && PYTHONPATH=src pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread`.
       Run each in the background with a captured PID and a bounded waiter per
       `context/patterns/bounded-build-waiter.md`; do not poll unbounded.
-- [ ] Spot-check the CLI path is unaffected: `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py`
+      **Parallel pass: 2944 passed, 1 skipped, 5 warnings**, 0 failed, in 255.60s. **Serial pass:
+      9 passed, 3074 deselected**, 0 failed, in 3.26s.
+- [x] Spot-check the CLI path is unaffected: `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py`
       and confirm the countermodel/no-countermodel verdicts match what the examples' `expectation`
       settings declare (the certificate-encoding path runs through `target_window()` in
       `extract_certificate`, so this exercises the delegation end to end).
-- [ ] Record the observed pass/fail counts for both passes in the implementation summary — actual
+      Confirmed: 25 of 53 examples active, all 13 `_CM_`-named examples reported "there is a
+      countermodel" and all 12 `_TH_`-named examples reported "there is no countermodel" --
+      matching every example's naming-encoded `expectation`, with no error or mismatch in the log.
+- [x] Record the observed pass/fail counts for both passes in the implementation summary — actual
       numbers, not "all green".
-- [ ] Commit any final doc/state touch-ups (`task 194: complete implementation`).
+- [x] Commit any final doc/state touch-ups (`task 194: complete implementation`).
 
 **Timing**: 0.75 hours
 
@@ -430,20 +442,21 @@ bimodal suite and the repository's gating selection.
 
 ## Testing & Validation
 
-- [ ] `TestTargetWindow`'s swept agreement test passes across all 36 `(nb, nm, nf)` combinations,
+- [x] `TestTargetWindow`'s swept agreement test passes across all 36 `(nb, nm, nf)` combinations,
       including every `mid == 0` case.
-- [ ] `TestSelectorConservativity` passes: per-position `sat`/`unsat` agrees with `_target_holds`
+- [x] `TestSelectorConservativity` passes: per-position `sat`/`unsat` agrees with `_target_holds`
       for every parametrized label assignment, at both `back=2,mid=1,fwd=2` and `back=mid=fwd=1`.
-- [ ] The periodicity-corollary test passes for `t < -nb` and `t >= nm + nf`, with no Z3 solve.
-- [ ] The deliberate-mismatch guard confirms the conservativity assertions are non-vacuous.
-- [ ] Pre-existing `TestTargetConstraints`, `TestTargetWindow`, `test_certificate.py`,
+- [x] The periodicity-corollary test passes for `t < -nb` and `t >= nm + nf`, with no Z3 solve.
+- [x] The deliberate-mismatch guard confirms the conservativity assertions are non-vacuous.
+- [x] Pre-existing `TestTargetConstraints`, `TestTargetWindow`, `test_certificate.py`,
       `test_symmetry.py`, `test_iterate.py` all still pass unchanged.
-- [ ] `test_certificate_a2_triangle.py` (both tiers, including `slow`) passes with the same verdicts
+- [x] `test_certificate_a2_triangle.py` (both tiers, including `slow`) passes with the same verdicts
       as before the change — it consumes `target_window()` for candidate sizing, so a changed
       candidate count would be the loudest possible signal of an unintended behavioral change.
-- [ ] Full bimodal suite green.
-- [ ] Four-theory gate green, both passes.
-- [ ] `dev_cli.py` bimodal examples produce verdicts matching their `expectation` settings.
+- [x] Full bimodal suite green (441 passed, 0 failed).
+- [x] Four-theory gate green, both passes (2944 passed/1 skipped parallel; 9 passed/3074
+      deselected serial).
+- [x] `dev_cli.py` bimodal examples produce verdicts matching their `expectation` settings.
 
 ## Artifacts & Outputs
 
