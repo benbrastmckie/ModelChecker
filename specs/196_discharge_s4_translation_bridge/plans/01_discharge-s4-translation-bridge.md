@@ -559,7 +559,7 @@ imported by both modules — a relocation, not a second copy — and record that
 
 ---
 
-### Phase 6: Two axes — generated sentences and hand-built multi-lasso families [NOT STARTED]
+### Phase 6: Two axes — generated sentences and hand-built multi-lasso families [COMPLETED]
 
 **Goal**: a new test class exercises `translate` differentially over generated small-depth
 sentences covering every defined operator, including asymmetric `\Until`/`\Since` instances, at
