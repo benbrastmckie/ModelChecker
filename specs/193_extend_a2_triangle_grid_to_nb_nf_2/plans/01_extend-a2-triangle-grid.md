@@ -1,7 +1,7 @@
 # Implementation Plan: Extend the A2-triangle exhaustive grid to nb=nf=2
 
 - **Task**: 193 - Extend the A2-triangle encoding-completeness test's exhaustive grid beyond back=mid=fwd=1 to cover nb=nf=2
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/193_extend_a2_triangle_grid_to_nb_nf_2/reports/01_extend-a2-triangle-grid.md
@@ -128,20 +128,20 @@ Phases within the same wave can execute in parallel. Phases 2 and 3 are parallel
 Phase 3 writes no repository file — it runs a scratchpad measurement script. Phase 2 owns
 `test_certificate_a2_triangle.py` for that wave.
 
-### Phase 1: Generalize the candidate generator and the closed-form count [NOT STARTED]
+### Phase 1: Generalize the candidate generator and the closed-form count [COMPLETED]
 
 **Goal**: `_candidates()` and `_expected_candidate_count()` produce correct candidates and totals at
 any `nb`/`nm`/`nf`, with the existing three closures' behavior at `back = mid = fwd = 1` provably
 unchanged.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py` immediately before editing (sibling-task concurrency).
-- [ ] In `_candidates()`, read `nb`/`nm`/`nf` from `semantics.witness_registry` and build each lasso's segments as `itertools.product(labels, repeat=nb)` / `repeat=nm` / `repeat=nf`, combined across the three segments via `itertools.product`, replacing the hard-coded `back=(back_label,), mid=(mid_label,), fwd=(fwd_label,)` construction. Materialize the per-lasso choice list once, preserving the existing comment's explanation of why that matters.
-- [ ] Keep the `len(closure) <= 4` assertion and its message verbatim.
-- [ ] In `_expected_candidate_count()`, compute `slots_per_lasso = registry.slots_per_lasso` once and use it for both the exponent (`slots_per_lasso * lassos`, replacing the literal `3`) and the trailing multiplicand; add a one-line comment naming the `target_window_len == slots_per_lasso == nb+nm+nf` identity that the previous code relied on without stating.
-- [ ] Update `_candidates()`'s docstring to say it reads segment lengths from the registry rather than assuming length-1 segments.
-- [ ] Run the full module including `slow` and confirm all existing cases pass with their existing expected counts untouched.
-- [ ] Commit (green sub-step).
+- [x] Re-read `code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py` immediately before editing (sibling-task concurrency).
+- [x] In `_candidates()`, read `nb`/`nm`/`nf` from `semantics.witness_registry` and build each lasso's segments as `itertools.product(labels, repeat=nb)` / `repeat=nm` / `repeat=nf`, combined across the three segments via `itertools.product`, replacing the hard-coded `back=(back_label,), mid=(mid_label,), fwd=(fwd_label,)` construction. Materialize the per-lasso choice list once, preserving the existing comment's explanation of why that matters.
+- [x] Keep the `len(closure) <= 4` assertion and its message verbatim.
+- [x] In `_expected_candidate_count()`, compute `slots_per_lasso = registry.slots_per_lasso` once and use it for both the exponent (`slots_per_lasso * lassos`, replacing the literal `3`) and the trailing multiplicand; add a one-line comment naming the `target_window_len == slots_per_lasso == nb+nm+nf` identity that the previous code relied on without stating.
+- [x] Update `_candidates()`'s docstring to say it reads segment lengths from the registry rather than assuming length-1 segments.
+- [x] Run the full module including `slow` and confirm all existing cases pass with their existing expected counts untouched.
+- [x] Commit (green sub-step).
 
 **Timing**: 1 hour
 

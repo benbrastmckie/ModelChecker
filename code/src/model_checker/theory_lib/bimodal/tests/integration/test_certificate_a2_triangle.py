@@ -97,7 +97,10 @@ def _candidates(structure: BimodalStructure) -> Iterator[Candidate]:
       `test_setup_solver_finalizes_the_certificate_before_solving`);
     - the box guess keys (`bx`) from the closure's `Box` children, matching both
       `extract_certificate` and `certificate._box_faithful`'s `family.bx_of(f.child)`;
-    - the target-time range from `witness_registry.target_window()`.
+    - the target-time range from `witness_registry.target_window()`;
+    - each lasso's segment lengths (`nb`/`nm`/`nf`) from `witness_registry`, rather than
+      assuming length-1 segments -- at `nb = nm = nf = 1` this reduces to exactly the previous
+      length-1 construction.
 
     Asserts `len(closure) <= 4` on every call -- ADEQUACY section 7.3's literal bound, made
     machine-checked rather than trusted to stay true as examples are added or changed.
@@ -112,19 +115,25 @@ def _candidates(structure: BimodalStructure) -> Iterator[Candidate]:
     boxes = sorted((f for f in closure if isinstance(f, Box)), key=repr)
     target_window = list(semantics.witness_registry.target_window())
     labels = list(_subsets(closure))
+    nb = semantics.witness_registry.nb
+    nm = semantics.witness_registry.nm
+    nf = semantics.witness_registry.nf
 
     # Materialize once: passing the same list object to `itertools.product` multiple times is
     # safe (each positional argument is independently converted to a tuple internally), unlike
     # passing the same *generator* object multiple times, which would be exhausted after the
     # first use.
-    per_lasso_label_choices = list(itertools.product(labels, labels, labels))
+    back_choices = list(itertools.product(labels, repeat=nb))
+    mid_choices = list(itertools.product(labels, repeat=nm))
+    fwd_choices = list(itertools.product(labels, repeat=nf))
+    per_lasso_label_choices = list(itertools.product(back_choices, mid_choices, fwd_choices))
 
     for bx_bits in itertools.product((False, True), repeat=len(boxes)):
         bx = {boxes[i].child: bx_bits[i] for i in range(len(boxes))}
         for lasso_labels in itertools.product(*([per_lasso_label_choices] * len(lasso_indices))):
             lassos = tuple(
-                LabelledLasso(back=(back_label,), mid=(mid_label,), fwd=(fwd_label,))
-                for (back_label, mid_label, fwd_label) in lasso_labels
+                LabelledLasso(back=back_labels, mid=mid_labels, fwd=fwd_labels)
+                for (back_labels, mid_labels, fwd_labels) in lasso_labels
             )
             family = WitnessFamily(bx=bx, lassos=lassos)
             for t in target_window:
@@ -150,13 +159,23 @@ def _run_exhaustive_triangle(structure: BimodalStructure) -> Tuple[int, int]:
 
 
 def _expected_candidate_count(structure: BimodalStructure, closure_size: int) -> int:
-    """The closed-form candidate count: `(2**|C|)**(3*lassos) * 2**boxes * len(target_window)`
-    (ADEQUACY section 7.3's Testing & Validation cross-check)."""
+    """The closed-form candidate count: `(2**|C|)**(slots_per_lasso*lassos) * 2**boxes *
+    len(target_window)` (ADEQUACY section 7.3's Testing & Validation cross-check).
+
+    `slots_per_lasso` (`nb+nm+nf`) is the number of independent label-choice slots each lasso
+    contributes -- one factor of `2**|C|` per slot, since `_candidates()` draws each of a
+    lasso's `back`/`mid`/`fwd` positions independently from the same `2**|C|` labels. The
+    identity `target_window_len == slots_per_lasso` holds because both equal `nb+nm+nf`
+    (`target_window()` is `range(-nb, nm+nf)`, width `nb+nm+nf`) -- the previous literal `3`
+    exponent relied on this silently, being correct only at `nb=nm=nf=1`, where
+    `slots_per_lasso == 3`.
+    """
     semantics = structure.semantics
     lassos = len(semantics._active_lassos)
     boxes = sum(1 for f in semantics.witness_registry.closure if isinstance(f, Box))
     target_window_len = len(list(semantics.witness_registry.target_window()))
-    return (2 ** closure_size) ** (3 * lassos) * (2 ** boxes) * target_window_len
+    slots_per_lasso = semantics.witness_registry.slots_per_lasso
+    return (2 ** closure_size) ** (slots_per_lasso * lassos) * (2 ** boxes) * target_window_len
 
 
 def _assert_exhaustive_triangle_agrees(
