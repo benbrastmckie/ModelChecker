@@ -1,0 +1,236 @@
+Warning: Flag 'contingent' doesn't correspond to any known setting
+Warning: Flag 'disjoint' doesn't correspond to any known setting
+Warning: Flag 'non_empty' doesn't correspond to any known setting
+Warning: Flag 'non_null' doesn't correspond to any known setting
+
+
+
+ITERATION REPORT
+    Model 1: Initial model (0.00s)
+    Model 2: Found after skipping 0 isomorphic models (0.02s)
+    Model 3: Found after skipping 0 isomorphic models (0.02s)
+
+Total: 3/3 models found, 0 isomorphic models skipped, 0.04s elapsed
+
+========================================
+=== POST-FIX LIVE iterate: 3 RUN (BM_CM_1) ===
+Models found (incl. initial): 3
+Isomorphic skips: 0
+Checked model count: 3
+--- Model 1 certificate variables ---
+  lab_0_0_Atom(base='A', fresh_index=None) = True
+  lab_0_0_Bot() = False
+  lab_0_0_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_0_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_0_Imp(left=Bot(), right=Bot()) = True
+  lab_0_0_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = True
+  lab_0_0_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_1_Atom(base='A', fresh_index=None) = True
+  lab_0_1_Bot() = False
+  lab_0_1_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_1_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_1_Imp(left=Bot(), right=Bot()) = True
+  lab_0_1_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = True
+  lab_0_1_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_2_Atom(base='A', fresh_index=None) = True
+  lab_0_2_Bot() = False
+  lab_0_2_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_2_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_2_Imp(left=Bot(), right=Bot()) = True
+  lab_0_2_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = True
+  lab_0_2_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_3_Atom(base='A', fresh_index=None) = True
+  lab_0_3_Bot() = False
+  lab_0_3_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_3_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_3_Imp(left=Bot(), right=Bot()) = True
+  lab_0_3_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = True
+  lab_0_3_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_4_Atom(base='A', fresh_index=None) = True
+  lab_0_4_Bot() = False
+  lab_0_4_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_4_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_4_Imp(left=Bot(), right=Bot()) = True
+  lab_0_4_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = True
+  lab_0_4_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_0_Atom(base='A', fresh_index=None) = False
+  lab_1_0_Bot() = False
+  lab_1_0_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_0_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = True
+  lab_1_0_Imp(left=Bot(), right=Bot()) = True
+  lab_1_0_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_0_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = True
+  lab_1_1_Atom(base='A', fresh_index=None) = False
+  lab_1_1_Bot() = False
+  lab_1_1_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_1_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = True
+  lab_1_1_Imp(left=Bot(), right=Bot()) = True
+  lab_1_1_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_1_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = True
+  lab_1_2_Atom(base='A', fresh_index=None) = False
+  lab_1_2_Bot() = False
+  lab_1_2_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_2_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = True
+  lab_1_2_Imp(left=Bot(), right=Bot()) = True
+  lab_1_2_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_2_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = True
+  lab_1_3_Atom(base='A', fresh_index=None) = False
+  lab_1_3_Bot() = False
+  lab_1_3_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_3_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = True
+  lab_1_3_Imp(left=Bot(), right=Bot()) = True
+  lab_1_3_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_3_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = True
+  lab_1_4_Atom(base='A', fresh_index=None) = False
+  lab_1_4_Bot() = False
+  lab_1_4_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_4_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = True
+  lab_1_4_Imp(left=Bot(), right=Bot()) = True
+  lab_1_4_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_4_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = True
+  bx_Atom(base='A', fresh_index=None) = False
+--- Model 2 certificate variables ---
+  lab_0_0_Atom(base='A', fresh_index=None) = False
+  lab_0_0_Bot() = False
+  lab_0_0_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_0_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_0_Imp(left=Bot(), right=Bot()) = False
+  lab_0_0_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_0_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_1_Atom(base='A', fresh_index=None) = False
+  lab_0_1_Bot() = False
+  lab_0_1_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_1_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_1_Imp(left=Bot(), right=Bot()) = False
+  lab_0_1_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_1_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_2_Atom(base='A', fresh_index=None) = False
+  lab_0_2_Bot() = False
+  lab_0_2_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_2_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_2_Imp(left=Bot(), right=Bot()) = False
+  lab_0_2_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_2_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_3_Atom(base='A', fresh_index=None) = False
+  lab_0_3_Bot() = False
+  lab_0_3_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_3_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_3_Imp(left=Bot(), right=Bot()) = False
+  lab_0_3_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_3_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_4_Atom(base='A', fresh_index=None) = False
+  lab_0_4_Bot() = False
+  lab_0_4_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_4_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_4_Imp(left=Bot(), right=Bot()) = False
+  lab_0_4_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_4_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_0_Atom(base='A', fresh_index=None) = False
+  lab_1_0_Bot() = False
+  lab_1_0_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_0_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_0_Imp(left=Bot(), right=Bot()) = False
+  lab_1_0_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_0_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_1_Atom(base='A', fresh_index=None) = False
+  lab_1_1_Bot() = False
+  lab_1_1_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_1_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_1_Imp(left=Bot(), right=Bot()) = False
+  lab_1_1_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_1_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_2_Atom(base='A', fresh_index=None) = False
+  lab_1_2_Bot() = False
+  lab_1_2_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_2_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_2_Imp(left=Bot(), right=Bot()) = False
+  lab_1_2_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_2_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_3_Atom(base='A', fresh_index=None) = False
+  lab_1_3_Bot() = False
+  lab_1_3_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_3_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_3_Imp(left=Bot(), right=Bot()) = False
+  lab_1_3_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_3_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_4_Atom(base='A', fresh_index=None) = False
+  lab_1_4_Bot() = False
+  lab_1_4_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_4_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_4_Imp(left=Bot(), right=Bot()) = False
+  lab_1_4_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_4_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  bx_Atom(base='A', fresh_index=None) = False
+--- Model 3 certificate variables ---
+  lab_0_0_Atom(base='A', fresh_index=None) = False
+  lab_0_0_Bot() = False
+  lab_0_0_Box(child=Atom(base='A', fresh_index=None)) = True
+  lab_0_0_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_0_Imp(left=Bot(), right=Bot()) = False
+  lab_0_0_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_0_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_1_Atom(base='A', fresh_index=None) = False
+  lab_0_1_Bot() = False
+  lab_0_1_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_1_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_1_Imp(left=Bot(), right=Bot()) = False
+  lab_0_1_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_1_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_2_Atom(base='A', fresh_index=None) = False
+  lab_0_2_Bot() = False
+  lab_0_2_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_2_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_2_Imp(left=Bot(), right=Bot()) = False
+  lab_0_2_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_2_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_3_Atom(base='A', fresh_index=None) = False
+  lab_0_3_Bot() = False
+  lab_0_3_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_3_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_3_Imp(left=Bot(), right=Bot()) = False
+  lab_0_3_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_3_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_0_4_Atom(base='A', fresh_index=None) = False
+  lab_0_4_Bot() = False
+  lab_0_4_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_0_4_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_0_4_Imp(left=Bot(), right=Bot()) = False
+  lab_0_4_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_0_4_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_0_Atom(base='A', fresh_index=None) = False
+  lab_1_0_Bot() = False
+  lab_1_0_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_0_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_0_Imp(left=Bot(), right=Bot()) = False
+  lab_1_0_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_0_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_1_Atom(base='A', fresh_index=None) = False
+  lab_1_1_Bot() = False
+  lab_1_1_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_1_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_1_Imp(left=Bot(), right=Bot()) = False
+  lab_1_1_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_1_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_2_Atom(base='A', fresh_index=None) = False
+  lab_1_2_Bot() = False
+  lab_1_2_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_2_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_2_Imp(left=Bot(), right=Bot()) = False
+  lab_1_2_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_2_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_3_Atom(base='A', fresh_index=None) = False
+  lab_1_3_Bot() = False
+  lab_1_3_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_3_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_3_Imp(left=Bot(), right=Bot()) = False
+  lab_1_3_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_3_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  lab_1_4_Atom(base='A', fresh_index=None) = False
+  lab_1_4_Bot() = False
+  lab_1_4_Box(child=Atom(base='A', fresh_index=None)) = False
+  lab_1_4_Imp(left=Atom(base='A', fresh_index=None), right=Bot()) = False
+  lab_1_4_Imp(left=Bot(), right=Bot()) = False
+  lab_1_4_Imp(left=Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())), right=Bot()) = False
+  lab_1_4_Untl(guard=Imp(left=Bot(), right=Bot()), event=Imp(left=Atom(base='A', fresh_index=None), right=Bot())) = False
+  bx_Atom(base='A', fresh_index=None) = False
+No traceback raised.

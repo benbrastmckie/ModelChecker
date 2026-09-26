@@ -14,29 +14,33 @@ module is rewritten around the certificate encoding's own variable set: label bi
 (`WitnessRegistry._bits`), box guesses (`WitnessRegistry._guesses`), and the extracted
 `WitnessFamily`/`target_time` pair (`semantic/core.py`'s `extract_certificate`, Phase 10).
 
-## `_create_difference_constraint`/`_create_non_isomorphic_constraint` are interface-parity
-methods, not the live loop's exclusion mechanism -- true before this redesign, still true now
+## `_create_difference_constraint`/`_create_non_isomorphic_constraint` ARE the live loop's
+exclusion mechanism for this theory (HISTORY: they used not to be)
 
-`BaseModelIterator.iterate()`/`iterate_generator()` (`model_checker/iterate/core.py`) never call
-`self._create_difference_constraint`/`self._create_non_isomorphic_constraint` directly: they
-delegate to a composed, theory-agnostic `ConstraintGenerator`
-(`model_checker/iterate/constraints.py`), constructed unconditionally in
-`BaseModelIterator.__init__` and not overridable per theory. That generator's own exclusion
-logic is entirely gated on `hasattr(semantics, 'is_world')` -- true of the retired encoding
-(and of the other three theories, which keep a bitvector world-state predicate), **false of
-this one** (D3/D4 deliberately have no state-existence predicate at all; the certified carrier
-is `{0,...,k} x Z`, not enumerated states). This is a genuine, discovered gap: for bimodal,
-`iterate: N > 1` now finds its models with **no active exclusion constraint from the generic
-path** -- Z3 may happen to return distinct models across separate finalize-and-solve rounds
-(the search space is large and label bits are otherwise unconstrained), but nothing in the
-shared framework *forces* the next model to differ. Fixing `ConstraintGenerator` itself would
-touch shared code all four theories rely on and was judged out of proportion to a bimodal-only
-task without dedicated regression coverage across the other three theories; it is recorded here,
-in the implementation plan's own Phase 15 section, and in that phase's handoff, rather than
-silently left undiscovered. The methods below are kept, rewritten for the new variable set, for
-the same reason the retired encoding kept them: interface parity with the other three theories,
-and direct programmatic use (`iterate_example`/`iterate_example_generator`, below, which uses
-`BaseModelIterator.iterate()`'s own model-building machinery, not these two methods).
+HISTORY: `BaseModelIterator.iterate()`/`iterate_generator()` (`model_checker/iterate/core.py`)
+used to call a composed, theory-agnostic `ConstraintGenerator`
+(`model_checker/iterate/constraints.py`) directly, whose own exclusion logic was entirely gated
+on `hasattr(semantics, 'is_world')` -- true of the other three theories (which keep a bitvector
+world-state predicate), **false of this one** (D3/D4 deliberately have no state-existence
+predicate at all; the certified carrier is `{0,...,k} x Z`, not enumerated states). That made
+`_create_difference_constraint`/`_create_non_isomorphic_constraint` below dead code from the live
+loop's perspective, and it made `iterate: N > 1` crash outright on the unguarded `is_world` call
+before that gap was even reached (see `iterate/models.py`'s `build_new_model_structure`).
+
+The shared iterate framework now exposes three polymorphic extension points on
+`BaseModelIterator` -- `_pin_theory_specific_values`, `_build_exclusion_constraints` (which calls
+`_create_difference_constraint`), and `_check_model_isomorphism` -- each with a base-class
+default that preserves the other three theories' previous behavior. This class overrides all
+three below (see each method's own docstring), so the live loop now genuinely consults them:
+`_create_difference_constraint`'s blocking clause is the actual exclusion constraint bimodal's
+live `iterate: N > 1` search enforces, not merely an interface-parity stub. See
+`iterate/README.md`'s Extension Guide for the full three-hook contract shared across theories.
+
+`_create_non_isomorphic_constraint` remains reachable a second way too: `_build_stronger_constraint`
+(`iterate/core.py`) composes it with the generic `ConstraintGenerator` escape constraint when the
+live loop hits a (graph-)isomorphic model -- moot for this theory in practice, since
+`_check_model_isomorphism` below always reports "not isomorphic", so that composition path is
+never exercised for bimodal specifically, only for the other three theories.
 
 ## Isomorphism rejection is simplified to exact difference, not rotation/permutation invariance
 

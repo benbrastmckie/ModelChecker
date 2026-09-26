@@ -501,7 +501,7 @@ site the grep returns.
 
 ---
 
-### Phase 5: Bimodal Live Iteration Green [NOT STARTED]
+### Phase 5: Bimodal Live Iteration Green [COMPLETED]
 
 **Goal**: Turn Phase 1's RED end-to-end test green and prove that bimodal's distinctness is
 constraint-enforced rather than incidental.
@@ -541,6 +541,43 @@ constraint-enforced rather than incidental.
 - A `dev_cli.py` run of a bimodal example with `iterate: 3` prints three distinct certificates and
   no traceback; output saved alongside the Phase 1 baselines for comparison.
 - No remaining claim in bimodal source or tests that the live loop bypasses the theory hooks.
+
+#### Evidence (recorded at implementation time)
+
+- Exploratory measurement to size the exhaustion test: `back=1, mid=0, fwd=1` with premises
+  `["A"]`/conclusions `["B"]` admits exactly 16 pairwise-distinct certificates before exhausting
+  (model 17 hits "solver returned unsat"); `iterate: 20` in the new exhaustion test therefore
+  reliably exercises the exhaustion path rather than merely getting lucky within a timeout.
+- New test `test_exclusion_constraint_for_model_two_is_enforced_not_coincidental`: the exclusion
+  constraint list for model 2 is length 1 and evaluates to `False` under model 1's own Z3
+  assignment -- enforcement, not coincidence, confirmed directly rather than inferred from
+  "3 distinct models happened to come out."
+- New test `test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly`: with
+  `iterate: 20` against the 16-certificate space above, the loop yields 15 generator models (16
+  total with the initial one) and terminates via `"solver returned unsat"` in `debug_messages`,
+  not a hang or an infinite isomorphic-skip loop.
+- `bimodal/tests/integration/test_iterate.py`'s module docstring rewritten (HISTORY framing) to
+  describe what the module now covers -- three extension-point overrides plus live end-to-end
+  coverage -- rather than asserting a full live run "cannot be exercised correctly."
+  `bimodal/iterate.py`'s module docstring's `_create_difference_constraint`/
+  `_create_non_isomorphic_constraint` section rewritten the same way (HISTORY framing), now
+  stating plainly that these methods ARE the live loop's exclusion mechanism for this theory,
+  with a pointer to `_build_stronger_constraint`'s composition path for
+  `_create_non_isomorphic_constraint`'s second (moot-for-bimodal) reachability route. The
+  separate "Isomorphism rejection is simplified" section (exact-difference vs. rotation
+  invariance) was left untouched -- still accurate, unrelated to this phase's fix.
+- `grep -rn "never call\|dead code\|not.*live loop\|bypasses" code/src/model_checker/theory_lib/bimodal/iterate.py code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py`
+  returns nothing asserting the live loop skips these hooks (the one remaining "dead code from
+  the live loop's perspective" phrase is inside the HISTORY paragraph, explicitly framed as past
+  tense).
+- Full `bimodal/tests/` suite: 379 passed (up from the 176-line file's original count; two new
+  live tests plus the module-docstring-only rewrite of the RED test's own class docstring).
+- `iterate/tests/` full suite: still 238 passed (no changes to `iterate/` source in this phase,
+  only bimodal-side docstrings and tests).
+- Live run saved to `specs/189_fix_shared_iterator_is_world_assumption/baselines/07_post-fix-bimodal-live-run.txt`
+  (a standalone-script equivalent of a `dev_cli.py` run, since `dev_cli.py` itself expects an
+  on-disk example-range file rather than settings passed programmatically): 3 models found, 0
+  isomorphic skips, all label-bit/box-guess variables printed per model, no traceback.
 
 ---
 

@@ -1,17 +1,22 @@
 """Tests for the BimodalModelIterator implementation under the certificate redesign
-(Phase 15): difference/non-isomorphism constraints over label bits and box guesses, and
-label/guess-based difference detection and display.
+(Phase 15): difference/non-isomorphism constraints over label bits and box guesses,
+label/guess-based difference detection and display, the three shared-iterator
+extension-point overrides (`_pin_theory_specific_values`, `_build_exclusion_constraints`
+by way of `_create_difference_constraint`, `_check_model_isomorphism`), and live,
+non-mocked end-to-end `iterate: N` coverage (`TestLiveIteration`).
 
-Deliberately not a full live `iterate: N` end-to-end run: `BaseModelIterator.iterate()`
-delegates model exclusion to the shared, theory-agnostic `ConstraintGenerator`
-(`model_checker/iterate/constraints.py`), which is gated on `hasattr(semantics, 'is_world')`
--- true of the other three theories, false of this one by design (D3/D4 have no
-state-existence predicate). This is a genuine, discovered gap in the live loop's exclusion
-mechanism for bimodal specifically, recorded in `iterate.py`'s own module docstring and in
-this phase's plan section and handoff -- not something these tests can exercise correctly
-until (and unless) that shared mechanism grows a theory-specific extension point. What these
-tests exercise instead is `BimodalModelIterator`'s own methods directly (interface parity
-with the retired encoding's own approach, unaffected by that gap).
+HISTORY: this module's tests were previously method-level only, with a module
+docstring explaining that a full live run could not be exercised correctly: the shared
+`BaseModelIterator.iterate_generator()` called the theory-agnostic `ConstraintGenerator`
+directly (`model_checker/iterate/constraints.py`), gated on `hasattr(semantics,
+'is_world')` -- true of the other three theories, false of this one by design (D3/D4
+have no state-existence predicate) -- so `BimodalModelIterator`'s own difference/
+isomorphism overrides were dead code from the live loop's perspective, and a live
+`iterate: N > 1` run crashed outright on `is_world` before that gap was even reached.
+The shared iterate framework now exposes three theory-specific extension points
+(`iterate/core.py`'s `_pin_theory_specific_values`, `_build_exclusion_constraints`, and
+`_check_model_isomorphism`) that `BimodalModelIterator` overrides below, and the live
+loop genuinely consults them -- `TestLiveIteration` exercises exactly this path.
 """
 
 from __future__ import annotations
@@ -332,3 +337,40 @@ class TestLiveIteration:
                     for var in variables
                 )
                 assert differs, f"models {i} and {j} agree on every certificate variable"
+
+    def test_exclusion_constraint_for_model_two_is_enforced_not_coincidental(self):
+        """Prove enforcement, not luck: the exclusion constraint list handed to the
+        solver for model 2 must be non-empty, and it must evaluate to `False` under
+        model 1's own assignment -- i.e. the blocking clause genuinely excludes the
+        certificate the search already found, rather than model 2 merely happening to
+        differ."""
+        example = _real_build_example(
+            BM_CM_1_premises, BM_CM_1_conclusions, BM_CM_1_settings, iterate_count=3
+        )
+        iterator = BimodalModelIterator(example)
+        model_one = example.model_structure.z3_model
+
+        exclusion_constraints = iterator._build_exclusion_constraints([model_one])
+
+        assert len(exclusion_constraints) == 1
+        result = model_one.eval(exclusion_constraints[0], model_completion=True)
+        assert not is_true(result), (
+            "the exclusion constraint for model 2 must be FALSE under model 1's own "
+            "assignment -- otherwise it excludes nothing"
+        )
+
+    def test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly(self):
+        """When `iterate:` asks for more certificates than the settings admit, the
+        live loop must terminate with a clean "solver returned unsat" exhaustion
+        message rather than hanging or looping forever on isomorphic skips."""
+        settings = _settings(back=1, mid=0, fwd=1, iterate=20, max_time=5)
+        example = _real_build_example(["A"], ["B"], settings, iterate_count=20)
+        iterator = BimodalModelIterator(example)
+
+        structures = list(iterator.iterate_generator())
+
+        assert len(structures) < 19  # fewer than the 20 requested -- the space ran out
+        assert len(iterator.model_structures) == len(structures) + 1
+        assert any(
+            "solver returned unsat" in message for message in iterator.debug_messages
+        )
