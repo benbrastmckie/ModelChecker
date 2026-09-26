@@ -1,17 +1,17 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "task_number": 196,
-  "phase": "plan",
-  "session_id": "sess_1790440270_1867f0_196",
-  "dispatch_seq": 8,
-  "phases_completed": 0,
-  "phases_total": 5,
+  "phase": "implement",
+  "session_id": "sess_1790451420_8ce5b0",
+  "dispatch_seq": 10,
+  "phases_completed": 9,
+  "phases_total": 9,
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/196_discharge_s4_translation_bridge/plans/01_discharge-s4-translation-bridge.md",
-      "summary": "5-phase plan discharging obligation S4 via Route 2 (extend the differential property test to the box half); Route 1 rejected as architecturally inapplicable."
+      "type": "summary",
+      "path": "specs/196_discharge_s4_translation_bridge/summaries/02_discharge-s4-translation-bridge-summary.md",
+      "summary": "Discharged S4 for both tense and box halves via a differential property test in test_formula.py, after a scope-added guard-first Until/Since normalization across ModelChecker and the oracle. Route 2 taken; Route 1 recorded infeasible; Lean cross-check deferred. All 9 phases completed; bimodal (508 passed), oracle (567 passed, 4 xfailed), and four-theory-gate (645 passed, 5 skipped) suites all green."
     }
   ],
-  "next_steps": "Run /implement 196 to execute the plan"
+  "next_steps": "Task complete (state.json status: completed). Optionally consider the Lean-side translation truth-preservation theorem (deferred, tracked in docs/TRUST_PIPELINE.md) as separate future work in ~/Projects/BimodalLogic."
 }
