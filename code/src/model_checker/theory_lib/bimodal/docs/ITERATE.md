@@ -1,8 +1,8 @@
 # Bimodal Theory Model Iteration Guide
 
 This guide explains how to find multiple distinct witness-family certificates for bimodal logic
-formulas using the model iteration feature, and states plainly what is and is not currently
-guaranteed by it.
+formulas using the model iteration feature, and states plainly what is and is not guaranteed by
+it.
 
 ## Table of Contents
 
@@ -11,7 +11,6 @@ guaranteed by it.
 - [Configuration](#configuration)
 - [Understanding Results](#understanding-results)
 - [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)
-- [A Live Limitation: `iterate: N > 1` Currently Crashes](#a-live-limitation-iterate-n--1-currently-crashes)
 - [Performance Tips](#performance-tips)
 - [Troubleshooting](#troubleshooting)
 - [See Also](#see-also)
@@ -25,13 +24,11 @@ encoding's world histories, task relations, and time-shift tables. See
 `ARCHITECTURE.md`'s "Model Iteration" section and `iterate.py`'s own module docstring for the full
 technical account this guide summarizes.
 
-**Read this whole document, especially the limitation section below, before relying on
-`iterate: N > 1` for anything beyond N=1.** This redesign narrowed iteration's scope on purpose
-(see [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)) and,
-independently, exposed a pre-existing framework gap that currently makes `iterate: N > 1` fail
-outright through the standard `dev_cli.py`/`model-checker` CLI path
-(see [A Live Limitation](#a-live-limitation-iterate-n--1-currently-crashes)). Neither is
-speculative; both are demonstrated below.
+**Read [How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced)
+before relying on `iterate: N > 1`.** This redesign narrows iteration's diversity guarantee on
+purpose: distinctness is exact-bit/guess difference, not rotation/permutation invariance (see
+that section, and the ["Repeated (rotated) certificates"](#repeated-rotated-certificates)
+troubleshooting entry).
 
 ## Basic Usage
 
@@ -59,12 +56,17 @@ models[0].print_certificate()
 
 ```python
 models = iterate_example(example, max_iterations=3)
+print(f"Found {len(models)} certificate(s)")
+for model in models:
+    if hasattr(model, 'print_model_differences'):
+        model.print_model_differences()
 ```
 
-As of this writing, this call **raises** rather than returning up to three certificates — see
-[A Live Limitation](#a-live-limitation-iterate-n--1-currently-crashes). It is documented here in
-its intended shape so the gap is visible against what the API is meant to do, not silently
-omitted.
+Returns up to three pairwise-distinct certificates (fewer if the settings admit fewer than three
+— see the ["No additional certificates found"](#no-additional-certificates-found) troubleshooting
+entry). Distinctness is enforced by a genuine Z3 blocking clause over the certificate's own
+label bits and box guesses — see
+[How Model Diversity Is Actually Enforced](#how-model-diversity-is-actually-enforced).
 
 ## Configuration
 
@@ -75,7 +77,7 @@ settings = {
     "back": 2,
     "mid": 1,
     "fwd": 2,
-    "iterate": 1,       # Safe; see the limitation below for N > 1
+    "iterate": 3,       # Number of distinct certificates to search for
     "max_time": 10,
 }
 ```
@@ -117,80 +119,35 @@ Box Guess Changes:
 
 ## How Model Diversity Is Actually Enforced
 
-`BaseModelIterator.iterate()`/`iterate_generator()` (`model_checker/iterate/core.py`) never call
-`BimodalModelIterator`'s own `_create_difference_constraint`/`_create_non_isomorphic_constraint`
-directly. They delegate to a composed, theory-agnostic `ConstraintGenerator`
-(`model_checker/iterate/constraints.py`), constructed unconditionally in
-`BaseModelIterator.__init__` and not overridable per theory. That generator's own exclusion logic
-is entirely gated on `hasattr(semantics, 'is_world')` — true of the other three theories (which
-keep a bitvector world-state predicate), **false of bimodal by design**: D3/D4 deliberately have no
-state-existence predicate at all, because the certified carrier is `{0,...,k} x Z`, not a set of
-enumerated states.
+`BaseModelIterator.iterate()`/`iterate_generator()` (`model_checker/iterate/core.py`) reaches
+`BimodalModelIterator`'s own `_create_difference_constraint` through a polymorphic extension
+point: `_build_exclusion_constraints` calls it directly (with the full list of previously-found
+models) and hands the result to the solver as the live loop's actual exclusion constraint. This
+is not merely interface parity or a standalone helper — it is the mechanism the live
+`iterate: N > 1` search enforces distinctness with.
 
-**Consequence**: for bimodal, the generic framework path contributes *no* active exclusion
-constraint. `BimodalModelIterator._create_difference_constraint`/
-`_create_non_isomorphic_constraint` exist for interface parity with the other three theories and
-for direct, standalone use — they are exercised directly by
-`tests/integration/test_iterate.py` — but are not invoked by the live search loop.
+The shared framework's other two extension points matter here too:
+`_pin_theory_specific_values` pins every certificate variable (label bit, box guess) of a newly
+found model into the fresh solve that builds its `ModelStructure`, and `_check_model_isomorphism`
+is overridden to always report "not isomorphic" for this theory — the shared graph-based
+isomorphism check is built from `z3_world_states`, which the certificate encoding never
+populates, so two bimodal models would otherwise always produce two empty graphs and be
+(falsely) reported isomorphic. See `iterate.py`'s own module docstring, and
+`model_checker/iterate/README.md`'s Extension Guide, for the full three-hook contract shared
+across all four theories.
 
-`_create_non_isomorphic_constraint` is additionally **simplified to exact difference, not
-rotation/permutation invariance**: a fully symmetry-aware rejection would need to enumerate the
-rotation group action on each lasso's periodic `back`/`fwd` segments together with witness-lasso
-relabelings. This redesign implements the simpler exact-bit/guess difference shared with
-`_create_difference_constraint` instead — sufficient to guarantee the *next* certificate is not
-bit-for-bit identical, but not sufficient to guarantee it is not a rotation of a previous one.
-
-Both points are recorded, not silently descoped, in the implementation plan's own Phase 15
-section: a future task should (1) close the shared `ConstraintGenerator` extension-point gap with
-its own cross-theory regression plan, and (2) implement the full rotation/permutation-invariant
-rejection once (1) is in place, using `WitnessRegistry.wrap`'s existing slot arithmetic to
-enumerate rotations.
-
-## A Live Limitation: `iterate: N > 1` Currently Crashes
-
-Beyond the scope narrowing above, direct testing of the standard `dev_cli.py`/`model-checker` CLI
-path (`iterate: 3` set on an example) surfaces a sharper, pre-existing framework gap:
-`model_checker/iterate/models.py`'s `build_new_model_structure` — the shared routine every
-theory's iterator uses to build each successor model — contains
-
-```python
-for state in range(2**semantics.N):
-    is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
-    ...
-```
-
-with **no `hasattr` guard**, unlike its neighboring `possible`/`verify`/`falsify` blocks in the
-same function (which are each guarded). Bimodal's `BimodalSemantics` fixes `N = 0` (D3: a
-vestigial attribute the shared framework reads unconditionally) and defines no `is_world` method
-at all (D3/D4: the certificate encoding has no state-existence predicate). `range(2**0)` is `[0]`,
-so this loop body runs exactly once and immediately raises:
-
-```
-AttributeError: 'BimodalSemantics' object has no attribute 'is_world'
-```
-
-which the framework wraps as `ModelExtractionError: Failed to extract model 1: ...`. This was
-reproduced directly (`dev_cli.py` against a countermodel example with `"iterate": 3` in its
-settings): the first certificate is found and printed normally, and the attempt to build the
-*second* one fails with exactly this error, aborting the run.
-
-**Why this was not caught by the 366/366-green test suite**: no example in `examples.py` sets
-`iterate` above its default of `1`, and `max_iterations == 1` short-circuits before this code path
-is ever reached. `tests/integration/test_iterate.py` exercises `BimodalModelIterator`'s own
-methods directly (deliberately, per its own module docstring) rather than driving a live
-`iterate: N > 1` run end to end, for exactly the scope-narrowing reason above — but that same
-choice is why this second, independent crash was not previously surfaced against the live path.
-
-**Scope of the fix**: `model_checker/iterate/models.py` is shared framework code all four theories
-depend on; adding a `hasattr(semantics, 'is_world')` guard around this block (mirroring its own
-`possible`/`verify` neighbors) is the natural fix, but it is cross-theory code requiring its own
-regression coverage across all four theories, not a bimodal-only change. It is recorded here as a
-known, reproduced limitation — not fixed as part of this documentation pass — for the same reason
-the `ConstraintGenerator` gap above was left for a follow-on task.
-
-**Practical guidance**: use `iterate: 1` (the default) until this is fixed. `iterate_example`/
-`iterate_example_generator`'s programmatic API is unaffected for `max_iterations=1` and is exactly
-as reliable as a single ordinary solve.
+**Distinctness is exact-bit/guess difference, not rotation/permutation invariance.**
+`_create_non_isomorphic_constraint` (used when the shared framework's generic escape path is
+composed in for other theories — moot for bimodal specifically, since `_check_model_isomorphism`
+above never reports an isomorphic hit for this theory to escape from) and
+`_create_difference_constraint` both reject only exact label-bit/box-guess equality. A fully
+symmetry-aware rejection would need to enumerate the rotation group action on each lasso's
+periodic `back`/`fwd` segments together with witness-lasso relabelings; this redesign implements
+the simpler exact-bit/guess difference instead — sufficient to guarantee the *next* certificate is
+not bit-for-bit identical to a previous one, but not sufficient to guarantee it is not a rotation
+of one. A follow-on task should implement the full symmetry-aware rejection using
+`WitnessRegistry.wrap`'s existing slot arithmetic to enumerate rotations — see
+["Repeated (rotated) certificates"](#repeated-rotated-certificates) below.
 
 ## Performance Tips
 
@@ -219,16 +176,14 @@ logging.getLogger('model_checker.theory_lib.bimodal.iterate').setLevel(logging.D
 
 ## Troubleshooting
 
-### `AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`
-
-This is the crash documented above. Set `iterate: 1` (or omit the setting; `1` is the default).
-
-### No additional certificates found (once the crash above is fixed upstream)
+### No additional certificates found
 
 - Raise `back`/`mid`/`fwd` for more structural variety in the periodic segments.
 - Raise `max_witnesses` if the formula has several boxed subformulas.
 - Check whether your formula heavily constrains the label assignment — a highly determined
-  formula may genuinely admit very few distinct certificates.
+  formula may genuinely admit very few distinct certificates. The live loop terminates cleanly
+  once the admitted space is exhausted (a `"solver returned unsat"` debug message), rather than
+  hanging or looping forever.
 
 ### Repeated (rotated) certificates
 

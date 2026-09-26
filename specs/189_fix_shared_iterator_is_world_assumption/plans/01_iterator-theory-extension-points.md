@@ -1,7 +1,7 @@
 # Implementation Plan: Theory-Specific Extension Points in the Shared Model Iterator
 
 - **Task**: 189 - Fix the shared model iterator's `is_world` assumption so the bimodal theory can iterate
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 11.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/189_fix_shared_iterator_is_world_assumption/reports/01_iterator-is-world-extension-point.md`
@@ -658,7 +658,7 @@ change), is recorded in
 
 ---
 
-### Phase 7: Documentation Alignment [NOT STARTED]
+### Phase 7: Documentation Alignment [COMPLETED]
 
 **Goal**: Remove the now-stale "live limitation / use `iterate: 1`" guidance and document the three
 new extension points where a theory author will look for them.
@@ -700,6 +700,35 @@ new extension points where a theory author will look for them.
 - `grep -rniE "task [0-9]+" code/src/model_checker/iterate/README.md code/src/model_checker/theory_lib/bimodal/docs/ITERATE.md code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md`
   returns nothing.
 - `ITERATE.md`'s Table of Contents matches its actual headings.
+
+#### Evidence (recorded at implementation time)
+
+- `git diff --stat` on the three touched files: `iterate/README.md` (+25/-0), `bimodal/docs/ARCHITECTURE.md`
+  (+67/-56 across two sections: "Model Iteration" and a stale "Extension Points" bullet found and
+  fixed while reading the file, naming the now-closed `ConstraintGenerator` gap), `bimodal/docs/ITERATE.md`
+  (+145/-125: TOC entry removed, "Requesting more than one certificate" example corrected to a
+  working 3-certificate call, "How Model Diversity Is Actually Enforced" rewritten, the entire "A
+  Live Limitation" section deleted, both stale Troubleshooting entries corrected). Every hunk is
+  markdown prose (illustrative code fences only); no source-code region was touched.
+- `grep -rn "is_world" code/src/model_checker/theory_lib/bimodal/docs/` returns nothing (not even
+  a historical mention -- the rewrites replaced rather than merely reframed every occurrence).
+- `grep -rn "def is_world" code/src/model_checker/theory_lib/bimodal/` returns nothing (Non-Goal
+  respected: no shim added).
+- `grep -rn "is_world" code/src/model_checker/iterate/` shows no unguarded call on the live path
+  -- every remaining occurrence is either inside an `if hasattr(semantics, 'is_world'):` guard or
+  documentation prose describing the extension-point contract.
+- `grep -rniE "task [0-9]+" code/src/model_checker/iterate/README.md
+  code/src/model_checker/theory_lib/bimodal/docs/ITERATE.md
+  code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md` returns nothing.
+- `ITERATE.md`'s Table of Contents (7 entries) matches its 7 actual `##`-level headings exactly,
+  confirmed by direct grep comparison.
+- Full regression confidence, run at Phase 7 (doc-only changes, so no behavior change expected,
+  confirmed rather than assumed): `theory_lib/{bimodal,logos,imposition,exclusion}/tests/` +
+  `iterate/tests/` + `code/tests/` (the project's top-level integration/e2e/CLI suite) all green
+  in this phase's own runs -- see the implementation summary for the consolidated final numbers
+  and the one flaky-looking sibling-task report (task-191 concurrency, not a real regression --
+  the live RED->GREEN test was independently re-confirmed green in isolation and as part of every
+  combined run in this phase).
 
 ---
 

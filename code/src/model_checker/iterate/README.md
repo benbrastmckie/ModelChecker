@@ -280,6 +280,31 @@ class MyTheoryIterator(BaseModelIterator):
             yield model
 ```
 
+### Three Theory-Specific Extension Points
+
+`BaseModelIterator` exposes three hooks specifically for theories whose model content is not a
+bitvector state space with an `is_world` predicate (the assumption `iterate/models.py` and
+`iterate/constraints.py` otherwise make throughout). Each has a base-class default that is a
+behavior-preserving no-op or a delegation to the generic, `is_world`-gated implementation, so a
+theory that overrides none of them keeps exactly the behavior it always had.
+
+| Hook | Called from | Base-class default | Override when |
+|------|-------------|---------------------|----------------|
+| `_pin_theory_specific_values(self, temp_solver, z3_model, model_constraints)` | `iterate/models.py`'s `build_new_model_structure`, once per newly-built model structure | No-op | The theory's model content is not enumerable as bitvector states, so the generic `is_world`/`verify`/`falsify` pinning in `build_new_model_structure` cannot reach it. Call `temp_solver.add(...)` for each concrete value to pin. |
+| `_create_difference_constraint(self, previous_models)` (reached via `_build_exclusion_constraints`, which every theory shares unmodified) | `iterate_generator`, once per search, with the full list of previously-found models | Delegates to `ConstraintGenerator`'s generic, `is_world`-gated implementation | The theory has its own, stronger, or entirely different notion of "differs from a previous model" (e.g. no `is_world` predicate at all). Return a single `z3.BoolRef` covering every model in `previous_models`. |
+| `_check_model_isomorphism(self, new_structure, new_model)` | `iterate_generator`, once per newly-built model structure | Delegates to `self.isomorphism_checker.check_isomorphism(new_structure, new_model, self.model_structures, self.found_models)` | The shared graph-based isomorphism check (`iterate/graph.py`'s `ModelGraph`, built from `z3_world_states`) cannot represent the theory's models at all, or would produce a false positive/negative for them. Return `(is_isomorphic, isomorphic_model_or_None)` directly. |
+
+`_create_non_isomorphic_constraint`/`_create_stronger_constraint` remain reachable a second way:
+`_build_stronger_constraint` **composes** (conjoins) the generic `ConstraintGenerator` escape
+constraint with any non-trivial override of these two, rather than replacing one with the other —
+required because two of the four existing theories' own overrides are `BoolVal(True)` no-op
+placeholders, and the generic constraint is their only real escape mechanism when an isomorphic
+model is hit.
+
+The bimodal theory (`theory_lib/bimodal/iterate.py`) overrides all three hooks — see its module
+docstring for a complete worked example, including why its `_check_model_isomorphism` override
+unconditionally opts out of the shared graph representation.
+
 2. **Register in Theory's __init__.py**:
 ```python
 from .iterate import MyTheoryIterator

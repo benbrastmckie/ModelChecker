@@ -225,33 +225,36 @@ translation swaps them; see `semantic/formula.py`'s module docstring for the exa
 
 `BimodalModelIterator` (`iterate.py`) rewrites difference detection around the certificate
 encoding's own variables — label bits (`WitnessRegistry._bits`) and box guesses
-(`WitnessRegistry._guesses`) — rather than world histories or truth conditions. Its own module
-docstring records two things this redesign discovered, not merely deferred:
+(`WitnessRegistry._guesses`) — rather than world histories or truth conditions, and overrides all
+three of the shared iterate framework's theory-specific extension points on `BaseModelIterator`
+(`model_checker/iterate/core.py`):
 
-1. **`_create_difference_constraint`/`_create_non_isomorphic_constraint` are interface-parity
-   methods, not the live loop's exclusion mechanism.** `BaseModelIterator.iterate()` delegates to
-   a theory-agnostic `ConstraintGenerator` (`model_checker/iterate/constraints.py`) whose own
-   exclusion logic is gated on `hasattr(semantics, 'is_world')` — true of the other three theories,
-   false of this one by design (D3/D4 deliberately have no state-existence predicate). So the live
-   `iterate: N > 1` loop currently has no active exclusion constraint from the generic framework
-   path for bimodal; fixing the shared `ConstraintGenerator` is out of this theory's scope (it
-   would touch all four theories) and is recorded as follow-on work.
-2. **Isomorphism rejection is simplified to exact difference, not rotation/permutation
-   invariance.** A fully symmetry-aware rejection would enumerate the rotation group action on
-   each lasso's periodic segments together with witness-lasso relabelings; this redesign
-   implements the simpler, still-sound (if less complete) exact-bit/guess difference shared with
-   `_create_difference_constraint`.
+1. **`_pin_theory_specific_values`**: pins every certificate variable of a newly found model into
+   the fresh solve that builds its `ModelStructure`. The generic pinning
+   `iterate/models.py`'s `build_new_model_structure` performs (world states, `verify`/`falsify`)
+   cannot reach this theory's model content at all — D3/D4 deliberately have no state-existence
+   predicate; the certified carrier is `{0,...,k} x Z`, not a set of enumerated states.
+2. **`_build_exclusion_constraints`** (by way of `_create_difference_constraint`): the actual
+   exclusion constraint the live `iterate: N > 1` loop enforces for this theory — a blocking
+   clause requiring difference, in at least one label bit or box guess, from every
+   previously-found model. **Distinctness is exact-bit/guess difference, not
+   rotation/permutation invariance**: a fully symmetry-aware rejection would enumerate the
+   rotation group action on each lasso's periodic segments together with witness-lasso
+   relabelings; this redesign implements the simpler, still-sound (if less complete)
+   exact-bit/guess difference instead. A follow-on task should implement the full
+   rotation/permutation-invariant rejection using `WitnessRegistry.wrap`'s existing slot
+   arithmetic.
+3. **`_check_model_isomorphism`**: always reports "not isomorphic" for this theory. The shared
+   graph-based isomorphism check (`iterate/graph.py`) is built from `z3_world_states`, which the
+   certificate encoding never populates, so two bimodal models would otherwise always produce two
+   empty graphs and be falsely reported isomorphic — confirmed live, not merely a theoretical
+   concern, by a regression test in `iterate/tests/`.
 
-Independent of both points above, direct testing of the standard `dev_cli.py`/CLI path surfaced a
-sharper, reproducible crash for `iterate: N > 1`: `model_checker/iterate/models.py`'s
-`build_new_model_structure` calls `semantics.is_world(state)` with no `hasattr` guard (unlike its
-neighboring `possible`/`verify` blocks in the same function), and bimodal defines no `is_world` at
-all — the first certificate is found and printed, and building the second one raises
-`AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`. See `ITERATE.md`'s
-[A Live Limitation](ITERATE.md#a-live-limitation-iterate-n--1-currently-crashes) section for the
-full reproduction and why it slipped past the 366/366-green test suite (no example sets
-`iterate` above its default of `1`). Fixing it is shared-framework work, out of this task's scope
-for the same reason the `ConstraintGenerator` gap is.
+See `ITERATE.md`'s
+[How Model Diversity Is Actually Enforced](ITERATE.md#how-model-diversity-is-actually-enforced)
+section and `iterate.py`'s own module docstring for the full account, and
+`model_checker/iterate/README.md`'s Extension Guide for the three-hook contract shared across all
+four theories.
 
 ## Never Reporting Validity (D8)
 
@@ -285,9 +288,13 @@ terminates over `ℤ` — over a dense order it would not.
   sharing is compatible with the certificate datatype in principle but would require re-proving
   the histories correspondence (Lemma 2) and redesigning box faithfulness around it — deliberately
   not attempted here.
-- **The shared `ConstraintGenerator` extension point** (iteration): closing the `is_world`-gated
-  gap named above, with its own cross-theory regression plan, is a prerequisite for a fully
-  symmetry-aware `_create_non_isomorphic_constraint`.
+- **Rotation/permutation-invariant isomorphism rejection** (iteration): the shared iterate
+  framework's three theory-specific extension points now route the live loop through this
+  theory's own `_create_difference_constraint`/`_check_model_isomorphism` overrides (see
+  "Model Iteration" above); what remains as follow-on work is making that rejection
+  symmetry-aware (reject modulo rotation of each lasso's periodic segments and permutation of the
+  witness lassos), not merely exact-bit/guess difference, using `WitnessRegistry.wrap`'s existing
+  slot arithmetic to enumerate rotations.
 - **A fixed-frame model-checking mode** (checking a given finite digraph directly, rather than
   searching for a certificate) is a distinct, optional feature, out of scope for this design.
 - **The tableau/proof-system bridge**: wiring BimodalLogic's Lean tableau as a differential oracle
