@@ -452,7 +452,7 @@ if an eighth appears, fix it and say so in the summary.
 
 ---
 
-### Phase 4: Normalization gate and audit record [NOT STARTED]
+### Phase 4: Normalization gate and audit record [COMPLETED]
 
 **Goal**: the whole repository is green under one argument order, and what the sweep found is
 recorded before verification work begins.
