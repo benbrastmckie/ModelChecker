@@ -298,18 +298,18 @@ re-pinned.
 
 ---
 
-### Phase 5: Sync the module docstring and ADEQUACY.md section 7.3 [NOT STARTED]
+### Phase 5: Sync the module docstring and ADEQUACY.md section 7.3 [COMPLETED]
 
 **Goal**: The documentation describes what the test now covers — both grid sizes — and names the
 one standing coverage gap, so a reader is not left believing the grid is still `back = mid = fwd = 1`
 only.
 
 **Tasks**:
-- [ ] Re-read both files immediately before editing.
-- [ ] Update the test module's top-level docstring: the Tier 1 bullet and the opening paragraph's "fix `back = mid = fwd = 1`" framing should state that the grid now covers both `back = mid = fwd = 1` and `back = 2, mid = 1, fwd = 2` (production's `DEFAULT_EXAMPLE_SETTINGS`), and should name why `nb = 2` matters: `witness_constraints.py`'s recorded narrow-window local-coherence defect required `nb = 2` to manifest, since slot `back[1]` recurs at every odd-magnitude position.
-- [ ] Add one or two sentences to `ADEQUACY.md` section 7.3's "Deciding test for A2" paragraph (currently describing only the `back = mid = fwd = 1` grid) recording the added `nb=nf=2` coverage, which closures carry it, and the standing gap: the size-3 boxed closure remains `back = mid = fwd = 1`-only because exhaustive enumeration at `nb=nf=2` is ~10.7 billion candidates. Do not restate the section's own Test block, which fixes `back = mid = fwd = 1` as the minimum, not the maximum.
-- [ ] Reference durable anchors only (file names, section numbers, closure descriptions) — no task numbers in either file.
-- [ ] Commit (green sub-step).
+- [x] Re-read both files immediately before editing. (A sibling task's concurrent uncommitted edit to `ADEQUACY.md` — a new "one-hot selector is conservative" paragraph in this same section 7.3, from the sibling covering selector/window-drift gaps — was observed mid-phase; it committed cleanly before this phase's own edit, so no interleaving occurred. Flagged to the team lead per the territory contract.)
+- [x] Update the test module's top-level docstring: the Tier 1 bullet and the opening paragraph's "fix `back = mid = fwd = 1`" framing should state that the grid now covers both `back = mid = fwd = 1` and `back = 2, mid = 1, fwd = 2` (production's `DEFAULT_EXAMPLE_SETTINGS`), and should name why `nb = 2` matters: `witness_constraints.py`'s recorded narrow-window local-coherence defect required `nb = 2` to manifest, since slot `back[1]` recurs at every odd-magnitude position.
+- [x] Add one or two sentences to `ADEQUACY.md` section 7.3's "Deciding test for A2" paragraph (currently describing only the `back = mid = fwd = 1` grid) recording the added `nb=nf=2` coverage, which closures carry it, and the standing gap: the size-3 boxed closure remains `back = mid = fwd = 1`-only because exhaustive enumeration at `nb=nf=2` is ~10.7 billion candidates. Do not restate the section's own Test block, which fixes `back = mid = fwd = 1` as the minimum, not the maximum.
+- [x] Reference durable anchors only (file names, section numbers, closure descriptions) — no task numbers in either file.
+- [x] Commit (green sub-step).
 
 **Timing**: 30 minutes
 

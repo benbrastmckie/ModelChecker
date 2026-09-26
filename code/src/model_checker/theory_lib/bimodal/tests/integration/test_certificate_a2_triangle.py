@@ -2,14 +2,21 @@
 
 A2 holds iff the Z3 constraint set is exactly the conjunction of (C1)-(C4) over windows at
 least as wide as section 5.2's, with no extra constraint. Section 7.3 names the deciding test:
-fix `back = mid = fwd = 1` and a closure `C` with `|C| <= 4`, exhaustively enumerate every
-candidate `(bx, L_0, ..., L_k)` over subsets of `C` at those lengths, and compare three verdicts
-per closure:
+fix a closure `C` with `|C| <= 4`, exhaustively enumerate every candidate `(bx, L_0, ..., L_k)`
+over subsets of `C` at the grid's lengths, and compare three verdicts per closure:
 
 - (i) the pure-Python re-checker, `certificate.recheck`;
 - (ii) `lake exe check_certificate`;
 - (iii) whether the real Z3 encoding, run at the same lengths on the same premises/conclusions,
   reports SAT.
+
+The grid now covers two sizes: `back = mid = fwd = 1` (the historical minimum) and
+`back = 2, mid = 1, fwd = 2` (production's `DEFAULT_EXAMPLE_SETTINGS`). The wider grid matters
+because it is the one A2 violation known to have actually occurred: `witness_constraints.py`'s
+module docstring records that local coherence was once generated over the narrow
+`WitnessRegistry.target_window()` instead of the proved wide `_coherence_window`, and the
+counterexample that caught it required `nb = 2`, since slot `back[1]` recurs at every
+odd-magnitude position -- a defect the `back = mid = fwd = 1` grid alone cannot see.
 
 **What is novel here.** `test_certificate_lean_agreement.py` already compares (i) against (ii)
 on the fixture corpus -- that module's own docstring names this as discharging section 7.3's
@@ -24,12 +31,19 @@ at run time by section 6.2's fail-fast guard, but this test finds it here instea
 Two tiers:
 
 - **Tier 1** (`TestExhaustiveTriangleBoxFree`, `TestExhaustiveTriangleWithBox`): exhaustive over
-  every candidate at `back = mid = fwd = 1`, comparing legs (i) and (iii) only -- affordable
-  unconditionally at this closure size (measured at plan time: <0.1s for a box-free closure,
-  ~11s for a single-box closure, see `TestExhaustiveTriangleWithBox`'s own comment).
+  every candidate at both grid sizes, comparing legs (i) and (iii) only -- affordable
+  unconditionally at `back = mid = fwd = 1` for every closure and at `back = 2, mid = 1, fwd = 2`
+  for the box-free closures (measured at plan time: <0.1s for a box-free closure at the smaller
+  grid, ~1.06s combined for both box-free closures at the wider grid); the single-box closures
+  are `slow`-marked at both grid sizes (~11s at `back = mid = fwd = 1`, ~64.5s at
+  `back = 2, mid = 1, fwd = 2` -- see `TestExhaustiveTriangleWithBox`'s own comment). The
+  pre-existing size-3 boxed closure stays `back = mid = fwd = 1`-only: its `nb=nf=2` enumeration
+  is ~10.7 billion candidates (~19h extrapolated), well past what `slow` can afford under CI's
+  300s per-test ceiling.
 - **Tier 2** (`TestBoundedLeanCrossCheck`): leg (ii) on a small, deterministic, named sample of
   candidates plus the live Z3-extracted certificate, reusing `_lean_check.py`'s skip discipline
-  so it degrades to a clean skip (never a failure) without a BimodalLogic checkout.
+  so it degrades to a clean skip (never a failure) without a BimodalLogic checkout. Unchanged by
+  the wider grid -- still exercised only at `back = mid = fwd = 1`.
 """
 
 from __future__ import annotations

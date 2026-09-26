@@ -614,7 +614,13 @@ per-closure sample plus each SAT closure's live Z3-extracted certificate (skippi
 without a BimodalLogic checkout). All three closures agree across all three legs as of this
 writing — see the task's implementation summary for the observed verdicts and counts.
 `test_certificate_lean_agreement.py` remains the fixture corpus's own leg (i)/(ii) coverage; see
-that module's docstring.
+that module's docstring. Tier 1 additionally covers `back = 2, mid = 1, fwd = 2` (production's
+`DEFAULT_EXAMPLE_SETTINGS`) for both box-free closures and for one size-2 boxed closure — the
+`nb = 2` regime the narrow-window local-coherence defect (§5.2, `witness_constraints.py`'s module
+docstring) actually required to manifest, and which `back = mid = fwd = 1` alone cannot see. The
+pre-existing size-3 boxed closure remains `back = mid = fwd = 1`-only: its exhaustive enumeration
+at `nb = nf = 2` is roughly 10.7 billion candidates (~19h extrapolated), infeasible under the
+suite's per-test time budget — a standing coverage gap, not a defect.
 
 **The one-hot selector is conservative.** Decision D5 makes the target position a one-hot
 selector `sel[t]` rather than a fixed origin — structure the A2-triangle test above does not
