@@ -1,7 +1,7 @@
 # Implementation Plan: Rotation-invariant bimodal isomorphism rejection
 
 - **Task**: 190 - Rotation invariant bimodal isomorphism rejection
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 9 hours
 - **Dependencies**: 189 (`fix_shared_iterator_is_world_assumption`) — `completed`; the stated
   blocker no longer holds (see Research Integration)
@@ -157,7 +157,19 @@ Phases within the same wave can execute in parallel. Phases 3, 4 and 6 all edit
 
 ---
 
-### Phase 1: Baseline capture and rotation-validity measurement [NOT STARTED]
+### Phase 1: Baseline capture and rotation-validity measurement [COMPLETED]
+
+**Completion note**: Both baselines captured green -- bimodal suite `379 passed`
+(`baselines/01_bimodal-suite.txt`), cross-theory regression gate `830 passed`
+(`baselines/01_cross-theory-regression.txt`); no pre-existing failures to record. Rotation-
+validity measurement (throwaway scratchpad script, not committed) at `back=2, mid=1, fwd=2` on
+`BM_CM_1` (`\Future A / \Box A`): `L=2` lassos (`k=1` witness), group size `16`
+(`(2*2)**2 * factorial(1) = 16`). Of the 15 nontrivial elements, 15 recheck as
+`"countermodel"` (rotation was condition-preserving for every nontrivial element on this
+particular example -- D-A's "not in general" risk did not manifest here, though it remains a
+real risk for other examples per the certificate.py analysis) and 8 of those are distinct from
+the original certificate (family or target_time differs). **Gate criterion answer: YES** -- a
+live rotation/permutation duplicate is reachable for this example. Phase 5 takes Branch A.
 
 **Goal**: Establish the green pre-change baseline, and measure empirically how the rotation group
 actually behaves on real extracted certificates, so Phase 5's live-test posture is chosen from
