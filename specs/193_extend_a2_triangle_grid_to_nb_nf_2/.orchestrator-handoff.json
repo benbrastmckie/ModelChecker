@@ -1,13 +1,17 @@
 {
-  "status": "planned",
-  "phases_completed": 0,
-  "phases_total": 6,
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 11,
+  "summary": "Generalized the A2-triangle candidate generator/count to arbitrary nb/nm/nf and added back=2,mid=1,fwd=2 grid coverage (two unconditional box-free cases, one slow-marked size-2 boxed case selected by a measurement gate). Full bimodal suite green (441 passed, 150.46s); module passes under CI's exact 300s per-test timeout shape; no three-way disagreement found.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/193_extend_a2_triangle_grid_to_nb_nf_2/plans/01_extend-a2-triangle-grid.md",
-      "summary": "6-phase plan generalizing the A2-triangle test's candidate generator to arbitrary nb/nm/nf and adding back=2,mid=1,fwd=2 grid points (two unconditional box-free, one slow-marked boxed behind a measurement gate), with ADEQUACY.md section 7.3 sync."
+      "type": "summary",
+      "path": "specs/193_extend_a2_triangle_grid_to_nb_nf_2/summaries/01_extend-a2-triangle-grid-summary.md",
+      "summary": "Implementation summary: measured counts, verdicts, wall clocks, and the Phase 3 measurement-gate record."
     }
   ],
-  "dispatch_seq": 6
+  "phases_completed": 6,
+  "phases_total": 6,
+  "blockers": [],
+  "plan_markers_verified": true
 }

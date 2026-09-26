@@ -11,8 +11,8 @@ next_project_number: 201
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 193,194,195,198 | -- | architecture, testing, semantics |
-| 2 | 196 | 193,194 | semantics |
+| 1 | 194,195,198 | -- | architecture, semantics |
+| 2 | 196 | 194 | semantics |
 | 3 | 197 | 196 | semantics |
 | 4 | 199,200 | 195,197,198 | documentation, semantics |
 
@@ -25,10 +25,6 @@ next_project_number: 201
 ### Architecture
 
 195 [NOT STARTED] — Research and recommend a route to actually prove, rather than...
-
-### Testing
-
-193 [IMPLEMENTING] — Extend the A2-triangle encoding-completeness test's...
 
 ### Semantics
 
@@ -118,12 +114,13 @@ ADDENDUM, two findings that constrain this research and must be accounted for ra
 ---
 
 ### 193. Extend a2 triangle grid to nb nf 2
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [193_extend_a2_triangle_grid_to_nb_nf_2/reports/01_extend-a2-triangle-grid.md]
 - **Plan**: [193_extend_a2_triangle_grid_to_nb_nf_2/plans/01_extend-a2-triangle-grid.md]
+- **Summary**: [193_extend_a2_triangle_grid_to_nb_nf_2/summaries/01_extend-a2-triangle-grid-summary.md]
 
 **Description**: Extend the A2-triangle encoding-completeness test's exhaustive grid beyond back=mid=fwd=1 to cover nb=nf=2. tests/integration/test_certificate_a2_triangle.py currently enumerates exhaustively only at back=mid=fwd=1, per ADEQUACY.md section 7.3's stated test, and that regime is provably blind to the one A2 violation known to have actually occurred: witness_constraints.py's module docstring records that local coherence was once generated over the narrow WitnessRegistry.target_window() instead of the proved wide _coherence_window, and that the counterexample requires nb=2, since slot back[1] recurs at every odd-magnitude position. The defect is therefore invisible at nb=1, which makes raising the grid the highest-value strengthening available short of a proof. Measure before committing to unconditional execution: the single-box closure already reaches 1,572,864 candidates at nb=nf=1 and roughly 11.5 seconds of recheck time, so compute the nb=nf=2 candidate count first and tier or mark the test accordingly (the slow marker is already registered) rather than assuming it is affordable. Keep the existing three closures' coverage intact, and keep Tier 2's clean-skip discipline when no BimodalLogic checkout is present. Report any genuine three-way disagreement as a finding: diagnosing the encoder is out of scope for this task.
 
