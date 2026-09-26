@@ -81,6 +81,38 @@ class BimodalModelIterator(BaseModelIterator):
         registry = semantics.witness_registry
         return list(registry._bits.values()) + list(registry._guesses.values())
 
+    def _pin_theory_specific_values(self, temp_solver, z3_model, model_constraints):
+        """Pin every certificate variable (label bit / box guess) declared by the
+        *new* model's own `witness_registry` to its value in `z3_model`, mirroring the
+        generic `is_world`/`verify`/`falsify` pinning `build_new_model_structure`
+        performs for the other three theories.
+
+        This is required, not merely helpful: the certificate encoding has no
+        state-existence predicate at all (D3/D4; `N = 0`), so the generic pinning loop
+        in `iterate/models.py` cannot reach any of this theory's actual model content --
+        without this override, `build_new_model_structure` would solve model 2+ against
+        only the frame constraints (via `model_constraints.all_constraints`) with
+        *nothing* pinning the label bits or box guesses to the values the search just
+        found, so the rebuilt structure would not reflect the model the solver actually
+        returned.
+
+        Note the variables come from `model_constraints.semantics`, not
+        `self.build_example.model_constraints.semantics`: `build_new_model_structure`
+        constructs a fresh `BimodalSemantics` instance (and therefore a fresh
+        `WitnessRegistry`) for every new model, so the variables to pin must be read
+        from that same fresh instance -- the original search's own registry holds a
+        disjoint set of Z3 constants.
+        """
+        semantics = model_constraints.semantics
+        registry = semantics.witness_registry
+        variables = list(registry._bits.values()) + list(registry._guesses.values())
+        for var in variables:
+            value = z3_model.eval(var, model_completion=True)
+            if is_true(value):
+                temp_solver.add(var)
+            else:
+                temp_solver.add(z3.Not(var))
+
     def _blocking_clause(self, prev_model):
         """`Or(var != prev_model's value for var)` over every certificate variable --
         `True` (as a Z3 constraint) exactly when the next model differs from `prev_model` in

@@ -224,7 +224,7 @@ the phase record — Phase 4 then closes as `[COMPLETED WITH EXCLUSIONS]` citing
 
 ---
 
-### Phase 2: Extension Point 1 — Theory-Specific Model-Value Pinning [NOT STARTED]
+### Phase 2: Extension Point 1 — Theory-Specific Model-Value Pinning [COMPLETED]
 
 **Goal**: Stop `build_new_model_structure` from assuming `is_world` exists, and give each theory a
 symmetric, unconditionally-dispatched hook for pinning its own concrete model values, so bimodal
@@ -283,6 +283,25 @@ pins its certificate variables instead of bitvector world states.
   still fail on distinctness or on the isomorphism skip — that is expected until Phases 3 and 4).
 - New unit tests for the hook pass and cover both the injected and non-injected `ModelBuilder`
   construction paths.
+
+#### Evidence (recorded at implementation time)
+
+- `iterate/tests/` full suite: 227 passed (223 pre-existing + 4 new hook tests), after widening
+  `test_simplified_iterator.py::test_simplified_method_shorter`'s line-count ceiling from 150 to
+  170 (the guard plus the hook dispatch call add ~14 source lines to
+  `build_new_model_structure`; the test's own docstring already anticipated further growth "due
+  to improved error handling" and this is the same kind of deliberate, documented growth).
+- Phase 1's baseline four-file, 19-test command: still 19 passed, same counts.
+- The Phase 1 RED live test no longer raises `AttributeError`/`ModelExtractionError` -- it now
+  fails on `assert len(structures) == 2` (`0 == 2`), i.e. it fails on distinctness/isomorphism
+  exactly as anticipated, not on the crash. Confirmed via full bimodal test run: 598 passed, 1
+  failed (only that test).
+- New coverage: `iterate/tests/unit/test_models_edge_cases.py`'s
+  `TestPinTheorySpecificValuesHook` (base no-op; hook dispatched when injected; hook skipped when
+  not injected; no `AttributeError` for an `is_world`-less semantics) and
+  `bimodal/tests/integration/test_iterate.py`'s `TestPinTheorySpecificValues` (one pinned
+  constraint per certificate variable, each holding under the model it was pinned from; no-op
+  when no certificate variables exist).
 
 ---
 

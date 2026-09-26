@@ -5,6 +5,8 @@ Targets lines 109-125, 291-306, 575-580.
 """
 
 import unittest
+import unittest.mock
+from types import SimpleNamespace
 from unittest.mock import Mock, patch, MagicMock
 import z3
 
@@ -422,6 +424,136 @@ class TestDifferenceCalculatorStateMethods(unittest.TestCase):
         self.assertEqual(differences['world_changes']['added'], [2])
         self.assertEqual(differences['possible_changes']['added'], [3])
         self.assertEqual(differences['impossible_state_changes']['added'], [5])
+
+
+class TestPinTheorySpecificValuesHook(unittest.TestCase):
+    """Coverage for the `_pin_theory_specific_values` extension point on
+    `BaseModelIterator` and its dispatch from `ModelBuilder`."""
+
+    def test_base_default_is_a_noop(self):
+        """The base-class default does nothing and returns None -- it must not touch
+        the solver or raise, regardless of what is passed."""
+        from model_checker.iterate.core import BaseModelIterator
+
+        mock_solver = Mock()
+        result = BaseModelIterator._pin_theory_specific_values(
+            SimpleNamespace(), mock_solver, Mock(), Mock()
+        )
+        self.assertIsNone(result)
+        mock_solver.add.assert_not_called()
+
+    def _build_example_for_hook_dispatch(self):
+        mock_example = Mock()
+        mock_example.premises = ["P"]
+        mock_example.conclusions = ["Q"]
+        mock_example.semantic_theory = {"semantics": Mock, "proposition": Mock, "operators": {}}
+        mock_example.settings = {"N": 2}
+        mock_example.model_structure_class = Mock()
+
+        mock_z3_model = Mock()
+        mock_z3_model.eval = Mock(side_effect=lambda expr, **kwargs: z3.BoolVal(True))
+
+        return mock_example, mock_z3_model
+
+    def test_model_builder_dispatches_hook_when_iterator_injected(self):
+        """`ModelBuilder(build_example, iterator=...)` calls the injected iterator's
+        `_pin_theory_specific_values` exactly once, after the generic pinning loop."""
+        mock_example, mock_z3_model = self._build_example_for_hook_dispatch()
+        mock_iterator = Mock()
+
+        with patch('model_checker.syntactic.Syntax') as MockSyntax, \
+             patch('model_checker.models.constraints.ModelConstraints') as MockModelConstraints:
+            mock_syntax = Mock()
+            mock_syntax.sentence_letters = []
+            mock_syntax.premises = ["P"]
+            mock_syntax.conclusions = ["Q"]
+            MockSyntax.return_value = mock_syntax
+
+            mock_semantics = Mock(spec=['N', 'is_world', 'possible'])
+            mock_semantics.N = 2
+            mock_semantics.is_world = Mock(side_effect=lambda s: z3.Bool(f"is_world_{s}"))
+            mock_semantics.possible = Mock(side_effect=lambda s: z3.Bool(f"possible_{s}"))
+
+            mock_constraints = Mock()
+            mock_constraints.semantics = mock_semantics
+            mock_constraints.all_constraints = []
+            MockModelConstraints.return_value = mock_constraints
+
+            mock_structure = Mock()
+            mock_structure.z3_model_status = True
+            mock_example.model_structure_class.return_value = mock_structure
+
+            builder = ModelBuilder(mock_example, iterator=mock_iterator)
+            builder.build_new_model_structure(mock_z3_model)
+
+            mock_iterator._pin_theory_specific_values.assert_called_once_with(
+                unittest.mock.ANY, mock_z3_model, mock_constraints
+            )
+
+    def test_model_builder_skips_hook_when_no_iterator_injected(self):
+        """Direct `ModelBuilder(build_example)` construction (no `iterator=` kwarg, the
+        shape used by `iterate/iterator.py` and every other existing caller) must not
+        attempt to call anything on a hook -- there is nothing to dispatch to."""
+        mock_example, mock_z3_model = self._build_example_for_hook_dispatch()
+
+        with patch('model_checker.syntactic.Syntax') as MockSyntax, \
+             patch('model_checker.models.constraints.ModelConstraints') as MockModelConstraints:
+            mock_syntax = Mock()
+            mock_syntax.sentence_letters = []
+            mock_syntax.premises = ["P"]
+            mock_syntax.conclusions = ["Q"]
+            MockSyntax.return_value = mock_syntax
+
+            mock_semantics = Mock(spec=['N', 'is_world', 'possible'])
+            mock_semantics.N = 2
+            mock_semantics.is_world = Mock(side_effect=lambda s: z3.Bool(f"is_world_{s}"))
+            mock_semantics.possible = Mock(side_effect=lambda s: z3.Bool(f"possible_{s}"))
+
+            mock_constraints = Mock()
+            mock_constraints.semantics = mock_semantics
+            mock_constraints.all_constraints = []
+            MockModelConstraints.return_value = mock_constraints
+
+            mock_structure = Mock()
+            mock_structure.z3_model_status = True
+            mock_example.model_structure_class.return_value = mock_structure
+
+            builder = ModelBuilder(mock_example)
+            self.assertIsNone(builder.iterator)
+            # No exception -- there is no hook object to have raised from.
+            result = builder.build_new_model_structure(mock_z3_model)
+            self.assertIs(result, mock_structure)
+
+    def test_build_new_model_structure_does_not_raise_without_is_world(self):
+        """A semantics object exposing neither `is_world` nor `possible` nor `verify`
+        (the bimodal shape) must not raise `AttributeError` from the world/verify loop --
+        this is Defect 1's fix, independent of the pinning hook."""
+        mock_example, mock_z3_model = self._build_example_for_hook_dispatch()
+
+        with patch('model_checker.syntactic.Syntax') as MockSyntax, \
+             patch('model_checker.models.constraints.ModelConstraints') as MockModelConstraints:
+            mock_syntax = Mock()
+            mock_syntax.sentence_letters = []
+            mock_syntax.premises = ["P"]
+            mock_syntax.conclusions = ["Q"]
+            MockSyntax.return_value = mock_syntax
+
+            # Deliberately no is_world/possible/verify/falsify -- the bimodal shape.
+            mock_semantics = Mock(spec=['N'])
+            mock_semantics.N = 0
+
+            mock_constraints = Mock()
+            mock_constraints.semantics = mock_semantics
+            mock_constraints.all_constraints = []
+            MockModelConstraints.return_value = mock_constraints
+
+            mock_structure = Mock()
+            mock_structure.z3_model_status = True
+            mock_example.model_structure_class.return_value = mock_structure
+
+            builder = ModelBuilder(mock_example)
+            result = builder.build_new_model_structure(mock_z3_model)
+            self.assertIs(result, mock_structure)
 
 
 if __name__ == '__main__':

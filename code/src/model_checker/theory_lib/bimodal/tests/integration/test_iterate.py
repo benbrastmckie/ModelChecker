@@ -122,6 +122,57 @@ class TestDifferenceConstraintOverLabelsAndGuesses:
         assert str(result) == "False"
 
 
+class TestPinTheorySpecificValues:
+    """Coverage for `BimodalModelIterator._pin_theory_specific_values`, the Extension
+    Point 1 override that pins certificate variables since the generic `is_world`/
+    `verify`/`falsify` pinning in `iterate/models.py` cannot reach this theory's model
+    content at all."""
+
+    def _solved_model(self, semantics, premise_infix="A", conclusion_infix="B"):
+        from model_checker.syntactic import Syntax
+        from model_checker.theory_lib.bimodal.operators import bimodal_operators
+
+        premise = Syntax([premise_infix], [], bimodal_operators).premises[0]
+        conclusion = Syntax([conclusion_infix], [], bimodal_operators).premises[0]
+        premise_constraint = semantics.premise_behavior(premise)
+        conclusion_constraint = semantics.conclusion_behavior(conclusion)
+        semantics.finalize_certificate()
+        solver = z3.Solver()
+        for c in semantics.frame_constraints + [premise_constraint, conclusion_constraint]:
+            solver.add(c)
+        assert solver.check() == z3.sat
+        return solver.model()
+
+    def test_pin_adds_one_constraint_per_certificate_variable_matching_the_model(self):
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics)
+
+        registry = semantics.witness_registry
+        variables = list(registry._bits.values()) + list(registry._guesses.values())
+        assert variables, "expected at least one certificate variable from a solved model"
+
+        temp_solver = z3.Solver()
+        model_constraints = SimpleNamespace(semantics=semantics)
+        iterator._pin_theory_specific_values(temp_solver, model, model_constraints)
+
+        assertions = list(temp_solver.assertions())
+        assert len(assertions) == len(variables)
+        # Every pinned assertion must hold under the very model it was pinned from.
+        for assertion in assertions:
+            assert is_true(model.eval(assertion, model_completion=True))
+
+    def test_pin_is_a_noop_when_no_certificate_variables_exist(self):
+        semantics = BimodalSemantics(_settings())
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        temp_solver = z3.Solver()
+        model_constraints = SimpleNamespace(semantics=semantics)
+
+        iterator._pin_theory_specific_values(temp_solver, Mock(), model_constraints)
+
+        assert list(temp_solver.assertions()) == []
+
+
 class TestCalculateDifferences:
     def _certificate(self, atom_in_main):
         main_label = frozenset({atom_in_main}) if atom_in_main else frozenset()

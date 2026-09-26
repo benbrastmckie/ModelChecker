@@ -23,13 +23,20 @@ logger = logging.getLogger(__name__)
 class ModelBuilder:
     """Builds and validates model structures for iteration."""
     
-    def __init__(self, build_example: 'BuildExample') -> None:
+    def __init__(self, build_example: 'BuildExample', iterator: Optional[Any] = None) -> None:
         """Initialize model builder.
-        
+
         Args:
             build_example: Original BuildExample instance
+            iterator: The owning `BaseModelIterator` (or subclass) instance, used to
+                dispatch `_pin_theory_specific_values` after the generic world/verify/
+                falsify pinning below. Optional and defaulting to `None` so every existing
+                direct `ModelBuilder(build_example)` construction (`iterate/iterator.py`,
+                and the unit/integration tests) keeps working unchanged: when `None`, the
+                hook call is skipped entirely.
         """
         self.build_example = build_example
+        self.iterator = iterator
     
     def build_new_model_structure(self, z3_model: z3.ModelRef) -> 'ModelStructure':
         """Build a new model structure with fresh constraints.
@@ -88,22 +95,28 @@ class ModelBuilder:
             
             # Extract concrete values from Z3 model and add them as constraints
             # Constrain world states
-            for state in range(2**semantics.N):
-                # Is this state a world in the iterator model?
-                is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
-                if is_true(is_world_val):
-                    temp_solver.add(semantics.is_world(state))
-                else:
-                    temp_solver.add(z3.Not(semantics.is_world(state)))
-                
-                # Is this state possible in the iterator model?
-                # Note: Not all theories have a 'possible' predicate (e.g., bimodal theory)
-                if hasattr(semantics, 'possible'):
-                    is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
-                    if is_true(is_possible_val):
-                        temp_solver.add(semantics.possible(state))
+            # Note: Not all theories have a state-existence predicate at all (e.g. the
+            # bimodal theory's certificate encoding, whose carrier is {0,...,k} x Z, not
+            # enumerated states) -- mirrors the verify/falsify guard below. A theory in
+            # this position pins its own model values via `_pin_theory_specific_values`
+            # instead (see the hook call after this loop).
+            if hasattr(semantics, 'is_world'):
+                for state in range(2**semantics.N):
+                    # Is this state a world in the iterator model?
+                    is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
+                    if is_true(is_world_val):
+                        temp_solver.add(semantics.is_world(state))
                     else:
-                        temp_solver.add(z3.Not(semantics.possible(state)))
+                        temp_solver.add(z3.Not(semantics.is_world(state)))
+
+                    # Is this state possible in the iterator model?
+                    # Note: Not all theories have a 'possible' predicate (e.g., bimodal theory)
+                    if hasattr(semantics, 'possible'):
+                        is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
+                        if is_true(is_possible_val):
+                            temp_solver.add(semantics.possible(state))
+                        else:
+                            temp_solver.add(z3.Not(semantics.possible(state)))
             
             # Constrain verify/falsify for sentence letters
             # Note: Some theories (e.g., bimodal) use truth_condition instead of verify/falsify
@@ -126,7 +139,15 @@ class ModelBuilder:
                                     temp_solver.add(semantics.falsify(state, atom))
                                 else:
                                     temp_solver.add(z3.Not(semantics.falsify(state, atom)))
-            
+
+            # Theory-specific extension point: pin whatever model content this theory
+            # actually uses (e.g. certificate variables for bimodal) that the generic
+            # world/verify/falsify pinning above cannot reach. Unconditional -- the base
+            # class default is a documented no-op, so this call is always safe -- but
+            # only dispatched when an owning iterator was injected (see `__init__`).
+            if self.iterator is not None:
+                self.iterator._pin_theory_specific_values(temp_solver, z3_model, model_constraints)
+
             # Store the constraints in model_constraints so the model will use them
             model_constraints.all_constraints = list(temp_solver.assertions())
             

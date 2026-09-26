@@ -88,7 +88,7 @@ class BaseModelIterator:
         
         # Initialize component modules
         self.constraint_generator = ConstraintGenerator(build_example)
-        self.model_builder = ModelBuilder(build_example)
+        self.model_builder = ModelBuilder(build_example, iterator=self)
         self.isomorphism_checker = IsomorphismChecker()
         self.termination_manager = TerminationManager(self.settings)
         self.difference_calculator = DifferenceCalculator()
@@ -706,6 +706,35 @@ class BaseModelIterator:
         logger.debug("BaseModelIterator reset to initial state")
     
     
+    def _pin_theory_specific_values(
+        self, temp_solver: 'z3.Solver', z3_model: 'z3.ModelRef', model_constraints: Any
+    ) -> None:
+        """Extension point: pin theory-specific model content into `temp_solver` when
+        building a fresh model structure for a newly-found model (`models.py`'s
+        `build_new_model_structure`).
+
+        The base implementation is a documented no-op. `build_new_model_structure`
+        already pins every state's `is_world`/`possible` value and every sentence
+        letter's `verify`/`falsify` value when the theory exposes those predicates
+        (guarded by `hasattr`); this hook exists for theories whose model content is
+        not enumerable as bitvector states at all -- e.g. the bimodal theory's
+        certificate encoding, whose carrier is `{0,...,k} x Z` rather than a state
+        space, and which therefore overrides this hook to pin its own certificate
+        variables (label bits and box guesses) instead.
+
+        Called unconditionally (when an owning iterator was injected into the
+        `ModelBuilder`) rather than gated on a theory-detection check, so a theory that
+        needs no extra pinning simply inherits this no-op and pays no cost.
+
+        Args:
+            temp_solver: The in-progress solver being built up with pinned constraints;
+                override implementations call `temp_solver.add(...)` on it directly.
+            z3_model: The just-found Z3 model whose concrete values are being pinned.
+            model_constraints: The fresh `ModelConstraints` for the new model structure
+                (its `.semantics` is the usual way to reach theory-specific state).
+        """
+        return None
+
     def _create_difference_constraint(self, previous_models: List['z3.ModelRef']) -> 'z3.BoolRef':
         """Theory-specific constraint creation method.
         
