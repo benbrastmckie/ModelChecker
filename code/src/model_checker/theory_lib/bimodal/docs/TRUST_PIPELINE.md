@@ -61,16 +61,23 @@ by pipeline position rather than by importance: a reader needs to see where the 
 `conclusion_behavior`.
 
 **What it must do.** Eliminate every defined operator (`\neg`, `\wedge`, `\vee`, the derived tense
-operators, `\next`, `\prev`) into the six primitives, and swap `Until`/`Since` arguments —
-`UntilOperator.true_at` is event-first while Lean's `untl` is guard-first. The wire's named
-`event`/`guard` fields make the wire itself order-free, so the swap hazard is **purely internal to
-the translation code** and invisible downstream.
+operators, `\next`, `\prev`) into the six primitives, and correctly carry the guard/event
+distinction `Until`/`Since` depend on. This used to require a **swap** — `UntilOperator.true_at`
+was event-first while Lean's `untl` is guard-first — but ModelChecker has since been normalized to
+guard-first throughout, so `translate` is positional identity, not a swap (see
+`docs/ARCHITECTURE.md`). The wire's named `event`/`guard` fields make the wire itself order-free
+either way, so the residual hazard (general truth preservation across the guard/event
+distinction, now that there is no swap left to name) is **purely internal to the translation
+code** and invisible downstream.
 
-**Evidence: property-tested, and incompletely.** This is obligation **S4**, and `ADEQUACY.md`
-§6.3 records that no Lean theorem covers it. Worse, a round-trip between the Python re-checker and
-the Lean binary *cannot* detect a translation defect, because both consume the same
+**Evidence: property-tested, both halves.** This is obligation **S4**; `ADEQUACY.md` §6.3 records
+that no Lean theorem covers it, and the round-trip between the Python re-checker and the Lean
+binary still structurally cannot detect a translation defect, since both consume the same
 already-translated `Formula`. `oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator
-covers only the **tense half** (five primitive tags, no box case).
+covers only the **tense half** (five primitive tags, no box case) and is not load-bearing for the
+box half, which `tests/unit/test_formula.py`'s `TestTranslateTruthPreservationBox` now covers
+directly, over hand-built multi-lasso label families (see `ADEQUACY.md` §6.3 for the full
+evidence list).
 
 **Why this is the most consequential weak link.** Condition (C4) is decided against
 `target.premises` / `target.conclusions`. If the translation is wrong, every later stage
@@ -241,11 +248,17 @@ exactly the bug that once happened.
 
 ## What remains
 
+**Discharge S4 on the ModelChecker side is done.** Both the tense and box halves are now
+property-tested (`tests/unit/test_formula.py`'s two `TestTranslateTruthPreservation*` classes;
+see `ADEQUACY.md` §6.3 and Stage 1 above), so the row this section used to carry for it has been
+removed. The remaining half — a Lean-side translation with its own truth-preservation theorem —
+is listed under the Lean development below, explicitly deferred (its counterpart is confirmed
+absent from the local `BimodalLogic` checkout).
+
 ### In this repository
 
 | Work | Why it matters |
 |------|----------------|
-| **Discharge S4** — verify the translation, or relocate the elimination into verified code | The weakest link in the direction already asserted. The box half has no coverage at all. Relocating deletes the obligation rather than testing it. |
 | **Widen the A2 grid to `nb = nf = 2`** | The regime the one known A2 violation lived in. Highest value per hour on the (ADEQ) side. Measure the candidate count first: the single-box closure already reaches 1,572,864 candidates at `nb = nf = 1`. |
 | **Consume a proof-producing checker; verify the parse** | Turns a `countermodel` verdict into a constructed entailment, and removes the Python re-checker from the trust base. Compare an echo of what Lean parsed against the bytes sent. |
 | **Compute bounds from the closure (A3)** | Once `f` exists, set lengths from `|C|` and report "exhaustive at this closure" versus "bounded" honestly. Blocked until the Lean side supplies `f`. |
@@ -258,7 +271,7 @@ exactly the bug that once happened.
 | **Compression (A1)** and the verified bounded enumerator | A1 is the only genuinely open *mathematics* in the (ADEQ) chain. The enumerator matters independently: because the candidate space at the bound is finite and enumeration completeness is already proved there, **absence can be decided by verified code rather than by trusting Z3's UNSAT** — which dominates proving this repository's encoder correct. |
 | **Proof-producing `check_certificate`** | Make the accepting branch *be* `joint_countermodel` applied to a decided hypothesis, so acceptance is Lean constructing the existence term. |
 | **Canonical wire, total parser, round-trip theorem** | A parser defect means the verified side certifies a different certificate than the one exported. |
-| **Lean-side translation with a truth-preservation theorem** | The other half of S4. |
+| **Lean-side translation with a truth-preservation theorem** | The other half of S4 -- deferred, not attempted from this repository; the ModelChecker-side half is discharged (see "What remains" above). |
 | **Narrow the transcription audit (S2)** | Derive the paper's frame conditions as theorems where derivable, so the surface needing human inspection shrinks to the primitives. Cannot become a theorem; can be made small and explicit. |
 
 A note on sequencing: the compression work is independent of everything else and is the long pole,

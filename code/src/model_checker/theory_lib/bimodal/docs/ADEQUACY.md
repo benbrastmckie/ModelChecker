@@ -77,7 +77,7 @@ this repository:
 | **S1** | (C1)–(C4) ⟹ a paper countermodel exists | **Proved** below (§3); machine-checked, `WitnessFamily.joint_countermodel` (`Metalogic/Decidability/WitnessFamily/Agreement.lean:232`). |
 | **S2** | The Lean definitions transcribe the paper's | Discharged by inspection, §4 (the transcription audit); an audit, not a theorem. |
 | **S3** | Whatever the search reports satisfies (C1)–(C4) | Discharged by *deciding* the antecedent on every reported countermodel, independently, twice — §6 (presentation and re-verification). |
-| **S4** | The `Sentence` → `Formula` translation preserves truth | A property-test obligation on the translation layer, not covered by any Lean theorem cited here — §6.3. |
+| **S4** | The `Sentence` → `Formula` translation preserves truth | Discharged for both the tense and box halves by a differential property test — §6.3; still not covered by any Lean theorem cited here. |
 
 **S3 is the architectural point of the whole design.** (SOUND)'s antecedent is decidable (the
 four conditions collapse to finite windows — §5), so nothing in this repository has to prove the
@@ -297,7 +297,9 @@ paper line, not by proof.
 **Residual.** The paper's `BL` is `⟨SL, ⊥, →, □, S, U⟩`, exactly the Lean `Formula` grammar. This
 theory's operator set is richer — nine primitives plus eight defined operators. The audit
 therefore extends to the **translation** from theory sentences into the six-primitive grammar,
-which is obligation S4 and is not covered by any theorem cited here. See §6.3.
+which is obligation S4 and is not covered by any theorem cited here. Both halves of that
+translation (tense and box) are now discharged by a differential property test — see §6.3 for
+the evidence and its residual scope.
 
 ---
 
@@ -464,20 +466,51 @@ consequence holds.
 ### 6.3 Obligation S4: the translation bridge, uncovered by the round-trip alone
 
 A round-trip comparing the Python re-checker against `lake exe check_certificate` on the same
-already-translated `Formula` tests the re-checker; it cannot test whether the theory's own
-`Sentence → Formula` translation preserves truth, because both sides of that comparison consume
-the same translated object. The translation is non-trivial: it must eliminate the defined
-operators (negation, conjunction, disjunction, the derived tense operators, `\next`, `\prev`)
-into the six primitives, and it must **swap** `Until`/`Since` arguments — `UntilOperator.true_at`
-(`operators.py:1054`) is event-first while Lean's `untl` is guard-first (`Truth.lean:236`); the
-wire format's named `event`/`guard` fields make the wire itself order-free, so the swap hazard is
-purely internal to the translation code, not visible on the wire.
+already-translated `Formula` still tests the re-checker, not whether the theory's own
+`Sentence → Formula` translation preserves truth — both sides of that comparison consume the
+same translated object, structurally. The translation is non-trivial: it must eliminate the
+defined operators (negation, conjunction, disjunction, the derived tense operators, `\next`,
+`\prev`) into the six primitives, and it must correctly carry the guard/event distinction
+`Until`/`Since` depend on. That second hazard used to be a **swap** — `UntilOperator.true_at` was
+event-first while Lean's `untl` is guard-first — but ModelChecker has since been normalized to
+guard-first throughout (`operators.py`, `semantic/formula.py`; see `docs/ARCHITECTURE.md`), so
+`translate` is positional identity, not a swap, and there is no longer a swap for either half of
+S4 to catch. The residual hazard is general truth preservation across the guard/event
+distinction — a wrong translation could still misassign which operand is which even with no
+swap-shaped bug left to name — which is why the asymmetric `Until`/`Since` coverage below is
+retained for that reason rather than dropped. The wire format's named `event`/`guard` fields make
+the wire itself order-free either way; the hazard is purely internal to the translation code, not
+visible on the wire.
 
-The discharge is a property test over small generated sentences comparing, at every point of a
-small hand-built ℤ-model, the theory's own truth evaluation against a direct evaluator for the
-translated formula. `oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator covers this
-only for the tense half of the translation (five primitive tags, no box case), so it cannot
-discharge the box half of S4 on its own.
+**Both halves are now discharged directly**, by a differential property test in
+`tests/unit/test_formula.py`:
+
+- The **tense half** (`TestTranslateTruthPreservation`): small generated and hand-built sentences
+  over the propositional-plus-tense fragment, checked at every point of a small hand-built
+  domain against an independent reference evaluator that never calls `translate`.
+- The **box half** (`TestTranslateTruthPreservationBox`): the same differential, extended with a
+  family-global `\Box` clause (both evaluators; see `NecessityOperator`'s own docstring and (C3)
+  box faithfulness) and crossed against three hand-built multi-lasso label families
+  (`TestPropertyFamiliesAreCoherent` asserts each is locally coherent and box-faithful as a
+  precondition, using the same `coherent_at`/`box_faithful` this module's `03_box_unfaithful.json`
+  fixture is checked against). `oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator
+  covers only the five primitive tense tags with no box case, so it cannot discharge the box half
+  on its own and is no longer load-bearing for it — the box half is covered directly instead.
+- `TestDefinedOperatorCoverage`/`TestAsymmetryIsGenuine`/`TestNegativeControlsHaveTeeth` record
+  that the generated corpus actually covers every defined operator, that the asymmetric
+  `Until`/`Since` instances are genuinely order-sensitive (not merely operator coverage), and that
+  a deliberately wrong translation (a dropped `Box` wrapper, an operand-swapped `Until`/`Since`, a
+  single-lasso-only `Box`, or the retired event-first `\next` elimination) is detected rather than
+  passing vacuously.
+
+**Route decision.** Relocating the elimination into verified Lean code, so the obligation would be
+deleted rather than tested, was considered and rejected as infeasible: `translate` runs at Python
+*evaluation* time inside every primitive operator's own `true_at` (not only at export), and Lean
+has no callable verified elimination pass to relocate into — its `neg`/`and`/`always` etc. are
+already six-primitive `def`-level abbreviations. A Lean-side translation with its own
+truth-preservation theorem remains a real, separate improvement, but its counterpart was confirmed
+absent from the local `BimodalLogic` checkout and is deferred, not attempted here (see
+`docs/TRUST_PIPELINE.md`).
 
 ---
 

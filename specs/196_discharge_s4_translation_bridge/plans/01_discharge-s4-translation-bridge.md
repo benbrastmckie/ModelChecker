@@ -685,7 +685,7 @@ actually fail on a wrong translation, closing the vacuity risk.
 
 ---
 
-### Phase 8: Update ADEQUACY.md and TRUST_PIPELINE.md to the new state [NOT STARTED]
+### Phase 8: Update ADEQUACY.md and TRUST_PIPELINE.md to the new state [COMPLETED]
 
 **Goal**: every in-repo statement that S4's box half is uncovered is corrected, and the route
 decision, the normalization, and the Lean-side deferral are recorded where a future reader will

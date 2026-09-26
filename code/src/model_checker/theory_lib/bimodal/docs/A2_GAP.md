@@ -422,11 +422,17 @@ Python/Lean check); and the translation (S4).
 **Ranking corollary: S4, not A2, is the weakest joint** in the direction already asserted. A2's
 failure mode is bounded and self-announcing — a completeness cost, or a loud rejection. S4's is
 not: `ADEQUACY.md` section 6.3 records that a translation defect is invisible to the Python/Lean
-round-trip by construction, because both sides consume the same already-translated `Formula`, and
-the box half of the translation has no property-test coverage at all —
-`oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator declares only the five temporal
-primitive tags (`atom`, `bot`, `imp`, `untl`, `snce`) as supported, and raises
-`GroundTruthUnsupported` for `box` by name in its own docstring.
+round-trip by construction, because both sides consume the same already-translated `Formula`,
+regardless of how thoroughly either half of the translation is separately tested. Both halves are
+now property-tested directly (`tests/unit/test_formula.py`'s two
+`TestTranslateTruthPreservation*` classes), including the box half, which
+`oracle/bimodal_logic/ground_truth.py`'s brute-force adjudicator still cannot adjudicate on its
+own — it declares only the five temporal primitive tags (`atom`, `bot`, `imp`, `untl`, `snce`) as
+supported, and raises `GroundTruthUnsupported` for `box` by name in its own docstring, which is
+exactly why the box half is covered directly in `test_formula.py` instead of being inherited from
+it. S4 remains the weakest joint in kind (a translation defect stays structurally invisible to the
+round-trip, and no Lean theorem covers either half), even though it is no longer uncovered by any
+test.
 
 **The honesty point.** A "countermodel" verdict — from the Python re-checker, from `lake exe
 check_certificate`, or from their agreement — says only that the four `Decidable` instances
