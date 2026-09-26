@@ -310,6 +310,21 @@ remains open from the original two-part gap this section and section 5 together 
 selector-conservativity argument's own executable check (section 5's status paragraph, section
 10's remaining route), not the window.
 
+**The cost this closure also introduced.** Sharing `_box_window` between `target_window()` and
+`certificate._box_window` removes the drift hazard above, but it also removes independence
+between the two legs `tests/integration/test_certificate_a2_triangle.py` compares for the
+box-faithfulness and target windows specifically: leg (i) (`certificate.recheck`) and leg (iii)
+(the real Z3 encoding, via `witness_constraints.py`'s direct `_box_window` import and via
+`target_window()`'s delegation) now both compute this window by calling the identical Python
+function. A defect confined to `_box_window`'s own formula — as opposed to a defect in how
+either side uses the window it returns — would therefore produce the same (wrong) value on both
+legs and could not surface as a leg (i)/leg (iii) disagreement; the differential test is
+powerless against exactly this class of defect for exactly this window, by construction. This is
+not a reason to prefer the earlier, independently-defined pair (section 6's "gap, as it stood"
+paragraph already gives the reasons that outcome was worse), but the sharing should be presented
+as a trade — drift-hazard elimination purchased at the cost of one differential's remaining
+independence — not as a pure gain.
+
 ## 7. The historical defect, and why the standing test cannot see it
 
 `semantic/witness_constraints.py`'s module docstring records, as a fact about this repository's

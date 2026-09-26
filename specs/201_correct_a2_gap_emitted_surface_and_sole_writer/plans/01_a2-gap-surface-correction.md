@@ -146,16 +146,16 @@ narrower true claim, keeps the by-reference-alias rationale, and points at secti
 
 ---
 
-### Phase 3: Record the window-sharing independence cost in A2_GAP.md section 6 [NOT STARTED]
+### Phase 3: Record the window-sharing independence cost in A2_GAP.md section 6 [COMPLETED]
 
 **Goal**: Section 6 presents the `_box_window` sharing as a trade, stating that a defect confined to
 `_box_window`'s own formula is invisible to the A2-triangle differential by construction.
 
 **Tasks**:
-- [ ] Insert the report's Correction 3 paragraph ("**The cost this closure also introduced.**") into section 6, after the existing "What this closure is, and is not" paragraph (currently lines 283-294)
-- [ ] Verify the paragraph's three code claims against the tree before committing to the wording: `witness_registry.py:183` returns `_box_window(self)`, `certificate.py:219-221` defines `_box_window`, `witness_constraints.py:238` calls `_box_window(registry)` directly
-- [ ] Keep the paragraph's framing as a trade, not a retraction: it must not suggest reverting to the earlier independently-defined pair (section 6's "gap, as it stood" paragraph already explains why that was worse)
-- [ ] Confirm section 3(ii)'s and section 7's existing text are left untouched (the new paragraph is the single place this cost is recorded)
+- [x] Insert the report's Correction 3 paragraph ("**The cost this closure also introduced.**") into section 6, after the existing "What this closure is, and is not" paragraph (currently lines 283-294) *(completed)*
+- [x] Verify the paragraph's three code claims against the tree before committing to the wording: `witness_registry.py:183` returns `_box_window(self)`, `certificate.py:219-221` defines `_box_window`, `witness_constraints.py:238` calls `_box_window(registry)` directly *(completed: all three re-verified against the tree)*
+- [x] Keep the paragraph's framing as a trade, not a retraction: it must not suggest reverting to the earlier independently-defined pair (section 6's "gap, as it stood" paragraph already explains why that was worse) *(completed)*
+- [x] Confirm section 3(ii)'s and section 7's existing text are left untouched (the new paragraph is the single place this cost is recorded) *(completed: diff hunk confined to lines 313-327, inside section 6)*
 
 **Timing**: 0.25 hours
 
