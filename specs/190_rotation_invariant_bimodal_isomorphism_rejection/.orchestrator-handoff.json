@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 8,
+  "summary": "Authored a 6-phase, 9-hour plan for rotation/permutation-invariant bimodal isomorphism rejection: a new shared semantic/symmetry.py group module, a real _check_model_isomorphism detector over decoded certificates, orbit-wide exclusion in _create_non_isomorphic_constraint over raw Z3 variables including the target selector, live-iteration coverage behind a Phase 1 measurement gate, and a 7-site documentation sync.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/190_rotation_invariant_bimodal_isomorphism_rejection/plans/01_rotation-invariant-isomorphism-rejection.md",
+      "summary": "6 phases / 5 waves / 9 hours: baseline+rotation-validity gate, shared symmetry module (TDD), detector hook, orbit exclusion clause, live-iteration coverage with contingency branch, documentation sync and final gate."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "blockers": []
+}
