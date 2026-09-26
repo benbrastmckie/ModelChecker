@@ -4,20 +4,6 @@ next_project_number: 192
 
 # TODO
 
-## Task Order
-
-*Updated 2026-09-26. Generated from state.json dependency graph.*
-
-**Dependency Waves**:
-| Wave | Tasks | Blocked by | Topics |
-|------|-------|------------|--------|
-| 1 | 190 | -- | architecture |
-
-**Grouped by Topic** (indented = depends on parent):
-
-### Architecture
-
-190 [PLANNED] — Make bimodal iteration reject rotation- and...
 
 ## Tasks
 
@@ -35,12 +21,13 @@ next_project_number: 192
 ---
 
 ### 190. Rotation invariant bimodal isomorphism rejection
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: Task 189
 - **Research**: [190_rotation_invariant_bimodal_isomorphism_rejection/reports/01_rotation-invariant-isomorphism-rejection.md]
 - **Plan**: [190_rotation_invariant_bimodal_isomorphism_rejection/plans/01_rotation-invariant-isomorphism-rejection.md]
+- **Summary**: [190_rotation_invariant_bimodal_isomorphism_rejection/summaries/01_rotation-invariant-isomorphism-rejection-summary.md]
 
 **Description**: Make bimodal iteration reject rotation- and permutation-equivalent models. BimodalModelIterator._create_non_isomorphic_constraint (theory_lib/bimodal/iterate.py) currently rejects only exact bit-for-bit differences from previously-seen models, so a model that is a rotation of a prior lasso's periodic segments, or a relabeling of its witness lassos, is treated as genuinely new and returned as a duplicate. Enumerate the rotation group action on each lasso's back/fwd segments plus witness-lasso relabelings (holding lasso 0 fixed), using WitnessRegistry.wrap's slot arithmetic, and extend tests/integration/test_iterate.py accordingly. BLOCKED on the shared-iterator extension point task: until the live iterate loop actually consults bimodal's iterator methods, there is nothing to exercise this against. Recorded as a reasoned exclusion in the bimodal certificate redesign plan's Phase 15 and in iterate.py's own docstring.
 

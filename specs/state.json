@@ -33,7 +33,7 @@
     {
       "project_number": 190,
       "project_name": "rotation_invariant_bimodal_isomorphism_rejection",
-      "status": "planned",
+      "status": "completed",
       "task_type": "python",
       "description": "Make bimodal iteration reject rotation- and permutation-equivalent models. BimodalModelIterator._create_non_isomorphic_constraint (theory_lib/bimodal/iterate.py) currently rejects only exact bit-for-bit differences from previously-seen models, so a model that is a rotation of a prior lasso's periodic segments, or a relabeling of its witness lassos, is treated as genuinely new and returned as a duplicate. Enumerate the rotation group action on each lasso's back/fwd segments plus witness-lasso relabelings (holding lasso 0 fixed), using WitnessRegistry.wrap's slot arithmetic, and extend tests/integration/test_iterate.py accordingly. BLOCKED on the shared-iterator extension point task: until the live iterate loop actually consults bimodal's iterator methods, there is nothing to exercise this against. Recorded as a reasoned exclusion in the bimodal certificate redesign plan's Phase 15 and in iterate.py's own docstring.",
       "topic": "architecture",
@@ -41,7 +41,7 @@
         189
       ],
       "created": "2026-09-25T23:05:35Z",
-      "last_updated": "2026-09-26T01:59:53Z",
+      "last_updated": "2026-09-26T03:49:06Z",
       "session_id": "sess_1790377806_2f5155",
       "artifacts": [
         {
@@ -53,6 +53,11 @@
           "path": "specs/190_rotation_invariant_bimodal_isomorphism_rejection/plans/01_rotation-invariant-isomorphism-rejection.md",
           "type": "plan",
           "summary": "6 phases / 5 waves / 9 hours: baseline+rotation-validity gate, shared symmetry module (TDD), detector hook, orbit exclusion clause, live-iteration coverage with contingency branch, documentation sync and final gate."
+        },
+        {
+          "path": "specs/190_rotation_invariant_bimodal_isomorphism_rejection/summaries/01_rotation-invariant-isomorphism-rejection-summary.md",
+          "type": "summary",
+          "summary": "Full implementation summary: what changed, decisions, plan deviations, impacts, follow-ups."
         }
       ],
       "next_artifact_number": 2

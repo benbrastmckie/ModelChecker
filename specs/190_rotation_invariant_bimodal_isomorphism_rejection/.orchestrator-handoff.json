@@ -1,16 +1,26 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 8,
-  "summary": "Authored a 6-phase, 9-hour plan for rotation/permutation-invariant bimodal isomorphism rejection: a new shared semantic/symmetry.py group module, a real _check_model_isomorphism detector over decoded certificates, orbit-wide exclusion in _create_non_isomorphic_constraint over raw Z3 variables including the target selector, live-iteration coverage behind a Phase 1 measurement gate, and a 7-site documentation sync.",
+  "status": "implemented",
+  "dispatch_seq": 9,
+  "summary": "Implemented rotation/permutation-invariant isomorphism detection and orbit exclusion for BimodalModelIterator (semantic/symmetry.py + iterate.py rewrite), discovered and fixed three pre-existing shared-engine bugs as theory-local workarounds, and synced eight documentation sites. All six plan phases closed (Phase 4 with one recorded, evidenced exclusion); final gate green (code/tests 645 passed, theory_lib/ 1496 passed).",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/190_rotation_invariant_bimodal_isomorphism_rejection/plans/01_rotation-invariant-isomorphism-rejection.md",
-      "summary": "6 phases / 5 waves / 9 hours: baseline+rotation-validity gate, shared symmetry module (TDD), detector hook, orbit exclusion clause, live-iteration coverage with contingency branch, documentation sync and final gate."
+      "type": "summary",
+      "path": "specs/190_rotation_invariant_bimodal_isomorphism_rejection/summaries/01_rotation-invariant-isomorphism-rejection-summary.md",
+      "summary": "Full implementation summary: what changed, decisions, plan deviations, impacts, follow-ups."
+    },
+    {
+      "type": "code",
+      "path": "code/src/model_checker/theory_lib/bimodal/semantic/symmetry.py",
+      "summary": "New module: the rotation/permutation group, its actions, and the orbit-invariant certificate key."
+    },
+    {
+      "type": "code",
+      "path": "code/src/model_checker/theory_lib/bimodal/iterate.py",
+      "summary": "Real orbit-key detector, orbit-wide exclusion clause, and three theory-local fixes for discovered shared-engine bugs."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
-  "blockers": []
+  "blockers": [],
+  "plan_markers_verified": true
 }
