@@ -34,7 +34,7 @@ next_project_number: 201
 
 194 [RESEARCHED] — Close the two residual encoder-versus-specification gaps in...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
-196 [RESEARCHING] — Discharge obligation S4, the Sentence-to-Formula translation...
+196 [RESEARCHED] — Discharge obligation S4, the Sentence-to-Formula translation...
   └─ 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
     └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability... (see above)
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
@@ -84,10 +84,11 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 ---
 
 ### 196. Discharge s4 translation bridge
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
+- **Research**: [196_discharge_s4_translation_bridge/reports/01_discharge-s4-translation-bridge.md]
 
 **Description**: Discharge obligation S4, the Sentence-to-Formula translation bridge, which ADEQUACY.md section 6.3 records as covered by no Lean theorem. S4 is the weakest joint in the soundness direction this repository already asserts: the certificate's (C4) target condition is decided against target.premises and target.conclusions, so if the translation is wrong, every downstream check rigorously certifies a countermodel to a different argument than the user asked about. The round-trip against lake exe check_certificate cannot detect this, because both sides consume the same already-translated Formula. Two hazards are named explicitly: the translation must eliminate all defined operators (negation, conjunction, disjunction, the derived tense operators, \next, \prev) into the six primitives, and it must swap Until/Since arguments, since UntilOperator.true_at is event-first while Lean's untl is guard-first -- a hazard purely internal to the translation code, invisible on the wire because the wire's named event/guard fields are order-free. Note that oracle/bimodal_logic/ground_truth.py's brute-force adjudicator covers only the tense half (five primitive tags, no box case), so it cannot discharge the box half on its own; the box half must be covered explicitly. Prefer, if feasible, relocating the elimination into verified code (put the Sentence on the wire and let the verified side eliminate) so the obligation is deleted rather than tested; otherwise implement section 6.3's property test over small generated sentences, comparing the theory's own truth evaluation against a direct evaluator for the translated formula at every point of a small hand-built Z-model, and verify against the Lean-side translation once its counterpart lands in BimodalLogic. Record which route was taken and why.
 

@@ -19,14 +19,22 @@
     {
       "project_number": 196,
       "project_name": "discharge_s4_translation_bridge",
-      "status": "researching",
+      "status": "researched",
       "task_type": "python",
       "topic": "semantics",
       "description": "Discharge obligation S4, the Sentence-to-Formula translation bridge, which ADEQUACY.md section 6.3 records as covered by no Lean theorem. S4 is the weakest joint in the soundness direction this repository already asserts: the certificate's (C4) target condition is decided against target.premises and target.conclusions, so if the translation is wrong, every downstream check rigorously certifies a countermodel to a different argument than the user asked about. The round-trip against lake exe check_certificate cannot detect this, because both sides consume the same already-translated Formula. Two hazards are named explicitly: the translation must eliminate all defined operators (negation, conjunction, disjunction, the derived tense operators, \\next, \\prev) into the six primitives, and it must swap Until/Since arguments, since UntilOperator.true_at is event-first while Lean's untl is guard-first -- a hazard purely internal to the translation code, invisible on the wire because the wire's named event/guard fields are order-free. Note that oracle/bimodal_logic/ground_truth.py's brute-force adjudicator covers only the tense half (five primitive tags, no box case), so it cannot discharge the box half on its own; the box half must be covered explicitly. Prefer, if feasible, relocating the elimination into verified code (put the Sentence on the wire and let the verified side eliminate) so the obligation is deleted rather than tested; otherwise implement section 6.3's property test over small generated sentences, comparing the theory's own truth evaluation against a direct evaluator for the translated formula at every point of a small hand-built Z-model, and verify against the Lean-side translation once its counterpart lands in BimodalLogic. Record which route was taken and why.",
       "dependencies": [],
       "created": "2026-09-26T11:54:26Z",
-      "last_updated": "2026-09-26T16:31:32Z",
-      "session_id": "sess_1790440270_1867f0_196"
+      "last_updated": "2026-09-26T16:39:10Z",
+      "session_id": "sess_1790440270_1867f0",
+      "artifacts": [
+        {
+          "path": "specs/196_discharge_s4_translation_bridge/reports/01_discharge-s4-translation-bridge.md",
+          "type": "report",
+          "summary": "Confirms translate() already implements the Sentence-to-Formula bridge and its two named hazards; finds relocating elimination into verified Lean code infeasible (translate runs at Python evaluation time, Lean has no callable elimination pass); recommends extending the existing tense-fragment property test (test_formula.py::TestTranslateTruthPreservation) to cover the box half, reusing the hand-built (C1)-coherent fixture corpus at tests/fixtures/certificates/ and its independent decoder in test_certificate_fixtures.py; confirms the Lean-side translation counterpart named as a fallback verification target does not yet exist."
+        }
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 197,
