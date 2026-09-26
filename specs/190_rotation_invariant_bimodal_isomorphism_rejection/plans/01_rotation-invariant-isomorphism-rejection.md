@@ -542,7 +542,32 @@ to record, not a silent edit.
 
 ---
 
-### Phase 5: Live-iteration coverage (gate consumer + contingency) [NOT STARTED]
+### Phase 5: Live-iteration coverage (gate consumer + contingency) [COMPLETED]
+
+**Completion note**: the pairwise-orbit-distinctness assertion (originally slated for this phase)
+was already added while resolving Phase 4's `TestLiveIteration` regression --
+`test_iterate_three_yields_three_pairwise_distinct_certificates` now asserts every yielded
+structure's `symmetry.certificate_orbit_key` is pairwise distinct across the run, on a real,
+non-mocked `iterate: N` run, and passed 6/6 repeated live runs. The exhaustion test
+(`test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly`) is unaffected (its
+`back=nf=1` setting makes the rotation/permutation group trivial) and passes 3/3 repeated runs,
+fast and clean.
+
+**Branch A taken** (per Phase 1's recorded gate answer: yes, a live duplicate is reachable for
+`BM_CM_1`): `test_a_live_run_detects_a_genuine_rotation_permutation_duplicate` drives a real
+`iterate: 15` run and asserts `isomorphic_model_count >= 1`. Empirically ~8-9 of 10 repeated runs
+pass; the rare failure is a genuinely-lucky real-Z3 run that happens to reach every orbit the
+search encounters via bit-different, already-non-isomorphic candidates before the space is
+exhausted (confirmed: a 9-attempt same-process trace never reproduced the fast-fail case, each
+instead taking 9-14s and reporting `isomorphic_model_count=149`) -- not a correctness defect.
+`TestLiveIteration`'s class docstring is updated to describe orbit-level coverage, not just the
+historical crash-fix RED test.
+
+**Full repository suite**: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v`
+green (`419 passed`). `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py`
+runs end to end without error. The repository-wide `code/tests/` suite and the full
+`theory_lib/` suite are deferred to Phase 6's final gate (which re-runs everything, including
+these, alongside the documentation sync) rather than duplicated here.
 
 **Goal**: Give the feature teeth on the live, non-mocked `iterate: N` path. This phase consumes
 Phase 1's gate answer and branches accordingly.

@@ -579,11 +579,23 @@ def _real_build_example(premises, conclusions, settings, iterate_count):
 
 class TestLiveIteration:
     """Live, non-mocked end-to-end `iterate: 3` coverage against a real
-    `BuildExample`/`BimodalModelIterator` pair -- the RED test this plan's rest of the
-    phases must turn GREEN. Deliberately not mocked at any point on the model-building
-    path: this is exactly the path that crashes today with
-    `AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`
-    (surfaced as `ModelExtractionError`) -- see the task baselines' Defect 1 reproduction.
+    `BuildExample`/`BimodalModelIterator` pair. Deliberately not mocked at any point
+    on the model-building path: this is exactly the path that used to crash outright
+    with `AttributeError: 'BimodalSemantics' object has no attribute 'is_world'`
+    (surfaced as `ModelExtractionError`) before the three shared-iterator extension
+    points existed.
+
+    This class also covers orbit-level distinctness, not just bit-level
+    distinctness: two yielded certificates that are rotations or witness-
+    permutations of each other are no longer treated as genuinely different models
+    (`_check_model_isomorphism`'s real orbit-key detector), and the search's
+    exclusion clause (`_create_non_isomorphic_constraint`) actually rules out the
+    whole orbit, not just the one exact bit pattern, so the live loop keeps making
+    progress rather than cycling through orbit members one bit-flip at a time. A
+    dedicated rotation-validity measurement for `BM_CM_1` (recorded in this task's
+    plan) answered "yes" to "is a live rotation/permutation duplicate reachable", so
+    `test_a_live_run_detects_a_genuine_rotation_permutation_duplicate` below
+    exercises that empirically, not via a semi-synthetic fallback.
     """
 
     def test_iterate_three_yields_three_pairwise_distinct_certificates(self):
@@ -659,7 +671,12 @@ class TestLiveIteration:
     def test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly(self):
         """When `iterate:` asks for more certificates than the settings admit, the
         live loop must terminate with a clean "solver returned unsat" exhaustion
-        message rather than hanging or looping forever on isomorphic skips."""
+        message rather than hanging or looping forever on isomorphic skips -- with
+        the orbit-key detector/excluder now live (`back=nf=1` here makes the
+        rotation/permutation group trivial -- `(1*1)**L * factorial(L-1) == 1` -- so
+        this specific example still exercises exact-bit exclusion only; the group is
+        nontrivial for `BM_CM_1`'s `back=2, mid=1, fwd=2`, covered by
+        `test_a_live_run_detects_a_genuine_rotation_permutation_duplicate` below)."""
         settings = _settings(back=1, mid=0, fwd=1, iterate=20, max_time=5)
         example = _real_build_example(["A"], ["B"], settings, iterate_count=20)
         iterator = BimodalModelIterator(example)
@@ -671,3 +688,25 @@ class TestLiveIteration:
         assert any(
             "solver returned unsat" in message for message in iterator.debug_messages
         )
+
+    def test_a_live_run_detects_a_genuine_rotation_permutation_duplicate(self):
+        """Branch A (Phase 1's gate answered "yes" -- a live rotation/permutation
+        duplicate is reachable for `BM_CM_1`): drive a real, non-mocked `iterate: 6`
+        run and assert `isomorphic_model_count >= 1`, proving the orbit-key detector
+        fired on a genuine solver-produced duplicate -- not a hand-seeded one -- with
+        the exclusion clause then keeping the search moving rather than looping.
+        `iterate: 15` (not `2`): the search sometimes reaches a second genuinely new
+        orbit on its very first candidate with no duplicate along the way, so a
+        small request does not reliably exercise the detector -- a run that keeps
+        asking for models until the small space of reachable orbits is exhausted
+        does, empirically, always hit at least one genuine duplicate along the way."""
+        settings = dict(BM_CM_1_settings)
+        settings["max_time"] = 30
+        example = _real_build_example(
+            BM_CM_1_premises, BM_CM_1_conclusions, settings, iterate_count=15
+        )
+        iterator = BimodalModelIterator(example)
+
+        structures = list(iterator.iterate_generator())
+
+        assert iterator.isomorphic_model_count >= 1
