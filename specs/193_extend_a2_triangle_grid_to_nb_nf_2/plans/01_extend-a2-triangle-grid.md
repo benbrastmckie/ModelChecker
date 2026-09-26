@@ -330,18 +330,18 @@ only.
 
 ---
 
-### Phase 6: Full gate and findings [NOT STARTED]
+### Phase 6: Full gate and findings [COMPLETED]
 
 **Goal**: The whole bimodal suite is green with the strengthened test, the added cost is quantified,
 and any three-way disagreement is reported rather than diagnosed.
 
 **Tasks**:
-- [ ] Run the full bimodal test suite including `slow`: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal -q --durations=15`.
-- [ ] Run the module under CI's own timeout shape to confirm no per-test breach: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py -q --timeout=300 --timeout-method=thread`.
-- [ ] Record in the implementation summary: each new case's measured candidate total, accepted count, Z3 verdict, and wall clock; the total wall-clock delta for the module; and the slowest-test durations from `--durations=15`.
-- [ ] If any `_assert_exhaustive_triangle_agrees` triple-comparison assertion failed for a genuine reason (accepted > 0 with Z3 UNSAT, or accepted == 0 with Z3 SAT), report it verbatim as a finding in the summary and in `.return-meta.json`, naming the closure and grid — do not weaken the assertion, drop the closure, or attempt to diagnose the encoder.
-- [ ] Confirm Tier 2 (`TestBoundedLeanCrossCheck`) is untouched: `git diff` over the phase range shows no change below the Tier 2 section banner, and the class still carries its `skipif(SKIP_REASON)` decorator.
-- [ ] Commit any remaining work and write the implementation summary.
+- [x] Run the full bimodal test suite including `slow`: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal -q --durations=15`. Result: **441 passed in 150.46s**, no failures.
+- [x] Run the module under CI's own timeout shape to confirm no per-test breach: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py -q --timeout=300 --timeout-method=thread`. Result: **9 passed in 147.44s**, slowest single test 78.28s (well under the 300s ceiling).
+- [x] Record in the implementation summary: each new case's measured candidate total, accepted count, Z3 verdict, and wall clock; the total wall-clock delta for the module; and the slowest-test durations from `--durations=15`. See the implementation summary.
+- [x] No `_assert_exhaustive_triangle_agrees` triple-comparison assertion failed anywhere in either run — no genuine three-way disagreement surfaced at `nb=nf=2`; no finding to report.
+- [x] Confirm Tier 2 (`TestBoundedLeanCrossCheck`) is untouched: `git diff 9d900b00 cc7291b4 -- .../test_certificate_a2_triangle.py` shows every hunk ending at line 337, all before the Tier 2 banner at line 356; `@pytest.mark.skipif(SKIP_REASON is not None, ...)` is still present on the class (confirmed at line 454 of the final file).
+- [x] Commit any remaining work and write the implementation summary.
 
 **Timing**: 45 minutes
 
