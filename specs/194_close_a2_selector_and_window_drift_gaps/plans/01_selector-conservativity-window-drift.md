@@ -2,7 +2,7 @@
 
 - **Task**: 194 - Close the two residual encoder-versus-specification gaps in the A2
   encoding-completeness argument
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 4.5 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/194_close_a2_selector_and_window_drift_gaps/reports/01_selector-conservativity-window-drift.md`
@@ -119,29 +119,30 @@ Phases within the same wave can execute in parallel. Phases 1 and 3 touch disjoi
 (`tests/unit/test_witness_registry.py` and `tests/unit/test_witness_constraints.py`) and no
 production file, so they are genuinely parallel-safe.
 
-### Phase 1: Pin the window agreement with a swept-range regression [NOT STARTED]
+### Phase 1: Pin the window agreement with a swept-range regression [COMPLETED]
 
 **Goal**: Before any production edit, pin the current behavior of `target_window()` against
 `certificate._box_window` across the configured range of segment lengths, so Phase 2's refactor has
 a behavioral baseline and a future reintroduction of an independent body fails loudly.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py`
+- [x] Re-read `code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py`
       immediately before editing (sibling-concurrency discipline).
-- [ ] Extend the existing `TestTargetWindow` class (it already holds
+- [x] Extend the existing `TestTargetWindow` class (it already holds
       `test_target_window_length_equals_slots_per_lasso` and
       `test_target_window_hits_every_slot_exactly_once`) with a swept-range test asserting, for
       `back` in `1..3`, `mid` in `0..3`, `fwd` in `1..3` (36 combinations; `back`/`fwd` must be
       `>= 1` and `mid >= 0` per `WitnessRegistry.__init__`'s own validation):
       `registry.target_window() == _box_window(registry)` and
       `registry.target_window() == range(-back, mid + fwd)`.
-- [ ] Import `_box_window` from `...semantic.certificate` in that test module (the sibling module
+- [x] Import `_box_window` from `...semantic.certificate` in that test module (the sibling module
       `test_witness_constraints.py` already establishes this exact import precedent).
-- [ ] Add a short docstring on the new test recording its purpose: it is the mechanical backstop
+- [x] Add a short docstring on the new test recording its purpose: it is the mechanical backstop
       against re-divergence once `target_window()` delegates, not a claim that two independent
       formulas happen to agree.
-- [ ] Run the module: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v`.
-- [ ] Commit (`task 194 phase 1.1: pin target_window/_box_window agreement across swept segment lengths`).
+- [x] Run the module: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v`.
+      (46 passed)
+- [x] Commit (`task 194 phase 1.1: pin target_window/_box_window agreement across swept segment lengths`).
 
 **Timing**: 0.5 hours
 

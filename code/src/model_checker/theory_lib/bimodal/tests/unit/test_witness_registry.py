@@ -10,7 +10,7 @@ from __future__ import annotations
 import pytest
 import z3
 
-from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso
+from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, _box_window
 from model_checker.theory_lib.bimodal.semantic.formula import Atom, Box
 from model_checker.theory_lib.bimodal.semantic.witness_registry import WitnessRegistry
 from model_checker.theory_lib.errors import WitnessRegistryError
@@ -196,6 +196,22 @@ class TestTargetWindow:
         registry = WitnessRegistry(back=2, mid=3, fwd=2, closure=[P])
         indices = [registry.wrap(t) for t in registry.target_window()]
         assert sorted(indices) == list(range(registry.slots_per_lasso))
+
+    def test_target_window_agrees_with_box_window_across_swept_segment_lengths(self):
+        """Mechanical backstop against re-divergence once `target_window()` delegates to
+        `_box_window` (Phase 2): this is a pinned baseline confirming the two formulas already
+        agree, not a claim that two independent formulas happen to coincide. `back`/`fwd` range
+        `1..3` (must be `>= 1`, `WitnessRegistry.__init__`'s own validation) and `mid` ranges
+        `0..3` (must be `>= 0`), including every `mid == 0` case: 36 combinations."""
+        combinations = 0
+        for back in range(1, 4):
+            for mid in range(0, 4):
+                for fwd in range(1, 4):
+                    registry = WitnessRegistry(back=back, mid=mid, fwd=fwd, closure=[P])
+                    assert registry.target_window() == _box_window(registry)
+                    assert registry.target_window() == range(-back, mid + fwd)
+                    combinations += 1
+        assert combinations == 36
 
 
 class TestClear:
