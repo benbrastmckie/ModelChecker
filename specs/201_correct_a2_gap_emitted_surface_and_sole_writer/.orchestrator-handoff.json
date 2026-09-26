@@ -1,0 +1,18 @@
+{
+  "status": "planned",
+  "task_number": 201,
+  "phase": "plan",
+  "session_id": "sess_1790460497_721fd5_201",
+  "dispatch_seq": 2,
+  "phases_completed": 0,
+  "phases_total": 3,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/201_correct_a2_gap_emitted_surface_and_sole_writer/plans/01_a2-gap-surface-correction.md",
+      "summary": "Three-phase documentation/comment plan for the A2_GAP.md surface correction, core.py D6 sole-writer narrowing, and window-sharing independence cost."
+    }
+  ],
+  "next_steps": "Run /implement 201 to execute the plan",
+  "blockers": []
+}
