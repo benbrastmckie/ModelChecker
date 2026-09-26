@@ -238,28 +238,30 @@ silently absorbing it.
 
 ---
 
-### Phase 3: Direct selector-conservativity test against the re-checker [NOT STARTED]
+### Phase 3: Direct selector-conservativity test against the re-checker [COMPLETED]
 
 **Goal**: Pin F1's equivalence — with only (C4) asserted, `sel[t]` is satisfiable exactly for the
 `t` at which `certificate._target_holds` holds of the corresponding family — so a future
 A2-triangle disagreement cannot be wrongly attributed to the selector mechanism.
 
 **Tasks**:
-- [ ] Re-read `tests/unit/test_witness_constraints.py` immediately before editing.
-- [ ] Add a new test class (e.g. `TestSelectorConservativity`) after the existing
+- [x] Re-read `tests/unit/test_witness_constraints.py` immediately before editing.
+- [x] Add a new test class (e.g. `TestSelectorConservativity`) after the existing
       `TestTargetConstraints`, importing `LabelledLasso`, `WitnessFamily` and `_target_holds` from
       `...semantic.certificate` (`_box_window`/`_coherence_window` are already imported in that
       module, establishing the private-helper import precedent).
-- [ ] Write a small helper in the test module that, given `back`/`mid`/`fwd` label tuples and a
+- [x] Write a small helper in the test module that, given `back`/`mid`/`fwd` label tuples and a
       closure, builds the `LabelledLasso` + single-lasso `WitnessFamily` **and** returns the
       corresponding bit assignment: for each `t` in `registry.target_window()` and each `f` in the
       closure, `registry.bit(0, t, f) == (f in family.main.label(t))`. Both sides must be derived
       from the one `LabelledLasso`, never written out twice by hand.
-- [ ] Parametrize over at least four explicit label assignments crossing premise-present/absent
+- [x] Parametrize over at least four explicit label assignments crossing premise-present/absent
       and conclusion-present/absent (e.g. premises `[P]`, conclusions `[Q]`, with: no position
       satisfying C4; exactly one; several; and every position), at `back=2, mid=1, fwd=2`
       (`DEFAULT_EXAMPLE_SETTINGS`' own lengths) and at `back=mid=fwd=1` (the A2-triangle grid).
-- [ ] For each assignment: assert only `generator.target_constraints(premises, conclusions)` plus
+      Implemented as four generic pattern generators (`none`/`one`/`several`/`all`) parametrized
+      over both segment-length configurations, 8 combinations total.
+- [x] For each assignment: assert only `generator.target_constraints(premises, conclusions)` plus
       the derived bit equalities into a fresh solver — no local coherence, no fulfilment, no box
       faithfulness — and assert
       (a) `solver.check() == sat` iff `{t in window : _target_holds(family, premises, conclusions, t)}`
@@ -268,19 +270,21 @@ A2-triangle disagreement cannot be wrongly attributed to the selector mechanism.
       `_target_holds(family, premises, conclusions, t)`, and `unsat` otherwise (use
       `solver.push()`/`solver.pop()` around each `t`; this is the crisp form of "every model has
       `sel[t]` true only for `t` in the expected set").
-- [ ] Add one deliberate-mismatch guard against vacuity: take a satisfying assignment, flip a
+- [x] Add one deliberate-mismatch guard against vacuity: take a satisfying assignment, flip a
       single premise bit at the only satisfying position, and assert the solver flips to `unsat`
       while `_target_holds` on the *unflipped* family still reports that position — confirming the
-      test is actually reading the bits it thinks it is.
-- [ ] Add the periodicity-corollary test, with no Z3 at all: for a hand-built `LabelledLasso`, pick
+      test is actually reading the bits it thinks it is. Verified during development: an unflipped
+      control run of the same assertions checks `sat` (recorded, not left in the committed test).
+- [x] Add the periodicity-corollary test, with no Z3 at all: for a hand-built `LabelledLasso`, pick
       several `t` outside `registry.target_window()` and their in-window representatives `t'`
       (`registry.wrap(t) == registry.wrap(t')`), and assert
       `_target_holds(family, premises, conclusions, t) == _target_holds(family, premises, conclusions, t')`.
       Cover both `t < -nb` and `t >= nm + nf`.
-- [ ] Give the new class a docstring stating what it establishes and why the expectation is computed
+- [x] Give the new class a docstring stating what it establishes and why the expectation is computed
       by `_target_holds` rather than derived inline (F2's named weakness in the existing tests).
-- [ ] Run: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v`.
-- [ ] Commit (`task 194 phase 3.1: test selector conservativity against the re-checker`).
+- [x] Run: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v`.
+      (40 passed)
+- [x] Commit (`task 194 phase 3.1: test selector conservativity against the re-checker`).
 
 **Timing**: 1.5 hours
 
