@@ -196,16 +196,18 @@ identical to BimodalLogic's own Lean types (`FormalSystem.Syntax.Formula`,
 
 ### `Formula` (and its six constructors: `Atom`, `Bot`, `Imp`, `Box`, `Untl`, `Snce`)
 
-The label domain. `Untl`/`Snce` are **guard-first** (`(guard, event)`), the opposite of
-ModelChecker's historical event-first `UntilOperator`/`SinceOperator` argument order.
+The label domain. `Untl`/`Snce` are **guard-first** (`(guard, event)`), matching
+ModelChecker's own `UntilOperator`/`SinceOperator` argument order (ModelChecker was previously
+event-first; normalized to guard-first for cross-repository uniformity — see
+`semantic/formula.py`'s module docstring).
 
 #### `subformula_closure(formula)` / `closure_of(context)`
 Compute the subformula closure of one formula, or the union of closures over a list of formulas
 (premises plus conclusions) — the label domain `C` a certificate search is fixed against.
 
 #### `translate(sentence)`
-Translate a ModelChecker sentence into a `Formula`, swapping `Until`/`Since` argument order to
-guard-first along the way.
+Translate a ModelChecker sentence into a `Formula`. Positional identity for `Until`/`Since` — no
+argument swap.
 
 #### `to_json(formula)` / `from_json(obj)`
 The wire codec: tag vocabulary `atom`/`bot`/`imp`/`box`/`untl`/`snce`, matching BimodalLogic's
@@ -320,8 +322,8 @@ formula2 = "\\Future \\Box p"
 # Combined: "It's possible that p was true in the past"
 formula3 = "\\Diamond \\Past p"
 
-# Guarded until: "q holds until p, guarded by q throughout"
-formula4 = "(q \\Until p)"
+# Guard-first until: "p holds throughout, until q occurs"
+formula4 = "(p \\Until q)"
 
 # See examples.py for complete working implementations
 ```

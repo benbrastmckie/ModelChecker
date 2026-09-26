@@ -457,8 +457,8 @@ The past operator `\Past A` is the temporal mirror of `\Future`, defined via `\\
 ### Until and Since Operators
 
 `\\Until` and `\\Since` are primitive, guard-first (matching the Lean `untl`/`snce`
-constructors — argument order is `(guard, event)`, the opposite of ModelChecker's historical
-event-first `UntilOperator`/`SinceOperator` argument order, so translation swaps them; see
+constructors — argument order is `(guard, event)`. ModelChecker's own `UntilOperator`/
+`SinceOperator` are guard-first too, so `translate` is positional identity, not a swap; see
 `semantic/formula.py`'s module docstring). `g \\Until e` is true at a position exactly when (C1)'s
 fixpoint clause holds there — `e`'s label bit is set at the next position, or `g`'s label bit is
 set at the next position and `g \\Until e` recurses — and (C2) fulfilment guarantees this fixpoint

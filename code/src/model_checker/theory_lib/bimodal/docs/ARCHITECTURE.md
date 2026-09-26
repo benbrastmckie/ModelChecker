@@ -219,8 +219,10 @@ Z3 formulas or read `eval_point["world"]`/`eval_point["time"]` directly, both re
 `BimodalProposition.find_extension` computes truth values directly from certificate labels.
 
 `\\Until`/`\\Since` are guard-first (`(guard, event)`), matching the Lean `untl`/`snce`
-constructors — the opposite of ModelChecker's historical event-first argument order — so
-translation swaps them; see `semantic/formula.py`'s module docstring for the exact swap point.
+constructors exactly — ModelChecker's own `UntilOperator`/`SinceOperator` are guard-first too, so
+`translate` is positional identity, not a swap; see `semantic/formula.py`'s module docstring.
+(ModelChecker was previously event-first, citing the Burgess convention; that citation is
+deliberately dropped in favor of one argument order across ModelChecker, the oracle, and Lean.)
 
 ## Model Iteration
 

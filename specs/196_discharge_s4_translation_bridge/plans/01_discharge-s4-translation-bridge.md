@@ -400,7 +400,7 @@ checklist and record the real counts in the summary.
 
 ---
 
-### Phase 3: Sweep the standalone documentation to one argument order [NOT STARTED]
+### Phase 3: Sweep the standalone documentation to one argument order [COMPLETED]
 
 **Goal**: no user-facing document still states the event-first convention or that translation
 swaps.
