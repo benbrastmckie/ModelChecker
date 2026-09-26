@@ -271,30 +271,43 @@ consider the report's atoms-only generator as a follow-up rather than silently r
 
 ---
 
-### Phase 4: Tier 2 bounded Lean cross-check [NOT STARTED]
+### Phase 4: Tier 2 bounded Lean cross-check [COMPLETED]
 
 **Goal**: Leg (ii) agreement on a bounded, deterministic sample of candidates plus on the live
 Z3-extracted certificate, under the same skip discipline as the existing Lean module.
 
 **Tasks**:
-- [ ] Import the Phase 1 helper and apply the same module-level `pytestmark` skip so the Lean
-      tests skip cleanly (never fail) without a BimodalLogic checkout or `lake`.
-- [ ] Add a named module constant for the per-class sample size (e.g.
-      `LEAN_SAMPLE_PER_CLASS = 5`) with a comment citing the ~2.2 s per-invocation cost and the
-      existing Lean module's ~22 s total as the budget being matched.
-- [ ] For each closure: take the first `LEAN_SAMPLE_PER_CLASS` accepted candidates and a
+- [x] Import the Phase 1 helper and apply the same skip so the Lean tests skip cleanly (never
+      fail) without a BimodalLogic checkout or `lake`. **Deviation**: applied as a
+      `@pytest.mark.skipif(SKIP_REASON is not None, ...)` decorator on `TestBoundedLeanCrossCheck`
+      itself, not as a module-level `pytestmark` -- a module-level skip would also skip Tier 1's
+      exhaustive completeness comparison, directly contradicting this same plan's own Testing &
+      Validation checklist ("the Tier 1 completeness comparison still runs and still passes" with
+      `BIMODAL_LOGIC_PATH=/nonexistent`), which this class-scoped form satisfies and a
+      module-level one would not.
+- [x] Add a named module constant for the per-class sample size (`LEAN_SAMPLE_PER_CLASS = 5`)
+      with a comment citing the ~2.2 s per-invocation cost and the existing Lean module's total
+      as the budget being matched.
+- [x] For each closure: take the first `LEAN_SAMPLE_PER_CLASS` accepted candidates and a
       deterministically strided sample of the same size from the rejected candidates; serialize
       each via `WitnessFamily.to_json(premises, conclusions, target_time)` and assert
       `run_check_certificate(payload, timeout)["status"]` equals the Python re-checker's status.
       Selection must be reproducible across runs (fixed enumeration order, fixed stride — no
-      unseeded randomness).
-- [ ] For each SAT closure: one additional invocation on `structure.certificate`'s serialization
+      unseeded randomness). Verified reproducible across two consecutive runs.
+- [x] For each SAT closure: one additional invocation on `structure.certificate`'s serialization
       at `structure.target_time`, asserting Lean also answers `countermodel` — closing the gap the
       production fail-fast guard leaves (it calls the Python `recheck` only).
-- [ ] On a `rejected` disagreement, compare the `failed[].condition` sets and assert a non-empty
+- [x] On a `rejected` disagreement, compare the `failed[].condition` sets and assert a non-empty
       intersection, matching `TestPythonRecheckerAgreesWithLean`'s existing convention.
-- [ ] Assert in the failure messages that the Lean predicates are the contract (ADEQUACY section
+- [x] Assert in the failure messages that the Lean predicates are the contract (ADEQUACY section
       5.3), so a disagreement is attributed Python-side by default.
+- [x] **Note (Scope Hypothesis follow-up)**: measured total for this class alone, all three
+      cases, ~58s (6s/15s/36s) — within the ~50-60s estimate below, so `LEAN_SAMPLE_PER_CLASS`
+      was not lowered. Most of the single-box case's ~36s is two Python-side enumeration passes
+      over its 1,572,864 candidates (needed to fix a deterministic stride before sampling), not
+      the ~11 Lean subprocess invocations themselves; an early-exit once both quotas are filled
+      was added to `_sampled_candidates` to trim this, with modest effect (the strided rejected
+      sample's last index falls ~80% into the enumeration regardless).
 
 **Timing**: 1 hour
 

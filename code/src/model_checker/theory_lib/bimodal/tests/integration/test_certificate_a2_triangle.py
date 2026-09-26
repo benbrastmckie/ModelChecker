@@ -51,8 +51,10 @@ from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Box, Formula
 from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
 from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+from model_checker.theory_lib.bimodal.tests._lean_check import SKIP_REASON, run_check_certificate
 
 Candidate = Tuple[WitnessFamily, int]
+SampledCandidate = Tuple[WitnessFamily, int, Dict[str, Any]]
 
 
 def _settings(**overrides: Any) -> Dict[str, Any]:
@@ -267,3 +269,173 @@ class TestExhaustiveTriangleWithBox:
             expected_accepted=96,
             expected_sat=True,
         )
+
+
+# ---------------------------------------------------------------------------
+# Tier 2: bounded Lean cross-check (leg ii)
+# ---------------------------------------------------------------------------
+#
+# `~2.2s` per `lake exe check_certificate` invocation (measured at plan time), against which
+# `test_certificate_lean_agreement.py`'s existing ~10-test module takes ~15-22s total. Exhaustive
+# Lean cross-checking of every accepted candidate across the two SAT closures (148 candidates)
+# would cost ~5.5 minutes, so this samples instead: a small, fixed, named per-class count,
+# reproducible across runs (fixed enumeration order, fixed stride -- no unseeded randomness).
+# Measured at implementation time on this host: the three parametrized cases below (two
+# box-free plus the single-box closure) take ~6s / ~15s / ~36s respectively, ~58s total for
+# this class alone -- most of the single-box case's cost is the two Python-side enumeration
+# passes `_sampled_candidates` needs over its 1,572,864 candidates, not the ~11 Lean
+# invocations themselves. Within the plan's own ~50-60s estimate; not lowered further.
+LEAN_SAMPLE_PER_CLASS = 5
+
+# This module's own per-invocation timeout, matching `test_certificate_lean_agreement.py`'s
+# `PER_FIXTURE_TIMEOUT_SECONDS`.
+LEAN_INVOCATION_TIMEOUT_SECONDS = 30
+
+
+def _sampled_candidates(
+    structure: BimodalStructure, per_class: int
+) -> Tuple[List[SampledCandidate], List[SampledCandidate]]:
+    """Deterministically select up to `per_class` accepted candidates (the first `per_class`,
+    in enumeration order) and up to `per_class` rejected candidates (a fixed stride over the
+    rejected ones) from `structure`'s exhaustive enumeration.
+
+    Two passes over `_candidates`: the first counts how many candidates are rejected (needed to
+    fix the stride before any candidate is chosen, so the choice does not depend on how many
+    accepted candidates happened to come first); the second makes the actual selection. Each
+    pass is exactly as cheap as one `TestExhaustiveTriangleWithBox` run (`recheck` alone, no
+    Z3), so this doubles that closure's own enumeration cost, not the Lean cost -- the Lean
+    subprocess invocations dominate this Tier's budget regardless.
+
+    Returns `(accepted_samples, rejected_samples)`, each a list of `(family, target_time,
+    verdict)`.
+    """
+
+    def _verdict_for(family: WitnessFamily, target_time: int) -> Dict[str, Any]:
+        return recheck(
+            family,
+            structure.semantics._premise_formulas,
+            structure.semantics._conclusion_formulas,
+            target_time,
+        )
+
+    total_rejected = 0
+    for family, target_time in _candidates(structure):
+        if _verdict_for(family, target_time)["status"] != "countermodel":
+            total_rejected += 1
+    stride = max(total_rejected // per_class, 1) if total_rejected else 0
+
+    accepted: List[SampledCandidate] = []
+    rejected: List[SampledCandidate] = []
+    rejected_seen = 0
+    for family, target_time in _candidates(structure):
+        verdict = _verdict_for(family, target_time)
+        if verdict["status"] == "countermodel":
+            if len(accepted) < per_class:
+                accepted.append((family, target_time, verdict))
+        else:
+            if stride and rejected_seen % stride == 0 and len(rejected) < per_class:
+                rejected.append((family, target_time, verdict))
+            rejected_seen += 1
+        # Both quotas are filled in a fixed, deterministic prefix of the enumeration (accepted:
+        # the first `per_class` in order; rejected: a fixed stride computed from the exact
+        # `total_rejected` counted above) -- stopping here changes nothing about which
+        # candidates are chosen, only how much of the remainder is scanned needlessly.
+        if len(accepted) >= per_class and len(rejected) >= per_class:
+            break
+    return accepted, rejected
+
+
+def _assert_lean_agrees(payload: Dict[str, Any], python_verdict: Dict[str, Any], label: str) -> None:
+    """Assert `lake exe check_certificate` agrees with `python_verdict` on `payload`, matching
+    `test_certificate_lean_agreement.py`'s `TestPythonRecheckerAgreesWithLean` convention: on a
+    `rejected` disagreement, the two sides' failed `condition` sets must intersect. The Lean
+    predicates are the contract (ADEQUACY.md section 5.3), so a status disagreement is
+    attributed Python-side by default."""
+    lean_verdict = run_check_certificate(payload, LEAN_INVOCATION_TIMEOUT_SECONDS)
+    assert lean_verdict is not None, (
+        f"{label}: lake exe check_certificate did not respond within "
+        f"{LEAN_INVOCATION_TIMEOUT_SECONDS}s"
+    )
+    assert lean_verdict["status"] == python_verdict["status"], (
+        f"{label}: recheck says {python_verdict['status']!r}, lake exe check_certificate says "
+        f"{lean_verdict['status']!r} -- the Lean predicates are the contract (ADEQUACY.md "
+        "section 5.3), so this is a Python-side defect, not a Lean-side one"
+    )
+    if lean_verdict["status"] == "rejected":
+        python_conditions = {entry.get("condition") for entry in python_verdict.get("failed", [])}
+        lean_conditions = {entry.get("condition") for entry in lean_verdict.get("failed", [])}
+        assert python_conditions & lean_conditions, (
+            f"{label}: recheck's failed condition(s) {python_conditions!r} share nothing with "
+            f"Lean's {lean_conditions!r}"
+        )
+
+
+@pytest.mark.skipif(SKIP_REASON is not None, reason=SKIP_REASON or "")
+class TestBoundedLeanCrossCheck:
+    """Leg (ii) on a bounded, deterministic sample of candidates, plus the live Z3-extracted
+    certificate for each SAT closure -- closing the gap the production fail-fast guard leaves
+    (it calls the Python `recheck` only, never Lean). Skips cleanly, with a named reason, never
+    a failure, without a BimodalLogic checkout or `lake` -- the same discipline
+    `test_certificate_lean_agreement.py` uses, via the shared `_lean_check` helper. This
+    `skipif` is applied at the class level, not the module level, so Tier 1's exhaustive
+    completeness comparison above keeps running (and still passing) even when this class skips."""
+
+    @pytest.mark.parametrize(
+        "premises, conclusions, is_sat",
+        [
+            pytest.param([], ["(q \\Until p)"], True, id="box_free_until_conclusion_sat"),
+            pytest.param(["A"], ["A"], False, id="box_free_contradiction_unsat"),
+            pytest.param(
+                ["\\Box A"], ["B"], True,
+                id="boxed_closure_sat", marks=pytest.mark.slow,
+            ),
+        ],
+    )
+    def test_sampled_candidates_and_extracted_certificate_agree_with_lean(
+        self, premises, conclusions, is_sat
+    ):
+        structure = _build(premises, conclusions, back=1, mid=1, fwd=1)
+        accepted_samples, rejected_samples = _sampled_candidates(structure, LEAN_SAMPLE_PER_CLASS)
+
+        for index, (family, target_time, verdict) in enumerate(accepted_samples):
+            payload = family.to_json(
+                structure.semantics._premise_formulas,
+                structure.semantics._conclusion_formulas,
+                target_time,
+            )
+            _assert_lean_agrees(
+                payload, verdict,
+                f"premises={premises!r} conclusions={conclusions!r} accepted[{index}]",
+            )
+
+        for index, (family, target_time, verdict) in enumerate(rejected_samples):
+            payload = family.to_json(
+                structure.semantics._premise_formulas,
+                structure.semantics._conclusion_formulas,
+                target_time,
+            )
+            _assert_lean_agrees(
+                payload, verdict,
+                f"premises={premises!r} conclusions={conclusions!r} rejected[{index}]",
+            )
+
+        if is_sat:
+            # The production fail-fast guard (`semantic/model.py`) re-checks the extracted
+            # certificate against the Python `recheck` only; this closes that gap by also
+            # checking it against the live Lean binary.
+            assert structure.certificate is not None
+            assert structure.target_time is not None
+            wire = structure.semantics.export_certificate_json(
+                structure.certificate, structure.target_time
+            )
+            python_verdict = recheck(
+                structure.certificate,
+                structure.semantics._premise_formulas,
+                structure.semantics._conclusion_formulas,
+                structure.target_time,
+            )
+            assert python_verdict["status"] == "countermodel", python_verdict
+            _assert_lean_agrees(
+                wire, python_verdict,
+                f"premises={premises!r} conclusions={conclusions!r} extracted certificate",
+            )
