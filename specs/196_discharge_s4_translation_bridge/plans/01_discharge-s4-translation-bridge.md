@@ -638,7 +638,7 @@ present. If any fails, adjust and record the actual numbers in the summary rathe
 
 ---
 
-### Phase 7: Negative controls — prove the new coverage has teeth [NOT STARTED]
+### Phase 7: Negative controls — prove the new coverage has teeth [COMPLETED]
 
 **Goal**: recorded, executable evidence that the box coverage and the asymmetry coverage would
 actually fail on a wrong translation, closing the vacuity risk.

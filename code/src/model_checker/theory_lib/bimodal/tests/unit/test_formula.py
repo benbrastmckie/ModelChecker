@@ -1041,3 +1041,128 @@ class TestTranslateTruthPreservationBox:
                         f"sentence's semantics at lasso={i}, t={t}: "
                         f"mc={mc_value} lean={lean_value}"
                     )
+
+
+# ---------------------------------------------------------------------------
+# Phase 7: negative controls -- prove the new coverage has teeth
+# ---------------------------------------------------------------------------
+
+
+class TestNegativeControlsHaveTeeth:
+    """Recorded, executable evidence that the box coverage and the asymmetry coverage would
+    actually fail on a wrong translation -- closing the vacuity risk that a differential test
+    which never disagrees might simply never be exercising the thing it claims to test."""
+
+    def test_family_corpus_is_non_vacuous_for_box(self):
+        """`\\Box p` is true for at least one family and false for at least one other -- the
+        family corpus is not constant, so a differential over it can actually discriminate."""
+        box_p = ("box", ("atom", "p"))
+        values = {
+            _eval_mc_ast(box_p, family, 0, 0, _PROPERTY_DOMAIN) for family in _PROPERTY_FAMILIES
+        }
+        assert values == {True, False}, (
+            f"expected \\Box p to be both true and false across the family corpus, got {values}"
+        )
+
+    def test_box_mutation_is_detected(self):
+        """A deliberately wrong translation of `\\Box p` -- dropping the Box wrapper entirely,
+        i.e. translating it as if it were bare `p` -- must disagree with the correct
+        translation at some family point. The mutation is constructed by hand; `translate`
+        itself is never monkeypatched."""
+        sentence = _sentence("\\Box p")
+        correct = translate(sentence)
+        assert isinstance(correct, Box)
+        wrong = correct.child  # the Box-dropping mutation: Box(p) mistranslated as p
+
+        disagreement = False
+        for family in _PROPERTY_FAMILIES:
+            for i in range(len(family)):
+                for t in _PROPERTY_DOMAIN:
+                    if _eval_lean_formula(
+                        correct, family, i, t, _PROPERTY_DOMAIN
+                    ) != _eval_lean_formula(wrong, family, i, t, _PROPERTY_DOMAIN):
+                        disagreement = True
+        assert disagreement, "dropping the Box wrapper was not detected at any family point"
+
+    def test_family_crossing_control_a_single_lasso_box_would_miss_the_second_lasso(self):
+        """The multi-lasso structure is load-bearing, not decorative: a box translation that
+        (wrongly) quantified over only its own lasso, rather than every lasso in the family,
+        would agree with the correct family-global semantics on a single-lasso family but
+        disagree on Family B (whose violation lives entirely in lasso 1). This is exactly the
+        defect a single-lasso family corpus could not have caught."""
+
+        def _single_lasso_box(child_ast, family, i, t, domain):
+            return all(_eval_mc_ast(child_ast, family, i, u, domain) for u in domain)
+
+        p = ("atom", "p")
+        family_b = _PROPERTY_FAMILIES[1]  # box_false_via_second_lasso
+        correct = _eval_mc_ast(("box", p), family_b, 0, 0, _PROPERTY_DOMAIN)
+        wrong_single_lasso = _single_lasso_box(p, family_b, 0, 0, _PROPERTY_DOMAIN)
+        assert correct is False, "expected the family-global \\Box p to be false (lasso 1 fails)"
+        assert wrong_single_lasso is True, (
+            "expected the single-lasso mutation to (wrongly) see only lasso 0, where p holds "
+            "everywhere"
+        )
+        assert correct != wrong_single_lasso, (
+            "the single-lasso mutation was not caught -- the multi-lasso family failed to be "
+            "load-bearing"
+        )
+
+    def test_asymmetry_sensitivity_control_until(self):
+        """For a generated asymmetric `\\Until` instance, the operand-swapped `Formula` (built
+        by hand, not via `translate`) must disagree with the translated original at some family
+        point -- the control proving the asymmetric corpus actually has hazard sensitivity."""
+        sentence = _sentence("(p \\Until q)")
+        correct = translate(sentence)
+        assert isinstance(correct, Untl)
+        swapped = Untl(guard=correct.event, event=correct.guard)
+
+        disagreement = False
+        for family in _PROPERTY_FAMILIES:
+            for i in range(len(family)):
+                for t in _PROPERTY_DOMAIN:
+                    if _eval_lean_formula(
+                        correct, family, i, t, _PROPERTY_DOMAIN
+                    ) != _eval_lean_formula(swapped, family, i, t, _PROPERTY_DOMAIN):
+                        disagreement = True
+        assert disagreement, "the guard/event swap on \\Until was not detected at any family point"
+
+    def test_asymmetry_sensitivity_control_since(self):
+        sentence = _sentence("(p \\Since q)")
+        correct = translate(sentence)
+        assert isinstance(correct, Snce)
+        swapped = Snce(guard=correct.event, event=correct.guard)
+
+        disagreement = False
+        for family in _PROPERTY_FAMILIES:
+            for i in range(len(family)):
+                for t in _PROPERTY_DOMAIN:
+                    if _eval_lean_formula(
+                        correct, family, i, t, _PROPERTY_DOMAIN
+                    ) != _eval_lean_formula(swapped, family, i, t, _PROPERTY_DOMAIN):
+                        disagreement = True
+        assert disagreement, "the guard/event swap on \\Since was not detected at any family point"
+
+    def test_elimination_control_next_wrong_pre_normalization_order(self):
+        """A wrong elimination of `\\next A` using the pre-normalization (event-first) operand
+        order -- `Untl(guard=A, event=bot)` instead of the correct guard-first
+        `Untl(guard=bot, event=A)` -- must be detected by the differential. This is exactly the
+        defect a missed flip of `DefNextOperator.derived_definition` (Phase 2) would have
+        produced, and is the control that would have caught it."""
+        sentence = _sentence("\\next p")
+        correct = translate(sentence)
+        assert isinstance(correct, Untl)
+        wrong = Untl(guard=correct.event, event=correct.guard)  # the retired event-first order
+
+        disagreement = False
+        for family in _PROPERTY_FAMILIES:
+            for i in range(len(family)):
+                for t in _PROPERTY_DOMAIN:
+                    if _eval_lean_formula(
+                        correct, family, i, t, _PROPERTY_DOMAIN
+                    ) != _eval_lean_formula(wrong, family, i, t, _PROPERTY_DOMAIN):
+                        disagreement = True
+        assert disagreement, (
+            "the pre-normalization event-first \\next elimination was not detected at any "
+            "family point"
+        )
