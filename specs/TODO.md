@@ -1,5 +1,5 @@
 ---
-next_project_number: 201
+next_project_number: 205
 ---
 
 # TODO
@@ -11,26 +11,73 @@ next_project_number: 201
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 195,197,198 | -- | architecture, semantics |
-| 2 | 199,200 | 195,197,198 | documentation, semantics |
+| 1 | 195,197,198,201,203,204 | -- | documentation, architecture, testing, ... |
+| 2 | 199,200,202 | 195,197,198,201 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
+201 [NOT STARTED] — Correct A2GAP.md's emitted-constraint surface and...
+  └─ 202 [NOT STARTED] — Correct the user-facing claim that the bimodal search is...
 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Architecture
 
 195 [RESEARCHED] — Research and recommend a route to actually prove, rather than...
 
+### Testing
+
+204 [NOT STARTED] — Strengthen the A2-triangle encoding-completeness differential...
+
 ### Semantics
 
 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
+203 [NOT STARTED] — Research and recommend whether the bimodal search should...
 
 ## Tasks
+
+### 204. Strengthen a2 triangle per candidate
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Strengthen the A2-triangle encoding-completeness differential from an aggregate verdict to a per-candidate comparison. The leg (i) versus leg (iii) comparison is currently a one-bit existential at tests/integration/test_certificate_a2_triangle.py:238 -- (accepted > 0) == z3_model_status -- so up to 10.5 million enumerated candidates collapse into a single SAT/UNSAT agreement, while A2 is a claim about each candidate individually. A candidate the encoder wrongly rejects and the re-checker accepts, or the reverse, is invisible so long as the aggregate verdicts still agree. Compare the two legs candidate by candidate instead, reporting the first divergence with enough of the candidate to diagnose it. Keep the cost envelope in view: the widest configured closure already reaches 10.5 million candidates, so measure before committing to unconditional execution and tier or slow-mark the new comparison as the existing cases are, verifying against CI exact invocation shape (--timeout=300 --timeout-method=thread, run with -n 4) rather than a bare idle-host figure. Keep Tier 2 clean-skip discipline intact. Report any genuine divergence as a finding; diagnosing the encoder is out of scope. This is the lead recommendation of the encoder-specification proof-routes research, preferred over routes that attempt proof.
+
+---
+
+### 203. Research divisor period search coverage
+- **Status**: [NOT STARTED]
+- **Task Type**: z3
+- **Topic**: semantics
+- **Dependencies**: None
+
+**Description**: Research and recommend whether the bimodal search should cover all divisor-periods up to each bound rather than only the exact period, and at what cost. WitnessRegistry.wrap() currently fixes exact periods, so a family of back-period nbprime is representable only when nbprime divides nb, making the searched space non-monotone in back/mid/fwd (a formula can be SAT at (3,1,3) and (6,1,6) while genuinely UNSAT at (4,1,4) and (5,1,5)). Documenting that behavior honestly is handled by a separate task; this task evaluates fixing it. Compare at least three routes: (a) leave exact-period semantics and rely on documentation plus a user-facing rule; (b) search the union over all divisors of each bound, assessing the blow-up in slot count, Z3 variable count and solve time, and whether the one-hot sel selector and conditions (C1)-(C4) survive unchanged; (c) reformulate the encoding so a bound means "period at most n" directly, and cost what that does to the certificate wire format and the Lean-side re-checker, which consume the same window bounds. Weigh each against the proportionality constraint the adequacy document establishes, and account for the interaction with ADEQUACY.md section 7.1 condition (iii), which this non-monotonicity falsifies as worded. Deliver a report with a recommendation and a staged path, not an implementation.
+
+---
+
+### 202. Correct nonmonotonic search bound docs
+- **Status**: [NOT STARTED]
+- **Task Type**: general
+- **Topic**: documentation
+- **Dependencies**: Task 201
+
+**Description**: Correct the user-facing claim that the bimodal search is monotone in back, mid and fwd, which it is not. WitnessRegistry.wrap() folds positions by exact period -- negative positions as t % nb, forward positions as nb + nm + ((t - nm) % nf) -- so a lasso family of back-period nbprime is representable if and only if nbprime divides nb. Raising a bound therefore does not enlarge the searched family space monotonically: it can discard families a smaller bound represented. Measured against the running search, one formula is SAT at (back,mid,fwd) = (3,1,3) and (6,1,6) but genuinely UNSAT (timeout=False, millisecond runtimes) at (4,1,4) and (5,1,5), exactly as divisibility predicts. The consequence for users is severe and currently undocumented: widening a bound to search harder for a countermodel can silently lose one a narrower bound found. Correct every location promising otherwise: the bimodal docs/SETTINGS.md description of back/mid/fwd, semantic/core.py D4 commentary (the "maximum length" language and "raising any of the three enlarges the search"), and ADEQUACY.md section 7.1 condition (iii) plus the A3 wording treating "lengths at least f(|C|)" as sufficient, since sufficiency requires divisibility rather than magnitude. State the exact-period semantics plainly and give users the operative rule (prefer a bound that is a multiple of the periods of interest). Documentation and comments only: whether to CHANGE the search semantics is deliberately out of scope and is handled by a separate task.
+
+---
+
+### 201. Correct a2 gap emitted surface and sole writer
+- **Status**: [NOT STARTED]
+- **Task Type**: general
+- **Topic**: documentation
+- **Dependencies**: None
+
+**Description**: Correct A2_GAP.md's emitted-constraint surface and semantic/core.py's sole-writer claim, and record the independence cost of window sharing. A2_GAP.md section 4 enumerates seven emission call sites, but iterate.py:266 and :280 append unit clauses directly to semantics.frame_constraints, which is an eighth path the section omits and a direct counterexample to semantic/core.py:164's claim that finalize_certificate() is the sole writer of frame_constraints. Correct both: add the iterate.py path to A2_GAP.md's enumeration with its clause shape, and fix or properly qualify core.py:164's comment. Separately, record a cost the window-sharing change introduced: WitnessRegistry.target_window() now delegates to certificate._box_window, which removes the drift hazard but also reduces the A2-triangle differential's independence, so a window that is wrong but shared is invisible to that test by construction. A2_GAP.md should state this trade explicitly rather than presenting the sharing as a pure gain. Documentation and comments only; no behavioral change.
+
+---
 
 ### 200. Extend bimodal to stability modal
 - **Status**: [NOT STARTED]
