@@ -490,34 +490,38 @@ require, and closes with a "See also" matching the sibling documents' convention
 
 ---
 
-### Phase 6: Cross-reference wiring and final verification sweep [NOT STARTED]
+### Phase 6: Cross-reference wiring and final verification sweep [COMPLETED]
 
 **Goal**: The document is reachable from the three places a reader would look — `ADEQUACY.md`
 section 7.3, the docs hub index, and `TRUST_PIPELINE.md`'s See also — and the whole deliverable
 passes a final sweep for citation validity, scope compliance, and no-restatement.
 
 **Tasks**:
-- [ ] Re-read `ADEQUACY.md` section 7.3 immediately before editing (a sibling task dispatched this
+- [x] Re-read `ADEQUACY.md` section 7.3 immediately before editing (a sibling task dispatched this
       same cycle concerns S4 and may have touched this file). Add a short cross-reference pointing
       at `A2_GAP.md` as the companion treatment of the proof-versus-implementation gap in this
       argument, placed so it reads as an extension of 7.3's own deciding-test discussion rather
       than as a replacement for it.
-- [ ] Re-read `docs/README.md` immediately before editing. Add the new document in **both** places
+- [x] Re-read `docs/README.md` immediately before editing. Add the new document in **both** places
       the hub lists each document: the Quick Navigation "Essential Documentation" bullet list
       (with a two-to-three line description matching the style of the `ADEQUACY.md` and
       `TRUST_PIPELINE.md` bullets) and the "Documentation Overview" section (with its own `###
       A2_GAP.md` subsection and bullet list).
-- [ ] Re-read `TRUST_PIPELINE.md`'s "See also" immediately before editing. Add an `A2_GAP.md`
+- [x] Re-read `TRUST_PIPELINE.md`'s "See also" immediately before editing. Add an `A2_GAP.md`
       entry describing it as the deep treatment of the encoder-side gap that document's Stage 2
       summarizes.
-- [ ] Final no-restatement check: compare the new document's sections 3, 6, 7 and 9 against
+- [x] Final no-restatement check: compare the new document's sections 3, 6, 7 and 9 against
       `TRUST_PIPELINE.md`'s Stage 2 and "The trust base" sections; confirm each overlapping claim
       appears as a citation plus an extension rather than a fresh explanation, and cut or
       re-anchor anything that reads as a restatement.
-- [ ] Final scope check: `git status --short` shows exactly one new file and exactly three
+- [x] Final scope check: `git status --short` shows exactly one new file and exactly three
       modified markdown files, with no file under `semantic/`, `models/`, `tests/`, or `.claude/`
       touched.
-- [ ] Stage by explicit file list only (the new document plus the three modified markdown files) —
+      *(deviation: altered — `A2_GAP.md` was committed at the end of phases 1-5, before the
+      concurrent-sibling revisions described above required further edits to it in phase 6, so it
+      now shows as modified rather than untracked. All four touched paths are still exactly the
+      ones this plan names; no source, test, or `.claude/` file is touched.)*
+- [x] Stage by explicit file list only (the new document plus the three modified markdown files) —
       never `git add -A`, a directory pathspec, or `git commit -am` — and review
       `git diff --staged` before committing.
 
@@ -557,20 +561,20 @@ implementation summary.
 
 ## Testing & Validation
 
-- [ ] `code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md` exists and contains all eleven
+- [x] `code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md` exists and contains all eleven
       planned H2 sections.
-- [ ] Every Lean identifier, Python module, function, method and fixture named in the document
+- [x] Every Lean identifier, Python module, function, method and fixture named in the document
       resolves to a live symbol or path (per-phase greps above, re-run once over the finished
       document).
-- [ ] `grep -nEi '\b(task|project) [0-9]+'` is empty for all four touched files' added content
+- [x] `grep -nEi '\b(task|project) [0-9]+'` is empty for all four touched files' added content
       (`.claude/rules/no-task-references-in-deliverables.md`; the document sits outside `specs/**`).
-- [ ] `grep -nE '\.py:[0-9]+'` is empty for `A2_GAP.md` (symbol-level citation register, matching
+- [x] `grep -nE '\.py:[0-9]+'` is empty for `A2_GAP.md` (symbol-level citation register, matching
       `TRUST_PIPELINE.md`).
-- [ ] Every relative markdown link in the added content resolves to an existing file.
-- [ ] `git status --short` shows exactly four paths: one new document and three modified markdown
+- [x] Every relative markdown link in the added content resolves to an existing file.
+- [x] `git status --short` shows exactly four paths: one new document and three modified markdown
       documents. No file under `semantic/`, `models/`, `tests/`, `oracle/`, or `.claude/` is
       modified.
-- [ ] No test run is required or expected: the change set contains no Python. As a cheap
+- [x] No test run is required or expected: the change set contains no Python. As a cheap
       regression guard that nothing outside `docs/` was touched, confirm the above `git status`
       check rather than running the suite.
 

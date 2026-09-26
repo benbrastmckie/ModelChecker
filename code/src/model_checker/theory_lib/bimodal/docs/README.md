@@ -18,6 +18,10 @@ Welcome to the comprehensive documentation for the Bimodal theory implementation
   countermodel stage by stage, naming for each stage the component, the guarantee, and the kind of
   evidence behind it (theorem, decided per run, audit, property-tested); states what is and is not
   in the trust base, and what remains open here and in the Lean development.
+- **[A2 Gap](A2_GAP.md)** - The deep treatment of the A2 (encoding-completeness) proof-versus-
+  implementation gap: the category argument for why a proof about the mathematics cannot
+  discharge a claim about what the Z3 encoder emits, the complete emitted-constraint surface
+  emitter by emitter, and a per-route analysis of what closing the gap would require.
 
 ### Getting Started
 
@@ -90,6 +94,19 @@ The soundness correspondence between certificates and the paper's task semantics
 - The (SOUND) statement, its full proof, and the Lean citation table
 - The proved re-check windows and the presentation/re-verification protocol
 - The (ADEQ) direction, recorded as open with its deciding tests named
+
+### A2_GAP.md
+The deep treatment of the A2 proof-versus-implementation gap, extending ADEQUACY.md and
+TRUST_PIPELINE.md rather than restating them:
+- The category argument for why a Lean theorem cannot discharge a claim about what a specific
+  piece of running Python emits
+- The complete emitted-constraint surface, emitter by emitter, with each clause shape written out
+- The one-hot target selector's conservativity argument, and the one remaining
+  independently-defined window (and its subsequent closure)
+- The historical narrow-window defect as concrete evidence, and why a bounded exhaustive test can
+  be blind to a defect class by construction
+- The trust-base consequence of obligation S3, and a per-route analysis of what closing the gap
+  would actually require
 
 ## Theory Overview
 

@@ -592,6 +592,13 @@ validity. A rendering that says "valid" on either is a reportable defect.
 
 ### 7.3 A2 — encoding completeness, and the deciding test that discharges it now
 
+**A companion document.** `A2_GAP.md` gives the deep treatment of why the deciding test below
+*decides* A2 rather than *proving* it: the full category argument for why a proof about
+(C1)–(C4) cannot discharge a claim about what the Z3 encoder, as running Python, actually emits;
+the complete emitted-constraint surface the deciding test exercises, emitter by emitter; and a
+per-route analysis of what would actually close the gap. It extends this section; it does not
+replace it.
+
 A2 holds iff the Z3 constraint set is exactly the conjunction of (C1)–(C4) over windows at least
 as wide as §5.2's, with no extra constraint. It is testable today, without A1:
 

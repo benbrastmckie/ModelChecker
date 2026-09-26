@@ -231,15 +231,24 @@ witness, relative to (C4)'s bare existential.
    via the implications, that premises hold and conclusions fail at `t*`'s slot, recovering (C4)
    directly. Neither direction is lost.
 
-**Status.** This argument is correct, self-contained, and recorded in this codebase's
-documentation for the first time. It is **not machine-checked**, and per section 2 it does **not**
-verify the Python that is supposed to implement it — `sel`, `target_constraints`, and their call
-sites in `_premise_behavior`/`_conclusion_behavior`. Concrete violations this argument would not
-see: an off-by-one in `target_window()`'s bounds, a swapped `Implies` polarity between premise and
-conclusion, a stale memo in `self._sel`. Each would violate the implementation while leaving this
-argument's premises intact and undetectable by it. This is section 2's category point recurring
-one level down: even a correct informal proof about constraint *meaning* does not discharge a
-claim about constraint *code*.
+**Status.** This argument is correct and self-contained. As of this writing it is also recorded,
+concurrently and independently, in `ADEQUACY.md` section 7.3, and it is now pinned by a property
+test — `TestSelectorConservativity` (`tests/unit/test_witness_constraints.py`) — which isolates
+`target_constraints` alone (no (C1)–(C3)) and checks, for a swept range of hand-built families,
+that its aggregate and per-position satisfiability with some `sel[t]` true agree exactly with
+`certificate._target_holds`'s independent decision of (C4), never re-deriving the expected verdict
+inline. This raises the argument from *informal and unverified* to `TRUST_PIPELINE.md`'s
+*property-tested* — checked on generated inputs, evidence bounded by what was generated — but,
+per section 2, a passing property test is still not the same thing as **machine-checked**: it is
+not a Lean theorem, and it does not verify the Python for every input, only for the family the
+test happens to build. Concrete violations this argument, and the test that now pins it, would
+still not see if introduced *outside* what the test constructs: an off-by-one in
+`target_window()`'s bounds that shifted every generated family identically, a swapped `Implies`
+polarity between premise and conclusion paired with a matching sign error in the test's own
+expectation, or a defect confined to code paths the test's parametrization does not exercise. This
+is section 2's category point recurring one level down, now in a sharper form: even a passing
+property test about constraint *behavior* is evidence about the cases it tried, not a proof that
+covers every case, and it remains one level short of what section 2 means by machine-checked.
 
 ## 6. The one remaining independently-defined window
 
@@ -322,36 +331,48 @@ property, and is not shaped to reproduce the historical encoder defect's exact `
 wide window (`_coherence_window`), matching what fulfilment already did from the start and matching
 the Lean-proved bound exactly.
 
-**Why the standing A2-triangle test cannot see this defect class.**
-`tests/integration/test_certificate_a2_triangle.py`'s Tier 1 is exhaustive — but only at `back =
-mid = fwd = 1` (`ADEQUACY.md` section 7.3's stated test, and the module's own docstring). The
-historical defect provably requires `nb=2` to exhibit — the module docstring's own construction.
-So the standing exhaustive test, run today, would pass whether or not this exact defect, or its
-analogue in a different emitter, were reintroduced — not because the test is weak in general, but
-because its regime is, by the same argument that explains the original bug, structurally blind to
-the one class of defect known to have actually occurred. This is a **provable** gap, derivable
-directly from the docstring's own counterexample construction, not a suspected weakness, and it is
-not a criticism of the test in general — only of what a fixed-`nb=1` exhaustive tier can, by
-construction, ever see. Widening the grid to exercise `nb = nf = 2` is one of the concrete, bounded
-routes named in section 10.
+**Why a fixed-`nb=1` exhaustive tier cannot see this defect class — and the current state of the
+grid.** The historical defect provably requires `nb=2` to exhibit — the module docstring's own
+construction. A Tier 1 exhaustive at `back = mid = fwd = 1` alone, run today, would pass whether
+or not this exact defect, or its analogue in a different emitter, were reintroduced — not because
+the test is weak in general, but because that regime is, by the same argument that explains the
+original bug, structurally blind to the one class of defect known to have actually occurred. This
+is a **provable** gap, derivable directly from the docstring's own counterexample construction,
+not a suspected weakness.
+
+As of this writing, `tests/integration/test_certificate_a2_triangle.py`'s Tier 1 no longer runs
+`back = mid = fwd = 1` alone: it additionally covers `back = 2, mid = 1, fwd = 2` (production's
+`DEFAULT_EXAMPLE_SETTINGS`) — the `nb = 2` regime the defect actually required — for both
+box-free closures and for one size-2 boxed closure, closing the specific blind spot named above
+for those closures. One residual gap remains, named honestly rather than silently dropped: a
+pre-existing size-3 boxed closure stays `back = mid = fwd = 1`-only, because its `nb = nf = 2`
+enumeration is on the order of 10.7 billion candidates — infeasible under the suite's per-test
+time budget, a standing coverage gap rather than a defect. Widening that closure's grid, or any
+future closure added to the suite, remains one of the concrete, bounded routes named in section
+10 — the grid can always be widened further; the point of section 7's argument is that no fixed
+grid, however wide, is a proof, only ever wider evidence (section 8).
 
 ## 8. What a bounded exhaustive test does and does not establish
 
 Within its own region, the A2-triangle test (`ADEQUACY.md` section 7.3) is a **decision**, not a
-sample: at `back = mid = fwd = 1` and `|C| ≤ 4`, it enumerates *every* candidate, so agreement of
-legs (i) and (iii) across all of them is a complete case analysis over that finite space, not a
-statistical inference from it. This is stronger than an arbitrary property test and should be
-stated as such.
+sample: at each of its grid points — `back = mid = fwd = 1`, and, for most of its closures,
+`back = 2, mid = 1, fwd = 2` — and `|C| ≤ 4`, it enumerates *every* candidate at that tuple, so
+agreement of legs (i) and (iii) across all of them is a complete case analysis over that finite
+space, not a statistical inference from it. This is stronger than an arbitrary property test and
+should be stated as such.
 
 Two limits are equally exact, not matters of degree.
 
 1. **Nothing about the result transfers to a larger closure or wider window without re-running the
    enumeration there.** Exhaustiveness is a property of the specific `(back, mid, fwd, |C|)` tuple
    tested; section 7 shows concretely that a real defect can be invisible at one tuple and present
-   at another with no continuous "coverage" connecting them. There is no monotonicity argument
-   available — a defect need not become more likely to be caught as the grid widens in every
-   dimension; it can be undetectable below a threshold and detectable at or above it, as `nb=2`
-   demonstrates.
+   at another with no continuous "coverage" connecting them — exactly why the grid now has two
+   sizes rather than one, and exactly why the size-3 boxed closure's remaining `back = mid = fwd =
+   1`-only coverage (section 7) is a real, named gap rather than a formality. There is no
+   monotonicity argument available — a defect need not become more likely to be caught as the grid
+   widens in every dimension; it can be undetectable below a threshold and detectable at or above
+   it, as the historical `nb=2` defect demonstrates, and widening the grid at one closure says
+   nothing about a closure not yet widened.
 2. **Passing the test never certifies A2 as a theorem, even for the tested region, in the sense
    section 2 requires.** "Every candidate at this closure and these lengths was checked and agreed"
    is an empirical fact about one test run against one version of the encoder, the re-checker, and
@@ -427,20 +448,22 @@ without first creating one of the three link types section 2 names.
 | **(a) Extraction** | Specify the constraint generators in Lean (or another proof assistant) as functions over `LabelledLasso`/closure data, prove they emit exactly (C1)–(C4)'s conjunction, extract to Python or another host the search can call | Removes the encoder from "unverified" entirely; the extracted code *is* the theorem, executably | Large: needs a verified extraction pipeline targeting whatever calls into `z3-solver`'s Python bindings, or a rewrite of the search to consume an extracted term set directly. Not started; no infrastructure exists for it here. |
 | **(b) Direct verification** | Formalize a semantics for the relevant Python subset and the Z3 API surface used, then prove `witness_constraints.py`/`core.py`'s actual source — not a model of it — meets the (C1)–(C4) specification | Same end state as (a) without requiring a rewrite | Arguably larger: verifying real Python against a real library's semantics is a substantial, novel undertaking with no existing tooling referenced anywhere in this codebase. |
 | **(c) Reflection** | Encode the constraint-generation algorithm inside Lean's own kernel and have the kernel evaluate it, so the kernel's evaluation of the algorithm on a given input *is* the check | Strongest option that reuses existing Lean infrastructure | Would still require re-implementing the generators in Lean and does not, by itself, verify that the actual deployed Python matches that Lean re-implementation — reintroducing a translation obligation of its own, a second S4-shaped gap. |
-| **(d) Widen the differential grid** | Extend the A2-triangle test to `nb = nf = 2`, the regime the one known defect lived in | Directly closes the specific blind spot section 7 identifies; highest empirical value per hour of the bounded routes | Bounded engineering cost. Remains evidence, not proof, per section 8. |
-| **(e) Selector conservativity, made executable** | Turn section 5's argument into an executable check — for example, a property test asserting satisfiability with some `sel[t]` true iff a re-checker-accepted family exists with target `t`, checked against the re-checker's own target decision rather than a hand-derived expectation | Removes the selector argument from "informal and unverified" to "checked" | Small, concrete, and, as of this writing, already underway elsewhere in this codebase. Still evidence-shaped once done, per section 2 — a test that the selector behaves as argued is not a proof that it always will. (The window-sharing half of this route, as section 6 records, is already closed.) |
+| **(d) Widen the differential grid** | Extend the A2-triangle test to the `nb = 2` regime the one known defect lived in, for every closure in the suite | Directly closes the specific blind spot section 7 identifies; highest empirical value per hour of the bounded routes | As of this writing, done for the box-free closures and one size-2 boxed closure; the pre-existing size-3 boxed closure remains infeasible at `nb = nf = 2` (~10.7 billion candidates) under the suite's time budget — a named residual, not a defect. Remains evidence, not proof, per section 8, wherever it is done. |
+| **(e) Selector conservativity, made executable** | Turn section 5's argument into an executable check: a property test asserting satisfiability with some `sel[t]` true iff the re-checker's own target decision holds, checked against that decision directly rather than a hand-derived expectation | Removes the selector argument from "informal and unverified" to "checked" | As of this writing, done: `TestSelectorConservativity` (section 5) pins exactly this, and the window-sharing half of this route (section 6) is closed as well. Still evidence-shaped, per section 2 — a passing property test that the selector behaves as argued is not a proof that it always will, for inputs the test does not generate. |
 | **(f) Consume a proof-producing checker** | Make Lean's accepting branch construct `joint_countermodel` directly from a decided hypothesis, and compare a Lean-side echo of the parsed wire against the bytes sent | Removes the **re-checker** — not the encoder — from the trust base | Named in `TRUST_PIPELINE.md`'s "What remains" as Lean-side future work; does not by itself touch the encoder side this document is about. |
 
 **Honest ranking.** Routes (a)–(c) are the only ones that would satisfy section 2's category
 argument on its own terms — they alone create the missing proof-preserving link. All three are
 substantial and unstarted. Routes (d) and (e) are concrete and valuable, but per section 8 they
 strengthen the *evidence* for A2 within a larger or better-understood region; they do not and
-cannot become a proof however far the grid is widened, because a finite enumeration is
-definitionally bounded by what it enumerates — and, per section 6, this remains true even of a
-route already partly completed: closing (e)'s window-sharing half did not, and could not, create
-a proof-preserving link of the kind (a)–(c) name. Route (f) addresses a different trust-base
-member — the re-checker, S3's own second leg — rather than the encoder this document is scoped
-to.
+cannot become a proof however far the grid is widened or the property test extended, because a
+finite enumeration is definitionally bounded by what it enumerates and a property test by what it
+generates — and this remains true even where both routes are now, as of this writing, mostly or
+fully complete: (d)'s grid-widening for the box-free and size-2 boxed closures (section 7, with
+the size-3 boxed closure named as the residual), and (e) in full — both the window-sharing and the
+selector-conservativity test (sections 5, 6). Each closed a real, named gap, and none created a
+proof-preserving link of the kind (a)–(c) name. Route (f) addresses a different trust-base member
+— the re-checker, S3's own second leg — rather than the encoder this document is scoped to.
 
 ## 11. See also
 

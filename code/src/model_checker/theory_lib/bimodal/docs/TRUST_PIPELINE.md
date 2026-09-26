@@ -323,6 +323,9 @@ frame class cannot deliver.
 
 ## See also
 
+- `A2_GAP.md` — the deep treatment of the encoder-side gap Stage 2 above summarizes: the full
+  category argument, the complete emitted-constraint surface emitter by emitter, and a per-route
+  analysis of what closing the gap would require.
 - `ADEQUACY.md` — the statements, the proofs, the Lean citation table, the obligations and
   components by name.
 - `ARCHITECTURE.md` — the code: module layout, two-phase constraint emission, the independent
