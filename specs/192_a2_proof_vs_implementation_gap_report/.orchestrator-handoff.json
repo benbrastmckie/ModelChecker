@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 5,
+  "summary": "Authored a six-phase (~6h) plan for A2_GAP.md, the deep-treatment companion to ADEQUACY.md and TRUST_PIPELINE.md: the category argument, the seven-call-site emitted-constraint surface with clause shapes, the one-hot selector and independently-defined window, the historical nb=2 defect and the standing test's provable blindness, the S3 trust-base corollary, and a per-route gap-closing analysis, plus four cross-reference edits.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/192_a2_proof_vs_implementation_gap_report/plans/01_a2-gap-companion-document.md",
+      "summary": "Six-phase documentation plan for A2_GAP.md plus ADEQUACY.md/README.md/TRUST_PIPELINE.md cross-references."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "blockers": []
+}
