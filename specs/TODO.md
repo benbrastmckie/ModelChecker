@@ -11,9 +11,8 @@ next_project_number: 201
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 195,196,198 | -- | architecture, semantics |
-| 2 | 197 | 196 | semantics |
-| 3 | 199,200 | 195,197,198 | documentation, semantics |
+| 1 | 195,197,198 | -- | architecture, semantics |
+| 2 | 199,200 | 195,197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -27,9 +26,8 @@ next_project_number: 201
 
 ### Semantics
 
-196 [PLANNED] — Discharge obligation S4, the Sentence-to-Formula translation...
-  └─ 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
-    └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
+197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
+  └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 
 ## Tasks
@@ -77,7 +75,7 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 ---
 
 ### 196. Discharge s4 translation bridge
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: Task 193, Task 194
