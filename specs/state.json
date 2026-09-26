@@ -107,19 +107,24 @@
     {
       "project_number": 193,
       "project_name": "extend_a2_triangle_grid_to_nb_nf_2",
-      "status": "planning",
+      "status": "planned",
       "task_type": "python",
       "topic": "testing",
       "description": "Extend the A2-triangle encoding-completeness test's exhaustive grid beyond back=mid=fwd=1 to cover nb=nf=2. tests/integration/test_certificate_a2_triangle.py currently enumerates exhaustively only at back=mid=fwd=1, per ADEQUACY.md section 7.3's stated test, and that regime is provably blind to the one A2 violation known to have actually occurred: witness_constraints.py's module docstring records that local coherence was once generated over the narrow WitnessRegistry.target_window() instead of the proved wide _coherence_window, and that the counterexample requires nb=2, since slot back[1] recurs at every odd-magnitude position. The defect is therefore invisible at nb=1, which makes raising the grid the highest-value strengthening available short of a proof. Measure before committing to unconditional execution: the single-box closure already reaches 1,572,864 candidates at nb=nf=1 and roughly 11.5 seconds of recheck time, so compute the nb=nf=2 candidate count first and tier or mark the test accordingly (the slow marker is already registered) rather than assuming it is affordable. Keep the existing three closures' coverage intact, and keep Tier 2's clean-skip discipline when no BimodalLogic checkout is present. Report any genuine three-way disagreement as a finding: diagnosing the encoder is out of scope for this task.",
       "dependencies": [],
       "created": "2026-09-26T07:24:26Z",
-      "last_updated": "2026-09-26T16:39:23Z",
-      "session_id": "sess_1790440270_1867f0_193",
+      "last_updated": "2026-09-26T17:08:38Z",
+      "session_id": "sess_1790440270_1867f0",
       "artifacts": [
         {
           "path": "specs/193_extend_a2_triangle_grid_to_nb_nf_2/reports/01_extend-a2-triangle-grid.md",
           "type": "report",
           "summary": "Measures nb=nf=2 candidate counts for the A2-triangle test's three closures, finds the box-free cases affordable unconditionally (<=1.06s) but the existing size-3 boxed closure infeasible under CI's 300s per-test timeout (~19h extrapolated), and recommends a smaller boxed closure (measured 65.47s) plus generalizing the test's hard-coded nb=nm=nf=1 candidate-tuple construction."
+        },
+        {
+          "path": "specs/193_extend_a2_triangle_grid_to_nb_nf_2/plans/01_extend-a2-triangle-grid.md",
+          "type": "plan",
+          "summary": "6-phase plan generalizing the A2-triangle test's candidate generator to arbitrary nb/nm/nf and adding back=2,mid=1,fwd=2 grid points (two unconditional box-free, one slow-marked boxed behind a measurement gate), with ADEQUACY.md section 7.3 sync."
         }
       ],
       "next_artifact_number": 2

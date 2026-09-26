@@ -1,0 +1,13 @@
+{
+  "status": "planned",
+  "phases_completed": 0,
+  "phases_total": 6,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/193_extend_a2_triangle_grid_to_nb_nf_2/plans/01_extend-a2-triangle-grid.md",
+      "summary": "6-phase plan generalizing the A2-triangle test's candidate generator to arbitrary nb/nm/nf and adding back=2,mid=1,fwd=2 grid points (two unconditional box-free, one slow-marked boxed behind a measurement gate), with ADEQUACY.md section 7.3 sync."
+    }
+  ],
+  "dispatch_seq": 6
+}
