@@ -36,10 +36,10 @@
         {
           "path": "specs/196_discharge_s4_translation_bridge/plans/01_discharge-s4-translation-bridge.md",
           "type": "plan",
-          "summary": "5-phase plan discharging obligation S4 via Route 2 (extend the differential property test to the box half); Route 1 rejected as architecturally inapplicable."
+          "summary": "Revised 9-phase plan (v2): guard-first Until/Since normalization across ModelChecker and the oracle lands first (phases 1-4), then the two-axis differential property test discharging S4's box half (phases 5-9). Route 2 taken; Route 1 recorded infeasible; Lean cross-check deferred."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 3
     },
     {
       "project_number": 197,
