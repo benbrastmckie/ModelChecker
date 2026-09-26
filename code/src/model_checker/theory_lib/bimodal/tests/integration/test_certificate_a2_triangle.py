@@ -272,7 +272,7 @@ class TestExhaustiveTriangleBoxFree:
         "expected_sat, back, mid, fwd",
         [
             pytest.param(
-                [], ["(q \\Until p)"], 3, 1536, 52, True, 1, 1, 1,
+                [], ["(p \\Until q)"], 3, 1536, 52, True, 1, 1, 1,
                 id="box_free_until_conclusion_sat",
             ),
             pytest.param(
@@ -280,7 +280,7 @@ class TestExhaustiveTriangleBoxFree:
                 id="box_free_contradiction_unsat",
             ),
             pytest.param(
-                [], ["(q \\Until p)"], 3, 163_840, 926, True, 2, 1, 2,
+                [], ["(p \\Until q)"], 3, 163_840, 926, True, 2, 1, 2,
                 id="box_free_until_conclusion_sat_nb2_nf2",
             ),
             pytest.param(
@@ -464,7 +464,7 @@ class TestBoundedLeanCrossCheck:
     @pytest.mark.parametrize(
         "premises, conclusions, is_sat",
         [
-            pytest.param([], ["(q \\Until p)"], True, id="box_free_until_conclusion_sat"),
+            pytest.param([], ["(p \\Until q)"], True, id="box_free_until_conclusion_sat"),
             pytest.param(["A"], ["A"], False, id="box_free_contradiction_unsat"),
             pytest.param(
                 ["\\Box A"], ["B"], True,

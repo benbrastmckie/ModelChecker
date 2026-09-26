@@ -42,9 +42,13 @@ FORMULA_TAGS = {"atom", "bot", "imp", "box", "untl", "snce"}
 #   ("bot",)
 #   ("imp", left, right)
 #   ("box", child)
-#   ("untl", event, guard)
-#   ("snce", event, guard)
-# where `left`/`right`/`child`/`event`/`guard` are themselves formula tuples.
+#   ("untl", guard, event)
+#   ("snce", guard, event)
+# where `left`/`right`/`child`/`guard`/`event` are themselves formula tuples. Guard-first,
+# matching `semantic.formula.Untl`/`Snce`'s own field order -- this module is independent of
+# that module (see the file docstring), but keeps the same positional convention rather than
+# putting two different orders in the same field of view once `test_formula.py` imports this
+# decoder.
 
 
 def parse_formula(obj: dict) -> tuple:
@@ -67,7 +71,7 @@ def parse_formula(obj: dict) -> tuple:
     if tag == "box":
         return ("box", parse_formula(obj["child"]))
     if tag in ("untl", "snce"):
-        return (tag, parse_formula(obj["event"]), parse_formula(obj["guard"]))
+        return (tag, parse_formula(obj["guard"]), parse_formula(obj["event"]))
     raise AssertionError("unreachable")  # FORMULA_TAGS membership already checked above
 
 
@@ -212,14 +216,14 @@ def coherent_at(cert: Certificate, lasso: Lasso, t: int) -> tuple:
             if lhs != rhs:
                 return False, f
         elif tag == "untl":
-            _, event, guard = f
+            _, guard, event = f
             lhs = f in L
             Lnext = lasso.lab(t + 1)
             rhs = (event in Lnext) or (guard in Lnext and f in Lnext)
             if lhs != rhs:
                 return False, f
         elif tag == "snce":
-            _, event, guard = f
+            _, guard, event = f
             lhs = f in L
             Lprev = lasso.lab(t - 1)
             rhs = (event in Lprev) or (guard in Lprev and f in Lprev)
@@ -250,7 +254,7 @@ def fulfil_at(cert: Certificate, lasso: Lasso, t: int) -> tuple:
         if tag == "untl":
             if f not in L:
                 continue
-            _, event, guard = f
+            _, guard, event = f
             hi = lasso.scan_forward_bound(t)
             found = False
             for s in range(t + 1, hi + 1):
@@ -263,7 +267,7 @@ def fulfil_at(cert: Certificate, lasso: Lasso, t: int) -> tuple:
         elif tag == "snce":
             if f not in L:
                 continue
-            _, event, guard = f
+            _, guard, event = f
             lo = lasso.scan_backward_bound(t)
             found = False
             for s in range(t - 1, lo - 1, -1):

@@ -236,15 +236,16 @@ class TestA0FrameClassStandingTest:
         # prior_UZ: F phi -> (neg phi Until phi), guard-first (Lean's Untl(guard=neg phi,
         # event=phi)). Bimodal's \Future primitive means "always in the future" (G); the
         # defined "eventually" (F) operator is the lowercase \future. ModelChecker's own
-        # \Until is EVENT-first (D2): "X \Until Y" translates to Untl(guard=Y, event=X),
-        # so guard=neg A / event=A is written "A \Until (\neg A)", not "(\neg A) \Until A".
+        # \Until is now guard-first too (D2): "X \Until Y" translates to Untl(guard=X,
+        # event=Y), so guard=neg A / event=A is written "(\neg A) \Until A", positional
+        # identity with no swap.
         #
         # The deciding question is whether a Z-time COUNTERMODEL to this axiom's validity
         # exists -- i.e. whether the search can make it FALSE somewhere -- not whether it
         # is merely satisfiable (nearly every formula is). So it goes in `conclusions` with
         # no premises: a found certificate would be a countermodel refuting the axiom; "no
         # certificate" is the deciding, expected outcome for a ZTime-valid axiom.
-        structure = _build([], ["(\\future A \\rightarrow (A \\Until \\neg A))"], back=2, mid=1, fwd=2)
+        structure = _build([], ["(\\future A \\rightarrow (\\neg A \\Until A))"], back=2, mid=1, fwd=2)
         assert structure.z3_model_status is False
         assert structure.certificate is None
 

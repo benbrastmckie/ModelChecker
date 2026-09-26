@@ -329,26 +329,26 @@ class TestTranslatePrimitives:
 
 
 class TestTranslateUntilSinceOrderSensitive:
-    """The decisive regression: ModelChecker's `UntilOperator`/`SinceOperator` are event-first
-    (`true_at(self, event_arg, guard_arg, eval_point)`, `operators.py:1055`), while the Lean
-    `Formula.untl`/`Formula.snce` constructors are guard-first. `translate` must swap. This test
-    is deliberately written so that dropping the swap (i.e. passing the ModelChecker argument
-    order straight through) makes it fail -- see the module-level comment below for how to
-    verify that by hand."""
+    """ModelChecker's `UntilOperator`/`SinceOperator` are now guard-first
+    (`true_at(self, guard_arg, event_arg, eval_point)`, `operators.py`), matching the Lean
+    `Formula.untl`/`Formula.snce` constructors exactly. `translate` is positional identity: no
+    swap. This test is deliberately written so that a wrong translation that swapped the
+    operands would make it fail -- see the module-level comment below for how to verify that by
+    hand."""
 
-    def test_until_swaps_event_first_to_guard_first(self):
+    def test_until_is_positional_identity_guard_first(self):
         # Infix "A \\Until B" parses to prefix [\\Until, A, B], and UntilOperator.true_at's
-        # positional signature (event_arg, guard_arg, ...) means arguments[0]=A is the event and
-        # arguments[1]=B is the guard (see core.py's `operator.true_at(*arguments, eval_point)`).
-        event, guard = Atom("p"), Atom("q")
+        # positional signature (guard_arg, event_arg, ...) means arguments[0]=A is the guard and
+        # arguments[1]=B is the event (see core.py's `operator.true_at(*arguments, eval_point)`).
+        guard, event = Atom("p"), Atom("q")
         sentence = _sentence("(p \\Until q)")
         result = translate(sentence)
         assert result == Untl(guard=guard, event=event)
-        # The order-sensitive assertion: swapping the wire-level guard/event must NOT match.
+        # The order-sensitive assertion: swapping guard/event must NOT match.
         assert result != Untl(guard=event, event=guard)
 
-    def test_since_swaps_event_first_to_guard_first(self):
-        event, guard = Atom("p"), Atom("q")
+    def test_since_is_positional_identity_guard_first(self):
+        guard, event = Atom("p"), Atom("q")
         sentence = _sentence("(p \\Since q)")
         result = translate(sentence)
         assert result == Snce(guard=guard, event=event)
@@ -374,7 +374,7 @@ class TestTranslateNestedFormula:
     def test_box_of_until_of_atoms(self):
         p, q = Atom("p"), Atom("q")
         sentence = _sentence("\\Box (p \\Until q)")
-        expected = Box(Untl(guard=q, event=p))
+        expected = Box(Untl(guard=p, event=q))
         assert translate(sentence) == expected
 
     def test_translate_rejects_non_sentence(self):
@@ -426,6 +426,9 @@ def _ast_to_infix(ast: _Ast) -> str:
     if tag == "vee":
         return f"({_ast_to_infix(ast[1])} \\vee {_ast_to_infix(ast[2])})"
     if tag == "until":
+        # ast[1] renders first (guard, post-normalization), ast[2] second (event); the
+        # rendered positions are unchanged, but what they mean has flipped along with the
+        # rest of the guard-first normalization.
         return f"({_ast_to_infix(ast[1])} \\Until {_ast_to_infix(ast[2])})"
     if tag == "since":
         return f"({_ast_to_infix(ast[1])} \\Since {_ast_to_infix(ast[2])})"
@@ -433,7 +436,7 @@ def _ast_to_infix(ast: _Ast) -> str:
 
 
 def _eval_mc_ast(ast: _Ast, valuation, t: int, domain: range) -> bool:
-    """Direct evaluator mirroring `operators.py`'s ModelChecker semantics (event-first Until/
+    """Direct evaluator mirroring `operators.py`'s ModelChecker semantics (guard-first Until/
     Since, `\\Future`/`\\Past` as G/H), restricted to `domain` with atoms false outside it."""
     tag = ast[0]
     if tag == "atom":
@@ -460,8 +463,8 @@ def _eval_mc_ast(ast: _Ast, valuation, t: int, domain: range) -> bool:
             _eval_mc_ast(ast[1], valuation, s, domain) for s in domain if s < t
         )
     if tag == "until":
-        # ast[1] is the event, ast[2] is the guard (event-first, matching UntilOperator).
-        event, guard = ast[1], ast[2]
+        # ast[1] is the guard, ast[2] is the event (guard-first, matching UntilOperator).
+        guard, event = ast[1], ast[2]
         for s in domain:
             if s > t and _eval_mc_ast(event, valuation, s, domain):
                 if all(
@@ -472,7 +475,7 @@ def _eval_mc_ast(ast: _Ast, valuation, t: int, domain: range) -> bool:
                     return True
         return False
     if tag == "since":
-        event, guard = ast[1], ast[2]
+        guard, event = ast[1], ast[2]
         for s in domain:
             if s < t and _eval_mc_ast(event, valuation, s, domain):
                 if all(

@@ -621,23 +621,34 @@ BM_TH_5_example = [
 #   Layer 7: Z1 (0/1 - BLOCKED: requires discrete frame support)
 #   Layer 8: Density (0/2 - BLOCKED: requires dense frame support, out of scope for Z-time)
 #
-# PAPER-AXIOM AUDIT (semantic-alignment amendment): every BX/MF/perpetuity example below
-# was checked directly against ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex's
+# GUARD-FIRST NORMALIZATION (post-audit amendment): ModelChecker's `\Until`/`\Since` are now
+# guard-first, matching this file's own paper source and the Lean development exactly, so the
+# historical audit paragraph below (which checked every example against the paper's guard-first
+# axioms under a since-retired event-first swap) has been superseded: every `\Until`/`\Since`
+# operand pair below was re-swapped in lockstep with `operators.py`/`semantic/formula.py`'s
+# normalization, one occurrence at a time against its own `# Formula:` comment, so each example
+# still encodes exactly the axiom the table below names. The Burgess-convention citation the
+# retired event-first order relied on is deliberately dropped in favor of one argument order
+# across ModelChecker, the oracle, and Lean (see `docs/ARCHITECTURE.md`).
+#
+# PAPER-AXIOM AUDIT (semantic-alignment amendment, historical): every BX/MF/perpetuity example
+# below was checked directly against ~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex's
 # semantic clauses (until/since, line ~1072-1077) and its BX/MF/perpetuity schemata
 # (line ~1247-1330). The paper's `until`/`since` are GUARD-FIRST: `(guard \until event)`.
-# ModelChecker's `\Until`/`\Since` operators are EVENT-FIRST (D2, the Burgess convention
-# `true_at(event_arg, guard_arg, ...)`): the surface sentence `(X \Until Y)` means event=X,
-# guard=Y -- the OPPOSITE argument order from the paper's own `\until`. Every formula below
-# was re-derived from the paper's guard-first axiom under this event-first swap and checked
-# character-for-character against the coded sentence; every one below was found to already
-# encode its axiom correctly. The one thing NOT reliably correct pre-audit was some
-# examples' informal "Formula:" comment lines, which mix the paper's guard-first meta-variable
-# placement with the code's event-first values (e.g. BX10's old comment claimed the
-# consequent was "F(psi)" using "psi" in the paper's guard position, when the axiom -- and the
-# actual coded formula -- puts the future/past operator on the EVENT, i.e. the code's first
-# argument). Source of truth chosen: the paper's axiom (guard-first) translated through D2's
-# event-first swap; where a comment disagreed with that translation, the comment was corrected
-# to cite the paper's axiom label directly instead of unlabelled psi/phi meta-variables.
+# ModelChecker's `\Until`/`\Since` operators were EVENT-FIRST at the time of this audit (D2, the
+# retired Burgess convention `true_at(event_arg, guard_arg, ...)`): the surface sentence
+# `(X \Until Y)` meant event=X, guard=Y -- the OPPOSITE argument order from the paper's own
+# `\until`. Every formula below was re-derived from the paper's guard-first axiom under that
+# event-first swap and checked character-for-character against the coded sentence; every one
+# below was found to already encode its axiom correctly. The one thing NOT reliably correct
+# pre-audit was some examples' informal "Formula:" comment lines, which mixed the paper's
+# guard-first meta-variable placement with the code's then-event-first values (e.g. BX10's old
+# comment claimed the consequent was "F(psi)" using "psi" in the paper's guard position, when
+# the axiom -- and the actual coded formula -- puts the future/past operator on the EVENT, i.e.
+# the code's first argument at the time). Source of truth chosen: the paper's axiom (guard-first)
+# translated through D2's then-event-first swap; where a comment disagreed with that
+# translation, the comment was corrected to cite the paper's axiom label directly instead of
+# unlabelled psi/phi meta-variables.
 #
 # | Example                          | Paper axiom(s)          | Verdict                          |
 # |-----------------------------------|--------------------------|-----------------------------------|
@@ -878,11 +889,11 @@ BX1P_SERIAL_P_TH_example = [
 
 # BX2G_MONO_U_TH: Until Guard Monotonicity (under G)
 # BX name: left_mono_until_G
-# Formula: G(phi -> chi) -> ((psi \Until phi) -> (psi \Until chi))
-# Using binary infix: (event \Until guard)
-# G(A -> C) -> ((B \Until A) -> (B \Until C))
+# Formula: G(phi -> chi) -> ((phi \Until psi) -> (chi \Until psi))
+# Using binary infix: (guard \Until event)
+# G(A -> C) -> ((A \Until B) -> (C \Until B))
 BX2G_MONO_U_TH_premises = []
-BX2G_MONO_U_TH_conclusions = ['(\\Future (A \\rightarrow C) \\rightarrow ((B \\Until A) \\rightarrow (B \\Until C)))']
+BX2G_MONO_U_TH_conclusions = ['(\\Future (A \\rightarrow C) \\rightarrow ((A \\Until B) \\rightarrow (C \\Until B)))']
 BX2G_MONO_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -898,11 +909,11 @@ BX2G_MONO_U_TH_example = [
 
 # BX2H_MONO_S_TH: Since Guard Monotonicity (under H)
 # BX name: left_mono_since_H
-# Formula: H(phi -> chi) -> ((psi \Since phi) -> (psi \Since chi))
-# Using binary infix: (event \Since guard)
-# H(A -> C) -> ((B \Since A) -> (B \Since C))
+# Formula: H(phi -> chi) -> ((phi \Since psi) -> (chi \Since psi))
+# Using binary infix: (guard \Since event)
+# H(A -> C) -> ((A \Since B) -> (C \Since B))
 BX2H_MONO_S_TH_premises = []
-BX2H_MONO_S_TH_conclusions = ['(\\Past (A \\rightarrow C) \\rightarrow ((B \\Since A) \\rightarrow (B \\Since C)))']
+BX2H_MONO_S_TH_conclusions = ['(\\Past (A \\rightarrow C) \\rightarrow ((A \\Since B) \\rightarrow (C \\Since B)))']
 BX2H_MONO_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -918,10 +929,10 @@ BX2H_MONO_S_TH_example = [
 
 # BX3_MONO_U_TH: Until Event Monotonicity
 # BX name: right_mono_until
-# Formula: G(phi -> psi) -> ((phi \Until chi) -> (psi \Until chi))
-# G(A -> B) -> ((A \Until C) -> (B \Until C))
+# Formula: G(phi -> psi) -> ((chi \Until phi) -> (chi \Until psi))
+# G(A -> B) -> ((C \Until A) -> (C \Until B))
 BX3_MONO_U_TH_premises = []
-BX3_MONO_U_TH_conclusions = ['(\\Future (A \\rightarrow B) \\rightarrow ((A \\Until C) \\rightarrow (B \\Until C)))']
+BX3_MONO_U_TH_conclusions = ['(\\Future (A \\rightarrow B) \\rightarrow ((C \\Until A) \\rightarrow (C \\Until B)))']
 BX3_MONO_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -937,10 +948,10 @@ BX3_MONO_U_TH_example = [
 
 # BX3P_MONO_S_TH: Since Event Monotonicity
 # BX name: right_mono_since
-# Formula: H(phi -> psi) -> ((phi \Since chi) -> (psi \Since chi))
-# H(A -> B) -> ((A \Since C) -> (B \Since C))
+# Formula: H(phi -> psi) -> ((chi \Since phi) -> (chi \Since psi))
+# H(A -> B) -> ((C \Since A) -> (C \Since B))
 BX3P_MONO_S_TH_premises = []
-BX3P_MONO_S_TH_conclusions = ['(\\Past (A \\rightarrow B) \\rightarrow ((A \\Since C) \\rightarrow (B \\Since C)))']
+BX3P_MONO_S_TH_conclusions = ['(\\Past (A \\rightarrow B) \\rightarrow ((C \\Since A) \\rightarrow (C \\Since B)))']
 BX3P_MONO_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -992,13 +1003,13 @@ BX4P_CONNECT_P_TH_example = [
 ]
 
 # BX10_UNTIL_F_TH: Until Eventuality Extraction
-# Paper axiom UE: (guard \until event) -> future(event). ModelChecker's \Until is
-# event-first (D2), so guard-first "(A \until B)" [guard=A, event=B] is written here as
-# "(B \Until A)" [event=B, guard=A]; the consequent "future(event)" is therefore
+# Paper axiom UE: (guard \until event) -> future(event). ModelChecker's \Until is now
+# guard-first too (D2), so "(A \Until B)" is written exactly as the paper's own
+# "(guard \until event)" [guard=A, event=B]; the consequent "future(event)" is therefore
 # "future B", matching the coded conclusion.
-# Formula: (B \Until A) -> future B, instantiating UE with guard=A, event=B.
+# Formula: (A \Until B) -> future B, instantiating UE with guard=A, event=B.
 BX10_UNTIL_F_TH_premises = []
-BX10_UNTIL_F_TH_conclusions = ['((B \\Until A) \\rightarrow \\future B)']
+BX10_UNTIL_F_TH_conclusions = ['((A \\Until B) \\rightarrow \\future B)']
 BX10_UNTIL_F_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1014,10 +1025,10 @@ BX10_UNTIL_F_TH_example = [
 
 # BX10P_SINCE_P_TH: Since Eventuality Extraction
 # Paper axiom UE, Since-indexed dual (via TR): (guard \since event) -> past(event), written
-# event-first as "(B \Since A) -> past B" with guard=A, event=B, mirroring BX10_UNTIL_F_TH.
-# Formula: (B \Since A) -> past B, instantiating UE's Since dual with guard=A, event=B.
+# guard-first as "(A \Since B) -> past B" with guard=A, event=B, mirroring BX10_UNTIL_F_TH.
+# Formula: (A \Since B) -> past B, instantiating UE's Since dual with guard=A, event=B.
 BX10P_SINCE_P_TH_premises = []
-BX10P_SINCE_P_TH_conclusions = ['((B \\Since A) \\rightarrow \\past B)']
+BX10P_SINCE_P_TH_conclusions = ['((A \\Since B) \\rightarrow \\past B)']
 BX10P_SINCE_P_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1033,10 +1044,10 @@ BX10P_SINCE_P_TH_example = [
 
 # BX12_F_UNTIL_TH: F-Until Bridge (F implies Until with top guard)
 # BX name: F_until_equiv
-# Formula: F(phi) -> (phi \Until top)  i.e. F(A) -> (A \Until \neg\bot)
+# Formula: F(phi) -> (top \Until phi)  i.e. F(A) -> (\neg\bot \Until A)
 # Note: \top = \neg \bot (explicit expansion to avoid TopOperator bug)
 BX12_F_UNTIL_TH_premises = []
-BX12_F_UNTIL_TH_conclusions = ['(\\future A \\rightarrow (A \\Until \\neg \\bot))']
+BX12_F_UNTIL_TH_conclusions = ['(\\future A \\rightarrow (\\neg \\bot \\Until A))']
 BX12_F_UNTIL_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1052,10 +1063,10 @@ BX12_F_UNTIL_TH_example = [
 
 # BX12P_P_SINCE_TH: P-Since Bridge (P implies Since with top guard)
 # BX name: P_since_equiv
-# Formula: P(phi) -> (phi \Since top)  i.e. P(A) -> (A \Since \neg\bot)
+# Formula: P(phi) -> (top \Since phi)  i.e. P(A) -> (\neg\bot \Since A)
 # Note: \top = \neg \bot (explicit expansion to avoid TopOperator bug)
 BX12P_P_SINCE_TH_premises = []
-BX12P_P_SINCE_TH_conclusions = ['(\\past A \\rightarrow (A \\Since \\neg \\bot))']
+BX12P_P_SINCE_TH_conclusions = ['(\\past A \\rightarrow (\\neg \\bot \\Since A))']
 BX12P_P_SINCE_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1099,10 +1110,10 @@ MF_MODAL_FUTURE_TH_example = [
 
 # BX5_ACCUM_U_TH: Until Self-Accumulation
 # BX name: self_accum_until
-# Formula: (psi \Until phi) -> (psi \Until (phi and (psi \Until phi)))
-# i.e. (B \Until A) -> (B \Until (A and (B \Until A)))
+# Formula: (phi \Until psi) -> ((phi and (phi \Until psi)) \Until psi)
+# i.e. (A \Until B) -> ((A and (A \Until B)) \Until B)
 BX5_ACCUM_U_TH_premises = []
-BX5_ACCUM_U_TH_conclusions = ['((B \\Until A) \\rightarrow (B \\Until (A \\wedge (B \\Until A))))']
+BX5_ACCUM_U_TH_conclusions = ['((A \\Until B) \\rightarrow ((A \\wedge (A \\Until B)) \\Until B))']
 BX5_ACCUM_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1118,10 +1129,10 @@ BX5_ACCUM_U_TH_example = [
 
 # BX5P_ACCUM_S_TH: Since Self-Accumulation
 # BX name: self_accum_since
-# Formula: (psi \Since phi) -> (psi \Since (phi and (psi \Since phi)))
-# i.e. (B \Since A) -> (B \Since (A and (B \Since A)))
+# Formula: (phi \Since psi) -> ((phi and (phi \Since psi)) \Since psi)
+# i.e. (A \Since B) -> ((A and (A \Since B)) \Since B)
 BX5P_ACCUM_S_TH_premises = []
-BX5P_ACCUM_S_TH_conclusions = ['((B \\Since A) \\rightarrow (B \\Since (A \\wedge (B \\Since A))))']
+BX5P_ACCUM_S_TH_conclusions = ['((A \\Since B) \\rightarrow ((A \\wedge (A \\Since B)) \\Since B))']
 BX5P_ACCUM_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1137,10 +1148,10 @@ BX5P_ACCUM_S_TH_example = [
 
 # BX6_ABSORB_U_TH: Until Absorption
 # BX name: absorb_until
-# Formula: ((phi and (psi \Until phi)) \Until phi) -> (psi \Until phi)
-# i.e. ((A and (B \Until A)) \Until A) -> (B \Until A)
+# Formula: (phi \Until (phi and (phi \Until psi))) -> (phi \Until psi)
+# i.e. (A \Until (A and (A \Until B))) -> (A \Until B)
 BX6_ABSORB_U_TH_premises = []
-BX6_ABSORB_U_TH_conclusions = ['(((A \\wedge (B \\Until A)) \\Until A) \\rightarrow (B \\Until A))']
+BX6_ABSORB_U_TH_conclusions = ['((A \\Until (A \\wedge (A \\Until B))) \\rightarrow (A \\Until B))']
 BX6_ABSORB_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1156,10 +1167,10 @@ BX6_ABSORB_U_TH_example = [
 
 # BX6P_ABSORB_S_TH: Since Absorption
 # BX name: absorb_since
-# Formula: ((phi and (psi \Since phi)) \Since phi) -> (psi \Since phi)
-# i.e. ((A and (B \Since A)) \Since A) -> (B \Since A)
+# Formula: (phi \Since (phi and (phi \Since psi))) -> (phi \Since psi)
+# i.e. (A \Since (A and (A \Since B))) -> (A \Since B)
 BX6P_ABSORB_S_TH_premises = []
-BX6P_ABSORB_S_TH_conclusions = ['(((A \\wedge (B \\Since A)) \\Since A) \\rightarrow (B \\Since A))']
+BX6P_ABSORB_S_TH_conclusions = ['((A \\Since (A \\wedge (A \\Since B))) \\rightarrow (A \\Since B))']
 BX6P_ABSORB_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1213,10 +1224,10 @@ BX11P_LIN_P_TH_example = [
 
 # BX13_ENRICH_U_TH: Until Enrichment
 # BX name: enrichment_until
-# Formula: p and (psi \Until phi) -> ((psi and (p \Since phi)) \Until phi)
-# i.e. C and (B \Until A) -> ((B and (C \Since A)) \Until A)
+# Formula: p and (phi \Until psi) -> (phi \Until (psi and (phi \Since p)))
+# i.e. C and (A \Until B) -> (A \Until (B and (A \Since C)))
 BX13_ENRICH_U_TH_premises = []
-BX13_ENRICH_U_TH_conclusions = ['((C \\wedge (B \\Until A)) \\rightarrow ((B \\wedge (C \\Since A)) \\Until A))']
+BX13_ENRICH_U_TH_conclusions = ['((C \\wedge (A \\Until B)) \\rightarrow (A \\Until (B \\wedge (A \\Since C))))']
 BX13_ENRICH_U_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1232,10 +1243,10 @@ BX13_ENRICH_U_TH_example = [
 
 # BX13P_ENRICH_S_TH: Since Enrichment
 # BX name: enrichment_since
-# Formula: p and (psi \Since phi) -> ((psi and (p \Until phi)) \Since phi)
-# i.e. C and (B \Since A) -> ((B and (C \Until A)) \Since A)
+# Formula: p and (phi \Since psi) -> (phi \Since (psi and (phi \Until p)))
+# i.e. C and (A \Since B) -> (A \Since (B and (A \Until C)))
 BX13P_ENRICH_S_TH_premises = []
-BX13P_ENRICH_S_TH_conclusions = ['((C \\wedge (B \\Since A)) \\rightarrow ((B \\wedge (C \\Until A)) \\Since A))']
+BX13P_ENRICH_S_TH_conclusions = ['((C \\wedge (A \\Since B)) \\rightarrow (A \\Since (B \\wedge (A \\Until C))))']
 BX13P_ENRICH_S_TH_settings = {
     'back' : 2,
     'mid' : 1,
@@ -1257,20 +1268,20 @@ BX13P_ENRICH_S_TH_example = [
 
 # BX7_LINEAR_U_TH: Until Linearity (4 variables)
 # BX name: linear_until
-# Formula: (psi \Until phi) and (theta \Until chi) ->
-#          ((psi and theta) \Until (phi and chi)) or
-#          ((psi and chi) \Until (phi and chi)) or
-#          ((phi and theta) \Until (phi and chi))
+# Formula: (phi \Until psi) and (chi \Until theta) ->
+#          ((phi and chi) \Until (psi and theta)) or
+#          ((phi and chi) \Until (psi and chi)) or
+#          ((phi and chi) \Until (phi and theta))
 # Where: psi=B, phi=A, theta=D, chi=C (binary infix form)
 # Phase 17: previously excluded via KNOWN_TIMEOUT_EXAMPLES under the retired encoding's
 # N=4/M=5 window cost. Under the certificate encoding, decides `match` in ~5ms at the
 # default segment lengths (2026-09-25); max_time lowered from 60s to the floor.
 BX7_LINEAR_U_TH_premises = []
 BX7_LINEAR_U_TH_conclusions = [
-    '(((B \\Until A) \\wedge (D \\Until C)) \\rightarrow '
-    '(((B \\wedge D) \\Until (A \\wedge C)) \\vee '
-    '(((B \\wedge C) \\Until (A \\wedge C)) \\vee '
-    '((A \\wedge D) \\Until (A \\wedge C)))))'
+    '(((A \\Until B) \\wedge (C \\Until D)) \\rightarrow '
+    '(((A \\wedge C) \\Until (B \\wedge D)) \\vee '
+    '(((A \\wedge C) \\Until (B \\wedge C)) \\vee '
+    '((A \\wedge C) \\Until (A \\wedge D)))))'
 ]
 BX7_LINEAR_U_TH_settings = {
     'back' : 2,
@@ -1287,16 +1298,16 @@ BX7_LINEAR_U_TH_example = [
 
 # BX7P_LINEAR_S_TH: Since Linearity (4 variables)
 # BX name: linear_since
-# Formula: (psi \Since phi) and (theta \Since chi) ->
-#          ((psi and theta) \Since (phi and chi)) or
-#          ((psi and chi) \Since (phi and chi)) or
-#          ((phi and theta) \Since (phi and chi))
+# Formula: (phi \Since psi) and (chi \Since theta) ->
+#          ((phi and chi) \Since (psi and theta)) or
+#          ((phi and chi) \Since (psi and chi)) or
+#          ((phi and chi) \Since (phi and theta))
 BX7P_LINEAR_S_TH_premises = []
 BX7P_LINEAR_S_TH_conclusions = [
-    '(((B \\Since A) \\wedge (D \\Since C)) \\rightarrow '
-    '(((B \\wedge D) \\Since (A \\wedge C)) \\vee '
-    '(((B \\wedge C) \\Since (A \\wedge C)) \\vee '
-    '((A \\wedge D) \\Since (A \\wedge C)))))'
+    '(((A \\Since B) \\wedge (C \\Since D)) \\rightarrow '
+    '(((A \\wedge C) \\Since (B \\wedge D)) \\vee '
+    '(((A \\wedge C) \\Since (B \\wedge C)) \\vee '
+    '((A \\wedge C) \\Since (A \\wedge D)))))'
 ]
 BX7P_LINEAR_S_TH_settings = {
     'back' : 2,

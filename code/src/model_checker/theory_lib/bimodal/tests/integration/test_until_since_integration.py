@@ -11,11 +11,11 @@ real `Syntax -> ModelConstraints -> BimodalStructure -> run_test()` pipeline, si
 the only way to check a genuine semantic equivalence (a claim about every model, not about
 one hand-built Z3 term):
 
-- `U(p, top)` (i.e. `(p \\Until \\neg\\bot)`) is equivalent to `future p`
-- `S(p, top)` (i.e. `(p \\Since \\neg\\bot)`) is equivalent to `past p`
+- `U(top, p)` (i.e. `(\\neg\\bot \\Until p)`) is equivalent to `future p`
+- `S(top, p)` (i.e. `(\\neg\\bot \\Since p)`) is equivalent to `past p`
 - The open guard interval: a guard that fails strictly between now and the event time
   blocks Until/Since, even though the event itself holds later/earlier
-- Boundary/immediate-witness behaviour: `(p \\Until \\bot)` (`\\next p`) is witnessed only by
+- Boundary/immediate-witness behaviour: `(\\bot \\Until p)` (`\\next p`) is witnessed only by
   the immediately next position, since `bot` never holds to bridge a wider gap
 """
 
@@ -67,59 +67,59 @@ class TestUntilSinceTopGuardEquivalence:
     def test_until_top_guard_equivalent_to_future(self):
         result = _run(
             [],
-            ['((A \\Until \\neg \\bot) \\leftrightarrow \\future A)'],
+            ['((\\neg \\bot \\Until A) \\leftrightarrow \\future A)'],
             back=2, mid=1, fwd=2, expectation=False,
         )
-        assert result, "(A \\Until top) <-> future A should be a theorem"
+        assert result, "(top \\Until A) <-> future A should be a theorem"
 
     def test_since_top_guard_equivalent_to_past(self):
         result = _run(
             [],
-            ['((A \\Since \\neg \\bot) \\leftrightarrow \\past A)'],
+            ['((\\neg \\bot \\Since A) \\leftrightarrow \\past A)'],
             back=2, mid=1, fwd=2, expectation=False,
         )
-        assert result, "(A \\Since top) <-> past A should be a theorem"
+        assert result, "(top \\Since A) <-> past A should be a theorem"
 
 
 class TestBoundaryImmediateWitness:
-    """`(p \\Until bot)` (i.e. `\\next p`) and its Since dual: witnessed only by the
+    """`(bot \\Until p)` (i.e. `\\next p`) and its Since dual: witnessed only by the
     immediately next/previous position, since `bot` never holds to bridge a wider gap
     (already exercised structurally by `test_next_prev.py`'s
     `TestSemanticEquivalence.test_next_equivalent_to_until_bot`; this checks the
     *countermodel* direction -- that a merely-eventual `A` does NOT suffice)."""
 
     def test_until_bot_guard_is_not_equivalent_to_eventual(self):
-        """`future A` does NOT imply `(A \\Until bot)`: A might hold two steps out, with a
-        non-bot state at the intervening position, which `\\Until bot` (needing an *empty*
+        """`future A` does NOT imply `(bot \\Until A)`: A might hold two steps out, with a
+        non-bot state at the intervening position, which `bot \\Until` (needing an *empty*
         guard interval) rejects. This is a genuine countermodel, not a theorem."""
         result = _run(
             ['\\future A'],
-            ['(A \\Until \\bot)'],
+            ['(\\bot \\Until A)'],
             back=2, mid=2, fwd=2, expectation=True,
         )
-        assert result, "future A should NOT imply (A \\Until bot): expected a countermodel"
+        assert result, "future A should NOT imply (bot \\Until A): expected a countermodel"
 
 
 class TestOpenGuardInterval:
     """A guard that fails strictly between now and the event time blocks Until/Since, even
-    though the event itself genuinely holds later/earlier -- `(B \\Until A)` requires B at
-    every intermediate position, not merely that A eventually holds."""
+    though the guard itself is otherwise satisfied throughout -- `(A \\Until B)` requires B
+    (the event) to eventually happen, not merely that A (the guard) holds throughout."""
 
     def test_until_requires_guard_throughout_the_open_interval(self):
-        """`future A` (A holds at *some* later time) does NOT imply `(B \\Until A)` for an
-        unrelated B: nothing forces B to hold at every intermediate position. Expect a
+        """`future A` (A holds at every future time) satisfies `(A \\Until B)`'s guard
+        condition trivially, but does NOT force B (the event) to ever happen. Expect a
         countermodel."""
         result = _run(
             ['\\future A'],
-            ['(B \\Until A)'],
+            ['(A \\Until B)'],
             back=2, mid=2, fwd=2, expectation=True,
         )
-        assert result, "future A should NOT imply (B \\Until A): expected a countermodel"
+        assert result, "future A should NOT imply (A \\Until B): expected a countermodel"
 
     def test_since_requires_guard_throughout_the_open_interval(self):
         result = _run(
             ['\\past A'],
-            ['(B \\Since A)'],
+            ['(A \\Since B)'],
             back=2, mid=2, fwd=2, expectation=True,
         )
-        assert result, "past A should NOT imply (B \\Since A): expected a countermodel"
+        assert result, "past A should NOT imply (A \\Since B): expected a countermodel"

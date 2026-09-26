@@ -1,9 +1,9 @@
 """Tests for DefNextOperator and DefPrevOperator in BimodalSemantics.
 
 These are defined temporal operators:
-- Next(phi) = U(phi, bot): phi holds at the immediately next time (first future time
+- Next(phi) = U(bot, phi): phi holds at the immediately next time (first future time
   with no guard condition in between, since bot is never true)
-- Prev(phi) = S(phi, bot): phi held at the immediately previous time (first past time
+- Prev(phi) = S(bot, phi): phi held at the immediately previous time (first past time
   with no guard condition in between)
 
 Settings migrated (Phase 18) from the retired encoding's `N`/`M`/`contingent`/`disjoint`
@@ -144,21 +144,8 @@ class TestDefNextDefinition:
         assert result[0] is UntilOperator, \
             "Next definition should use UntilOperator as the outer operator"
 
-    def test_next_derived_definition_argument_is_event(self):
-        """Test that the argument appears as the event (first arg) of Until."""
-        semantics_settings = {
-            'back': 2, 'mid': 1, 'fwd': 2,
-            'max_time': 1, 'expectation': True, 'iterate': 1
-        }
-        sem = BimodalSemantics(semantics_settings)
-        op = DefNextOperator(sem)
-        argument = ['A']
-        result = op.derived_definition(argument)
-        assert result[1] == argument, \
-            "Argument should appear as the event (first arg) of Until"
-
     def test_next_derived_definition_guard_is_bot(self):
-        """Test that the guard argument of Until is [BotOperator]."""
+        """Test that the guard argument (first arg) of Until is [BotOperator]."""
         semantics_settings = {
             'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
@@ -167,11 +154,24 @@ class TestDefNextDefinition:
         op = DefNextOperator(sem)
         argument = ['A']
         result = op.derived_definition(argument)
-        assert result[2] == [BotOperator], \
-            "Guard should be [BotOperator] (bot operator wrapped in list)"
+        assert result[1] == [BotOperator], \
+            "Guard (first arg) should be [BotOperator] (bot operator wrapped in list)"
+
+    def test_next_derived_definition_argument_is_event(self):
+        """Test that the argument appears as the event (second arg) of Until."""
+        semantics_settings = {
+            'back': 2, 'mid': 1, 'fwd': 2,
+            'max_time': 1, 'expectation': True, 'iterate': 1
+        }
+        sem = BimodalSemantics(semantics_settings)
+        op = DefNextOperator(sem)
+        argument = ['A']
+        result = op.derived_definition(argument)
+        assert result[2] == argument, \
+            "Argument should appear as the event (second arg) of Until"
 
     def test_next_derived_definition_full_structure(self):
-        """Test the complete structure: [UntilOperator, argument, [BotOperator]]."""
+        """Test the complete structure: [UntilOperator, [BotOperator], argument]."""
         semantics_settings = {
             'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
@@ -182,8 +182,8 @@ class TestDefNextDefinition:
         result = op.derived_definition(argument)
         assert len(result) == 3, "derived_definition should return a 3-element list"
         assert result[0] is UntilOperator
-        assert result[1] == argument
-        assert result[2] == [BotOperator]
+        assert result[1] == [BotOperator]
+        assert result[2] == argument
 
 
 class TestDefPrevDefinition:
@@ -214,21 +214,8 @@ class TestDefPrevDefinition:
         assert result[0] is SinceOperator, \
             "Prev definition should use SinceOperator as the outer operator"
 
-    def test_prev_derived_definition_argument_is_event(self):
-        """Test that the argument appears as the event (first arg) of Since."""
-        semantics_settings = {
-            'back': 2, 'mid': 1, 'fwd': 2,
-            'max_time': 1, 'expectation': True, 'iterate': 1
-        }
-        sem = BimodalSemantics(semantics_settings)
-        op = DefPrevOperator(sem)
-        argument = ['A']
-        result = op.derived_definition(argument)
-        assert result[1] == argument, \
-            "Argument should appear as the event (first arg) of Since"
-
     def test_prev_derived_definition_guard_is_bot(self):
-        """Test that the guard argument of Since is [BotOperator]."""
+        """Test that the guard argument (first arg) of Since is [BotOperator]."""
         semantics_settings = {
             'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
@@ -237,11 +224,24 @@ class TestDefPrevDefinition:
         op = DefPrevOperator(sem)
         argument = ['A']
         result = op.derived_definition(argument)
-        assert result[2] == [BotOperator], \
-            "Guard should be [BotOperator] (bot operator wrapped in list)"
+        assert result[1] == [BotOperator], \
+            "Guard (first arg) should be [BotOperator] (bot operator wrapped in list)"
+
+    def test_prev_derived_definition_argument_is_event(self):
+        """Test that the argument appears as the event (second arg) of Since."""
+        semantics_settings = {
+            'back': 2, 'mid': 1, 'fwd': 2,
+            'max_time': 1, 'expectation': True, 'iterate': 1
+        }
+        sem = BimodalSemantics(semantics_settings)
+        op = DefPrevOperator(sem)
+        argument = ['A']
+        result = op.derived_definition(argument)
+        assert result[2] == argument, \
+            "Argument should appear as the event (second arg) of Since"
 
     def test_prev_derived_definition_full_structure(self):
-        """Test the complete structure: [SinceOperator, argument, [BotOperator]]."""
+        """Test the complete structure: [SinceOperator, [BotOperator], argument]."""
         semantics_settings = {
             'back': 2, 'mid': 1, 'fwd': 2,
             'max_time': 1, 'expectation': True, 'iterate': 1
@@ -252,8 +252,8 @@ class TestDefPrevDefinition:
         result = op.derived_definition(argument)
         assert len(result) == 3, "derived_definition should return a 3-element list"
         assert result[0] is SinceOperator
-        assert result[1] == argument
-        assert result[2] == [BotOperator]
+        assert result[1] == [BotOperator]
+        assert result[2] == argument
 
 
 # ---------------------------------------------------------------------------
@@ -321,9 +321,9 @@ class TestPrefixConstruction:
 # ---------------------------------------------------------------------------
 
 def make_next_equiv_example():
-    """Create example: \\next A <-> (A \\Until \\bot) should be a theorem."""
+    """Create example: \\next A <-> (\\bot \\Until A) should be a theorem."""
     premises = []
-    conclusions = ['(\\next A \\leftrightarrow (A \\Until \\bot))']
+    conclusions = ['(\\next A \\leftrightarrow (\\bot \\Until A))']
     settings = {
         'back': 2, 'mid': 1, 'fwd': 2,
         'max_time': 5,
@@ -333,9 +333,9 @@ def make_next_equiv_example():
 
 
 def make_prev_equiv_example():
-    """Create example: \\prev A <-> (A \\Since \\bot) should be a theorem."""
+    """Create example: \\prev A <-> (\\bot \\Since A) should be a theorem."""
     premises = []
-    conclusions = ['(\\prev A \\leftrightarrow (A \\Since \\bot))']
+    conclusions = ['(\\prev A \\leftrightarrow (\\bot \\Since A))']
     settings = {
         'back': 2, 'mid': 1, 'fwd': 2,
         'max_time': 5,
@@ -348,7 +348,7 @@ class TestSemanticEquivalence:
     """Tests that Next(A) <-> U(A, bot) and Prev(A) <-> S(A, bot) are theorems."""
 
     def test_next_equivalent_to_until_bot(self):
-        """Test that \\next A is semantically equivalent to (A \\Until \\bot)."""
+        """Test that \\next A is semantically equivalent to (\\bot \\Until A)."""
         example = make_next_equiv_example()
         with isolated_z3_context():
             result = run_test(
@@ -360,10 +360,10 @@ class TestSemanticEquivalence:
                 ModelConstraints,
                 BimodalStructure,
             )
-        assert result, "\\next A <-> (A \\Until \\bot) should be a theorem (no countermodel)"
+        assert result, "\\next A <-> (\\bot \\Until A) should be a theorem (no countermodel)"
 
     def test_prev_equivalent_to_since_bot(self):
-        """Test that \\prev A is semantically equivalent to (A \\Since \\bot)."""
+        """Test that \\prev A is semantically equivalent to (\\bot \\Since A)."""
         example = make_prev_equiv_example()
         with isolated_z3_context():
             result = run_test(
@@ -375,7 +375,7 @@ class TestSemanticEquivalence:
                 ModelConstraints,
                 BimodalStructure,
             )
-        assert result, "\\prev A <-> (A \\Since \\bot) should be a theorem (no countermodel)"
+        assert result, "\\prev A <-> (\\bot \\Since A) should be a theorem (no countermodel)"
 
 
 if __name__ == '__main__':

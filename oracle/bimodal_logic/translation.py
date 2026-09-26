@@ -57,8 +57,8 @@ _PRIMITIVE_UNARY = {
 
 _PRIMITIVE_BINARY = {
     "imp": ("\\rightarrow", "left", "right"),
-    "untl": ("\\Until", "event", "guard"),
-    "snce": ("\\Since", "event", "guard"),
+    "untl": ("\\Until", "guard", "event"),
+    "snce": ("\\Since", "guard", "event"),
 }
 
 # Enriched tags

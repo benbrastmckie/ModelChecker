@@ -108,25 +108,25 @@ class TestPrimitiveOperatorsMirrorTranslate:
         expected = semantics.witness_registry.bit(0, -2, translate(sentence))
         assert _same_expr(expr, expected)
 
-    def test_until_true_at_matches_translates_event_first_swap(self):
+    def test_until_true_at_matches_translates_positional_identity(self):
         semantics = BimodalSemantics(_settings())
         sentence = _sentence("(A \\Until B)")
-        event_arg, guard_arg = sentence.arguments
+        guard_arg, event_arg = sentence.arguments
         eval_point = {"lasso": 0, "position": 0}
-        expr = sentence.operator(semantics).true_at(event_arg, guard_arg, eval_point)
+        expr = sentence.operator(semantics).true_at(guard_arg, event_arg, eval_point)
         expected_formula = translate(sentence)
         assert isinstance(expected_formula, Untl)
-        assert expected_formula.event == translate(event_arg)
         assert expected_formula.guard == translate(guard_arg)
+        assert expected_formula.event == translate(event_arg)
         expected = semantics.witness_registry.bit(0, 0, expected_formula)
         assert _same_expr(expr, expected)
 
-    def test_since_true_at_matches_translates_event_first_swap(self):
+    def test_since_true_at_matches_translates_positional_identity(self):
         semantics = BimodalSemantics(_settings())
         sentence = _sentence("(A \\Since B)")
-        event_arg, guard_arg = sentence.arguments
+        guard_arg, event_arg = sentence.arguments
         eval_point = {"lasso": 0, "position": 0}
-        expr = sentence.operator(semantics).true_at(event_arg, guard_arg, eval_point)
+        expr = sentence.operator(semantics).true_at(guard_arg, event_arg, eval_point)
         expected_formula = translate(sentence)
         assert isinstance(expected_formula, Snce)
         expected = semantics.witness_registry.bit(0, 0, expected_formula)

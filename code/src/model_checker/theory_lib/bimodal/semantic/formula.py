@@ -16,9 +16,9 @@ Lean development derives them (`Formula.lean`'s "Naming Convention" section).
 
 `Untl`/`Snce` are **guard-first**, matching the Lean constructor
 (`untl : Formula -> Formula -> Formula`, "Argument 1 is the guard, argument 2 is the event",
-`Formula.lean:86-95`). This is the opposite order from ModelChecker's own `UntilOperator`/
-`SinceOperator`, which are event-first (`operators.py`'s `true_at(self, event_arg, guard_arg,
-eval_point)`) -- translation must swap, and that swap belongs to the translation phase, not here.
+`Formula.lean:86-95`). ModelChecker's own `UntilOperator`/`SinceOperator` are now guard-first
+too (`operators.py`'s `true_at(self, guard_arg, event_arg, eval_point)`) -- one argument order
+throughout both repositories, so translation is positional identity, not a swap.
 
 ## Closure
 
@@ -56,10 +56,13 @@ the 9 primitive operators bimodal declares as `syntactic.Operator` (`\\neg`, `\\
 (`\\rightarrow`, `\\leftrightarrow`, `\\top`, `\\Diamond`, `\\future`, `\\past`, `\\next`,
 `\\prev`) never reach it, having already been rewritten into primitives.
 
-**The Until/Since guard/event swap.** ModelChecker's `UntilOperator`/`SinceOperator` are
-event-first (`true_at(self, event_arg, guard_arg, eval_point)`, `operators.py`), so
-`sentence.arguments[0]` is the event and `sentence.arguments[1]` is the guard. `Untl`/`Snce` are
-guard-first. `translate` swaps: `Untl(guard=translate(arguments[1]), event=translate(arguments[0]))`.
+**No Until/Since guard/event swap.** ModelChecker's `UntilOperator`/`SinceOperator` are
+guard-first (`true_at(self, guard_arg, event_arg, eval_point)`, `operators.py`), matching
+`Untl`/`Snce`'s own guard-first field order exactly, so `sentence.arguments[0]` is the guard and
+`sentence.arguments[1]` is the event. `translate` is positional identity:
+`Untl(guard=translate(arguments[0]), event=translate(arguments[1]))`. (ModelChecker was
+previously event-first, citing the Burgess convention; that citation is deliberately dropped in
+favor of one argument order across both repositories -- see `docs/ARCHITECTURE.md`.)
 
 **`\\Future`/`\\Past`.** These are ModelChecker *primitives* meaning "always in the future/past"
 (G/H, not F/P), so they are encoded via the Lean-derived double-negation identity
@@ -374,11 +377,12 @@ def _translate_uncached(sentence: Any) -> Formula:
         top = Imp(Bot(), Bot())
         return Imp(Snce(top, Imp(translate(a), Bot())), Bot())
     if name == "\\Until":
-        # ModelChecker is event-first: true_at(self, event_arg, guard_arg, eval_point).
-        event_arg, guard_arg = arguments
+        # ModelChecker is guard-first: true_at(self, guard_arg, event_arg, eval_point).
+        # Positional identity -- no swap.
+        guard_arg, event_arg = arguments
         return Untl(guard=translate(guard_arg), event=translate(event_arg))
     if name == "\\Since":
-        event_arg, guard_arg = arguments
+        guard_arg, event_arg = arguments
         return Snce(guard=translate(guard_arg), event=translate(event_arg))
 
     raise ValueError(

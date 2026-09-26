@@ -80,24 +80,24 @@ class TestJsonToPrefixPrimitives:
         assert result == ["\\Box", ["p"]]
 
     def test_untl_translation(self):
-        """Until translates to prefix: [\\Until, event_prefix, guard_prefix]."""
+        """Until translates to prefix: [\\Until, guard_prefix, event_prefix]."""
         formula = {
             "tag": "untl",
             "event": {"tag": "atom", "name": "p"},
             "guard": {"tag": "atom", "name": "q"}
         }
         result = json_to_prefix(formula)
-        assert result == ["\\Until", ["p"], ["q"]]
+        assert result == ["\\Until", ["q"], ["p"]]
 
     def test_snce_translation(self):
-        """Since translates to prefix: [\\Since, event_prefix, guard_prefix]."""
+        """Since translates to prefix: [\\Since, guard_prefix, event_prefix]."""
         formula = {
             "tag": "snce",
             "event": {"tag": "atom", "name": "p"},
             "guard": {"tag": "atom", "name": "q"}
         }
         result = json_to_prefix(formula)
-        assert result == ["\\Since", ["p"], ["q"]]
+        assert result == ["\\Since", ["q"], ["p"]]
 
     def test_imp_with_bot_left(self):
         """Implication with bot as left argument."""
@@ -126,7 +126,7 @@ class TestJsonToPrefixPrimitives:
             "guard": {"tag": "bot"}
         }
         result = json_to_prefix(formula)
-        assert result == ["\\Until", ["p"], ["\\bot"]]
+        assert result == ["\\Until", ["\\bot"], ["p"]]
 
 
 ##############################################################################
@@ -286,7 +286,7 @@ class TestJsonToPrefixNested:
             }
         }
         result = json_to_prefix(formula)
-        assert result == ["\\Box", ["\\Until", ["p"], ["q"]]]
+        assert result == ["\\Box", ["\\Until", ["q"], ["p"]]]
 
     def test_nested_imp_in_next(self):
         """next(imp(p, q)) -- next containing implication."""
@@ -309,7 +309,7 @@ class TestJsonToPrefixNested:
             "guard": {"tag": "bot"}
         }
         result = json_to_prefix(formula)
-        assert result == ["\\Since", ["p"], ["\\bot"]]
+        assert result == ["\\Since", ["\\bot"], ["p"]]
 
     def test_double_negation(self):
         """neg(neg(p)) -- double negation."""
@@ -903,15 +903,15 @@ class TestEnrichedEquivalence:
         ), "diamond equivalence should be a theorem"
 
     def test_next_equivalence(self):
-        """\\next A <-> (A \\Until \\bot) is a theorem."""
+        """\\next A <-> (\\bot \\Until A) is a theorem."""
         assert self._run_equivalence(
-            "(\\next A \\leftrightarrow (A \\Until \\bot))"
+            "(\\next A \\leftrightarrow (\\bot \\Until A))"
         ), "next equivalence should be a theorem"
 
     def test_prev_equivalence(self):
-        """\\prev A <-> (A \\Since \\bot) is a theorem."""
+        """\\prev A <-> (\\bot \\Since A) is a theorem."""
         assert self._run_equivalence(
-            "(\\prev A \\leftrightarrow (A \\Since \\bot))"
+            "(\\prev A \\leftrightarrow (\\bot \\Since A))"
         ), "prev equivalence should be a theorem"
 
     def test_some_future_equivalence(self):

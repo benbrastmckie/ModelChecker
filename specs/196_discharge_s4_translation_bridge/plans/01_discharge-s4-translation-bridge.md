@@ -1,7 +1,7 @@
 # Implementation Plan: Discharge obligation S4 (Sentence-to-Formula translation bridge)
 
 - **Task**: 196 - Discharge obligation S4, the Sentence-to-Formula translation bridge
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 9 hours
 - **Dependencies**: 193, 194 (sequencing, user-directed: both touch the same bimodal test tree,
   and 193 adds closure formulas to `test_certificate_a2_triangle.py`; this task's normalization
@@ -213,7 +213,7 @@ disjoint.
 
 ---
 
-### Phase 1: Dependency gate, authoritative occurrence inventory, and baseline [NOT STARTED]
+### Phase 1: Dependency gate, authoritative occurrence inventory, and baseline [COMPLETED]
 
 **Goal**: tasks 193 and 194 have landed; an inspected, per-occurrence checklist of every
 order-bearing `\Until`/`\Since` site exists; and a green pre-change baseline is recorded so any
@@ -275,7 +275,7 @@ mid-batch.
 
 ---
 
-### Phase 2: Flip the convention to guard-first, in lockstep [NOT STARTED]
+### Phase 2: Flip the convention to guard-first, in lockstep [COMPLETED]
 
 **Goal**: ModelChecker, the oracle, and every order-bearing formula string read guard-first
 together, in a single commit, with every previously-passing truth-value assertion still passing.

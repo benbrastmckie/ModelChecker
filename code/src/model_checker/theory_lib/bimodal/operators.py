@@ -372,38 +372,40 @@ class PastOperator(syntactic.Operator):
 
 
 class UntilOperator(syntactic.Operator):
-    """Temporal operator U(event, guard): event holds at some future time s > t,
+    """Temporal operator U(guard, event): event holds at some future time s > t,
     and guard holds for all times in the open interval (t, s).
 
-    This operator implements the temporal Until operator following the Burgess convention:
-    `true_at(self, event_arg, guard_arg, eval_point)` is **event-first** -- the opposite
-    order from the Lean development's guard-first `untl` constructor (D2). Mirrors
-    `translate`'s own `\\Until` rule, which performs exactly this swap:
-    `Untl(guard=translate(guard_arg), event=translate(event_arg))`.
+    **Guard-first**, matching the Lean development's `untl` constructor exactly (D2):
+    `true_at(self, guard_arg, event_arg, eval_point)` is positional identity against
+    `Untl`'s own `(guard, event)` field order. Mirrors `translate`'s own `\\Until` rule,
+    which is likewise positional identity: `Untl(guard=translate(guard_arg),
+    event=translate(event_arg))`. ModelChecker's own event-first order (citing the Burgess
+    convention) has been retired in favor of this cross-repository uniformity; there is no
+    longer a swap anywhere in this path.
 
     Key Properties:
         - Strict witness: the event time s must be strictly greater than evaluation time t
         - Open guard interval: guard holds for all r in (t, s), excluding both endpoints
-        - Burgess convention: U(event, guard) -- event is what eventually happens
+        - Guard-first: U(guard, event) -- event is what eventually happens
 
     Example:
-        If p means "the train arrives" and q means "waiting", then U(p, q) means
-        "the train will arrive and until then we are waiting"
+        If p means "waiting" and q means "the train arrives", then U(p, q) means
+        "we are waiting until the train arrives"
     """
 
     name = "\\Until"
     arity = 2
 
-    def true_at(self, event_arg, guard_arg, eval_point):
+    def true_at(self, guard_arg, event_arg, eval_point):
         """Looks up the label bit of `Untl(guard=translate(guard_arg),
-        event=translate(event_arg))` -- mirrors `translate`'s own `\\Until` rule, including
-        its event/guard argument swap (D2)."""
+        event=translate(event_arg))` -- mirrors `translate`'s own `\\Until` rule.
+        Positional identity: no guard/event argument swap (D2)."""
         formula = Untl(guard=translate(guard_arg), event=translate(event_arg))
         return _bit(self.semantics, eval_point, formula)
 
-    def false_at(self, event_arg, guard_arg, eval_point):
+    def false_at(self, guard_arg, event_arg, eval_point):
         """`Not(true_at(...))`."""
-        return z3.Not(self.true_at(event_arg, guard_arg, eval_point))
+        return z3.Not(self.true_at(guard_arg, event_arg, eval_point))
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -411,29 +413,30 @@ class UntilOperator(syntactic.Operator):
 
 
 class SinceOperator(syntactic.Operator):
-    """Temporal operator S(event, guard): event held at some past time s < t,
+    """Temporal operator S(guard, event): event held at some past time s < t,
     and guard held for all times in the open interval (s, t).
 
-    Event-first, mirroring `UntilOperator`'s own convention and `translate`'s `\\Since`
-    rule, which performs the same guard/event swap as `\\Until` (D2).
+    Guard-first, mirroring `UntilOperator`'s own convention and `translate`'s `\\Since`
+    rule: positional identity, no guard/event argument swap (D2).
 
     Example:
-        If p means "the announcement was made" and q means "waiting", then S(p, q) means
-        "the announcement was made and we had been waiting until then"
+        If p means "waiting" and q means "the announcement was made", then S(p, q) means
+        "we had been waiting until the announcement was made"
     """
 
     name = "\\Since"
     arity = 2
 
-    def true_at(self, event_arg, guard_arg, eval_point):
+    def true_at(self, guard_arg, event_arg, eval_point):
         """Looks up the label bit of `Snce(guard=translate(guard_arg),
-        event=translate(event_arg))` -- mirrors `translate`'s own `\\Since` rule."""
+        event=translate(event_arg))` -- mirrors `translate`'s own `\\Since` rule.
+        Positional identity: no guard/event argument swap."""
         formula = Snce(guard=translate(guard_arg), event=translate(event_arg))
         return _bit(self.semantics, eval_point, formula)
 
-    def false_at(self, event_arg, guard_arg, eval_point):
+    def false_at(self, guard_arg, event_arg, eval_point):
         """`Not(true_at(...))`."""
-        return z3.Not(self.true_at(event_arg, guard_arg, eval_point))
+        return z3.Not(self.true_at(guard_arg, event_arg, eval_point))
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -589,16 +592,16 @@ class DefPastOperator(syntactic.DefinedOperator):
 class DefNextOperator(syntactic.DefinedOperator):
     """Temporal operator for 'next instant': true iff argument holds at the immediately next time.
 
-    Defined as Next(phi) = U(phi, bot): phi holds at some future time s > t with bot (falsity)
-    holding in the open interval (t, s). Since bot is never true, the interval (t, s) must be
-    empty, meaning s is the immediately next time after t.
+    Defined as Next(phi) = U(bot, phi): bot (falsity) holds as the guard in the open interval
+    (t, s), and phi holds as the event at some future time s > t. Since bot is never true, the
+    interval (t, s) must be empty, meaning s is the immediately next time after t.
     """
 
     name = "\\next"
     arity = 1
 
     def derived_definition(self, argument):  # type: ignore
-        return [UntilOperator, argument, [BotOperator]]
+        return [UntilOperator, [BotOperator], argument]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
@@ -608,16 +611,16 @@ class DefNextOperator(syntactic.DefinedOperator):
 class DefPrevOperator(syntactic.DefinedOperator):
     """Temporal operator for 'previous instant': true iff argument held at the immediately prior time.
 
-    Defined as Prev(phi) = S(phi, bot): phi held at some past time s < t with bot (falsity)
-    holding in the open interval (s, t). Since bot is never true, the interval (s, t) must be
-    empty, meaning s is the immediately previous time before t.
+    Defined as Prev(phi) = S(bot, phi): bot (falsity) holds as the guard in the open interval
+    (s, t), and phi held as the event at some past time s < t. Since bot is never true, the
+    interval (s, t) must be empty, meaning s is the immediately previous time before t.
     """
 
     name = "\\prev"
     arity = 1
 
     def derived_definition(self, argument):  # type: ignore
-        return [SinceOperator, argument, [BotOperator]]
+        return [SinceOperator, [BotOperator], argument]
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the proposition and its arguments."""
