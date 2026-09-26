@@ -17,6 +17,8 @@ import time
 import sys
 from typing import TYPE_CHECKING, List, Dict, Any, Optional, Generator, Tuple
 
+from model_checker import z3_shim as z3
+
 from .types import (
     IterationStatus, IterationResult, IterationState,
     Z3Model, Z3Solver, SettingsDict, MetricsDict
@@ -245,9 +247,13 @@ class BaseModelIterator:
                 logger.info(f"Searching for model {model_number}/{self.max_iterations}...")
                 
                 try:
-                    # Generate constraints to exclude previous models
-                    extended_constraints = self.constraint_generator.create_extended_constraints(self.found_models)
-                    
+                    # Generate constraints to exclude previous models -- routed through
+                    # the polymorphic _create_difference_constraint extension point
+                    # (BaseModelIterator._build_exclusion_constraints), not directly
+                    # through ConstraintGenerator, so a theory-specific override is
+                    # actually consulted by this live loop.
+                    extended_constraints = self._build_exclusion_constraints(self.found_models)
+
                     # Check satisfiability with new constraints
                     check_result = self.constraint_generator.check_satisfiability(extended_constraints)
                     self.checked_model_count += 1
@@ -336,8 +342,12 @@ class BaseModelIterator:
                             self.search_progress.model_skipped_isomorphic()
                         
                         logger.info(f"Found isomorphic model #{self.checked_model_count} - will try different constraints")
-                        # Generate stronger constraint to avoid this specific isomorphic model
-                        stronger_constraint = self.constraint_generator.create_stronger_constraint(isomorphic_model)
+                        # Generate stronger constraint to avoid this specific isomorphic
+                        # model -- composed from the generic ConstraintGenerator
+                        # constraint and any non-trivial theory-specific override (see
+                        # _build_stronger_constraint's docstring for why this composes
+                        # rather than replaces).
+                        stronger_constraint = self._build_stronger_constraint(isomorphic_model)
                         if stronger_constraint is not None:
                             extended_constraints.append(stronger_constraint)
                         continue
@@ -735,23 +745,103 @@ class BaseModelIterator:
         """
         return None
 
-    def _create_difference_constraint(self, previous_models: List['z3.ModelRef']) -> 'z3.BoolRef':
+    @staticmethod
+    def _is_trivially_true(constraint: Optional['z3.BoolRef']) -> bool:
+        """`True` when `constraint` is literally the Z3 `BoolVal(True)` no-op some
+        theories' hooks return as a placeholder (logos's and imposition's
+        `_create_non_isomorphic_constraint`/`_create_stronger_constraint`, bimodal's
+        `_create_stronger_constraint`) -- as opposed to `None`, which means "no
+        constraint at all". Used by `_build_exclusion_constraints` and
+        `_build_stronger_constraint` to avoid composing in a constraint that would
+        add nothing to the solver.
+        """
+        return constraint is not None and bool(z3.is_true(constraint))
+
+    def _build_exclusion_constraints(self, previous_models: List['z3.ModelRef']) -> List['z3.BoolRef']:
+        """Build the list of constraints `iterate_generator` hands to
+        `ConstraintGenerator.check_satisfiability`, excluding every model in
+        `previous_models` -- routed through the polymorphic `_create_difference_constraint`
+        extension point (called once, with the full list) rather than directly through
+        `ConstraintGenerator.create_extended_constraints` (which this method replaces at
+        its one call site), so a theory-specific override is actually consulted by the
+        live loop. `ConstraintGenerator` keeps ownership of solver plumbing only
+        (`check_satisfiability`, `get_model`, the persistent solver) -- this method and
+        `_create_difference_constraint` own the constraint *content*.
+
+        Args:
+            previous_models: Every Z3 model found so far, to exclude from the next solve.
+
+        Returns:
+            A list of at most one `z3.BoolRef` (dropping `None` and a trivially-true
+            result), suitable for `check_satisfiability`'s `additional_constraints`.
+        """
+        constraint = self._create_difference_constraint(previous_models)
+        if self._is_trivially_true(constraint) or constraint is None:
+            return []
+        return [constraint]
+
+    def _build_stronger_constraint(self, isomorphic_model: 'z3.ModelRef') -> Optional['z3.BoolRef']:
+        """Build the constraint `iterate_generator` adds after finding an isomorphic
+        model -- the **composition** of the generic `ConstraintGenerator` constraint
+        with every non-trivial theory-specific override, not a replacement of one by
+        the other.
+
+        Composition, not replacement, is required because logos's and imposition's
+        `_create_non_isomorphic_constraint`/`_create_stronger_constraint` overrides are
+        no-op `BoolVal(True)` placeholders ("For now, simple implementation" / "For now,
+        return a simple constraint" in their own docstrings) while `ConstraintGenerator`'s
+        generic, `is_world`-gated implementation is the only *real* escape constraint
+        those two theories currently have. Replacing it with the per-theory result
+        (as a naive "prefer the override" wiring would) would silently remove their
+        only defense against looping on an isomorphic model forever. A theory whose
+        override *is* real (a future one, or one written to be) simply adds its own
+        conjunct on top; a bimodal-shaped iterator with no `is_world` gets nothing from
+        the generic half (empty, filtered out below) and everything from its own
+        `_create_non_isomorphic_constraint`.
+
+        Args:
+            isomorphic_model: The Z3 model that was found to be isomorphic to a
+                previously-found one.
+
+        Returns:
+            The conjunction of every non-`None`, non-trivially-true candidate, or
+            `None` when nothing non-trivial remains (mirrors
+            `ConstraintGenerator.create_stronger_constraint`'s own `Optional` return,
+            which `iterate_generator` already guards with `is not None`).
+        """
+        candidates = [
+            self.constraint_generator.create_stronger_constraint(isomorphic_model),
+            self._create_non_isomorphic_constraint(isomorphic_model),
+            self._create_stronger_constraint(isomorphic_model),
+        ]
+        parts = [c for c in candidates if c is not None and not self._is_trivially_true(c)]
+        if not parts:
+            return None
+        if len(parts) == 1:
+            return parts[0]
+        return z3.And(*parts)
+
+    def _create_difference_constraint(self, previous_models: List['z3.ModelRef']) -> Optional['z3.BoolRef']:
         """Theory-specific constraint creation method.
-        
-        This method should be overridden by theory-specific implementations
-        to provide custom difference constraint logic.
-        
+
+        Theories override this to provide custom difference-constraint logic (see
+        `logos/iterate.py`, `imposition/iterate.py`, `theory_lib/bimodal/iterate.py`).
+        The base-class default below is not a "must override" stub: it delegates to
+        `ConstraintGenerator`'s existing generic, `is_world`-gated implementation, so a
+        theory that does not override this hook gets the same difference-constraint
+        behavior it always has, through `_build_exclusion_constraints`, instead of
+        crashing with `NotImplementedError`.
+
         Args:
             previous_models: List of Z3 models to differentiate from
-            
+
         Returns:
-            z3.BoolRef: Difference constraint
-            
-        Raises:
-            NotImplementedError: If not overridden by subclass
+            z3.BoolRef or None: Difference constraint (or `None`/trivially-true when
+            there is nothing to add -- e.g. `previous_models` is empty, or the theory
+            has no state-existence predicate and no override).
         """
-        raise NotImplementedError("Theory-specific implementation required for _create_difference_constraint")
-    
+        return self.constraint_generator._create_difference_constraint(previous_models)
+
     def _create_non_isomorphic_constraint(self, isomorphic_model: 'z3.ModelRef') -> 'z3.BoolRef':
         """Theory-specific non-isomorphic constraint creation method.
         

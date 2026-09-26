@@ -3,6 +3,20 @@
 This module handles creating constraints that ensure each new model differs
 from previously found models. It manages solver interaction and constraint
 validation.
+
+## Role since the `BaseModelIterator` extension points (`iterate/core.py`)
+
+`ConstraintGenerator` no longer owns the live loop's *content* decisions for exclusion and
+isomorphism-escape constraints -- `BaseModelIterator._build_exclusion_constraints` and
+`._build_stronger_constraint` do, dispatching to the polymorphic `_create_difference_constraint`/
+`_create_non_isomorphic_constraint`/`_create_stronger_constraint` hooks a theory may override.
+This class keeps: (1) solver plumbing (`_create_persistent_solver`, `check_satisfiability`,
+`get_model`) -- unchanged; and (2) the generic, `is_world`-gated implementations below
+(`_create_difference_constraint`, `_create_non_isomorphic_constraint`, and the helpers they call),
+which are now reached as `BaseModelIterator`'s own hook *defaults* (a theory that overrides
+nothing gets exactly this behavior) and as one half of `_build_stronger_constraint`'s composition
+(conjoined with any non-trivial theory-specific override, never replaced by it). No behavior
+change was made to any method in this file for this role shift.
 """
 
 from model_checker import z3_shim as z3

@@ -121,6 +121,20 @@ class TestDifferenceConstraintOverLabelsAndGuesses:
         result = model.eval(constraint, model_completion=True)
         assert str(result) == "False"
 
+    def test_build_exclusion_constraints_is_non_empty_for_a_solved_model(self):
+        """`BaseModelIterator._build_exclusion_constraints` (Extension Point 2) must
+        actually reach this theory's own `_create_difference_constraint` -- the live
+        loop's central defect this plan fixes -- and produce a real, non-empty
+        exclusion constraint, not the `[]` the generic `is_world`-gated path silently
+        produced for bimodal before this phase."""
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        model = self._solved_model(semantics)
+
+        result = iterator._build_exclusion_constraints([model])
+        assert len(result) == 1
+        assert not is_true(model.eval(result[0], model_completion=True))
+
 
 class TestPinTheorySpecificValues:
     """Coverage for `BimodalModelIterator._pin_theory_specific_values`, the Extension

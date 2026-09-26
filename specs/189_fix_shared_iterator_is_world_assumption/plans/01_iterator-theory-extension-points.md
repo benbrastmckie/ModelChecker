@@ -305,7 +305,7 @@ pins its certificate variables instead of bitvector world states.
 
 ---
 
-### Phase 3: Extension Point 2 — Theory-Specific Exclusion Constraints [NOT STARTED]
+### Phase 3: Extension Point 2 — Theory-Specific Exclusion Constraints [COMPLETED]
 
 **Goal**: Make the live search loop consult each theory's own exclusion-constraint logic instead of
 `ConstraintGenerator`'s `is_world`-gated reimplementation, without removing the generic escape
@@ -373,6 +373,41 @@ grep actually returns, including any call site this plan did not anticipate.
   returns nothing (the loop no longer bypasses the extension point).
 - A bimodal `build_example` now produces a non-empty exclusion constraint list, asserted in a
   unit test rather than observed by eye.
+
+#### Evidence (recorded at implementation time)
+
+- `grep -n 'constraint_generator\.' code/src/model_checker/iterate/core.py` before this phase's
+  edits returned 9 lines (not 3 as the Scope Hypothesis guessed): the 3 in `iterate_generator`
+  plus a fully parallel set of 4 in the dead, uncalled `_orchestrated_iterate` method (Non-Goals
+  exclude retiring dead code) plus 2 that are solver-plumbing calls unrelated to this phase
+  (`self.solver = self.constraint_generator.solver` at init, `check_satisfiability`/`get_model`).
+  Only the 2 `iterate_generator` call sites (`create_extended_constraints`,
+  `create_stronger_constraint`) were replaced, exactly as planned; `_orchestrated_iterate`'s
+  identical-looking calls were left untouched and confirmed unreferenced by any caller.
+  Post-edit, the grep for the specific two bypassed names returns only the two
+  `_orchestrated_iterate` occurrences (verification criterion below, satisfied for the live
+  loop).
+- `iterate/tests/` full suite: 238 passed (224 prior + 14 new: `test_core.py`'s
+  `TestIsTriviallyTrue`/`TestBuildExclusionConstraints`/`TestBuildStrongerConstraint`), after
+  updating `test_core_abstract_methods.py::test_abstract_methods_required` for
+  `_create_difference_constraint`'s new non-raising default (now asserts `None` for an empty
+  `previous_models` list rather than `NotImplementedError`; the other two hooks' raising default
+  is unchanged, per this phase's scope).
+- Phase 1's baseline four-file, 19-test command: still 19 passed (bimodal's RED test still fails
+  as expected -- distinctness/isomorphism, not the Defect 1 crash).
+- Full `bimodal`+`logos`+`imposition`+`exclusion` suites: **966 passed, 1 failed** (only the
+  still-RED live test) -- **no regression** in any of the three `is_world` theories from routing
+  the live loop through the polymorphic hooks. The Phase 6 gate re-runs this exact comparison
+  against the Phase 1 per-theory baseline numbers as its own, independent check.
+- New coverage: `iterate/tests/unit/test_core.py`'s `TestIsTriviallyTrue` (BoolVal(True) vs. None
+  vs. a real constraint vs. BoolVal(False)), `TestBuildExclusionConstraints` (None/trivial ->
+  `[]`; a real constraint -> one-element list; the hook is called once with the *full*
+  `previous_models` list, not once per model), `TestBuildStrongerConstraint` (all-trivial-or-None
+  -> `None`; generic-only kept when theory overrides are trivial -- the logos/imposition shape;
+  theory-specific-only kept when generic is `None` -- the bimodal shape; both real ->
+  conjoined). `bimodal/tests/integration/test_iterate.py`'s new
+  `test_build_exclusion_constraints_is_non_empty_for_a_solved_model` confirms the extension point
+  is genuinely reached for bimodal (Verification bullet above).
 
 ---
 

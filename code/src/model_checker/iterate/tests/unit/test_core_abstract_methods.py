@@ -30,12 +30,14 @@ class TestAbstractMethods(unittest.TestCase):
         # Direct instantiation should fail (if we make them abstract)
         # For now, they raise NotImplementedError
         iterator = BaseModelIterator(self.mock_build)
-        
-        # These methods should raise NotImplementedError
-        with self.assertRaises(NotImplementedError) as context:
-            iterator._create_difference_constraint([])
-        self.assertIn("Theory-specific implementation required", str(context.exception))
-        
+
+        # _create_difference_constraint's default no longer raises: it delegates to
+        # ConstraintGenerator's generic, is_world-gated implementation (the shared
+        # iterator's Extension Point 2), so a theory that does not override this hook
+        # keeps today's behavior instead of crashing. With no previous models, the
+        # generic implementation returns None (nothing to exclude).
+        self.assertIsNone(iterator._create_difference_constraint([]))
+
         with self.assertRaises(NotImplementedError) as context:
             iterator._create_non_isomorphic_constraint(Mock())
         self.assertIn("Theory-specific implementation required", str(context.exception))
