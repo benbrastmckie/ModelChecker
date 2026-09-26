@@ -117,8 +117,8 @@ selector's own argument (section 5) remains here even after its window no longer
 full surface — everything "no extra constraint" in `ADEQUACY.md` section 7.3's A2 statement
 quantifies over — is wider: tracing every path from `model_checker/models/constraints.py`'s
 `ModelConstraints.__init__` through `model_checker/models/structure.py`'s `_setup_solver` to what
-Z3 actually receives gives **seven emission call sites**, collapsing into **four solver-visible
-tracked groups**.
+Z3 actually receives gives **eight emission call sites** — seven reachable from a single solve, plus
+one more reachable only when iterating — collapsing into **four solver-visible tracked groups**.
 
 **(1) `local_coherence_constraints(lasso)` — (C1).** Invoked once per active lasso, from
 `finalize_certificate`. For every position `t` in the **wide** window `_coherence_window(registry)`
@@ -177,11 +177,26 @@ ranges over, because `ModelConstraints` calls it unconditionally, and any future
 reintroducing per-atom constraints would flow through exactly this path without touching
 `finalize_certificate` at all.
 
-**Assembly into what Z3 actually sees.** The seven call sites above collapse into exactly four
-solver-visible tracked groups, each `assert_tracked` individually for unsat-core extraction:
-`(model_constraints.frame_constraints, "frame")` — call sites (1)–(4); `(model_constraints.model_constraints,
+**(8) `IterativeModelSearch._pin_theory_specific_values` (`iterate.py:190`) — model-iteration
+pinning, outside the single-solve path.** Invoked once per requested next model, from the shared
+iteration engine's `build_new_model_structure` hook, on a freshly-constructed semantics instance,
+after that instance's own `finalize_certificate()` has already run once (called defensively at
+`iterate.py:231` to allocate every bit/guess/lasso before pinning). For every `_bits`/`_guesses`
+Z3 variable and every `sel(t)` for `t in registry.target_window()`, evaluates the variable
+against the previous model and appends the resulting unit literal (`var` or `Not(var)`) directly
+to `semantics.frame_constraints` (`iterate.py:266`, `:280`) — bypassing the shared engine's
+`all_constraints` path, which `models/structure.py`'s `_setup_solver` never reads. This path
+emits no (C1)-(C4) content of its own; it pins previously-derived values so a rebuilt structure
+reflects the model the search actually found, rather than an unconstrained re-solve.
+
+**Assembly into what Z3 actually sees.** The seven single-solve call sites above collapse into
+exactly four solver-visible tracked groups, each `assert_tracked` individually for unsat-core
+extraction: `(model_constraints.frame_constraints, "frame")` — call sites (1)–(4); `(model_constraints.model_constraints,
 "model")` — call site (7); `(model_constraints.premise_constraints, "premises")` — call site (5);
-`(model_constraints.conclusion_constraints, "conclusions")` — call site (6).
+`(model_constraints.conclusion_constraints, "conclusions")` — call site (6). Call site (8) also
+lands in the `frame` group when it runs, but outside this single-solve assembly: it appends
+directly to `semantics.frame_constraints` from a later, iteration-only pass, after this assembly
+has already completed once on that instance.
 `ModelConstraints.__init__` reads `self.semantics.frame_constraints` **by reference** at
 construction time (`self.frame_constraints = self.semantics.frame_constraints`), while
 `finalize_certificate` — called later, from `BimodalStructure`'s `_setup_solver` override — still
@@ -190,11 +205,13 @@ mutates the *same* list object in place (`self.frame_constraints.extend(...)`, n
 design work at all, and is itself true of this specific object graph by construction, not by
 proof.
 
-**Net correction.** The encoder's actual attack surface is seven call sites — four inside
-`finalize_certificate`, two invoked earlier and separately per formula, one vacuous-but-live hook
-— assembled through a reference-mutation contract and gated by an externally-enforced call-order
-invariant. "No extra constraint" (`ADEQUACY.md` section 7.3) is a claim about the conjunction of
-all seven, not about four self-contained functions.
+**Net correction.** The encoder's actual attack surface is seven single-solve-reachable call
+sites — four inside `finalize_certificate`, two invoked earlier and separately per formula, one
+vacuous-but-live hook — plus one more (model-iteration pinning, call site (8)) reachable only when
+iterating, all assembled through a reference-mutation contract and gated by an
+externally-enforced call-order invariant. "No extra constraint" (`ADEQUACY.md` section 7.3) is a
+claim about the conjunction of all eight when iterating, and the seven single-solve-reachable
+sites otherwise, not about four self-contained functions.
 
 ## 5. The one-hot selector (D5)
 

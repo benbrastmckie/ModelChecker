@@ -1,7 +1,7 @@
 # Implementation Plan: Task #201
 
 - **Task**: 201 - Correct A2_GAP.md's emitted-constraint surface and semantic/core.py's sole-writer claim
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 1.0 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/201_correct_a2_gap_emitted_surface_and_sole_writer/reports/01_a2-gap-surface-correction.md
@@ -84,18 +84,18 @@ Phase 2 references the section-4 anchor Phase 1 creates, so they are deliberatel
 
 ---
 
-### Phase 1: Add call site (8) to A2_GAP.md section 4 [NOT STARTED]
+### Phase 1: Add call site (8) to A2_GAP.md section 4 [COMPLETED]
 
 **Goal**: Section 4 enumerates the `iterate.py` model-iteration pinning path as an eighth emission
 call site, with its clause shape, and every count in the section reflects eight.
 
 **Tasks**:
-- [ ] Re-run the count grep before editing: `grep -rn "seven emission call sites\|seven call sites\|all seven" code/src/model_checker/theory_lib/bimodal/docs/ docs/` and confirm the occurrence set is exactly `A2_GAP.md:120`, `:180`, `:193`, `:197` (adjust the edit list if it is not)
-- [ ] Insert the new **(8)** item after call site (7) (currently ending at line 178) and before the "Assembly into what Z3 actually sees" paragraph (line 180), using the report's Correction 1 text: `_pin_theory_specific_values` (`iterate.py:190`), invoked per requested next model from the iteration engine's `build_new_model_structure` hook, after `iterate.py:231`'s defensive `finalize_certificate()`; unit literal `var` or `Not(var)` per `_bits`/`_guesses` variable and per `sel(t)` for `t in registry.target_window()`, appended directly at `iterate.py:266` and `:280`, bypassing the dead `all_constraints` path; emits no (C1)-(C4) content of its own
-- [ ] Update line 120 ("**seven emission call sites**") to state eight, distinguishing the seven single-solve-reachable sites from the iteration-only eighth
-- [ ] Update line 180's "The seven call sites above collapse into exactly four solver-visible tracked groups" so the collapse statement stays accurate — call site (8) also lands in the `frame` group, but outside the `ModelConstraints.__init__` -> `_setup_solver` assembly the paragraph describes
-- [ ] Update the "Net correction" paragraph (lines 193-197) to the report's qualified form: "seven call sites reachable from a single solve, plus one more (model-iteration pinning) reachable only when iterating", and fix "all seven" at line 197 accordingly
-- [ ] Confirm no existing call site (1)-(7) is renumbered and no other section's cross-references are disturbed
+- [x] Re-run the count grep before editing: `grep -rn "seven emission call sites\|seven call sites\|all seven" code/src/model_checker/theory_lib/bimodal/docs/ docs/` and confirm the occurrence set is exactly `A2_GAP.md:120`, `:180`, `:193`, `:197` (adjust the edit list if it is not) *(completed: confirmed exactly these four occurrences, all in A2_GAP.md)*
+- [x] Insert the new **(8)** item after call site (7) (currently ending at line 178) and before the "Assembly into what Z3 actually sees" paragraph (line 180), using the report's Correction 1 text: `_pin_theory_specific_values` (`iterate.py:190`), invoked per requested next model from the iteration engine's `build_new_model_structure` hook, after `iterate.py:231`'s defensive `finalize_certificate()`; unit literal `var` or `Not(var)` per `_bits`/`_guesses` variable and per `sel(t)` for `t in registry.target_window()`, appended directly at `iterate.py:266` and `:280`, bypassing the dead `all_constraints` path; emits no (C1)-(C4) content of its own *(completed)*
+- [x] Update line 120 ("**seven emission call sites**") to state eight, distinguishing the seven single-solve-reachable sites from the iteration-only eighth *(completed)*
+- [x] Update line 180's "The seven call sites above collapse into exactly four solver-visible tracked groups" so the collapse statement stays accurate — call site (8) also lands in the `frame` group, but outside the `ModelConstraints.__init__` -> `_setup_solver` assembly the paragraph describes *(completed)*
+- [x] Update the "Net correction" paragraph (lines 193-197) to the report's qualified form: "seven call sites reachable from a single solve, plus one more (model-iteration pinning) reachable only when iterating", and fix "all seven" at line 197 accordingly *(deviation: altered — reworded to "seven single-solve-reachable call sites" instead of the report's literal "seven call sites reachable from a single solve" phrasing, because that literal substring would fail this same phase's own verification grep for "seven call sites"; meaning is unchanged)*
+- [x] Confirm no existing call site (1)-(7) is renumbered and no other section's cross-references are disturbed *(completed)*
 
 **Timing**: 0.5 hours
 
