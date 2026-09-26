@@ -19,13 +19,14 @@
     {
       "project_number": 196,
       "project_name": "discharge_s4_translation_bridge",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "python",
       "topic": "semantics",
       "description": "Discharge obligation S4, the Sentence-to-Formula translation bridge, which ADEQUACY.md section 6.3 records as covered by no Lean theorem. S4 is the weakest joint in the soundness direction this repository already asserts: the certificate's (C4) target condition is decided against target.premises and target.conclusions, so if the translation is wrong, every downstream check rigorously certifies a countermodel to a different argument than the user asked about. The round-trip against lake exe check_certificate cannot detect this, because both sides consume the same already-translated Formula. Two hazards are named explicitly: the translation must eliminate all defined operators (negation, conjunction, disjunction, the derived tense operators, \\next, \\prev) into the six primitives, and it must swap Until/Since arguments, since UntilOperator.true_at is event-first while Lean's untl is guard-first -- a hazard purely internal to the translation code, invisible on the wire because the wire's named event/guard fields are order-free. Note that oracle/bimodal_logic/ground_truth.py's brute-force adjudicator covers only the tense half (five primitive tags, no box case), so it cannot discharge the box half on its own; the box half must be covered explicitly. Prefer, if feasible, relocating the elimination into verified code (put the Sentence on the wire and let the verified side eliminate) so the obligation is deleted rather than tested; otherwise implement section 6.3's property test over small generated sentences, comparing the theory's own truth evaluation against a direct evaluator for the translated formula at every point of a small hand-built Z-model, and verify against the Lean-side translation once its counterpart lands in BimodalLogic. Record which route was taken and why.",
       "dependencies": [],
       "created": "2026-09-26T11:54:26Z",
-      "last_updated": "2026-09-26T11:54:26Z"
+      "last_updated": "2026-09-26T16:31:32Z",
+      "session_id": "sess_1790440270_1867f0_196"
     },
     {
       "project_number": 197,
@@ -73,35 +74,46 @@
     {
       "project_number": 192,
       "project_name": "a2_proof_vs_implementation_gap_report",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "markdown",
       "topic": "documentation",
       "description": "Write a companion report in code/src/model_checker/theory_lib/bimodal/docs/ explaining the proof-versus-implementation gap in the A2 encoding-completeness argument: what is missing is not mathematics but a proof that the running Python emits what the mathematics specifies. Place it alongside ADEQUACY.md, whose sections 5.2, 5.3 and 7.3 it extends, and cross-reference it from ADEQUACY.md section 7.3. The core thesis is section 5.3's own claim about the re-checker, transferred to the encoder: that a specific piece of Python correctly implements the finite-window reduction it is credited with \"is not something a proof discharges\". The report must (a) separate what IS machine-checked -- the window collapses coherent_iff_window, fulfil_iff_window, mem_all_iff_window, scan_forward and scan_backward, sorry-free, plus the fact that witness_constraints.py imports _coherence_window, _box_window, _scan_forward_bound and _scan_backward_bound directly from certificate.py so encoder and re-checker cannot drift on those bounds -- from what is not; (b) enumerate the full emitted-constraint surface that \"no extra constraint\" quantifies over, which is wider than the four condition emitters: finalize_certificate()'s in-place writes to frame_constraints (which ModelConstraints reads by reference), premise_behavior and conclusion_behavior per formula, and proposition_constraints; (c) name the one-hot sel selector (decision D5) as structure genuinely absent from conditions (C1)-(C4), so it needs its own conservativity argument rather than being covered by them; (d) record WitnessRegistry.target_window() as the one remaining independently-defined window, deliberately not shared with certificate.py's _box_window; (e) present the historical local-coherence defect recorded in witness_constraints.py's module docstring -- the encoder generated over the narrow target_window instead of the proved wide window, the counterexample requires nb=2, and it was caught by section 6.2's fail-fast differential rather than by any proof -- as concrete evidence that this defect class is real and that the standing A2-triangle test at back=mid=fwd=1 cannot see it; and (f) state honestly what a bounded exhaustive test does and does not establish. Documentation only: no source or test changes.\nADDENDUM. The report must also state the trust-base consequence that follows from obligation S3, since it is what makes the A2 gap a completeness matter rather than a soundness one. Because (C1)-(C4) are decidable, S3 is discharged by deciding the antecedent on every reported certificate -- twice and independently, per ADEQUACY.md section 6.2 -- rather than by proving the producer correct. Consequently the Z3 encoder, the decoder, and Z3 itself are NOT in the soundness trust base: an encoder defect can only over-constrain (costing completeness, reported as no certificate found within bounds, which was never a validity claim) or produce something that fails the four conditions (a loud rejection via the fail-fast step). It cannot manufacture a false countermodel report. The report should state this explicitly and draw the corollary that the soundness trust base is Lean's kernel, the S2 transcription audit, the re-checker implementation, and the translation (S4) -- which is why S4, not A2, is the weakest joint in the direction already asserted. It should also record that a \"countermodel\" verdict is not a kernel-checked proof for that particular certificate, only that the four Decidable instances returned true on the family rebuilt from the wire.\nSCOPE NOTE (overlap resolved). TRUST_PIPELINE.md has since been written in the same directory, and it already states the trust-base corollary this task's ADDENDUM above asked for, names the emitted-constraint surface, the one-hot selector and the independently-defined target window, and recounts the historical narrow-window defect. This task remains distinct and worth doing, but its scope is now the DEEP TREATMENT rather than the summary: the full category argument that a claim about what a specific piece of Python emits is not the kind of claim a proof about mathematics discharges, the complete enumeration of the emitted surface with each emitter's clause shape, and the per-route analysis of what closing the gap would actually require. Build on TRUST_PIPELINE.md and cross-reference it; do not restate its summary-level content.",
       "dependencies": [],
       "created": "2026-09-26T07:24:26Z",
-      "last_updated": "2026-09-26T12:27:20Z"
+      "last_updated": "2026-09-26T16:39:04Z",
+      "session_id": "sess_1790440270_1867f0",
+      "artifacts": [
+        {
+          "path": "specs/192_a2_proof_vs_implementation_gap_report/reports/01_a2-proof-implementation-gap.md",
+          "type": "report",
+          "summary": "Deep-treatment research report on the A2 proof-vs-implementation gap: the category argument for why a Lean theorem cannot discharge a claim about a running Python encoder, a seven-call-site enumeration of the emitted-constraint surface with each emitter's clause shape, a conservativity argument for the one-hot sel selector, the target_window/_box_window independent-definition risk, the historical nb=2 local-coherence defect and why the standing A2-triangle test is provably blind to it at nb=1, the S3 trust-base corollary, and a per-route analysis of what closing the gap would require."
+        }
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 193,
       "project_name": "extend_a2_triangle_grid_to_nb_nf_2",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "python",
       "topic": "testing",
       "description": "Extend the A2-triangle encoding-completeness test's exhaustive grid beyond back=mid=fwd=1 to cover nb=nf=2. tests/integration/test_certificate_a2_triangle.py currently enumerates exhaustively only at back=mid=fwd=1, per ADEQUACY.md section 7.3's stated test, and that regime is provably blind to the one A2 violation known to have actually occurred: witness_constraints.py's module docstring records that local coherence was once generated over the narrow WitnessRegistry.target_window() instead of the proved wide _coherence_window, and that the counterexample requires nb=2, since slot back[1] recurs at every odd-magnitude position. The defect is therefore invisible at nb=1, which makes raising the grid the highest-value strengthening available short of a proof. Measure before committing to unconditional execution: the single-box closure already reaches 1,572,864 candidates at nb=nf=1 and roughly 11.5 seconds of recheck time, so compute the nb=nf=2 candidate count first and tier or mark the test accordingly (the slow marker is already registered) rather than assuming it is affordable. Keep the existing three closures' coverage intact, and keep Tier 2's clean-skip discipline when no BimodalLogic checkout is present. Report any genuine three-way disagreement as a finding: diagnosing the encoder is out of scope for this task.",
       "dependencies": [],
       "created": "2026-09-26T07:24:26Z",
-      "last_updated": "2026-09-26T07:24:26Z"
+      "last_updated": "2026-09-26T16:31:30Z",
+      "session_id": "sess_1790440270_1867f0_193"
     },
     {
       "project_number": 194,
       "project_name": "close_a2_selector_and_window_drift_gaps",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "z3",
       "topic": "semantics",
       "description": "Close the two residual encoder-versus-specification gaps in the A2 encoding-completeness argument that are small enough to discharge directly. First, one-hot selector conservativity: decision D5 makes the target position a one-hot sel selector rather than a fixed origin, which is structure absent from conditions (C1)-(C4) entirely, so ADEQUACY.md section 7.3's \"the Z3 constraint set is exactly the conjunction of (C1)-(C4)\" does not cover it. Establish and record that the selector is conservative -- the encoding is SAT with some sel[t] exactly when a certificate satisfying (C1)-(C4) exists with target time t -- and exercise it directly in a test, so the selector cannot itself be the over-constraint that a future encoding incompleteness gets wrongly blamed on. Second, window drift: WitnessRegistry.target_window() is independently defined rather than imported, unlike _coherence_window, _box_window, _scan_forward_bound and _scan_backward_bound, which witness_constraints.py takes directly from certificate.py. certificate.py's own comment records the split as deliberate, since target_window is also reused for the one-hot selector and both are simple one-line formulas, but it remains the one place encoder and re-checker can silently diverge on a window. Either share a single definition or assert that the two formulas agree across the configured range of nb, nm and nf. Verify against the full bimodal suite and the four-theory gate; no behavioral change is intended.",
       "dependencies": [],
       "created": "2026-09-26T07:24:26Z",
-      "last_updated": "2026-09-26T07:24:26Z"
+      "last_updated": "2026-09-26T16:31:31Z",
+      "session_id": "sess_1790440270_1867f0_194"
     },
     {
       "project_number": 195,
