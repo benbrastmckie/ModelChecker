@@ -4,12 +4,12 @@
     {
       "project_number": 191,
       "project_name": "a2_triangle_encoding_completeness_test",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "description": "Add the A2-triangle encoding-completeness test for the bimodal certificate encoding (ADEQUACY section 7.3). The adequacy argument rests on three components agreeing: the pure-Python re-checker (semantic/certificate.py recheck), the Lean 'lake exe check_certificate' binary, and the Z3 constraint encoding that actually searches for models. Only legs (i) and (ii) are currently tested -- tests/integration/test_certificate_lean_agreement.py compares the re-checker against the Lean binary on the fixture corpus, and says so in its own docstring. Leg (iii), whether the Z3 encoding reports SAT exactly when a valid certificate exists, has never been built. Without it, two silent failure modes are uncovered: encoding incompleteness (Z3 reports UNSAT when a certificate exists) and encoding unsoundness (Z3 reports SAT for a configuration the checker would reject). Build an exhaustive enumeration over back=mid=fwd=1 and |C| <= 4 comparing all three verdicts. Originally scoped in the certificate redesign plan's Phase 5, which closed as COMPLETED WITH EXCLUSIONS deferring this to 'the Phase 9 handoff' -- that resumption pointer is broken, as the Phase 9 handoff carries only the A0 frame-class standing test, not A2.",
       "topic": "testing",
       "created": "2026-09-25T23:05:46Z",
-      "last_updated": "2026-09-25T23:38:08Z",
+      "last_updated": "2026-09-26T01:37:52Z",
       "session_id": "sess_1790377806_2f5155",
       "artifacts": [
         {
@@ -21,6 +21,11 @@
           "path": "specs/191_a2_triangle_encoding_completeness_test/plans/01_a2-triangle-encoding-completeness.md",
           "type": "plan",
           "summary": "Five-phase plan: shared Lean-check helper, exhaustive candidate enumeration vs. real Z3 verdict over three closures, bounded Lean cross-check, ADEQUACY 7.3 standing-test record."
+        },
+        {
+          "path": "specs/191_a2_triangle_encoding_completeness_test/summaries/01_a2-triangle-encoding-completeness-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: observed A2-triangle verdicts per closure, plan deviations, and the foreign test_iterate.py finding attributed to task 189."
         }
       ],
       "next_artifact_number": 2

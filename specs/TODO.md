@@ -11,7 +11,7 @@ next_project_number: 192
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 190,191 | -- | architecture, testing |
+| 1 | 190 | -- | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -19,19 +19,16 @@ next_project_number: 192
 
 190 [NOT STARTED] — Make bimodal iteration reject rotation- and...
 
-### Testing
-
-191 [IMPLEMENTING] — Add the A2-triangle encoding-completeness test for the...
-
 ## Tasks
 
 ### 191. A2 triangle encoding completeness test
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [191_a2_triangle_encoding_completeness_test/reports/01_a2-triangle-encoding-completeness.md]
 - **Plan**: [191_a2_triangle_encoding_completeness_test/plans/01_a2-triangle-encoding-completeness.md]
+- **Summary**: [191_a2_triangle_encoding_completeness_test/summaries/01_a2-triangle-encoding-completeness-summary.md]
 
 **Description**: Add the A2-triangle encoding-completeness test for the bimodal certificate encoding (ADEQUACY section 7.3). The adequacy argument rests on three components agreeing: the pure-Python re-checker (semantic/certificate.py recheck), the Lean 'lake exe check_certificate' binary, and the Z3 constraint encoding that actually searches for models. Only legs (i) and (ii) are currently tested -- tests/integration/test_certificate_lean_agreement.py compares the re-checker against the Lean binary on the fixture corpus, and says so in its own docstring. Leg (iii), whether the Z3 encoding reports SAT exactly when a valid certificate exists, has never been built. Without it, two silent failure modes are uncovered: encoding incompleteness (Z3 reports UNSAT when a certificate exists) and encoding unsoundness (Z3 reports SAT for a configuration the checker would reject). Build an exhaustive enumeration over back=mid=fwd=1 and |C| <= 4 comparing all three verdicts. Originally scoped in the certificate redesign plan's Phase 5, which closed as COMPLETED WITH EXCLUSIONS deferring this to 'the Phase 9 handoff' -- that resumption pointer is broken, as the Phase 9 handoff carries only the A0 frame-class standing test, not A2.
 
