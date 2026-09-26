@@ -11,15 +11,15 @@ next_project_number: 201
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 192,193,194,196,198 | -- | documentation, testing, semantics |
-| 2 | 195,197 | 192,196 | architecture, semantics |
-| 3 | 199,200 | 193,194,195,197,198 | documentation, semantics |
+| 1 | 193,194,195,198 | -- | architecture, testing, semantics |
+| 2 | 196 | 193,194 | semantics |
+| 3 | 197 | 196 | semantics |
+| 4 | 199,200 | 195,197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-192 [PLANNED] — Write a companion report in...
 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Architecture
@@ -28,15 +28,14 @@ next_project_number: 201
 
 ### Testing
 
-193 [PLANNED] — Extend the A2-triangle encoding-completeness test's...
+193 [IMPLEMENTING] — Extend the A2-triangle encoding-completeness test's...
 
 ### Semantics
 
-194 [PLANNED] — Close the two residual encoder-versus-specification gaps in...
-  └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
-196 [PLANNED] — Discharge obligation S4, the Sentence-to-Formula translation...
-  └─ 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
-    └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability... (see above)
+194 [IMPLEMENTING] — Close the two residual encoder-versus-specification gaps in...
+  └─ 196 [PLANNED] — Discharge obligation S4, the Sentence-to-Formula translation...
+    └─ 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
+      └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 
 ## Tasks
@@ -87,7 +86,7 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 - **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: semantics
-- **Dependencies**: None
+- **Dependencies**: Task 193, Task 194
 - **Research**: [196_discharge_s4_translation_bridge/reports/01_discharge-s4-translation-bridge.md]
 - **Plan**: [196_discharge_s4_translation_bridge/plans/01_discharge-s4-translation-bridge.md]
 
@@ -107,7 +106,7 @@ ADDENDUM, two findings that constrain this research and must be accounted for ra
 ---
 
 ### 194. Close a2 selector and window drift gaps
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None
@@ -119,7 +118,7 @@ ADDENDUM, two findings that constrain this research and must be accounted for ra
 ---
 
 ### 193. Extend a2 triangle grid to nb nf 2
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
@@ -131,12 +130,13 @@ ADDENDUM, two findings that constrain this research and must be accounted for ra
 ---
 
 ### 192. A2 proof vs implementation gap report
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: markdown
 - **Topic**: documentation
 - **Dependencies**: None
 - **Research**: [192_a2_proof_vs_implementation_gap_report/reports/01_a2-proof-implementation-gap.md]
 - **Plan**: [192_a2_proof_vs_implementation_gap_report/plans/01_a2-gap-companion-document.md]
+- **Summary**: [192_a2_proof_vs_implementation_gap_report/summaries/01_a2-gap-companion-document-summary.md]
 
 **Description**: Write a companion report in code/src/model_checker/theory_lib/bimodal/docs/ explaining the proof-versus-implementation gap in the A2 encoding-completeness argument: what is missing is not mathematics but a proof that the running Python emits what the mathematics specifies. Place it alongside ADEQUACY.md, whose sections 5.2, 5.3 and 7.3 it extends, and cross-reference it from ADEQUACY.md section 7.3. The core thesis is section 5.3's own claim about the re-checker, transferred to the encoder: that a specific piece of Python correctly implements the finite-window reduction it is credited with "is not something a proof discharges". The report must (a) separate what IS machine-checked -- the window collapses coherent_iff_window, fulfil_iff_window, mem_all_iff_window, scan_forward and scan_backward, sorry-free, plus the fact that witness_constraints.py imports _coherence_window, _box_window, _scan_forward_bound and _scan_backward_bound directly from certificate.py so encoder and re-checker cannot drift on those bounds -- from what is not; (b) enumerate the full emitted-constraint surface that "no extra constraint" quantifies over, which is wider than the four condition emitters: finalize_certificate()'s in-place writes to frame_constraints (which ModelConstraints reads by reference), premise_behavior and conclusion_behavior per formula, and proposition_constraints; (c) name the one-hot sel selector (decision D5) as structure genuinely absent from conditions (C1)-(C4), so it needs its own conservativity argument rather than being covered by them; (d) record WitnessRegistry.target_window() as the one remaining independently-defined window, deliberately not shared with certificate.py's _box_window; (e) present the historical local-coherence defect recorded in witness_constraints.py's module docstring -- the encoder generated over the narrow target_window instead of the proved wide window, the counterexample requires nb=2, and it was caught by section 6.2's fail-fast differential rather than by any proof -- as concrete evidence that this defect class is real and that the standing A2-triangle test at back=mid=fwd=1 cannot see it; and (f) state honestly what a bounded exhaustive test does and does not establish. Documentation only: no source or test changes.
 ADDENDUM. The report must also state the trust-base consequence that follows from obligation S3, since it is what makes the A2 gap a completeness matter rather than a soundness one. Because (C1)-(C4) are decidable, S3 is discharged by deciding the antecedent on every reported certificate -- twice and independently, per ADEQUACY.md section 6.2 -- rather than by proving the producer correct. Consequently the Z3 encoder, the decoder, and Z3 itself are NOT in the soundness trust base: an encoder defect can only over-constrain (costing completeness, reported as no certificate found within bounds, which was never a validity claim) or produce something that fails the four conditions (a loud rejection via the fail-fast step). It cannot manufacture a false countermodel report. The report should state this explicitly and draw the corollary that the soundness trust base is Lean's kernel, the S2 transcription audit, the re-checker implementation, and the translation (S4) -- which is why S4, not A2, is the weakest joint in the direction already asserted. It should also record that a "countermodel" verdict is not a kernel-checked proof for that particular certificate, only that the four Decidable instances returned true on the family rebuilt from the wire.
