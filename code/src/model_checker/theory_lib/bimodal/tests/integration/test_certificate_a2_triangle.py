@@ -185,12 +185,17 @@ def _assert_exhaustive_triangle_agrees(
     expected_total: int,
     expected_accepted: int,
     expected_sat: bool,
+    back: int = 1,
+    mid: int = 1,
+    fwd: int = 1,
 ) -> None:
-    """Shared Tier 1 body: build `structure`, enumerate every candidate, and assert the
-    enumeration's aggregate (leg i) agrees with the real Z3 verdict (leg iii) -- used by both
-    `TestExhaustiveTriangleBoxFree` (box-free closures) and `TestExhaustiveTriangleWithBox` (the
-    single-box closure, which additionally carries the `slow` marker at its call site)."""
-    structure = _build(premises, conclusions, back=1, mid=1, fwd=1)
+    """Shared Tier 1 body: build `structure` at the given `back`/`mid`/`fwd` grid, enumerate
+    every candidate, and assert the enumeration's aggregate (leg i) agrees with the real Z3
+    verdict (leg iii) -- used by both `TestExhaustiveTriangleBoxFree` (box-free closures) and
+    `TestExhaustiveTriangleWithBox` (the single-box closure, which additionally carries the
+    `slow` marker at its call site). `back = mid = fwd = 1` is the historical default; callers
+    covering the wider `nb=nf=2` grid pass it explicitly."""
+    structure = _build(premises, conclusions, back=back, mid=mid, fwd=fwd)
     closure = structure.semantics.witness_registry.closure
     assert len(closure) == expected_closure_size, (
         f"closure size changed: expected {expected_closure_size}, got {len(closure)} for "
@@ -236,20 +241,37 @@ def _assert_exhaustive_triangle_agrees(
 
 
 class TestExhaustiveTriangleBoxFree:
-    """Legs (i) vs. (iii), exhaustive, over two box-free closures at `back = mid = fwd = 1`:
-    one expected SAT, one expected UNSAT -- so a defect that only shows up in one direction
-    (encoding incompleteness vs. unsoundness) cannot hide behind the other case."""
+    """Legs (i) vs. (iii), exhaustive, over two box-free closures, each at two grid sizes:
+    `back = mid = fwd = 1` (the historical minimum) and `back = 2, mid = 1, fwd = 2`
+    (production's `DEFAULT_EXAMPLE_SETTINGS`) -- one expected SAT, one expected UNSAT at each
+    grid, so a defect that only shows up in one direction (encoding incompleteness vs.
+    unsoundness) cannot hide behind the other case, and a defect that only shows up at `nb = 2`
+    (see this module's docstring) cannot hide behind the narrower grid either.
+
+    Measured wall clock for the two new `nb=nf=2` cases on this host: ~1.06s combined
+    (`box_free_until_conclusion_sat_nb2_nf2` ~1.06s SAT at 163,840 candidates / 926 accepted;
+    `box_free_contradiction_unsat_nb2_nf2` ~0s UNSAT at 160 candidates / 0 accepted) -- both
+    left unconditional (no `slow` marker), well inside a non-`slow` local run's budget."""
 
     @pytest.mark.parametrize(
-        "premises, conclusions, expected_closure_size, expected_total, expected_accepted, expected_sat",
+        "premises, conclusions, expected_closure_size, expected_total, expected_accepted, "
+        "expected_sat, back, mid, fwd",
         [
             pytest.param(
-                [], ["(q \\Until p)"], 3, 1536, 52, True,
+                [], ["(q \\Until p)"], 3, 1536, 52, True, 1, 1, 1,
                 id="box_free_until_conclusion_sat",
             ),
             pytest.param(
-                ["A"], ["A"], 1, 24, 0, False,
+                ["A"], ["A"], 1, 24, 0, False, 1, 1, 1,
                 id="box_free_contradiction_unsat",
+            ),
+            pytest.param(
+                [], ["(q \\Until p)"], 3, 163_840, 926, True, 2, 1, 2,
+                id="box_free_until_conclusion_sat_nb2_nf2",
+            ),
+            pytest.param(
+                ["A"], ["A"], 1, 160, 0, False, 2, 1, 2,
+                id="box_free_contradiction_unsat_nb2_nf2",
             ),
         ],
     )
@@ -261,10 +283,13 @@ class TestExhaustiveTriangleBoxFree:
         expected_total,
         expected_accepted,
         expected_sat,
+        back,
+        mid,
+        fwd,
     ):
         _assert_exhaustive_triangle_agrees(
             premises, conclusions, expected_closure_size, expected_total, expected_accepted,
-            expected_sat,
+            expected_sat, back=back, mid=mid, fwd=fwd,
         )
 
 
@@ -287,6 +312,7 @@ class TestExhaustiveTriangleWithBox:
             expected_total=1_572_864,
             expected_accepted=96,
             expected_sat=True,
+            back=1, mid=1, fwd=1,
         )
 
 

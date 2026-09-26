@@ -166,19 +166,19 @@ refactor changed enumeration semantics and must be fixed, never re-pinned.
 
 ---
 
-### Phase 2: Add the two box-free closures at back=2, mid=1, fwd=2 [NOT STARTED]
+### Phase 2: Add the two box-free closures at back=2, mid=1, fwd=2 [COMPLETED]
 
 **Goal**: Both box-free closures are exhaustively enumerated at production's default grid,
 unconditionally (no `slow` marker), with counts confirmed from run output.
 
 **Tasks**:
-- [ ] Re-read the test file immediately before editing.
-- [ ] Add `back`, `mid`, `fwd` parameters to `_assert_exhaustive_triangle_agrees()` and pass them to `_build()`, replacing the hard-coded `back=1, mid=1, fwd=1`. Keep the existing call sites' behavior identical by passing `1, 1, 1` explicitly for every pre-existing case.
-- [ ] Add the grid to `TestExhaustiveTriangleBoxFree`'s parametrize signature and extend each existing `pytest.param` with its `1, 1, 1` grid, keeping the existing `id=` values unchanged.
-- [ ] Add two new `pytest.param` entries at `back=2, mid=1, fwd=2`: `[] / ["(q \\Until p)"]` (closure size 3, expected SAT) and `["A"] / ["A"]` (closure size 1, expected UNSAT), with ids suffixed `_nb2_nf2`.
-- [ ] Run the two new cases, read the actual `total`/`accepted` from the assertion output, and pin them (research predicts `163,840`/`926`/SAT and `160`/`0`/UNSAT — treat these as hypotheses to confirm, and if the actual `total` disagrees with the closed-form `_expected_candidate_count()`, that is a generator bug from Phase 1, not a number to re-pin).
-- [ ] Update the class docstring to name both grid sizes covered and the measured added wall cost.
-- [ ] Commit (green sub-step).
+- [x] Re-read the test file immediately before editing.
+- [x] Add `back`, `mid`, `fwd` parameters to `_assert_exhaustive_triangle_agrees()` and pass them to `_build()`, replacing the hard-coded `back=1, mid=1, fwd=1`. Keep the existing call sites' behavior identical by passing `1, 1, 1` explicitly for every pre-existing case.
+- [x] Add the grid to `TestExhaustiveTriangleBoxFree`'s parametrize signature and extend each existing `pytest.param` with its `1, 1, 1` grid, keeping the existing `id=` values unchanged.
+- [x] Add two new `pytest.param` entries at `back=2, mid=1, fwd=2`: `[] / ["(q \\Until p)"]` (closure size 3, expected SAT) and `["A"] / ["A"]` (closure size 1, expected UNSAT), with ids suffixed `_nb2_nf2`.
+- [x] Run the two new cases, read the actual `total`/`accepted` from the assertion output, and pin them (measured: `163,840`/`926`/SAT and `160`/`0`/UNSAT — matches research's prediction exactly, confirmed against `_expected_candidate_count()`'s closed form via the test's own triple assertion).
+- [x] Update the class docstring to name both grid sizes covered and the measured added wall cost.
+- [x] Commit (green sub-step).
 
 **Timing**: 1 hour
 
