@@ -302,7 +302,18 @@ class TestExhaustiveTriangleWithBox:
     (`512**2 * 2 * 3` -- 512 labels-per-lasso-slot choices squared for two lassos, 2 box-guess
     assignments, 3 target-window positions), 96 accepted, Z3 verdict SAT, ~11s wall clock. Marked
     `slow` (already registered in `code/pyproject.toml`) so a `-m "not slow"` local run
-    deselects it while keeping the box-free cases above."""
+    deselects it while keeping the box-free cases above.
+
+    A second case, `test_boxed_closure_enumeration_agrees_with_z3_nb2_nf2`, covers the same
+    box/witness-lasso dimensions at `back = 2, mid = 1, fwd = 2` (production's
+    `DEFAULT_EXAMPLE_SETTINGS`) for a closure of size 2 (`[] |- [\\Box A]`): 10,485,760 candidate
+    re-checks, 5,115 accepted, Z3 verdict SAT, ~64.5s wall clock on this host (selected by an
+    implementation-time measurement gate over two closure-size-2 candidates, both `slow`-marked;
+    see the task's implementation summary for the full gate record). Also `slow`-marked for the
+    same reason. The pre-existing size-3 closure above stays at `back = mid = fwd = 1` only: its
+    `nb=nf=2` enumeration is ~10.7 billion candidates (~19h extrapolated), well past what `slow`
+    can afford under CI's 300s per-test ceiling -- `slow` controls local `-m "not slow"`
+    deselection only, it grants no per-test timeout exemption."""
 
     @pytest.mark.slow
     def test_boxed_closure_enumeration_agrees_with_z3(self):
@@ -313,6 +324,17 @@ class TestExhaustiveTriangleWithBox:
             expected_accepted=96,
             expected_sat=True,
             back=1, mid=1, fwd=1,
+        )
+
+    @pytest.mark.slow
+    def test_boxed_closure_enumeration_agrees_with_z3_nb2_nf2(self):
+        _assert_exhaustive_triangle_agrees(
+            [], ["\\Box A"],
+            expected_closure_size=2,
+            expected_total=10_485_760,
+            expected_accepted=5_115,
+            expected_sat=True,
+            back=2, mid=1, fwd=2,
         )
 
 

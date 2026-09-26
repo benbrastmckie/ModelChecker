@@ -263,17 +263,17 @@ without further search.
 
 ---
 
-### Phase 4: Add the selected boxed closure as a slow-marked nb=nf=2 Tier 1 case [NOT STARTED]
+### Phase 4: Add the selected boxed closure as a slow-marked nb=nf=2 Tier 1 case [COMPLETED]
 
 **Goal**: The box-guess and two-lasso dimensions are covered at `nb=nf=2` by one `slow`-marked
 exhaustive case, with the existing `\Box A |- B` size-3 case untouched.
 
 **Tasks**:
-- [ ] Re-read the test file immediately before editing.
-- [ ] Add a second test method to `TestExhaustiveTriangleWithBox` (leaving `test_boxed_closure_enumeration_agrees_with_z3` and its numbers byte-for-byte unchanged) carrying `@pytest.mark.slow`, invoking `_assert_exhaustive_triangle_agrees` with Phase 3's selected premises/conclusions, grid, `expected_closure_size`, and Phase 3's measured `expected_total` / `expected_accepted` / `expected_sat`.
-- [ ] Extend the class docstring with the new case's measured candidate count, accepted count, verdict, and wall clock, and state explicitly that the size-3 closure stays at `back = mid = fwd = 1` because `nb=nf=2` there is ~10.7 billion candidates (~19h) — well past CI's 300s per-test ceiling, which `slow` does not lift.
-- [ ] Run the new case alone and confirm it passes with the pinned numbers and inside the wall-clock gate.
-- [ ] Commit (green sub-step).
+- [x] Re-read the test file immediately before editing.
+- [x] Add a second test method to `TestExhaustiveTriangleWithBox` (leaving `test_boxed_closure_enumeration_agrees_with_z3` and its numbers byte-for-byte unchanged) carrying `@pytest.mark.slow`, invoking `_assert_exhaustive_triangle_agrees` with Phase 3's selected premises/conclusions, grid, `expected_closure_size`, and Phase 3's measured `expected_total` / `expected_accepted` / `expected_sat`.
+- [x] Extend the class docstring with the new case's measured candidate count, accepted count, verdict, and wall clock, and state explicitly that the size-3 closure stays at `back = mid = fwd = 1` because `nb=nf=2` there is ~10.7 billion candidates (~19h) — well past CI's 300s per-test ceiling, which `slow` does not lift.
+- [x] Run the new case alone and confirm it passes with the pinned numbers and inside the wall-clock gate (measured: 64.30s, within Phase 3's <=100s gate).
+- [x] Commit (green sub-step).
 
 **Timing**: 45 minutes
 
