@@ -217,7 +217,20 @@ and contingency branches").
 
 ---
 
-### Phase 2: `semantic/symmetry.py` — the one shared group definition (TDD) [NOT STARTED]
+### Phase 2: `semantic/symmetry.py` — the one shared group definition (TDD) [COMPLETED]
+
+**Completion note**: `semantic/symmetry.py` and `tests/unit/test_symmetry.py` created, matching
+the Scope Hypothesis exactly (`git status --short` shows two new files, zero modified files under
+`code/`). All 27 new unit tests pass, including the cap-fallback branch
+(`test_falls_back_to_reduced_generating_set_over_cap`) and the periodic-`back` tie-break case
+(`test_tie_breaking_is_deterministic_for_a_periodic_back`). One design correction made during
+TDD (not a plan deviation, an implementation detail the plan left open): `certificate_orbit_key`'s
+target component is the *label* the canonical array reads at the target's canonical slot, not
+the raw canonicalized position integer -- a first pass using the raw integer failed the
+periodic-tie test, because two orbit-equivalent representatives can canonicalize to the identical
+array via shifts differing by the array's own finer period, landing the target at two different
+but label-equal slots. See the function's docstring for the full explanation. The whole bimodal
+unit suite (`356 passed`) is green with the new module in place.
 
 **Goal**: Create the single module that defines the rotation/permutation group, its action on
 decoded certificates, its action on `WitnessRegistry` variable keys, and the orbit-invariant
