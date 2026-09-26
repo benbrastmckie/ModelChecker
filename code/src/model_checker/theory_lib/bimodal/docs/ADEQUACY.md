@@ -5,11 +5,12 @@
 This document states and proves a soundness correspondence between the witness-family
 certificate design for the bimodal (`BL`) theory and the task semantics of
 `sec:Construction` in the source paper (`~/Philosophy/Papers/PossibleWorlds/JPL/possible_worlds.tex`,
-cited below by line number, e.g. `:1068`). It does **not** claim anything about the theory's
-current window-and-abundance encoding (`semantic/core.py`, `operators.py` as they stand today):
-that encoding is not a task frame in the paper's sense, and the obstruction is structural, not a
-bug — see `ARCHITECTURE.md` for the encoding this document's theorem targets and the redesign
-that produces it. It is **not** a validity claim: the theorem refutes single inferences, never
+cited below by line number, e.g. `:1068`). The certificate design it describes **is** the theory's
+shipped encoding: the window-and-abundance encoding this document was originally written against
+is retired outright (it refuted the paper's own MF axiom, which was decisive evidence it was not a
+model of the paper's semantics — see `ARCHITECTURE.md`'s "Retired Designs" and `semantic/core.py`'s
+module docstring), and `semantic/` now implements the certificate search this document's theorem
+targets. It is **not** a validity claim: the theorem refutes single inferences, never
 asserts them. It is stated for **discrete (ℤ) time only**; the reasons are recorded in
 "Why ℤ-time only" below, not assumed. The stability modal is out of scope throughout.
 
@@ -21,6 +22,11 @@ Two statements are distinguished by name and by status:
 
 All Lean citations are to `~/Projects/BimodalLogic/FormalSystem/` unless marked `BimodalTools/`.
 Every cited name was checked to resolve at the cited file and line at the time of writing.
+
+For the pipeline these statements sit inside — which component carries which guarantee, what kind
+of evidence backs each one, what is and is not in the trust base, and what remains open in this
+repository and in the Lean development — see `TRUST_PIPELINE.md`. That document cites this one
+rather than restating it.
 
 ---
 
@@ -312,7 +318,7 @@ this argument.
   structure field rather than a derived fact. Over `ℤ` it is discharged trivially
   (`Metalogic/Decidability/WitnessFamily/Std.lean:73-80`, via `Int.abs_lt_one_iff`).
 - **Saturation is free only from subsingleton fibres**
-  (`TaskFrame.saturation_of_fib_subsingleton`, consumed at `Semantics/ShiftSet.lean:171`) —
+  (`TaskFrame.saturation_of_fib_subsingleton`, consumed at `Semantics/ShiftSet.lean:172`) —
   precisely Lemma 1's argument above.
 
 **The real obstruction to state-sharing is not Limit or Saturation — it is Lemma 2 and the Box

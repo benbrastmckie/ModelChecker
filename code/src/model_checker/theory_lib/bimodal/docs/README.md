@@ -14,6 +14,10 @@ Welcome to the comprehensive documentation for the Bimodal theory implementation
 - **[Adequacy](ADEQUACY.md)** - States and proves the soundness correspondence between the
   witness-family certificate design (implemented in `semantic/`) and the paper's task semantics;
   states the open adequacy (converse) direction without asserting it. Never a validity claim.
+- **[Trust Pipeline](TRUST_PIPELINE.md)** - Walks the pipeline from a typed formula to a paper
+  countermodel stage by stage, naming for each stage the component, the guarantee, and the kind of
+  evidence behind it (theorem, decided per run, audit, property-tested); states what is and is not
+  in the trust base, and what remains open here and in the Lean development.
 
 ### Getting Started
 
@@ -57,6 +61,15 @@ Technical deep-dive including:
 - The two-phase constraint emission and the independent re-check (obligation S3)
 - The (SOUND) theorem, its four lemmas, and the Lean citation table
 - Why the design is ℤ-time only, and the retired designs it replaced
+
+### TRUST_PIPELINE.md
+The connective tissue between ADEQUACY.md (the mathematics) and ARCHITECTURE.md (the code):
+- The six pipeline stages, each with its component, guarantee and kind of evidence
+- Why the Z3 encoder, the decoder and Z3 itself are outside the soundness trust base, and why
+  the translation is consequently the weakest link
+- The (ADEQ) direction, its three components and one permanent limit
+- What remains to be done in this repository and in the Lean development
+- What supporting the stability modal would require, and the honest ceiling that remains
 
 ### SETTINGS.md
 Configuration reference with:

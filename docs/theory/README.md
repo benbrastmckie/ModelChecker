@@ -126,6 +126,35 @@ This directory contains only documentation files (no subdirectories). Each docum
 - Implementation challenges and solutions documented
 - Common patterns identified across multiple theories
 
+## Machine-Checked Foundations
+
+Most theories in this framework are validated by their test suites. The **bimodal** theory
+additionally carries a *soundness correspondence* to its source paper's semantics, with the
+mathematics machine-checked in a companion Lean development
+(`~/Projects/BimodalLogic/FormalSystem/`). That makes it the framework's worked example of a
+theory whose reported countermodels are independently re-verified rather than trusted.
+
+The design turns on one idea: the search emits a finite, independently checkable **certificate**
+instead of asking you to trust the solver. Four conditions define a good certificate; a
+machine-checked theorem takes any object satisfying them to the existence of a countermodel in the
+paper's sense; and every reported countermodel is re-decided against those conditions twice, in
+two implementations, before it is shown to you. The Z3 encoder is consequently **outside** the
+soundness trust base — an encoder defect becomes a loud rejection or a missed countermodel, never
+a false report.
+
+The converse direction is deliberately *not* asserted: a search that finds nothing reports only
+that, never validity.
+
+Documentation lives with the theory:
+
+- **[Trust Pipeline](../../code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md)** —
+  start here: the pipeline stage by stage, what kind of evidence backs each stage, what is in the
+  trust base, and what remains open
+- **[Adequacy](../../code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md)** — the
+  statements and proofs, with the Lean citation table
+- **[Architecture](../../code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md)** — the
+  implementing code
+
 ## References
 
 ### Primary Theoretical Sources
