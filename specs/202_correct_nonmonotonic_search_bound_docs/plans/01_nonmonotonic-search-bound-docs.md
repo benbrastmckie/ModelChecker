@@ -160,25 +160,25 @@ semantics and the operative rule, so every other site can cite it instead of res
 
 ---
 
-### Phase 2: `semantic/core.py` D4 docstring and settings comment [NOT STARTED]
+### Phase 2: `semantic/core.py` D4 docstring and settings comment [COMPLETED]
 
 **Goal**: Correct the two D4-scoped comment sites in `core.py` so the code's own commentary matches
 `witness_registry.py`'s already-accurate "fixed segment lengths" description.
 
 **Tasks**:
-- [ ] Rewrite the D4 docstring sentence (`semantic/core.py:35-37`): `back`/`fwd` are the *exact*
+- [x] Rewrite the D4 docstring sentence (`semantic/core.py:35-37`): `back`/`fwd` are the *exact*
       cyclic periods of the `LabelledLasso` back/fwd segments (matching `WitnessRegistry`'s
       `nb`/`nf`) and `mid` is the direct-read segment length (`nm`) — replacing "the maximum segment
       lengths of `LabelledLasso`". Keep the rest of D4 (the `N`/`M`, `max_witnesses`,
-      `contingent`/`disjoint`, `max_time`/`expectation`/`iterate`/`solver` clauses) untouched.
-- [ ] Add one sentence to D4 recording the consequence and the pointer: representability is a
+      `contingent`/`disjoint`, `max_time`/`expectation`/`iterate`/`solver` clauses) untouched. *(completed)*
+- [x] Add one sentence to D4 recording the consequence and the pointer: representability is a
       divisibility condition on `back`/`fwd`, so raising either is not monotone; see
-      `docs/SETTINGS.md` for the user-facing rule.
-- [ ] Rewrite the `DEFAULT_EXAMPLE_SETTINGS` inline comment (`:109-110`): drop "Maximum" for
+      `docs/SETTINGS.md` for the user-facing rule. *(completed)*
+- [x] Rewrite the `DEFAULT_EXAMPLE_SETTINGS` inline comment (`:109-110`): drop "Maximum" for
       `back`/`fwd` in favour of exact-period wording, and drop "raised on demand" in favour of
       "raise as a multiple of the period of interest". Keep the `WitnessRegistry` `nb`/`nm`/`nf`
-      cross-reference and the comment's two-line shape.
-- [ ] Do not touch the D6 block (`:164-170`) or any non-comment line.
+      cross-reference and the comment's two-line shape. *(completed)*
+- [x] Do not touch the D6 block (`:164-170`) or any non-comment line. *(completed)*
 
 **Timing**: 25 minutes
 

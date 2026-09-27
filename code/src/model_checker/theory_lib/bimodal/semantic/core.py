@@ -32,11 +32,17 @@ unconditionally reads `self.semantics.all_states` and `self.semantics.N`
 `'N'` is a settings key (`models/semantic.py:119`). Since the certificate encoding has no
 `'N'` setting at all, `__init__` sets `self.N = 0` and `self.all_states = []` explicitly.
 
-**D4 -- settings.** `back`/`mid`/`fwd` (the maximum segment lengths of `LabelledLasso`,
-matching `WitnessRegistry`'s `nb`/`nm`/`nf`) replace `N`/`M`; `max_witnesses` (optional,
-default `None` = uncapped) replaces `temporal_depth`. `contingent`/`disjoint` are gone
-along with the proposition-level machinery they used to gate (`proposition.py`, a later
-phase). `max_time`, `expectation`, `iterate` and `solver` are unchanged.
+**D4 -- settings.** `back`/`fwd` are the *exact* cyclic periods of `LabelledLasso`'s back/fwd
+segments (matching `WitnessRegistry`'s `nb`/`nf`), not maximum lengths; `mid` is the one
+direct-read segment length (`nm`) and is a genuine maximum. Together they replace `N`/`M`;
+`max_witnesses` (optional, default `None` = uncapped) replaces `temporal_depth`.
+`contingent`/`disjoint` are gone along with the proposition-level machinery they used to gate
+(`proposition.py`, a later phase). `max_time`, `expectation`, `iterate` and `solver` are
+unchanged. Because `WitnessRegistry.wrap()` folds back/fwd positions by exact period,
+representability of a family with period `p` at configured length `n` is the condition `p`
+divides `n`: raising `back` or `fwd` is therefore not monotone in the search it performs and
+can discard a family a smaller value represented -- see `docs/SETTINGS.md` for the user-facing
+rule (choose a multiple of the period of interest).
 
 **D5 -- the target position is a one-hot selector, not a fixed origin.** `premise_behavior`/
 `conclusion_behavior` build the guarded windowed implication `And(Implies(sel[t], bit(0, t,
@@ -106,8 +112,10 @@ class BimodalSemantics(SemanticDefaults):
     class implements and the decisions (D1-D9) it follows."""
 
     DEFAULT_EXAMPLE_SETTINGS: Dict[str, Any] = {
-        # Maximum back/mid/fwd segment lengths for the searched LabelledLasso family
-        # (matching WitnessRegistry's nb/nm/nf). Small defaults, raised on demand.
+        # back/fwd: exact cyclic periods (not maxima) of the searched LabelledLasso family's
+        # back/fwd segments (matching WitnessRegistry's nb/nf); mid: direct-read segment
+        # length (nm), a genuine maximum. Small defaults; raise back/fwd as a multiple of
+        # the period of interest, not simply larger (see docs/SETTINGS.md).
         'back': 2,
         'mid': 1,
         'fwd': 2,
