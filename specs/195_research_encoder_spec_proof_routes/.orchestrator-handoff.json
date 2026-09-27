@@ -1,16 +1,16 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "task_number": 195,
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
-  "dispatch_seq": 14,
+  "dispatch_seq": 17,
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/195_research_encoder_spec_proof_routes/plans/01_encoder-spec-proof-routes.md",
-      "summary": "6-phase documentation-plus-one-test plan integrating the encoder-specification proof-routes research into A2_GAP.md, ADEQUACY.md, and the A0 standing test."
+      "type": "summary",
+      "path": "specs/195_research_encoder_spec_proof_routes/summaries/01_encoder-spec-proof-routes-summary.md",
+      "summary": "6-phase documentation-plus-one-test implementation: three new A2_GAP.md route rows (g/h/i), the aggregate-vs-per-candidate limit, the recommendation-and-declined-routes record, ADEQUACY.md's concrete 7.1(iii) prerequisite list and max_witnesses precondition, and a swept-grid non-inconclusive A0 standing test. All phases completed with no deviations."
     }
   ],
-  "next_steps": "Run /implement 195 to execute the plan",
-  "notes": "Report's Stage 1/2a-code/2b/2c/3/4 recommendations are deliberately excluded: they are owned by separate tasks or other repositories. Plan scope is the unabsorbed documentation conclusions plus the two in-file-scope free wins."
+  "next_steps": "Implementation complete; no further /implement dispatch needed for this round. Follow-up work (per-candidate differential strengthening, round-trip inverse, closure differential, external bounded-enumerator ask) is owned by separate tasks per this plan's non-goals.",
+  "notes": "Bimodal suite: 528 passed in 140.60s (up from the 508-passed prior-run hypothesis by the net +20 new A0FrameClass parametrized cases). Four-theory gate: 645 passed, 5 skipped in 47.50s (matches prior-run hypothesis exactly). No task-number references leaked into code/**. All cross-references verified to resolve."
 }

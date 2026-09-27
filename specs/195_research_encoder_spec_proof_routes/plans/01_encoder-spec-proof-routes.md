@@ -1,7 +1,7 @@
 # Implementation Plan: Task #195
 
 - **Task**: 195 - research_encoder_spec_proof_routes
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6.5 hours
 - **Dependencies**: 192 (A2_GAP.md, complete), 193/194/201/202 (complete; their edits are the
   baseline this plan builds on)
@@ -426,30 +426,38 @@ what reproduces.
 
 ---
 
-### Phase 6: Cross-document consistency gate and full-suite verification [NOT STARTED]
+### Phase 6: Cross-document consistency gate and full-suite verification [COMPLETED]
 
 **Goal**: The edited documents agree with each other and with the code they describe, and the test
 suites are green.
 
 **Tasks**:
 
-- [ ] Grep for contradictions introduced by this round: every statement about what the A2-triangle
+- [x] Grep for contradictions introduced by this round: every statement about what the A2-triangle
       test establishes (`A2_GAP.md` sections 8 and 10, `ADEQUACY.md` section 7.3) must agree that
-      the enumeration is exhaustive and the comparison is aggregate.
-- [ ] Grep for `max_witnesses` across `docs/` and confirm `ADEQUACY.md`, `SETTINGS.md`,
+      the enumeration is exhaustive and the comparison is aggregate. *(completed: no contradiction
+      found; all statements agree)*
+- [x] Grep for `max_witnesses` across `docs/` and confirm `ADEQUACY.md`, `SETTINGS.md`,
       `USER_GUIDE.md`, `API_REFERENCE.md` and `witness_registry.py`'s docstring make one consistent
-      claim (under-complete when capped below the boxed-subformula count; never unsound).
-- [ ] Confirm every new cross-reference resolves: each cited section heading exists in the file it
-      is cited from, and each cited symbol exists in the module named.
-- [ ] Run the task-reference lint over the touched files and confirm no task numbers leaked into
+      claim (under-complete when capped below the boxed-subformula count; never unsound). *(completed:
+      one consistent claim across all five sources, no unsoundness claim anywhere)*
+- [x] Confirm every new cross-reference resolves: each cited section heading exists in the file it
+      is cited from, and each cited symbol exists in the module named. *(completed: verified
+      subformula_closure, extract_certificate, _setup_solver/assert_tracked, closureOf, symmetry.py,
+      iterate.py all resolve; ADEQUACY.md sections 7.1/7.2/7.3/7.4 and A2_GAP.md section 9's
+      corollary all resolve)*
+- [x] Run the task-reference lint over the touched files and confirm no task numbers leaked into
       `code/**` (`bash .claude/scripts/check-task-references.sh`, or a scoped
-      `grep -nEi 'task [0-9]+' ` over the four touched files).
-- [ ] Run the bimodal suite:
+      `grep -nEi 'task [0-9]+' ` over the four touched files). *(completed: clean, no hits in
+      A2_GAP.md, ADEQUACY.md, or test_structure.py)*
+- [x] Run the bimodal suite:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` and record
-      the counts.
-- [ ] Run the four-theory gate: `PYTHONPATH=code/src pytest code/tests/ -q` and record the counts.
-- [ ] Record all recorded counts and the measured sweep runtimes in the phase notes for the
-      summary.
+      the counts. *(completed: 528 passed in 140.60s -- up from the 508-passed hypothesis by the
+      net +20 new A0FrameClass parametrized cases; no decrease)*
+- [x] Run the four-theory gate: `PYTHONPATH=code/src pytest code/tests/ -q` and record the counts.
+      *(completed: 645 passed, 5 skipped in 47.50s -- matches the prior-run hypothesis exactly)*
+- [x] Record all recorded counts and the measured sweep runtimes in the phase notes for the
+      summary. *(completed: see Verification below and phase notes)*
 
 **Timing**: 0.5 hours
 
@@ -477,17 +485,17 @@ reports, and investigate a decrease rather than adjusting the expectation.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py -k A0FrameClass -v`
-      passes across the full confirmed grid, with `timeout is False` asserted at every point.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` green.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -q` green (four-theory gate).
-- [ ] No task-number reference in any file touched under `code/**`.
-- [ ] `A2_GAP.md` section 10 lists nine routes, each classified by section 2's link types or as
-      removing the obligation.
-- [ ] `ADEQUACY.md` section 7.1 carries the (iii-a)-(iii-e) prerequisite list with exactly one
-      prerequisite marked blocking.
-- [ ] `ADEQUACY.md` states the `max_witnesses` precondition in at least the (ADEQ) statement, the
-      component table, and section 7.3.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py -k A0FrameClass -v`
+      passes across the full confirmed grid, with `timeout is False` asserted at every point. *(completed: 22 passed)*
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` green. *(completed: 528 passed in 140.60s)*
+- [x] `PYTHONPATH=code/src pytest code/tests/ -q` green (four-theory gate). *(completed: 645 passed, 5 skipped in 47.50s)*
+- [x] No task-number reference in any file touched under `code/**`. *(completed: verified clean)*
+- [x] `A2_GAP.md` section 10 lists nine routes, each classified by section 2's link types or as
+      removing the obligation. *(completed: (a)-(i))*
+- [x] `ADEQUACY.md` section 7.1 carries the (iii-a)-(iii-e) prerequisite list with exactly one
+      prerequisite marked blocking. *(completed)*
+- [x] `ADEQUACY.md` states the `max_witnesses` precondition in at least the (ADEQ) statement, the
+      component table, and section 7.3. *(completed)*
 
 ## Artifacts & Outputs
 
