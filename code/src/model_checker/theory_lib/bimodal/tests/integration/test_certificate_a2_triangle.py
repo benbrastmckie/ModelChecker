@@ -22,24 +22,34 @@ odd-magnitude position -- a defect the `back = mid = fwd = 1` grid alone cannot 
 on the fixture corpus -- that module's own docstring names this as discharging section 7.3's
 re-checker leg. Leg (iii), the encoding-*completeness* direction, is what this module adds: it
 is the only place in the suite that builds the real `BimodalStructure`/Z3 search and compares its
-aggregate verdict against the exhaustive enumeration's. A disagreement localizes a specific
-defect (section 7.3): accepted candidates with Z3 UNSAT is an **encoding incompleteness** (a
-real countermodel the encoder's constraints cannot find); no accepted candidates with Z3 SAT is
-an **encoding unsoundness** (the encoder accepts something the re-checker would reject) -- caught
-at run time by section 6.2's fail-fast guard, but this test finds it here instead.
+verdict -- now **per candidate**, not merely in aggregate -- against the exhaustive enumeration's.
+Each candidate's leg (iii) side is a solver-free evaluation of the encoding's own emitted Z3
+constraint list (`_pinned_eval.py`'s compile-once, interpret-many evaluator), pinned to that
+candidate's data -- not a second Z3 search -- so it stays cheap enough to run once per candidate
+across the whole enumeration. A disagreement, at either the aggregate or the per-candidate level,
+localizes a specific defect (section 7.3): a candidate the encoding accepts but the re-checker
+rejects (or, in aggregate, accepted candidates with Z3 UNSAT) is an **encoding incompleteness** (a
+real countermodel the encoder's constraints cannot find); a candidate the re-checker accepts but
+the encoding rejects (or, in aggregate, no accepted candidates with Z3 SAT) is an **encoding
+unsoundness** (the encoder accepts something the re-checker would reject) -- caught at run time by
+section 6.2's fail-fast guard, but this test finds it here instead. The per-candidate comparison
+strictly refines the aggregate one: up to millions of candidates collapsing into a single
+SAT/UNSAT agreement can no longer hide a candidate-level divergence that happens to cancel out in
+the totals.
 
 Two tiers:
 
 - **Tier 1** (`TestExhaustiveTriangleBoxFree`, `TestExhaustiveTriangleWithBox`): exhaustive over
-  every candidate at both grid sizes, comparing legs (i) and (iii) only -- affordable
-  unconditionally at `back = mid = fwd = 1` for every closure and at `back = 2, mid = 1, fwd = 2`
-  for the box-free closures (measured at plan time: <0.1s for a box-free closure at the smaller
-  grid, ~1.06s combined for both box-free closures at the wider grid); the single-box closures
-  are `slow`-marked at both grid sizes (~11s at `back = mid = fwd = 1`, ~64.5s at
-  `back = 2, mid = 1, fwd = 2` -- see `TestExhaustiveTriangleWithBox`'s own comment). The
-  pre-existing size-3 boxed closure stays `back = mid = fwd = 1`-only: its `nb=nf=2` enumeration
-  is ~10.7 billion candidates (~19h extrapolated), well past what `slow` can afford under CI's
-  300s per-test ceiling.
+  every candidate at both grid sizes, comparing legs (i) and (iii) per candidate (plus the
+  pre-existing aggregate cross-check) -- affordable unconditionally at `back = mid = fwd = 1` for
+  every closure and at `back = 2, mid = 1, fwd = 2` for the box-free closures (measured at plan
+  time, aggregate-only: <0.1s for a box-free closure at the smaller grid, ~1.06s combined for both
+  box-free closures at the wider grid; see this module's implementation summary for the
+  per-candidate-comparison figures); the single-box closures are `slow`-marked at both grid sizes
+  (~11s at `back = mid = fwd = 1`, ~64.5s at `back = 2, mid = 1, fwd = 2` aggregate-only -- see
+  `TestExhaustiveTriangleWithBox`'s own comment). The pre-existing size-3 boxed closure stays
+  `back = mid = fwd = 1`-only: its `nb=nf=2` enumeration is ~10.7 billion candidates (~19h
+  extrapolated), well past what `slow` can afford under CI's 300s per-test ceiling.
 - **Tier 2** (`TestBoundedLeanCrossCheck`): leg (ii) on a small, deterministic, named sample of
   candidates plus the live Z3-extracted certificate, reusing `_lean_check.py`'s skip discipline
   so it degrades to a clean skip (never a failure) without a BimodalLogic checkout. Unchanged by
@@ -66,6 +76,7 @@ from model_checker.theory_lib.bimodal.semantic.formula import Box, Formula
 from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
 from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
 from model_checker.theory_lib.bimodal.tests._lean_check import SKIP_REASON, run_check_certificate
+from model_checker.theory_lib.bimodal.tests._pinned_eval import compile_and_bind
 
 Candidate = Tuple[WitnessFamily, int]
 SampledCandidate = Tuple[WitnessFamily, int, Dict[str, Any]]
@@ -154,11 +165,22 @@ def _candidates(structure: BimodalStructure) -> Iterator[Candidate]:
                 yield family, t
 
 
-def _run_exhaustive_triangle(structure: BimodalStructure) -> Tuple[int, int]:
-    """Enumerate every candidate for `structure`'s closure, re-check each against leg (i), and
-    return `(total_candidates, accepted_candidates)`."""
+def _run_exhaustive_triangle(structure: BimodalStructure) -> Tuple[int, int, int]:
+    """Enumerate every candidate for `structure`'s closure and compare legs (i) and (iii) at the
+    per-candidate level, not just in aggregate: for each candidate, `recheck`'s verdict (leg i)
+    is compared against a solver-free pinned evaluation of the encoding's own emitted constraint
+    set (`_pinned_eval.compile_and_bind`), compiled once before this loop and bound to
+    `structure`'s registry shape, under that exact candidate's data. A candidate where the two
+    disagree raises immediately -- the differential firing at the single-candidate level, which
+    an aggregate-only comparison (both sides' totals happening to agree) cannot see. See
+    `_assert_exhaustive_triangle_agrees` for how the two counts are additionally cross-checked
+    once the enumeration completes.
+
+    Returns `(total_candidates, accepted_candidates, pinned_accepted_candidates)`."""
     total = 0
     accepted = 0
+    pinned_accepted = 0
+    compiled, builder = compile_and_bind(structure)
     for family, target_time in _candidates(structure):
         total += 1
         verdict = recheck(
@@ -167,9 +189,40 @@ def _run_exhaustive_triangle(structure: BimodalStructure) -> Tuple[int, int]:
             structure.semantics._conclusion_formulas,
             target_time,
         )
-        if verdict["status"] == "countermodel":
+        recheck_accepts = verdict["status"] == "countermodel"
+        if recheck_accepts:
             accepted += 1
-    return total, accepted
+
+        row = builder.assign(family, target_time)
+        pinned_accepts = compiled.evaluate_all(row)
+        if pinned_accepts:
+            pinned_accepted += 1
+
+        if pinned_accepts != recheck_accepts:
+            if pinned_accepts:
+                detail = (
+                    "the encoding's own emitted constraint set ACCEPTS this candidate but the "
+                    "pure-Python re-checker REJECTS it -- ADEQUACY.md section 7.3: an ENCODING "
+                    f"UNSOUNDNESS at the single-candidate level (recheck's failed entries: "
+                    f"{verdict.get('failed')!r})"
+                )
+            else:
+                first_false = compiled.first_false(row)
+                offending = compiled.describe(first_false) if first_false is not None else "<none>"
+                detail = (
+                    "the pure-Python re-checker ACCEPTS this candidate but the encoding's own "
+                    "emitted constraint set REJECTS it -- ADEQUACY.md section 7.3: an ENCODING "
+                    f"INCOMPLETENESS at the single-candidate level (first-failing constraint: "
+                    f"{offending})"
+                )
+            raise AssertionError(
+                f"A2-triangle PER-CANDIDATE disagreement at candidate #{total} "
+                f"(family={family!r}, target_time={target_time!r}): {detail}. Report this as a "
+                "finding -- do not weaken this assertion, drop the closure, or diagnose the "
+                "encoder (out of scope)."
+            )
+
+    return total, accepted, pinned_accepted
 
 
 def _expected_candidate_count(structure: BimodalStructure, closure_size: int) -> int:
@@ -218,7 +271,7 @@ def _assert_exhaustive_triangle_agrees(
         "editing them blind (Scope Hypothesis, plan Phases 2-3)"
     )
 
-    total, accepted = _run_exhaustive_triangle(structure)
+    total, accepted, pinned_accepted = _run_exhaustive_triangle(structure)
 
     expected_formula_total = _expected_candidate_count(structure, expected_closure_size)
     assert total == expected_formula_total == expected_total, (
@@ -227,6 +280,12 @@ def _assert_exhaustive_triangle_agrees(
     assert accepted == expected_accepted, (
         f"accepted candidate count changed: expected {expected_accepted}, got {accepted} for "
         f"premises={premises!r} conclusions={conclusions!r}"
+    )
+    assert pinned_accepted == accepted, (
+        f"pinned per-candidate evaluator's accepted count ({pinned_accepted}) != re-checker's "
+        f"accepted count ({accepted}) for premises={premises!r} conclusions={conclusions!r} -- "
+        "should be unreachable, since `_run_exhaustive_triangle` raises on the first "
+        "per-candidate divergence rather than letting the counts silently drift apart"
     )
 
     assert (accepted > 0) == structure.z3_model_status == expected_sat, (

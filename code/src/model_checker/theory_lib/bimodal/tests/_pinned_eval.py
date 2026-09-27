@@ -71,6 +71,7 @@ __all__ = [
     "PinnedAssignmentBuilder",
     "compile_constraints",
     "builder_for",
+    "full_constraints",
     "compile_and_bind",
     "check_coverage",
 ]
@@ -389,11 +390,40 @@ def builder_for(structure, atom_index: Mapping[str, int]) -> PinnedAssignmentBui
     )
 
 
+def full_constraints(structure) -> List["z3.BoolRef"]:
+    """The complete Z3 constraint set actually given to the solver for `structure` -- **not**
+    `structure.model_constraints.all_constraints`, which is stale by construction for this
+    theory. `ModelConstraints.__init__` (`models/constraints.py`) computes `all_constraints` once,
+    via `frame_constraints + model_constraints + premise_constraints + conclusion_constraints` --
+    a list `+`, which snapshots `frame_constraints`'s *contents at that moment*.
+    `BimodalSemantics.finalize_certificate()` (local coherence, fulfilment, box faithfulness, and
+    the target selector's exactly-one constraint -- the bulk of the real encoding) runs later,
+    from `BimodalStructure._setup_solver`'s override, and extends `semantics.frame_constraints`
+    *in place*. `ModelConstraints.frame_constraints` is the *same list object* (confirmed: `is`,
+    not `==`), so it does pick up those later additions, but the already-concatenated
+    `all_constraints` list does not -- it stays frozen at whatever `frame_constraints` held
+    before `finalize_certificate` ran (empty, for every case in this module, since `_build`
+    constructs `ModelConstraints` before any `BimodalStructure` exists). `models/structure.py`'s
+    own real solve (`_setup_solver`, called only after `finalize_certificate`) builds its
+    constraint groups from `model_constraints.frame_constraints` directly, never from
+    `all_constraints` -- so re-concatenating the four constituent lists here, post-construction,
+    is what actually reproduces what Z3 was asked to solve; reading `all_constraints` instead
+    would silently compile against a near-empty stand-in and manufacture false per-candidate
+    divergences that have nothing to do with the encoder."""
+    mc = structure.model_constraints
+    return (
+        list(mc.frame_constraints)
+        + list(mc.model_constraints)
+        + list(mc.premise_constraints)
+        + list(mc.conclusion_constraints)
+    )
+
+
 def compile_and_bind(structure) -> Tuple[CompiledConstraints, PinnedAssignmentBuilder]:
-    """Compile `structure.model_constraints.all_constraints` once and bind an assignment
-    builder to the same structure -- the pairing the Tier 1 hot loop needs, built exactly once
-    before the enumeration starts."""
-    compiled = compile_constraints(structure.model_constraints.all_constraints)
+    """Compile `full_constraints(structure)` once and bind an assignment builder to the same
+    structure -- the pairing the Tier 1 hot loop needs, built exactly once before the
+    enumeration starts."""
+    compiled = compile_constraints(full_constraints(structure))
     builder = builder_for(structure, compiled.atom_index)
     return compiled, builder
 

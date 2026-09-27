@@ -244,31 +244,54 @@ extend Phase 1's evaluator rather than loosening the assertion.
 
 ---
 
-### Phase 3: Wire the per-candidate comparison into the Tier 1 helper [NOT STARTED]
+### Phase 3: Wire the per-candidate comparison into the Tier 1 helper [COMPLETED]
 
 **Goal**: The Tier 1 body compares legs (i) and (iii) candidate by candidate, failing on the first
 divergence with enough detail to diagnose it, while retaining the existing aggregate assertions.
 
 **Tasks**:
-- [ ] Re-read `tests/integration/test_certificate_a2_triangle.py` immediately before editing
+- [x] Re-read `tests/integration/test_certificate_a2_triangle.py` immediately before editing
       (concurrent task 195 declares it in its `file_scope`).
-- [ ] In `_run_exhaustive_triangle` (`:157-171`), compile once before the loop
+- [x] In `_run_exhaustive_triangle` (`:157-171`), compile once before the loop
       (`compile_constraints(structure.model_constraints.all_constraints)`), bind the assignment
       builder once, and inside the existing loop:
-  - [ ] compute `pinned = compiled.evaluate_all(builder.assign(family, target_time))`
-  - [ ] compare against `verdict["status"] == "countermodel"`; on inequality, raise immediately
+
+**Deviation (a genuine harness bug found and fixed, not an encoder finding)**: compiling
+literally against `structure.model_constraints.all_constraints`, as this task's own dispatch and
+this bullet named it, manufactured a false per-candidate divergence on the very first Tier 1
+case. Root cause, confirmed by direct inspection: `ModelConstraints.__init__`
+(`models/constraints.py:97-99`) computes `all_constraints` via list `+` at construction time,
+which snapshots `frame_constraints`'s *contents at that moment* -- empty, since
+`BimodalSemantics.finalize_certificate()` (the bulk of the real encoding: local coherence,
+fulfilment, box faithfulness, the target selector's exactly-one) runs later, from
+`BimodalStructure._setup_solver`'s override, and extends `semantics.frame_constraints` *in
+place*. `ModelConstraints.frame_constraints` is confirmed (`is`, not `==`) to be that same list
+object, so it does pick up the later additions, but the already-concatenated `all_constraints`
+list does not -- verified directly: 1 constraint in `all_constraints` vs. 13 in
+`frame_constraints + model_constraints + premise_constraints + conclusion_constraints`
+post-construction, for the same structure. `models/structure.py`'s own real solve builds its
+constraint groups from `model_constraints.frame_constraints` directly, confirming the
+reconstructed set (not `all_constraints`) is what Z3 actually checked. Fixed by adding
+`_pinned_eval.full_constraints(structure)` (re-concatenates the four constituent lists
+post-construction) and using it in place of `all_constraints` everywhere, including in the
+Phase 1/2 unit tests. This is an implementation-harness defect this task introduced and fixed
+in its own new code, not a divergence in the encoder under test, so it is not reported as an
+A2 finding -- but is worth a follow-up note (Phase 5) since `models/structure.py`'s own debug
+print at `:344-349` reads the same stale `all_constraints` attribute.
+  - [x] compute `pinned = compiled.evaluate_all(builder.assign(family, target_time))`
+  - [x] compare against `verdict["status"] == "countermodel"`; on inequality, raise immediately
         with the first-divergence report: the candidate (`family`, `target_time`), which side
         accepted, the offending constraint's text via `describe(first_false(...))` when the
         encoding rejected, `recheck`'s `failed` entries when `recheck` rejected, and the
         incompleteness-vs-unsoundness reading from `ADEQUACY.md` section 7.3
-  - [ ] return the pinned-accepted count alongside `(total, accepted)` so the aggregate assertion
+  - [x] return the pinned-accepted count alongside `(total, accepted)` so the aggregate assertion
         can also cross-check the two counts are equal
-- [ ] In `_assert_exhaustive_triangle_agrees` (`:195-244`), assert `pinned_accepted == accepted`
+- [x] In `_assert_exhaustive_triangle_agrees` (`:195-244`), assert `pinned_accepted == accepted`
       and keep the existing count, accepted-count, `(accepted > 0) == z3_model_status ==
       expected_sat`, and extracted-certificate assertions unchanged.
-- [ ] Keep the failure message's "Report this as a finding -- do not weaken this assertion or drop
+- [x] Keep the failure message's "Report this as a finding -- do not weaken this assertion or drop
       the closure" directive, extended to the per-candidate case.
-- [ ] Run the four unconditional box-free cases (`-m "not slow"`) to GREEN; commit (staging only
+- [x] Run the four unconditional box-free cases (`-m "not slow"`) to GREEN; commit (staging only
       this task's own files, explicitly listed).
 
 **Timing**: 1.25 hours

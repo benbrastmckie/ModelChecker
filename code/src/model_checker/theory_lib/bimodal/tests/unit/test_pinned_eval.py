@@ -38,6 +38,7 @@ from model_checker.theory_lib.bimodal.tests._pinned_eval import (
     check_coverage,
     compile_and_bind,
     compile_constraints,
+    full_constraints,
 )
 
 
@@ -259,23 +260,25 @@ _TIER1_SETTINGS = [
 
 class TestOperatorInventoryIsClosed:
     """Finding 4/5, machine-checked rather than trusted: every node in
-    `structure.model_constraints.all_constraints` compiles without raising, for both box-free
-    and boxed closures at both grid sizes."""
+    `full_constraints(structure)` (the complete, post-`finalize_certificate` constraint set --
+    see that function's docstring for why `structure.model_constraints.all_constraints` itself
+    is NOT this set) compiles without raising, for both box-free and boxed closures at both grid
+    sizes."""
 
     @pytest.mark.parametrize("back, mid, fwd", _TIER1_SETTINGS)
     def test_box_free_closure(self, back, mid, fwd):
         structure = _build([], ["(p \\Until q)"], back=back, mid=mid, fwd=fwd)
         # Must not raise UnsupportedOperatorError.
-        compile_constraints(structure.model_constraints.all_constraints)
+        compile_constraints(full_constraints(structure))
 
     @pytest.mark.parametrize("back, mid, fwd", _TIER1_SETTINGS)
     def test_boxed_closure(self, back, mid, fwd):
         structure = _build(["\\Box A"], ["B"], back=back, mid=mid, fwd=fwd)
-        compile_constraints(structure.model_constraints.all_constraints)
+        compile_constraints(full_constraints(structure))
 
     def test_every_leaf_atom_matches_one_of_three_families(self):
         structure = _build(["\\Box A"], ["B"], back=1, mid=1, fwd=1)
-        compiled = compile_constraints(structure.model_constraints.all_constraints)
+        compiled = compile_constraints(full_constraints(structure))
         for name in compiled.atom_index:
             assert name.startswith("lab_") or name.startswith("bx_") or name.startswith("sel_"), (
                 f"atom name {name!r} outside the three closed families"
@@ -290,7 +293,7 @@ class TestAssignmentCoverage:
     @pytest.mark.parametrize("back, mid, fwd", _TIER1_SETTINGS)
     def test_box_free_coverage(self, back, mid, fwd):
         structure = _build([], ["(p \\Until q)"], back=back, mid=mid, fwd=fwd)
-        compiled = compile_constraints(structure.model_constraints.all_constraints)
+        compiled = compile_constraints(full_constraints(structure))
         builder = builder_for(structure, compiled.atom_index)
         assert structure.certificate is not None
         assert structure.target_time is not None
@@ -300,7 +303,7 @@ class TestAssignmentCoverage:
     @pytest.mark.parametrize("back, mid, fwd", _TIER1_SETTINGS)
     def test_boxed_coverage(self, back, mid, fwd):
         structure = _build(["\\Box A"], ["B"], back=back, mid=mid, fwd=fwd)
-        compiled = compile_constraints(structure.model_constraints.all_constraints)
+        compiled = compile_constraints(full_constraints(structure))
         builder = builder_for(structure, compiled.atom_index)
         assert structure.certificate is not None
         assert structure.target_time is not None
