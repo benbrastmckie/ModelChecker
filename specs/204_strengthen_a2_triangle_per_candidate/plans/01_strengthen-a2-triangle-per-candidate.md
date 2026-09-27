@@ -406,7 +406,7 @@ commitment.
 
 ---
 
-### Phase 5: Full gate, Tier 2 clean-skip check, and findings report [NOT STARTED]
+### Phase 5: Full gate, Tier 2 clean-skip check, and findings report [IN PROGRESS]
 
 **Goal**: Close the task against the repository's full gate, confirm Tier 2's clean-skip discipline
 is intact, and report any genuine divergence as a finding without diagnosing it.

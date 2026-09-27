@@ -1,5 +1,5 @@
 ---
-next_project_number: 205
+next_project_number: 206
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 205
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 197,198,203,204 | -- | testing, semantics |
+| 1 | 197,198,203,204,205 | -- | architecture, testing, semantics |
 | 2 | 199,200 | 197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -20,21 +20,43 @@ next_project_number: 205
 
 199 [NOT STARTED] — Write the round-trip ledger in...
 
+### Architecture
+
+205 [NOT STARTED] — Improve the organization, implementation, and performance of...
+
 ### Testing
 
-204 [PLANNED] — Strengthen the A2-triangle encoding-completeness differential...
+204 [IMPLEMENTING] — Strengthen the A2-triangle encoding-completeness differential...
 
 ### Semantics
 
 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
-203 [PLANNED] — Research and recommend whether the bimodal search should...
+203 [IMPLEMENTING] — Research and recommend whether the bimodal search should...
 
 ## Tasks
 
+### 205. Improve verification infrastructure
+- **Status**: [NOT STARTED]
+- **Task Type**: z3
+- **Topic**: architecture
+- **Dependencies**: None
+
+**Description**: Improve the organization, implementation, and performance of the bimodal verification infrastructure end to end, refactoring wherever that produces a better result rather than preserving current structure. The infrastructure in scope is the A2-triangle differential harness (code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py, its Tier 1 exhaustive enumeration and Tier 2 bounded Lean cross-check), the compile-once pinned evaluator and candidate-to-assignment builder (tests/_pinned_eval.py), the search-coverage and slot-folding pins (tests/integration/test_search_period_coverage.py, tests/unit/test_witness_registry.py), the A0 standing tests (tests/unit/test_structure.py), the certificate export and re-check plumbing they exercise (semantic/core.py extract_certificate, certificate.py), and the documents that state what they establish (docs/ADEQUACY.md, docs/A2_GAP.md, docs/SEARCH_COVERAGE.md). Three axes, all grounded in measured facts rather than speculation.
+
+ORGANIZATION: verification support code currently sits in the test tree as tests/_pinned_eval.py while behaving like a library; tier membership is expressed partly in a module docstring, partly in per-class pytest markers, and partly in a class-level skipif; grid configurations and premise families are restated across test modules. Assess whether a single coherent harness with one declarative tier and configuration registry would be better, and whether the evaluator belongs outside the test tree given it may become a production-path conformance checker.
+
+PERFORMANCE: the widest boxed Tier 1 case measures 123.29s over 10,485,760 candidates under CI's exact invocation shape (pytest -n 4 --timeout=300 --timeout-method=thread), which is 1.91x the aggregate-only baseline and leaves roughly 59 percent headroom against the 300s per-test ceiling, assuming CI hardware no more than about 2.4x slower than the measuring host. Evaluate whether that margin should be widened, and compare at least: moving the widest case off the per-PR path to a scheduled run while keeping the 17.77s case in the PR gate; sharing solved structures across cases via pytest fixtures instead of re-solving; caching or reusing the compiled evaluator across configurations; and any algorithmic reduction of the enumeration itself. Measure before and after under the same CI shape, and do not narrow any enumeration to buy speed without saying so explicitly.
+
+IMPLEMENTATION AND TRUST: the pinned evaluator reads the same all_constraints the encoder emits, so the differential establishes encoder and re-checker agreement on the emitted formula, not that the emitted formula is the specified one, which is A2's open half. The existing operator-inventory and atom-coverage guards already check that the emitted set draws only from a closed six-operator, three-atom-family vocabulary, which is a primitive form of a structural conformance check. Evaluate extending those guards toward a check that the emitted Z3 constraint set conforms to the (C1)-(C4) schema instantiated at the configured bounds, which would be linear in formula size rather than in candidate space and would cover the configuration actually run rather than only the sampled grid. Also assess the duplication between the assignment builder and extract_certificate, which are mechanical inverses of each other. Report any genuine encoder divergence as a finding rather than diagnosing it.
+
+Out of scope: the A1 compression bound, the back-prime by fwd-prime sweep driver, and any change that weakens what the existing tests establish.
+
+---
+
 ### 204. Strengthen a2 triangle per candidate
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
@@ -46,7 +68,7 @@ next_project_number: 205
 ---
 
 ### 203. Research divisor period search coverage
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None
