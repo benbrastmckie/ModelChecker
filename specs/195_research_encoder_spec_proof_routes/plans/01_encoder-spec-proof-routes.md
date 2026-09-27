@@ -325,27 +325,28 @@ the condition satisfiable in principle today.
 
 ---
 
-### Phase 4: ADEQUACY.md — `max_witnesses` as a stated precondition of A2 and A3 [NOT STARTED]
+### Phase 4: ADEQUACY.md — `max_witnesses` as a stated precondition of A2 and A3 [COMPLETED]
 
 **Goal**: `ADEQUACY.md` no longer omits the witness-lasso budget: the (ADEQ) statement and the A2
 and A3 rows carry the precondition, and section 7.3 states it where the A2 claim is made.
 
 **Tasks**:
 
-- [ ] Re-read `docs/ADEQUACY.md` section 7's (ADEQ) statement, the component table, and section 7.3
-      immediately before editing.
-- [ ] Add the precondition to the (ADEQ) statement: the search's completeness claim holds only when
+- [x] Re-read `docs/ADEQUACY.md` section 7's (ADEQ) statement, the component table, and section 7.3
+      immediately before editing. *(completed)*
+- [x] Add the precondition to the (ADEQ) statement: the search's completeness claim holds only when
       `max_witnesses` is `None` (the default) or at least the number of boxed subformulas in the
       closure. A cap below that *forces* witness-lasso sharing (round-robin reassignment once the
       cap is reached), which trades completeness for a bounded search — as
       `semantic/witness_registry.py`'s own module docstring and `docs/SETTINGS.md`'s Witness Budget
-      section both already record. Note that it never affects soundness.
-- [ ] Add the same precondition, in one clause, to the A2 and A3 rows of the component table.
-- [ ] In section 7.3, state the precondition beside the A2 statement, and note that the A2-triangle
-      test runs uncapped so the standing evidence is evidence for the uncapped case.
-- [ ] Cross-reference `SETTINGS.md`'s Witness Budget section rather than restating its numbers.
-- [ ] Add a one-line pointer from section 7.1's (iii-d) bullet (Phase 3) to whichever of these
+      section both already record. Note that it never affects soundness. *(completed)*
+- [x] Add the same precondition, in one clause, to the A2 and A3 rows of the component table. *(completed)*
+- [x] In section 7.3, state the precondition beside the A2 statement, and note that the A2-triangle
+      test runs uncapped so the standing evidence is evidence for the uncapped case. *(completed)*
+- [x] Cross-reference `SETTINGS.md`'s Witness Budget section rather than restating its numbers. *(completed)*
+- [x] Add a one-line pointer from section 7.1's (iii-d) bullet (Phase 3) to whichever of these
       locations carries the full statement, so the precondition is stated once and cited twice.
+      *(completed: pointer added in Phase 3's (iii-d) bullet, now resolving to section 7.3)*
 
 **Timing**: 1 hour
 

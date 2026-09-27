@@ -527,6 +527,14 @@ configured length `n` iff `p` divides `n` — magnitude alone does not suffice, 
 condition can be false even when the underlying family exists (§7.1 states the two routes to a
 genuine sufficient condition).*
 
+**Precondition: `max_witnesses`.** (ADEQ) additionally presupposes that `max_witnesses` is `None`
+(the default) or at least the number of boxed subformulas in the closure. A cap below that count
+*forces* witness-lasso sharing — round-robin reassignment of further boxed subformulas to
+already-allocated lasso indices once the cap is reached — which trades completeness for a bounded
+search, exactly as `semantic/witness_registry.py`'s own module docstring and `SETTINGS.md`'s
+Witness Budget section already record. This never affects soundness: a witness constraint
+generated against a shared lasso is exactly as valid as one against a dedicated one.
+
 **This direction must not be asserted.** It is bounded-search-relative, it is stated at frame
 class ℤ-time only, and it decomposes into three components plus one permanent limit:
 
@@ -534,8 +542,8 @@ class ℤ-time only, and it decomposes into three components plus one permanent 
 |---|---|---|
 | **A0** | Frame-class gap: ℤ-time completeness does not imply completeness for `def:logical-consequence` at every temporal order | **Permanent limit.** §7.2. |
 | **A1** | Compression: a ℤ-time countermodel yields a certificate with lengths bounded by `f(\|C\|)` | **Open.** Route named, not built. §7.1. |
-| **A2** | Encoding completeness: a certificate within the configured lengths implies the Z3 encoding is SAT | **Provable and testable now.** §7.3. |
-| **A3** | Bound realization: configured `back`/`fwd` are common multiples of the compressed family's periods (each bounded by `f(\|C\|)`), and `mid` is at least its mid length — a representability, not a magnitude, condition | Vacuous until A1 supplies `f`. |
+| **A2** | Encoding completeness: a certificate within the configured lengths implies the Z3 encoding is SAT (precondition: `max_witnesses` is `None` or at least the boxed-subformula count) | **Provable and testable now.** §7.3. |
+| **A3** | Bound realization: configured `back`/`fwd` are common multiples of the compressed family's periods (each bounded by `f(\|C\|)`), and `mid` is at least its mid length — a representability, not a magnitude, condition (precondition: `max_witnesses` is `None` or at least the boxed-subformula count) | Vacuous until A1 supplies `f`. |
 
 ### 7.1 A1 — compression, open, with the route named
 
@@ -672,7 +680,12 @@ per-route analysis of what would actually close the gap. It extends this section
 replace it.
 
 A2 holds iff the Z3 constraint set is exactly the conjunction of (C1)–(C4) over windows at least
-as wide as §5.2's, with no extra constraint. It is testable today, without A1:
+as wide as §5.2's, with no extra constraint. It is testable today, without A1. **Precondition**:
+this holds only when `max_witnesses` is `None` (the default) or at least the number of boxed
+subformulas in the closure — see §7's precondition note above and `SETTINGS.md`'s Witness Budget
+section; a capped search is under-complete by this precondition, never unsound. The A2-triangle
+test below runs uncapped (`max_witnesses` unset), so the standing evidence below is evidence for
+the **uncapped** case only:
 
 > **Test (A2-triangle).** Fix `back = mid = fwd = 1` and a closure `C` with `|C| ≤ 4`.
 > Exhaustively enumerate every candidate `(bx, Λ₀, …, Λ_k)` over subsets of `C` at those lengths.
