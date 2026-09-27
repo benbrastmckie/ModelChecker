@@ -42,14 +42,17 @@ Two tiers:
 - **Tier 1** (`TestExhaustiveTriangleBoxFree`, `TestExhaustiveTriangleWithBox`): exhaustive over
   every candidate at both grid sizes, comparing legs (i) and (iii) per candidate (plus the
   pre-existing aggregate cross-check) -- affordable unconditionally at `back = mid = fwd = 1` for
-  every closure and at `back = 2, mid = 1, fwd = 2` for the box-free closures (measured at plan
-  time, aggregate-only: <0.1s for a box-free closure at the smaller grid, ~1.06s combined for both
-  box-free closures at the wider grid; see this module's implementation summary for the
-  per-candidate-comparison figures); the single-box closures are `slow`-marked at both grid sizes
-  (~11s at `back = mid = fwd = 1`, ~64.5s at `back = 2, mid = 1, fwd = 2` aggregate-only -- see
-  `TestExhaustiveTriangleWithBox`'s own comment). The pre-existing size-3 boxed closure stays
-  `back = mid = fwd = 1`-only: its `nb=nf=2` enumeration is ~10.7 billion candidates (~19h
-  extrapolated), well past what `slow` can afford under CI's 300s per-test ceiling.
+  every closure and at `back = 2, mid = 1, fwd = 2` for the box-free closures (measured under
+  CI's exact invocation shape, `-n 4 -q --timeout=300 --timeout-method=thread`, with the
+  per-candidate comparison in place: 1.94s for the wider-grid SAT case, well under 0.01s for the
+  three remaining box-free cases); the single-box closures are `slow`-marked at both grid sizes
+  (17.77s at `back = mid = fwd = 1`, 123.29s at `back = 2, mid = 1, fwd = 2` -- both measured the
+  same CI-shaped way, over the real target set `tests/ src/model_checker` matching
+  `.github/workflows/tests.yml:208`'s marker expression, not the module alone -- see
+  `TestExhaustiveTriangleWithBox`'s own comment for the full tiering discussion). The pre-existing
+  size-3 boxed closure stays `back = mid = fwd = 1`-only: its `nb=nf=2` enumeration is ~10.7
+  billion candidates (~19h extrapolated), well past what `slow` can afford under CI's 300s
+  per-test ceiling.
 - **Tier 2** (`TestBoundedLeanCrossCheck`): leg (ii) on a small, deterministic, named sample of
   candidates plus the live Z3-extracted certificate, reusing `_lean_check.py`'s skip discipline
   so it degrades to a clean skip (never a failure) without a BimodalLogic checkout. Unchanged by
@@ -373,17 +376,32 @@ class TestExhaustiveTriangleWithBox:
 
     Measured at plan/implementation time on this host: 1,572,864 candidate re-checks
     (`512**2 * 2 * 3` -- 512 labels-per-lasso-slot choices squared for two lassos, 2 box-guess
-    assignments, 3 target-window positions), 96 accepted, Z3 verdict SAT, ~11s wall clock. Marked
-    `slow` (already registered in `code/pyproject.toml`) so a `-m "not slow"` local run
-    deselects it while keeping the box-free cases above.
+    assignments, 3 target-window positions), 96 accepted, Z3 verdict SAT, ~11s aggregate-only
+    wall clock (pre-per-candidate-comparison baseline) / **17.77s** with the per-candidate
+    comparison, measured under CI's exact invocation shape over the real target set (see the
+    module docstring). Marked `slow` (already registered in `code/pyproject.toml`) so a
+    `-m "not slow"` local run deselects it while keeping the box-free cases above.
 
     A second case, `test_boxed_closure_enumeration_agrees_with_z3_nb2_nf2`, covers the same
     box/witness-lasso dimensions at `back = 2, mid = 1, fwd = 2` (production's
     `DEFAULT_EXAMPLE_SETTINGS`) for a closure of size 2 (`[] |- [\\Box A]`): 10,485,760 candidate
-    re-checks, 5,115 accepted, Z3 verdict SAT, ~64.5s wall clock on this host (selected by an
-    implementation-time measurement gate over two closure-size-2 candidates, both `slow`-marked;
-    see the task's implementation summary for the full gate record). Also `slow`-marked for the
-    same reason. The pre-existing size-3 closure above stays at `back = mid = fwd = 1` only: its
+    re-checks, 5,115 accepted, Z3 verdict SAT, ~64.5s aggregate-only wall clock (pre-change
+    baseline, selected by an implementation-time measurement gate over two closure-size-2
+    candidates, both `slow`-marked; see the task's implementation summary for that gate's
+    record) / **123.29s** with the per-candidate comparison, measured under CI's exact
+    invocation shape over the real target set `tests/ src/model_checker`
+    (`.github/workflows/tests.yml:208`'s marker expression), not the module alone -- a ~1.9x
+    multiplier over the aggregate-only baseline, within the ~2x the research report's
+    per-candidate cost estimate (`recheck`'s own ~6.15us/candidate) predicted. 123.29s against
+    the 300s per-test ceiling leaves ~59% headroom on this host; that margin assumes CI hardware
+    is no more than roughly 2.4x slower than this host on this workload (`300 / 123.29`) --
+    tighter than a first glance at the raw seconds suggests, so this is flagged explicitly rather
+    than left implicit. Kept unconditionally `slow`-marked (not narrowed) since 123.29s is well
+    under the ceiling on this host and the multiplier matches the research estimate rather than
+    exceeding it; if CI wall-clock ever approaches the ceiling in practice, narrow this one case's
+    scope with a named, deterministic stride (never weaken the assertion) rather than assume the
+    margin holds indefinitely. Also `slow`-marked for the same 300s-ceiling reason as the first
+    case. The pre-existing size-3 closure above stays at `back = mid = fwd = 1` only: its
     `nb=nf=2` enumeration is ~10.7 billion candidates (~19h extrapolated), well past what `slow`
     can afford under CI's 300s per-test ceiling -- `slow` controls local `-m "not slow"`
     deselection only, it grants no per-test timeout exemption."""

@@ -319,35 +319,66 @@ reported as a finding (Phase 5), not silenced by adjusting an expected count.
 
 ---
 
-### Phase 4: Measure under CI's exact invocation shape and finalize tiering [NOT STARTED]
+### Phase 4: Measure under CI's exact invocation shape and finalize tiering [COMPLETED]
 
 **Goal**: Decide each Tier 1 case's final tier from a recorded measurement taken under CI's real
 invocation, and record the measured figures in the module docstring the way the existing ones are.
 
+**Measured figures** (both runs green; `pyproject.toml`'s `addopts` already carries
+`--durations=0`):
+
+| Case | Module-alone, `-n 4 --timeout=300 --timeout-method=thread` | CI-shaped, real target set (`tests/ src/model_checker`, `.github/workflows/tests.yml:208`'s marker expression) |
+|---|---|---|
+| `test_boxed_closure_enumeration_agrees_with_z3` (1,572,864 candidates) | 17.32s | **17.77s** |
+| `test_boxed_closure_enumeration_agrees_with_z3_nb2_nf2` (10,485,760 candidates) | 112.59s | **123.29s** |
+| `test_enumeration_agrees_with_z3[box_free_until_conclusion_sat_nb2_nf2]` | 2.02s | 1.94s |
+| other two box-free cases | <0.05s | <0.01s |
+
+Module-alone: `9 passed in 133.07s`. CI-shaped (full target set): `3098 passed, 1 skipped, 5
+warnings in 257.22s`. The authoritative figures (used for tiering below and recorded in the
+docstrings) are the CI-shaped ones, per the phase's own instruction -- module-alone figures are
+recorded for context/comparison only.
+
 **Tasks**:
-- [ ] Measure the module alone under the CI flag set, from `code/`:
+- [x] Measure the module alone under the CI flag set, from `code/`:
       `PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py -n 4 -q --timeout=300 --timeout-method=thread`
       (`--durations=0` is already in `pyproject.toml`'s `addopts`), recording each case's duration
       before and after the change.
-- [ ] Take the authoritative figure for the two `slow` boxed cases from one CI-shaped run over the
+- [x] Take the authoritative figure for the two `slow` boxed cases from one CI-shaped run over the
       real target set, matching `.github/workflows/tests.yml:208`'s marker expression:
       `PYTHONPATH=src pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread`,
       reading the boxed cases' lines out of the durations report. Follow
       `context/patterns/bounded-build-waiter.md` if this run is backgrounded.
-- [ ] Compute headroom to the 300s ceiling for the `nb=2,fwd=2` boxed case (10,485,760 candidates,
+- [x] Compute headroom to the 300s ceiling for the `nb=2,fwd=2` boxed case (10,485,760 candidates,
       `~64.5s` before this change) and record the measured multiplier the per-candidate comparison
       actually costs.
-- [ ] Decide tiers from the measurement, not from the estimate:
-  - [ ] box-free cases stay unconditional if headroom holds
-  - [ ] boxed cases stay `slow` (recall `slow` grants **no** timeout exemption — it controls local
+
+  123.29s / 64.5s baseline = **~1.91x multiplier**, within the research report's ~2x estimate
+  (`recheck`'s own ~6.15us/candidate), not exceeding it. Headroom to the 300s ceiling: 176.71s
+  (~59%) on this host. That headroom translates to a host-speed margin of `300 / 123.29 ~=
+  2.43x` -- CI hardware would need to run this specific workload more than ~2.4x slower than
+  this host before the ceiling is at risk. Recorded explicitly in `TestExhaustiveTriangleWithBox`'s
+  docstring as a flagged assumption, not silently relied upon.
+- [x] Decide tiers from the measurement, not from the estimate:
+  - [x] box-free cases stay unconditional if headroom holds
+
+    Holds: 1.94s for the widest box-free case, orders of magnitude under any plausible ceiling.
+  - [x] boxed cases stay `slow` (recall `slow` grants **no** timeout exemption — it controls local
         `-m "not slow"` deselection only)
-  - [ ] only if the `nb=2,fwd=2` case materially threatens 300s, narrow **that one case's** scope
+  - [x] only if the `nb=2,fwd=2` case materially threatens 300s, narrow **that one case's** scope
         with a named, deterministic stride over the enumeration (no unseeded randomness), and say so
         explicitly in its docstring — never weaken the assertion
-- [ ] Update the module docstring's Tier 1 paragraph and `TestExhaustiveTriangleWithBox`'s
+
+    Not triggered: 123.29s (41% of the ceiling) does not materially threaten 300s, and the
+    measured multiplier (~1.91x) matches the research estimate rather than exceeding it, so no
+    enumeration is narrowed.
+- [x] Update the module docstring's Tier 1 paragraph and `TestExhaustiveTriangleWithBox`'s
       docstring with the newly measured wall clock and the measured multiplier, in the same style
       as the existing recorded figures.
-- [ ] Run the `slow` cases to GREEN; commit.
+- [x] Run the `slow` cases to GREEN; commit.
+
+      Already run to GREEN as part of both measurement passes above (module-alone: 9/9 passed;
+      CI-shaped full target set: 3098 passed, 1 skipped, 0 failed) -- no separate re-run needed.
 
 **Timing**: 1.5 hours
 
