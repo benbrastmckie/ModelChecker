@@ -173,34 +173,38 @@ folding without a named test failing.
 
 ---
 
-### Phase 2: Pin the end-to-end non-monotonicity grid [NOT STARTED]
+### Phase 2: Pin the end-to-end non-monotonicity grid [COMPLETED]
 
 **Goal**: An integration test recording, as a machine-checked fact, that the searched space is not
 monotone in `back`/`fwd` — the measurement that currently exists only in prose.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/theory_lib/bimodal/tests/integration/test_search_period_coverage.py`
+- [x] Create `code/src/model_checker/theory_lib/bimodal/tests/integration/test_search_period_coverage.py`
       with a `_build` helper copied from `tests/integration/test_certificate_a2_triangle.py`'s
       (the real `Syntax -> ModelConstraints -> BimodalStructure` pipeline over
       `BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS` with `back`/`mid`/`fwd` overridden).
-- [ ] Build the period-3 premise chain: `\prev`-chains pinning `A, ¬A, ¬A, A, ¬A, ¬A` at
+- [x] Build the period-3 premise chain: `\prev`-chains pinning `A, ¬A, ¬A, A, ¬A, ¬A` at
       positions `-1..-6`, unary operators chained directly onto their argument with no extra
       parentheses (`examples.py`'s convention, as `test_structure.py`'s `TestA0FrameClassStandingTest`
       does), empty conclusions.
-- [ ] Run the grid `(2,1,2) (3,1,3) (4,1,4) (5,1,5) (6,1,6)` once and record the observed
+- [x] Run the grid `(2,1,2) (3,1,3) (4,1,4) (5,1,5) (6,1,6)` once and record the observed
       `z3_model_status`, timeout flag and per-point runtime in the module docstring before writing
-      any assertion.
-- [ ] Assert the observed pattern, parametrized over the grid: SAT at the divisor-compatible
+      any assertion. Both chains reproduced the Scope Hypothesis exactly (no divergence): period-3
+      SAT at (3,1,3)/(6,1,6), UNSAT (timeout=False) at (2,1,2)/(4,1,4)/(5,1,5); period-2 SAT at
+      (2,1,2)/(4,1,4)/(5,1,5)/(6,1,6), UNSAT at (3,1,3). Total wall clock for all 10 builds
+      ~0.92s.
+- [x] Assert the observed pattern, parametrized over the grid: SAT at the divisor-compatible
       points, `z3_model_status is False` at the others, and the timeout flag false at **every**
       point so no UNKNOWN is recorded as a genuine UNSAT.
-- [ ] State in the module docstring what the test does and does not establish: it pins the search
+- [x] State in the module docstring what the test does and does not establish: it pins the search
       as configured (this is not an encoding-completeness defect — the encoder faithfully encodes
       families at the lengths given), and it is the fact the recommended sweep would change, with
       a pointer to the new doc from Phase 3 by name.
-- [ ] Add the counterpart direction from the same measurement — a period-2 chain SAT at `(2,1,2)`
+- [x] Add the counterpart direction from the same measurement — a period-2 chain SAT at `(2,1,2)`
       and UNSAT at `(3,1,3)` — so the pin shows non-monotonicity in both directions rather than
       one lucky formula.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_search_period_coverage.py -v`.
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_search_period_coverage.py -v`.
+      10 passed in 1.28s.
 
 **Timing**: 1.25 hours
 
