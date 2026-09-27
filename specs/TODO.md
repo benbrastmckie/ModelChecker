@@ -22,23 +22,23 @@ next_project_number: 205
 
 ### Architecture
 
-195 [PLANNED] — Research and recommend a route to actually prove, rather than...
+195 [IMPLEMENTING] — Research and recommend a route to actually prove, rather than...
 
 ### Testing
 
-204 [RESEARCHED] — Strengthen the A2-triangle encoding-completeness differential...
+204 [PLANNING] — Strengthen the A2-triangle encoding-completeness differential...
 
 ### Semantics
 
 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
-203 [RESEARCHED] — Research and recommend whether the bimodal search should...
+203 [PLANNING] — Research and recommend whether the bimodal search should...
 
 ## Tasks
 
 ### 204. Strengthen a2 triangle per candidate
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
@@ -49,7 +49,7 @@ next_project_number: 205
 ---
 
 ### 203. Research divisor period search coverage
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None
@@ -141,7 +141,7 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 ---
 
 ### 195. Research encoder spec proof routes
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: formal
 - **Topic**: architecture
 - **Dependencies**: Task 192

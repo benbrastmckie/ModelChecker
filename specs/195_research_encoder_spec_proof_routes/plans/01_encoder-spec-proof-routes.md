@@ -1,7 +1,7 @@
 # Implementation Plan: Task #195
 
 - **Task**: 195 - research_encoder_spec_proof_routes
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6.5 hours
 - **Dependencies**: 192 (A2_GAP.md, complete), 193/194/201/202 (complete; their edits are the
   baseline this plan builds on)
@@ -119,7 +119,7 @@ their own file only to avoid conflicting edits to the same document.
 
 ---
 
-### Phase 1: A2_GAP.md section 10 — add the three missing routes [NOT STARTED]
+### Phase 1: A2_GAP.md section 10 — add the three missing routes [COMPLETED]
 
 **Goal**: Section 10's route table lists every route the research evaluated, each classified by
 which of section 2's three link types it creates (or by which obligation it makes unnecessary),
@@ -127,8 +127,8 @@ with honest cost and status.
 
 **Tasks**:
 
-- [ ] Re-read `docs/A2_GAP.md` section 10 immediately before editing (concurrent siblings).
-- [ ] Add a row **(g) Verified SMT-LIB emitter**: specify the generators in Lean over
+- [x] Re-read `docs/A2_GAP.md` section 10 immediately before editing (concurrent siblings). *(completed)*
+- [x] Add a row **(g) Verified SMT-LIB emitter**: specify the generators in Lean over
       `LabelledLasso`/closure data, prove an encoding-adequacy theorem in both directions (an
       assignment satisfies the emitted clause set iff the decoded family satisfies (C1)-(C4) over
       the proved windows), have Lean print SMT-LIB2 that Python feeds to Z3 unchanged. What it
@@ -140,7 +140,7 @@ with honest cost and status.
       (`models/structure.py`'s `_setup_solver`), `iterate.py` adds per-iteration difference and
       orbit-exclusion clauses, and `semantic/symmetry.py`'s group action works on live
       `WitnessRegistry` variables.
-- [ ] Add a row **(h) Translation validation**: per-run certification that the emitted clause set
+- [x] Add a row **(h) Translation validation**: per-run certification that the emitted clause set
       matches a verified specification. State plainly that it presupposes (g)'s verified generator
       *plus* a canonical form on both sides (a total order on variables; a normal form for
       `And`/`Or`/`Implies`/`==`/`AtMost`; a canonical variable naming that survives
@@ -148,8 +148,8 @@ with honest cost and status.
       than (g). What it buys that (g) does not: it is the only route that establishes the property
       **for the code that actually runs**, and it preserves the incremental pipeline features
       (unsat cores, `iterate`, orbit exclusion) that a file hand-off loses. Note explicitly that
-      this is a *different* route from the table's existing (b) ("direct verification").
-- [ ] Add a row **(i) Consume a verified bounded enumerator**: a candidate list over closure `C`
+      this is a *different* route from the table's existing (b) ("direct verification"). *(completed)*
+- [x] Add a row **(i) Consume a verified bounded enumerator**: a candidate list over closure `C`
       and a segment bound, its `mem_...` completeness lemma, and a decision of bounded absence
       inside Lean from the four landed `Decidable` instances. What it buys: it does not discharge
       A2, it makes A2 **unnecessary** for the claim A2 exists to support — the encoder and Z3 drop
@@ -160,16 +160,16 @@ with honest cost and status.
       describes itself as "astronomically impractical... a decidability construction, not an
       algorithm", so this is viable as a **test oracle at feasible grid points**, not as a
       production oracle); and a verdict from a compiled Lean executable is compiled-Lean-trusted
-      evidence, strictly better than Python-encoder-plus-Z3 but not kernel-checked.
-- [ ] Note in row (i) the space mismatch that any consumption must reconcile: the upstream
+      evidence, strictly better than Python-encoder-plus-Z3 but not kernel-checked. *(completed)*
+- [x] Note in row (i) the space mismatch that any consumption must reconcile: the upstream
       enumeration ranges over segment lengths `<= n` while this search fixes lengths exactly
       `(nb, nm, nf)` — the same exact-period fact section 7.1 and `SETTINGS.md` now record, seen
-      from the other side.
-- [ ] Extend the "Honest ranking" paragraph with the new routes: (g) and (h) satisfy section 2's
+      from the other side. *(completed)*
+- [x] Extend the "Honest ranking" paragraph with the new routes: (g) and (h) satisfy section 2's
       category argument on its own terms (they create the missing link) and are substantial and
       unstarted; (i) satisfies it by removing the obligation rather than discharging it, and is the
       cheapest available increase in rigor. Leave the existing sentences about routes (a)-(f)
-      unchanged.
+      unchanged. *(completed)*
 
 **Timing**: 1.25 hours
 
