@@ -1,0 +1,17 @@
+{
+  "status": "planned",
+  "task_number": 203,
+  "phase": "plan",
+  "session_id": "sess_1790489608_0857c5_203",
+  "dispatch_seq": 18,
+  "phases_completed": 0,
+  "phases_total": 5,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/203_research_divisor_period_search_coverage/plans/01_divisor-period-search-coverage.md",
+      "summary": "Five-phase plan: unit + integration pins of the divisor-period non-monotonicity, a new docs/SEARCH_COVERAGE.md decision record, a territory-gated ADEQUACY.md pointer, and a consistency gate. The recommended sweep driver is explicitly out of scope."
+    }
+  ],
+  "notes": "Phase 4 edits ADEQUACY.md, which the concurrent task 195 implement dispatch owns this cycle; it carries an explicit no-edit branch (mark BLOCKED, record the obligation in SEARCH_COVERAGE.md) if that path shows a foreign uncommitted modification. Phase 2's grid verdicts and premise strings are carried as a Scope Hypothesis reconstructed from task 195's report prose and must be re-measured before assertion."
+}
