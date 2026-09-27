@@ -77,7 +77,9 @@ constraint emission. Module: `semantic/core.py`.
 **Inherits from:** `SemanticDefaults`
 
 **Key Attributes:**
-- `back`, `mid`, `fwd` (int): maximum lasso segment lengths
+- `back`, `fwd` (int): exact cyclic periods of the lasso's back/fwd segments, not maxima; `mid`
+  (int): a genuine maximum, the one direct-read segment length — see
+  [SETTINGS.md](SETTINGS.md)
 - `max_witnesses` (int or `None`): optional cap on distinct witness-lasso allocation
 - `N` (int, always `0`), `all_states` (list, always `[]`): vestigial attributes the shared
   framework reads unconditionally (`models/structure.py`); the certificate encoding has no
@@ -478,8 +480,10 @@ except z3.Z3Exception as e:
 
 1. **Enable Z3 output**: set `"print_z3": True` in settings
 2. **Check constraints**: set `"print_constraints": True`
-3. **Raise segment lengths**: some formulas need larger `back`/`mid`/`fwd`, not a larger `N`/`M`
-   (which no longer exist)
+3. **Choose `back`/`fwd` as a multiple of the needed period**: some formulas need a longer
+   periodic pattern, but `back`/`fwd` are exact periods, not maxima — a larger non-multiple can
+   lose a countermodel a smaller value found; `mid` may be raised freely, and none of the three is
+   a larger `N`/`M` (which no longer exist). See [SETTINGS.md](SETTINGS.md).
 4. **Re-check independently**: `certificate.recheck(family, premises, conclusions, target_time)`
    can be called directly against any certificate for debugging, outside a Z3 solve entirely
 

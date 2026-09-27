@@ -1,0 +1,26 @@
+{
+  "phase": 4,
+  "phase_name": "docs/USER_GUIDE.md and docs/API_REFERENCE.md",
+  "started_at": "2026-09-26T00:35:00Z",
+  "last_updated": "2026-09-26T00:45:00Z",
+  "objectives": [
+    {"id": 1, "description": "USER_GUIDE.md:70 settings-list bullet", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md"]},
+    {"id": 2, "description": "USER_GUIDE.md:157-159 inline example comments", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md"]},
+    {"id": 3, "description": "USER_GUIDE.md:166-168 bimodal-specific considerations bullet", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md"]},
+    {"id": 4, "description": "API_REFERENCE.md:80 Key Attributes line", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/API_REFERENCE.md"]},
+    {"id": 5, "description": "API_REFERENCE.md:481 Debugging Tips #3", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/API_REFERENCE.md"]},
+    {"id": 6, "description": "SETTINGS.md pointers; scope-hypothesis grep found two additional hits (USER_GUIDE.md:266, :330), both corrected", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md"]}
+  ],
+  "current_objective": 6,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "4.6",
+      "description": "Scope Hypothesis grep for phase 4 (5 asserted carrier spots) surfaced two additional hits not named in the plan text: USER_GUIDE.md:266 (Performance tips) and USER_GUIDE.md:330 (Troubleshooting).",
+      "type": "altered",
+      "reason": "Both were genuine instances of the same false claim (raise back/mid/fwd without divisibility qualifier); corrected in-scope per the phase's own Scope Hypothesis instruction rather than deferred.",
+      "annotation": "*(completed: also corrected two additional hits at USER_GUIDE.md:266 and :330 surfaced by the Scope Hypothesis grep)*"
+    }
+  ]
+}

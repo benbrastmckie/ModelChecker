@@ -67,8 +67,13 @@ A certificate search produces:
 
 ### Settings That Bound the Search
 
-- `back`/`mid`/`fwd`: the maximum lengths of the searched lasso family's three segments
+- `back`/`fwd`: the *exact* cyclic periods of the lasso's back/fwd segments, not maxima — a
+  family whose period is `p` is representable only when `p` divides the configured length
+- `mid`: a genuine maximum, the one direct-read segment length
 - `max_witnesses`: an optional cap on distinct witness lassos
+
+See [SETTINGS.md](SETTINGS.md) for the full exact-period explanation and the operative rule for
+choosing `back`/`fwd`.
 
 There is no analogue of the retired `N` (a world count) or `M` (a window of times): the certified
 model is always infinite once a certificate is found; these settings only bound the *search*.
@@ -154,9 +159,9 @@ print(f"BM_CM_1 result: {result['model_found']}")
 
 ```python
 settings = {
-    "back": 2,           # Maximum back-segment length
+    "back": 2,           # Exact back-segment period (not a maximum; see SETTINGS.md)
     "mid": 1,            # Maximum mid-segment length
-    "fwd": 2,             # Maximum fwd-segment length
+    "fwd": 2,             # Exact fwd-segment period (not a maximum; see SETTINGS.md)
     "max_time": 10,      # Solver timeout
     "max_witnesses": None,  # Uncapped witness-lasso allocation
 }
@@ -164,10 +169,12 @@ settings = {
 
 ### Bimodal-Specific Considerations
 
-- **`back`/`mid`/`fwd`**: raise these if a formula's refutation genuinely needs a longer periodic
-  pattern; the theory's own 53 examples, including previously-excluded ones (the paper's MF axiom,
-  the BX7 linearity theorems), all decide at the defaults (`back=2, mid=1, fwd=2`) in well under
-  50ms.
+- **`back`/`fwd`**: choose these as a multiple of the period a formula's refutation genuinely
+  needs, rather than simply raising them — they are exact cyclic periods, not maxima, so a larger
+  non-multiple can lose a countermodel a smaller value found (see [SETTINGS.md](SETTINGS.md)).
+  `mid` may be raised freely. The theory's own 53 examples, including previously-excluded ones (the
+  paper's MF axiom, the BX7 linearity theorems), all decide at the defaults (`back=2, mid=1,
+  fwd=2`) in well under 50ms.
 - **`max_witnesses`**: only lower this to bound cost on formulas with many boxed subformulas — an
   overly small cap makes the search under-complete for that formula, not merely slower.
 
@@ -263,8 +270,9 @@ Formulas are evaluated at `(lasso, position)` pairs, not `(world, time)` pairs:
 ## Tips and Best Practices
 
 ### Performance
-- Start with the default segment lengths (`back=2, mid=1, fwd=2`); raise them only if a specific
-  formula's refutation needs a longer period.
+- Start with the default segment lengths (`back=2, mid=1, fwd=2`). If a specific formula's
+  refutation needs a longer period, choose `back`/`fwd` as a multiple of that period rather than
+  simply raising them (see [SETTINGS.md](SETTINGS.md)); `mid` may be raised freely.
 - The search is quantifier-free, so solver cost scales with `back + mid + fwd` and the closure
   size, not with an exponential state space — there is no `N`/`M` product to worry about.
 
@@ -327,8 +335,10 @@ for the full correspondence, including the four Lean-proved lemmas that establis
 ### Common Issues
 
 **No certificate found when one is expected**:
-- Raise `back`/`mid`/`fwd` — the refutation may need a longer periodic pattern than the defaults
-  allow.
+- The refutation may need a longer periodic pattern than the defaults allow. Choose `back`/`fwd`
+  as a multiple of the period needed (they are exact periods, not maxima — a larger non-multiple
+  can lose a countermodel a smaller value found) or try several candidate lengths; raise `mid`
+  freely. See [SETTINGS.md](SETTINGS.md) for the full explanation.
 - Raise `max_witnesses` if the formula has several boxed subformulas.
 
 **Unexpected "no certificate" results**:

@@ -246,29 +246,29 @@ and record the correction rather than deferring it.
 
 ---
 
-### Phase 4: `docs/USER_GUIDE.md` and `docs/API_REFERENCE.md` [NOT STARTED]
+### Phase 4: `docs/USER_GUIDE.md` and `docs/API_REFERENCE.md` [COMPLETED]
 
 **Goal**: Correct the two remaining user-facing pages, including their two "raise these" / "raise
 segment lengths" imperatives, which are the sites most likely to mislead a user mid-investigation.
 
 **Tasks**:
-- [ ] `USER_GUIDE.md:70`: replace "the maximum lengths of the searched lasso family's three
-      segments" with `back`/`fwd` as exact periods and `mid` as the direct-read length.
-- [ ] `USER_GUIDE.md:157-159`: correct the three inline comments in the `settings = {...}` example
+- [x] `USER_GUIDE.md:70`: replace "the maximum lengths of the searched lasso family's three
+      segments" with `back`/`fwd` as exact periods and `mid` as the direct-read length. *(completed)*
+- [x] `USER_GUIDE.md:157-159`: correct the three inline comments in the `settings = {...}` example
       (`# Maximum back-segment length` etc.) — exact-period wording for `back`/`fwd`, retain a
-      length description for `mid`.
-- [ ] `USER_GUIDE.md:166-168`: rewrite the "**`back`/`mid`/`fwd`**: raise these if a formula's
+      length description for `mid`. *(completed)*
+- [x] `USER_GUIDE.md:166-168`: rewrite the "**`back`/`mid`/`fwd`**: raise these if a formula's
       refutation genuinely needs a longer periodic pattern" bullet into the operative rule — choose
       `back`/`fwd` as a multiple of the needed period, since a larger non-multiple can lose a
       countermodel a smaller value found; `mid` may be raised freely. Keep the "53 examples decide
-      at the defaults" clause, which is factual.
-- [ ] `API_REFERENCE.md:80`: replace "maximum lasso segment lengths" in the Key Attributes list
-      with the corrected one-line characterization.
-- [ ] `API_REFERENCE.md:481`: rewrite Debugging Tips #3 ("some formulas need larger `back`/`mid`/
+      at the defaults" clause, which is factual. *(completed)*
+- [x] `API_REFERENCE.md:80`: replace "maximum lasso segment lengths" in the Key Attributes list
+      with the corrected one-line characterization. *(completed)*
+- [x] `API_REFERENCE.md:481`: rewrite Debugging Tips #3 ("some formulas need larger `back`/`mid`/
       `fwd`") into the divisibility rule, keeping the "not a larger `N`/`M` (which no longer exist)"
-      clause.
-- [ ] Point both pages at `docs/SETTINGS.md` for the full explanation rather than duplicating the
-      measured example.
+      clause. *(completed)*
+- [x] Point both pages at `docs/SETTINGS.md` for the full explanation rather than duplicating the
+      measured example. *(completed: also corrected two additional hits at USER_GUIDE.md:266 and :330 surfaced by the Scope Hypothesis grep)*
 
 **Timing**: 30 minutes
 
