@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 5,
+  "summary": "Authored a 6-phase, 2.5-hour documentation-only plan correcting the false back/fwd search-bound monotonicity claim across all six carrier files, with a canonical-wording phase first, a README/core.py duplicate-sync dependency, and a final cross-file sweep-and-gate phase.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/202_correct_nonmonotonic_search_bound_docs/plans/01_nonmonotonic-search-bound-docs.md",
+      "summary": "6-phase plan: SETTINGS.md canonical correction, semantic/core.py D4, README.md, USER_GUIDE.md + API_REFERENCE.md, ADEQUACY.md's three coordinated spots, then a consistency gate."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "blockers": []
+}
