@@ -1,7 +1,7 @@
 # Implementation Plan: Task #201
 
 - **Task**: 201 - Correct A2_GAP.md's emitted-constraint surface and semantic/core.py's sole-writer claim
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 1.0 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/201_correct_a2_gap_emitted_surface_and_sole_writer/reports/01_a2-gap-surface-correction.md

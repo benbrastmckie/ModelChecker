@@ -39,12 +39,12 @@
     {
       "project_number": 201,
       "project_name": "correct_a2_gap_emitted_surface_and_sole_writer",
-      "status": "planned",
+      "status": "completed",
       "task_type": "general",
       "description": "Correct A2_GAP.md's emitted-constraint surface and semantic/core.py's sole-writer claim, and record the independence cost of window sharing. A2_GAP.md section 4 enumerates seven emission call sites, but iterate.py:266 and :280 append unit clauses directly to semantics.frame_constraints, which is an eighth path the section omits and a direct counterexample to semantic/core.py:164's claim that finalize_certificate() is the sole writer of frame_constraints. Correct both: add the iterate.py path to A2_GAP.md's enumeration with its clause shape, and fix or properly qualify core.py:164's comment. Separately, record a cost the window-sharing change introduced: WitnessRegistry.target_window() now delegates to certificate._box_window, which removes the drift hazard but also reduces the A2-triangle differential's independence, so a window that is wrong but shared is invisible to that test by construction. A2_GAP.md should state this trade explicitly rather than presenting the sharing as a pure gain. Documentation and comments only; no behavioral change.",
       "topic": "documentation",
       "created": "2026-09-26T22:07:15Z",
-      "last_updated": "2026-09-26T22:14:44Z",
+      "last_updated": "2026-09-27T00:54:30Z",
       "dependencies": [],
       "session_id": "sess_1790460497_721fd5",
       "artifacts": [
@@ -57,9 +57,15 @@
           "path": "specs/201_correct_a2_gap_emitted_surface_and_sole_writer/plans/01_a2-gap-surface-correction.md",
           "type": "plan",
           "summary": "Three-phase documentation/comment plan for the A2_GAP.md surface correction, core.py D6 sole-writer narrowing, and window-sharing independence cost."
+        },
+        {
+          "path": "specs/201_correct_a2_gap_emitted_surface_and_sole_writer/summaries/01_a2-gap-surface-correction-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for the A2_GAP.md/core.py surface correction."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Corrected A2_GAP.md's emitted-constraint surface to eight call sites (adding the iterate.py model-iteration pinning path), narrowed semantic/core.py's D6 comment from a false unqualified sole-writer claim to a scoped true one, and recorded the A2-triangle differential's independence cost from window sharing. Full bimodal test suite (508 tests) and the certificate_a2_triangle tests (9 tests) pass; documentation/comment-only change, no behavioral change."
     },
     {
       "project_number": 200,
