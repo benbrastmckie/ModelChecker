@@ -26,7 +26,7 @@ next_project_number: 205
 
 ### Testing
 
-204 [RESEARCHING] — Strengthen the A2-triangle encoding-completeness differential...
+204 [RESEARCHED] — Strengthen the A2-triangle encoding-completeness differential...
 
 ### Semantics
 
@@ -38,10 +38,11 @@ next_project_number: 205
 ## Tasks
 
 ### 204. Strengthen a2 triangle per candidate
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [204_strengthen_a2_triangle_per_candidate/reports/01_strengthen-a2-triangle-per-candidate.md]
 
 **Description**: Strengthen the A2-triangle encoding-completeness differential from an aggregate verdict to a per-candidate comparison. The leg (i) versus leg (iii) comparison is currently a one-bit existential at tests/integration/test_certificate_a2_triangle.py:238 -- (accepted > 0) == z3_model_status -- so up to 10.5 million enumerated candidates collapse into a single SAT/UNSAT agreement, while A2 is a claim about each candidate individually. A candidate the encoder wrongly rejects and the re-checker accepts, or the reverse, is invisible so long as the aggregate verdicts still agree. Compare the two legs candidate by candidate instead, reporting the first divergence with enough of the candidate to diagnose it. Keep the cost envelope in view: the widest configured closure already reaches 10.5 million candidates, so measure before committing to unconditional execution and tier or slow-mark the new comparison as the existing cases are, verifying against CI exact invocation shape (--timeout=300 --timeout-method=thread, run with -n 4) rather than a bare idle-host figure. Keep Tier 2 clean-skip discipline intact. Report any genuine divergence as a finding; diagnosing the encoder is out of scope. This is the lead recommendation of the encoder-specification proof-routes research, preferred over routes that attempt proof.
 
