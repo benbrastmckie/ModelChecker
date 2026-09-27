@@ -396,6 +396,46 @@ instead of editing it.
 
 ---
 
+### Phase 7: Eighth carrier correction — `examples.py` Settings Options docstring [COMPLETED]
+
+**Goal**: Correct a carrier file missed by both the original research sweep and Phase 6's own
+gate: `code/src/model_checker/theory_lib/bimodal/examples.py`'s module docstring "Settings
+Options" block, which is the module users read and copy from first.
+
+**Tasks**:
+- [x] Rewrite the `back` bullet (`examples.py:68`) from "Maximum length of a witness-family
+      lasso's repeating back segment" to the exact-period wording matching `docs/SETTINGS.md`'s
+      canonical `back` bullet: exact cyclic period, not an upper bound on it. *(completed)*
+- [x] Rewrite the `fwd` bullet (`examples.py:70`) the same way. *(completed)*
+- [x] Leave the `mid` bullet (`examples.py:69`) untouched — `mid` is read directly and genuinely
+      is a maximum. *(completed)*
+- [x] Re-run the Phase 6 cross-file gate grep extended to cover `examples.py`, and confirm no
+      other `.py` module docstring in the theory carries the same false claim. *(completed: the
+      extended sweep's only "maximum length of a witness-family lasso" hit is the correct `mid`
+      bullet; no other `.py` file exposes a "Settings Options" block at all)*
+- [x] Run the bimodal test suite to confirm the docstring-only change causes no regression.
+      *(completed: 508 passed in 179.49s, matching the Phase 6 baseline pass count)*
+
+**Timing**: 15 minutes
+
+**Depends on**: 6
+
+**Verification Tier**: prose
+
+**Commit Mode**: per-substep
+
+**Files to modify**:
+- `code/src/model_checker/theory_lib/bimodal/examples.py` - Settings Options docstring, `back`
+  and `fwd` bullets only
+
+**Verification**:
+- `grep -n "maximum length of a witness-family lasso" examples.py` returns only the `mid` bullet.
+- `python3 -c "import ast; ast.parse(open('examples.py').read())"` succeeds (docstring-only
+  change, no executable line touched).
+- Bimodal test suite pass count matches the pre-existing baseline (508 passed).
+
+---
+
 ## Testing & Validation
 
 - [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` — unchanged
@@ -416,6 +456,9 @@ instead of editing it.
 - `code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md` (three spots)
 - `code/src/model_checker/theory_lib/bimodal/docs/API_REFERENCE.md` (two spots)
 - `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` (three coordinated spots)
+- `code/src/model_checker/theory_lib/bimodal/docs/ITERATE.md` (seventh carrier, corrected in
+  Phase 6)
+- `code/src/model_checker/theory_lib/bimodal/examples.py` (eighth carrier, corrected in Phase 7)
 - `specs/202_correct_nonmonotonic_search_bound_docs/summaries/01_*-summary.md` (at completion,
   recording the two forward pointers from Phase 6)
 

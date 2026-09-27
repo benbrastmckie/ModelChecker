@@ -108,9 +108,39 @@ work only — no search semantics changed.
   is explicitly out of scope, per both the task description and `ADEQUACY.md`'s now-honest 7.1(iii)
   — deferred to a separate task.
 
+## Addendum: Phase 7 — eighth carrier (`examples.py`)
+
+A follow-up round (forced re-dispatch on this already-completed task) found a further carrier
+missed by both the original research sweep and Phase 6's own gate:
+`code/src/model_checker/theory_lib/bimodal/examples.py`'s module docstring "Settings Options"
+block (lines 68 and 70), which is the module users read and copy from first.
+
+- `code/src/model_checker/theory_lib/bimodal/examples.py` — rewrote the `back` and `fwd` bullets
+  from "Maximum length of a witness-family lasso's repeating back/forward segment" to the
+  exact-period wording matching `docs/SETTINGS.md`'s canonical bullets ("exact cyclic period ...
+  not an upper bound on it"). The `mid` bullet (line 69) was left untouched — `mid` is read
+  directly and genuinely is a maximum.
+- Re-ran the Phase 6 cross-file gate grep
+  (`grep -rn "maximum length\|maximum segment\|max segment\|enlarge\|raising\|raise"
+  code/src/model_checker/theory_lib/bimodal/ --include="*.py" --include="*.md"`) extended to
+  cover `examples.py`. The only remaining "maximum length of a witness-family lasso" hit anywhere
+  under the theory is the correct `mid` bullet; no other `.py` module in the theory exposes a
+  "Settings Options" docstring block at all, so the eighth-carrier fix closes the sweep.
+- Verified `python3 -c "import ast; ast.parse(...)"` on `examples.py` succeeds (docstring-only
+  change; no executable line or default value touched).
+- Re-ran the bimodal test suite: `PYTHONPATH=code/src pytest
+  code/src/model_checker/theory_lib/bimodal/tests/ -q` — 508 passed in 179.49s, matching the
+  Phase 6 baseline pass count (no regression).
+- Recorded as Phase 7 in the plan (`[COMPLETED]`), depending on Phase 6.
+
+This is documentation/comment-only, identical in kind to the original six-file (then
+seven-file) sweep; no search semantics changed.
+
 ## References
 
 - `specs/202_correct_nonmonotonic_search_bound_docs/plans/01_nonmonotonic-search-bound-docs.md`
 - `specs/202_correct_nonmonotonic_search_bound_docs/reports/01_nonmonotonic-search-bound-fixes.md`
 - `code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py` (the `wrap()` mechanism
   every corrected site now describes)
+- `code/src/model_checker/theory_lib/bimodal/examples.py` (eighth carrier, corrected in the
+  Phase 7 addendum above)

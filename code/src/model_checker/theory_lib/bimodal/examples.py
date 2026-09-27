@@ -65,9 +65,11 @@ Each example is structured as a list: [premises, conclusions, settings]
 
 Settings Options:
 ----------------
-- back: Maximum length of a witness-family lasso's repeating back segment (default: 2)
+- back: Exact cyclic period of a witness-family lasso's repeating back segment, not an
+  upper bound on it (default: 2)
 - mid: Maximum length of a witness-family lasso's non-repeating mid segment (default: 1)
-- fwd: Maximum length of a witness-family lasso's repeating forward segment (default: 2)
+- fwd: Exact cyclic period of a witness-family lasso's repeating forward segment, not an
+  upper bound on it (default: 2)
 - max_witnesses: Optional cap on the number of distinct witness lassos searched for
   (default: None, uncapped -- at most one per boxed subformula guessed false)
 - max_time: Maximum computation time in seconds
