@@ -1,5 +1,5 @@
 ---
-next_project_number: 207
+next_project_number: 208
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 207
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 197,198,205,206 | -- | architecture, testing, semantics |
+| 1 | 197,198,205,206,207 | -- | architecture, testing, semantics |
 | 2 | 199,200 | 197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -23,6 +23,7 @@ next_project_number: 207
 ### Architecture
 
 205 [NOT STARTED] — Decide and stage how a reported countermodel becomes...
+207 [NOT STARTED] — Fix ModelConstraints.allconstraints being a stale eager...
 
 ### Testing
 
@@ -35,6 +36,30 @@ next_project_number: 207
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 
 ## Tasks
+
+### 207. Fix stale all constraints snapshot
+- **Status**: [NOT STARTED]
+- **Task Type**: z3
+- **Topic**: architecture
+- **Dependencies**: None
+
+**Description**: Fix ModelConstraints.all_constraints being a stale eager snapshot that misses everything bimodal's two-phase constraint emission adds after construction, and audit every production reader of it. This was surfaced as a side finding while strengthening the A2-triangle differential: that work needed the true post-solve constraint set, could not get it from all_constraints, and added a local full_constraints() reconstruction inside the test tree to work around it. The workaround is fine for tests; the underlying attribute is still wrong for every production reader, and those were explicitly left out of scope there.
+
+ROOT CAUSE, ALREADY LOCALIZED -- CONFIRM, DO NOT RE-DERIVE. models/constraints.py:97 computes all_constraints once at construction as an eager list concatenation of frame_constraints + model_constraints + premise_constraints + conclusion_constraints. Bimodal's encoding is deliberately two-phase (its semantic/core.py documents this as decision D6): frame_constraints starts EMPTY and is only populated later by finalize_certificate(), once every boxed subformula is known. Because all_constraints is a concatenated snapshot rather than a view, it is computed while frame_constraints is still empty and never sees the (C1)-(C4) constraints that finalize_certificate installs. For bimodal specifically, all_constraints therefore omits the entire certificate encoding.
+
+THE THREE PRODUCTION READERS TO ASSESS, EACH WITH A DIFFERENT SEVERITY.
+
+First, and most likely to be a genuine defect: iterate/models.py:93 builds a fresh z3.Solver and adds every constraint from model_constraints.all_constraints as "the base constraints", then pins theory-specific values through the iterator hook, then at :152 overwrites model_constraints.all_constraints with list(temp_solver.assertions()). If the base set is missing (C1)-(C4), the solver the iterator builds is weaker than the one that produced the original model, so an iterated bimodal "model" may satisfy the pinning constraints while violating the certificate conditions the first solve enforced. Determine whether the theory-specific pinning hook (bimodal semantic/core.py's per-variable bit/guess/sel pinning) happens to mask this by fixing every free variable, or whether genuinely invalid iterated models are reachable. Construct a test that answers this rather than reasoning it out: the honest outcome may be either "unreachable, document why" or "reachable, here is the failing case".
+
+Second: iterate/constraints.py:51-52 preserves original_constraints from the same attribute for iteration, inheriting the same gap.
+
+Third, and user-visible but not a soundness issue: models/structure.py's _get_relevant_constraints (lines 429 and 435) returns all_constraints for the "SATISFIABLE CONSTRAINTS:" display and as the unsat-core fallback. For bimodal this prints a constraint set with the certificate encoding missing entirely, so verbose and saved output under-reports what was actually solved. Note that A2_GAP.md already records that models/structure.py's _setup_solver never reads all_constraints, so the solve path itself is not implicated -- state that explicitly in whatever fix lands, so a future reader does not over-read the severity.
+
+FIX DIRECTION, TO BE DECIDED BY RESEARCH RATHER THAN ASSUMED. Compare at least: making all_constraints a computed property or view so it always reflects the current component lists rather than a construction-time snapshot; having finalize_certificate (and any other late emitter) maintain all_constraints as it mutates frame_constraints; and promoting the test tree's full_constraints() reconstruction into the production API and having readers call it. Weigh each against the fact that four theories plus the iterate engine read or append to this attribute, so a change to its semantics is cross-theory: logos, exclusion and bimodal all append to it from their own semantic cores. Whatever lands must not silently change behaviour for the theories that are single-phase and currently correct.
+
+CONSTRAINTS. Verify against the full repository gate under CI's own invocation shape, not just the bimodal suite, because this attribute is cross-theory. Preserve the test tree's existing full_constraints() behaviour or migrate its callers deliberately -- the A2-triangle per-candidate comparison depends on it and must stay green. Do not narrow or weaken any existing assertion to accommodate a fix.
+
+---
 
 ### 206. Refactor verification test harness
 - **Status**: [NOT STARTED]
@@ -68,7 +93,7 @@ ITEM 1, THE OUTPUT GATE. TestBoundedLeanCrossCheck in tests/integration/test_cer
 
 ITEM 2, RUNTIME AVAILABILITY -- THE PRACTICAL BLOCKER, AND THE PART NOTHING ELSE SCOPES. A mandatory check must not imply a mandatory Lean toolchain for users, and no task in either repository currently scopes the packaging that makes this true. Evaluate extracting the checker to a standalone verified artifact shipped with the package (Lean's C backend, or an equivalent) against three alternatives: an optional two-tier trust model distinguishing an unchecked from a checked countermodel; a re-implementation in Python, which reintroduces the code-to-specification gap this task exists to avoid and should be costed as such rather than dismissed; and simply requiring the toolchain. Cost each including packaging, wheel size, platform coverage and CI implications, and recommend one with a staged path. This item does not wait on the proof-carrying mode and can be researched immediately.
 
-ITEM 3, CORRECT THE TRUST-PIPELINE LEDGER, WHICH THIS SESSION'S WORK HAS MADE STALE IN TWO PLACES. Do NOT re-record the soundness/adequacy asymmetry or the trust base: docs/TRUST_PIPELINE.md already states both carefully, including that absence has no witness, that Z3, the encoder and the decoder are deliberately outside the trust base, and that the translation rather than the encoder is the weakest link. What it does not yet reflect is work just landed. First, its "What remains -- In this repository" table lists "Widen the A2 grid to nb = nf = 2" as outstanding, and its "The standing test for A2" section says the standing test enumerates only at back = mid = fwd = 1 and is therefore "blind to exactly the bug that once happened"; both are now false, since the A2-triangle harness carries nb2/nf2 cases for the boxed and box-free closures and the leg (i)/(iii) comparison is per-candidate rather than a one-bit aggregate. Second, neither the ledger nor any task in either repository records the two items this task owns -- the output gate and the checker's runtime availability -- so add them to the ledger with their reasoning. While correcting those rows, state explicitly that the Tier 1 differential and the search-coverage grid pins are liveness and regression evidence for the UNSAT direction rather than countermodel trust, and reassess their cost on that basis. Nothing here licenses deleting or narrowing them, and the retained aggregate assertion stays. Cross-check the new search-coverage document and the section 7.1 sub-bullet list for consistency with whatever this item changes.
+ITEM 3, CONFIRM THE LEDGER REPAIR THAT HAS ALREADY BEEN APPLIED, AND EXTEND IT. Do NOT re-record the soundness/adequacy asymmetry or the trust base: docs/TRUST_PIPELINE.md already states both carefully, including that absence has no witness, that Z3, the encoder and the decoder are deliberately outside the trust base, and that the translation rather than the encoder is the weakest link. Three edits have ALREADY been applied to that document by the orchestrator and need verification rather than redoing: its stale "Widen the A2 grid to nb = nf = 2" remaining-work row was removed (the widened cases exist and pass); its "The standing test for A2" section no longer claims the test is blind to the one defect known to have occurred, and now records both the closed nb=2 blind spot with its measured cost and the move from an aggregate to a per-candidate leg (i)/(iii) comparison; and two new remaining-work rows were added for this task's own items 1 and 2. Confirm all three read correctly against what actually landed, and extend rather than duplicate them. What remains genuinely open for this item: state explicitly wherever the tiers are described that the Tier 1 differential and the search-coverage grid pins are liveness and regression evidence for the UNSAT direction rather than countermodel trust, reassess their cost on that basis, and cross-check SEARCH_COVERAGE.md and section 7.1's sub-bullet list for consistency. Nothing here licenses deleting or narrowing any test, and the retained aggregate assertion stays.
 
 COORDINATION, NOT DEPENDENCY. No hard dependency edge is declared, because item 2 is independent and is the most valuable thing to start. But the wire's output contract, proof-carrying acceptance, and parse-echo verification belong to the certificate-wire hardening task; if this task's research reaches them it stops and defers rather than deciding. Expect documentation overlap on ADEQUACY.md sections 6.2 and 7.4 and on SETTINGS.md, and re-read before editing.
 
