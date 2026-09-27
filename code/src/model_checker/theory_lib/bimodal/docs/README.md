@@ -22,6 +22,10 @@ Welcome to the comprehensive documentation for the Bimodal theory implementation
   implementation gap: the category argument for why a proof about the mathematics cannot
   discharge a claim about what the Z3 encoder emits, the complete emitted-constraint surface
   emitter by emitter, and a per-route analysis of what closing the gap would require.
+- **[Search Period Coverage](SEARCH_COVERAGE.md)** - The divisor-period gap in the certificate
+  search's `back`/`fwd` coverage: the exact-period folding fact and where it is pinned, three
+  routes compared for closing `ADEQUACY.md` section 7.1 condition (iii), the recommended bounded
+  sweep, and the staged path for building it.
 
 ### Getting Started
 
@@ -107,6 +111,17 @@ TRUST_PIPELINE.md rather than restating them:
   be blind to a defect class by construction
 - The trust-base consequence of obligation S3, and a per-route analysis of what closing the gap
   would actually require
+
+### SEARCH_COVERAGE.md
+The divisor-period gap in the certificate search's `back`/`fwd` coverage, extending ADEQUACY.md
+section 7.1 rather than restating it:
+- The exact-period folding fact behind `WitnessRegistry.wrap()`, and where it is pinned as a
+  machine-checked fact at the unit and integration levels
+- Two corrections to how the gap is often posed: a single bound already covers exactly its own
+  divisors, and neither candidate route touches the certificate wire format or the Lean re-checker
+- Three routes compared -- documentation alone, a bounded sweep, and an encoding reformulation --
+  and the decision
+- The asymmetric theorem-side cost that gates any default-behaviour change, and the staged path
 
 ## Theory Overview
 

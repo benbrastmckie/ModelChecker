@@ -238,17 +238,17 @@ in the phase notes — do not adjust the formula until it yields the reported an
 
 ---
 
-### Phase 3: Record the decision in a new bimodal doc [NOT STARTED]
+### Phase 3: Record the decision in a new bimodal doc [COMPLETED]
 
 **Goal**: The recommendation, the three-route comparison, the two corrections and the staged path
 live in the theory's own documentation, not only in a task report.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/theory_lib/bimodal/docs/SEARCH_COVERAGE.md` with sections
+- [x] Create `code/src/model_checker/theory_lib/bimodal/docs/SEARCH_COVERAGE.md` with sections
       covering, in order: the fact (exact-period folding in `WitnessRegistry.wrap()`, the
       divisibility rule, the measured non-monotonicity and where it is now pinned); the three
       routes compared; the decision and why; the staged path; and the open obligations.
-- [ ] In the routes section, state for each route what it costs and what it buys: documentation
+- [x] In the routes section, state for each route what it costs and what it buys: documentation
       alone leaves the adequacy document's condition (iii) undischarged; the bounded sweep over
       `back' ∈ [1,back] × fwd' ∈ [1,fwd]` with `mid` fixed needs zero changes to
       `WitnessRegistry`, `WitnessConstraintGenerator` or `certificate.py` and leaves the one-hot
@@ -256,31 +256,34 @@ live in the theory's own documentation, not only in a task report.
       re-encoding costs new clause shapes in three modules plus a re-established
       encoding-completeness argument, for the same asymptotic work concentrated in one harder
       instance.
-- [ ] Record the two corrections explicitly, each under its own heading so a future reader cannot
+- [x] Record the two corrections explicitly, each under its own heading so a future reader cannot
       miss them: (1) at a single bound the search already represents exactly the periods dividing
       that bound, so a "union over the divisors of the bound" is today's behavior rather than a
       change — the load-bearing version is the `1..n` sweep, since every `p ≤ n` divides itself;
       (2) neither route touches the certificate wire format or the Lean-side re-checker, because
       `LabelledLasso`'s segment lengths and `recheck`'s windows are derived from the exported label
       arrays, not from the search's configured settings.
-- [ ] Record the proportionality argument: the frame-class gap permanently caps the achievable
+- [x] Record the proportionality argument: the frame-class gap permanently caps the achievable
       claim at ℤ-time validity and the compression obligation is unstarted, so the sweep
       discharges condition (iii) exactly as well as the re-encoding would, at materially lower
       engineering and proof cost.
-- [ ] Record the asymmetric cost as the gating measurement, in its own subsection: a theorem-style
+- [x] Record the asymmetric cost as the gating measurement, in its own subsection: a theorem-style
       (`expectation: False`) example must exhaust the entire `back_max × fwd_max` grid with every
       call UNSAT before the sweep can report UNSAT — no early exit on the negative side — so
       theorem-style examples pay the full multiplicative cost every run, and no default change
       should ship before this is measured against the example suite.
-- [ ] Record the open obligations as a named list: build the sweep driver; expose it as an opt-in
+- [x] Record the open obligations as a named list: build the sweep driver; expose it as an opt-in
       setting rather than flipping the default; benchmark it with attention to the theorem side;
       re-derive condition (iii) as discharged once the compression bound lands; and respect the
       two-phase certificate-emission idempotency guard when constructing more than one registry
       per solve.
-- [ ] Add the doc to `docs/README.md` in both places the hub lists docs: the Quick Navigation
+- [x] Add the doc to `docs/README.md` in both places the hub lists docs: the Quick Navigation
       bullet list and the per-file overview section below it.
-- [ ] Cite only durable anchors — doc names, section headings, symbol names, paths under `code/` —
-      and no task number or `specs/` path anywhere in either file.
+- [x] Cite only durable anchors — doc names, section headings, symbol names, paths under `code/` —
+      and no task number or `specs/` path anywhere in either file. Verified by direct grep (the
+      repo-wide `check-task-references.sh` scans only `agent-system/extensions`, `.opencode`,
+      `lua`, `.memory` — it does not cover `code/`, so this task grepped both files directly for
+      `task N`/`specs/NNN_` patterns and found none.
 
 **Timing**: 1.5 hours
 
