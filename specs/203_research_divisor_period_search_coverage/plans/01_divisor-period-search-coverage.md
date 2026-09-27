@@ -308,25 +308,32 @@ live in the theory's own documentation, not only in a task report.
 
 ---
 
-### Phase 4: Point condition (iii) at the new doc, if the file is free [NOT STARTED]
+### Phase 4: Point condition (iii) at the new doc, if the file is free [COMPLETED]
 
 **Goal**: A reader arriving at the adequacy document's condition (iii) — the condition this
 non-monotonicity falsifies as worded — finds the decision record, without this task editing over a
 sibling's in-flight work.
 
 **Tasks**:
-- [ ] Run `git status --short -- code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` and
+- [x] Run `git status --short -- code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` and
       `git log --oneline -3 -- code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md`.
+      Path was clean (no foreign uncommitted modification); the three most recent commits touching
+      the file were all from the concurrent sibling task (195) and an unrelated prior task (202),
+      already committed, not in-flight.
 - [ ] **If the path shows a foreign uncommitted modification** (the concurrent sibling task owns
       this file this cycle): take the no-edit branch. Make no change to `ADEQUACY.md`. Instead add
       one line to `SEARCH_COVERAGE.md`'s open-obligations list recording that the cross-reference
       from condition (iii) is still owed, mark this phase `[BLOCKED]` with that reason, and report
       the observation — including what `git log` showed — rather than proceeding.
-- [ ] **If the path is clean**: re-read section 7.1 immediately beforehand, then add a single
+      (Not taken — the path was clean.)
+- [x] **If the path is clean**: re-read section 7.1 immediately beforehand, then add a single
       additive sentence under condition (iii) pointing at `SEARCH_COVERAGE.md` by name for the
       route comparison and the decision. Change no existing wording, and do not restate the
-      routes.
-- [ ] Stage only this one path by explicit filename; never a directory or glob pathspec.
+      routes. Divergence from the Scope Hypothesis: the sibling task (195) had already restructured
+      the flat condition (iii) into concrete sub-bullets (iii-a) through (iii-e); the pointer was
+      placed at (iii-a) ("Fix the length space"), the sub-bullet that is exactly the sweep/route
+      question, as the Scope Hypothesis's fallback instructs when the anchor has moved.
+- [x] Stage only this one path by explicit filename; never a directory or glob pathspec.
 
 **Timing**: 0.5 hours
 

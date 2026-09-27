@@ -619,7 +619,9 @@ concrete work in this repository, in dependency order:
 - **(iii-a) Fix the length space** — either sweep `(back, mid, fwd)` over the grid up to the bound
   (`f^3` individually cheap solves, and the only form under which "the same family space" is
   literally true) or restate A3 in divisor terms. This is the **only blocking** prerequisite:
-  without it, (iii) is unprovable rather than merely unproved.
+  without it, (iii) is unprovable rather than merely unproved. `docs/SEARCH_COVERAGE.md` compares
+  this bullet's two options against a third (an encoding reformulation) and recommends the
+  bounded sweep, staging the work this bullet still names as unbuilt.
 - **(iii-b) State and check the represented space** — a written specification of exactly what the
   encoder's satisfying assignments represent: families over closure `C` with
   `1 + |{Box members}|` lassos when `max_witnesses` is uncapped, labels `⊆ C`, segment lengths
