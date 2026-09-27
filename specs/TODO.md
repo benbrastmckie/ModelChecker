@@ -11,7 +11,7 @@ next_project_number: 207
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 197,198,203,204,205,206 | -- | architecture, testing, semantics |
+| 1 | 197,198,204,205,206 | -- | architecture, testing, semantics |
 | 2 | 199,200 | 197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -34,7 +34,6 @@ next_project_number: 207
 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
-203 [IMPLEMENTING] — Research and recommend whether the bimodal search should...
 
 ## Tasks
 
@@ -93,12 +92,13 @@ Out of scope: the A1 compression bound, the divisor-period sweep driver, the har
 ---
 
 ### 203. Research divisor period search coverage
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [203_research_divisor_period_search_coverage/reports/01_divisor-period-search-coverage.md]
 - **Plan**: [203_research_divisor_period_search_coverage/plans/01_divisor-period-search-coverage.md]
+- **Summary**: [203_research_divisor_period_search_coverage/summaries/01_divisor-period-search-coverage-summary.md]
 
 **Description**: Research and recommend whether the bimodal search should cover all divisor-periods up to each bound rather than only the exact period, and at what cost. WitnessRegistry.wrap() currently fixes exact periods, so a family of back-period nbprime is representable only when nbprime divides nb, making the searched space non-monotone in back/mid/fwd (a formula can be SAT at (3,1,3) and (6,1,6) while genuinely UNSAT at (4,1,4) and (5,1,5)). Documenting that behavior honestly is handled by a separate task; this task evaluates fixing it. Compare at least three routes: (a) leave exact-period semantics and rely on documentation plus a user-facing rule; (b) search the union over all divisors of each bound, assessing the blow-up in slot count, Z3 variable count and solve time, and whether the one-hot sel selector and conditions (C1)-(C4) survive unchanged; (c) reformulate the encoding so a bound means "period at most n" directly, and cost what that does to the certificate wire format and the Lean-side re-checker, which consume the same window bounds. Weigh each against the proportionality constraint the adequacy document establishes, and account for the interaction with ADEQUACY.md section 7.1 condition (iii), which this non-monotonicity falsifies as worded. Deliver a report with a recommendation and a staged path, not an implementation.
 
