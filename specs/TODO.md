@@ -1,5 +1,5 @@
 ---
-next_project_number: 208
+next_project_number: 209
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 208
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 197,198,205,206,207 | -- | architecture, testing, semantics |
+| 1 | 197,198,205,206,207,208 | -- | architecture, testing, semantics, ... |
 | 2 | 199,200 | 197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -35,7 +35,29 @@ next_project_number: 208
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 
+### Test Reliability
+
+208 [NOT STARTED] — Fix the logos subtheory-orchestration meta-test, which sits...
+
 ## Tasks
+
+### 208. Fix logos subtheory meta test timeout
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: None
+
+**Description**: Fix the logos subtheory-orchestration meta-test, which sits over CI's per-test timeout ceiling with negative margin and duplicates coverage the gate already collects directly. This is a pre-existing condition, not a regression: it was observed intermittently failing and then passing across two runs of the same gate in the same working tree with no intervening code change, which is the signature of a test sitting exactly on its timeout boundary.
+
+MEASURED EVIDENCE, CONFIRM BEFORE CHANGING ANYTHING. code/src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py::TestSubtheoryOrchestration::test_all_subtheory_tests_pass runs 320.90s in isolation on an idle host with no timeout flag applied. CI's gate (.github/workflows/tests.yml) runs with --timeout=300 --timeout-method=thread, so the isolated figure already exceeds the per-test ceiling by roughly 21 seconds. Across two runs of the full repository gate under CI's exact invocation shape on the same tree it both passed (3098 passed, 0 failed) and failed (1 failed, 3097 passed), which is consistent with a boundary case rather than a deterministic failure or an ordinary flake.
+
+WHY IT COSTS WHAT IT COSTS. The test body is a serial for-loop over subtheory names that spawns a nested pytest per subtheory via subprocess.run with capture_output=True. Three consequences worth separating. It is serial by construction, so it gains nothing from -n 4 for its own runtime while still contending with the other three xdist workers for cores, which is why its wall time moves with overall system load. It carries NO pytest markers at all -- not slow, not xdist_serial, and no per-test timeout override -- so CI's marker expression selects it unconditionally. And it largely duplicates work: the subtheory test suites it shells out to are already collected and run directly by the same repository-wide gate, so the nested runs re-execute tests that have already passed in the parent session, making this plausibly the single most wasteful item in the suite.
+
+WHAT TO DECIDE. Establish first whether this meta-test adds any coverage the direct collection does not. If the subtheory suites are fully collected by the gate already, the honest outcome may be deletion rather than optimization, and that should be stated plainly rather than avoided out of caution; if it does add something (an isolation property, a per-subtheory independence guarantee, a check that each suite passes standalone rather than only in aggregate), identify exactly what, and preserve that specific property by the cheapest means rather than by re-running every test in a subprocess. Compare at least: deleting it in favour of direct collection; replacing the subprocess loop with in-process collection checks that assert the independence property without re-executing; marking it xdist_serial or slow and moving it off the per-PR path to a scheduled run; and parallelising the subprocess loop. Measure before and after under CI's exact invocation shape, and report both numbers rather than an estimate.
+
+CONSTRAINTS. Do not simply raise the timeout to make a 320-second test fit -- that hides the cost rather than addressing it, and the ceiling exists to bound total CI latency. Do not lose any assertion the meta-test currently makes without saying explicitly what was dropped and why it is safe. Verify against the full repository gate under CI's own invocation shape, since the fix changes what the gate selects. Check whether sibling theories carry the same nested-pytest meta-test pattern and report any found, but fix only logos here unless the same fix applies mechanically.
+
+---
 
 ### 207. Fix stale all constraints snapshot
 - **Status**: [NOT STARTED]
