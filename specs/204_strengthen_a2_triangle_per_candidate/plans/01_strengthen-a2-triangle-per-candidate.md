@@ -1,7 +1,7 @@
 # Implementation Plan: Per-Candidate A2-Triangle Leg (i)/(iii) Comparison
 
 - **Task**: 204 - strengthen_a2_triangle_per_candidate
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6.5 hours
 - **Dependencies**: 195 (research complete; its implementation phase is concurrent — see Risks)
 - **Research Inputs**: `specs/204_strengthen_a2_triangle_per_candidate/reports/01_strengthen-a2-triangle-per-candidate.md`
@@ -406,32 +406,72 @@ commitment.
 
 ---
 
-### Phase 5: Full gate, Tier 2 clean-skip check, and findings report [IN PROGRESS]
+### Phase 5: Full gate, Tier 2 clean-skip check, and findings report [COMPLETED]
 
 **Goal**: Close the task against the repository's full gate, confirm Tier 2's clean-skip discipline
 is intact, and report any genuine divergence as a finding without diagnosing it.
 
+**Results**:
+- Full bimodal suite, serial: `595 passed, 1 warning in 188.97s`.
+- Full bimodal suite, CI shape (`-n 4 --timeout=300 --timeout-method=thread`): `595 passed, 1
+  warning in 319.21s`.
+- Repository gate, parallel pass (`.github/workflows/tests.yml:208`'s exact command): `3 failed,
+  3095 passed, 1 skipped, 5 warnings in 390.86s`. The 3 failures are
+  `theory_lib/exclusion/tests/unit/test_print_encoding.py::TestWitnessFunctionsEncoding` (cp1252
+  arrow-encoding cases) -- confirmed by `git log` to originate from an unrelated task
+  (`4cb1a76b`, "task 182 phase 2: failing cp1252 regression coverage for the print sites"), whose
+  own module docstring states plainly: "Every cp1252 assertion here is expected to FAIL against
+  unmodified source ... landed RED before Phase 3 routes this call site through
+  `model_checker.utils.glyphs`." Pre-existing, intentionally RED, and outside `theory_lib/bimodal`
+  entirely -- not touched by this task's diff and not a regression this task introduced.
+- Repository gate, serial `xdist_serial` pass (`.github/workflows/tests.yml:212`'s exact
+  command): `9 passed, 3228 deselected in 5.54s`.
+- Tier 2 clean-skip, with `BIMODAL_LOGIC_PATH` pointed at a nonexistent checkout: `3 skipped in
+  0.39s`, zero failures.
+- `git diff --stat` for this task's own three commits (`e9178908`, `27d70575`, `580b0844`)
+  confirmed confined to `tests/_pinned_eval.py` (new), `tests/unit/test_pinned_eval.py` (new),
+  `tests/integration/test_certificate_a2_triangle.py` (modified), and this plan file -- no
+  `semantic/`/`models/` source file touched.
+- No genuine A2 per-candidate divergence was found: `pinned_accepted == accepted` held for all
+  six Tier 1 cases across every run (Phase 3's box-free GREEN run, Phase 4's module-alone and
+  CI-shaped runs, and this phase's full-suite/gate runs) -- see the task summary's Findings
+  section for the full statement of this (negative) result.
+
 **Tasks**:
-- [ ] Run the full bimodal suite:
+- [x] Run the full bimodal suite:
       `cd code && PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal -q --timeout=300 --timeout-method=thread`.
-- [ ] Run the repository gate set as CI does (the same two passes as
+- [x] Run the repository gate set as CI does (the same two passes as
       `.github/workflows/tests.yml:208` and `:212`) and confirm green.
-- [ ] Verify Tier 2 (`TestBoundedLeanCrossCheck`, `:359-522`) still **skips cleanly** (never fails)
+
+      Green for this task's own scope; 3 pre-existing, unrelated failures in
+      `theory_lib/exclusion` documented above, not caused by this task and not silenced.
+- [x] Verify Tier 2 (`TestBoundedLeanCrossCheck`, `:359-522`) still **skips cleanly** (never fails)
       with no BimodalLogic checkout — run it with the checkout unavailable and confirm the
       `skipif(SKIP_REASON is not None, ...)` path reports skips, and that no new import from
       `_pinned_eval` is reachable from Tier 2's collection path.
-- [ ] Confirm the diff touches no non-test source file (`semantic/`, `models/` unchanged) — this
+
+      Confirmed: Tier 2's own code (`_sampled_candidates`, `_assert_lean_agrees`) never
+      references `_pinned_eval`/`compile_and_bind` -- only Tier 1's `_run_exhaustive_triangle`
+      does, by inspection.
+- [x] Confirm the diff touches no non-test source file (`semantic/`, `models/` unchanged) — this
       task strengthens a differential, it does not change the encoder.
-- [ ] If any genuine per-candidate divergence was observed at any point, record it as a finding in
+- [x] If any genuine per-candidate divergence was observed at any point, record it as a finding in
       the task summary: the candidate, which leg accepted, the offending constraint, and the
       incompleteness-vs-unsoundness reading (`ADEQUACY.md` section 7.3). Do **not** diagnose or
       modify the encoder.
-- [ ] Note as follow-up (not done here): the `ADEQUACY.md` section 7.3 / `A2_GAP.md` update
+
+      None observed (see Results above); a false divergence surfaced during Phase 3 traced to
+      this task's own harness bug (documented as a Phase 3 deviation), not the encoder.
+- [x] Note as follow-up (not done here): the `ADEQUACY.md` section 7.3 / `A2_GAP.md` update
       recording that leg (iii) is now per-candidate, deferred because task 195's concurrent
       implementation owns those sections; and the report's Context Extension Recommendation (a
       short note on the compile-vs-interpret cost distinction for solver-free Z3 clause
       evaluation).
-- [ ] Commit.
+
+      Both recorded in the task summary's Follow-ups section, along with a third follow-up this
+      phase surfaced: `models/structure.py:344-349`'s debug print reads the same stale
+      `model_constraints.all_constraints` attribute this task's Phase 3 deviation diagnosed.
+- [x] Commit.
 
 **Timing**: 0.75 hours
 
