@@ -518,8 +518,14 @@ absent from the local `BimodalLogic` checkout and is deferred, not attempted her
 
 **(ADEQ).** *Let `f` be a computable function of `|C|`. If some `σ ∈ Δ` is not a ℤ-time
 consequence of `Γ` — i.e. `¬ SemanticConsequenceIn FrameClass.ZTime Γ σ` — then the search, run at
-segment-length settings `back, mid, fwd ≥ f(|C|)`, returns SAT and emits a certificate satisfying
-(C1)–(C4).*
+segment-length settings at which the compressed witness family is **representable** — `back` and
+`fwd` common multiples of that family's back/fwd periods (each bounded by `f(|C|)`), and `mid` at
+least the family's mid length — returns SAT and emits a certificate satisfying (C1)–(C4). This is
+deliberately not stated as `back, mid, fwd ≥ f(|C|)`: `WitnessRegistry.wrap()` folds `back`/`fwd`
+positions by exact period, so a family of back-period (or fwd-period) `p` is representable at
+configured length `n` iff `p` divides `n` — magnitude alone does not suffice, and a bare `≥ f(|C|)`
+condition can be false even when the underlying family exists (§7.1 states the two routes to a
+genuine sufficient condition).*
 
 **This direction must not be asserted.** It is bounded-search-relative, it is stated at frame
 class ℤ-time only, and it decomposes into three components plus one permanent limit:
@@ -529,7 +535,7 @@ class ℤ-time only, and it decomposes into three components plus one permanent 
 | **A0** | Frame-class gap: ℤ-time completeness does not imply completeness for `def:logical-consequence` at every temporal order | **Permanent limit.** §7.2. |
 | **A1** | Compression: a ℤ-time countermodel yields a certificate with lengths bounded by `f(\|C\|)` | **Open.** Route named, not built. §7.1. |
 | **A2** | Encoding completeness: a certificate within the configured lengths implies the Z3 encoding is SAT | **Provable and testable now.** §7.3. |
-| **A3** | Bound realization: configured lengths ≥ `f(\|C\|)` | Vacuous until A1 supplies `f`. |
+| **A3** | Bound realization: configured `back`/`fwd` are common multiples of the compressed family's periods (each bounded by `f(\|C\|)`), and `mid` is at least its mid length — a representability, not a magnitude, condition | Vacuous until A1 supplies `f`. |
 
 ### 7.1 A1 — compression, open, with the route named
 
@@ -588,8 +594,18 @@ it. What would have to be true for a genuine reduction: (i) an analogue whose hy
 (ii) a bound depending only on `|closureOf (Γ ++ Δ)|`, obtained by compressing over
 **subformula-set space** (pigeonhole `2^|C|`, closed) rather than presentation states
 (pigeonhole `P.card`, unbounded); and (iii) a demonstration that this repository's search
-enumerates the same family space at a segment length at least that bound — unbuildable until a
-certificate export and independent re-checker exist here at all (§6 supplies both).
+*represents* the compressed family at the configured `back`/`fwd`/`mid` — not merely that
+`back, mid, fwd` are "at least" the bound, since `WitnessRegistry.wrap()` folds `back`/`fwd`
+positions by exact period: a family with back-period (or fwd-period) `p` is representable at
+configured length `n` iff `p` divides `n`, measured against the live search — one formula is SAT at
+`(back, mid, fwd) = (3, 1, 3)` and `(6, 1, 6)` but genuinely UNSAT (`timeout=False`, sub-second) at
+`(4, 1, 4)` and `(5, 1, 5)`, exactly as `6 ∤ 4`, `6 ∤ 5` predicts. Two routes to a genuine
+sufficient condition are available, neither implemented: take `back`/`fwd` as a common multiple of
+every candidate period up to `f(|C|)` — correct, but `lcm(1, ..., f)` grows as `e^{O(f)}`, so this
+is impractical for any but the smallest `f` — or sweep the grid of `(back, mid, fwd)` triples up to
+`f(|C|)` and re-run the search at each, `f^3` solver calls, individually cheap but not yet built.
+Either route is unbuildable until a certificate export and independent re-checker exist here at all
+(§6 supplies both).
 
 ### 7.2 A0 — the frame-class gap, a permanent limit A1 cannot close
 

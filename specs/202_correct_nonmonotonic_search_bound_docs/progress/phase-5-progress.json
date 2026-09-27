@@ -1,0 +1,16 @@
+{
+  "phase": 5,
+  "phase_name": "docs/ADEQUACY.md — the three coordinated spots",
+  "started_at": "2026-09-26T00:50:00Z",
+  "last_updated": "2026-09-26T01:00:00Z",
+  "objectives": [
+    {"id": 1, "description": "(ADEQ) lede restated as representability condition", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 2, "description": "A3 row restated as divisibility/representability", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 3, "description": "7.1(iii) restated honestly with two named routes, neither implemented", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "Added mechanism+evidence sentence near (iii)", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 5, "description": "A0/A1/A2 status and A2_GAP.md untouched; three spots re-read for consistency", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 5,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

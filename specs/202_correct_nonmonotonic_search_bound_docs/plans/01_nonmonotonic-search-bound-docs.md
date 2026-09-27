@@ -298,32 +298,32 @@ lines mentioning `back`/`mid`/`fwd`/`segment`; fix any additional hit in this ph
 
 ---
 
-### Phase 5: `docs/ADEQUACY.md` — the three coordinated spots [NOT STARTED]
+### Phase 5: `docs/ADEQUACY.md` — the three coordinated spots [COMPLETED]
 
 **Goal**: Correct the `(ADEQ)` statement, the A3 table row, and 7.1 condition (iii) together, so
 the document's headline claim and its components agree that sufficiency is a divisibility
 condition, not a magnitude one.
 
 **Tasks**:
-- [ ] `(ADEQ)` lede (`:519-522`): the direction is currently stated at "segment-length settings
+- [x] `(ADEQ)` lede (`:519-522`): the direction is currently stated at "segment-length settings
       `back, mid, fwd >= f(|C|)`". Restate the condition so it is satisfiable in principle:
       settings at which the compressed family is *representable* — `back` and `fwd` common
       multiples of the family's periods (with `mid >= ` the needed mid length) — rather than merely
-      `>= f(|C|)`.
-- [ ] A3 row (`:532`): change "Bound realization: configured lengths `>= f(|C|)`" to a
+      `>= f(|C|)`. *(completed)*
+- [x] A3 row (`:532`): change "Bound realization: configured lengths `>= f(|C|)`" to a
       divisibility/representability formulation, and keep its "Vacuous until A1 supplies `f`"
-      status — A3 remains vacuous; what changes is *what* A3 would have to deliver.
-- [ ] 7.1 condition (iii) (`:590-592`): replace "at a segment length at least that bound" with an
+      status — A3 remains vacuous; what changes is *what* A3 would have to deliver. *(completed)*
+- [x] 7.1 condition (iii) (`:590-592`): replace "at a segment length at least that bound" with an
       honest formulation. Name both routes the research recorded, as alternatives, without
       committing to either: `back`/`fwd` a common multiple of every candidate period up to
       `f(|C|)` (correct but `lcm(1..f) = e^{O(f)}`, impractical), or a sweep of `(back, mid, fwd)`
-      over the grid up to `f(|C|)` (`f^3` solver calls, cheap). State that neither is implemented.
-- [ ] Add one sentence (in 7.1, near (iii)) recording the mechanism and its evidence: `wrap()`
+      over the grid up to `f(|C|)` (`f^3` solver calls, cheap). State that neither is implemented. *(completed)*
+- [x] Add one sentence (in 7.1, near (iii)) recording the mechanism and its evidence: `wrap()`
       folds `back`/`fwd` by exact period, so representability is `p | n`, measured — SAT at
-      `(3,1,3)`/`(6,1,6)`, genuinely UNSAT at `(4,1,4)`/`(5,1,5)`.
-- [ ] Do not weaken or restate A0/A1/A2 status, and do not touch `A2_GAP.md`.
-- [ ] Re-read the section 7 header, the table, and 7.1 together to confirm the three corrected
-      spots now say the same thing.
+      `(3,1,3)`/`(6,1,6)`, genuinely UNSAT at `(4,1,4)`/`(5,1,5)`. *(completed)*
+- [x] Do not weaken or restate A0/A1/A2 status, and do not touch `A2_GAP.md`. *(completed)*
+- [x] Re-read the section 7 header, the table, and 7.1 together to confirm the three corrected
+      spots now say the same thing. *(completed)*
 
 **Timing**: 35 minutes
 
