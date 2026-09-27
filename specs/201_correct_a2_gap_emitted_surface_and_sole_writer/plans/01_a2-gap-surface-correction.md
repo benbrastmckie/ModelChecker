@@ -176,11 +176,11 @@ narrower true claim, keeps the by-reference-alias rationale, and points at secti
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` passes — no behavioral change expected from a comment-only source edit
-- [ ] `grep -rn "seven emission call sites\|seven call sites\|all seven" code/src/model_checker/theory_lib/bimodal/docs/ docs/` returns nothing
-- [ ] `grep -n "sole writer" code/src/model_checker/theory_lib/bimodal/semantic/core.py` shows only the scoped claim
-- [ ] `git diff --stat` shows exactly two modified files: `docs/A2_GAP.md` and `semantic/core.py`
-- [ ] Every file:line citation added by any phase resolves to what it claims (spot-check `iterate.py:190/231/266/280`, `witness_registry.py:183`, `certificate.py:219-221`, `witness_constraints.py:238`, `models/constraints.py:80`)
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` passes — no behavioral change expected from a comment-only source edit *(completed: 508 passed in 141.86s)*
+- [x] `grep -rn "seven emission call sites\|seven call sites\|all seven" code/src/model_checker/theory_lib/bimodal/docs/ docs/` returns nothing *(completed)*
+- [x] `grep -n "sole writer" code/src/model_checker/theory_lib/bimodal/semantic/core.py` shows only the scoped claim *(completed)*
+- [x] `git diff --stat` shows exactly two modified files: `docs/A2_GAP.md` and `semantic/core.py` *(completed)*
+- [x] Every file:line citation added by any phase resolves to what it claims (spot-check `iterate.py:190/231/266/280`, `witness_registry.py:183`, `certificate.py:219-221`, `witness_constraints.py:238`, `models/constraints.py:80`) *(completed)*
 
 ## Artifacts & Outputs
 
