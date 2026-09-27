@@ -4,24 +4,26 @@
     {
       "project_number": 204,
       "project_name": "strengthen_a2_triangle_per_candidate",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "python",
       "description": "Strengthen the A2-triangle encoding-completeness differential from an aggregate verdict to a per-candidate comparison. The leg (i) versus leg (iii) comparison is currently a one-bit existential at tests/integration/test_certificate_a2_triangle.py:238 -- (accepted > 0) == z3_model_status -- so up to 10.5 million enumerated candidates collapse into a single SAT/UNSAT agreement, while A2 is a claim about each candidate individually. A candidate the encoder wrongly rejects and the re-checker accepts, or the reverse, is invisible so long as the aggregate verdicts still agree. Compare the two legs candidate by candidate instead, reporting the first divergence with enough of the candidate to diagnose it. Keep the cost envelope in view: the widest configured closure already reaches 10.5 million candidates, so measure before committing to unconditional execution and tier or slow-mark the new comparison as the existing cases are, verifying against CI exact invocation shape (--timeout=300 --timeout-method=thread, run with -n 4) rather than a bare idle-host figure. Keep Tier 2 clean-skip discipline intact. Report any genuine divergence as a finding; diagnosing the encoder is out of scope. This is the lead recommendation of the encoder-specification proof-routes research, preferred over routes that attempt proof.",
       "topic": "testing",
       "created": "2026-09-26T22:07:52Z",
-      "last_updated": "2026-09-26T22:07:52Z",
-      "dependencies": []
+      "last_updated": "2026-09-27T06:13:48Z",
+      "dependencies": [],
+      "session_id": "sess_1790489608_0857c5_204"
     },
     {
       "project_number": 203,
       "project_name": "research_divisor_period_search_coverage",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "z3",
       "description": "Research and recommend whether the bimodal search should cover all divisor-periods up to each bound rather than only the exact period, and at what cost. WitnessRegistry.wrap() currently fixes exact periods, so a family of back-period nbprime is representable only when nbprime divides nb, making the searched space non-monotone in back/mid/fwd (a formula can be SAT at (3,1,3) and (6,1,6) while genuinely UNSAT at (4,1,4) and (5,1,5)). Documenting that behavior honestly is handled by a separate task; this task evaluates fixing it. Compare at least three routes: (a) leave exact-period semantics and rely on documentation plus a user-facing rule; (b) search the union over all divisors of each bound, assessing the blow-up in slot count, Z3 variable count and solve time, and whether the one-hot sel selector and conditions (C1)-(C4) survive unchanged; (c) reformulate the encoding so a bound means \"period at most n\" directly, and cost what that does to the certificate wire format and the Lean-side re-checker, which consume the same window bounds. Weigh each against the proportionality constraint the adequacy document establishes, and account for the interaction with ADEQUACY.md section 7.1 condition (iii), which this non-monotonicity falsifies as worded. Deliver a report with a recommendation and a staged path, not an implementation.",
       "topic": "semantics",
       "created": "2026-09-26T22:07:41Z",
-      "last_updated": "2026-09-26T22:07:41Z",
-      "dependencies": []
+      "last_updated": "2026-09-27T06:13:47Z",
+      "dependencies": [],
+      "session_id": "sess_1790489608_0857c5_203"
     },
     {
       "project_number": 202,
@@ -273,7 +275,7 @@
     {
       "project_number": 195,
       "project_name": "research_encoder_spec_proof_routes",
-      "status": "researched",
+      "status": "planned",
       "task_type": "formal",
       "topic": "architecture",
       "description": "Research and recommend a route to actually prove, rather than test, that the bimodal certificate encoder emits exactly the conjunction of conditions (C1)-(C4) over windows at least as wide as ADEQUACY.md section 5.2's. The mathematical content is already machine-checked and sorry-free; the open obligation is the code-to-specification bridge that section 5.3 argues a proof does not discharge for a specific piece of Python. Evaluate at least three routes and recommend one with a cost estimate: (a) a verified generator, emitting the constraint set from Lean-verified code or extracting the encoder from it; (b) translation validation, or a proof-producing encoder that certifies per run that its emitted clause set matches a verified specification -- the only route that establishes the property for the code that actually runs; and (c) a second independent implementation plus differential, which is what the standing A2-triangle test already is, assessed honestly as evidence rather than proof. Weigh each against the proportionality constraint the adequacy document itself establishes: A3 is vacuous until A1 supplies f, and A0 caps the strongest honest claim at \"Z-time valid\" permanently, so a fully discharged A2 hardens section 7.4's never-report-validity rule, which already has a runtime fail-fast guard, rather than upgrading the headline result. Deliver a report with a recommendation and a staged path, not an implementation.\nADDENDUM, two findings that constrain this research and must be accounted for rather than rediscovered. First, route (b)/(c) must not re-propose a verified bounded enumerator: BimodalLogic's compression task already scopes one as its item 2 -- the formula-indexed candidate list over the compression bounds plus Decidable ValidZTime by decidable_of_iff from \"no candidate is accepted\", following BiLasso/Assembly.lean's validZTime_iff_checkFamily shape. Since the four Decidable instances and enumeration completeness are already landed there, a verified enumerator deciding bounded absence directly is the cheaper route to rigor than either proving this repository's encoder correct or reconstructing Z3 unsat proofs, and it does not require trusting Z3 at all. Evaluate it as an existing external deliverable to consume, and weigh the remaining local A2 work against it. Second, ADEQUACY.md section 7.1's condition (iii) for a genuine A1 reduction -- a demonstration that this repository's search enumerates the same family space at a segment length at least that bound -- was recorded as unbuildable until a certificate export and an independent re-checker existed here at all. Section 6 now supplies both, so that condition is satisfiable today; the research should say what demonstrating it would concretely require of this repository.",
@@ -281,8 +283,8 @@
         192
       ],
       "created": "2026-09-26T07:24:26Z",
-      "last_updated": "2026-09-26T19:19:33Z",
-      "session_id": "sess_1790440270_1867f0",
+      "last_updated": "2026-09-27T06:22:29Z",
+      "session_id": "sess_1790489608_0857c5",
       "file_scope": [
         "code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md",
         "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
@@ -296,6 +298,11 @@
           "path": "specs/195_research_encoder_spec_proof_routes/reports/01_encoder-spec-proof-routes.md",
           "type": "report",
           "summary": "Evaluates five routes to proving the bimodal certificate encoder emits exactly (C1)-(C4) (verified generator/extraction, a cheaper verified SMT-LIB emitter variant, translation validation, the standing differential, and consuming BimodalLogic's verified bounded enumerator), recommends a four-stage path led by a per-candidate strengthening of the existing differential plus the 7.1(iii) prerequisites, and reports a measured non-monotonicity of the searched family space in back/mid/fwd that falsifies ADEQUACY.md 7.1(iii) as worded, makes A3's 'lengths >= f(|C|)' insufficient, and contradicts user-facing SETTINGS.md wording."
+        },
+        {
+          "path": "specs/195_research_encoder_spec_proof_routes/plans/01_encoder-spec-proof-routes.md",
+          "type": "plan",
+          "summary": "6-phase documentation-plus-one-test plan integrating the encoder-specification proof-routes research into A2_GAP.md, ADEQUACY.md, and the A0 standing test."
         }
       ],
       "next_artifact_number": 2

@@ -22,23 +22,23 @@ next_project_number: 205
 
 ### Architecture
 
-195 [RESEARCHED] — Research and recommend a route to actually prove, rather than...
+195 [PLANNED] — Research and recommend a route to actually prove, rather than...
 
 ### Testing
 
-204 [NOT STARTED] — Strengthen the A2-triangle encoding-completeness differential...
+204 [RESEARCHING] — Strengthen the A2-triangle encoding-completeness differential...
 
 ### Semantics
 
 197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
-203 [NOT STARTED] — Research and recommend whether the bimodal search should...
+203 [RESEARCHING] — Research and recommend whether the bimodal search should...
 
 ## Tasks
 
 ### 204. Strengthen a2 triangle per candidate
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
@@ -48,7 +48,7 @@ next_project_number: 205
 ---
 
 ### 203. Research divisor period search coverage
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None
@@ -139,11 +139,12 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 ---
 
 ### 195. Research encoder spec proof routes
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: formal
 - **Topic**: architecture
 - **Dependencies**: Task 192
 - **Research**: [195_research_encoder_spec_proof_routes/reports/01_encoder-spec-proof-routes.md]
+- **Plan**: [195_research_encoder_spec_proof_routes/plans/01_encoder-spec-proof-routes.md]
 
 **Description**: Research and recommend a route to actually prove, rather than test, that the bimodal certificate encoder emits exactly the conjunction of conditions (C1)-(C4) over windows at least as wide as ADEQUACY.md section 5.2's. The mathematical content is already machine-checked and sorry-free; the open obligation is the code-to-specification bridge that section 5.3 argues a proof does not discharge for a specific piece of Python. Evaluate at least three routes and recommend one with a cost estimate: (a) a verified generator, emitting the constraint set from Lean-verified code or extracting the encoder from it; (b) translation validation, or a proof-producing encoder that certifies per run that its emitted clause set matches a verified specification -- the only route that establishes the property for the code that actually runs; and (c) a second independent implementation plus differential, which is what the standing A2-triangle test already is, assessed honestly as evidence rather than proof. Weigh each against the proportionality constraint the adequacy document itself establishes: A3 is vacuous until A1 supplies f, and A0 caps the strongest honest claim at "Z-time valid" permanently, so a fully discharged A2 hardens section 7.4's never-report-validity rule, which already has a runtime fail-fast guard, rather than upgrading the headline result. Deliver a report with a recommendation and a staged path, not an implementation.
 ADDENDUM, two findings that constrain this research and must be accounted for rather than rediscovered. First, route (b)/(c) must not re-propose a verified bounded enumerator: BimodalLogic's compression task already scopes one as its item 2 -- the formula-indexed candidate list over the compression bounds plus Decidable ValidZTime by decidable_of_iff from "no candidate is accepted", following BiLasso/Assembly.lean's validZTime_iff_checkFamily shape. Since the four Decidable instances and enumeration completeness are already landed there, a verified enumerator deciding bounded absence directly is the cheaper route to rigor than either proving this repository's encoder correct or reconstructing Z3 unsat proofs, and it does not require trusting Z3 at all. Evaluate it as an existing external deliverable to consume, and weigh the remaining local A2 work against it. Second, ADEQUACY.md section 7.1's condition (iii) for a genuine A1 reduction -- a demonstration that this repository's search enumerates the same family space at a segment length at least that bound -- was recorded as unbuildable until a certificate export and an independent re-checker existed here at all. Section 6 now supplies both, so that condition is satisfiable today; the research should say what demonstrating it would concretely require of this repository.

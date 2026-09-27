@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "task_number": 195,
+  "phases_completed": 0,
+  "phases_total": 6,
+  "dispatch_seq": 14,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/195_research_encoder_spec_proof_routes/plans/01_encoder-spec-proof-routes.md",
+      "summary": "6-phase documentation-plus-one-test plan integrating the encoder-specification proof-routes research into A2_GAP.md, ADEQUACY.md, and the A0 standing test."
+    }
+  ],
+  "next_steps": "Run /implement 195 to execute the plan",
+  "notes": "Report's Stage 1/2a-code/2b/2c/3/4 recommendations are deliberately excluded: they are owned by separate tasks or other repositories. Plan scope is the unabsorbed documentation conclusions plus the two in-file-scope free wins."
+}
