@@ -201,23 +201,23 @@ semantics and the operative rule, so every other site can cite it instead of res
 
 ---
 
-### Phase 3: `README.md` (three spots, including the duplicated settings block) [NOT STARTED]
+### Phase 3: `README.md` (three spots, including the duplicated settings block) [COMPLETED]
 
 **Goal**: Bring the theory README into line, keeping its `DEFAULT_EXAMPLE_SETTINGS` block a
 verbatim duplicate of `core.py`'s.
 
 **Tasks**:
-- [ ] Copy Phase 2's new `DEFAULT_EXAMPLE_SETTINGS` comment text verbatim into the README's
-      duplicated settings block (`README.md:167-168`), so the two remain byte-identical.
-- [ ] Rewrite the sentence at `:187-188` — "they bound the maximum size of the searched lasso
+- [x] Copy Phase 2's new `DEFAULT_EXAMPLE_SETTINGS` comment text verbatim into the README's
+      duplicated settings block (`README.md:167-168`), so the two remain byte-identical. *(completed)*
+- [x] Rewrite the sentence at `:187-188` — "they bound the maximum size of the searched lasso
       family" — to the exact-period framing for `back`/`fwd` plus direct-read for `mid`, with a
       pointer to `docs/SETTINGS.md` for the operative rule. Keep the rest of that paragraph
       (`max_witnesses`/`temporal_depth`, `contingent`/`disjoint`, the display-setting sentence)
-      untouched.
-- [ ] Correct the one-line summary at `:102` — "`back`/`mid`/`fwd` (maximum lasso segment
+      untouched. *(completed)*
+- [x] Correct the one-line summary at `:102` — "`back`/`mid`/`fwd` (maximum lasso segment
       lengths)" — to name `back`/`fwd` as exact periods and `mid` as the direct-read length. This
       site is inside an in-scope file and was not separately called out by the research sweep;
-      confirm it exists at that line before editing.
+      confirm it exists at that line before editing. *(completed)*
 
 **Timing**: 20 minutes
 

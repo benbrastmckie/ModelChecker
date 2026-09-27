@@ -99,9 +99,11 @@ This package includes the following core modules:
 `BimodalSemantics` (`semantic/core.py`) owns the certificate search's settings and its
 quantifier-free variable/constraint layer:
 
-- **Settings**: `back`/`mid`/`fwd` (maximum lasso segment lengths) and `max_witnesses` (an
-  optional cap on distinct witness lassos) in place of the retired `N`/`M`/`contingent`/
-  `disjoint`
+- **Settings**: `back`/`fwd` (exact cyclic periods of the lasso's back/fwd segments, not
+  maxima) and `mid` (a genuine maximum, direct-read segment length), plus `max_witnesses` (an
+  optional cap on distinct witness lassos), in place of the retired `N`/`M`/`contingent`/
+  `disjoint` — see [Settings](docs/SETTINGS.md) for the exact-period semantics and the
+  operative rule for choosing `back`/`fwd`
 - **The variable layer**: one `WitnessRegistry` (`semantic/witness_registry.py`) holding a
   Boolean per `(lasso, position slot, closure formula)` label bit and a Boolean box guess per
   boxed closure member — no `ForAll`/`Exists`, no MBQI, no E-matching pattern
@@ -165,8 +167,10 @@ The bimodal theory supports the following configurable settings:
 
 ```python
 DEFAULT_EXAMPLE_SETTINGS = {
-    # Maximum back/mid/fwd segment lengths for the searched LabelledLasso family
-    # (matching WitnessRegistry's nb/nm/nf). Small defaults, raised on demand.
+    # back/fwd: exact cyclic periods (not maxima) of the searched LabelledLasso family's
+    # back/fwd segments (matching WitnessRegistry's nb/nf); mid: direct-read segment
+    # length (nm), a genuine maximum. Small defaults; raise back/fwd as a multiple of
+    # the period of interest, not simply larger (see docs/SETTINGS.md).
     'back': 2,
     'mid': 1,
     'fwd': 2,
@@ -184,8 +188,13 @@ DEFAULT_EXAMPLE_SETTINGS = {
 }
 ```
 
-`back`, `mid`, and `fwd` replace `N`/`M`: they bound the maximum size of the searched lasso family
-rather than the size of a fixed finite frame, and `max_witnesses` replaces `temporal_depth`.
+`back`, `mid`, and `fwd` replace `N`/`M`, but not identically: `back` and `fwd` are the *exact*
+cyclic periods of the searched lasso family's back/fwd segments, not upper bounds — a family whose
+true period is `p` is representable only when `p` divides the configured length, so raising `back`
+or `fwd` is not monotone and can discard a family a smaller value represented. `mid` is the one
+direct-read segment length and is a genuine maximum; raising it does enlarge the search. See
+[Settings](docs/SETTINGS.md) for the full explanation and the operative rule. `max_witnesses`
+replaces `temporal_depth`.
 `contingent`/`disjoint` no longer exist — there is no proposition-level machinery left for them to
 gate. The bimodal theory defines no bimodal-specific *general* (display) setting any more: the
 certificate printer needs no vertical-alignment option, since every history prints as a single
