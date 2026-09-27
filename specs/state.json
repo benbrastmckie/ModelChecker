@@ -4,19 +4,24 @@
     {
       "project_number": 204,
       "project_name": "strengthen_a2_triangle_per_candidate",
-      "status": "planning",
+      "status": "planned",
       "task_type": "python",
       "description": "Strengthen the A2-triangle encoding-completeness differential from an aggregate verdict to a per-candidate comparison. The leg (i) versus leg (iii) comparison is currently a one-bit existential at tests/integration/test_certificate_a2_triangle.py:238 -- (accepted > 0) == z3_model_status -- so up to 10.5 million enumerated candidates collapse into a single SAT/UNSAT agreement, while A2 is a claim about each candidate individually. A candidate the encoder wrongly rejects and the re-checker accepts, or the reverse, is invisible so long as the aggregate verdicts still agree. Compare the two legs candidate by candidate instead, reporting the first divergence with enough of the candidate to diagnose it. Keep the cost envelope in view: the widest configured closure already reaches 10.5 million candidates, so measure before committing to unconditional execution and tier or slow-mark the new comparison as the existing cases are, verifying against CI exact invocation shape (--timeout=300 --timeout-method=thread, run with -n 4) rather than a bare idle-host figure. Keep Tier 2 clean-skip discipline intact. Report any genuine divergence as a finding; diagnosing the encoder is out of scope. This is the lead recommendation of the encoder-specification proof-routes research, preferred over routes that attempt proof.",
       "topic": "testing",
       "created": "2026-09-26T22:07:52Z",
-      "last_updated": "2026-09-27T06:22:47Z",
+      "last_updated": "2026-09-27T06:41:54Z",
       "dependencies": [],
-      "session_id": "sess_1790489608_0857c5_204",
+      "session_id": "sess_1790489608_0857c5",
       "artifacts": [
         {
           "path": "specs/204_strengthen_a2_triangle_per_candidate/reports/01_strengthen-a2-triangle-per-candidate.md",
           "type": "report",
           "summary": "Confirms the A2-triangle leg (i)/(iii) comparison is a one-bit aggregate (test_certificate_a2_triangle.py:232), designs a solver-free per-candidate evaluator over structure.model_constraints.all_constraints (mirroring extract_certificate's reverse mapping) built as a compile-once-then-interpret pass to avoid per-candidate Z3-API overhead, and recommends reusing the existing unconditional/slow tiers pending re-measurement under CI's exact -n 4 --timeout=300 --timeout-method=thread invocation."
+        },
+        {
+          "path": "specs/204_strengthen_a2_triangle_per_candidate/plans/01_strengthen-a2-triangle-per-candidate.md",
+          "type": "plan",
+          "summary": "5-phase plan for the per-candidate A2-triangle leg (i)/(iii) comparison via a compile-once solver-free constraint evaluator, with measurement-gated tier placement."
         }
       ],
       "next_artifact_number": 2
