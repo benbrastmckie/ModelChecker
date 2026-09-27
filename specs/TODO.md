@@ -11,14 +11,13 @@ next_project_number: 205
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 195,197,198,202,203,204 | -- | documentation, architecture, testing, ... |
+| 1 | 195,197,198,203,204 | -- | architecture, testing, semantics |
 | 2 | 199,200 | 195,197,198 | documentation, semantics |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-202 [PLANNED] — Correct the user-facing claim that the bimodal search is...
 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Architecture
@@ -59,12 +58,13 @@ next_project_number: 205
 ---
 
 ### 202. Correct nonmonotonic search bound docs
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: Task 201
 - **Research**: [202_correct_nonmonotonic_search_bound_docs/reports/01_nonmonotonic-search-bound-fixes.md]
 - **Plan**: [202_correct_nonmonotonic_search_bound_docs/plans/01_nonmonotonic-search-bound-docs.md]
+- **Summary**: [202_correct_nonmonotonic_search_bound_docs/summaries/01_nonmonotonic-search-bound-docs-summary.md]
 
 **Description**: Correct the user-facing claim that the bimodal search is monotone in back, mid and fwd, which it is not. WitnessRegistry.wrap() folds positions by exact period -- negative positions as t % nb, forward positions as nb + nm + ((t - nm) % nf) -- so a lasso family of back-period nbprime is representable if and only if nbprime divides nb. Raising a bound therefore does not enlarge the searched family space monotonically: it can discard families a smaller bound represented. Measured against the running search, one formula is SAT at (back,mid,fwd) = (3,1,3) and (6,1,6) but genuinely UNSAT (timeout=False, millisecond runtimes) at (4,1,4) and (5,1,5), exactly as divisibility predicts. The consequence for users is severe and currently undocumented: widening a bound to search harder for a countermodel can silently lose one a narrower bound found. Correct every location promising otherwise: the bimodal docs/SETTINGS.md description of back/mid/fwd, semantic/core.py D4 commentary (the "maximum length" language and "raising any of the three enlarges the search"), and ADEQUACY.md section 7.1 condition (iii) plus the A3 wording treating "lengths at least f(|C|)" as sufficient, since sufficiency requires divisibility rather than magnitude. State the exact-period semantics plainly and give users the operative rule (prefer a bound that is a multiple of the periods of interest). Documentation and comments only: whether to CHANGE the search semantics is deliberately out of scope and is handled by a separate task.
 
