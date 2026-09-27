@@ -393,7 +393,7 @@ agreement of legs (i) and (iii) across all of them is a complete case analysis o
 space, not a statistical inference from it. This is stronger than an arbitrary property test and
 should be stated as such.
 
-Two limits are equally exact, not matters of degree.
+Three limits are equally exact, not matters of degree.
 
 1. **Nothing about the result transfers to a larger closure or wider window without re-running the
    enumeration there.** Exhaustiveness is a property of the specific `(back, mid, fwd, |C|)` tuple
@@ -412,6 +412,24 @@ Two limits are equally exact, not matters of degree.
    could silently break the property the test currently observes; the test would then fail on its
    next run, which is exactly its intended purpose, but a passing run today says nothing about code
    not yet written.
+3. **The leg (i)/(iii) comparison itself is aggregate, not per-candidate.** The enumeration in
+   limit 1 above is exhaustive and that claim is unaffected — "decision, not a sample" remains
+   exact about it. But the *comparison* the standing test draws from that enumeration collapses
+   every candidate into one existential bit:
+   `_assert_exhaustive_triangle_agrees` (`tests/integration/test_certificate_a2_triangle.py`)
+   asserts `(accepted > 0) == structure.z3_model_status`, not "for each candidate, the re-checker's
+   verdict on it agrees with whether Z3's model denotes it." A2's own statement ("exactly the
+   conjunction of (C1)–(C4), no extra constraint") is a **per-candidate** claim, so an encoder
+   wrong on almost every candidate but right about mere existence — accepting the wrong subset,
+   or accepting one candidate for the wrong reason, while some candidate is still accepted whenever
+   the re-checker accepts some candidate — passes this test undetected. The open obligation this
+   limit names, precisely: assert per candidate that every emitted clause is true under the
+   candidate's pinned assignment iff the re-checker accepts it. A solver-free pinned evaluator —
+   substituting the candidate's fixed values into the emitted clause set and checking truth
+   directly, rather than issuing a fresh Z3 call per candidate — is the affordable form of this
+   check over the same enumerated space; a Z3 call per candidate is not. This is translation
+   validation in the small: the per-candidate form of the new route **(h)** above, scoped to the
+   region already being enumerated rather than to arbitrary inputs.
 
 Put together: the A2-triangle test is the best evidence this repository has for encoding
 completeness at small closures, and it is complete evidence *there*. It is `TRUST_PIPELINE.md`'s
@@ -515,11 +533,64 @@ Of every route in this table, (i) is the cheapest available increase in rigor, b
 enumeration and completeness lemma it depends on are landed work in another repository rather
 than new work here.
 
+### The recommended route, and what is declined
+
+1. **Routes (a), (b), (c), (g) and (h) are not to be attempted now.** Each costs months of
+   Lean-side or verification work, and what a fully discharged A2 buys, per the proportionality
+   argument `ADEQUACY.md`'s own component table already sets up, is a hardened
+   never-report-validity rule (`ADEQUACY.md` section 7.4 — which already has a runtime fail-fast
+   guard) plus A1-consumability once A1 lands, **not a stronger headline claim**: A0 caps the
+   strongest honest claim at "ℤ-time valid" permanently (`ADEQUACY.md` section 7.2), and A3 is
+   vacuous until A1 supplies `f` (`ADEQUACY.md` section 7, component table). Spending months on any
+   of these five routes now would harden a component the surrounding obligations do not yet let the
+   headline result draw on.
+2. **Route (i) is the rigor route, scoped honestly.** It is the cheapest available increase in
+   rigor precisely because it is an external deliverable to consume, not local work to build; it is
+   viable as a **test oracle at feasible grid points**, per this section's row (i), not as a
+   production oracle, and its verdict is compiled-Lean-trusted evidence rather than a kernel-checked
+   proof of anything about this repository's encoder.
+3. **The immediate local work is the per-candidate strengthening of the existing differential**
+   (section 8's third limit above). It decides the A2 biconditional over the region already being
+   enumerated, at approximately the runtime already being paid for the existing exhaustive
+   enumeration — no new infrastructure, no new trust-base member, and it is a strictly stronger
+   claim than the aggregate comparison the standing test currently draws.
+4. **Reconstructing Z3 UNSAT proofs is declined on principle, not on difficulty.** Z3's UNSAT
+   verdict is not in the soundness trust base at all — section 9's corollary states the trust base
+   exactly, and Z3 is not a member of it. Reconstructing an UNSAT proof would upgrade only the
+   *negative* report ("no certificate found within these bounds"), and that report is exactly what
+   A0 permanently caps and A1 leaves open (`ADEQUACY.md` sections 7.1, 7.2); there is no headline
+   claim available to strengthen by this route regardless of its cost.
+5. **If a verified route is ever taken**, prefer **(g)** over route (a)'s extraction-to-Python and
+   over route (b)'s direct verification of the deployed Python — (g) reuses Lean's own kernel and
+   deletes the generator instead of proving or verifying it in place — and choose **(h)** over (g)
+   only if the incremental pipeline features a printed, static clause set cannot preserve (unsat
+   cores, `iterate`'s per-iteration clauses, `symmetry.py`'s live-variable group action) must be
+   kept.
+
+**Remaining obligations this repository has not taken**, named by durable anchor:
+
+- The `family → assignment` **round-trip inverse** of `extract_certificate` — the direction that
+  builds a satisfying assignment from a family and confirms `extract_certificate` recovers it,
+  which nothing in this repository currently checks.
+- A **set-level closure differential** between `semantic/formula.py`'s `subformula_closure` and
+  Lean's own `closureOf`: the Lean leg recomputes its own closure from the wire's target, so it
+  covers this agreement **only for accepted certificates**; a direct differential over generated
+  formulas, independent of whether any certificate is ever accepted, does not exist here and is
+  cheap to add.
+- The **external ask** for the non-`fmp` half of route (i)'s bounded enumerator — the candidate
+  list and completeness lemma this repository would need to consume, which is BimodalLogic's own
+  compression task to build, not this repository's.
+
 ## 11. See also
 
 - `ADEQUACY.md` — sections 5.2 and 5.3 (the proved re-check windows and the periodicity
-  obligation this document's category argument transfers to the encoder), and section 7.3 (the A2
-  statement and its deciding test).
+  obligation this document's category argument transfers to the encoder), section 7.1 (condition
+  (iii)'s concrete, dependency-ordered prerequisite list for a genuine A1 reduction), and section
+  7.3 (the A2 statement and its deciding test).
+- The encoder-specification proof-routes research (routes (g)/(h)/(i) above, section 8's
+  aggregate-vs-per-candidate limit, and this section's recommended-route analysis) is drawn from
+  this repository's own research report on proving, rather than testing, A2 — see that report for
+  the full route evaluation and cost estimates.
 - `TRUST_PIPELINE.md` — Stage 2 (the encoder's evidence-free-by-design status), and "The trust
   base" (what is and is not in it, and why the translation, not the encoder, is the weakest
   joint).

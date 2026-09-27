@@ -1,0 +1,16 @@
+{
+  "phase": 2,
+  "phase_name": "A2_GAP.md sections 8, 10, 11 - aggregate-vs-per-candidate limit, recommendation, staged path",
+  "started_at": "2026-09-27T06:50:00Z",
+  "last_updated": "2026-09-27T07:05:00Z",
+  "objectives": [
+    {"id": 1, "description": "Re-read sections 8, 10, 11 before editing", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Add section 8 third limit (aggregate vs per-candidate) plus solver-free evaluator note", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md"]},
+    {"id": 3, "description": "Add section 10 closing subsection: recommended route and what is declined", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md"]},
+    {"id": 4, "description": "Name remaining obligations in that subsection", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md"]},
+    {"id": 5, "description": "Update section 11 see-also", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md"]}
+  ],
+  "current_objective": 5,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

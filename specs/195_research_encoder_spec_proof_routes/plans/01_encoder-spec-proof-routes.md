@@ -196,7 +196,7 @@ diffing: the change should be additive within section 10 only.
 
 ---
 
-### Phase 2: A2_GAP.md sections 8, 10, 11 — the aggregate-vs-per-candidate limit, the recommendation, and the staged path [NOT STARTED]
+### Phase 2: A2_GAP.md sections 8, 10, 11 — the aggregate-vs-per-candidate limit, the recommendation, and the staged path [COMPLETED]
 
 **Goal**: Section 8's account of what the standing differential establishes is exact about the
 *comparison* as well as the enumeration; section 10 ends with the report's recommendation and
@@ -204,8 +204,8 @@ staged path, including the routes explicitly declined; section 11 points at the 
 
 **Tasks**:
 
-- [ ] Re-read `docs/A2_GAP.md` sections 8, 10 and 11 immediately before editing.
-- [ ] In section 8, add a third exact limit: the leg (i)/(iii) **comparison** is aggregate. The
+- [x] Re-read `docs/A2_GAP.md` sections 8, 10 and 11 immediately before editing. *(completed)*
+- [x] In section 8, add a third exact limit: the leg (i)/(iii) **comparison** is aggregate. The
       test compares `(accepted > 0)` against `structure.z3_model_status`
       (`tests/integration/test_certificate_a2_triangle.py`, `_assert_exhaustive_triangle_agrees`),
       so millions of enumerated candidates collapse into a single existential bit, while A2's
@@ -215,10 +215,10 @@ staged path, including the routes explicitly declined; section 11 points at the 
       and that the per-candidate strengthening — asserting per candidate that every emitted clause
       is true under the candidate's pinned assignment iff the re-checker accepts it — is the named
       open obligation. Reference it by what it does, not by a task number.
-- [ ] In the same addition, note that a solver-free pinned evaluator is the affordable form (a Z3
+- [x] In the same addition, note that a solver-free pinned evaluator is the affordable form (a Z3
       call per candidate is not) and that this is translation validation in the small, linking it to
-      the new route (h) row from Phase 1.
-- [ ] Add a short subsection at the end of section 10, **"The recommended route, and what is
+      the new route (h) row from Phase 1. *(completed)*
+- [x] Add a short subsection at the end of section 10, **"The recommended route, and what is
       declined"**, recording: (1) routes (a)/(b)/(c)/(g)/(h) are not to be attempted now, because
       each costs months while a discharged A2 buys a hardened never-report-validity rule (section
       7.4 of `ADEQUACY.md`, which already has a runtime fail-fast guard) plus A1-consumability, not
@@ -231,16 +231,17 @@ staged path, including the routes explicitly declined; section 11 points at the 
       at all (section 9's corollary), so reconstructing it upgrades only the negative report, which
       A0 caps and A1 blocks; (5) if a verified route is ever taken, prefer (g) over route (a)'s
       extraction-to-Python and over route (b)'s direct Python verification, and choose (h) over (g)
-      only if the incremental pipeline features must be preserved.
-- [ ] In that subsection, name the remaining obligations this repository has not taken, each by a
+      only if the incremental pipeline features must be preserved. *(completed)*
+- [x] In that subsection, name the remaining obligations this repository has not taken, each by a
       durable anchor rather than a task reference: the `family -> assignment` round-trip inverse of
       `extract_certificate`; a set-level closure differential between `semantic/formula.py`'s
       `subformula_closure` and Lean's own `closureOf` (which currently is covered by the Lean leg
       **only for accepted certificates**); and the external ask for the non-`fmp` half of the
-      bounded enumerator.
-- [ ] Add `ADEQUACY.md` section 7.1's prerequisite list (Phase 3's output) to section 11's see-also,
+      bounded enumerator. *(completed)*
+- [x] Add `ADEQUACY.md` section 7.1's prerequisite list (Phase 3's output) to section 11's see-also,
       and cite this round's research report as the source of the new rows by its topic, not by task
-      number.
+      number. *(completed: added pointer to ADEQUACY.md sec 7.1 and a topic-cited research-report
+      reference; Phase 3 will add the actual (iii-a)-(iii-e) list this pointer refers to)*
 
 **Timing**: 1.25 hours
 
