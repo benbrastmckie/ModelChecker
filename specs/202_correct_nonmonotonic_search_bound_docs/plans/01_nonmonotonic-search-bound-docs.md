@@ -1,7 +1,7 @@
 # Implementation Plan: Task #202
 
 - **Task**: 202 - correct_nonmonotonic_search_bound_docs
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: None (task 201, the sibling that owned `core.py`'s D6 block and `A2_GAP.md`, is
   complete and committed; its scope is disjoint from this plan's)
