@@ -128,6 +128,18 @@ Plan Deviations), not the encoder, and was fixed before any tier was finalized.
   docstring states the cases are intentionally RED pending that task's own Phase 3. Not caused by
   this task and out of scope to fix here; flagged so the gate result is read correctly.
 
+  **Orchestrator correction, added after this task closed.** This bullet does not hold up and
+  should not be carried forward. That module's 5 tests all PASS, verified directly and again
+  inside the full repository gate (`code/tests/ code/src/model_checker` under CI's marker
+  expression and `-n 4`: 3098 passed, 1 skipped, 0 failed). The task whose Phase 2 landed those
+  cases RED is `completed`, and its Phase 3 routed the call site through
+  `model_checker.utils.glyphs`, turning them green; `4cb1a76b` is the only commit that has ever
+  touched that file, so no later change reverted it. The misreading came from the module
+  docstring, which still asserted the assertions "expected to FAIL against unmodified source"
+  long after that stopped being true -- that stale paragraph has now been corrected at source,
+  so the next reader is not misled the same way. Nothing in this task's own scope is affected:
+  its gate was in fact clean.
+
 ## References
 
 - `specs/204_strengthen_a2_triangle_per_candidate/plans/01_strengthen-a2-triangle-per-candidate.md`

@@ -12,9 +12,10 @@ evaluates real Z3 witness-predicate function declarations
 (`z3.substitute(func(arg), (arg, state))`) that are not easily faked without
 a real Z3 model.
 
-Every cp1252 assertion here is expected to FAIL against unmodified source --
-this file is landed RED before Phase 3 routes this call site through
-`model_checker.utils.glyphs`.
+These cp1252 assertions were landed RED, before this call site was routed
+through `model_checker.utils.glyphs`. That routing has since landed, so they
+are GREEN now and are ordinary regression coverage -- a failure here is a real
+regression, not an expected-red placeholder.
 """
 
 from types import SimpleNamespace

@@ -232,17 +232,32 @@ claim at "ℤ-time valid".
 
 `tests/integration/test_certificate_a2_triangle.py` compares three verdicts — the Python
 re-checker, the Lean binary, and whether the real Z3 encoding reports SAT — over an **exhaustive**
-enumeration of every candidate at `back = mid = fwd = 1`, across three closures (two box-free, one
-boxed, one of them UNSAT so the comparison is exercised in both directions).
+enumeration of every candidate, across three closures (two box-free, one boxed, one of them UNSAT
+so the comparison is exercised in both directions), at `back = mid = fwd = 1` **and at
+`nb = nf = 2`**.
 
 Its value is **localization**: two legs agreeing tells you the checking is right; only the third
 connects that to the search. Each disagreement pattern points at one component — checkers
 disagreeing means a re-checker defect; both checkers accepting where Z3 says UNSAT means encoding
 incompleteness; both rejecting where Z3 says SAT means encoding unsoundness.
 
-Within its region this is a **decision**, not a sample. Outside it, nothing — and note that the one
-A2 defect known to have occurred needs `nb = 2` to exhibit, so the test as it stands is blind to
-exactly the bug that once happened.
+Within its region this is a **decision**, not a sample. Two limits used to be worth stating here
+and one of them is now closed:
+
+- **The `nb = 2` blind spot is closed.** The one A2 defect known to have occurred needs `nb = 2` to
+  exhibit, and the widened cases now cover that regime — 10,485,760 candidates for the boxed
+  closure, measured at 123.29s under CI's own invocation shape, roughly 59% inside the 300s
+  per-test ceiling.
+- **Leg (i) versus leg (iii) is now per-candidate, not aggregate.** It was formerly a one-bit
+  existential — `(accepted > 0) == z3_model_status` — so millions of candidates collapsed into a
+  single SAT/UNSAT agreement and a candidate the encoder wrongly rejected while the re-checker
+  accepted it (or the reverse) stayed invisible whenever the aggregate verdicts still matched. The
+  comparison now runs candidate by candidate and reports the first divergence. No divergence has
+  been found. The aggregate assertion is deliberately retained beside it, because it is the only
+  check of the real Z3 *search* verdict as distinct from evaluating the pinned constraint set.
+
+Outside the enumerated region, still nothing — that limit is unchanged, and `SEARCH_COVERAGE.md`
+records why the region is not simply monotone in the bounds.
 
 ---
 
@@ -259,8 +274,9 @@ absent from the local `BimodalLogic` checkout).
 
 | Work | Why it matters |
 |------|----------------|
-| **Widen the A2 grid to `nb = nf = 2`** | The regime the one known A2 violation lived in. Highest value per hour on the (ADEQ) side. Measure the candidate count first: the single-box closure already reaches 1,572,864 candidates at `nb = nf = 1`. |
 | **Consume a proof-producing checker; verify the parse** | Turns a `countermodel` verdict into a constructed entailment, and removes the Python re-checker from the trust base. Compare an echo of what Lean parsed against the bytes sent. |
+| **Make the Lean check a gate on reported output** | Stage 5 is currently a *sampled test tier* that clean-skips when `BIMODAL_LOGIC_PATH` is unset, so in a default CI run the only check validating a candidate countermodel against the semantics disappears. A countermodel that has not been checked should be labelled unchecked or not reported. This is what makes an encoder, decoder or Z3 defect a *liveness* failure rather than a *soundness* one. |
+| **Ship the checker so the gate does not require a Lean toolchain** | A mandatory check must not imply a mandatory `lake` install for users. Extraction to a standalone verified artifact (Lean's C backend or equivalent) versus a two-tier trust model, a Python re-implementation (which reinstates the code-to-specification gap), or requiring the toolchain. Unscoped everywhere else; it is the practical blocker on the row above. |
 | **Compute bounds from the closure (A3)** | Once `f` exists, set lengths from `|C|` and report "exhaustive at this closure" versus "bounded" honestly. Blocked until the Lean side supplies `f`. |
 | **The stability modal** | See below. Blocked on four Lean-side results. |
 
