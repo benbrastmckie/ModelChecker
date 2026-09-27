@@ -92,6 +92,55 @@ class TestWrapAgreesWithLabelledLassoDecoding:
         assert registry.wrap(registry.nm) == registry.wrap(registry.nm + 2 * registry.nf)
 
 
+class TestWrapFoldsByExactPeriod:
+    """`wrap`'s modular arithmetic is exactly what makes a back-period `p` representable at
+    segment length `nb` if and only if `p` divides `nb` (and symmetrically for `nf`/forward
+    period): positions `p` apart share a slot exactly when `nb % p == 0` (back) or
+    `nf % p == 0` (forward), because `wrap` folds by `nb`/`nf` themselves, not by `p`. This is
+    the arithmetic fact behind the search's non-monotonicity in back/mid/fwd (see
+    `docs/SEARCH_COVERAGE.md`): a period-3 family is representable at `back=3` and `back=6`
+    (3 divides both) but not at `back=4` or `back=5` (3 divides neither)."""
+
+    def test_back_period_3_shares_a_slot_at_nb_3(self):
+        # nb=3: positions -1 and -4 are 3 apart, and 3 divides nb=3, so they fold to one slot.
+        registry = WitnessRegistry(back=3, mid=1, fwd=3, closure=[P])
+        assert registry.wrap(-1) == registry.wrap(-4) == 2
+
+    def test_back_period_3_does_not_share_a_slot_with_a_period_1_offset(self):
+        # Still nb=3: -1 and -2 are only 1 apart, not a multiple of any period this wrap
+        # respects other than the trivial one, so they must land in distinct slots.
+        registry = WitnessRegistry(back=3, mid=1, fwd=3, closure=[P])
+        assert registry.wrap(-1) != registry.wrap(-2)
+
+    def test_back_period_3_does_not_share_a_slot_at_nb_4(self):
+        # nb=4: -1 and -4 are still 3 apart, but 3 does not divide nb=4, so wrap's fold-by-4
+        # arithmetic keeps them in distinct slots -- the period-3 family is not representable
+        # at back=4.
+        registry = WitnessRegistry(back=4, mid=1, fwd=4, closure=[P])
+        assert registry.wrap(-1) != registry.wrap(-4)
+
+    def test_forward_period_3_shares_a_slot_at_nf_3(self):
+        # The forward mirror of the same fact, through the `nb + nm + ((t - nm) % nf)` branch:
+        # positions 3 apart past `mid` fold to one slot when nf=3 divides that period.
+        registry = WitnessRegistry(back=1, mid=0, fwd=3, closure=[P])
+        assert registry.wrap(5) == registry.wrap(8)
+
+    def test_forward_period_3_does_not_share_a_slot_at_nf_4(self):
+        registry = WitnessRegistry(back=1, mid=0, fwd=4, closure=[P])
+        assert registry.wrap(5) != registry.wrap(8)
+
+    def test_bit_is_the_same_z3_boolean_for_positions_sharing_a_slot(self):
+        """This is the step that makes the folding observable to the encoding, not merely to
+        `wrap`'s arithmetic: two positions that share a slot must be backed by the identical
+        Z3 variable via `bit`, so the encoder cannot distinguish them even in principle."""
+        registry = WitnessRegistry(back=3, mid=1, fwd=3, closure=[P])
+        assert registry.bit(0, -1, P).eq(registry.bit(0, -4, P))
+
+    def test_bit_is_a_distinct_z3_boolean_for_positions_in_different_slots(self):
+        registry = WitnessRegistry(back=4, mid=1, fwd=4, closure=[P])
+        assert not registry.bit(0, -1, P).eq(registry.bit(0, -4, P))
+
+
 class TestBit:
     def test_bit_is_a_z3_bool(self):
         registry = WitnessRegistry(back=1, mid=1, fwd=1, closure=[P])

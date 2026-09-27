@@ -1,7 +1,7 @@
 # Implementation Plan: Task #203
 
 - **Task**: 203 - research_divisor_period_search_coverage
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 4.75 hours
 - **Dependencies**: 195 (in flight this same cycle; owns `ADEQUACY.md`, `SETTINGS.md`,
   `A2_GAP.md`, `semantic/core.py`, `tests/unit/test_structure.py`,
@@ -128,26 +128,28 @@ and share no state.
 
 ---
 
-### Phase 1: Pin the slot-folding mechanism at the unit level [NOT STARTED]
+### Phase 1: Pin the slot-folding mechanism at the unit level [COMPLETED]
 
 **Goal**: A unit test making it impossible to change `WitnessRegistry.wrap()`'s exact-period
 folding without a named test failing.
 
 **Tasks**:
-- [ ] Read `semantic/witness_registry.py`'s `wrap()` and `slots_per_lasso`, and
+- [x] Read `semantic/witness_registry.py`'s `wrap()` and `slots_per_lasso`, and
       `tests/unit/test_witness_registry.py`'s existing
       `TestWrapAgreesWithLabelledLassoDecoding`, to match the module's established style.
-- [ ] Add a test class to `tests/unit/test_witness_registry.py` (natural name:
+- [x] Add a test class to `tests/unit/test_witness_registry.py` (natural name:
       `TestWrapFoldsByExactPeriod`) asserting the divisor arithmetic directly: at `nb=3`,
       positions `-1` and `-4` share a slot (`-1 % 3 == -4 % 3 == 2`) while `-1` and `-2` do not;
       at `nb=4`, `-1` and `-4` do **not** share a slot. State in the class docstring that this is
       what makes a back-period `p` representable at `nb` exactly when `p` divides `nb`.
-- [ ] Add the forward-side mirror for `nf` through the `nb + nm + ((t - nm) % nf)` branch, with at
+- [x] Add the forward-side mirror for `nf` through the `nb + nm + ((t - nm) % nf)` branch, with at
       least one same-slot and one distinct-slot assertion.
-- [ ] Add one assertion that `bit()` returns the *same* Z3 Boolean for two positions sharing a
+- [x] Add one assertion that `bit()` returns the *same* Z3 Boolean for two positions sharing a
       slot and distinct Booleans for two that do not — this is the step that makes the folding
       observable to the encoding rather than merely to arithmetic.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v`.
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v`.
+      53 passed (6 new). Confirmed the pin bites: a scratch `% self.nb` -> `% (self.nb + 1)`
+      edit to `wrap()` failed 2 of the new assertions; the edit was discarded (not committed).
 
 **Timing**: 0.75 hours
 
