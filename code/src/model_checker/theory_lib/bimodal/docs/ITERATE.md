@@ -158,9 +158,11 @@ rotation is not in general.
 settings = {"back": 2, "mid": 1, "fwd": 2, "iterate": 1}
 ```
 
-Raise `back`/`mid`/`fwd` only if a specific formula's refutation needs a longer period than the
-defaults allow — every one of the theory's 53 examples decides at the defaults in well under
-50ms.
+If a specific formula's refutation needs a longer period than the defaults allow, choose
+`back`/`fwd` as a multiple of that period rather than simply raising them — they are exact cyclic
+periods, not maxima, so a larger non-multiple can lose a countermodel a smaller value found; `mid`
+may be raised freely. See [SETTINGS.md](SETTINGS.md) for the full explanation. Every one of the
+theory's 53 examples decides at the defaults in well under 50ms.
 
 ### 2. Use appropriate timeouts
 
@@ -179,7 +181,9 @@ logging.getLogger('model_checker.theory_lib.bimodal.iterate').setLevel(logging.D
 
 ### No additional certificates found
 
-- Raise `back`/`mid`/`fwd` for more structural variety in the periodic segments.
+- For more structural variety in the periodic segments, choose `back`/`fwd` as a multiple of the
+  period of interest rather than simply raising them (they are exact periods, not maxima — see
+  [SETTINGS.md](SETTINGS.md)); `mid` may be raised freely.
 - Raise `max_witnesses` if the formula has several boxed subformulas.
 - Check whether your formula heavily constrains the label assignment — a highly determined
   formula may genuinely admit very few distinct certificates. The live loop terminates cleanly

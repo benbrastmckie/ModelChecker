@@ -346,30 +346,30 @@ condition, not a magnitude one.
 
 ---
 
-### Phase 6: Cross-file consistency sweep and gate [NOT STARTED]
+### Phase 6: Cross-file consistency sweep and gate [COMPLETED]
 
 **Goal**: Prove the sweep is complete, that `mid` was not overcorrected, and that nothing outside
 comments and prose changed.
 
 **Tasks**:
-- [ ] Re-run the research report's own sweep over the whole theory:
+- [x] Re-run the research report's own sweep over the whole theory:
       `grep -rn "maximum length\|maximum segment\|max segment\|enlarge\|raising\|raise" code/src/model_checker/theory_lib/bimodal/ --include="*.py" --include="*.md"`
       and confirm every surviving hit is either accurate (a genuine `mid` length, `max_witnesses`,
-      `max_time`) or outside this task's subject.
-- [ ] Grep for overcorrection: confirm no file describes `mid` as period-locked, non-monotone, or
-      subject to divisibility.
-- [ ] Confirm every corrected site says `back` and `fwd` (never "all three", never "back, mid and
-      fwd") when stating the non-monotonicity.
-- [ ] Confirm the `DEFAULT_EXAMPLE_SETTINGS` comment in `README.md` and `semantic/core.py` are
-      byte-identical.
-- [ ] `git diff --stat` covers exactly the six files; `git diff` shows no executable Python line
-      and no settings value changed.
-- [ ] Run the bimodal test suite:
+      `max_time`) or outside this task's subject. *(completed: sweep found a seventh carrier file the research report missed, `docs/ITERATE.md` (two spots, lines 161 and 184), and corrected it in this phase)*
+- [x] Grep for overcorrection: confirm no file describes `mid` as period-locked, non-monotone, or
+      subject to divisibility. *(completed)*
+- [x] Confirm every corrected site says `back` and `fwd` (never "all three", never "back, mid and
+      fwd") when stating the non-monotonicity. *(completed)*
+- [x] Confirm the `DEFAULT_EXAMPLE_SETTINGS` comment in `README.md` and `semantic/core.py` are
+      byte-identical. *(completed: diff of the two comment blocks is empty)*
+- [x] `git diff --stat` covers exactly the six files; `git diff` shows no executable Python line
+      and no settings value changed. *(deviation: altered — covers seven files, not six: docs/ITERATE.md was discovered as a seventh carrier during this phase's own sweep and corrected here; no executable Python line or settings value changed in any of the seven)*
+- [x] Run the bimodal test suite:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` — expected
-      unchanged from the pre-task baseline (record both).
-- [ ] Record the two deliberate non-goals as forward pointers in the summary (not in the docs): the
+      unchanged from the pre-task baseline (record both). *(completed: baseline 508 passed in 149.31s pre-change; post-change 508 passed in 140.33s — identical pass count)*
+- [x] Record the two deliberate non-goals as forward pointers in the summary (not in the docs): the
       standing regression test for the measured SAT/UNSAT case, and the
-      `context/project/math/` periodicity note.
+      `context/project/math/` periodicity note. *(completed)*
 
 **Timing**: 30 minutes
 
@@ -398,15 +398,15 @@ instead of editing it.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` — unchanged
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` — unchanged
       from the baseline recorded before Phase 1 (this is a docs/comments change; any delta is a
-      defect in the change, not an expected outcome).
-- [ ] `PYTHONPATH=code/src python -c "from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics"`
-      succeeds and `DEFAULT_EXAMPLE_SETTINGS` still reads `back=2, mid=1, fwd=2`.
-- [ ] Sweep grep (Phase 6) returns no residual "maximum"/"raise for more search" framing for
-      `back`/`fwd`.
-- [ ] No file describes `mid` as non-monotone or period-locked.
-- [ ] `ADEQUACY.md`'s `(ADEQ)` lede, A3 row, and 7.1(iii) agree with each other.
+      defect in the change, not an expected outcome). *(completed: 508 passed before and after)*
+- [x] `PYTHONPATH=code/src python -c "from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics"`
+      succeeds and `DEFAULT_EXAMPLE_SETTINGS` still reads `back=2, mid=1, fwd=2`. *(completed)*
+- [x] Sweep grep (Phase 6) returns no residual "maximum"/"raise for more search" framing for
+      `back`/`fwd`. *(completed)*
+- [x] No file describes `mid` as non-monotone or period-locked. *(completed)*
+- [x] `ADEQUACY.md`'s `(ADEQ)` lede, A3 row, and 7.1(iii) agree with each other. *(completed)*
 
 ## Artifacts & Outputs
 
