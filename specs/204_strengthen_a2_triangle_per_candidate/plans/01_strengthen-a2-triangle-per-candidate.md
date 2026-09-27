@@ -1,7 +1,7 @@
 # Implementation Plan: Per-Candidate A2-Triangle Leg (i)/(iii) Comparison
 
 - **Task**: 204 - strengthen_a2_triangle_per_candidate
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6.5 hours
 - **Dependencies**: 195 (research complete; its implementation phase is concurrent — see Risks)
 - **Research Inputs**: `specs/204_strengthen_a2_triangle_per_candidate/reports/01_strengthen-a2-triangle-per-candidate.md`
@@ -119,35 +119,35 @@ exist before the comparison can be wired in, and the wiring must exist before it
 
 ---
 
-### Phase 1: Compile-once pinned evaluator core [NOT STARTED]
+### Phase 1: Compile-once pinned evaluator core [COMPLETED]
 
 **Goal**: A self-contained, test-support module that compiles a list of Z3 `BoolRef` constraints
 into a reusable Python evaluator over an interned integer atom index, handling exactly the six
 operators the encoder emits and raising loudly on anything else.
 
 **Tasks**:
-- [ ] Write `tests/unit/test_pinned_eval.py` FIRST (RED), over small hand-built Z3 formulas — no
+- [x] Write `tests/unit/test_pinned_eval.py` FIRST (RED), over small hand-built Z3 formulas — no
       `BimodalStructure` needed:
-  - [ ] each of `And`, `Or`, `Not`, `Implies`, `a == b` (two `BoolRef`s), `AtMost(*xs, k)` evaluates
+  - [x] each of `And`, `Or`, `Not`, `Implies`, `a == b` (two `BoolRef`s), `AtMost(*xs, k)` evaluates
         correctly for both polarities, including nesting and the 0-arg/1-arg `And`/`Or` degenerate
         forms and Z3's `true`/`false` constants
-  - [ ] `AtMost` bound semantics pinned against a small solver-backed cross-check, mirroring
+  - [x] `AtMost` bound semantics pinned against a small solver-backed cross-check, mirroring
         `test_witness_constraints.py`'s `TestSelectorConservativity` (`:111-138`), so the bound's
         argument position cannot be silently wrong
-  - [ ] an unsupported node (e.g. `z3.Ite`, an arithmetic term, a quantifier) raises a named error
+  - [x] an unsupported node (e.g. `z3.Ite`, an arithmetic term, a quantifier) raises a named error
         identifying the offending declaration, never returns a default
-  - [ ] an atom index left unpopulated raises rather than being read as `False`
-- [ ] Create `tests/_pinned_eval.py` (sibling of the existing `tests/_lean_check.py` helper):
-  - [ ] `compile_constraints(constraints) -> CompiledConstraints` walking each `BoolRef` tree
+  - [x] an atom index left unpopulated raises rather than being read as `False`
+- [x] Create `tests/_pinned_eval.py` (sibling of the existing `tests/_lean_check.py` helper):
+  - [x] `compile_constraints(constraints) -> CompiledConstraints` walking each `BoolRef` tree
         exactly once, interning every leaf atom's Z3 declaration name into
         `atom_index: Dict[str, int]` and emitting one Python callable per top-level constraint that
         takes the assignment sequence and returns `bool`
-  - [ ] `CompiledConstraints.evaluate_all(assignment) -> bool` (short-circuiting) and
+  - [x] `CompiledConstraints.evaluate_all(assignment) -> bool` (short-circuiting) and
         `CompiledConstraints.first_false(assignment) -> Optional[int]` returning the index of the
         first constraint that evaluated false, for divergence reporting
-  - [ ] `CompiledConstraints.describe(index) -> str` giving the offending constraint's text, called
+  - [x] `CompiledConstraints.describe(index) -> str` giving the offending constraint's text, called
         only on the failure path so it costs nothing in the hot loop
-- [ ] Run the new unit tests to GREEN; commit.
+- [x] Run the new unit tests to GREEN; commit.
 
 **Timing**: 1.5 hours
 
@@ -169,38 +169,52 @@ operators the encoder emits and raising loudly on anything else.
 
 ---
 
-### Phase 2: Candidate-to-assignment builder, with coverage and inventory guards [NOT STARTED]
+### Phase 2: Candidate-to-assignment builder, with coverage and inventory guards [COMPLETED]
 
 **Goal**: Build the pinned assignment for a candidate directly from its own data — the exact
 inverse of `extract_certificate` — and prove against the real constraint list that the assignment
 is total over every referenced atom and that the operator inventory is closed.
 
 **Tasks**:
-- [ ] Extend `tests/unit/test_pinned_eval.py` (RED first) with structure-backed cases built through
+- [x] Extend `tests/unit/test_pinned_eval.py` (RED first) with structure-backed cases built through
       the same `Syntax -> ModelConstraints -> BimodalStructure` pipeline the integration module's
       `_build` uses:
-  - [ ] **Operator inventory**: for each Tier 1 case's settings, every node in
+  - [x] **Operator inventory**: for each Tier 1 case's settings, every node in
         `structure.model_constraints.all_constraints` has a declaration in the closed six-operator
         set and every leaf matches one of the three atom-name families — pinning Finding 4/5
         mechanically instead of trusting it
-  - [ ] **Coverage**: the builder's produced key set is exactly `compile_constraints(...).atom_index`'s
+  - [x] **Coverage**: the builder's produced key set is exactly `compile_constraints(...).atom_index`'s
         key set (neither an unpopulated referenced atom nor a stray key), asserted once per structure
-  - [ ] **Round-trip (the strongest self-check)**: for an expected-SAT case, the assignment built
+  - [x] **Round-trip (the strongest self-check)**: for an expected-SAT case, the assignment built
         from `structure.certificate` / `structure.target_time` (which came from a genuinely
         satisfying Z3 model) makes `evaluate_all` return `True`. A `False` here means the evaluator
         or builder is wrong, not that the encoder is.
-  - [ ] **Collision guard**: writing an already-present key with a different value raises
-- [ ] Implement in `tests/_pinned_eval.py`:
-  - [ ] `atom_names_for(structure, family, target_time)` / `assignment_for(...)`:
+  - [x] **Collision guard**: writing an already-present key with a different value raises
+- [x] Implement in `tests/_pinned_eval.py`:
+  - [x] `atom_names_for(structure, family, target_time)` / `assignment_for(...)`:
         `lab_{lasso}_{slot}_{formula!r}` from `family.lassos[j].label(t)` for each
         `lasso = structure.semantics._active_lassos[j]` and each slot of
         `back + mid + fwd` order; `bx_{child!r}` from `family.bx_of(child)` for every `Box` member
         of the closure; `sel_{t}` as `(t == target_time)` for every `t` in
         `registry.target_window()`
-  - [ ] a `PinnedAssignmentBuilder` bound once per structure that holds the compiled
+
+**Deviation (confirmed by the coverage assertion this phase itself requires)**: the literal
+"every slot × every closure formula" construction above produces *stray* keys the compiled
+constraints never reference -- e.g. a plain `Atom` is never directly bound at a position, only
+as an `Untl`/`Snce` neighbour or a premise/conclusion target, so `bit(lasso, t, Atom(...))` is
+not emitted for every slot. The coverage assertion (below) caught this immediately as a
+missing=[] / stray=[...] mismatch when the literal construction was tried. Fixed by inverting
+the direction: `PinnedAssignmentBuilder` parses each of `atom_index`'s own key strings into a
+typed resolver once per structure (mirroring `compile_constraints`'s own compile-once split on
+the assignment side), so the produced key set is exactly `atom_index`'s key set by construction,
+never a superset. This is the pre-edit-gate contract in action -- the hypothesis failed its own
+probe and was corrected rather than the assertion being loosened. The collision guard moved with
+it: it now fires at construction time, when two closure formulas' `repr()` strings collide,
+rather than at a per-candidate write.
+  - [x] a `PinnedAssignmentBuilder` bound once per structure that holds the compiled
         `atom_index` and writes each candidate's values into a preallocated list, so the
         per-candidate path allocates no dict and hashes no strings
-- [ ] Run to GREEN; commit.
+- [x] Run to GREEN; commit.
 
 **Timing**: 1.5 hours
 
