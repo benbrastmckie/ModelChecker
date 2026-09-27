@@ -291,7 +291,7 @@
     {
       "project_number": 195,
       "project_name": "research_encoder_spec_proof_routes",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "formal",
       "topic": "architecture",
       "description": "Research and recommend a route to actually prove, rather than test, that the bimodal certificate encoder emits exactly the conjunction of conditions (C1)-(C4) over windows at least as wide as ADEQUACY.md section 5.2's. The mathematical content is already machine-checked and sorry-free; the open obligation is the code-to-specification bridge that section 5.3 argues a proof does not discharge for a specific piece of Python. Evaluate at least three routes and recommend one with a cost estimate: (a) a verified generator, emitting the constraint set from Lean-verified code or extracting the encoder from it; (b) translation validation, or a proof-producing encoder that certifies per run that its emitted clause set matches a verified specification -- the only route that establishes the property for the code that actually runs; and (c) a second independent implementation plus differential, which is what the standing A2-triangle test already is, assessed honestly as evidence rather than proof. Weigh each against the proportionality constraint the adequacy document itself establishes: A3 is vacuous until A1 supplies f, and A0 caps the strongest honest claim at \"Z-time valid\" permanently, so a fully discharged A2 hardens section 7.4's never-report-validity rule, which already has a runtime fail-fast guard, rather than upgrading the headline result. Deliver a report with a recommendation and a staged path, not an implementation.\nADDENDUM, two findings that constrain this research and must be accounted for rather than rediscovered. First, route (b)/(c) must not re-propose a verified bounded enumerator: BimodalLogic's compression task already scopes one as its item 2 -- the formula-indexed candidate list over the compression bounds plus Decidable ValidZTime by decidable_of_iff from \"no candidate is accepted\", following BiLasso/Assembly.lean's validZTime_iff_checkFamily shape. Since the four Decidable instances and enumeration completeness are already landed there, a verified enumerator deciding bounded absence directly is the cheaper route to rigor than either proving this repository's encoder correct or reconstructing Z3 unsat proofs, and it does not require trusting Z3 at all. Evaluate it as an existing external deliverable to consume, and weigh the remaining local A2 work against it. Second, ADEQUACY.md section 7.1's condition (iii) for a genuine A1 reduction -- a demonstration that this repository's search enumerates the same family space at a segment length at least that bound -- was recorded as unbuildable until a certificate export and an independent re-checker existed here at all. Section 6 now supplies both, so that condition is satisfiable today; the research should say what demonstrating it would concretely require of this repository.",
@@ -299,7 +299,7 @@
         192
       ],
       "created": "2026-09-26T07:24:26Z",
-      "last_updated": "2026-09-27T06:22:44Z",
+      "last_updated": "2026-09-27T06:41:50Z",
       "session_id": "sess_1790489608_0857c5",
       "file_scope": [
         "code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md",
@@ -319,9 +319,15 @@
           "path": "specs/195_research_encoder_spec_proof_routes/plans/01_encoder-spec-proof-routes.md",
           "type": "plan",
           "summary": "6-phase documentation-plus-one-test plan integrating the encoder-specification proof-routes research into A2_GAP.md, ADEQUACY.md, and the A0 standing test."
+        },
+        {
+          "path": "specs/195_research_encoder_spec_proof_routes/summaries/01_encoder-spec-proof-routes-summary.md",
+          "type": "summary",
+          "summary": "6-phase documentation-plus-one-test implementation: three new A2_GAP.md route rows (g/h/i), the aggregate-vs-per-candidate limit, the recommendation-and-declined-routes record, ADEQUACY.md's concrete 7.1(iii) prerequisite list and max_witnesses precondition, and a swept-grid non-inconclusive A0 standing test. All phases completed with no deviations."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Landed the encoder-specification proof-routes research's durable conclusions into A2_GAP.md (three new route rows, the aggregate-vs-per-candidate limit, and the recommended-route/declined-routes record) and ADEQUACY.md (the concrete section 7.1(iii) prerequisite list and the max_witnesses precondition for A2/A3), and strengthened the A0 frame-class standing test to a swept 11-point grid with a non-inconclusiveness assertion. Bimodal suite: 528 passed. Four-theory gate: 645 passed, 5 skipped."
     }
   ],
   "repository_health": {
