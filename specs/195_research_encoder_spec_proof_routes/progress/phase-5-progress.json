@@ -1,0 +1,16 @@
+{
+  "phase": 5,
+  "phase_name": "Extend the A0 frame-class standing test to the swept grid",
+  "started_at": "2026-09-27T07:40:00Z",
+  "last_updated": "2026-09-27T08:00:00Z",
+  "objectives": [
+    {"id": 1, "description": "Re-read test class, take formula strings verbatim", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Manually sweep grid, record verdicts/timeout/runtime before editing assertions", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Parametrize both tests, add timeout assertion, update docstring", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py"]},
+    {"id": 4, "description": "Run suite, confirm 22 passed; deliberate inversion + revert", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py"]}
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "notes": "Manual sweep: all 22 points (11 grid points x prior_UZ/z1) reported z3_model_status=False, certificate=None, timeout=False, runtimes 0.007-0.048s. No grid point dropped. Parametrized test run: 22 passed, 16 deselected in 0.82-0.83s wall clock. Deliberate inversion of prior_UZ's assertion failed all 11 prior_UZ parametrized cases (by distinct test ID) while leaving all 11 z1 cases green, confirming the parametrization varies settings independently per instance; reverted and re-confirmed 22 passed."
+}

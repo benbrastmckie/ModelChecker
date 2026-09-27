@@ -369,33 +369,35 @@ and A3 rows carry the precondition, and section 7.3 states it where the A2 claim
 
 ---
 
-### Phase 5: Extend the A0 frame-class standing test to the swept grid [NOT STARTED]
+### Phase 5: Extend the A0 frame-class standing test to the swept grid [COMPLETED]
 
 **Goal**: `TestA0FrameClassStandingTest` checks the `prior_UZ` and `z1` instances at every grid
 point the research swept, and distinguishes genuine UNSAT from an inconclusive solver run.
 
 **Tasks**:
 
-- [ ] Re-read `tests/unit/test_structure.py`'s `TestA0FrameClassStandingTest` immediately before
+- [x] Re-read `tests/unit/test_structure.py`'s `TestA0FrameClassStandingTest` immediately before
       editing, and take both formula strings **verbatim from the current test bodies** (the report's
-      prose renders one of them differently; the suite's own strings are the correct source).
-- [ ] Before changing the assertions, run the sweep manually over the grid
+      prose renders one of them differently; the suite's own strings are the correct source). *(completed)*
+- [x] Before changing the assertions, run the sweep manually over the grid
       `(1,1,1) (2,1,1) (3,1,1) (1,1,2) (2,1,2) (3,1,2) (2,1,3) (3,1,3) (2,2,2) (4,1,4) (1,0,1)`
       for both instances and record each verdict, each `structure.timeout` flag and each runtime.
       Drop any grid point that does not report genuine UNSAT and record why rather than asserting
-      it.
-- [ ] Parametrize both tests over the confirmed grid with `pytest.mark.parametrize`, keeping one
-      test method per instance so a failure names the instance and the grid point.
-- [ ] Assert all three facts at each point: `structure.z3_model_status is False`,
+      it. *(completed: all 22 points (11 grid points x 2 instances) genuinely UNSAT,
+      timeout=False, 0.007-0.048s each; full grid retained, none dropped)*
+- [x] Parametrize both tests over the confirmed grid with `pytest.mark.parametrize`, keeping one
+      test method per instance so a failure names the instance and the grid point. *(completed)*
+- [x] Assert all three facts at each point: `structure.z3_model_status is False`,
       `structure.certificate is None`, **and** `structure.timeout is False`. The last is the new
       substance: `models/structure.py` maps a solver UNKNOWN to `status=False` with `timeout=True`,
       so the existing two assertions alone do not distinguish "no countermodel exists" from "the
-      solver gave up" — and section 7.2's claim is the former.
-- [ ] Update the class docstring: the deciding test now runs at every configured length in the
+      solver gave up" — and section 7.2's claim is the former. *(completed)*
+- [x] Update the class docstring: the deciding test now runs at every configured length in the
       swept grid rather than one modest length, and it asserts non-inconclusiveness. Note that the
       search's non-monotonicity in `back`/`mid`/`fwd` does **not** disturb A0, as (SOUND) predicts
-      it cannot — which is what makes the swept grid a useful control and not merely more cases.
-- [ ] Record the measured total wall clock for the two parametrized tests in the phase notes.
+      it cannot — which is what makes the swept grid a useful control and not merely more cases. *(completed)*
+- [x] Record the measured total wall clock for the two parametrized tests in the phase notes.
+      *(completed: 22 passed in 0.82-0.83s wall clock, see Verification below)*
 
 **Timing**: 1.25 hours
 

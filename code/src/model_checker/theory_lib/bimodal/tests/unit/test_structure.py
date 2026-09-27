@@ -221,44 +221,67 @@ class TestGoldenOutputCertificateFormat:
             assert "Witness: L1" in out
 
 
+_A0_SWEPT_GRID = [
+    (1, 1, 1), (2, 1, 1), (3, 1, 1),
+    (1, 1, 2), (2, 1, 2), (3, 1, 2),
+    (2, 1, 3), (3, 1, 3),
+    (2, 2, 2),
+    (4, 1, 4),
+    (1, 0, 1),
+]
+
+
 class TestA0FrameClassStandingTest:
     """Amendment task deferred from Phase 9 (see that phase's handoff): the `prior_UZ` and
     `z1` instances are classified minimum-frame-class `.ZTime`
     (`ProofSystem/Axioms.lean:612-613`), so by (SOUND) no certificate can ever exist for
     them even though they are not valid at every temporal order
     (`not_validIn_base_prior_UZ`/`not_validIn_base_z1`,
-    `Metalogic/Independence/ZTimeSharpness.lean:225, 236`). The deciding test: run the
-    search and confirm it reports no certificate (rendered inconclusive, never valid) at a
-    modest configured length -- see `docs/ADEQUACY.md` sections 7.2 and 7.4.
+    `Metalogic/Independence/ZTimeSharpness.lean:225, 236`). The deciding test now runs at
+    every configured length in the swept grid `_A0_SWEPT_GRID` rather than one modest
+    length, and asserts non-inconclusiveness (`timeout is False`) alongside the no-certificate
+    verdict: `models/structure.py` maps a solver UNKNOWN to `status=False` with `timeout=True`,
+    so the no-certificate assertion alone does not distinguish "no countermodel exists" from
+    "the solver gave up" -- and §7.2's claim is the former. See `docs/ADEQUACY.md` sections 7.2
+    and 7.4. The search's non-monotonicity in `back`/`mid`/`fwd` (§7.1's divisibility argument)
+    does **not** disturb A0, as (SOUND) predicts it cannot -- which is what makes the swept grid
+    a useful control and not merely more cases: every point below is independently, genuinely
+    UNSAT rather than merely one point that happened to be.
     """
 
-    def test_prior_uz_instance_reports_no_certificate(self):
-        # prior_UZ: F phi -> (neg phi Until phi), guard-first (Lean's Untl(guard=neg phi,
-        # event=phi)). Bimodal's \Future primitive means "always in the future" (G); the
-        # defined "eventually" (F) operator is the lowercase \future. ModelChecker's own
-        # \Until is now guard-first too (D2): "X \Until Y" translates to Untl(guard=X,
-        # event=Y), so guard=neg A / event=A is written "(\neg A) \Until A", positional
-        # identity with no swap.
-        #
-        # The deciding question is whether a Z-time COUNTERMODEL to this axiom's validity
-        # exists -- i.e. whether the search can make it FALSE somewhere -- not whether it
-        # is merely satisfiable (nearly every formula is). So it goes in `conclusions` with
-        # no premises: a found certificate would be a countermodel refuting the axiom; "no
-        # certificate" is the deciding, expected outcome for a ZTime-valid axiom.
-        structure = _build([], ["(\\future A \\rightarrow (\\neg A \\Until A))"], back=2, mid=1, fwd=2)
+    # prior_UZ: F phi -> (neg phi Until phi), guard-first (Lean's Untl(guard=neg phi,
+    # event=phi)). Bimodal's \Future primitive means "always in the future" (G); the
+    # defined "eventually" (F) operator is the lowercase \future. ModelChecker's own
+    # \Until is now guard-first too (D2): "X \Until Y" translates to Untl(guard=X,
+    # event=Y), so guard=neg A / event=A is written "(\neg A) \Until A", positional
+    # identity with no swap.
+    #
+    # The deciding question is whether a Z-time COUNTERMODEL to this axiom's validity
+    # exists -- i.e. whether the search can make it FALSE somewhere -- not whether it
+    # is merely satisfiable (nearly every formula is). So it goes in `conclusions` with
+    # no premises: a found certificate would be a countermodel refuting the axiom; "no
+    # certificate" is the deciding, expected outcome for a ZTime-valid axiom.
+    @pytest.mark.parametrize("back,mid,fwd", _A0_SWEPT_GRID)
+    def test_prior_uz_instance_reports_no_certificate(self, back, mid, fwd):
+        structure = _build(
+            [], ["(\\future A \\rightarrow (\\neg A \\Until A))"], back=back, mid=mid, fwd=fwd
+        )
         assert structure.z3_model_status is False
         assert structure.certificate is None
+        assert structure.timeout is False
 
-    def test_z1_instance_reports_no_certificate(self):
-        # z1: G(G phi -> phi) -> (F G phi -> G phi), with G = \Future (primitive) and
-        # F = \future (defined, DefFutureOperator). Unary operators chain directly onto
-        # their argument without extra parens (examples.py's own convention, e.g.
-        # '\\Future \\past A'). As with prior_UZ, this is the conclusion of an empty-premise
-        # search: a found certificate would be a countermodel to z1's validity.
+    # z1: G(G phi -> phi) -> (F G phi -> G phi), with G = \Future (primitive) and
+    # F = \future (defined, DefFutureOperator). Unary operators chain directly onto
+    # their argument without extra parens (examples.py's own convention, e.g.
+    # '\\Future \\past A'). As with prior_UZ, this is the conclusion of an empty-premise
+    # search: a found certificate would be a countermodel to z1's validity.
+    @pytest.mark.parametrize("back,mid,fwd", _A0_SWEPT_GRID)
+    def test_z1_instance_reports_no_certificate(self, back, mid, fwd):
         formula = (
             "(\\Future (\\Future A \\rightarrow A) \\rightarrow "
             "(\\future \\Future A \\rightarrow \\Future A))"
         )
-        structure = _build([], [formula], back=2, mid=1, fwd=2)
+        structure = _build([], [formula], back=back, mid=mid, fwd=fwd)
         assert structure.z3_model_status is False
         assert structure.certificate is None
+        assert structure.timeout is False
