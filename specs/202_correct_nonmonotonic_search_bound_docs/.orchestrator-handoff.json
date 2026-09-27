@@ -1,16 +1,21 @@
 {
   "status": "implemented",
   "phase": "implement",
-  "dispatch_seq": 6,
-  "summary": "Completed all 6 plan phases correcting the false back/fwd search-bound monotonicity claim. Phase 6's own gate sweep discovered a seventh carrier file (docs/ITERATE.md) the upstream research report had missed and corrected it in-scope. Documentation and comments only; bimodal test suite unchanged (508 passed before and after).",
+  "dispatch_seq": 7,
+  "summary": "Targeted addendum round: fixed examples.py lines 68 and 70 (Settings Options docstring's back/fwd bullets), the eighth carrier of the false back/fwd maximum-length claim, missed by both the research sweep and Phase 6's gate. Corrected to the already-committed canonical exact-period wording from docs/SETTINGS.md; left the mid bullet (line 69) untouched since it is correctly a maximum. Re-ran the Phase 6 cross-file gate grep extended to cover examples.py and confirmed no other .py module docstring in the theory carries the claim. Recorded as Phase 7 in the plan. Documentation/comment-only; bimodal test suite unchanged (508 passed).",
   "artifacts": [
     {
       "type": "summary",
       "path": "specs/202_correct_nonmonotonic_search_bound_docs/summaries/01_nonmonotonic-search-bound-docs-summary.md",
-      "summary": "Implementation summary: exact-period mechanism, divisibility consequence, and operative rule stated across seven bimodal theory files; no search-semantics change; test suite verified unchanged."
+      "summary": "Addendum section documents the eighth-carrier fix in examples.py, the extended gate grep confirming completeness, and the unchanged test suite result."
+    },
+    {
+      "type": "plan",
+      "path": "specs/202_correct_nonmonotonic_search_bound_docs/plans/01_nonmonotonic-search-bound-docs.md",
+      "summary": "Added Phase 7 (COMPLETED), depending on Phase 6, recording the examples.py fix and its verification."
     }
   ],
-  "phases_completed": 6,
-  "phases_total": 6,
+  "phases_completed": 7,
+  "phases_total": 7,
   "blockers": []
 }

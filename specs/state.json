@@ -50,11 +50,11 @@
         {
           "path": "specs/202_correct_nonmonotonic_search_bound_docs/summaries/01_nonmonotonic-search-bound-docs-summary.md",
           "type": "summary",
-          "summary": "Implementation summary: exact-period mechanism, divisibility consequence, and operative rule stated across seven bimodal theory files; no search-semantics change; test suite verified unchanged."
+          "summary": "Addendum section documents the eighth-carrier fix in examples.py, the extended gate grep confirming completeness, and the unchanged test suite result."
         }
       ],
-      "next_artifact_number": 2,
-      "completion_summary": "Corrected the false back/fwd search-bound monotonicity claim across all seven carrier files (docs/SETTINGS.md, semantic/core.py, README.md, docs/USER_GUIDE.md, docs/API_REFERENCE.md, docs/ADEQUACY.md's three coordinated spots, and docs/ITERATE.md discovered mid-sweep), stating the WitnessRegistry.wrap() exact-period mechanism, the divisibility-based non-monotonicity consequence, and the operative rule (choose back/fwd as a multiple of the period of interest; mid may be raised freely). Documentation and comments only; bimodal test suite unchanged (508 passed before and after, matching the pre-task baseline)."
+      "next_artifact_number": 3,
+      "completion_summary": "Fixed examples.py lines 68 and 70 (the Settings Options docstring's back/fwd bullets), which still described back/fwd as a maximum length rather than the exact cyclic period, matching the already-committed canonical wording in docs/SETTINGS.md. Line 69 (mid) was left unchanged as it is correctly described as a maximum. Re-ran the Phase 6 cross-file gate grep extended to cover examples.py and confirmed no other .py module docstring in the bimodal theory carries the same false claim. Recorded as Phase 7 in the plan. Documentation/comment-only; bimodal test suite unchanged (508 passed, matching the established baseline)."
     },
     {
       "project_number": 201,
