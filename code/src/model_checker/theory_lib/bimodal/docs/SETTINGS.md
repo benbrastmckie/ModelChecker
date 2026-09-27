@@ -17,21 +17,30 @@ construction, and these settings bound only how large a *search* the solver is a
 
 ### Segment-Length Settings
 
-- **`back`** (integer, default: `2`): maximum length of a lasso's `back` segment — the labels
-  strictly before position `0`, repeated cyclically leftward forever. Must be positive
-  (`LabelledLasso.back_ne`).
+- **`back`** (integer, default: `2`): the *exact* cyclic period of a lasso's `back` segment — the
+  labels strictly before position `0`, repeated cyclically leftward forever with period `back`, not
+  an upper bound on that period. Must be positive (`LabelledLasso.back_ne`).
 
 - **`mid`** (integer, default: `1`): maximum length of a lasso's `mid` segment — the labels at
-  positions `[0, mid)`, read directly (not repeated). May be `0`.
+  positions `[0, mid)`, read directly (not repeated). May be `0`. Unlike `back`/`fwd` below, `mid`
+  is read directly rather than folded by a period, so it genuinely is a maximum and pads freely.
 
-- **`fwd`** (integer, default: `2`): maximum length of a lasso's `fwd` segment — the labels at
-  positions `mid` and beyond, repeated cyclically rightward forever. Must be positive
-  (`LabelledLasso.fwd_ne`).
+- **`fwd`** (integer, default: `2`): the *exact* cyclic period of a lasso's `fwd` segment — the
+  labels at positions `mid` and beyond, repeated cyclically rightward forever with period `fwd`,
+  not an upper bound on that period. Must be positive (`LabelledLasso.fwd_ne`).
 
 Together, `back + mid + fwd` is the number of distinct Z3 label-bit variables allocated per
-`(lasso, closure formula)` pair (`WitnessRegistry`'s slot arithmetic) — raising any of the three
-enlarges the search, not the reported model's size, which is always infinite once a certificate is
-found.
+`(lasso, closure formula)` pair (`WitnessRegistry`'s slot arithmetic). `WitnessRegistry.wrap()`
+folds a back position by `t % back` and a forward position by `(t - mid) % fwd`, so a lasso family
+whose true back-period is `nb'` (or fwd-period `nf'`) is representable at configured `back = nb`
+(or `fwd = nf`) **if and only if `nb'` divides `nb`** (respectively `nf'` divides `nf`). Raising
+`back` or `fwd` therefore does **not** monotonically enlarge the search: it changes *which* periods
+are representable, and can discard a family a smaller value represented. `mid` is not affected —
+positions `[0, mid)` are read directly with no modulo, so raising `mid` does monotonically enlarge
+the search. Measured against the live search: one formula is SAT at `(back, mid, fwd) = (3, 1, 3)`
+and at `(6, 1, 6)`, but genuinely UNSAT (`timeout=False`, sub-second runtimes, not a timeout) at
+`(4, 1, 4)` and `(5, 1, 5)` — exactly as `6 divides 3` and `6 divides 6` while `6` divides neither
+`4` nor `5` predicts.
 
 ### Witness Budget
 
@@ -89,6 +98,10 @@ bimodal_longer_period_settings = {
 }
 ```
 
+Note: `3` here is a multiple of the period `3` this illustration targets, not simply "larger than
+`2`". See the Segment-Length Settings explanation above — raising `back`/`fwd` without regard to
+divisibility can lose a countermodel a smaller value found.
+
 ### Formula with several boxed subformulas, witness budget bounded
 
 ```python
@@ -129,9 +142,12 @@ bimodal_theorem_settings = {
 1. **Start with the defaults** (`back=2, mid=1, fwd=2`): every one of the theory's 53 examples,
    including the previously-excluded MF axiom and BX7 linearity theorems, decides correctly at
    these defaults in well under 50ms.
-2. **Raise segment lengths, not a world/time count, if a formula needs a longer period**: a
-   formula whose refutation genuinely needs a longer periodic pattern will need larger `back`/
-   `mid`/`fwd`, not a larger `N`/`M` (which no longer exist).
+2. **Choose `back`/`fwd` as a multiple of the period needed, don't just raise them**: because
+   `back`/`fwd` are exact periods, not maxima, a larger value is not automatically at least as good
+   as a smaller one — it must be a multiple of the period the refutation needs, or the family that
+   period represents is lost. When the needed period isn't known in advance, try several candidate
+   lengths rather than a single larger one. `mid` has no such constraint and may be raised freely
+   (it is not a world/time count either way — `N`/`M` no longer exist).
 3. **Use `max_witnesses` only to bound cost, not to force a specific witness structure**: an
    overly small cap makes the search under-complete rather than simply faster.
 4. **`iterate` finds distinct label/guess assignments, not guaranteed non-isomorphic models**: see

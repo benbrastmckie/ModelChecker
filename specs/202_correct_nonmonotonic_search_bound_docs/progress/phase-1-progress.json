@@ -1,0 +1,15 @@
+{
+  "phase": 1,
+  "phase_name": "Canonical correction in docs/SETTINGS.md",
+  "started_at": "2026-09-26T00:00:00Z",
+  "last_updated": "2026-09-26T00:10:00Z",
+  "objectives": [
+    {"id": 1, "description": "Rewrite back/fwd bullets and mid bullet distinction", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md"]},
+    {"id": 2, "description": "Replace back+mid+fwd paragraph with non-monotonicity statement + measured example", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md"]},
+    {"id": 3, "description": "Rewrite Tips #2 into operative rule", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md"]},
+    {"id": 4, "description": "Add caveat under longer-period example", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md"]}
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

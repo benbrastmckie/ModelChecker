@@ -1,7 +1,7 @@
 # Implementation Plan: Task #202
 
 - **Task**: 202 - correct_nonmonotonic_search_bound_docs
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2.5 hours
 - **Dependencies**: None (task 201, the sibling that owned `core.py`'s D6 block and `A2_GAP.md`, is
   complete and committed; its scope is disjoint from this plan's)
@@ -110,34 +110,34 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Canonical correction in `docs/SETTINGS.md` [NOT STARTED]
+### Phase 1: Canonical correction in `docs/SETTINGS.md` [COMPLETED]
 
 **Goal**: Make `SETTINGS.md` the one authoritative, correct explanation of the exact-period
 semantics and the operative rule, so every other site can cite it instead of restating it.
 
 **Tasks**:
-- [ ] Rewrite the `back` bullet (`docs/SETTINGS.md:20-22`): `back` is the *exact* cyclic period of
+- [x] Rewrite the `back` bullet (`docs/SETTINGS.md:20-22`): `back` is the *exact* cyclic period of
       the labels strictly before position `0`, not a maximum length. Keep the `LabelledLasso.back_ne`
-      positivity note.
-- [ ] Rewrite the `fwd` bullet (`:27-29`) the same way, for positions `mid` and beyond.
-- [ ] Leave the `mid` bullet (`:24-25`) describing a maximum/direct-read length, and make explicit
-      that `mid` alone is read directly and so pads freely.
-- [ ] Replace the false clause in the `back + mid + fwd` paragraph (`:31-34`) — currently "raising
+      positivity note. *(completed)*
+- [x] Rewrite the `fwd` bullet (`:27-29`) the same way, for positions `mid` and beyond. *(completed)*
+- [x] Leave the `mid` bullet (`:24-25`) describing a maximum/direct-read length, and make explicit
+      that `mid` alone is read directly and so pads freely. *(completed)*
+- [x] Replace the false clause in the `back + mid + fwd` paragraph (`:31-34`) — currently "raising
       any of the three enlarges the search" — with the non-monotonicity statement: raising `back` or
       `fwd` changes *which* families are representable rather than enlarging the set, because a
       family of period `p` is representable iff `p` divides the configured length; raising `mid`
-      does enlarge the search.
-- [ ] Add the measured example as evidence, in one or two sentences: a formula SAT at
+      does enlarge the search. *(completed)*
+- [x] Add the measured example as evidence, in one or two sentences: a formula SAT at
       `(back,mid,fwd) = (3,1,3)` and `(6,1,6)` but genuinely UNSAT (not a timeout) at `(4,1,4)` and
-      `(5,1,5)`, exactly as `6 ∤ 4`, `6 ∤ 5` predicts.
-- [ ] Rewrite Tips #2 (`:132-134`) from "Raise segment lengths ... will need larger `back`/`mid`/
+      `(5,1,5)`, exactly as `6 ∤ 4`, `6 ∤ 5` predicts. *(completed)*
+- [x] Rewrite Tips #2 (`:132-134`) from "Raise segment lengths ... will need larger `back`/`mid`/
       `fwd`" into the operative rule: choose `back`/`fwd` as a multiple of the period the refutation
       needs (or try several candidate lengths); a larger value is not automatically at least as good
-      as a smaller one. `mid` may be raised freely.
-- [ ] Add a one-line caveat under the "Formula needing a longer periodic segment" example
+      as a smaller one. `mid` may be raised freely. *(completed)*
+- [x] Add a one-line caveat under the "Formula needing a longer periodic segment" example
       (`:81-90`) pointing at the corrected Segment-Length Settings explanation, so the `2,1,2 ->
-      3,2,3` illustration is not read as "raise = more search". Do not rewrite the example.
-- [ ] Verify no sentence in the file now describes `mid` as period-locked or non-monotone.
+      3,2,3` illustration is not read as "raise = more search". Do not rewrite the example. *(completed)*
+- [x] Verify no sentence in the file now describes `mid` as period-locked or non-monotone. *(completed)*
 
 **Timing**: 40 minutes
 
