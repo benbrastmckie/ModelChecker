@@ -604,8 +604,31 @@ sufficient condition are available, neither implemented: take `back`/`fwd` as a 
 every candidate period up to `f(|C|)` — correct, but `lcm(1, ..., f)` grows as `e^{O(f)}`, so this
 is impractical for any but the smallest `f` — or sweep the grid of `(back, mid, fwd)` triples up to
 `f(|C|)` and re-run the search at each, `f^3` solver calls, individually cheap but not yet built.
-Either route is unbuildable until a certificate export and independent re-checker exist here at all
-(§6 supplies both).
+Both prerequisites §6 supplies — the certificate export and the independent re-checker — are now
+in place, so condition (iii) is satisfiable **in principle** today. What remains is the following
+concrete work in this repository, in dependency order:
+
+- **(iii-a) Fix the length space** — either sweep `(back, mid, fwd)` over the grid up to the bound
+  (`f^3` individually cheap solves, and the only form under which "the same family space" is
+  literally true) or restate A3 in divisor terms. This is the **only blocking** prerequisite:
+  without it, (iii) is unprovable rather than merely unproved.
+- **(iii-b) State and check the represented space** — a written specification of exactly what the
+  encoder's satisfying assignments represent: families over closure `C` with
+  `1 + |{Box members}|` lassos when `max_witnesses` is uncapped, labels `⊆ C`, segment lengths
+  exactly `(nb, nm, nf)`, atoms base-only; checked by a `family → assignment` inverse of
+  `extract_certificate` plus a per-candidate agreement test.
+- **(iii-c) Closure agreement** — `semantic/formula.py`'s `subformula_closure` is a hand-written
+  mirror of the Lean subformula closure, and both sides' clauses are guarded by it; the Lean leg
+  recomputes its own closure from the wire's target, so it covers this agreement **for accepted
+  certificates only**. A direct set-level differential over generated formulas does not exist and
+  is cheap.
+- **(iii-d) Witness-lasso budget** — the `max_witnesses` precondition (§7.3 states it beside the
+  A2 statement), cross-referenced rather than restated.
+- **(iii-e) Segment-length parity with the bound's shape** — once A1 lands, check that the bound's
+  components map onto `back`/`mid`/`fwd` as the search means them; the upstream bound is a single
+  `n` over all three segments while the search takes three independent settings.
+
+(iii-b) through (iii-d) are independently valuable now and do not wait on A1.
 
 ### 7.2 A0 — the frame-class gap, a permanent limit A1 cannot close
 

@@ -265,7 +265,7 @@ staged path, including the routes explicitly declined; section 11 points at the 
 
 ---
 
-### Phase 3: ADEQUACY.md section 7.1 — what demonstrating condition (iii) concretely requires [NOT STARTED]
+### Phase 3: ADEQUACY.md section 7.1 — what demonstrating condition (iii) concretely requires [COMPLETED]
 
 **Goal**: Section 7.1 states, in dependency order, what this repository must do to demonstrate
 condition (iii), and records that section 6's certificate export plus independent re-checker make
@@ -273,14 +273,14 @@ the condition satisfiable in principle today.
 
 **Tasks**:
 
-- [ ] Re-read `docs/ADEQUACY.md` section 7.1 immediately before editing; the divisibility wording
+- [x] Re-read `docs/ADEQUACY.md` section 7.1 immediately before editing; the divisibility wording
       and the two routes to a sufficient condition are already landed there and must not be
-      duplicated.
-- [ ] Replace the closing sentence's "unbuildable until a certificate export and independent
+      duplicated. *(completed)*
+- [x] Replace the closing sentence's "unbuildable until a certificate export and independent
       re-checker exist here at all (§6 supplies both)" with a positive statement: the two
       prerequisites section 6 supplies are now in place, so condition (iii) is satisfiable in
-      principle; what remains is the following concrete work in this repository.
-- [ ] Add a short ordered list, **(iii-a)** through **(iii-e)**:
+      principle; what remains is the following concrete work in this repository. *(completed)*
+- [x] Add a short ordered list, **(iii-a)** through **(iii-e)**: *(completed)*
       - **(iii-a) Fix the length space** — either sweep `(back, mid, fwd)` over the grid up to the
         bound (`f^3` individually cheap solves, and the only form under which "the same family
         space" is literally true) or restate A3 in divisor terms. Mark this as the **only blocking**
@@ -300,9 +300,9 @@ the condition satisfiable in principle today.
       - **(iii-e) Segment-length parity with the bound's shape** — once A1 lands, check that the
         bound's components map onto `back`/`mid`/`fwd` as the search means them; the upstream bound
         is a single `n` over all three segments while the search takes three independent settings.
-- [ ] State that (iii-b) through (iii-d) are independently valuable now and do not wait on A1.
-- [ ] Keep every existing citation in 7.1 intact; add no line numbers that have not been verified
-      in this dispatch.
+- [x] State that (iii-b) through (iii-d) are independently valuable now and do not wait on A1. *(completed)*
+- [x] Keep every existing citation in 7.1 intact; add no line numbers that have not been verified
+      in this dispatch. *(completed)*
 
 **Timing**: 1.25 hours
 
