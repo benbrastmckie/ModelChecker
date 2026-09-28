@@ -1,7 +1,7 @@
 # Implementation Plan: Certifying Countermodel Architecture
 
 - **Task**: 205 - certifying_countermodel_architecture
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 12 hours (sum of the eight phase timings)
 - **Dependencies**: None declared. Consumes (does not re-decide) task 197's certificate-wire hardening, which has landed: the checker now returns `acceptance: entailment` with a bytewise-matching `echo`.
 - **Research Inputs**: `specs/205_certifying_countermodel_architecture/reports/01_certifying-countermodel-architecture.md`
@@ -136,35 +136,35 @@ packaging decision (Phase 6) touches the roadmap's wheel/release and CI-gating e
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Production checker resolver [NOT STARTED]
+### Phase 1: Production checker resolver [COMPLETED]
 
 **Goal**: A production-side module that answers "is an independent checker available, and how do I
 invoke it?" without importing anything from the test tree and without a 60-second import-time
 probe.
 
 **Tasks**:
-- [ ] Write `tests/unit/test_checker.py` first (RED): resolution order is honoured; an absent
+- [x] Write `tests/unit/test_checker.py` first (RED): resolution order is honoured; an absent *(completed)*
       checker yields an `unavailable` result with a named reason rather than an exception; the probe
       runs at most once per process and only on first use (assert via a call counter or monkeypatched
       runner, not by timing); a probe timeout yields `unavailable`, not a hang.
-- [ ] Create `semantic/checker.py` exposing a small, documented surface: a `resolve_checker()`
+- [x] Create `semantic/checker.py` exposing a small, documented surface: a `resolve_checker()` *(completed)*
       returning either an invocable checker handle or an `unavailable` reason, and a
       `check_certificate(payload, timeout)` that invokes it and returns the parsed verdict plus the
       exact bytes sent (reusing `canonical_wire_bytes` from `semantic/certificate.py`).
-- [ ] Implement the resolution order, each step documented in the module docstring with its
+- [x] Implement the resolution order, each step documented in the module docstring with its *(completed)*
       rationale: (i) explicit binary path from `BIMODAL_CHECKER_BIN`; (ii) a standalone binary in a
       per-user cache location; (iii) the built binary inside a `BIMODAL_LOGIC_PATH` checkout
       (`.lake/build/bin/check_certificate`), invoked **directly** — never through `lake exe`, which
       is where the ~2.2 s build check comes from (F5); (iv) unavailable.
-- [ ] Make probing lazy and bounded: computed on first call, memoized for the process, with an
+- [x] Make probing lazy and bounded: computed on first call, memoized for the process, with an *(completed)*
       explicit timeout constant in source (mirroring `_lean_check.py`'s explicit
       `PROBE_TIMEOUT_SECONDS` discipline but at a bound appropriate to a ~50 ms binary, not to a
       `lake` build).
-- [ ] Port the echo comparison as a production-side check: a verdict whose `echo` does not match
+- [x] Port the echo comparison as a production-side check: a verdict whose `echo` does not match *(completed)*
       the bytes sent is a protocol failure, distinct from a rejection — keep `_lean_check.py`'s
       environment-absence/protocol-failure split, which exists because conflating them once deleted
       a whole differential tier silently.
-- [ ] Run the new unit tests to green; run the existing bimodal unit suite to confirm no import-time
+- [x] Run the new unit tests to green; run the existing bimodal unit suite to confirm no import-time *(completed)*
       regression.
 
 **Timing**: 2 hours
