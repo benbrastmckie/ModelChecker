@@ -1,0 +1,19 @@
+{
+  "status": "researched",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/210_fix_generic_iterator_pinning_unreached/reports/01_fix-generic-iterator-pinning.md",
+      "summary": "Confirms the F4 generic-pinning defect live for exclusion and imposition (not just logos), decides the fix mechanism (append pins into model_constraints.frame_constraints inline in iterate/models.py's generic loop, not a temp_solver-replaying _pin_theory_specific_values default), recommends shared-engine regression coverage, and confirms the separately-named bimodal docstring wording fix."
+    }
+  ],
+  "next_steps": "Run /plan 210 to create an implementation plan from this report's Decisions/Recommendations.",
+  "metadata": {
+    "session_id": "sess_1790619552_cbba66_210",
+    "agent_type": "z3-research-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "research", "z3-research-agent"],
+    "findings_count": 7
+  },
+  "dispatch_seq": 7
+}
