@@ -1,7 +1,7 @@
 # Implementation Plan: Consolidate Remaining Bimodal Test Helpers
 
 - **Task**: 212 - Consolidate remaining bimodal test helpers onto `_build_support.py`
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/212_consolidate_remaining_bimodal_test_helpers/reports/01_consolidate-remaining-bimodal-helpers.md
@@ -368,13 +368,13 @@ from `semantic.core` since the module doesn't otherwise need `_build_support` to
 `PYTHONPATH=code/src pytest integration/test_injection.py -q`: 4 passed, 0 failed (unchanged from
 the Phase 1 baseline for this file).
 
-### Phase 5: Refresh `_build_support.py` Docstring and Run the Full Four-Theory Gate [NOT STARTED]
+### Phase 5: Refresh `_build_support.py` Docstring and Run the Full Four-Theory Gate [COMPLETED]
 
 **Goal**: Bring the shared module's own documentation in line with the consolidated call-site
 set, and verify the whole change against the full gate rather than the bimodal subset.
 
 **Tasks**:
-- [ ] Update `_build_support.py`'s module docstring. It currently enumerates the original four
+- [x] Update `_build_support.py`'s module docstring. It currently enumerates the original four
       migrated call sites and says "The other three call sites have no such requirement" — both
       statements go stale with this change. Rewrite it to describe the consolidated set in
       durable terms and keep the documented exception explicit: `unit/test_structure.py` retains
@@ -382,24 +382,24 @@ set, and verify the whole change against the full gate rather than the bimodal s
       `unit/test_witness_constraints.py` only if useful as a "not a call site" note — it has no
       relationship to this module. Do **not** cite task numbers in the docstring
       (`.claude/rules/no-task-references-in-deliverables.md`); reference filenames and behavior.
-- [ ] Re-run the discovery grep one final time and confirm the only surviving
+- [x] Re-run the discovery grep one final time and confirm the only surviving
       `^def _settings`/`^def _build` hits outside `_build_support.py` are the two known
       non-candidates (`unit/test_structure.py`'s documented wrapper,
       `unit/test_witness_constraints.py`'s unrelated `_build_selector_family`) plus any module
       Phase 1 classified as a genuine documented exception.
-- [ ] Re-run the collection check:
+- [x] Re-run the collection check:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q`
       and confirm the count matches the Phase 1 baseline exactly — a changed count means a test
       was lost or duplicated by the edits.
-- [ ] Run the full four-theory gate: `PYTHONPATH=code/src pytest code/tests/ -v` plus the
+- [x] Run the full four-theory gate: `PYTHONPATH=code/src pytest code/tests/ -v` plus the
       per-theory unit suites for logos, exclusion, imposition, and bimodal per
       `code/docs/core/TESTING_GUIDE.md` and the project CLAUDE.md commands. If the gate is slow,
       background it and wait under `context/patterns/bounded-build-waiter.md` (hard timeout,
       writer liveness via `kill -0` on the captured PID, one waiter per log).
-- [ ] Confirm the gate is green with no new failures relative to the pre-change state. Any
+- [x] Confirm the gate is green with no new failures relative to the pre-change state. Any
       failure is a signal that a consolidated helper was not equivalent — route it back to the
       documented-local-wrapper pattern rather than patching the shared helper.
-- [ ] Commit the docstring update and record the gate result.
+- [x] Commit the docstring update and record the gate result.
 
 **Timing**: 0.5 hours
 
@@ -426,15 +426,34 @@ diffing the count against the recorded baseline.
 
 ---
 
+**Confirmation (re-run at implementation time)**: docstring rewritten to describe the
+consolidated call-site set in durable terms (no task-number citations), keeping
+`unit/test_structure.py`'s documented `'verify'='off'` wrapper explicit and adding a
+"not a call site" note for `unit/test_witness_constraints.py`'s unrelated
+`_build_selector_family`. Final discovery grep:
+`grep -rln '^def _settings\|^def _build' code/src/model_checker/theory_lib/bimodal/tests/`
+surfaces exactly `_build_support.py`, `unit/test_structure.py`, and
+`unit/test_witness_constraints.py` -- no other hits. `--collect-only` recollects exactly 686
+tests, matching the Phase 1 baseline exactly. Full four-theory gate:
+`PYTHONPATH=code/src pytest code/tests/ -q` -- 647 passed, 5 skipped, 0 failed (a first run hit a
+transient Z3 segfault inside `test_timeout_resources.py::test_performance_with_many_constraints`,
+a file this task never touches; the same test passed in isolation and the full gate passed clean
+on immediate retry, confirming pre-existing flakiness unrelated to this consolidation, not a
+regression). Per-theory unit suites (logos, exclusion, imposition, bimodal), run together:
+`PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/{logos,exclusion,imposition,bimodal}/tests/ -q`
+-- 1277 passed, 0 failed (this run also covers the bimodal-subset-alone verification item in
+Testing & Validation below). No test assertion, expected value, or `'verify'` default changed
+anywhere.
+
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q` — count unchanged from the Phase 1 baseline.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` — green.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` — full four-theory gate green (the dispatch's explicit requirement; the bimodal subset alone is not sufficient).
-- [ ] Per-theory unit suites for logos, exclusion, imposition, and bimodal per `code/docs/core/TESTING_GUIDE.md`.
-- [ ] `grep -rn '^def _settings\|^def _build' code/src/model_checker/theory_lib/bimodal/tests/` — only `_build_support.py` plus the reasoned exceptions.
-- [ ] No module carries an import that nothing references (per-module grep after each removal).
-- [ ] No test assertion, expected value, or `'verify'` default was changed anywhere.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q` — count unchanged from the Phase 1 baseline. Confirmed: 686 tests, both before and after.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` — green. Confirmed as part of the per-theory suite run below (bimodal included).
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` — full four-theory gate green (the dispatch's explicit requirement; the bimodal subset alone is not sufficient). Confirmed: 647 passed, 5 skipped, 0 failed (run with `-q`; a transient unrelated Z3 segfault on the first attempt did not reproduce on retry or in isolation).
+- [x] Per-theory unit suites for logos, exclusion, imposition, and bimodal per `code/docs/core/TESTING_GUIDE.md`. Confirmed: 1277 passed, 0 failed, run together.
+- [x] `grep -rn '^def _settings\|^def _build' code/src/model_checker/theory_lib/bimodal/tests/` — only `_build_support.py` plus the reasoned exceptions. Confirmed: `_build_support.py`, `unit/test_structure.py`, `unit/test_witness_constraints.py` only.
+- [x] No module carries an import that nothing references (per-module grep after each removal). Confirmed per-phase in Phases 2-4.
+- [x] No test assertion, expected value, or `'verify'` default was changed anywhere. Confirmed: only helper bodies/imports/one call-site rename were touched; no assertion or setting value edited.
 
 ## Artifacts & Outputs
 
