@@ -1,7 +1,7 @@
 # Implementation Plan: Fix lazy-bounded-probe parallel flake and close the scanner blind spot
 
 - **Task**: 213 - Fix the wall-clock flake in test_checker.py::TestLazyBoundedMemoizedProbe, and close the scanner blind spot that let it land unmarked
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md

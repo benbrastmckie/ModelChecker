@@ -11,20 +11,18 @@ next_project_number: 215
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,213,214 | -- | documentation, testing, semantics |
-| 2 | 199,210 | 198,213,214 | documentation, semantics |
-| 3 | 212 | 210 | testing |
+| 1 | 198,200,210,214 | -- | documentation, semantics |
+| 2 | 199,212 | 198,210,214 | documentation, testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-214 [PLANNED] — Apply the citation corrections the BimodalLogic repository...
+214 [IMPLEMENTING] — Apply the citation corrections the BimodalLogic repository...
   └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
 
-213 [PLANNED] — Fix the wall-clock flake in...
 212 [NOT STARTED] — Consolidate the remaining bimodal test modules that define...
 
 ### Semantics
@@ -36,7 +34,7 @@ next_project_number: 215
 ## Tasks
 
 ### 214. Apply upstream citation corrections
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
@@ -114,12 +112,13 @@ line number left behind is a future instance of this same task.
 ---
 
 ### 213. Fix lazy bounded probe parallel flake
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md]
 - **Plan**: [213_fix_lazy_bounded_probe_parallel_flake/plans/01_lazy-bounded-probe-flake-fix.md]
+- **Summary**: [213_fix_lazy_bounded_probe_parallel_flake/summaries/01_lazy-bounded-probe-flake-fix-summary.md]
 
 **Description**: Fix the wall-clock flake in test_checker.py::TestLazyBoundedMemoizedProbe, and close the scanner blind spot that let it land unmarked.
 
