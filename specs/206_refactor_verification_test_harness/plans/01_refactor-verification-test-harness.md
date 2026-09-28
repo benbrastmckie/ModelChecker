@@ -1,7 +1,7 @@
 # Implementation Plan: Refactor Verification Test Harness
 
 - **Task**: 206 - Refactor Verification Test Harness
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 9.5 hours (plus up to 1.5 hours if Phase 7's contingency branch is taken)
 - **Dependencies**: task 207 (completed — the `all_constraints` fix this harness's
   `full_constraints` helper now aliases); task 205 (concurrent — owns the trust-boundary /
@@ -168,7 +168,7 @@ re-checks the ones it could plausibly break)**:
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Record the CI-shaped baseline before any edit [NOT STARTED]
+### Phase 1: Record the CI-shaped baseline before any edit [COMPLETED]
 
 **Goal**: Reproduce (not re-estimate) the authoritative numbers under CI's exact invocation shape
 on this host, on unmodified code, and record the command, the host, and the per-test wall clocks
