@@ -11,18 +11,14 @@ next_project_number: 210
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,206 | -- | testing, semantics |
-| 2 | 199,209 | 198,206 | documentation, cross-repo-contract |
+| 1 | 198,200,209 | -- | semantics, cross-repo-contract |
+| 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
 199 [NOT STARTED] — Write the round-trip ledger in...
-
-### Testing
-
-206 [IMPLEMENTING] — Refactor the bimodal verification test harness for...
 
 ### Semantics
 
@@ -116,12 +112,13 @@ CONSTRAINTS. Verify against the full repository gate under CI's own invocation s
 ---
 
 ### 206. Refactor verification test harness
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 207
 - **Research**: [206_refactor_verification_test_harness/reports/01_refactor-verification-test-harness.md]
 - **Plan**: [206_refactor_verification_test_harness/plans/01_refactor-verification-test-harness.md]
+- **Summary**: [206_refactor_verification_test_harness/summaries/01_refactor-verification-test-harness-summary.md]
 
 **Description**: Refactor the bimodal verification test harness for organization and performance, refactoring structure rather than preserving it where that produces a better result. This task owns the harness itself; the trust boundary between testing and formal verification is owned by a separate task and is explicitly out of scope here. Nothing in this task may weaken what the existing tests establish, and any narrowing of an enumeration must be stated explicitly rather than absorbed as a speedup.
 

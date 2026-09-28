@@ -1,16 +1,27 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 13,
-  "summary": "Wrote an 8-phase implementation plan for the bimodal verification test harness: consolidate the four duplicated _settings/_build helpers, record the three deliberately declined organization routes (grids, tier gating, _pinned_eval.py location) plus the promotion coordination note, land the research-measured family-only amortization across certificate.py / _pinned_eval.py / the enumeration loop, then re-measure under CI's exact invocation shape at a decision gate that decides the scheduled-run question.",
+  "status": "implemented",
+  "summary": "All 8 phases completed: consolidated the four duplicated _settings/_build helpers, extracted _recheck_family, split the pinned evaluator into family-only/target-time groups, and restructured the harness into a family-outer/target-inner loop, measuring a 72.2% (3.59x) reduction on the widest boxed case (121.78s -> 33.90s) and 60.2% (2.51x) on the second (17.93s -> 7.14s) under CI's exact shape, with all counts unchanged.",
+  "phases_completed": 8,
+  "phases_total": 8,
+  "dispatch_seq": 15,
+  "blockers": [],
   "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/206_refactor_verification_test_harness/summaries/01_refactor-verification-test-harness-summary.md",
+      "summary": "All 8 phases completed: consolidated duplicated build helpers, extracted _recheck_family, split the pinned evaluator into family-only/target-time groups, restructured the harness into a family-outer/target-inner loop, and measured a 72.2% (3.59x) reduction on the widest boxed case (121.78s -> 33.90s) and 60.2% (2.51x) on the second (17.93s -> 7.14s) under CI's exact shape, with counts unchanged. Phase 7's scheduled-run contingency was not taken (gate found the post-fix 88.7% headroom adequate)."
+    },
     {
       "type": "plan",
       "path": "specs/206_refactor_verification_test_harness/plans/01_refactor-verification-test-harness.md",
-      "summary": "8 phases, ~9.5h, 7 dependency waves; includes a measurement decision gate (Phase 6) and a conditional scheduled-run contingency (Phase 7)."
+      "summary": "All 8 phase headings marked [COMPLETED] (Phase 7 [COMPLETED WITH EXCLUSIONS]); plan-level Status field updated to [COMPLETED]."
+    },
+    {
+      "type": "baseline",
+      "path": "specs/206_refactor_verification_test_harness/baselines/01_ci-shaped-baseline.md",
+      "summary": "Before/after CI-shaped measurements, the gate decision, and the final full-gate evidence with six preserved-invariant citations."
     }
   ],
-  "phases_completed": 0,
-  "phases_total": 8,
-  "blockers": []
+  "next_steps": "Task complete. Nothing deferred by this task itself. One finding recorded for coordination only, not decided here: if the concurrent, separately-tracked trust-boundary/checker-promotion task (205, now complete) later decides to promote a checker onto the production path, _pinned_eval.py's natural destination is alongside semantic/certificate.py with a narrowed public surface -- see that module's own coordination-note docstring and tests/README.md's Declined Reorganizations section.",
+  "notes": "One pre-existing, out-of-scope flake was observed in every full-gate run this task took (baseline, post-refactor, final verification): test_checker.py::TestLazyBoundedMemoizedProbe::test_import_performs_no_subprocess_call fails under the -n4 parallel pass (worker-contention-sensitive timing assertion) but passes standalone every time; git log confirms that file is owned entirely by task 205's/197's commits, never touched by this task. Reported for the record, not fixed here (out of scope). A prior dispatch (seq 13/14) for this task appears to have stalled mid-Phase-1 waiting on a background monitor notification that was slow to arrive; this dispatch re-ran Phase 1's baseline from scratch in the foreground against the current (post-task-205) tree per the team lead's guidance, superseding any partial state from that stall."
 }

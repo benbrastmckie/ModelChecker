@@ -59,12 +59,12 @@
     {
       "project_number": 206,
       "project_name": "refactor_verification_test_harness",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "description": "Refactor the bimodal verification test harness for organization and performance, refactoring structure rather than preserving it where that produces a better result. This task owns the harness itself; the trust boundary between testing and formal verification is owned by a separate task and is explicitly out of scope here. Nothing in this task may weaken what the existing tests establish, and any narrowing of an enumeration must be stated explicitly rather than absorbed as a speedup.\n\nORGANIZATION. Verification support code currently sits inside the test tree as code/src/model_checker/theory_lib/bimodal/tests/_pinned_eval.py (the compile-once pinned evaluator and the candidate-to-assignment builder) while behaving like a library rather than a test module. Tier membership is expressed in three places at once: prose in the module docstring of tests/integration/test_certificate_a2_triangle.py, per-class pytest markers, and a class-level skipif keyed on BIMODAL_LOGIC_PATH. Grid configurations and premise families are restated across tests/integration/test_certificate_a2_triangle.py, tests/integration/test_search_period_coverage.py, tests/unit/test_witness_registry.py and tests/unit/test_structure.py. Assess whether one declarative registry of tiers and configurations, consumed by every module, is better than the current distributed expression, and whether the evaluator belongs outside the test tree given that a separate task is evaluating promoting a checker onto the production path. Coordinate on that point rather than pre-empting it: if the evaluator may become a shipped artifact, say what that implies for its location and public surface, but do not make the promotion decision here.\n\nPERFORMANCE. Authoritative measurements already exist and should be reproduced, not re-estimated from scratch. Under CI's exact invocation shape (pytest -n 4 --timeout=300 --timeout-method=thread over the real target set), the widest boxed Tier 1 case runs 123.29s over 10,485,760 candidates, which is 1.91x the aggregate-only baseline and leaves roughly 59 percent headroom against the 300s per-test ceiling; the second boxed case runs 17.77s over 1,572,864 candidates; the widest box-free case runs under 2s. The headroom assumes CI hardware no more than about 2.4x slower than the measuring host, a margin currently documented in TestExhaustiveTriangleWithBox's docstring. Decide whether that margin is adequate and compare at least four routes: moving the widest case off the per-PR path to a scheduled run while keeping the 17.77s case in the PR gate; sharing solved structures across cases through pytest fixtures instead of re-solving per test; caching or reusing the compiled evaluator across configurations; and any algorithmic reduction of the enumeration itself. Measure before and after under the same invocation shape, on the same host, and report both numbers. A scheduling change is a legitimate outcome and is not a retreat.\n\nCONSTRAINTS. Preserve Tier 2's clean-skip behaviour as it stands (its promotion is the other task's decision, not this one's). Preserve the timeout-is-False assertions in the A0 standing tests and the search-coverage grid pins, which exist so an inconclusive solver run cannot pass as a genuine UNSAT. Preserve the retained aggregate assertion alongside the per-candidate comparison, since it is the only check of the real Z3 search verdict as distinct from the pinned constraint-set evaluation. Verify against the four-theory gate as well as the bimodal suite, and confirm the repository-wide target set stays green.",
       "topic": "testing",
       "created": "2026-09-27T16:42:24Z",
-      "last_updated": "2026-09-28T01:44:26Z",
+      "last_updated": "2026-09-28T06:33:15Z",
       "dependencies": [
         207
       ],
@@ -79,6 +79,11 @@
           "path": "specs/206_refactor_verification_test_harness/plans/01_refactor-verification-test-harness.md",
           "type": "plan",
           "summary": "8 phases, ~9.5h, 7 dependency waves; includes a measurement decision gate (Phase 6) and a conditional scheduled-run contingency (Phase 7)."
+        },
+        {
+          "path": "specs/206_refactor_verification_test_harness/summaries/01_refactor-verification-test-harness-summary.md",
+          "type": "summary",
+          "summary": "All 8 phases completed: consolidated duplicated build helpers, extracted _recheck_family, split the pinned evaluator into family-only/target-time groups, restructured the harness into a family-outer/target-inner loop, and measured a 72.2% (3.59x) reduction on the widest boxed case (121.78s -> 33.90s) and 60.2% (2.51x) on the second (17.93s -> 7.14s) under CI's exact shape, with counts unchanged. Phase 7's scheduled-run contingency was not taken (gate found the post-fix 88.7% headroom adequate)."
         }
       ],
       "next_artifact_number": 2
