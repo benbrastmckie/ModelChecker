@@ -1,0 +1,30 @@
+{
+  "status": "planned",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/plans/01_populate-persistent-search-solver.md",
+      "summary": "6-phase plan generalizing bimodal's search-solver re-assertion into the shared ConstraintGenerator, with live non-mocked regression coverage for logos/exclusion/imposition."
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790629202_db51b1_215",
+    "agent_type": "planner-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 6,
+    "estimated_hours": 7.5,
+    "dependency_waves": 5
+  },
+  "memory_candidates": [
+    {
+      "content": "In the ModelChecker Z3 stack, ModelDefaults._setup_solver (models/structure.py) adds every constraint via assert_tracked, which Z3SolverAdapter implements as z3.Solver.assert_and_track(c, Bool(label)). Z3 records that as Implies(label, c), so solver.assertions() returns TRACKED IMPLICATIONS, not the raw constraints. Copying those assertions into a fresh z3.Solver() yields a vacuously satisfiable set -- the copy checks sat with every tracking Boolean set False, even when the original checked unsat. Consequence: any mechanism that reconstructs a solver by copying assertions() off a tracked solver is silently unconstrained, and a regression test asserting only len(assertions()) > 0 will pass against a broken engine. Re-assert the real constraint lists (frame/model/premise/conclusion off ModelConstraints) instead of copying assertions, and make the acceptance criterion model-level (the produced model satisfies each constraint), not count-level.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/plans/01_populate-persistent-search-solver.md",
+      "confidence": 0.9,
+      "suggested_keywords": ["z3", "assert_and_track", "solver-assertions", "tracking-literal", "vacuous-satisfiability", "regression-test-design"]
+    }
+  ],
+  "next_steps": "Run /implement 215 to execute the plan",
+  "dispatch_seq": 10
+}
