@@ -28,13 +28,13 @@
     {
       "project_number": 211,
       "project_name": "correct_kernel_checked_proof_overclaim",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "general",
       "description": "Resolve the kernel-checked-proof contradiction in the bimodal trust documentation, and decide the BIMODAL_LOGIC_COMMIT pin's fate. Three items.\n\nITEM 1, A LIVE SELF-CONTRADICTION (verified against the tree, not inherited from a report). Two documents in code/src/model_checker/theory_lib/bimodal/docs/ now say opposite things about what an acceptance: entailment verdict licenses.\n\nASSERTS the claim, and is the side that is wrong:\n- ADEQUACY.md line ~457: '\"entailment\" means the binary constructed the paper-countermodel existence term for this particular certificate (a kernel-checked proof)'.\n- ADEQUACY.md line ~490: '... constructing the paper-countermodel existence term rather than printing a verdict -- a kernel-checked proof for that particular certificate, not merely four Decidable instances agreeing'.\n\nDENIES the claim, and is already correct -- DO NOT \"fix\" these:\n- TRUST_PIPELINE.md line ~162 and A2_GAP.md line ~519 both read 'It is not a kernel-checked proof for ...'.\n- SETTINGS.md line ~108 states the accurate position explicitly: the phrase belongs to a reserved third Acceptance value (per-certificate kernel checking by re-elaboration) that nothing this checker produces today.\n\nPer BimodalTools/CertificateImport.lean's Acceptance inductive docstring, SETTINGS.md is right. The accurate narrower claim, already used throughout semantic/checker.py and the docs written alongside it: Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions. Rewrite the two ADEQUACY.md sites to that wording. The overclaim does not reach users -- semantic/model.py's _verification_label is written from the Lean docstring directly -- so this is a documentation-consistency defect, not a false user-facing claim. Re-grep for 'kernel-checked proof' across the docs directory when done: every surviving occurrence should either deny the claim or be SETTINGS.md's explanation of why the phrase is reserved.\n\nITEM 2, A DEAD PIN. Decide whether to auto-track or retire tests/_lean_check.py's BIMODAL_LOGIC_COMMIT constant. It is declared and exported but consumed by nothing, and has drifted repeatedly. Enforcement now lives in semantic/checker.py's capability handshake, with the commit captured dynamically as CheckerHandle.provenance per resolution rather than read from the stale constant.\n\nITEM 3, VERIFY A DEFERRAL BEFORE RESTATING IT. TRUST_PIPELINE.md records the Lean-side half of obligation S4 as deferred and not yet attempted, but the companion BimodalLogic repository now declares a translate_sentence executable (root BimodalTools.TranslateSentenceMain) in its lakefile.toml. Infrastructure may exist even where the truth-preservation theorem does not. If the sentence-translation conformance task has already landed, prefer its findings over a fresh probe.",
       "topic": "documentation",
       "dependencies": [],
       "created": "2026-09-28T06:53:20Z",
-      "last_updated": "2026-09-28T07:09:01Z",
+      "last_updated": "2026-09-28T07:42:10Z",
       "session_id": "sess_1790578867_05c8df",
       "artifacts": [
         {
@@ -46,9 +46,15 @@
           "path": "specs/211_correct_kernel_checked_proof_overclaim/plans/01_kernel-checked-proof-overclaim.md",
           "type": "plan",
           "summary": "Five-phase plan covering all three dispatch items plus the folded-in adjacent ADEQUACY.md S4 staleness."
+        },
+        {
+          "path": "specs/211_correct_kernel_checked_proof_overclaim/summaries/01_kernel-checked-proof-overclaim-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for the kernel-checked-proof overclaim correction, dead pin retirement, and S4 deferral fix."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Rewrote the two ADEQUACY.md sites overclaiming a kernel-checked proof, retired the unconsumed BIMODAL_LOGIC_COMMIT constant, and corrected TRUST_PIPELINE.md and ADEQUACY.md's stale claim that the Lean-side S4 truth-preservation theorem was unattempted (it has landed upstream as sat_iff). All four bimodal trust docs now agree on both claims; full bimodal (640 passed) and repo-wide (645 passed, 5 skipped) test suites are green."
     },
     {
       "project_number": 210,

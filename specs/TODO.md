@@ -11,15 +11,14 @@ next_project_number: 214
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,210,211,213 | -- | documentation, testing, semantics |
-| 2 | 199,212 | 198,210,211 | documentation, testing |
+| 1 | 198,200,210,213 | -- | testing, semantics |
+| 2 | 199,212 | 198,210 | documentation, testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-211 [IMPLEMENTING] — Resolve the kernel-checked-proof contradiction in the bimodal...
-  └─ 199 [NOT STARTED] — Write the round-trip ledger in...
+199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
 
@@ -63,12 +62,13 @@ Establish equivalence by reading each helper against _build_support.py's, not by
 ---
 
 ### 211. Correct kernel checked proof overclaim
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
 - **Research**: [211_correct_kernel_checked_proof_overclaim/reports/01_kernel-checked-proof-overclaim.md]
 - **Plan**: [211_correct_kernel_checked_proof_overclaim/plans/01_kernel-checked-proof-overclaim.md]
+- **Summary**: [211_correct_kernel_checked_proof_overclaim/summaries/01_kernel-checked-proof-overclaim-summary.md]
 
 **Description**: Resolve the kernel-checked-proof contradiction in the bimodal trust documentation, and decide the BIMODAL_LOGIC_COMMIT pin's fate. Three items.
 

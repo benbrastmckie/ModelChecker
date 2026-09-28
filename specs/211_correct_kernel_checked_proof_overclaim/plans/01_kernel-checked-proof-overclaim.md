@@ -1,7 +1,7 @@
 # Implementation Plan: Task #211
 
 - **Task**: 211 - Correct kernel-checked-proof overclaim
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.25 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/211_correct_kernel_checked_proof_overclaim/reports/01_kernel-checked-proof-overclaim.md
