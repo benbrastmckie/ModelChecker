@@ -1,7 +1,7 @@
 # Implementation Plan: Task #209
 
 - **Task**: 209 - bimodal_sentence_translation_contract
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: Tasks 205 (certifying_countermodel_architecture) and 206
   (refactor_verification_test_harness) — both `completed` per `specs/state.json`, so the
@@ -494,32 +494,38 @@ emits, so fixture staleness is detectable rather than assumed away.
 
 ---
 
-### Phase 6: Documentation, pin refresh, and final gate [NOT STARTED]
+### Phase 6: Documentation, pin refresh, and final gate [COMPLETED WITH EXCLUSIONS]
 
 **Goal**: Leave this repository's documentation truthful about what is now checked from both ends,
 refresh the pinned upstream commit, and close the task.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py` and
+- [x] Re-read `code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py` and
       `.../tests/README.md` immediately before editing (task 205 and 206 both landed edits here,
       and the tree is shared).
-- [ ] Refresh `BIMODAL_LOGIC_COMMIT` from `d55e2760e...` to the BimodalLogic commit that actually
-      landed the translation channel, **resolved live** via
-      `git log --oneline -- FormalSystem/SourceLanguage/ Tests/fixtures/sentence-translation-fixtures.jsonl`
-      in the BimodalLogic checkout — do not copy a value from this plan or the research report.
-      Update the surrounding comment to say the constant now pins both the certificate and the
-      translation contracts.
-- [ ] Update `code/src/model_checker/theory_lib/bimodal/tests/README.md` to describe the new
+- [x] Refresh `BIMODAL_LOGIC_COMMIT` from `d55e2760e...` to the BimodalLogic commit that actually
+      landed the translation channel — **probed and found inapplicable, per the pre-edit-gate
+      contract; see `#### Reasoned Exclusions` below rather than re-creating the constant.**
+- [x] Update `code/src/model_checker/theory_lib/bimodal/tests/README.md` to describe the new
       translation conformance module alongside the existing certificate agreement module,
-      including its forward-only and parsed-JSON-comparison properties.
-- [ ] Re-read BimodalLogic's `BimodalTools/README.md` source-sentence translation protocol section
+      including its forward-only and parsed-JSON-comparison properties. **Done**: new row added
+      to the `integration/` table.
+- [x] Re-read BimodalLogic's `BimodalTools/README.md` source-sentence translation protocol section
       (read-only) and confirm every obligation it states of the consuming side is now discharged by
-      a live assertion; list any residual gap explicitly rather than leaving it implied.
-- [ ] Run the full test suite one final time and compare against Phase 1's baseline.
-- [ ] Commit, staging only this plan's named files by explicit path — never a directory or glob
+      a live assertion; list any residual gap explicitly rather than leaving it implied. **Done,
+      no residual gap**: (1) "assert that its own translation of `surface` serializes to `formula`
+      for every line" -> Phase 4's per-row parametrized loop, all 26 rows. (2) "Comparison is on
+      parsed JSON, never on bytes" -> `to_json(translate(...)) == row["formula"]` dict equality
+      throughout, documented explicitly in the module docstring. (3) "The channel is
+      one-directional... no inverse pass to check" -> respected; no inverse pass was added, and
+      the module docstring records why. The README's own "Scope" paragraph ("does not certify the
+      consuming repository's code... stays where it is") is an honest limitation, not an
+      obligation this task could discharge further — carried into the summary as-is.
+- [x] Run the full test suite one final time and compare against Phase 1's baseline.
+- [x] Commit, staging only this plan's named files by explicit path — never a directory or glob
       pathspec, never `git add -A`, never `git commit -am`. Leave the pre-existing dirty `specs/**`
       files recorded in Phase 1 untouched and unstaged.
-- [ ] Write the implementation summary to
+- [x] Write the implementation summary to
       `specs/209_bimodal_sentence_translation_contract/summaries/01_sentence-translation-contract-summary.md`
       in **this** repository, recording per item: what was found already done (1, 2, 4), what had
       no target (3), and what was implemented (5, 6). Write nothing under
@@ -536,18 +542,30 @@ own edits are.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py` — `BIMODAL_LOGIC_COMMIT` and its
-  comment.
-- `code/src/model_checker/theory_lib/bimodal/tests/README.md` — new module description.
+  comment. **Not modified — see `#### Reasoned Exclusions` below.**
+- `code/src/model_checker/theory_lib/bimodal/tests/README.md` — new module description. Modified.
 - `specs/209_bimodal_sentence_translation_contract/summaries/01_sentence-translation-contract-summary.md`
   (new).
 
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|------|--------|----------|
+| Refresh `BIMODAL_LOGIC_COMMIT` in `tests/_lean_check.py` and its surrounding comment | This plan's Phase 1 baseline run observed a concurrent sibling task (211, no declared `file_scope`, explicitly named in this task's own dispatch as sharing `tests/_lean_check.py`) land 4 commits during this task's own Phase 1, including "task 211 phase 2: retire the dead BIMODAL_LOGIC_COMMIT pin" (`ccedb978`) — deleting the constant and its `__all__` export entirely, with a documented rationale (`semantic/checker.py`'s docstring: pinning a commit cannot prevent a checkout from being rebuilt at a different, incompatible commit; the live capability handshake is the real gate; the pin was "consumed by nothing" and had already drifted twice before this task's own module existed). Task 211's own Phase 5 gate requires `grep -rn "BIMODAL_LOGIC_COMMIT" /home/benjamin/Projects/ModelChecker` to return zero code hits. Re-creating the constant here would directly undo a landed, reasoned sibling decision and break that gate. Per the pre-edit-gate contract (`context/contracts/pre-edit-gate.md`): this plan's Phase 6 line item is a mechanically-generated hypothesis from research written before task 211 ran; the probe (a repo-wide grep) contradicts it; the item is recorded here rather than silently skipped or force-applied. | `git log --oneline -- code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py` shows `ccedb9789cc2628514a240c01d51ec8a24e384fc` ("task 211 phase 2: retire the dead BIMODAL_LOGIC_COMMIT pin"), landed between this task's own Phase 1 and Phase 2 commits. `grep -rn "BIMODAL_LOGIC_COMMIT" code/` (this task's own probe, at Phase 6 implementation time) returns zero hits. `git show ccedb978` diff confirms the constant, its `__all__` entry, and the docstring's present-tense reference to it were all removed, replaced with a comment describing the live-handshake enforcement mechanism instead. |
+
 **Verification**:
-- Full test suite green, matching or improving on Phase 1's baseline.
+- Full test suite green, matching or improving on Phase 1's baseline. **Confirmed**:
+  `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q` ->
+  **3325 passed, 5 skipped, 2 warnings in 412.30s** — Phase 1's baseline (3279 passed, 5 skipped)
+  plus exactly the 46 new tests this task added across Phases 2-5 (5 + 3 + 31 + 7 = 46; 3279 + 46
+  = 3325), zero failures, zero regressions, same 5 pre-existing skips.
 - `git status --short` shows this plan's files committed and the pre-existing `specs/**`
-  modifications still unstaged and unmodified.
+  modifications still unstaged and unmodified. **Confirmed** at each phase's commit boundary.
 - The summary artifact exists and covers all six items.
 - `git log` in `/home/benjamin/Projects/BimodalLogic` shows no new commit and its `git status` is
-  unchanged by this task.
+  unchanged by this task. **Confirmed**: this task never wrote to that checkout; only read
+  operations (`open()` on the fixture file, `subprocess.run` invoking the pre-built
+  `translate_sentence` binary) touched it.
 
 ---
 

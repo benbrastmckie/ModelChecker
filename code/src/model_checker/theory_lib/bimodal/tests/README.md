@@ -78,6 +78,7 @@ tests/
 | `test_data_extraction.py` | `extract_states`/`extract_evaluation_world`/`extract_relations`/`extract_propositions` against real solved structures |
 | `test_injection.py` | `inject_z3_model_values`: pinning label bits, box guesses, and the target selector from a previous solve |
 | `test_iterate.py` | `BimodalModelIterator`: difference/non-isomorphism constraints over labels and guesses |
+| `test_sentence_translation_agreement.py` | Round-trips BimodalLogic's `Tests/fixtures/sentence-translation-fixtures.jsonl` fixture corpus through this repository's own `Sentence.update_types` + `formula.translate` + `formula.to_json` (skipped cleanly when the checkout is unavailable), plus an optional live differential leg against the built `translate_sentence` binary on a small representative row selection (skipped cleanly when `lake`/the binary are unavailable, independently of the fixture-only leg). Forward-only (`tr` is not injective) and compares parsed JSON, never serialized bytes -- see the module's own docstring |
 | `test_until_since_integration.py` | `\Until`/`\Since` semantic claims (top-guard equivalence to `future`/`past`, the open guard interval, boundary/immediate-witness behaviour) through the full solve path |
 
 ## Declined Reorganizations
