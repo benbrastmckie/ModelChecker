@@ -11,7 +11,7 @@ next_project_number: 209
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,205,206,208 | -- | architecture, testing, semantics, ... |
+| 1 | 198,200,205,206 | -- | architecture, testing, semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -33,19 +33,16 @@ next_project_number: 209
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 
-### Test Reliability
-
-208 [IMPLEMENTING] — Fix the logos subtheory-orchestration meta-test, which sits...
-
 ## Tasks
 
 ### 208. Fix logos subtheory meta test timeout
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
 - **Research**: [208_fix_logos_subtheory_meta_test_timeout/reports/01_logos-subtheory-meta-test-timeout.md]
 - **Plan**: [208_fix_logos_subtheory_meta_test_timeout/plans/01_delete-duplicate-subtheory-meta-test.md]
+- **Summary**: [208_fix_logos_subtheory_meta_test_timeout/summaries/01_fix-logos-subtheory-meta-test-timeout-summary.md]
 
 **Description**: Fix the logos subtheory-orchestration meta-test, which sits over CI's per-test timeout ceiling with negative margin and duplicates coverage the gate already collects directly. This is a pre-existing condition, not a regression: it was observed intermittently failing and then passing across two runs of the same gate in the same working tree with no intervening code change, which is the signature of a test sitting exactly on its timeout boundary.
 
