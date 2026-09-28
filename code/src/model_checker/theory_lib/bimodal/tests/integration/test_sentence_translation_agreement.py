@@ -54,8 +54,9 @@ its own `_CHECKOUT_ABSENT_SKIP_REASON` from `_lean_check.resolve_bimodal_logic_p
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import pytest
 
@@ -69,7 +70,10 @@ from model_checker.theory_lib.bimodal.semantic.formula import (
     to_json,
     translate,
 )
-from model_checker.theory_lib.bimodal.tests._lean_check import resolve_bimodal_logic_path
+from model_checker.theory_lib.bimodal.tests._lean_check import (
+    resolve_bimodal_logic_path,
+    resolve_lake,
+)
 
 _CHECKOUT_PATH = resolve_bimodal_logic_path()
 _CHECKOUT_ABSENT_SKIP_REASON = (
@@ -261,3 +265,152 @@ class TestUnknownTagFailsLoudly:
     def test_unmapped_tag_raises_value_error(self):
         with pytest.raises(ValueError, match="no mapping"):
             _render_sentence_ast({"tag": "not_a_real_tag"})
+
+
+# ---------------------------------------------------------------------------
+# Optional live differential leg: the committed fixture against the live
+# `lake exe translate_sentence` binary, invoked directly (not through `lake exe`, mirroring
+# `_lean_check.py`'s direct-invocation rationale -- see checker.py's `_invoke` docstring).
+# ---------------------------------------------------------------------------
+
+_DIFFERENTIAL_PROBE_TIMEOUT_SECONDS = 30
+_DIFFERENTIAL_INVOKE_TIMEOUT_SECONDS = 30
+
+
+def _resolve_translate_sentence_binary() -> Optional[Path]:
+    """The built `translate_sentence` binary inside the resolved checkout, or `None` if there is
+    no checkout or the binary has not been built there."""
+    if _CHECKOUT_PATH is None:
+        return None
+    candidate = _CHECKOUT_PATH / ".lake" / "build" / "bin" / "translate_sentence"
+    return candidate if candidate.is_file() else None
+
+
+def _invoke_translate_sentence(
+    payload: Dict[str, Any], timeout: float
+) -> Optional[Dict[str, Any]]:
+    """Invoke the built `translate_sentence` binary directly (never through `lake exe`, which
+    pays an incremental build-check overhead on every call -- see `semantic/checker.py`'s
+    `_invoke` docstring for the identical rationale this mirrors) on one source-sentence JSON
+    payload. Returns the parsed output object, or `None` on timeout, a non-zero exit, a missing
+    binary, or an unparseable response -- the caller decides how to report that (an
+    environment-absence skip at probe time, or a loud assertion failure at differential-check
+    time; never silently folded together)."""
+    if _TRANSLATE_SENTENCE_BINARY is None:
+        return None
+    sent = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+    try:
+        result = subprocess.run(
+            [str(_TRANSLATE_SENTENCE_BINARY)],
+            input=sent,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    if result.returncode != 0:
+        return None
+    line = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+    try:
+        return json.loads(line)
+    except (json.JSONDecodeError, IndexError):
+        return None
+
+
+def _probe_translate_sentence() -> Optional[str]:
+    """Bounded probe of the built binary, mirroring `_lean_check.py`'s probe-then-run idiom: a
+    binary that never answers within the timeout is an environment-absence condition, safe to
+    skip. This probe does NOT classify a wrong answer as a skip condition -- only "did it answer
+    at all" -- keeping the environment-absence vocabulary strictly separate from the
+    protocol-disagreement vocabulary the differential assertions below enforce (a binary that
+    answers with the wrong formula must fail loudly, never skip)."""
+    live = _invoke_translate_sentence(
+        {"tag": "atom", "name": "p"}, _DIFFERENTIAL_PROBE_TIMEOUT_SECONDS
+    )
+    if live is None:
+        return (
+            "`translate_sentence` did not respond within "
+            f"{_DIFFERENTIAL_PROBE_TIMEOUT_SECONDS}s, or failed to run"
+        )
+    return None
+
+
+_LAKE = resolve_lake()
+_TRANSLATE_SENTENCE_BINARY = _resolve_translate_sentence_binary()
+
+_DIFFERENTIAL_SKIP_REASON: Optional[str] = None
+if _CHECKOUT_PATH is None:
+    _DIFFERENTIAL_SKIP_REASON = _CHECKOUT_ABSENT_SKIP_REASON
+elif _LAKE is None:
+    _DIFFERENTIAL_SKIP_REASON = "`lake` not found on PATH"
+elif _TRANSLATE_SENTENCE_BINARY is None:
+    _DIFFERENTIAL_SKIP_REASON = (
+        "`translate_sentence` binary not built at "
+        f"{_CHECKOUT_PATH / '.lake' / 'build' / 'bin' / 'translate_sentence'} "
+        "(run `lake build translate_sentence` in the BimodalLogic checkout)"
+    )
+else:
+    _DIFFERENTIAL_SKIP_REASON = _probe_translate_sentence()
+
+
+def _select_representative_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """At minimum one row per `kind`, plus the `\\top` row and the two flagged-operator rows --
+    never one subprocess invocation per row over the whole fixture (this leg's own risk
+    mitigation: a live differential costs one subprocess per row checked, so this selection stays
+    small and representative rather than exhaustive; the fixture-only leg above is already
+    exhaustive)."""
+    chosen: Dict[str, Dict[str, Any]] = {}
+    seen_kinds: set = set()
+    for row in rows:
+        if row["kind"] not in seen_kinds:
+            seen_kinds.add(row["kind"])
+            chosen[row["surface"]] = row
+    for surface in ("\\top", "\\rightarrow p q", "\\future p"):
+        for row in rows:
+            if row["surface"] == surface:
+                chosen[surface] = row
+                break
+    return list(chosen.values())
+
+
+_REPRESENTATIVE_ROWS = _select_representative_rows(_FIXTURE_ROWS) if _FIXTURE_ROWS else []
+_REPRESENTATIVE_ROW_IDS = [row["surface"] for row in _REPRESENTATIVE_ROWS]
+
+
+def _assert_translate_sentence_matches_fixture(row: Dict[str, Any]) -> None:
+    live = _invoke_translate_sentence(row["sentence"], _DIFFERENTIAL_INVOKE_TIMEOUT_SECONDS)
+    assert live is not None, (
+        f"`translate_sentence` did not respond in time for {row['surface']!r} despite passing "
+        "this module's own availability probe"
+    )
+    assert live == row["formula"], (
+        f"{row['surface']!r}: the live `lake exe translate_sentence` binary disagrees with the "
+        "committed fixture's expected formula -- the committed fixture may be stale.\n"
+        f"  live:    {live}\n"
+        f"  fixture: {row['formula']}"
+    )
+
+
+@pytest.mark.skipif(_DIFFERENTIAL_SKIP_REASON is not None, reason=_DIFFERENTIAL_SKIP_REASON or "")
+class TestLiveDifferentialAgainstTranslateSentenceBinary:
+    """The committed fixture corpus, checked against what the live `translate_sentence` binary
+    emits right now -- so fixture staleness is detectable rather than assumed away. This leg is
+    entirely separate from, and does not gate, `TestSentenceTranslationAgreesWithFixture` above
+    (the fixture-only leg): with the checkout present but `lake`/the binary unavailable, this
+    class skips while the fixture-only leg keeps running unaffected."""
+
+    @pytest.mark.parametrize("row", _REPRESENTATIVE_ROWS, ids=_REPRESENTATIVE_ROW_IDS)
+    def test_live_binary_agrees_with_committed_fixture(self, row):
+        _assert_translate_sentence_matches_fixture(row)
+
+    def test_deliberately_corrupted_expected_value_fails_not_skips(self):
+        """Sanity check that the differential assertion has teeth: a deliberately corrupted
+        expected `formula` value must raise `AssertionError`, never silently skip or pass --
+        proving the live comparison is load-bearing, not vacuous."""
+        row = _REPRESENTATIVE_ROWS[0]
+        corrupted_row = dict(
+            row, formula={"tag": "atom", "name": "definitely-not-the-real-answer"}
+        )
+        with pytest.raises(AssertionError):
+            _assert_translate_sentence_matches_fixture(corrupted_row)

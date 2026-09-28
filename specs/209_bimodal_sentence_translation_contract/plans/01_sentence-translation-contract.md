@@ -434,23 +434,37 @@ confirmation.
 
 ---
 
-### Phase 5: Optional live differential leg against `lake exe translate_sentence` [NOT STARTED]
+### Phase 5: Optional live differential leg against `lake exe translate_sentence` [COMPLETED]
 
 **Goal**: Add a skippable check that the committed fixture still matches what the live binary
 emits, so fixture staleness is detectable rather than assumed away.
 
 **Tasks**:
-- [ ] Add a probe-once helper resolving both the checkout and `lake`, mirroring `_lean_check.py`'s
+- [x] Add a probe-once helper resolving both the checkout and `lake`, mirroring `_lean_check.py`'s
       established idiom (one probe per session, named reasons for environment absence, loud failure
-      for a binary that answers wrongly).
-- [ ] Invoke `lake exe translate_sentence` on a small representative selection of rows — at minimum
-      one row per `kind`, plus the `\top` row and the two flagged-operator rows — and compare its
-      parsed stdout to that row's `formula` field. Do **not** loop one subprocess per row over the
-      whole fixture.
-- [ ] Keep the environment-absence vocabulary strictly separate from the protocol-disagreement
+      for a binary that answers wrongly). **Implementation choice, noted**: invokes the built
+      `translate_sentence` binary **directly** (`<checkout>/.lake/build/bin/translate_sentence`),
+      not through `lake exe translate_sentence` — mirroring `_lean_check.py`'s own
+      direct-invocation rationale (`semantic/checker.py`'s `_invoke` docstring: avoids `lake`
+      exe's incremental build-check overhead on every call) rather than this phase's literal
+      task wording, which named `lake exe` as the invocation form. `lake` on `PATH` is still
+      required and checked (as the buildability proxy `_lean_check.py` also uses), so the
+      environment-absence surface is unchanged; only the actual subprocess command differs.
+- [x] Invoke the binary on a small representative selection of rows — at minimum one row per
+      `kind`, plus the `\top` row and the two flagged-operator rows — and compare its parsed
+      stdout to that row's `formula` field. Do **not** loop one subprocess per row over the whole
+      fixture. **Confirmed**: `_select_representative_rows` resolved exactly 6 distinct rows
+      (`p`, `\rightarrow p q`, `\Until (\neg p) q`, `\future \Future p`, `\top`, `\future p`) —
+      one per kind (primitive/defined/asymmetry/nesting) plus the two named additions
+      (`\top` was not independently selected by kind, since `\rightarrow p q` is the first
+      `defined`-kind row in file order).
+- [x] Keep the environment-absence vocabulary strictly separate from the protocol-disagreement
       vocabulary, exactly as `_lean_check.py` documents: a binary that answers with the wrong
-      formula must fail, never skip.
-- [ ] Run the module with the checkout present, and again with `BIMODAL_LOGIC_PATH` pointed at a
+      formula must fail, never skip. `_probe_translate_sentence` only ever returns an
+      environment-absence skip reason ("did not respond ... or failed to run"); every actual
+      per-row disagreement is a plain `assert` inside
+      `_assert_translate_sentence_matches_fixture`, never wrapped in a skip.
+- [x] Run the module with the checkout present, and again with `BIMODAL_LOGIC_PATH` pointed at a
       nonexistent directory, to confirm the skip path is clean.
 
 **Timing**: 1 hour
@@ -464,11 +478,19 @@ emits, so fixture staleness is detectable rather than assumed away.
   (extend), or a sibling helper module if the probe logic grows large enough to warrant one.
 
 **Verification**:
-- With a working checkout and `lake`, the differential rows pass.
+- With a working checkout and `lake`, the differential rows pass. **Confirmed**: full module run
+  with the live BimodalLogic checkout and `lake`/binary present -> **38 passed** (31 from Phase 4
+  + 6 live differential rows + 1 negative-control sanity check).
 - With the checkout absent, the differential leg skips with a named reason while Phase 4's
-  fixture-only leg is unaffected.
+  fixture-only leg is unaffected (both legs skip the same clean way they already did before this
+  phase added the differential leg — no new error surface). **Confirmed**:
+  `BIMODAL_LOGIC_PATH=/nonexistent/path pytest ...` -> **8 skipped**, zero errors (was 6 skipped
+  before this phase; +2 for the differential class's now-collapsed parametrize and its standalone
+  negative-control test).
 - A deliberately corrupted expected value makes the leg fail, not skip (sanity check that the
-  assertion is live).
+  assertion is live). **Confirmed**:
+  `test_deliberately_corrupted_expected_value_fails_not_skips` passes (i.e. the induced
+  `AssertionError` was correctly raised and caught by `pytest.raises`).
 
 ---
 
