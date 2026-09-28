@@ -178,9 +178,9 @@ quick-reference index that replaces the retired frame-axiom ledger):
 
 | Lemma | Statement (informal) | Lean name | File:line |
 |---|---|---|---|
-| 1 (Frame) | The constructed `F = ⟨W, 𝔇, ⇒⟩` is a task frame — compositionality, seriality, Limit, and Saturation all hold **by construction**, with Limit from `Int.abs_lt_one_iff` and Saturation from every fibre being a *singleton* (determinism) | `ShiftSet.shRel_comp`/`shRel_serial`/`frame_isRegular` etc. | `Semantics/ShiftSet.lean:148,163,171,200,225` |
+| 1 (Frame) | The constructed `F = ⟨W, 𝔇, ⇒⟩` is a task frame — compositionality, seriality, Limit, and Saturation all hold **by construction**, with Limit from `ShiftSet.sep_of_succOrder` (via `ShiftSet.ofIntAction`, kernel-checked from discreteness) and Saturation from every fibre being a *singleton* (determinism) | `ShiftSet.shRel_comp`/`shRel_serial`/`frame_isRegular` etc. | `Semantics/ShiftSet.lean:157,172,180,209,234` |
 | 2 (Histories) | Each `τᵢ` is a world history, and `H_F` is exactly the `k+1` lassos and their integer translates — so `\Box` ranges over exactly the certified histories | `ShiftSet.total_eq_orbit` | `Semantics/ShiftSet.lean:252` |
-| 3 (Time-shift preservation) | Truth in `M` at `(σ, t)` depends only on the carrier point `σ(t)` | `ShiftSet.forward_repr`, `WitnessFamily.sh_surj` | `Semantics/ShiftSet.lean:284`; `.../Std.lean:101` |
+| 3 (Time-shift preservation) | Truth in `M` at `(σ, t)` depends only on the carrier point `σ(t)` | `ShiftSet.forward_repr`, `WitnessFamily.sh_surj` | `Semantics/ShiftSet.lean:293`; `.../Std.lean:98` |
 | 4 (Truth lemma) | For every `ψ ∈ C`: `M, τᵢ, t ⊨ ψ` iff `ψ ∈ Lᵢ(t)` — proved by induction, using (C1) for the atom/⊥/→/□ cases and (C2) for the `U`/`S` fixpoint-postponement cases | `WitnessFamily.shiftTruth_iff_mem`, `truth_iff_mem` | `.../Agreement.lean:109,193` |
 | **Theorem** | Combining the above at `i=0, t=t₀` | `WitnessFamily.joint_countermodel` | `.../Agreement.lean:232` |
 

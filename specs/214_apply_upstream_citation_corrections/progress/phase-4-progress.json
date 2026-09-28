@@ -1,0 +1,19 @@
+{
+  "phase": 4,
+  "phase_name": "Correct the ARCHITECTURE.md condensed table",
+  "started_at": "2026-09-28T18:53:00Z",
+  "last_updated": "2026-09-28T18:58:00Z",
+  "objectives": [
+    {"id": 1, "description": "Re-read ARCHITECTURE.md before editing", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Row 1 (Frame) - replace Int.abs_lt_one_iff attribution", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"]},
+    {"id": 3, "description": "Row 1 (Frame) - update stale ShiftSet citation list", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"]},
+    {"id": 4, "description": "Row 3 - update forward_repr and sh_surj citations", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"]},
+    {"id": 5, "description": "Assess by-construction phrasing", "status": "done", "files_touched": []},
+    {"id": 6, "description": "Leave total_eq_orbit untouched", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 6,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [],
+  "notes": "git diff --stat confirms exactly 2 table rows changed (Row 1 and Row 3), matching the phase's Scope Hypothesis exactly this time. No sibling foreign edits observed in ARCHITECTURE.md at re-read time."
+}

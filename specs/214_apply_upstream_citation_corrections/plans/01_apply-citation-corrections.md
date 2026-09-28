@@ -309,27 +309,30 @@ by `git diff` hunk count on `ADEQUACY.md` outside the §4.1 block.
 
 ---
 
-### Phase 4: Correct the ARCHITECTURE.md condensed table [NOT STARTED]
+### Phase 4: Correct the ARCHITECTURE.md condensed table [COMPLETED]
 
 **Goal**: `ARCHITECTURE.md`'s condensed mirror of the §4.1 table agrees with the corrected
 `ADEQUACY.md`.
 
 **Tasks**:
-- [ ] Re-read `ARCHITECTURE.md` immediately before editing (sibling-task territory discipline).
-- [ ] Row "1 (Frame)" (~line 181) — replace "with Limit from `Int.abs_lt_one_iff`" with the
+- [x] Re-read `ARCHITECTURE.md` immediately before editing (sibling-task territory discipline).
+      *(completed)*
+- [x] Row "1 (Frame)" (~line 181) — replace "with Limit from `Int.abs_lt_one_iff`" with the
       corrected attribution (`ShiftSet.sep_of_succOrder`, through `ShiftSet.ofIntAction`),
-      consistent with Phase 2's verdict wording.
-- [ ] Same row — update the stale `Semantics/ShiftSet.lean:148,163,171,200,225` citation list to
+      consistent with Phase 2's verdict wording. *(completed)*
+- [x] Same row — update the stale `Semantics/ShiftSet.lean:148,163,171,200,225` citation list to
       the manifest's current `keyword_line` values for `shRel_comp`, `shRel_serial`,
-      `shRel_saturation`, `fibre_isRegular`, `frame_isRegular` (Decision D1).
-- [ ] Row "3 (Time-shift preservation)" (~line 183) — update `forward_repr`'s stale `:284` and
-      tighten `sh_surj`'s `Std.lean:101` to its own `keyword_line`.
-- [ ] Assess the row's "all hold **by construction**" phrasing against Row 4's correction: it is
+      `shRel_saturation`, `fibre_isRegular`, `frame_isRegular` (Decision D1). *(completed:
+      157,172,180,209,234)*
+- [x] Row "3 (Time-shift preservation)" (~line 183) — update `forward_repr`'s stale `:284` and
+      tighten `sh_surj`'s `Std.lean:101` to its own `keyword_line`. *(completed: 293, 98)*
+- [x] Assess the row's "all hold **by construction**" phrasing against Row 4's correction: it is
       a claim about the *specific* certified construction (which `ADEQUACY.md:108-127` proves in
       both directions directly), not about `TaskFrame.Limit`'s general transcription, so it needs
       no softening. Record the assessment; soften only if the re-read shows otherwise.
-- [ ] Leave `total_eq_orbit` (~lines 182, 191) untouched — upstream marks it "no correction
-      needed".
+      *(completed: assessment confirmed, no softening needed — phrasing left unchanged)*
+- [x] Leave `total_eq_orbit` (~lines 182, 191) untouched — upstream marks it "no correction
+      needed". *(completed: verified unchanged)*
 
 **Timing**: 0.25 hours
 
