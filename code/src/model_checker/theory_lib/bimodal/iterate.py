@@ -142,16 +142,23 @@ class BimodalModelIterator(BaseModelIterator):
         search solver that still accepted a `sel[t]` choice the *guarded premise
         implication* would reject (confirmed empirically: `Implies(sel[-2], lab_..._
         Imp(Untl, Bot))` evaluated `False` under a model the under-constrained search
-        solver nonetheless reported `sat`). Root cause: `ModelConstraints.__init__`
-        computes `all_constraints = frame_constraints + model_constraints + ...` via
+        solver nonetheless reported `sat`). At the time, `ModelConstraints.__init__`
+        computed `all_constraints = frame_constraints + model_constraints + ...` via
         list concatenation (a *snapshot*, copying elements at that moment) *before*
-        `finalize_certificate()` ever runs (that happens later, from `BimodalStructure.
-        __init__` -> `_setup_solver`) -- so `all_constraints` permanently misses every
-        coherence/fulfilment/box-faithfulness/target constraint, even though `model_
-        constraints.frame_constraints` itself (the plain attribute, not the snapshot)
-        stays correctly aliased to `semantics.frame_constraints` and does pick them up.
+        `finalize_certificate()` ever ran (that happens later, from `BimodalStructure.
+        __init__` -> `_setup_solver`) -- so `all_constraints` missed every
+        coherence/fulfilment/box-faithfulness/target constraint at read time, even
+        though `model_constraints.frame_constraints` itself (the plain attribute, not
+        the snapshot) stayed correctly aliased to `semantics.frame_constraints` and did
+        pick them up. `all_constraints` has since been changed to a read-only computed
+        property (`models/constraints.py`), recomputed from the same four component
+        lists on every access, so the staleness this paragraph describes no longer
+        applies to it. Reading the four component lists directly here remains required
+        regardless: it is what this method actually does to work around the separate,
+        still-live `stored_solver`/`_setup_solver` reassignment bug documented above,
+        not a workaround for the now-resolved `all_constraints` staleness.
         `model_constraints.model_constraints`/`premise_constraints`/
-        `conclusion_constraints` are unaffected by this timing gap (nothing mutates
+        `conclusion_constraints` are unaffected by either issue (nothing mutates
         them after `ModelConstraints.__init__` returns), so reading those three
         directly, alongside the live `semantics.frame_constraints`, is both correct
         and complete.

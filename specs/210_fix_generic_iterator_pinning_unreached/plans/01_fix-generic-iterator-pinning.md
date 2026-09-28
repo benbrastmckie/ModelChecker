@@ -1,7 +1,7 @@
 # Implementation Plan: Fix generic iterator pinning never reaching the rebuilt model's solve
 
 - **Task**: 210 - Fix generic iterator pinning never reaching the rebuilt model's solve for logos, exclusion and imposition
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/210_fix_generic_iterator_pinning_unreached/reports/01_fix-generic-iterator-pinning.md`
@@ -321,25 +321,25 @@ in `temp_solver` — the shape bimodal's `TestPinTheorySpecificValues` already e
 
 ---
 
-### Phase 5: Correct the Bimodal Docstring Wording [NOT STARTED]
+### Phase 5: Correct the Bimodal Docstring Wording [COMPLETED]
 
 **Goal**: Remove the present-tense claim that `all_constraints` "permanently misses" the
 certificate encoding, which stopped being true when `all_constraints` became a read-only computed
 property — without touching the method's still-necessary defensive design.
 
 **Tasks**:
-- [ ] In `code/src/model_checker/theory_lib/bimodal/iterate.py`, edit
+- [x] In `code/src/model_checker/theory_lib/bimodal/iterate.py`, edit
       `_ensure_frame_constraints_in_search_solver`'s docstring (the paragraph around lines
       145-157 describing the `all_constraints` snapshot). Replace the present-tense "permanently
       misses" claim with an accurate statement: `all_constraints` was formerly an eager
       construction-time snapshot that missed post-construction mutations; it is now a read-only
       computed property recomputed from the same four live lists on every access.
-- [ ] Add one sentence clarifying that reading the four component lists directly remains required
+- [x] Add one sentence clarifying that reading the four component lists directly remains required
       for the separate, still-live `stored_solver`/`_setup_solver` reassignment bug documented
       earlier in the same docstring — not as a workaround for the now-resolved `all_constraints`
       staleness.
-- [ ] Leave the method body, the four-list read, and every other docstring section unchanged.
-- [ ] No task-number reference in the docstring text.
+- [x] Leave the method body, the four-list read, and every other docstring section unchanged.
+- [x] No task-number reference in the docstring text.
 
 **Timing**: 0.25 hours
 
