@@ -57,6 +57,16 @@ Two tiers:
   candidates plus the live Z3-extracted certificate, reusing `_lean_check.py`'s skip discipline
   so it degrades to a clean skip (never a failure) without a BimodalLogic checkout. Unchanged by
   the wider grid -- still exercised only at `back = mid = fwd = 1`.
+
+**Direction claim.** Both tiers of this module are liveness and regression evidence for A2 --
+the UNSAT direction -- never for countermodel trust: a reported countermodel is independently
+checked per run by `semantic/model.py`'s mandatory re-check plus item 1's output gate
+(`semantic/checker.py`), neither of which this module exercises. What this module backs is the
+opposite, unwitnessed direction -- that the encoding imposes exactly (C1)-(C4) and nothing more,
+at the grid sizes actually enumerated -- which is exactly why it is exhaustive-enumeration
+evidence rather than a per-run check. See `docs/TRUST_PIPELINE.md`'s "The standing test for A2"
+for the same claim and the cost reassessment it licenses (the 123.29s `nb=nf=2` case is kept
+deliberately, not despite its cost).
 """
 
 from __future__ import annotations

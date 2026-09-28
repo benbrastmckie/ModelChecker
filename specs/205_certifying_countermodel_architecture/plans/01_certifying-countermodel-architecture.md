@@ -459,7 +459,7 @@ and if the flag is set globally rather than per-target, record that instead of w
 
 ---
 
-### Phase 7: Item 3 — extend the ledger, state the direction claim [NOT STARTED]
+### Phase 7: Item 3 — extend the ledger, state the direction claim [COMPLETED]
 
 **Goal**: Extend the three already-applied `TRUST_PIPELINE.md` repairs rather than duplicating
 them, close the same staleness one document over, and state at every tier-describing surface that
@@ -467,39 +467,39 @@ the Tier 1 differential and the search-coverage grid pins are liveness and regre
 the UNSAT direction — not countermodel trust.
 
 **Tasks**:
-- [ ] Re-read `docs/TRUST_PIPELINE.md`'s remaining-work table and its "The standing test for A2"
+- [x] Re-read `docs/TRUST_PIPELINE.md`'s remaining-work table and its "The standing test for A2" *(completed)*
       section and confirm, in the summary, all three already-applied edits still read correctly
       against what landed: the stale `nb = nf = 2` widening row is absent, the standing-test section
       records the closed blind spot with its measured cost and the aggregate→per-candidate move, and
       both new remaining-work rows for items 1 and 2 are present. Extend only.
-- [ ] `docs/A2_GAP.md` §8 limit 3: record the per-candidate obligation as **discharged**, naming
+- [x] `docs/A2_GAP.md` §8 limit 3: record the per-candidate obligation as **discharged**, naming *(completed)*
       `tests/_pinned_eval.py`'s `compile_and_bind` as precisely the prescribed solver-free pinned
       evaluator and `_run_exhaustive_triangle`'s first-divergence raise as the per-candidate
       comparison. Keep the aggregate/per-candidate distinction and the retained aggregate assertion;
       this is a status correction, not a deletion.
-- [ ] `docs/ADEQUACY.md` §7.1: correct the sweep arithmetic from `f^3` to the quadratic
+- [x] `docs/ADEQUACY.md` §7.1: correct the sweep arithmetic from `f^3` to the quadratic *(completed)*
       `O(back × fwd)` in **both** places (the opening statement and sub-bullet (iii-a)), stating
       that `mid` has no periodicity and never participates, citing `SEARCH_COVERAGE.md` §3(b).
-- [ ] `docs/ADEQUACY.md` §7.3: lead with both grid sizes rather than `back = mid = fwd = 1` alone;
+- [x] `docs/ADEQUACY.md` §7.3: lead with both grid sizes rather than `back = mid = fwd = 1` alone; *(completed)*
       record that the comparison is per-candidate; record that each candidate's leg (iii) is a
       solver-free evaluation of the encoding's own emitted constraint list, with the retained
       aggregate assertion being the only check of the real Z3 *search* verdict.
-- [ ] Add the direction claim at each surface where the tiers are described:
+- [x] Add the direction claim at each surface where the tiers are described: *(completed)*
       `TRUST_PIPELINE.md`'s "The standing test for A2", `ADEQUACY.md` §7.3, `A2_GAP.md` §8,
       `SEARCH_COVERAGE.md` §1, `tests/README.md`'s `integration/` row for
       `test_certificate_a2_triangle.py`, and the module docstrings of
       `tests/integration/test_certificate_a2_triangle.py` and
       `tests/integration/test_search_period_coverage.py`.
-- [ ] Reassess cost on that basis without narrowing anything: record that the 123.29 s
+- [x] Reassess cost on that basis without narrowing anything: record that the 123.29 s *(completed)*
       `nb=nf=2` case is kept deliberately — the UNSAT direction is exactly where results are not
       independently checkable, so liveness evidence there is the only evidence available — and carry
       the existing margin caveat (123.29 s against a 300 s ceiling, assuming CI hardware no more
       than ~2.4× slower than the measuring host) with its already-recorded contingency of a
       deterministic stride, never a weakened assertion.
-- [ ] Tighten `TRUST_PIPELINE.md`'s item-1 remaining-work row to "the only *independent* check"
+- [x] Tighten `TRUST_PIPELINE.md`'s item-1 remaining-work row to "the only *independent* check" *(completed)*
       (the mandatory Python re-check survives in the live path — F3), and extend the item-2 row with
       Phase 6's measured decision.
-- [ ] Add a remaining-work row recording the structural conformance check as a follow-on — that the
+- [x] Add a remaining-work row recording the structural conformance check as a follow-on — that the *(completed)*
       emitted Z3 constraint set matches the (C1)-(C4) schema at the configured `(nb, nm, nf)`,
       linear in formula size, extending `tests/_pinned_eval.py`'s `full_constraints` and
       `tests/unit/test_pinned_eval.py`'s `TestOperatorInventoryIsClosed` /

@@ -73,7 +73,7 @@ tests/
 
 | File | Focus |
 |---|---|
-| `test_certificate_a2_triangle.py` | ADEQUACY.md section 7.3's A2-triangle encoding-completeness test: exhaustive enumeration vs. the real Z3 search (Tier 1), plus a bounded Lean sample (Tier 2, skipped cleanly when unavailable) |
+| `test_certificate_a2_triangle.py` | ADEQUACY.md section 7.3's A2-triangle encoding-completeness test: per-candidate comparison vs. a solver-free pinned evaluation, plus a retained aggregate check against the real Z3 search (Tier 1), plus a bounded Lean sample (Tier 2, skipped cleanly when unavailable). Liveness/regression evidence for the UNSAT direction (A2), never for countermodel trust -- see `docs/TRUST_PIPELINE.md`'s "The standing test for A2" |
 | `test_certificate_lean_agreement.py` | Round-trips the fixture corpus through BimodalLogic's `lake exe check_certificate` (skipped cleanly when unavailable) |
 | `test_data_extraction.py` | `extract_states`/`extract_evaluation_world`/`extract_relations`/`extract_propositions` against real solved structures |
 | `test_injection.py` | `inject_z3_model_values`: pinning label bits, box guesses, and the target selector from a previous solve |

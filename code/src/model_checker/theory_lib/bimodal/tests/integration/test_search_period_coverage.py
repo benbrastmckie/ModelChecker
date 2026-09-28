@@ -44,7 +44,16 @@ apart. A collision between two positions the chain pins to *different* truth val
 `\\neg A` at the other) makes the conjunction of premises unsatisfiable by direct label conflict,
 independent of anything else in the closure -- this is why the UNSAT points below are genuine
 rather than merely a solver timeout, and `timeout` is asserted `False` at every point to make that
-distinction machine-checked rather than assumed."""
+distinction machine-checked rather than assumed.
+
+**Direction claim.** These grid pins are liveness and regression evidence for the search's
+*coverage* -- the UNSAT/A2 direction -- never for countermodel trust. They defend a claim about
+which families the search can represent before any solve happens, not a claim about a reported
+countermodel (which item 1's output gate, `semantic/checker.py`, independently checks per run
+instead); there is nothing to independently re-verify about a period the search never had the
+chance to represent. See `docs/SEARCH_COVERAGE.md` section 1's own direction claim and
+`docs/TRUST_PIPELINE.md`'s "The standing test for A2" for the same reasoning applied to this
+module's sibling."""
 
 from __future__ import annotations
 

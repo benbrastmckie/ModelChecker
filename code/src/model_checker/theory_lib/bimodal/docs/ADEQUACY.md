@@ -654,15 +654,20 @@ configured length `n` iff `p` divides `n`, measured against the live search — 
 `(4, 1, 4)` and `(5, 1, 5)`, exactly as `6 ∤ 4`, `6 ∤ 5` predicts. Two routes to a genuine
 sufficient condition are available, neither implemented: take `back`/`fwd` as a common multiple of
 every candidate period up to `f(|C|)` — correct, but `lcm(1, ..., f)` grows as `e^{O(f)}`, so this
-is impractical for any but the smallest `f` — or sweep the grid of `(back, mid, fwd)` triples up to
-`f(|C|)` and re-run the search at each, `f^3` solver calls, individually cheap but not yet built.
+is impractical for any but the smallest `f` — or sweep `back' in [1, back]` and `fwd' in [1, fwd]`
+independently with `mid` fixed (`mid` has no periodicity and never participates in this gap; see
+`docs/SEARCH_COVERAGE.md` §3(b)) and re-run the search at each pair, `O(back * fwd)` solver
+calls — quadratic in the two segment lengths that matter, not cubic in all three settings —
+individually cheap but not yet built.
 Both prerequisites §6 supplies — the certificate export and the independent re-checker — are now
 in place, so condition (iii) is satisfiable **in principle** today. What remains is the following
 concrete work in this repository, in dependency order:
 
-- **(iii-a) Fix the length space** — either sweep `(back, mid, fwd)` over the grid up to the bound
-  (`f^3` individually cheap solves, and the only form under which "the same family space" is
-  literally true) or restate A3 in divisor terms. This is the **only blocking** prerequisite:
+- **(iii-a) Fix the length space** — either sweep `back' in [1, back]` and `fwd' in [1, fwd]`
+  independently with `mid` fixed (`O(back * fwd)` individually cheap solves — quadratic, not
+  cubic, since `mid` has no periodicity and never participates; `docs/SEARCH_COVERAGE.md` §3(b)
+  — and the only form under which "the same family space" is literally true) or restate A3 in
+  divisor terms. This is the **only blocking** prerequisite:
   without it, (iii) is unprovable rather than merely unproved. `docs/SEARCH_COVERAGE.md` compares
   this bullet's two options against a third (an encoding reformulation) and recommends the
   bounded sweep, staging the work this bullet still names as unbuilt.
@@ -733,32 +738,52 @@ section; a capped search is under-complete by this precondition, never unsound. 
 test below runs uncapped (`max_witnesses` unset), so the standing evidence below is evidence for
 the **uncapped** case only:
 
-> **Test (A2-triangle).** Fix `back = mid = fwd = 1` and a closure `C` with `|C| ≤ 4`.
-> Exhaustively enumerate every candidate `(bx, Λ₀, …, Λ_k)` over subsets of `C` at those lengths.
-> For each, compare three verdicts: (i) the Python re-checker, (ii) `lake exe check_certificate`,
-> (iii) whether the Z3 encoding, run at those lengths on the same `Γ/Δ`, reports SAT.
+> **Test (A2-triangle).** Fix a closure `C` with `|C| ≤ 4`, at two grid sizes — `back = mid =
+> fwd = 1` (the historical minimum) and `back = 2, mid = 1, fwd = 2` (production's
+> `DEFAULT_EXAMPLE_SETTINGS`). Exhaustively enumerate every candidate `(bx, Λ₀, …, Λ_k)` over
+> subsets of `C` at those lengths. For each candidate, compare three verdicts: (i) the Python
+> re-checker, (ii) `lake exe check_certificate`, (iii) a solver-free evaluation of the Z3
+> encoding's own emitted constraint list under that candidate's pinned assignment (a per-candidate
+> proxy for "would Z3 accept this candidate", compiled once per structure and evaluated without a
+> solver call).
 > - (i) ≠ (ii) localizes a re-checker defect (§5.3's differential obligation, failing).
 > - (iii) false where (i) = (ii) = `countermodel` localizes an **encoding incompleteness**: a
 >   constraint the encoder imposes that (C1)–(C4) do not require.
 > - (iii) true where (i) = (ii) = `rejected` localizes an **encoding unsoundness** — caught at run
 >   time by §6.2's fail-fast step, but this test finds it in the suite instead.
+>
+> Beside the per-candidate comparison, a retained **aggregate** assertion additionally compares
+> "some candidate accepted" against the real Z3 *search*'s own SAT/UNSAT verdict — the only check
+> in this test of the actual solver output, as distinct from evaluating the pinned constraint
+> list.
 
 **Deciding test for A2, standing in this repository's suite**:
-`tests/integration/test_certificate_a2_triangle.py`. Two tiers: an exhaustive Tier 1 comparing
-legs (i) and (iii) over every candidate at `back = mid = fwd = 1`, over three closures (two
-box-free, one with a `Box`, so the witness-lasso and `bx` dimensions are both exercised); and a
-bounded, deterministic Tier 2 sampling leg (ii) against `lake exe check_certificate` on a small
-per-closure sample plus each SAT closure's live Z3-extracted certificate (skipping cleanly
-without a BimodalLogic checkout). All three closures agree across all three legs as of this
-writing — see the task's implementation summary for the observed verdicts and counts.
-`test_certificate_lean_agreement.py` remains the fixture corpus's own leg (i)/(ii) coverage; see
-that module's docstring. Tier 1 additionally covers `back = 2, mid = 1, fwd = 2` (production's
-`DEFAULT_EXAMPLE_SETTINGS`) for both box-free closures and for one size-2 boxed closure — the
-`nb = 2` regime the narrow-window local-coherence defect (§5.2, `witness_constraints.py`'s module
-docstring) actually required to manifest, and which `back = mid = fwd = 1` alone cannot see. The
-pre-existing size-3 boxed closure remains `back = mid = fwd = 1`-only: its exhaustive enumeration
-at `nb = nf = 2` is roughly 10.7 billion candidates (~19h extrapolated), infeasible under the
-suite's per-test time budget — a standing coverage gap, not a defect.
+`tests/integration/test_certificate_a2_triangle.py`. The grid now covers two sizes: `back = mid
+= fwd = 1` (the historical minimum) and `back = 2, mid = 1, fwd = 2` (production's
+`DEFAULT_EXAMPLE_SETTINGS`) — the `nb = 2` regime the narrow-window local-coherence defect (§5.2,
+`witness_constraints.py`'s module docstring) actually required to manifest, and which
+`back = mid = fwd = 1` alone cannot see. Two tiers at this grid: an exhaustive Tier 1 comparing
+legs (i) and (iii) over every candidate, per-candidate (`_run_exhaustive_triangle`, raising on the
+first divergence — see `A2_GAP.md` §8 limit 3 for why this discharges what used to be only an
+aggregate comparison), over three closures (two box-free, one with a `Box`, so the witness-lasso
+and `bx` dimensions are both exercised); and a bounded, deterministic Tier 2 sampling leg (ii)
+against `lake exe check_certificate` on a small per-closure sample plus each SAT closure's live
+Z3-extracted certificate (skipping cleanly without a BimodalLogic checkout). All three closures
+agree across all three legs as of this writing — see the task's implementation summary for the
+observed verdicts and counts. `test_certificate_lean_agreement.py` remains the fixture corpus's
+own leg (i)/(ii) coverage; see that module's docstring. The widened grid applies to both box-free
+closures and to one size-2 boxed closure; the pre-existing size-3 boxed closure remains
+`back = mid = fwd = 1`-only: its exhaustive enumeration at `nb = nf = 2` is roughly 10.7 billion
+candidates (~19h extrapolated), infeasible under the suite's per-test time budget — a standing
+coverage gap, not a defect.
+
+**Direction claim.** This whole standing test is liveness and regression evidence for **A2 — the
+UNSAT direction — never for countermodel trust**: a reported countermodel is independently
+checked per run by Stages 4-5 (`TRUST_PIPELINE.md`), which this test does not participate in at
+all. What this test backs is the opposite, unwitnessed direction — that the encoding imposes
+exactly (C1)–(C4) and nothing more, at the grid sizes actually exercised — which is exactly why
+it is exhaustive-enumeration evidence rather than a per-run check. See `TRUST_PIPELINE.md`'s "The
+standing test for A2" for the same claim, including the cost reassessment it licenses.
 
 **The one-hot selector is conservative.** Decision D5 makes the target position a one-hot
 selector `sel[t]` rather than a fixed origin — structure the A2-triangle test above does not

@@ -1,0 +1,37 @@
+{
+  "phase": 7,
+  "phase_name": "Item 3 -- extend the ledger, state the direction claim",
+  "started_at": "2026-09-28T04:00:00Z",
+  "last_updated": "2026-09-28T04:40:00Z",
+  "objectives": [
+    {"id": 1, "description": "Confirm the three already-applied TRUST_PIPELINE.md edits read correctly; extend only", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"]},
+    {"id": 2, "description": "A2_GAP.md section 8 limit 3: record the per-candidate obligation as discharged", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md"]},
+    {"id": 3, "description": "ADEQUACY.md section 7.1: correct f^3 to quadratic O(back*fwd) in both places", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "ADEQUACY.md section 7.3: lead with both grid sizes, per-candidate comparison, retained aggregate assertion", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 5, "description": "Add the direction claim at each surface where the tiers are described (7 surfaces)", "status": "done", "files_touched": [
+      "code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md",
+      "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+      "code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md",
+      "code/src/model_checker/theory_lib/bimodal/docs/SEARCH_COVERAGE.md",
+      "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+      "code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py",
+      "code/src/model_checker/theory_lib/bimodal/tests/integration/test_search_period_coverage.py"
+    ]},
+    {"id": 6, "description": "Reassess cost without narrowing anything; keep the 123.29s case and the margin caveat", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"]},
+    {"id": 7, "description": "Tighten TRUST_PIPELINE.md item-1 row; extend item-2 row with Phase 6's decision", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"]},
+    {"id": 8, "description": "Add remaining-work row recording the structural conformance check as a follow-on", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [],
+  "scope_hypothesis_reconciliation": {
+    "grep_command": "grep -rln \"Tier 1\\|Tier 2\\|two tiers\\|grid pin\" code/src/model_checker/theory_lib/bimodal/",
+    "matches_beyond_the_seven_named_surfaces": [
+      "tests/_lean_check.py -- one incidental mention (\"A2-triangle Tier 2 leg\") in its own module docstring, describing what consumes this shared helper, not a place describing the tiers themselves",
+      "tests/_pinned_eval.py -- one incidental mention (\"the Tier 1 hot loop\") describing which caller a function is optimized for",
+      "tests/unit/test_pinned_eval.py -- one incidental mention (\"every Tier 1 settings combination\") describing coverage of a shared evaluator, not the tiers themselves"
+    ],
+    "conclusion": "All three are passing references to a shared helper's consumer, not standalone descriptions of the tier structure or its trust implications -- the seven-surface list from the dispatch is confirmed complete; no eighth surface needed the direction claim."
+  }
+}

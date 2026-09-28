@@ -430,24 +430,27 @@ Three limits are equally exact, not matters of degree.
    could silently break the property the test currently observes; the test would then fail on its
    next run, which is exactly its intended purpose, but a passing run today says nothing about code
    not yet written.
-3. **The leg (i)/(iii) comparison itself is aggregate, not per-candidate.** The enumeration in
-   limit 1 above is exhaustive and that claim is unaffected — "decision, not a sample" remains
-   exact about it. But the *comparison* the standing test draws from that enumeration collapses
-   every candidate into one existential bit:
-   `_assert_exhaustive_triangle_agrees` (`tests/integration/test_certificate_a2_triangle.py`)
-   asserts `(accepted > 0) == structure.z3_model_status`, not "for each candidate, the re-checker's
-   verdict on it agrees with whether Z3's model denotes it." A2's own statement ("exactly the
-   conjunction of (C1)–(C4), no extra constraint") is a **per-candidate** claim, so an encoder
-   wrong on almost every candidate but right about mere existence — accepting the wrong subset,
-   or accepting one candidate for the wrong reason, while some candidate is still accepted whenever
-   the re-checker accepts some candidate — passes this test undetected. The open obligation this
-   limit names, precisely: assert per candidate that every emitted clause is true under the
-   candidate's pinned assignment iff the re-checker accepts it. A solver-free pinned evaluator —
-   substituting the candidate's fixed values into the emitted clause set and checking truth
-   directly, rather than issuing a fresh Z3 call per candidate — is the affordable form of this
-   check over the same enumerated space; a Z3 call per candidate is not. This is translation
-   validation in the small: the per-candidate form of the new route **(h)** above, scoped to the
-   region already being enumerated rather than to arbitrary inputs.
+3. **The leg (i)/(iii) comparison itself is per-candidate, not merely aggregate (discharged).**
+   The enumeration in limit 1 above is exhaustive and that claim is unaffected — "decision, not a
+   sample" remains exact about it. This limit used to record that the *comparison* the standing
+   test drew from that enumeration collapsed every candidate into one existential bit
+   (`(accepted > 0) == structure.z3_model_status`), which would have let an encoder wrong on
+   almost every candidate but right about mere existence pass undetected — A2's own statement
+   ("exactly the conjunction of (C1)–(C4), no extra constraint") is a **per-candidate** claim, so
+   an aggregate-only comparison was not yet evidence for it. That obligation is now discharged:
+   `_run_exhaustive_triangle` (`tests/integration/test_certificate_a2_triangle.py`) compiles the
+   encoding's own emitted constraint set once per structure via `_pinned_eval.compile_and_bind` —
+   precisely the prescribed solver-free pinned evaluator, substituting each candidate's fixed
+   values into the emitted clause set and checking truth directly rather than issuing a fresh Z3
+   call per candidate — and for every candidate compares `recheck`'s verdict (leg i) against that
+   pinned evaluation (leg iii), raising immediately on the first divergence rather than only
+   comparing totals at the end. No divergence has been found. The aggregate/per-candidate
+   distinction stays meaningful and the retained aggregate assertion
+   (`_assert_exhaustive_triangle_agrees`) is unchanged and still runs — it remains the only check
+   of the real Z3 *search* verdict, as distinct from evaluating the pinned constraint set, which
+   the per-candidate comparison above does not by itself exercise. This is translation validation
+   in the small: the per-candidate form of route **(h)** above, scoped to the region already
+   being enumerated rather than to arbitrary inputs.
 
 Put together: the A2-triangle test is the best evidence this repository has for encoding
 completeness at small closures, and it is complete evidence *there*. It is `TRUST_PIPELINE.md`'s
@@ -455,6 +458,15 @@ completeness at small closures, and it is complete evidence *there*. It is `TRUS
 enumerated" category, applied honestly to its strongest instance in this codebase. It is not, and
 cannot by its nature become, a substitute for section 2's missing proof-preserving link between
 the Lean theorems and the running Python.
+
+**Direction claim.** Everything in this section is evidence for **A2 — the UNSAT direction —
+never for countermodel trust.** The governing asymmetry (`TRUST_PIPELINE.md`) is that a
+countermodel is positive and checkable per run (Stages 4-5); absence has no witness, so what
+backs "no certificate exists at this closure and these lengths" is exactly this kind of bounded,
+exhaustive search-coverage evidence, not a per-run check. Reassessed on that basis, the standing
+test's cost is worth paying precisely because there is no cheaper substitute for evidence in this
+direction — see `TRUST_PIPELINE.md`'s "The standing test for A2" for the same claim stated once,
+not duplicated here.
 
 ## 9. The trust-base consequence of S3
 

@@ -39,6 +39,14 @@ the encoder faithfully encodes the label family at the segment lengths it is con
 gap is in what those lengths *mean* as a proxy for "every family up to bound `n`", which is the
 question `ADEQUACY.md` section 7.1's condition (iii) asks.
 
+**Direction claim.** Both pins above are liveness and regression evidence for the search's
+*coverage* -- the UNSAT/A2 direction -- never for countermodel trust. A reported countermodel is
+independently checked per run (`TRUST_PIPELINE.md`'s Stages 4-5); these pins instead defend a
+claim about which families the search can represent *before* any solve happens, which is exactly
+the kind of thing that can only be pinned by exhaustive or targeted regression coverage, not by a
+per-run check -- there is nothing to independently re-verify about a period the search never had
+the chance to represent in the first place.
+
 ## 2. Two corrections to the question as posed
 
 **(1) "Union over the divisors of a bound" is already today's behaviour at a single bound, not a
