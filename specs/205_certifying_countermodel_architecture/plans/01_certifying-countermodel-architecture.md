@@ -1,7 +1,7 @@
 # Implementation Plan: Certifying Countermodel Architecture
 
 - **Task**: 205 - certifying_countermodel_architecture
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 12 hours (sum of the eight phase timings)
 - **Dependencies**: None declared. Consumes (does not re-decide) task 197's certificate-wire hardening, which has landed: the checker now returns `acceptance: entailment` with a bytewise-matching `echo`.
 - **Research Inputs**: `specs/205_certifying_countermodel_architecture/reports/01_certifying-countermodel-architecture.md`
@@ -541,28 +541,28 @@ add any surface the grep finds that this list missed, recording the reconciliati
 
 ---
 
-### Phase 8: Final gate, deferred findings, and summary [NOT STARTED]
+### Phase 8: Final gate, deferred findings, and summary [COMPLETED]
 
 **Goal**: The whole repository is green, and everything this task deliberately did not decide is
 recorded where the owning task will find it.
 
 **Tasks**:
-- [ ] Run the full project gate: `PYTHONPATH=code/src pytest code/tests/ -v` and
+- [x] Run the full project gate: `PYTHONPATH=code/src pytest code/tests/ -v` and *(completed)*
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v`, including
       the `slow`-marked A2 cases.
-- [ ] Run the bimodal suite once with no checker resolvable and once with one, confirming both
+- [x] Run the bimodal suite once with no checker resolvable and once with one, confirming both *(completed)*
       paths are green and that the default (`verify: 'auto'`) never fails on absence.
-- [ ] Record the deferred findings for the certificate-wire hardening task: `ADEQUACY.md` §6.2's
+- [x] Record the deferred findings for the certificate-wire hardening task: `ADEQUACY.md` §6.2's *(completed)*
       and `TRUST_PIPELINE.md`'s trust-base "kernel-checked proof for that particular certificate"
       overclaim, with the accurate narrower claim stated; and whether `BIMODAL_LOGIC_COMMIT`'s
       contents should track the companion repository automatically.
-- [ ] Record the incidental observations research surfaced but did not act on: the companion
+- [x] Record the incidental observations research surfaced but did not act on: the companion *(completed)*
       repository now has a `translate_sentence` executable and a
       `BimodalTools.TranslateSentenceMain` target, while this repository's ledger records a
       Lean-side translation as absent and deferred (obligation S4, out of scope here); and the
       `lean-toolchain` pin (`v4.33.0-rc1`) differs from the toolchain that built the measured
       binaries (4.27.0-rc1).
-- [ ] Write the implementation summary, including Phase 6's measured decision and Phase 7's
+- [x] Write the implementation summary, including Phase 6's measured decision and Phase 7's *(completed)*
       Scope-Hypothesis reconciliation.
 
 **Timing**: 1 hour

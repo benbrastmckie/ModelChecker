@@ -160,6 +160,7 @@ class TestLazyBoundedMemoizedProbe:
         )
         assert result.returncode == 0, result.stdout + result.stderr
 
+    @pytest.mark.xdist_serial
     def test_probe_timeout_yields_unavailable_not_a_hang(self, tmp_path, monkeypatch):
         explicit = tmp_path / "explicit_binary"
         explicit.write_text("#!/bin/sh\n")

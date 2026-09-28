@@ -1,0 +1,60 @@
+{
+  "phase": 8,
+  "phase_name": "Final gate, deferred findings, and summary",
+  "started_at": "2026-09-28T05:00:00Z",
+  "last_updated": "2026-09-28T02:32:02.700224+00:00",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Run the full project gate (code/tests/ and bimodal tests, including slow A2 cases)",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Run bimodal suite once with no checker resolvable and once with one, confirming both green",
+      "status": "done",
+      "files_touched": []
+    },
+    {
+      "id": 3,
+      "description": "Record deferred findings for the certificate-wire hardening task",
+      "status": "done",
+      "files_touched": []
+    },
+    {
+      "id": 4,
+      "description": "Record incidental observations research surfaced",
+      "status": "done",
+      "files_touched": []
+    },
+    {
+      "id": 5,
+      "description": "Write the implementation summary",
+      "status": "done",
+      "files_touched": [
+        "specs/205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md"
+      ]
+    }
+  ],
+  "current_objective": null,
+  "approaches_tried": [
+    {
+      "approach": "Ran full bimodal suite twice in parallel (no-checker + with-checker) to save time",
+      "result": "failed",
+      "reason": "Resource contention between the two concurrent full-suite runs produced a flaky failure in test_iterate.py's TestLiveIteration::test_a_live_run_detects_a_genuine_rotation_permutation_duplicate (assert 0 >= 1) in the with-checker run only. Re-ran that single test in isolation (passed, 17.37s) and then the full with-checker suite alone (629 passed, no failures), confirming the parallel run's failure was contention-induced, not a regression."
+    }
+  ],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "8.1",
+      "description": "Run the full project gate",
+      "type": "altered",
+      "reason": "code/tests/ci/test_timing_marker_coverage.py::test_all_wall_clock_timing_assertions_are_marked failed: tests/unit/test_checker.py::test_probe_timeout_yields_unavailable_not_a_hang reads a real time.time() and asserts elapsed < 1.0 without a performance/xdist_serial marker, even though the timed operation (_invoke) is monkeypatched to return instantly. Fixed by adding @pytest.mark.xdist_serial (the taxonomy's own 'adequate headroom, but contention-sensitive' classification) rather than adding a MOCKED_CLOCK_ALLOWLIST entry, since the marker mechanism is the more conservative, less bespoke fix for a test whose margin (1.0s bound on an always-near-zero measured value) is generous.",
+      "annotation": "*(deviation: altered -- added @pytest.mark.xdist_serial to test_probe_timeout_yields_unavailable_not_a_hang, caught by the project-wide timing-marker-coverage gate during this phase's full-project run)*"
+    }
+  ]
+}
