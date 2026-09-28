@@ -1,7 +1,7 @@
 # Implementation Plan: Task #209
 
 - **Task**: 209 - bimodal_sentence_translation_contract
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6 hours
 - **Dependencies**: Tasks 205 (certifying_countermodel_architecture) and 206
   (refactor_verification_test_harness) — both `completed` per `specs/state.json`, so the
@@ -156,31 +156,31 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Verify the already-landed items and establish a green baseline [NOT STARTED]
+### Phase 1: Verify the already-landed items and establish a green baseline [COMPLETED]
 
 **Goal**: Confirm items 1, 2 and 4 still hold, record item 3's negative result, and establish that
 this repository's test suite is green *before* any edit, so a later failure is attributable.
 
 **Tasks**:
-- [ ] Confirm the repository is on `master` and record the exact starting commit, so every later
+- [x] Confirm the repository is on `master` and record the exact starting commit, so every later
       change is attributable and revertible.
-- [ ] Record the pre-existing dirty state (`git status --short`) so concurrent in-flight work from
+- [x] Record the pre-existing dirty state (`git status --short`) so concurrent in-flight work from
       other sessions is distinguishable from this task's own changes throughout.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py -v`
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py -v`
       and confirm it **runs** (does not skip). A clean skip means the BimodalLogic checkout or
       `lake` is unavailable — resolve it or record it explicitly; a skip is not a pass.
-- [ ] Confirm item 1 is actually exercised: `assert_echo_matches_sent` is reached on the
+- [x] Confirm item 1 is actually exercised: `assert_echo_matches_sent` is reached on the
       `countermodel` path and both `error`-path negative checks pass.
-- [ ] Confirm `PROTOCOL_FAILURE` is `None` (`TestErrorPaths`) — a binary that answers wrongly must
+- [x] Confirm `PROTOCOL_FAILURE` is `None` (`TestErrorPaths`) — a binary that answers wrongly must
       fail loudly, not skip.
-- [ ] Confirm item 2 by reading `semantic/certificate.py`'s `canonical_wire_bytes` and verifying
+- [x] Confirm item 2 by reading `semantic/certificate.py`'s `canonical_wire_bytes` and verifying
       `ensure_ascii=False` is present on the single serializing `json.dumps`.
-- [ ] Confirm item 4 by reading both `.get("acceptance", "decided")` sites
+- [x] Confirm item 4 by reading both `.get("acceptance", "decided")` sites
       (`tests/integration/test_certificate_lean_agreement.py`, `tests/unit/test_semantics_core.py`).
-- [ ] Record item 3's negative result (zero `.lean` files here; no importer of
+- [x] Record item 3's negative result (zero `.lean` files here; no importer of
       `BimodalTools.CertificateImport`/`CanonicalWire` anywhere under `~/Projects/`) in the
       progress record. No audit re-run.
-- [ ] Run the full suite once (`PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q`
+- [x] Run the full suite once (`PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q`
       or the project's documented equivalent) to capture the pre-edit baseline, and record any
       pre-existing failures so they are not later misread as regressions.
 
@@ -196,11 +196,38 @@ establish the baseline that Phase 2's `full` tier is measured against.
 **Files to modify**: none (verification only)
 
 **Verification**:
-- `test_certificate_lean_agreement.py` runs and passes, with no skip.
-- `ensure_ascii=False` confirmed present at the single wire-serialization site.
-- Both `"acceptance"` absent-default sites confirmed present.
-- The pre-edit baseline (pass/fail counts, any pre-existing failures) and the pre-existing dirty
-  paths are recorded.
+- `test_certificate_lean_agreement.py` runs and passes, with no skip. **Confirmed**: 11 passed,
+  0 skipped (`TestProtocolFailureIsLoud`, `TestLeanAgreement` x4, `TestErrorPaths` x2,
+  `TestPythonRecheckerAgreesWithLean` x4).
+- `ensure_ascii=False` confirmed present at the single wire-serialization site
+  (`semantic/certificate.py:206`, the sole `json.dumps` call in that module).
+- Both `"acceptance"` absent-default sites confirmed present
+  (`test_certificate_lean_agreement.py:137`, `test_semantics_core.py:279`:
+  `.get("acceptance", "decided")`).
+- Item 1 fully confirmed: `assert_echo_matches_sent` defined at `_lean_check.py:173`, called at
+  `test_certificate_lean_agreement.py:148,173,190` and `test_semantics_core.py:290`;
+  `test_protocol_failure_is_none` passes.
+- Item 3 negative result reconfirmed: `find . -name "*.lean"` returns zero results repo-wide.
+- **Pre-edit baseline** (starting commit `c857d326155cee0f9e82c6a3cd46c8e43fc04a23`, branch
+  `master`): `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q` ->
+  **3279 passed, 5 skipped, 2 warnings in 378.27s**. No pre-existing failures.
+- **Pre-existing dirty paths at start** (concurrent in-flight work from other sessions, not this
+  task's own): `specs/211_correct_kernel_checked_proof_overclaim/plans/01_kernel-checked-proof-overclaim.md`,
+  `specs/TODO.md`, `specs/events.jsonl`, `specs/state.json`, plus this plan file's own
+  pre-existing `[NOT STARTED]` -> `[IMPLEMENTING]` status-field edit from orchestrator preflight.
+- **Concurrent sibling observed live**: task 211 (declared concurrent-sibling territory, no
+  `file_scope`) landed 4 commits (`4fcf6968`..`1cd23cfb`) during this phase's baseline run,
+  editing `code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md` (doc-only, not in this
+  task's `file_scope`) and, in its own phase 2, **retiring the `BIMODAL_LOGIC_COMMIT` constant**
+  this plan's Phase 6 was written to refresh (`ccedb978`, "task 211 phase 2: retire the dead
+  BIMODAL_LOGIC_COMMIT pin" — removed from `tests/_lean_check.py` because it was "consumed by
+  nothing" and had already drifted; task 211's own plan explicitly names this task as the
+  concurrent sibling sharing `tests/_lean_check.py`). This is carried forward as a scope
+  adaptation for Phase 6 below rather than re-litigated here: no foreign commit touches this
+  task's declared `file_scope`, so no collision, but Phase 6's literal "refresh
+  BIMODAL_LOGIC_COMMIT" instruction is now inapplicable (probed and confirmed absent) and will be
+  recorded as a reasoned exclusion when Phase 6 opens, not re-created against task 211's landed
+  and reasoned decision.
 
 ---
 
