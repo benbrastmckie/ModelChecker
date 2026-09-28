@@ -1,0 +1,43 @@
+
+Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/3 0.0s                                                              Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/3 0.0s
+
+========================================
+
+EXAMPLE BASELINE: there is a countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. \neg A
+
+Solver Run Time: 0.0009 seconds
+
+========================================
+
+State Space:
+  [37m#b00 = [33m□[0m
+  [37m#b01 = [34ma (world)[0m
+  [37m#b10 = [34mb (world)[0m
+
+The evaluation world is: [34mb[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|\neg A| = < {a}, {b} >[0m  [31m(False in b)[0m
+      [37m|A| = < {b}, {a} >[0m  [33m(True in b)[0m
+
+Total Run Time: 0.1015 seconds
+
+========================================
+
+Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/3 0.0sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/3 (5 skipped) 0.1sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/3 (12 skipped) 0.2sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/3 (20 skipped) 0.3sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/3 (28 skipped) 0.4s                                                                           
+ITERATION REPORT
+    Model 1: Initial model (0.03s)
+
+Total: 1/3 models found, 0 isomorphic models skipped, 0.42s elapsed
+
+========================================

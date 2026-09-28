@@ -132,24 +132,31 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Capture Pre-Fix Baseline [NOT STARTED]
+### Phase 1: Capture Pre-Fix Baseline [COMPLETED]
 
 **Goal**: Record the current, unpinned behavior so every post-fix change is attributable to this
 fix rather than to unrelated drift.
 
 **Tasks**:
-- [ ] Create `specs/210_fix_generic_iterator_pinning_unreached/baselines/`.
-- [ ] Run the four-theory directory gate and save full output to
+- [x] Create `specs/210_fix_generic_iterator_pinning_unreached/baselines/`.
+- [x] Run the four-theory directory gate and save full output to
       `baselines/01_pre-fix-theory-suites.txt`:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ code/src/model_checker/theory_lib/exclusion/ code/src/model_checker/theory_lib/imposition/ code/src/model_checker/theory_lib/bimodal/ -q`
-- [ ] Run the shared-engine iterate suite and save to `baselines/01_pre-fix-iterate.txt`:
+      Result: `1 failed, 1694 passed in 280.42s`, the one failure being the pre-existing
+      `bimodal/tests/integration/test_iterate.py::TestLiveIteration::test_a_live_run_detects_a_genuine_rotation_permutation_duplicate`.
+- [x] Run the shared-engine iterate suite and save to `baselines/01_pre-fix-iterate.txt`:
       `PYTHONPATH=code/src pytest code/src/model_checker/iterate/ -q`
-- [ ] Record the pass/fail/skip counts and the identity of any already-failing test in a short
+      Result: `238 passed in 1.26s`.
+- [x] Record the pass/fail/skip counts and the identity of any already-failing test in a short
       `baselines/01_pre-fix-summary.md`, so Phase 6 can distinguish a pre-existing failure from a
       new one.
-- [ ] For one representative `iterate > 1` example per affected theory, run it through
+- [x] For one representative `iterate > 1` example per affected theory, run it through
       `./dev_cli.py` and save the printed model 2+ output to
       `baselines/01_pre-fix-{theory}-iteration.txt`. These are the diffs Phase 6 reviews.
+      Logos (`[] |- \neg A`, N=2, iterate:3) and exclusion (`EX_CM_6`, N=3, iterate:3,
+      max_time=40) each settled at 1/3 models found within the bounded search (matching the
+      research report's caveat about bounded `max_time`); imposition (`IM_CM_0`, N=4, iterate:3,
+      max_time=40) found 2/3 models. All three are valid baseline captures for Phase 6's diff.
 
 **Timing**: 1 hour (mostly solver wall-clock).
 
