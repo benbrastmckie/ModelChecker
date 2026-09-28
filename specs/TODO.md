@@ -18,7 +18,7 @@ next_project_number: 214
 
 ### Documentation
 
-211 [RESEARCHING] — Resolve the kernel-checked-proof contradiction in the bimodal...
+211 [RESEARCHED] — Resolve the kernel-checked-proof contradiction in the bimodal...
   └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
@@ -67,10 +67,11 @@ Establish equivalence by reading each helper against _build_support.py's, not by
 ---
 
 ### 211. Correct kernel checked proof overclaim
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
+- **Research**: [211_correct_kernel_checked_proof_overclaim/reports/01_kernel-checked-proof-overclaim.md]
 
 **Description**: Resolve the kernel-checked-proof contradiction in the bimodal trust documentation, and decide the BIMODAL_LOGIC_COMMIT pin's fate. Three items.
 
