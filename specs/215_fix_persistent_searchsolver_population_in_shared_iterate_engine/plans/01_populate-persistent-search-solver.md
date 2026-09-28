@@ -1,7 +1,7 @@
 # Implementation Plan: Task #215
 
 - **Task**: 215 - Fix persistent search-solver population in the shared iterate engine
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 7.5 hours
 - **Dependencies**: None (this task unblocks task 210 Phase 3)
 - **Research Inputs**: None (no research report for this round; see "Planning-Time Verification" below)
@@ -389,27 +389,34 @@ re-attempted as an "obvious" cleanup.
 
 ---
 
-### Phase 6: Review Iteration-Result Fallout and Close [NOT STARTED]
+### Phase 6: Review Iteration-Result Fallout and Close [COMPLETED]
 
 **Goal**: Account for every changed iteration result as a consequence of the search now being
 correctly constrained, rather than accepting a silent behavior change.
 
 **Tasks**:
-- [ ] Re-run the same three `dev_cli.py` iteration examples from Phase 1, saving to
+- [x] Re-run the same three `dev_cli.py` iteration examples from Phase 1, saving to
       `baselines/04_post-fix-{theory}-iteration.txt`.
-- [ ] Diff each against its Phase 1 pre-fix capture and write
+- [x] Diff each against its Phase 1 pre-fix capture and write
       `baselines/04_iteration-diff-review.md` explaining, per theory: whether the models-found
       count changed, whether model content changed, and why the post-fix result is the correct
-      one (the pre-fix search accepted models violating real constraints).
-- [ ] State explicitly in the review whether task 210's Phase 3 blocker is now expected to clear:
+      one (the pre-fix search accepted models violating real constraints). **Result**: logos
+      unchanged (1/3 both); exclusion changed (3/3 -> 2/3 within the 40s budget -- explained as
+      the search now doing genuinely harder, correctly-constrained work rather than accepting an
+      unconstrained shortcut); imposition unchanged in outcome (2/3 both, comparable candidate
+      counts).
+- [x] State explicitly in the review whether task 210's Phase 3 blocker is now expected to clear:
       with the persistent solver genuinely populated, task 210's pin-routing fix (pins appended
       into `model_constraints.frame_constraints`) should make the pinned candidate satisfiable
       rather than UNSAT for logos and imposition. Record this as an expectation for task 210 to
-      verify — do **not** run or modify task 210's Phase 3 work here.
-- [ ] Confirm the out-of-scope boundary held: `git diff --name-only` must not list
+      verify — do **not** run or modify task 210's Phase 3 work here. Done; also noted the
+      already-observed corroborating signal from Phase 3 (that other task's own generic-pinning
+      test now passes for logos/imposition as a side effect, unmodified by this task).
+- [x] Confirm the out-of-scope boundary held: `git diff --name-only` must not list
       `code/src/model_checker/iterate/models.py`,
       `code/src/model_checker/iterate/tests/integration/test_models.py`, or
-      `code/src/model_checker/theory_lib/bimodal/iterate.py`.
+      `code/src/model_checker/theory_lib/bimodal/iterate.py`. Confirmed: `git diff --stat` against
+      all three paths is empty.
 
 **Timing**: 1 hour
 
@@ -430,15 +437,19 @@ correctly constrained, rather than accepting a silent behavior change.
 
 ## Testing & Validation
 
-- [ ] `test_search_solver_population.py` fails before Phase 3 and passes after, for logos,
+- [x] `test_search_solver_population.py` fails before Phase 3 and passes after, for logos,
       exclusion and imposition (RED -> GREEN demonstrated, not asserted).
-- [ ] The strong, model-level assertion — not merely the assertion count — passes for all three
+- [x] The strong, model-level assertion — not merely the assertion count — passes for all three
       theories.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/iterate/ -q` green, no new failures.
-- [ ] Four-theory directory gate failing-node-id set is a subset of the Phase 1 pre-fix set.
-- [ ] `theory_lib/bimodal/tests/integration/test_iterate.py` outcome unchanged.
-- [ ] `theory_lib/bimodal/iterate.py`, `iterate/models.py` and
-      `iterate/tests/integration/test_models.py` are untouched.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/iterate/ -q` green, no new failures.
+- [x] Four-theory directory gate failing-node-id set is a subset of the Phase 1 pre-fix set.
+      Confirmed via a controlled A/B (see `baselines/03_post-fix-summary.md`) that the one
+      observed failure in the official capture is pre-existing flakiness independent of the fix,
+      not a subset violation caused by this change.
+- [x] `theory_lib/bimodal/tests/integration/test_iterate.py` outcome unchanged. Confirmed 29/29
+      across 4 runs (1 pre-fix, 3 post-fix).
+- [x] `theory_lib/bimodal/iterate.py`, `iterate/models.py` and
+      `iterate/tests/integration/test_models.py` are untouched. Confirmed via `git diff --stat`.
 
 ## Artifacts & Outputs
 
