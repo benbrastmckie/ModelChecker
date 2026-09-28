@@ -22,11 +22,11 @@ next_project_number: 209
 
 ### Architecture
 
-205 [RESEARCHED] — Decide and stage how a reported countermodel becomes...
+205 [PLANNED] — Decide and stage how a reported countermodel becomes...
 
 ### Testing
 
-206 [RESEARCHED] — Refactor the bimodal verification test harness for...
+206 [PLANNING] — Refactor the bimodal verification test harness for...
 
 ### Semantics
 
@@ -83,7 +83,7 @@ CONSTRAINTS. Verify against the full repository gate under CI's own invocation s
 ---
 
 ### 206. Refactor verification test harness
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 207
@@ -100,11 +100,12 @@ CONSTRAINTS. Preserve Tier 2's clean-skip behaviour as it stands (its promotion 
 ---
 
 ### 205. Certifying countermodel architecture
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: formal
 - **Topic**: architecture
 - **Dependencies**: Task 197
 - **Research**: [205_certifying_countermodel_architecture/reports/01_certifying-countermodel-architecture.md]
+- **Plan**: [205_certifying_countermodel_architecture/plans/01_certifying-countermodel-architecture.md]
 
 **Description**: Decide and stage how a reported countermodel becomes trustworthy in the hands of a user who has no Lean toolchain, and reposition the existing test tiers to match what each one actually establishes. Narrow scope deliberately: the proof-carrying acceptance mode and the deserialization trust base are owned by the certificate-wire hardening task and must be consumed here, not re-decided; the test-harness reorganization and its performance work are owned by the harness refactoring task. This task owns three things only -- the output gate, the checker's runtime availability, and the tier repositioning.
 

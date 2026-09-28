@@ -1,0 +1,15 @@
+{
+  "status": "planned",
+  "phases_completed": 0,
+  "phases_total": 8,
+  "dispatch_seq": 12,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/205_certifying_countermodel_architecture/plans/01_certifying-countermodel-architecture.md",
+      "summary": "Eight-phase plan for the countermodel output gate, the checker's runtime availability, and the test-tier repositioning; 12 hours across five dependency waves."
+    }
+  ],
+  "next_steps": "Run /implement 205 to execute the plan",
+  "notes": "Research finding F1 supersedes the dispatch's 'verdict-producing today' premise: check_certificate already returns acceptance=entailment with a matching echo, so no interim weaker-gate branch is planned. Two deferrals recorded for the certificate-wire hardening task: ADEQUACY.md 6.2 and TRUST_PIPELINE.md's trust base both overclaim that level as a per-certificate kernel-checked proof, and whether BIMODAL_LOGIC_COMMIT's contents should track the companion repository. Phase 6 is a decision gate whose measurement lives in ~/Projects/BimodalLogic (one-line lakefile flag, restored afterwards); nothing in Phases 1-5 depends on its number."
+}
