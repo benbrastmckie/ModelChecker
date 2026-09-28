@@ -138,31 +138,33 @@ bound, while still proving that importing the checker module does not eagerly re
 
 ---
 
-### Phase 2: RED — self-tests for embedded-string detection [NOT STARTED]
+### Phase 2: RED — self-tests for embedded-string detection [COMPLETED]
 
 **Goal**: Two new self-tests in `test_timing_marker_coverage.py` that encode the required
 behaviour and fail against the current scanner, plus the label fix that lets a `tmp_path` fixture
 be scanned at all.
 
 **Tasks**:
-- [ ] Re-read `code/tests/ci/test_timing_marker_coverage.py` immediately before editing.
-- [ ] In `_find_unmarked_timing_tests`, make the label computation tolerant of paths outside the
+- [x] Re-read `code/tests/ci/test_timing_marker_coverage.py` immediately before editing.
+- [x] In `_find_unmarked_timing_tests`, make the label computation tolerant of paths outside the
       repo: `try: label = str(path.relative_to(REPO_ROOT)) except ValueError: label = str(path)`.
       Real-tree labels — and therefore `MOCKED_CLOCK_ALLOWLIST` keys — are unchanged by this.
-- [ ] Add `test_embedded_subprocess_source_is_flagged_when_unmarked`: write a fixture module to
+- [x] Add `test_embedded_subprocess_source_is_flagged_when_unmarked`: write a fixture module to
       `tmp_path` reproducing the pre-fix shape — a test function binding a local
       `code = ("import time\n" "t = time.time()\n" ... "assert elapsed < 1.0, elapsed\n")` and
       passing it by name inside `subprocess.run([sys.executable, "-c", code], ...)`, with no
       marker — and assert `_find_unmarked_timing_tests(fixture_path)` returns exactly one
       violation naming that function.
-- [ ] Add `test_embedded_subprocess_source_respects_marker_suppression`: the same fixture with
+- [x] Add `test_embedded_subprocess_source_respects_marker_suppression`: the same fixture with
       `@pytest.mark.xdist_serial` on the function, asserting `_find_unmarked_timing_tests` returns
       `[]`. Do the same for `performance` if it costs nothing (both markers flow through the same
-      `_REQUIRED_MARKERS` check, so one extra fixture variant is optional, not required).
-- [ ] Run both new tests and record that they fail for the right reason (the unmarked fixture is
+      `_REQUIRED_MARKERS` check, so one extra fixture variant is optional, not required). Deviation:
+      implemented only the `xdist_serial` variant (the plan itself marked the `performance`
+      variant optional).
+- [x] Run both new tests and record that they fail for the right reason (the unmarked fixture is
       NOT flagged today, i.e. an empty violations list where one entry is expected) — a RED that
       errors on `relative_to` instead would mean the label fix did not land.
-- [ ] Do NOT commit a red state. This phase's output is staged into Phase 3's green commit.
+- [x] Do NOT commit a red state. This phase's output is staged into Phase 3's green commit.
 
 **Timing**: 0.75 hours
 
@@ -191,7 +193,7 @@ inventing a new fixtures directory.
 
 ---
 
-### Phase 3: GREEN — extend the AST scan through embedded source strings [NOT STARTED]
+### Phase 3: GREEN — extend the AST scan through embedded source strings [COMPLETED]
 
 **Goal**: The scanner resolves string arguments to subprocess/exec-style call sites (including via
 a simple same-scope local binding), parses them, and re-applies its existing clock-read and
@@ -199,34 +201,35 @@ bound-assert detectors against the parsed sub-trees — turning Phase 2's self-t
 disturbing the real-tree results.
 
 **Tasks**:
-- [ ] Add a recognized-call-target set: `ast.Attribute` calls on `Name("subprocess")` with `attr`
+- [x] Add a recognized-call-target set: `ast.Attribute` calls on `Name("subprocess")` with `attr`
       in `{run, call, check_call, check_output, Popen}`, plus bare `ast.Name` calls to
       `{exec, eval}`. `os.system` may be included on the same reasoning; if included, say so in
-      the docstring, and if excluded, say why.
-- [ ] Add a same-scope string-binding map built from simple `ast.Assign` nodes whose single target
+      the docstring, and if excluded, say why. (Excluded; reasoning recorded in the module
+      docstring.)
+- [x] Add a same-scope string-binding map built from simple `ast.Assign` nodes whose single target
       is a `Name` and whose value is an `ast.Constant` str. (Python folds the adjacent string
       literals in `code = ("a\n" "b\n")` at parse time, so no concatenation handling is needed for
       the live case; `+`-concatenation stays out of scope.)
-- [ ] Add a resolver that, for each matched call, collects candidate strings from `args` and
+- [x] Add a resolver that, for each matched call, collects candidate strings from `args` and
       `keywords`: direct `ast.Constant` strs, and `ast.Name` nodes resolved through the binding
       map — including names nested one level inside `ast.List`/`ast.Tuple` elements, which is what
       `[sys.executable, "-c", code]` requires.
-- [ ] Parse each resolved string under `try: ... except SyntaxError: continue`, and expose the
+- [x] Parse each resolved string under `try: ... except SyntaxError: continue`, and expose the
       results through shared deep helpers (e.g. `_scanned_trees(node)` returning the function node
       plus every parsed embedded tree, consumed by `_calls_clock_deep` / `_has_bound_assertion_deep`).
       A violation fires when the clock-read and bound-assert conditions are jointly satisfied
       across the *union* of the function's own nodes and the embedded trees — the same union
       semantics the existing one-hop helper case already uses.
-- [ ] Route BOTH detection call sites through the shared helpers: `_find_unmarked_timing_tests`
+- [x] Route BOTH detection call sites through the shared helpers: `_find_unmarked_timing_tests`
       and the inline duplicate inside `test_scan_finds_the_known_marked_inventory`. Leaving the
       latter on the old logic is the drift this task is meant to prevent.
-- [ ] Marker checking (function decorators, enclosing class decorators, module `pytestmark`) and
+- [x] Marker checking (function decorators, enclosing class decorators, module `pytestmark`) and
       `MOCKED_CLOCK_ALLOWLIST` semantics are unchanged.
-- [ ] Update the module docstring: extend the numbered detection description to name the embedded
+- [x] Update the module docstring: extend the numbered detection description to name the embedded
       string-literal route and its declared limits (single-hop simple local binding only; no
       `+=`/f-string/cross-function building), in the same style as the existing deliberate
       `time.sleep()` carve-out.
-- [ ] Commit the whole Phase 2 + Phase 3 change to this file as one green commit.
+- [x] Commit the whole Phase 2 + Phase 3 change to this file as one green commit.
 
 **Timing**: 1 hour
 

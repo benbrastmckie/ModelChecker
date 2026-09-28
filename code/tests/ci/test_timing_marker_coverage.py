@@ -24,6 +24,29 @@ hold:
 A flagged function must carry `performance` or `xdist_serial`, checked at the function's own
 decorators, its enclosing class's decorators (covers class-level marking, e.g.
 `TestPerformanceAndScalabilityScenarios`), or a module-level `pytestmark = [...]` list.
+
+**Embedded-source-string route.** The two conditions above can also live inside a Python source
+string handed to a subprocess/exec-style call site (`subprocess.run`/`call`/`check_call`/
+`check_output`/`Popen`, or bare `exec`/`eval`) rather than in the scanned function's own
+statements -- exactly the shape `test_import_performs_no_subprocess_call` used before this guard
+was extended: `code = ("import time\\n" "t = time.time()\\n" ... "assert elapsed < 1.0\\n")`
+followed by `subprocess.run([sys.executable, "-c", code], ...)`. To an `ast.walk` over the outer
+function, that whole string is a single opaque `ast.Constant` -- nothing to flag. The scan
+resolves this one specific, deliberately narrow shape: a string literal passed directly as a
+call argument, OR a string first bound to a local name via a simple `x = "..."` assignment and
+then referenced by that name (including one level inside a `list`/`tuple` argument, e.g.
+`[sys.executable, "-c", code]`), is parsed as its own Python source and re-scanned with the same
+two conditions above. A resolved string that fails to parse as Python is silently skipped (most
+likely a shell command line, not embedded Python source). This stays a structural scan, not
+dataflow: `+=`/f-string-built strings, strings assembled across multiple statements, and strings
+passed through an intermediate function call are all out of scope, same as the module-level
+non-dataflow posture already documented above.
+
+`os.system` is deliberately NOT added to the recognized call-target set: its argument is a shell
+command line, not Python source, so resolving and `ast.parse`-ing it would routinely raise
+`SyntaxError` and never match -- the same "not embedded Python" reasoning the paragraph above
+already gives for skipping unparseable resolved strings, just decided up front for a call target
+known to hit it every time.
 """
 
 from __future__ import annotations
@@ -93,6 +116,96 @@ def _has_bound_assertion(node: ast.AST) -> bool:
         ):
             return True
     return False
+
+
+_SUBPROCESS_CALL_ATTRS = {"run", "call", "check_call", "check_output", "Popen"}
+_EXEC_STYLE_NAMES = {"exec", "eval"}
+
+
+def _is_source_executing_call(func: ast.AST) -> bool:
+    """True for `subprocess.run`/`call`/`check_call`/`check_output`/`Popen` calls and bare
+    `exec`/`eval` calls -- the recognized call-target set for the embedded-source-string route
+    (see module docstring)."""
+    if (
+        isinstance(func, ast.Attribute)
+        and func.attr in _SUBPROCESS_CALL_ATTRS
+        and isinstance(func.value, ast.Name)
+        and func.value.id == "subprocess"
+    ):
+        return True
+    return isinstance(func, ast.Name) and func.id in _EXEC_STYLE_NAMES
+
+
+def _local_string_bindings(node: ast.AST) -> dict[str, str]:
+    """Map `name -> value` for every simple `name = "constant string"` assignment found anywhere
+    in `node` (structural, not scope-aware -- consistent with this module's other helpers, which
+    already walk the full subtree rather than tracking scope boundaries)."""
+    bindings: dict[str, str] = {}
+    for n in ast.walk(node):
+        if (
+            isinstance(n, ast.Assign)
+            and len(n.targets) == 1
+            and isinstance(n.targets[0], ast.Name)
+            and isinstance(n.value, ast.Constant)
+            and isinstance(n.value.value, str)
+        ):
+            bindings[n.targets[0].id] = n.value.value
+    return bindings
+
+
+def _candidate_strings_from_value(value: ast.AST, bindings: dict[str, str]) -> list[str]:
+    """Extract candidate embedded-source strings from a single call argument: a direct string
+    constant, a name resolved through `bindings`, or either of those nested one level inside a
+    `list`/`tuple` literal (the `[sys.executable, "-c", code]` shape)."""
+    if isinstance(value, ast.Constant) and isinstance(value.value, str):
+        return [value.value]
+    if isinstance(value, ast.Name) and value.id in bindings:
+        return [bindings[value.id]]
+    if isinstance(value, (ast.List, ast.Tuple)):
+        candidates = []
+        for elt in value.elts:
+            if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+                candidates.append(elt.value)
+            elif isinstance(elt, ast.Name) and elt.id in bindings:
+                candidates.append(bindings[elt.id])
+        return candidates
+    return []
+
+
+def _embedded_trees(node: ast.AST) -> list[ast.AST]:
+    """Resolve and parse Python source strings passed to subprocess/exec-style call sites within
+    `node` (see module docstring). A resolved string that fails to parse as Python is skipped."""
+    bindings = _local_string_bindings(node)
+    trees: list[ast.AST] = []
+    for n in ast.walk(node):
+        if not (isinstance(n, ast.Call) and _is_source_executing_call(n.func)):
+            continue
+        candidates: list[str] = []
+        for arg in n.args:
+            candidates.extend(_candidate_strings_from_value(arg, bindings))
+        for kw in n.keywords:
+            if kw.value is not None:
+                candidates.extend(_candidate_strings_from_value(kw.value, bindings))
+        for source in candidates:
+            try:
+                trees.append(ast.parse(source))
+            except SyntaxError:
+                continue
+    return trees
+
+
+def _scanned_trees(node: ast.AST) -> list[ast.AST]:
+    """The function's own node plus every embedded-source tree resolved from it -- the shared
+    union both `_calls_clock_deep` and `_has_bound_assertion_deep` scan over."""
+    return [node] + _embedded_trees(node)
+
+
+def _calls_clock_deep(node: ast.AST) -> bool:
+    return any(_calls_clock(t) for t in _scanned_trees(node))
+
+
+def _has_bound_assertion_deep(node: ast.AST) -> bool:
+    return any(_has_bound_assertion(t) for t in _scanned_trees(node))
 
 
 def _called_names(node: ast.AST) -> set[str]:
@@ -167,15 +280,18 @@ def _find_unmarked_timing_tests(path: Path) -> list[str]:
                 if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     enclosing_class[id(child)] = node
 
-    label = str(path.relative_to(REPO_ROOT))
+    try:
+        label = str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        label = str(path)
     violations = []
     for node in module_funcs:
         if not node.name.startswith("test"):
             continue
-        has_assertion = _has_bound_assertion(node) or bool(
+        has_assertion = _has_bound_assertion_deep(node) or bool(
             _called_names(node) & bound_assert_helpers
         )
-        if not (_calls_clock(node) and has_assertion):
+        if not (_calls_clock_deep(node) and has_assertion):
             continue
         if (label, node.name) in MOCKED_CLOCK_ALLOWLIST:
             continue
@@ -261,11 +377,66 @@ def test_scan_finds_the_known_marked_inventory():
         for node in module_funcs:
             if not node.name.startswith("test"):
                 continue
-            has_assertion = _has_bound_assertion(node) or bool(
+            has_assertion = _has_bound_assertion_deep(node) or bool(
                 _called_names(node) & bound_assert_helpers
             )
-            if _calls_clock(node) and has_assertion:
+            if _calls_clock_deep(node) and has_assertion:
                 found.add((label, node.name))
 
     missing = known - found
     assert not missing, f"AST scan failed to detect known timing-assertion tests: {sorted(missing)}"
+
+
+def _embedded_subprocess_fixture_source(*, marked: bool) -> str:
+    """Build the source of a synthetic test module reproducing the pre-fix
+    `test_import_performs_no_subprocess_call` shape: a clock-read-plus-bound-assert pair living
+    inside a Python source string that is bound to a local name (`code`) and then referenced by
+    that name inside a list literal argument to `subprocess.run`. This is exactly the shape an
+    `ast.walk` over the *outer* module's own nodes cannot see -- the clock call and the bound
+    assert exist only inside the string's own text, one `ast.Constant` node to the outer scan.
+    """
+    decorator = "    @pytest.mark.xdist_serial\n" if marked else ""
+    return (
+        "import subprocess\n"
+        "import sys\n"
+        "\n"
+        "import pytest\n"
+        "\n"
+        "\n"
+        "class TestEmbedded:\n"
+        f"{decorator}"
+        "    def test_import_is_fast(self):\n"
+        "        code = (\n"
+        '            "import time\\n"\n'
+        '            "t = time.time()\\n"\n'
+        '            "elapsed = time.time() - t\\n"\n'
+        '            "assert elapsed < 1.0, elapsed\\n"\n'
+        "        )\n"
+        "        result = subprocess.run(\n"
+        '            [sys.executable, "-c", code], capture_output=True, text=True, timeout=15\n'
+        "        )\n"
+        "        assert result.returncode == 0\n"
+    )
+
+
+def test_embedded_subprocess_source_is_flagged_when_unmarked(tmp_path):
+    """`_find_unmarked_timing_tests` must resolve the local-variable binding and parse the
+    embedded source string, not just walk the outer module's own AST nodes."""
+    fixture = tmp_path / "test_embedded_fixture.py"
+    fixture.write_text(_embedded_subprocess_fixture_source(marked=False))
+
+    violations = _find_unmarked_timing_tests(fixture)
+
+    assert len(violations) == 1, violations
+    assert "test_import_is_fast" in violations[0]
+
+
+def test_embedded_subprocess_source_respects_marker_suppression(tmp_path):
+    """The same embedded-string shape, but with the function itself decorated
+    `@pytest.mark.xdist_serial` -- must NOT be flagged."""
+    fixture = tmp_path / "test_embedded_fixture_marked.py"
+    fixture.write_text(_embedded_subprocess_fixture_source(marked=True))
+
+    violations = _find_unmarked_timing_tests(fixture)
+
+    assert violations == []
