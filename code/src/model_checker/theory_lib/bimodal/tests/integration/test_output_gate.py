@@ -17,13 +17,8 @@ import sys
 
 import pytest
 
-from model_checker.models.constraints import ModelConstraints
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
 from model_checker.theory_lib.bimodal.semantic import checker as checker_module
-from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
-from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
-from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+from model_checker.theory_lib.bimodal.tests._build_support import _build, _settings
 from model_checker.theory_lib.bimodal.tests._lean_check import SKIP_REASON
 from model_checker.theory_lib.errors import ModelConstructionError
 
@@ -32,23 +27,6 @@ from model_checker.theory_lib.errors import ModelConstructionError
 # re-elaboration), which nothing this checker produces today -- see
 # BimodalTools/CertificateImport.lean's Acceptance docstring. No rendered output may contain it.
 FORBIDDEN_OVERCLAIM = "kernel-checked proof"
-
-
-def _settings(**overrides):
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
-
-
-def _build(premises, conclusions, **setting_overrides):
-    """Build one example through the real Syntax -> ModelConstraints -> BimodalStructure
-    pipeline, matching `test_structure.py`'s own helper."""
-    settings = _settings(**setting_overrides)
-    syntax = Syntax(premises, conclusions, bimodal_operators)
-    model_constraints = ModelConstraints(
-        settings, syntax, BimodalSemantics(settings), BimodalProposition
-    )
-    return BimodalStructure(model_constraints, settings)
 
 
 @pytest.fixture(autouse=True)

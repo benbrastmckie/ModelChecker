@@ -9,27 +9,7 @@ since `extract_states`/`extract_evaluation_world`/`extract_relations`/
 
 from __future__ import annotations
 
-from model_checker.models.constraints import ModelConstraints
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
-from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
-from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
-from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
-
-
-def _settings(**overrides):
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
-
-
-def _build(premises, conclusions, **setting_overrides):
-    """Build one example through the real pipeline, mirroring `test_structure.py`'s own
-    `_build` helper."""
-    settings = _settings(**setting_overrides)
-    syntax = Syntax(premises, conclusions, bimodal_operators)
-    model_constraints = ModelConstraints(settings, syntax, BimodalSemantics(settings), BimodalProposition)
-    return BimodalStructure(model_constraints, settings)
+from model_checker.theory_lib.bimodal.tests._build_support import _build, _settings
 
 
 class TestExtractStatesWithCertificate:

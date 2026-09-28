@@ -241,32 +241,32 @@ kept in all five, exactly as the Scope Hypothesis predicted. `test_iterate.py`'s
 `_mock_build_example`/`_real_build_example` and `test_until_since_integration.py`'s `_run` were
 left untouched. `PYTHONPATH=code/src pytest <five modules> -q`: 76 passed, 0 failed.
 
-### Phase 3: Consolidate Full Duplicates and Their Import Fallout [NOT STARTED]
+### Phase 3: Consolidate Full Duplicates and Their Import Fallout [COMPLETED]
 
 **Goal**: Remove both `_settings` and `_build` from the two modules that duplicate the whole
 pipeline, and delete every import the removal orphans.
 
 **Tasks**:
-- [ ] Before editing `integration/test_output_gate.py`, enumerate every `_build(...)` call site
+- [x] Before editing `integration/test_output_gate.py`, enumerate every `_build(...)` call site
       in it and confirm each passes `verify=` explicitly. The module's local `_build` docstring
       claims to mirror `unit/test_structure.py`'s `'verify'='off'` wrapper, but the body applies
       no such override — the docstring is stale. If any call site turns out to rely on an
       implicit `'verify'` value, STOP and route the module to the documented-local-wrapper
       pattern instead of a bare import.
-- [ ] For `integration/test_data_extraction.py`, confirm no test in the module inspects
+- [x] For `integration/test_data_extraction.py`, confirm no test in the module inspects
       verification output or labels (the report found it reads `structure.certificate`,
       `extract_states()`, and similar, all unaffected by `'verify'`).
-- [ ] In each of the two modules: delete the local `def _settings` and `def _build` bodies
+- [x] In each of the two modules: delete the local `def _settings` and `def _build` bodies
       (including the stale `test_output_gate.py` docstring) and add
       `from model_checker.theory_lib.bimodal.tests._build_support import _build, _settings`.
-- [ ] Re-derive the dead-import set per module *after* the deletion: for each of
+- [x] Re-derive the dead-import set per module *after* the deletion: for each of
       `ModelConstraints`, `Syntax`, `bimodal_operators`, `BimodalSemantics`, `BimodalStructure`,
       `BimodalProposition`, grep the edited module and delete the import line only when zero
       references survive. Do not delete on the strength of this plan's enumeration alone.
-- [ ] Preserve every other import in `test_output_gate.py` (`sys`, `pytest`, `checker_module`,
+- [x] Preserve every other import in `test_output_gate.py` (`sys`, `pytest`, `checker_module`,
       `SKIP_REASON`, `ModelConstructionError`) — they are unrelated to the removed bodies.
-- [ ] Run the two modules' tests and confirm green.
-- [ ] Commit at each green sub-step.
+- [x] Run the two modules' tests and confirm green.
+- [x] Commit at each green sub-step.
 
 **Timing**: 0.5 hours
 
@@ -293,6 +293,21 @@ property by grep before editing, and the six-import figure by post-edit referenc
   `"auto"`/`"off"`/`"required"`/`"paranoid"` cases.
 
 ---
+
+**Confirmation (re-run at implementation time)**: `test_output_gate.py` has exactly 8
+`_build(...)` call sites, all passing `verify=` explicitly (`"auto"`/`"off"`/`"required"`
+(x2)/`"paranoid"`/`"auto"`/`"required"`) -- no implicit-default reliance, so the bare-import
+route (not the documented-wrapper route) applies. `test_data_extraction.py` has zero `verify`
+references anywhere in the module. Both modules lost their local `_settings`+`_build` defs (and,
+in `test_output_gate.py`'s case, the stale mirror-claim docstring) and now import both from
+`_build_support`. Post-edit grep confirms all six symbols
+(`ModelConstraints`/`Syntax`/`bimodal_operators`/`BimodalSemantics`/`BimodalStructure`/
+`BimodalProposition`) have zero surviving references in either module, so all six import lines
+were removed from each -- matching the Scope Hypothesis's six-import figure exactly.
+`test_output_gate.py` retains `sys`, `pytest`, `checker_module`, `SKIP_REASON`,
+`ModelConstructionError` untouched. `PYTHONPATH=code/src pytest <two modules> -q`: 16 passed, 0
+failed (9 in `test_data_extraction.py`, 7 in `test_output_gate.py`, matching the Phase 1 baseline
+for these files).
 
 ### Phase 4: Collapse `test_injection.py`'s Differently-Named Duplicate [NOT STARTED]
 
