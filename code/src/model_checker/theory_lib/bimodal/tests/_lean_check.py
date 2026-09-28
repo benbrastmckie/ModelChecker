@@ -74,7 +74,6 @@ from model_checker.theory_lib.bimodal.semantic import checker as _checker_module
 from model_checker.theory_lib.bimodal.semantic.certificate import canonical_wire_bytes
 
 __all__ = [
-    "BIMODAL_LOGIC_COMMIT",
     "BIMODAL_LOGIC_PATH",
     "LAKE",
     "PROBE_TIMEOUT_SECONDS",
@@ -95,8 +94,6 @@ __all__ = [
 # this module's probe runs once, at test-collection time, and the direct-invocation binary it
 # now calls is the same ~50ms one -- the generous bound is legacy headroom, not a requirement.
 PROBE_TIMEOUT_SECONDS = 60
-
-BIMODAL_LOGIC_COMMIT = "d55e2760e6731a2240f3db5d761658947bf69125"
 
 
 def resolve_bimodal_logic_path() -> Optional[Path]:

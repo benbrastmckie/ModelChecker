@@ -40,10 +40,11 @@ response to a trivial, well-formed probe certificate must additionally carry a `
 `"countermodel"`, an `"acceptance"` value in the vocabulary
 `BimodalTools/CertificateImport.lean`'s `Acceptance` inductive actually defines (`"decided"`,
 `"entailment"`), and an `"echo"` that matches the exact bytes this module sent, bytewise. This is
-the *enforcement* mechanism: `BIMODAL_LOGIC_COMMIT` (recorded in `tests/_lean_check.py`) is a
-pin that is consumed by nothing and had already drifted (from `d55e2760` to `d1a24b30`, observed
-same-day) before this module existed. Pinning a commit cannot prevent a checkout from being
-rebuilt at a different, incompatible commit; checking the binary's actual behaviour can. A
+the *enforcement* mechanism: `tests/_lean_check.py` used to also carry a `BIMODAL_LOGIC_COMMIT`
+pin, consumed by nothing, which had already drifted (from `d55e2760` to `d1a24b30`, observed
+same-day) before this module existed, and has since been retired. Pinning a commit cannot
+prevent a checkout from being rebuilt at a different, incompatible commit; checking the binary's
+actual behaviour can. A
 checkout resolution therefore records its checkout's HEAD as *provenance* for the output label
 -- informational, not a gate -- while the handshake is the real gate.
 

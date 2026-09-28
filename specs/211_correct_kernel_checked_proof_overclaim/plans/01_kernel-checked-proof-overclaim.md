@@ -164,27 +164,31 @@ re-classify each occurrence as asserting or denying before proceeding.
 
 ---
 
-### Phase 2: Retire the dead BIMODAL_LOGIC_COMMIT pin [NOT STARTED]
+### Phase 2: Retire the dead BIMODAL_LOGIC_COMMIT pin [COMPLETED]
 
 **Goal**: The unconsumed, repeatedly-drifted commit pin is gone from the tree, and the one
 docstring that narrates it in the present tense reads correctly without it.
 
 **Tasks**:
-- [ ] `grep -rn "BIMODAL_LOGIC_COMMIT" /home/benjamin/Projects/ModelChecker` (whole repo, not just
-      `code/`) to re-confirm zero consumers immediately before editing.
-- [ ] **Re-read `tests/_lean_check.py` in full immediately before editing** — task 209 declares
+- [x] `grep -rn "BIMODAL_LOGIC_COMMIT" /home/benjamin/Projects/ModelChecker` (whole repo, not just
+      `code/`) to re-confirm zero consumers immediately before editing. *(completed: confirmed
+      zero code consumers; task 209's plan/report files reference it in prose only)*
+- [x] **Re-read `tests/_lean_check.py` in full immediately before editing** — task 209 declares
       this same file in its `file_scope` and is dispatched in this same cycle. If a foreign
       uncommitted modification or an unexpected commit to this file is present, check `git log`
       to confirm it is not this task's own work, then STOP and report rather than proceeding.
-- [ ] Delete the `BIMODAL_LOGIC_COMMIT` assignment (currently ~line 99) and its `__all__` entry
-      (currently ~line 77).
-- [ ] Update `semantic/checker.py`'s "The capability handshake (not the commit pin)" docstring
+      *(completed: no foreign modification present; git log confirmed no recent commits to this
+      file from task 209)*
+- [x] Delete the `BIMODAL_LOGIC_COMMIT` assignment (currently ~line 99) and its `__all__` entry
+      (currently ~line 77). *(completed)*
+- [x] Update `semantic/checker.py`'s "The capability handshake (not the commit pin)" docstring
       (currently ~line 43): the sentence narrating `BIMODAL_LOGIC_COMMIT` as something that "is
       (recorded in `tests/_lean_check.py`) a pin that is consumed by nothing" must move to the
       past tense / drop the location claim, so the rationale for the handshake survives without
       pointing at a constant that no longer exists. Preserve the drift evidence
       (`d55e2760` → `d1a24b30`, observed same-day) — it is the argument, not decoration.
-- [ ] Commit (`task 211 phase 2: ...`), staging the two files by explicit path list only.
+      *(completed)*
+- [x] Commit (`task 211 phase 2: ...`), staging the two files by explicit path list only. *(completed)*
 
 **Timing**: 0.5 hours
 
