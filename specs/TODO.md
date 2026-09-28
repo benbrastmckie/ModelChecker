@@ -22,7 +22,7 @@ next_project_number: 209
 
 ### Architecture
 
-207 [RESEARCHED] — Fix ModelConstraints.allconstraints being a stale eager...
+207 [PLANNING] — Fix ModelConstraints.allconstraints being a stale eager...
 205 [NOT STARTED] — Decide and stage how a reported countermodel becomes...
 
 ### Testing
@@ -31,18 +31,18 @@ next_project_number: 209
 
 ### Semantics
 
-197 [RESEARCHED] — Harden the certificate wire protocol on two axes, so that...
+197 [PLANNED] — Harden the certificate wire protocol on two axes, so that...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 
 ### Test Reliability
 
-208 [RESEARCHED] — Fix the logos subtheory-orchestration meta-test, which sits...
+208 [PLANNING] — Fix the logos subtheory-orchestration meta-test, which sits...
 
 ## Tasks
 
 ### 208. Fix logos subtheory meta test timeout
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
@@ -61,7 +61,7 @@ CONSTRAINTS. Do not simply raise the timeout to make a 320-second test fit -- th
 ---
 
 ### 207. Fix stale all constraints snapshot
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: z3
 - **Topic**: architecture
 - **Dependencies**: None
@@ -212,11 +212,12 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 ---
 
 ### 197. Harden certificate wire proof carrying
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 196
 - **Research**: [197_harden_certificate_wire_proof_carrying/reports/01_harden-certificate-wire-proof-carrying.md]
+- **Plan**: [197_harden_certificate_wire_proof_carrying/plans/01_harden-certificate-wire-proof-carrying.md]
 
 **Description**: Harden the certificate wire protocol on two axes, so that acceptance becomes a kernel-checked entailment and deserialization leaves the trust base. First, proof-carrying acceptance: ADEQUACY.md section 6.2 is explicit that a "countermodel" verdict says only that the four Decidable instances returned true on the family rebuilt from the wire input, and is not a kernel-checked proof for that particular certificate. Once BimodalLogic's proof-producing check_certificate lands -- whose success path applies WitnessFamily.joint_countermodel to a decided hypothesis, constructing the paper-countermodel existence term rather than printing a verdict -- consume that mode here: extend the wire's output contract to carry it, and record in the presentation path that the Python re-checker has become a fast pre-filter rather than part of the trust base. Second, parse-echo verification: the Lean side parses the exported JSON, so a parser defect could mean the verified side certifies a different certificate than the one exported. Pair with BimodalLogic's canonical-printer and parse-after-print round-trip theorem by having the Lean side echo back what it parsed and comparing it bytewise against what this repository sent, treating any mismatch as a protocol error rather than a rejection. Preserve the existing output contract's discipline throughout: exactly one line, never a validity claim, and the error-versus-rejected distinction (error covers input failing the protocol, rejected covers input that parses but fails a condition). BLOCKED on the two BimodalLogic counterpart tasks (proof-producing check_certificate, and the canonical wire round-trip theorem); the wire contract is an export contract per section 6.1, so renaming or extending any of back, mid, fwd, bx, lassos or target is a breaking change requiring coordination with the producing side, not a local refactor.
 
