@@ -441,6 +441,96 @@ class TestRecheckLocalCoherentFailure:
 
 
 # ---------------------------------------------------------------------------
+# Phase 3 (implementation plan): `_recheck_family` equivalence.
+#
+# `recheck` is now a thin composition of `_recheck_family` ((structural)+(C1)+(C2)+(C3)) and
+# `_target_holds` ((C4)) -- a pure extract-method with no behaviour change (module docstring
+# of `_recheck_family` itself). This guards that composition directly, over a representative
+# sample covering each of the five failure classes plus an accepting candidate, reusing the
+# same fixtures the classes above already exercise `recheck` against -- so both sides of the
+# composition are checked against the exact same inputs `recheck`'s own test suite already
+# trusts.
+# ---------------------------------------------------------------------------
+
+from model_checker.theory_lib.bimodal.semantic.certificate import (
+    _failed,
+    _recheck_family,
+    _target_holds,
+)
+
+
+def _composed_recheck(family, premises, conclusions, target_time):
+    """Mirrors `recheck`'s own body exactly: `_recheck_family` first, then (C4) via
+    `_target_holds` -- kept as a separate function (not calling `recheck` itself) so the
+    equivalence test below is not circular."""
+    premises = list(premises)
+    conclusions = list(conclusions)
+    failure, _closure = _recheck_family(family, premises, conclusions)
+    if failure is not None:
+        return failure
+    if not _target_holds(family, premises, conclusions, target_time):
+        return _failed(
+            "target",
+            0,
+            target_time,
+            None,
+            "premises not all present, or a conclusion present, at the target position",
+        )
+    return {"status": "countermodel", "time": target_time}
+
+
+class TestRecheckFamilyEquivalence:
+    """`recheck(family, premises, conclusions, t)` must equal `_composed_recheck`'s
+    `_recheck_family` + `_target_holds` composition, for a representative sample covering
+    structural, local_coherent, fulfilling, box_faithful, and target failures, plus one
+    accepting candidate."""
+
+    def test_accepting_candidate(self):
+        family, premises, conclusions, target_time = TestRecheckPositiveT3Fixture().build()
+        assert recheck(family, premises, conclusions, target_time) == _composed_recheck(
+            family, premises, conclusions, target_time
+        )
+
+    def test_structural_failure(self):
+        p, q, r = Atom("p"), Atom("q"), Atom("r")
+        lasso = LabelledLasso(back=(frozenset({r}),), mid=(), fwd=(frozenset({r}),))
+        family = WitnessFamily(bx={}, lassos=(lasso,))
+        premises, conclusions, target_time = [Box(p)], [q], 0
+        assert recheck(family, premises, conclusions, target_time) == _composed_recheck(
+            family, premises, conclusions, target_time
+        )
+
+    def test_local_coherent_failure(self):
+        lasso = LabelledLasso(back=(frozenset({Bot()}),), mid=(), fwd=(frozenset({Bot()}),))
+        family = WitnessFamily(bx={}, lassos=(lasso,))
+        premises, conclusions, target_time = [Bot()], [], 0
+        assert recheck(family, premises, conclusions, target_time) == _composed_recheck(
+            family, premises, conclusions, target_time
+        )
+
+    def test_fulfilling_failure(self):
+        family, premises, conclusions, target_time = _load_fixture("02_infinite_postponement.json")
+        assert recheck(family, premises, conclusions, target_time) == _composed_recheck(
+            family, premises, conclusions, target_time
+        )
+
+    def test_box_faithful_failure(self):
+        family, premises, conclusions, target_time = _load_fixture("03_box_unfaithful.json")
+        assert recheck(family, premises, conclusions, target_time) == _composed_recheck(
+            family, premises, conclusions, target_time
+        )
+
+    def test_target_failure(self):
+        p, q = Atom("p"), Atom("q")
+        lasso = LabelledLasso(back=(frozenset({q}),), mid=(), fwd=(frozenset({q}),))
+        family = WitnessFamily(bx={}, lassos=(lasso,))
+        premises, conclusions, target_time = [p], [q], 0
+        assert recheck(family, premises, conclusions, target_time) == _composed_recheck(
+            family, premises, conclusions, target_time
+        )
+
+
+# ---------------------------------------------------------------------------
 # Phase 5: the JSON-boundary wrapper, `recheck_json`
 # ---------------------------------------------------------------------------
 #

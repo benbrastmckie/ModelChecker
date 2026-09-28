@@ -397,6 +397,95 @@ def _target_holds(
     return all(p in label0 for p in premises) and all(c not in label0 for c in conclusions)
 
 
+def _recheck_family(
+    family: "WitnessFamily",
+    premises: List[Formula],
+    conclusions: List[Formula],
+) -> Tuple[Optional[Dict[str, object]], FrozenSet[Formula]]:
+    """The target-time-independent portion of `recheck`: structural, (C1) local coherence,
+    (C2) fulfilment, and (C3) box faithfulness -- everything except (C4), which alone depends on
+    `target_time`. Callers that re-check the same `family` against many `target_time` values
+    (the harness's per-family amortization, implementation plan Phase 5) call this once per
+    family instead of paying this cost `target_window_len` times over.
+
+    Returns `(failure, closure)`: `failure` is `None` if every one of these checks passes, or
+    the same `{"status": "rejected", "failed": [...]}` dict `recheck` would have returned
+    otherwise. `closure` is always returned (even on failure) so a caller that already needs it
+    (e.g. for (C4) or for a pinned per-candidate comparison) does not recompute `closure_of`.
+    `premises`/`conclusions` must already be lists (not arbitrary iterables) -- `recheck` does
+    that normalization before calling this.
+    """
+    closure = closure_of(premises + conclusions)
+
+    # Structural: every label must lie within closureOf(premises ++ conclusions)
+    # (LabelledLasso.label_sub), and no label may carry a fresh-indexed atom.
+    for i, lasso in enumerate(family.lassos):
+        stray = lasso.all_labels() - closure
+        if stray:
+            return (
+                _failed(
+                    "structural",
+                    i,
+                    None,
+                    next(iter(stray)),
+                    "label formula is not in closureOf(premises ++ conclusions)",
+                ),
+                closure,
+            )
+        for label_formula in lasso.all_labels():
+            if _has_fresh_atom(label_formula):
+                return (
+                    _failed(
+                        "structural",
+                        i,
+                        None,
+                        label_formula,
+                        "label carries a fresh-indexed atom, which cannot be checked against a "
+                        "Lean-side certificate (Atom.freshIndex is dropped on export)",
+                    ),
+                    closure,
+                )
+
+    # (C1) local coherence, over the wide (proved) window.
+    for i, lasso in enumerate(family.lassos):
+        for t in _coherence_window(lasso):
+            ok, f = _coherent_at(closure, family, lasso, t)
+            if not ok:
+                return (
+                    _failed(
+                        "local_coherent", i, t, f,
+                        "local coherence fixpoint fails at this position",
+                    ),
+                    closure,
+                )
+
+    # (C2) fulfilment, over the same wide window.
+    for i, lasso in enumerate(family.lassos):
+        for t in _coherence_window(lasso):
+            ok, f = _fulfil_at(closure, lasso, t)
+            if not ok:
+                return (
+                    _failed(
+                        "fulfilling", i, t, f,
+                        "this eventuality is never discharged within the scan bound",
+                    ),
+                    closure,
+                )
+
+    # (C3) box faithfulness, over the narrower one-period window.
+    ok, f = _box_faithful(closure, family)
+    if not ok:
+        return (
+            _failed(
+                "box_faithful", None, None, f,
+                "box guess disagrees with global label membership",
+            ),
+            closure,
+        )
+
+    return None, closure
+
+
 def recheck(
     family: "WitnessFamily",
     premises: Iterable[Formula],
@@ -409,58 +498,16 @@ def recheck(
     `{"status": "rejected", "failed": [...]}` naming the first violation found (structural, then
     local coherence, then fulfilment, then box faithfulness, then the target -- matching the
     order `check_certificate` documents its checks in).
+
+    A thin composition of `_recheck_family` ((structural)+(C1)+(C2)+(C3)) and `_target_holds`
+    ((C4)) -- see `_recheck_family`'s own docstring for why the split exists.
     """
     premises = list(premises)
     conclusions = list(conclusions)
-    closure = closure_of(premises + conclusions)
 
-    # Structural: every label must lie within closureOf(premises ++ conclusions)
-    # (LabelledLasso.label_sub), and no label may carry a fresh-indexed atom.
-    for i, lasso in enumerate(family.lassos):
-        stray = lasso.all_labels() - closure
-        if stray:
-            return _failed(
-                "structural",
-                i,
-                None,
-                next(iter(stray)),
-                "label formula is not in closureOf(premises ++ conclusions)",
-            )
-        for label_formula in lasso.all_labels():
-            if _has_fresh_atom(label_formula):
-                return _failed(
-                    "structural",
-                    i,
-                    None,
-                    label_formula,
-                    "label carries a fresh-indexed atom, which cannot be checked against a "
-                    "Lean-side certificate (Atom.freshIndex is dropped on export)",
-                )
-
-    # (C1) local coherence, over the wide (proved) window.
-    for i, lasso in enumerate(family.lassos):
-        for t in _coherence_window(lasso):
-            ok, f = _coherent_at(closure, family, lasso, t)
-            if not ok:
-                return _failed(
-                    "local_coherent", i, t, f, "local coherence fixpoint fails at this position"
-                )
-
-    # (C2) fulfilment, over the same wide window.
-    for i, lasso in enumerate(family.lassos):
-        for t in _coherence_window(lasso):
-            ok, f = _fulfil_at(closure, lasso, t)
-            if not ok:
-                return _failed(
-                    "fulfilling", i, t, f, "this eventuality is never discharged within the scan bound"
-                )
-
-    # (C3) box faithfulness, over the narrower one-period window.
-    ok, f = _box_faithful(closure, family)
-    if not ok:
-        return _failed(
-            "box_faithful", None, None, f, "box guess disagrees with global label membership"
-        )
+    failure, closure = _recheck_family(family, premises, conclusions)
+    if failure is not None:
+        return failure
 
     # (C4) target.
     if not _target_holds(family, premises, conclusions, target_time):

@@ -330,7 +330,7 @@ adjust rather than forcing the hypothesis.
 
 ---
 
-### Phase 3: Extract `_recheck_family` in `semantic/certificate.py` [NOT STARTED]
+### Phase 3: Extract `_recheck_family` in `semantic/certificate.py` [COMPLETED]
 
 **Goal**: Make `recheck()`'s target-time-independent portion (structural + C1 + C2 + C3)
 separately callable, as a pure extract-method with no behaviour change for any of its production
