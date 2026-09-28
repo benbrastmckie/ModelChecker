@@ -6,13 +6,13 @@ next_project_number: 209
 
 ## Task Order
 
-*Updated 2026-09-27. Generated from state.json dependency graph.*
+*Updated 2026-09-28. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 197,198,205,206,207,208 | -- | architecture, testing, semantics, ... |
-| 2 | 199,200 | 197,198 | documentation, semantics |
+| 1 | 197,198,207,208 | -- | architecture, semantics, test-reliability |
+| 2 | 199,200,205,206 | 197,198,207 | documentation, architecture, testing, ... |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -22,8 +22,8 @@ next_project_number: 209
 
 ### Architecture
 
+207 [RESEARCHING] — Fix ModelConstraints.allconstraints being a stale eager...
 205 [NOT STARTED] — Decide and stage how a reported countermodel becomes...
-207 [NOT STARTED] — Fix ModelConstraints.allconstraints being a stale eager...
 
 ### Testing
 
@@ -31,18 +31,18 @@ next_project_number: 209
 
 ### Semantics
 
-197 [NOT STARTED] — Harden the certificate wire protocol on two axes, so that...
+197 [RESEARCHED] — Harden the certificate wire protocol on two axes, so that...
   └─ 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 
 ### Test Reliability
 
-208 [NOT STARTED] — Fix the logos subtheory-orchestration meta-test, which sits...
+208 [RESEARCHING] — Fix the logos subtheory-orchestration meta-test, which sits...
 
 ## Tasks
 
 ### 208. Fix logos subtheory meta test timeout
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
@@ -60,7 +60,7 @@ CONSTRAINTS. Do not simply raise the timeout to make a 320-second test fit -- th
 ---
 
 ### 207. Fix stale all constraints snapshot
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: z3
 - **Topic**: architecture
 - **Dependencies**: None
@@ -87,7 +87,7 @@ CONSTRAINTS. Verify against the full repository gate under CI's own invocation s
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: testing
-- **Dependencies**: None
+- **Dependencies**: Task 207
 
 **Description**: Refactor the bimodal verification test harness for organization and performance, refactoring structure rather than preserving it where that produces a better result. This task owns the harness itself; the trust boundary between testing and formal verification is owned by a separate task and is explicitly out of scope here. Nothing in this task may weaken what the existing tests establish, and any narrowing of an enumeration must be stated explicitly rather than absorbed as a speedup.
 
@@ -103,7 +103,7 @@ CONSTRAINTS. Preserve Tier 2's clean-skip behaviour as it stands (its promotion 
 - **Status**: [NOT STARTED]
 - **Task Type**: formal
 - **Topic**: architecture
-- **Dependencies**: None
+- **Dependencies**: Task 197
 
 **Description**: Decide and stage how a reported countermodel becomes trustworthy in the hands of a user who has no Lean toolchain, and reposition the existing test tiers to match what each one actually establishes. Narrow scope deliberately: the proof-carrying acceptance mode and the deserialization trust base are owned by the certificate-wire hardening task and must be consumed here, not re-decided; the test-harness reorganization and its performance work are owned by the harness refactoring task. This task owns three things only -- the output gate, the checker's runtime availability, and the tier repositioning.
 
@@ -210,10 +210,11 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 ---
 
 ### 197. Harden certificate wire proof carrying
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 196
+- **Research**: [197_harden_certificate_wire_proof_carrying/reports/01_harden-certificate-wire-proof-carrying.md]
 
 **Description**: Harden the certificate wire protocol on two axes, so that acceptance becomes a kernel-checked entailment and deserialization leaves the trust base. First, proof-carrying acceptance: ADEQUACY.md section 6.2 is explicit that a "countermodel" verdict says only that the four Decidable instances returned true on the family rebuilt from the wire input, and is not a kernel-checked proof for that particular certificate. Once BimodalLogic's proof-producing check_certificate lands -- whose success path applies WitnessFamily.joint_countermodel to a decided hypothesis, constructing the paper-countermodel existence term rather than printing a verdict -- consume that mode here: extend the wire's output contract to carry it, and record in the presentation path that the Python re-checker has become a fast pre-filter rather than part of the trust base. Second, parse-echo verification: the Lean side parses the exported JSON, so a parser defect could mean the verified side certifies a different certificate than the one exported. Pair with BimodalLogic's canonical-printer and parse-after-print round-trip theorem by having the Lean side echo back what it parsed and comparing it bytewise against what this repository sent, treating any mismatch as a protocol error rather than a rejection. Preserve the existing output contract's discipline throughout: exactly one line, never a validity claim, and the error-versus-rejected distinction (error covers input failing the protocol, rejected covers input that parses but fails a condition). BLOCKED on the two BimodalLogic counterpart tasks (proof-producing check_certificate, and the canonical wire round-trip theorem); the wire contract is an export contract per section 6.1, so renaming or extending any of back, mid, fwd, bx, lassos or target is a breaking change requiring coordination with the producing side, not a local refactor.
 
