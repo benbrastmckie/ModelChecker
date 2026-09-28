@@ -288,8 +288,14 @@ weakening this test or its retained aggregate assertion.
 property-tested (`tests/unit/test_formula.py`'s two `TestTranslateTruthPreservation*` classes;
 see `ADEQUACY.md` §6.3 and Stage 1 above), so the row this section used to carry for it has been
 removed. The remaining half — a Lean-side translation with its own truth-preservation theorem —
-is listed under the Lean development below, explicitly deferred (its counterpart is confirmed
-absent from the local `BimodalLogic` checkout).
+has now landed upstream: `BimodalLogic`'s `FormalSystem/SourceLanguage/SentenceTruth.lean` proves
+`sat_iff`, sorry-free, and the repository exports a `translate_sentence` executable
+(`lakefile.toml`'s `BimodalTools.TranslateSentenceMain`) alongside a fixture corpus
+(`Tests/fixtures/sentence-translation-fixtures.jsonl`). What remains, in this repository, is
+consuming that fixture — diffing this repository's own translation against it (see the "In this
+repository" table below); the upstream theorem certifies BimodalLogic's own reference
+translation, not this repository's implementation, and does not by itself discharge this
+repository's own S4 obligation.
 
 ### In this repository
 
@@ -302,6 +308,7 @@ absent from the local `BimodalLogic` checkout).
 | **Compute bounds from the closure (A3)** | Once `f` exists, set lengths from `|C|` and report "exhaustive at this closure" versus "bounded" honestly. Blocked until the Lean side supplies `f`. |
 | **The stability modal** | See below. Blocked on four Lean-side results. |
 | **Structural conformance check (follow-on, UNSAT-direction, deferred)** | A check that the emitted Z3 constraint set matches the (C1)-(C4) schema instantiated at the configured `(back, mid, fwd)`, extending the existing operator-inventory and atom-coverage guards (`tests/_pinned_eval.py`'s `full_constraints`; `tests/unit/test_pinned_eval.py`'s `TestOperatorInventoryIsClosed` / `TestAssignmentCoverage`), linear in formula size rather than candidate space. Worthwhile, but this is UNSAT-direction work — like the standing A2 test and the search-coverage grid pins below, it would strengthen encoding-completeness evidence, not countermodel trust — so it is explicitly sequenced after the output gate and checker availability (items 1-2) rather than built alongside them. |
+| **Consume the upstream sentence-translation fixture (open)** | The Lean-side half of S4 has landed (see the Lean-development table below): `sat_iff` and a fixture corpus (`Tests/fixtures/sentence-translation-fixtures.jsonl`) now exist upstream. This repository has not yet diffed its own translation against that fixture — this is the open sentence-translation conformance work, tracked separately. |
 
 ### In the Lean development (`~/Projects/BimodalLogic`)
 
@@ -310,7 +317,7 @@ absent from the local `BimodalLogic` checkout).
 | **Compression (A1)** and the verified bounded enumerator | A1 is the only genuinely open *mathematics* in the (ADEQ) chain. The enumerator matters independently: because the candidate space at the bound is finite and enumeration completeness is already proved there, **absence can be decided by verified code rather than by trusting Z3's UNSAT** — which dominates proving this repository's encoder correct. |
 | **Proof-producing `check_certificate`** | Make the accepting branch *be* `joint_countermodel` applied to a decided hypothesis, so acceptance is Lean constructing the existence term. |
 | **Canonical wire, total parser, round-trip theorem** | A parser defect means the verified side certifies a different certificate than the one exported. |
-| **Lean-side translation with a truth-preservation theorem** | The other half of S4 -- deferred, not attempted from this repository; the ModelChecker-side half is discharged (see "What remains" above). |
+| **Lean-side translation with a truth-preservation theorem (done)** | The other half of S4 has landed: `FormalSystem/SourceLanguage/SentenceTruth.lean` proves `sat_iff`, sorry-free, and `lakefile.toml` declares a `translate_sentence` executable (`BimodalTools.TranslateSentenceMain`) alongside a fixture corpus (`Tests/fixtures/sentence-translation-fixtures.jsonl`). This certifies BimodalLogic's own reference translation, not this repository's; the ModelChecker-side half is separately discharged (see "What remains" above), and consuming the fixture from this repository remains open (see the "In this repository" table above). |
 | **Narrow the transcription audit (S2)** | Derive the paper's frame conditions as theorems where derivable, so the surface needing human inspection shrinks to the primitives. Cannot become a theorem; can be made small and explicit. |
 
 A note on sequencing: the compression work is independent of everything else and is the long pole,

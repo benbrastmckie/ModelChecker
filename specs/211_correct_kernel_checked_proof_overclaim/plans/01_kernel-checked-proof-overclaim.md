@@ -222,34 +222,41 @@ deleting.
 
 ---
 
-### Phase 3: Correct TRUST_PIPELINE.md's stale S4 deferral [NOT STARTED]
+### Phase 3: Correct TRUST_PIPELINE.md's stale S4 deferral [COMPLETED]
 
 **Goal**: `TRUST_PIPELINE.md` stops claiming the Lean-side truth-preservation theorem is absent
 and unattempted, and points a reader at the real remaining work (this repository consuming the
 upstream fixture) instead.
 
 **Tasks**:
-- [ ] Re-verify upstream before restating: in `~/Projects/BimodalLogic`, confirm
+- [x] Re-verify upstream before restating: in `~/Projects/BimodalLogic`, confirm
       `FormalSystem/SourceLanguage/SentenceTruth.lean` contains `theorem sat_iff`, that
       `grep -n sorry` over that file is empty, that `Tests/fixtures/sentence-translation-fixtures.jsonl`
       exists, and that `lakefile.toml` declares the `translate_sentence` executable. (All four
-      confirmed at plan time; re-confirm rather than inherit.)
-- [ ] Rewrite the "What remains" opening paragraph (currently ~lines 286-292): drop "explicitly
+      confirmed at plan time; re-confirm rather than inherit.) *(completed: all four re-confirmed)*
+- [x] Rewrite the "What remains" opening paragraph (currently ~lines 286-292): drop "explicitly
       deferred (its counterpart is confirmed absent from the local `BimodalLogic` checkout)" and
       state that the Lean-side half landed upstream, citing `SentenceTruth.lean`'s `sat_iff`.
-- [ ] Rewrite the "Lean-side translation with a truth-preservation theorem" table row under "In the
+      *(completed)*
+- [x] Rewrite the "Lean-side translation with a truth-preservation theorem" table row under "In the
       Lean development" (currently ~line 313): change "deferred, not attempted from this
       repository" to a landed-upstream statement naming the fixture path
       (`Tests/fixtures/sentence-translation-fixtures.jsonl`) as the consumption channel, and say
       that what remains **here** is diffing this repository's own translation against it.
-- [ ] Preserve the distinction explicitly: the upstream theorem certifies BimodalLogic's own
+      *(completed)*
+- [x] Preserve the distinction explicitly: the upstream theorem certifies BimodalLogic's own
       reference translation, not this repository's implementation, and does not relieve this
       repository of its own verification obligation (mirroring `SentenceTruth.lean`'s docstring).
-- [ ] Consider whether the row still belongs under "In the Lean development" at all now that the
+      *(completed)*
+- [x] Consider whether the row still belongs under "In the Lean development" at all now that the
       Lean work is done; if it is moved or re-homed under "In this repository", say plainly that
       the remaining work is wiring, and reference the open sentence-translation conformance work
-      rather than describing it as unattempted.
-- [ ] Commit (`task 211 phase 3: ...`), staging `docs/TRUST_PIPELINE.md` by explicit path only.
+      rather than describing it as unattempted. *(completed: kept the landed-theorem row under
+      "In the Lean development", marked (done), and added a new "Consume the upstream
+      sentence-translation fixture (open)" row under "In this repository" naming the remaining
+      wiring work)*
+- [x] Commit (`task 211 phase 3: ...`), staging `docs/TRUST_PIPELINE.md` by explicit path only.
+      *(completed)*
 
 **Timing**: 0.5 hours
 
