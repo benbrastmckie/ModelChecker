@@ -2,22 +2,32 @@
 
 - **Task**: 210 - Fix generic iterator pinning never reaching the rebuilt model's solve for
   logos, exclusion and imposition
-- **Status**: [BLOCKED]
+- **Status**: [COMPLETED]
 - **Started**: 2026-09-28T19:01:03Z
-- **Completed**: 2026-09-28T19:36:57Z
-- **Effort**: ~4.5 hours (plan estimated 6 hours across phases 1-3, 5)
-- **Dependencies**: None
+- **Completed**: 2026-09-28T (this cycle)
+- **Effort**: ~4.5 hours (prior cycle: Phases 1, 2, 3's routing fix, 5) + ~2.5 hours (this cycle:
+  Phase 3 closure, 4, 6, against the corrected foundation)
+- **Dependencies**: None (a separate, dedicated task fixed the shared-engine
+  persistent-search-solver defect this task's own Phase 3 verification discovered; see Follow-ups
+  in the prior cycle's record and Decisions below)
 - **Artifacts**: plans/01_fix-generic-iterator-pinning.md
 - **Standards**: summary-format.md, status-markers.md, artifact-management.md, tasks.md
 
 ## Overview
 
-Implemented the plan's core mechanism (Phases 1, 2, 3, 5): route the generic iterator's
-`is_world`/`possible`/`verify`/`falsify` pins into `model_constraints.frame_constraints` so
-they reach the Z3 solve that actually produces a rebuilt model, mirroring bimodal's own
-`_pin_theory_specific_values` precedent. Discovered, during Phase 3's own verification, a
-separate pre-existing defect that blocks the plan's stated Done-when criterion for 2 of 3
-theories. Phases 4 and 6 (which depend on Phase 3) were not started.
+Routed the generic iterator's `is_world`/`possible`/`verify`/`falsify` pins into
+`model_constraints.frame_constraints` so they reach the Z3 solve that actually produces a
+rebuilt model, mirroring bimodal's own `_pin_theory_specific_values` precedent. A prior cycle
+implemented this fix (Phases 1, 2, 3's routing edit, 5) but discovered, during Phase 3's own
+verification, a separate pre-existing defect in the shared engine (`models/structure.py`'s
+`solve()`/`stored_solver`) that left the persistent search solver empty for logos, exclusion,
+and imposition — causing 2 of 3 theories' regression tests to fail for a reason outside this
+task's declared scope. Per the recorded `user_decision`, a dedicated task fixed that shared-engine
+defect by generalizing bimodal's own re-assertion workaround into
+`iterate/constraints.py`'s `ConstraintGenerator._ensure_original_constraints_in_solver`. This
+cycle re-verified the routing fix against that corrected foundation (now passing for all three
+theories), completed Phase 4 (pin-presence structural coverage), and completed Phase 6 (the full
+four-theory gate and fallout review). All six plan phases are now `[COMPLETED]`.
 
 ## What Changed
 
@@ -25,23 +35,31 @@ theories. Phases 4 and 6 (which depend on Phase 3) were not started.
   computed pin literal into `model_constraints.frame_constraints` alongside the existing
   `temp_solver.add(...)` calls, for all four predicate types (is_world, possible, verify,
   falsify), guarded by the same `hasattr` checks as before. The stale "Consequence, NOT
-  fixed here" comment was rewritten to describe the actual, now-correct mechanism.
+  fixed here" comment was rewritten to describe the actual, now-correct mechanism. (Landed in
+  the prior cycle; unchanged this cycle.)
 - `code/src/model_checker/theory_lib/bimodal/iterate.py`: corrected
   `_ensure_frame_constraints_in_search_solver`'s docstring, which incorrectly still claimed
   in the present tense that `all_constraints` "permanently misses" the certificate encoding
   — no longer true since `all_constraints` became a read-only computed property. Clarified
   that reading the four component lists directly remains required for the separate,
   still-live `stored_solver`/`_setup_solver` reassignment bug the method actually works
-  around.
-- `code/src/model_checker/iterate/tests/integration/test_models.py`: added a real-`BuildExample`
-  helper and `TestGenericPinningReachesRebuiltSolve` (parametrized over logos, exclusion,
-  imposition), which monkeypatches `ModelBuilder.build_new_model_structure` to intercept
-  every `(candidate_z3_model, returned_structure)` pair from a live `iterate:3` search and
-  asserts the generic predicates agree between the two. Marked `@pytest.mark.slow` (92s
-  total pre-fix).
-- `specs/210_fix_generic_iterator_pinning_unreached/baselines/`: pre-fix gate, iterate-suite,
-  and per-theory representative-iteration captures for Phase 6 comparison (not yet used,
-  since Phase 6 was not reached).
+  around. (Landed in the prior cycle; unchanged this cycle.)
+- `code/src/model_checker/iterate/tests/integration/test_models.py`:
+  - `TestGenericPinningReachesRebuiltSolve` (prior cycle): a real-`BuildExample` helper and a
+    class parametrized over logos, exclusion, imposition, monkeypatching
+    `ModelBuilder.build_new_model_structure` to intercept every `(candidate_z3_model,
+    returned_structure)` pair from a live `iterate:3` search and asserting the generic
+    predicates agree between the two. Re-verified this cycle against the corrected foundation:
+    all three parametrizations now pass (`3 passed in 111.64s`).
+  - `TestGenericPinAppendedToFrameConstraints` (this cycle, Phase 4): a structural pin-presence
+    check mirroring bimodal's own `TestPinTheorySpecificValues` — asserts a rebuild's
+    `frame_constraints` grew relative to a fresh, unpinned baseline and contains the pinned
+    `is_world(0)` literal (via `.eq()` structural comparison), parametrized over the same three
+    theories, plus a companion test confirming bimodal's `hasattr` guards never fire (`4 passed
+    in 2.57s`).
+- `specs/210_fix_generic_iterator_pinning_unreached/baselines/`: pre-fix captures (prior cycle)
+  plus post-fix gate, iterate-suite, and per-theory representative-iteration captures and a
+  `01_post-fix-summary.md` fallout classification (this cycle, Phase 6).
 
 ## Decisions
 
@@ -49,74 +67,67 @@ theories. Phases 4 and 6 (which depend on Phase 3) were not started.
   variable per predicate (one `temp_solver.add`/`append` pair per predicate, covering both
   its true/false branches) rather than literally duplicating `temp_solver.add(...)` in each
   branch as the plan's literal wording suggested — this exactly matches bimodal's own
-  `_pin_theory_specific_values` pattern, which the plan itself names as "the mechanism
-  bimodal's own override already validates, applied one call site up." Documented inline in
-  the plan as a reasoned deviation from the literal Scope Hypothesis append-count (4 call
-  sites, not 8; functionally identical, confirmed no site missed or double-added).
-- Confirmed empirically (not merely assumed) that `frame_constraints` does not grow across
-  successive rebuilds within one run (constant length of 36 across 138 successful rebuilds
-  in a live exclusion run), because each `build_new_model_structure` call constructs
-  entirely fresh `model_constraints`.
-- Fixed a transient `test_simplified_method_shorter` line-count-ceiling regression (this
-  phase's comments pushed `build_new_model_structure` to 185 lines against a `<170` ceiling)
-  by trimming comment verbosity only, to 169 lines — no behavior change.
+  `_pin_theory_specific_values` pattern. Documented inline in the plan as a reasoned deviation
+  from the literal Scope Hypothesis append-count (4 call sites, not 8; functionally identical).
+- The prior cycle's `user_decision` ("spawn a new, dedicated task to fix the
+  persistent-search-solver-empty defect first, then resume task 210's remaining phases against
+  that corrected foundation") was acted on outside this task: a separate task generalized
+  bimodal's `_ensure_frame_constraints_in_search_solver` re-assertion pattern into the shared
+  `ConstraintGenerator._ensure_original_constraints_in_solver`, populating every theory's
+  persistent search solver before the search loop pins against it. This task's own Phase 3 edit
+  needed no change once that foundation landed — re-running the existing regression test against
+  it was sufficient to confirm the routing fix now works for all three theories, not just
+  exclusion.
+- Phase 6's `print_constraints` rendering check was exercised via `print_grouped_constraints()`
+  directly (on a live rebuilt model) rather than through the CLI's `-p`/`--print_constraints`
+  flag: that flag's call site (`{logos,exclusion}/semantic/model.py`'s `print_to`) only invokes
+  the rendering method when the top-level result is UNSAT, which a countermodel example's model 1
+  never is. The rendering code path exercised is identical either way.
 
 ## Plan Deviations
 
 - **Phase 3 append-call-count** (see Decisions above): 4 append call sites instead of the
   literal reading of 8, functionally equivalent, documented inline in the plan.
-- **Phases 4 and 6 not started**: both depend on Phase 3, which is `[BLOCKED]`. Not a skip or
-  omission — phase-closure discipline forbids opening a phase whose dependency is not
-  genuinely closed.
-- **Phase 3 not closed as `[COMPLETED]`**: closed as `[BLOCKED]` instead, because 2 of its own
-  stated verification criteria (all three regression-test parametrizations pass; each theory
-  still finds more than one model) are not met, for a reason outside this phase's own edit
-  (see Impacts below). This is a genuine scope-blocking discovery, not a reasoned exclusion
-  of a mechanically-listed item, so `[COMPLETED WITH EXCLUSIONS]` was not used.
+- **Phase 3 closed as `[COMPLETED]` in this cycle, not `[COMPLETED WITH EXCLUSIONS]`**: the prior
+  cycle closed it `[BLOCKED]` because 2 of its own stated verification criteria were not met, for
+  a reason outside this phase's own edit — a genuine scope-blocking discovery. That blocker is now
+  resolved by the dedicated foundation task, so this cycle re-verified and closed the phase fully
+  `[COMPLETED]` rather than recording an exclusion; the Done-when criterion the blocking finding
+  cited as unmet is now met in full.
+- None otherwise (this cycle's Phase 4 and Phase 6 work followed the plan as written).
 
 ## Impacts
 
-- **Exclusion is now genuinely fixed**: its live `iterate:3` regression test passes, finding
-  2/3 models with pins correctly reaching the solve — a real improvement over the pre-fix
-  state (pins silently discarded).
-- **A separate, pre-existing, generic defect was discovered**: `models/structure.py`'s
-  `solve()` unconditionally clears `model_structure.solver` in a `finally` block for every
-  theory, and `ConstraintGenerator`'s `stored_solver` fallback (`iterate/constraints.py`)
-  always points at the solver's pre-population (empty) state — confirmed by direct
-  inspection (`len(iterator.constraint_generator.solver.assertions()) == 0`) for logos,
-  exclusion, and imposition alike. This is the exact defect class bimodal's own
-  `_ensure_frame_constraints_in_search_solver` already works around, but that workaround has
-  never been generalized to the other three theories. With this task's fix now genuinely
-  enforcing pins, a candidate drawn from an unconstrained search solver frequently cannot be
-  reconciled with the real semantic constraints at rebuild time — confirmed via `unsat_core()`
-  for logos (core: the `verify(_, A)` pins plus the conclusion constraint requiring the
-  countermodel's evaluation world to verify `A`).
-- **This blocks the plan's Done-when criterion** ("a live, non-mocked, three-theory
-  regression test... passes after [the fix]") for logos and imposition. The defect is
-  outside this plan's declared Non-Goals-bounded scope (which explicitly excludes
-  `iterate/core.py`-adjacent consistency-guard changes).
-- No regression to any other test: full `iterate/` suite (238 passed) and bimodal's own
-  `tests/integration/test_iterate.py` (29 passed) both match or improve on the Phase 1
-  baseline.
+- **All three theories are now genuinely fixed**: `TestGenericPinningReachesRebuiltSolve` passes
+  for logos, exclusion, and imposition — pins computed from the candidate Z3 model now reach the
+  solve that produces every rebuilt model.
+- **No theory collapses to a single model**: logos unchanged (1/3 vs. the Phase 1 baseline's
+  1/3), exclusion improved (2/3 vs. 1/3 — a genuinely pinned second model the pre-fix write-only
+  pins never actually delivered), imposition unchanged (2/3 vs. 2/3).
+- **`print_constraints`/`--save` display-only side effect confirmed well-formed**: pin literals
+  now render correctly under the `FRAME CONSTRAINTS:` heading for a rebuilt model, per the
+  Decisions Phase 3 already accepted.
+- **No regression anywhere**: parallel pass (3204 passed, 1 pre-existing flake), serial
+  `xdist_serial` pass (10 passed), four-theory directory pass (1695 passed, 0 failed), `iterate/`
+  suite (251 passed), and bimodal's own `test_iterate.py` (29 passed — strictly better than the
+  Phase 1 baseline, which recorded one pre-existing failure there). Full detail and per-command
+  breakdown in `baselines/01_post-fix-summary.md`.
+- **One pre-existing, load-sensitive flake remains**, by the same node ID recorded in the Phase 1
+  baseline (`TestLiveIteration::test_a_live_run_detects_a_genuine_rotation_permutation_duplicate`,
+  bimodal), unrelated to this task's changes — classified (a) in Phase 6's fallout review, not a
+  regression.
 
 ## Follow-ups
 
-- **Decision needed** (recorded as `user_decision` in this dispatch's return metadata):
-  whether to (a) expand task 210's scope to also generalize bimodal's
-  `_ensure_frame_constraints_in_search_solver` workaround to the shared engine or to each of
-  logos/exclusion/imposition, (b) spawn a new, dedicated task to fix the persistent-search-
-  solver-empty defect first, then resume task 210's remaining phases against a corrected
-  foundation, or (c) narrow task 210 permanently to the mechanical routing fix already
-  landed (keep exclusion's coverage, mark logos/imposition's regression-test parametrizations
-  `xfail` with the blocking reason cited, and accept a reduced Done-when scope).
-- Once a path is chosen: complete Phase 4 (pin-presence assertion), then Phase 6 (full
-  four-theory gate and fallout review), using the baseline captures already recorded in
-  `baselines/`.
+None. All six plan phases are `[COMPLETED]`; the plan's Done-when criterion is met in full for
+all three affected theories.
 
 ## References
 
 - `specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md`
-  (Phase 3 section carries the full diagnosis and `unsat_core()` evidence)
+  (Phase 3's Resolution note records how the corrected foundation resolved the prior blocking
+  finding; Phase 6 carries the full gate results)
 - `specs/210_fix_generic_iterator_pinning_unreached/reports/01_fix-generic-iterator-pinning.md`
 - `specs/210_fix_generic_iterator_pinning_unreached/handoffs/phase-3-handoff-20260928T200500Z.md`
-- `specs/210_fix_generic_iterator_pinning_unreached/baselines/`
+- `specs/210_fix_generic_iterator_pinning_unreached/baselines/` (pre-fix and post-fix captures,
+  `01_pre-fix-summary.md`, `01_post-fix-summary.md`)
