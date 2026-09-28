@@ -11,8 +11,8 @@ next_project_number: 209
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,205,207,208 | -- | architecture, semantics, test-reliability |
-| 2 | 199,206 | 198,207 | documentation, testing |
+| 1 | 198,200,205,206,208 | -- | architecture, testing, semantics, ... |
+| 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -23,7 +23,6 @@ next_project_number: 209
 ### Architecture
 
 205 [NOT STARTED] — Decide and stage how a reported countermodel becomes...
-207 [IMPLEMENTING] — Fix ModelConstraints.allconstraints being a stale eager...
 
 ### Testing
 
@@ -61,7 +60,7 @@ CONSTRAINTS. Do not simply raise the timeout to make a 320-second test fit -- th
 ---
 
 ### 207. Fix stale all constraints snapshot
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: z3
 - **Topic**: architecture
 - **Dependencies**: None

@@ -1,17 +1,24 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 5,
-  "summary": "Authored a 6-phase implementation plan: convert ModelConstraints.all_constraints from an eager construction-time snapshot to a read-only computed property, migrate the single production write site (iterate/models.py:152) and the three inject_z3_model_values append sites that the property would silently turn into no-ops, delegate the test tree's full_constraints() to the property, and verify under CI's own two-invocation gate plus the bimodal suite against a recorded pre-fix baseline. Research finding F4 (generic iterator pinning never reaching the rebuilt structure's real solve for logos/exclusion/imposition) is explicitly out of scope and recorded for a follow-up task.",
+  "status": "implemented",
+  "dispatch_seq": 8,
+  "phase": "implement",
+  "summary": "Converted ModelConstraints.all_constraints to a read-only computed property, migrated the one production write site and three silent-no-op append sites, delegated the test tree's full_constraints() workaround to it, and verified cross-theory safety under CI's own gate shape -- all six plan phases COMPLETED with zero regressions.",
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/207_fix_stale_all_constraints_snapshot/plans/01_fix-stale-all-constraints.md",
-      "summary": "6-phase plan: all_constraints becomes a read-only computed property; write site and three append sites migrated; CI-shape cross-theory gate; F4 out of scope."
+      "summary": "6-phase plan; all phases [COMPLETED]."
+    },
+    {
+      "type": "summary",
+      "path": "specs/207_fix_stale_all_constraints_snapshot/summaries/01_fix-stale-all-constraints-summary.md",
+      "summary": "Implementation summary with F4 follow-up record for a separate task."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 6,
   "phases_total": 6,
   "blockers": [],
-  "next_action_hint": "Run /implement 207 to execute the plan"
+  "plan_markers_verified": true,
+  "continuation_path": null,
+  "next_action_hint": "Task 207 implementation is complete. Consider spawning a follow-up task for F4 (generic iterator pinning never reaching the rebuilt structure's real solve for logos/exclusion/imposition) -- see the summary's Follow-ups section for evidence and scope."
 }
