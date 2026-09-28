@@ -1,9 +1,42 @@
 {
-  "status": "in_progress",
+  "status": "implemented",
+  "dispatch_seq": 6,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/214_apply_upstream_citation_corrections/summaries/01_apply-citation-corrections-summary.md",
+      "summary": "Implementation summary recording all six phases, the D1 scope decision, and the three residue-row outcomes for the upstream citation corrections applied to bimodal/docs/ADEQUACY.md and ARCHITECTURE.md."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Applied all four dispatched upstream citation corrections plus the second stale-citation cluster, the wrong-file citation, and the three handed-off residue rows to code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md and ARCHITECTURE.md by mechanical lookup against BimodalLogic's generated citation manifest. All six plan phases completed; no source, test, or gate file was touched, and BimodalLogic remained read-only throughout."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When a cross-repository hand-off provides a generated, gate-checked citation manifest (name -> file/line lookup) as the input for correcting stale line-number citations, verify completion by grepping for the exact retired strings (old declaration names, deleted file paths, deleted attributions) rather than by pattern-matching line-number prefixes -- corrected values can share a leading digit with stale ones (e.g. both start with '2'), making a naive '<file>:2' grep unable to distinguish fixed from broken. Name-first resolution (check numbers against names, never the reverse) is the reliable completion gate.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/214_apply_upstream_citation_corrections/summaries/01_apply-citation-corrections-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["citation-verification", "manifest-lookup", "stale-citation", "grep-completion-gate", "cross-repository-handoff"]
+    },
+    {
+      "content": "A producing repository can hand off documentation corrections to a consuming repository via a read-only 'corrections the consuming table owes' page plus a generated, checked manifest, keyed by declaration name rather than line number. The consuming side applies corrections by mechanical name-based lookup against the manifest -- never re-deriving line numbers by hand -- and treats the manifest as authoritative over any prior research report's numbers, since the producing tree can move between research and implementation.",
+      "category": "PATTERN",
+      "source_artifact": "specs/214_apply_upstream_citation_corrections/summaries/01_apply-citation-corrections-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["cross-repository-handoff", "citation-manifest", "documentation-sync", "mechanical-lookup", "name-based-resolution"]
+    }
+  ],
   "metadata": {
     "session_id": "sess_1790619552_cbba66",
     "agent_type": "general-implementation-agent",
-    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"]
-  },
-  "dispatch_seq": 6
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  }
 }

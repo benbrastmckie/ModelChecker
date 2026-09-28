@@ -1,28 +1,16 @@
 {
-  "status": "planned",
-  "task_number": 214,
-  "phase": "plan",
-  "dispatch_seq": 4,
-  "session_id": "sess_1790619552_cbba66_214",
-  "phases_completed": 0,
-  "phases_total": 6,
+  "status": "implemented",
+  "dispatch_seq": 6,
+  "phase": "implement",
+  "summary": "Applied all four dispatched upstream citation corrections, the second stale-citation cluster, the wrong-file citation, and the three handed-off residue rows to bimodal/docs/ADEQUACY.md and ARCHITECTURE.md by mechanical manifest lookup. All six plan phases completed; no source, test, or gate file touched.",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/214_apply_upstream_citation_corrections/plans/01_apply-citation-corrections.md",
-      "summary": "Six-phase documentation-only plan applying the four dispatched upstream citation corrections plus the three handed-off residue rows to bimodal/docs/ADEQUACY.md and ARCHITECTURE.md by mechanical manifest lookup."
+      "type": "summary",
+      "path": "specs/214_apply_upstream_citation_corrections/summaries/01_apply-citation-corrections-summary.md",
+      "summary": "Implementation summary recording all six phases, the D1 scope decision, and the three residue-row outcomes."
     }
   ],
-  "user_decision": {
-    "question": "Research found a second stale-citation cluster (six ShiftSet citations plus a wrong-file Truth.box_const citation) sitting inside the very same ADEQUACY.md/ARCHITECTURE.md table rows this task already edits; it comes from the same upstream corrections table but was not among the dispatch's enumerated 'FOUR ROWS TO APPLY'. Should it be fixed in this task or deferred?",
-    "options": [
-      "Fix it now in this task (Phase 2 and Phase 4 carry it as separate, severable checklist items)",
-      "Defer it to a follow-up task and leave those citations stale for now"
-    ],
-    "recommended": "Fix it now in this task (Phase 2 and Phase 4 carry it as separate, severable checklist items)",
-    "blocking": false
-  },
-  "summary": "Authored a six-phase, documentation-only implementation plan applying the four dispatched upstream citation corrections plus the three handed-off residue rows to bimodal/docs/ADEQUACY.md and ARCHITECTURE.md by mechanical lookup against BimodalLogic's lean-citation-manifest.json. Research surfaced extra correction sites the dispatch did not name and a second stale-citation cluster in the same table rows; the plan scopes both in explicitly and surfaces the scope ruling as a non-blocking user_decision.",
-  "blockers": [],
-  "next_action_hint": "Run /implement 214; Phase 1 must re-resolve every declaration name against a fresh manifest read before any edit."
+  "phases_completed": 6,
+  "phases_total": 6,
+  "blockers": []
 }
