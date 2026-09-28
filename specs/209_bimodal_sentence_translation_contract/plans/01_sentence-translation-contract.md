@@ -354,45 +354,45 @@ risk was already discharged by Phase 2's `full` tier.
 
 ---
 
-### Phase 4: Wire the translation conformance channel (fixture-only leg) [NOT STARTED]
+### Phase 4: Wire the translation conformance channel (fixture-only leg) [COMPLETED]
 
 **Goal**: Assert, for every fixture row, that this repository's own operator elimination and
 translation produce the same formula the Lean side's `tr` produces — compared as parsed JSON.
 
 **Tasks**:
-- [ ] Create
+- [x] Create
       `code/src/model_checker/theory_lib/bimodal/tests/integration/test_sentence_translation_agreement.py`
       (name confirmed free), beside the existing integration modules.
-- [ ] Resolve the fixture via `_lean_check.resolve_bimodal_logic_path()` and read
+- [x] Resolve the fixture via `_lean_check.resolve_bimodal_logic_path()` and read
       `Tests/fixtures/sentence-translation-fixtures.jsonl` live from the resolved checkout — never
       a copy mirrored into this repository. Use a **distinct, named skip reason for checkout
       absence only**; do not reuse `SKIP_REASON`, which additionally requires `lake` and a
       `check_certificate` probe this leg does not need.
-- [ ] Write a renderer from a fixture row's structured `sentence` AST to this repository's infix
+- [x] Write a renderer from a fixture row's structured `sentence` AST to this repository's infix
       syntax. Drive it from the `sentence` field, **not** the `surface` field, which is
       Polish/prefix notation that `Syntax` does not parse.
-- [ ] Map each tag to its operator surface name: `allFut`->`\Future`, `allPast`->`\Past`,
+- [x] Map each tag to its operator surface name: `allFut`->`\Future`, `allPast`->`\Past`,
       `untl`->`\Until`, `snce`->`\Since`, `cond`->`\rightarrow`, `bicond`->`\leftrightarrow`,
       `dia`->`\Diamond`, `someFut`->`\future`, `somePast`->`\past`, `next`->`\next`,
       `prev`->`\prev`, and the remaining tags to their like-named operators.
-- [ ] Fail loudly on any unknown tag rather than skipping the row — an unmapped tag means the
+- [x] Fail loudly on any unknown tag rather than skipping the row — an unmapped tag means the
       fixture grew a constructor this channel does not cover, which is exactly what to find out.
-- [ ] For each row: build the sentence through the real `Syntax` pipeline (reusing
+- [x] For each row: build the sentence through the real `Syntax` pipeline (reusing
       `test_formula.py`'s `_sentence` idiom), call `translate`, call `to_json`, and assert **dict
       equality** against the row's `formula` field. Never compare serialized strings — the Lean
       side prints `untl` with `event` before `guard` and `to_json` emits them the other way round.
-- [ ] Assert the fixture row count and that every `kind` value (`primitive`, `defined`,
+- [x] Assert the fixture row count and that every `kind` value (`primitive`, `defined`,
       `asymmetry`, `nesting`) is represented, so a truncated or partially-read fixture fails
       instead of passing vacuously. Resolve the expected count by reading the fixture at
       implementation time.
-- [ ] Add explicit, individually named assertions for the two operators that are wrong when written
+- [x] Add explicit, individually named assertions for the two operators that are wrong when written
       the obvious way: `\rightarrow p q` must equal the disjunction-of-a-negation shape and **not**
       a bare `imp(p, q)`; `\future p` must equal the negated-universal shape and **not** a bare
       `untl`/`someFuture` primitive.
-- [ ] Add a module docstring recording that the channel is **forward-only** (`tr` is not injective,
+- [x] Add a module docstring recording that the channel is **forward-only** (`tr` is not injective,
       so no inverse pass is checkable) and that comparison is on parsed JSON by contract, not by
       convenience.
-- [ ] Run the new module.
+- [x] Run the new module.
 
 **Timing**: 1.75 hours
 
@@ -403,20 +403,34 @@ translation produce the same formula the Lean side's `tr` produces — compared 
 Rationale: a single new test module; it adds no production code and changes no signature.
 
 **Scope Hypothesis**: the fixture is expected to carry 26 rows across 18 distinct sentence tags,
-each with a 1:1 operator counterpart here. **Confirm at implementation time** by reading the
-fixture rather than trusting this plan: the row-count assertion is the mechanical form of that
-confirmation, and the unknown-tag failure is the mechanical form of the 1:1 claim's confirmation.
+each with a 1:1 operator counterpart here. **Confirmed at implementation time** by reading the
+live fixture rather than trusting this plan: `wc -l` and a direct tag-collection script both
+confirm exactly 26 rows and exactly 18 distinct `sentence`-field tags (`atom`, `bot`, `top`,
+`neg`, `wedge`, `vee`, `box`, `allFut`, `allPast`, `untl`, `snce`, `cond`, `bicond`, `dia`,
+`someFut`, `somePast`, `next`, `prev`), each with exactly the 1:1 operator counterpart this
+module's `_TAG_TO_OPERATOR` table names. The row-count assertion
+(`TestFixtureIntegrity::test_row_count_matches_expected`) and the unknown-tag failure
+(`TestUnknownTagFailsLoudly`) are the corresponding mechanical, standing forms of this
+confirmation.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/tests/integration/test_sentence_translation_agreement.py`
   (new).
 
 **Verification**:
-- Every fixture row passes as dict equality against its `formula` field.
-- The row-count and `kind`-coverage assertions pass.
-- The two flagged-operator assertions pass in their non-obvious shapes.
+- Every fixture row passes as dict equality against its `formula` field. **Confirmed**: all 26
+  parametrized `test_translation_matches_fixture_formula` cases pass.
+- The row-count and `kind`-coverage assertions pass. **Confirmed**:
+  `TestFixtureIntegrity::test_row_count_matches_expected` and `test_every_kind_is_represented`
+  both pass (26 rows, kinds `{primitive, defined, asymmetry, nesting}`).
+- The two flagged-operator assertions pass in their non-obvious shapes. **Confirmed**:
+  `TestFlaggedOperatorsAreNotTheObviousShape`'s two tests pass, each asserting both the correct
+  non-obvious shape and inequality against the obvious-but-wrong guess. Full module run:
+  **31 passed** (26 fixture rows + 2 integrity + 2 flagged-operator + 1 unknown-tag).
 - With `BIMODAL_LOGIC_PATH` pointed at a nonexistent directory, the module skips with the named
-  checkout-absence reason rather than erroring.
+  checkout-absence reason rather than erroring. **Confirmed**:
+  `BIMODAL_LOGIC_PATH=/nonexistent/path pytest ...` -> **6 skipped**, all carrying
+  `_CHECKOUT_ABSENT_SKIP_REASON`'s text, zero errors.
 
 ---
 
