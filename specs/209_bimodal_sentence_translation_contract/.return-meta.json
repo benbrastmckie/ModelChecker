@@ -1,15 +1,39 @@
 {
-  "status": "in_progress",
-  "started_at": "2026-09-28T07:09:00Z",
-  "artifacts": [],
-  "partial_progress": {
-    "stage": "initializing",
-    "details": "Dispatch 5: reading dispatch file and plan, starting Phase 1 (verify already-landed items and establish green baseline)"
+  "status": "implemented",
+  "dispatch_seq": 5,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/209_bimodal_sentence_translation_contract/summaries/01_sentence-translation-contract-summary.md",
+      "summary": "All 6 phases completed: fixed the \\top extremal-operator defect in Sentence.update_types, wired the sentence-translation conformance channel against BimodalLogic's fixture (fixture-only leg plus optional live differential leg), verified items 1/2/4 already landed, confirmed item 3's negative result, and recorded a reasoned exclusion for the BIMODAL_LOGIC_COMMIT pin refresh (a concurrent sibling task retired that constant during this task's own Phase 1)."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Fixed the \\top extremal-operator defect in Sentence.update_types (shape-keyed dispatch instead of name-keyed), removed the now-obsolete \\top exclusion from the box test corpus, and wired a new sentence-translation conformance channel (fixture-only plus optional live-binary differential leg) against BimodalLogic's 26-row fixture. Verified items 1/2/4 already landed and item 3's negative result stands. Full repository test suite: 3325 passed, 5 skipped, 0 failed (baseline 3279 passed plus 46 new tests, zero regressions)."
   },
+  "modified_files": [
+    "code/src/model_checker/syntactic/sentence.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_formula.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_sentence_translation_agreement.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+    "specs/209_bimodal_sentence_translation_contract/plans/01_sentence-translation-contract.md",
+    "specs/209_bimodal_sentence_translation_contract/summaries/01_sentence-translation-contract-summary.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When a plan's later phase targets a specific named constant/site for a mechanical edit (e.g. 'refresh BIMODAL_LOGIC_COMMIT'), re-probe that the site still exists immediately before editing even if an earlier phase already re-read the file -- a concurrent sibling task can land a change (including deleting the exact target) between phases of the same dispatch. Treat the pre-edit-gate contract's 'probe before edit' as applying per-edit, not per-phase-open.",
+      "category": "PATTERN",
+      "source_artifact": "specs/209_bimodal_sentence_translation_contract/plans/01_sentence-translation-contract.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["pre-edit-gate", "concurrent-siblings", "reasoned-exclusion", "territory"]
+    }
+  ],
   "metadata": {
     "session_id": "sess_1790578867_05c8df",
     "agent_type": "python-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"]
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
   }
 }

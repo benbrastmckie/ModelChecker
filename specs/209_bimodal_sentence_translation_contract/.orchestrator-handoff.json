@@ -1,20 +1,27 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "task_number": 209,
-  "session_id": "sess_1790578867_05c8df_209",
-  "dispatch_seq": 3,
-  "phases_completed": 0,
+  "session_id": "sess_1790578867_05c8df",
+  "dispatch_seq": 5,
+  "phase": "implement",
+  "phases_completed": 6,
   "phases_total": 6,
-  "summary": "Authored a 6-phase, 5-wave implementation plan adopting the upstream BimodalLogic plan (task 686) per the dispatch: verify-only pass over the three already-landed contract items, shape-keyed fix of the extremal-operator branch in Sentence.update_types (full-tier, blast radius bounded by a stated Scope Hypothesis), removal of the \\top exclusion from _BOX_TEST_CORPUS, a new fixture-based sentence-translation conformance module comparing parsed JSON, an optional live differential leg, and a pin refresh plus README update. Three adaptations for this repository: 'task 209:' commit messages instead of the upstream 'bimodal-contract:' placeholder, summary artifact relocated here, and no writes under /home/benjamin/Projects/BimodalLogic. Strict artifact validation passed with 0 warnings.",
+  "summary": "All 6 plan phases completed. Fixed the \\top extremal-operator defect in Sentence.update_types (shape-keyed dispatch, syntactic/sentence.py), removed the now-obsolete \\top exclusion from test_formula.py's box test corpus, and wired a new sentence-translation conformance channel (integration/test_sentence_translation_agreement.py: fixture-only leg plus optional live-binary differential leg) against BimodalLogic's 26-row fixture. Verified items 1/2/4 already landed and item 3's negative result stands. Full repository suite: 3325 passed, 5 skipped, 0 failed (baseline 3279 passed plus 46 new tests, zero regressions). One reasoned exclusion recorded: Phase 6's BIMODAL_LOGIC_COMMIT pin refresh was not applied because a concurrent sibling task (211) retired that constant during this task's own Phase 1, with its own gate requiring the constant stay absent -- recreating it would have undone a landed sibling decision.",
   "blockers": [],
   "sorry_inventory": [],
+  "plan_markers_verified": true,
   "continuation_path": null,
   "artifacts": [
     {
+      "type": "summary",
+      "path": "specs/209_bimodal_sentence_translation_contract/summaries/01_sentence-translation-contract-summary.md",
+      "summary": "Full implementation summary covering all six contract items, what changed, decisions, one plan deviation (reasoned exclusion), impacts, and follow-ups."
+    },
+    {
       "type": "plan",
       "path": "specs/209_bimodal_sentence_translation_contract/plans/01_sentence-translation-contract.md",
-      "summary": "6-phase, 5-wave implementation plan for the \\top update_types defect and the sentence-translation conformance channel."
+      "summary": "6-phase plan, all phases closed (5 COMPLETED, 1 COMPLETED WITH EXCLUSIONS), plan-level Status field updated to COMPLETED."
     }
   ],
-  "next_steps": "Run /implement 209 to execute the plan"
+  "next_steps": "Task complete. No further dispatch needed."
 }
