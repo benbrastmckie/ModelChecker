@@ -223,28 +223,28 @@ them in the summary instead of assuming the research count.
 
 ---
 
-### Phase 3: Delete the meta-test and its now-unused imports [NOT STARTED]
+### Phase 3: Delete the meta-test and its now-unused imports [COMPLETED]
 
 **Goal**: Remove `test_all_subtheory_tests_pass` and the `subprocess`/`sys` imports it alone
 required, and record at the deletion site why the test is gone.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py`
+- [x] Re-read `code/src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py`
       immediately before editing (concurrent siblings share this working tree).
-- [ ] Delete the whole `test_all_subtheory_tests_pass` method body from
+- [x] Delete the whole `test_all_subtheory_tests_pass` method body from
       `TestSubtheoryOrchestration` (the `subprocess.run` loop and its `pytest.fail` reporting).
-- [ ] `grep -n 'subprocess\|sys\.\|sys$' ` the file after deletion; remove `import subprocess`
+- [x] `grep -n 'subprocess\|sys\.\|sys$' ` the file after deletion; remove `import subprocess`
       and `import sys` only if the grep confirms no remaining use. Keep
       `from pathlib import Path` (used by `test_type_hint_coverage`).
-- [ ] Extend the module docstring with one or two sentences recording that each subtheory's own
+- [x] Extend the module docstring with one or two sentences recording that each subtheory's own
       `tests/` directory is collected directly by the repository-wide pytest selection
       (`code/pyproject.toml`'s `testpaths`), so a nested-`pytest` re-execution meta-test would
       duplicate that coverage with worse diagnostics and is deliberately absent. Do not cite any
       task number (see `.claude/rules/no-task-references-in-deliverables.md`); cite the durable
       anchors (`testpaths`, `test_no_operator_conflicts`, `test_dependency_resolution`).
-- [ ] Run the single file locally to confirm it imports and the surviving tests pass:
+- [x] Run the single file locally to confirm it imports and the surviving tests pass:
       from `code/`, `pytest src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py -q`.
-- [ ] Stage only this one file (explicit path, never a directory or glob `git add`) and commit
+- [x] Stage only this one file (explicit path, never a directory or glob `git add`) and commit
       with `task 208 phase 3: delete duplicate subtheory meta-test`, recording in the body that
       the removed assertion ("each subtheory's nested pytest invocation returns 0") is subsumed
       by direct collection of the same 418 tests.
