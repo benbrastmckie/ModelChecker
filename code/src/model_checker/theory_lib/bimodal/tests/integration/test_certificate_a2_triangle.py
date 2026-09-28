@@ -72,13 +72,16 @@ deliberately, not despite its cost).
 from __future__ import annotations
 
 import itertools
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 import pytest
 
 from model_checker.theory_lib.bimodal.semantic.certificate import (
     LabelledLasso,
     WitnessFamily,
+    _failed,
+    _recheck_family,
+    _target_holds,
     recheck,
 )
 from model_checker.theory_lib.bimodal.semantic.formula import Box, Formula
@@ -87,7 +90,7 @@ from model_checker.theory_lib.bimodal.tests._build_support import _build
 from model_checker.theory_lib.bimodal.tests._lean_check import SKIP_REASON, run_check_certificate
 from model_checker.theory_lib.bimodal.tests._pinned_eval import compile_and_bind
 
-Candidate = Tuple[WitnessFamily, int]
+FamilyWindow = Tuple[WitnessFamily, List[int]]
 SampledCandidate = Tuple[WitnessFamily, int, Dict[str, Any]]
 
 
@@ -99,9 +102,17 @@ def _subsets(items: List[Formula]) -> Iterator[frozenset]:
             yield frozenset(combo)
 
 
-def _candidates(structure: BimodalStructure) -> Iterator[Candidate]:
-    """Every `(WitnessFamily, target_time)` candidate over subsets of `structure`'s closure, at
-    the lengths `structure` was built with.
+def _families(structure: BimodalStructure) -> Iterator[FamilyWindow]:
+    """Every `WitnessFamily` over subsets of `structure`'s closure, at the lengths `structure`
+    was built with, paired with the full `target_window` -- one `(family, target_window)` per
+    family, not flattened to one `(family, target_time)` per candidate. This is the same
+    candidate space the previous flat `_candidates` generator enumerated (family-outer,
+    target-time-inner was already this generator's actual nesting; only the yield point moved),
+    now made an explicit, structural fact of the generator's own return type rather than a
+    reader having to infer it from loop nesting order -- so callers can compute a family's
+    target-time-independent work exactly once per family (implementation plan Phase 5), robust
+    against a future, unrelated change to this generator's iteration order (see that phase's own
+    rationale: a structural loop split, not an incidental memoization riding on generator shape).
 
     Reads the candidate space's shape from the live search object rather than re-deriving it,
     so this generator cannot silently drift from what the encoder actually built:
@@ -151,8 +162,33 @@ def _candidates(structure: BimodalStructure) -> Iterator[Candidate]:
                 for (back_labels, mid_labels, fwd_labels) in lasso_labels
             )
             family = WitnessFamily(bx=bx, lassos=lassos)
-            for t in target_window:
-                yield family, t
+            yield family, target_window
+
+
+def _recheck_verdict(
+    family_failure: Optional[Dict[str, object]],
+    family: WitnessFamily,
+    premises: List[Formula],
+    conclusions: List[Formula],
+    target_time: int,
+) -> Dict[str, object]:
+    """The full `recheck`-equivalent verdict for one `(family, target_time)` candidate, given
+    `family`'s already-computed `_recheck_family` result (`None` if (structural)+(C1)+(C2)+(C3)
+    all held). Exactly what `recheck(family, premises, conclusions, target_time)` would return
+    -- this is the (C4)-only remainder of that composition (Phase 3's own docstring), evaluated
+    per candidate; `family_failure` is looked up, not recomputed, since it does not depend on
+    `target_time`."""
+    if family_failure is not None:
+        return family_failure
+    if not _target_holds(family, premises, conclusions, target_time):
+        return _failed(
+            "target",
+            0,
+            target_time,
+            None,
+            "premises not all present, or a conclusion present, at the target position",
+        )
+    return {"status": "countermodel", "time": target_time}
 
 
 def _run_exhaustive_triangle(structure: BimodalStructure) -> Tuple[int, int, int]:
@@ -166,51 +202,59 @@ def _run_exhaustive_triangle(structure: BimodalStructure) -> Tuple[int, int, int
     `_assert_exhaustive_triangle_agrees` for how the two counts are additionally cross-checked
     once the enumeration completes.
 
+    **Structural amortization (implementation plan Phase 5).** `_families` yields one
+    `(family, target_window)` per family; for each family this computes `_recheck_family`'s
+    (structural)+(C1)+(C2)+(C3) verdict and the pinned evaluator's `base_row` exactly once, then
+    applies only (C4) and the cheap `sel_` overlay per `target_time` in the inner loop. Every
+    candidate is still individually counted and individually compared against the pinned
+    evaluator -- nothing is skipped, no stride is introduced; this changes only how much
+    target-time-independent work is repeated, never which candidates are checked or how.
+
     Returns `(total_candidates, accepted_candidates, pinned_accepted_candidates)`."""
     total = 0
     accepted = 0
     pinned_accepted = 0
     compiled, builder = compile_and_bind(structure)
-    for family, target_time in _candidates(structure):
-        total += 1
-        verdict = recheck(
-            family,
-            structure.semantics._premise_formulas,
-            structure.semantics._conclusion_formulas,
-            target_time,
-        )
-        recheck_accepts = verdict["status"] == "countermodel"
-        if recheck_accepts:
-            accepted += 1
+    premises = list(structure.semantics._premise_formulas)
+    conclusions = list(structure.semantics._conclusion_formulas)
+    for family, target_window in _families(structure):
+        family_failure, _closure = _recheck_family(family, premises, conclusions)
+        base_row = builder.base_row(family)
+        for target_time in target_window:
+            total += 1
+            verdict = _recheck_verdict(family_failure, family, premises, conclusions, target_time)
+            recheck_accepts = verdict["status"] == "countermodel"
+            if recheck_accepts:
+                accepted += 1
 
-        row = builder.assign(family, target_time)
-        pinned_accepts = compiled.evaluate_all(row)
-        if pinned_accepts:
-            pinned_accepted += 1
-
-        if pinned_accepts != recheck_accepts:
+            row = builder.apply_target(base_row, family, target_time)
+            pinned_accepts = compiled.evaluate_all(row)
             if pinned_accepts:
-                detail = (
-                    "the encoding's own emitted constraint set ACCEPTS this candidate but the "
-                    "pure-Python re-checker REJECTS it -- ADEQUACY.md section 7.3: an ENCODING "
-                    f"UNSOUNDNESS at the single-candidate level (recheck's failed entries: "
-                    f"{verdict.get('failed')!r})"
+                pinned_accepted += 1
+
+            if pinned_accepts != recheck_accepts:
+                if pinned_accepts:
+                    detail = (
+                        "the encoding's own emitted constraint set ACCEPTS this candidate but the "
+                        "pure-Python re-checker REJECTS it -- ADEQUACY.md section 7.3: an ENCODING "
+                        f"UNSOUNDNESS at the single-candidate level (recheck's failed entries: "
+                        f"{verdict.get('failed')!r})"
+                    )
+                else:
+                    first_false = compiled.first_false(row)
+                    offending = compiled.describe(first_false) if first_false is not None else "<none>"
+                    detail = (
+                        "the pure-Python re-checker ACCEPTS this candidate but the encoding's own "
+                        "emitted constraint set REJECTS it -- ADEQUACY.md section 7.3: an ENCODING "
+                        f"INCOMPLETENESS at the single-candidate level (first-failing constraint: "
+                        f"{offending})"
+                    )
+                raise AssertionError(
+                    f"A2-triangle PER-CANDIDATE disagreement at candidate #{total} "
+                    f"(family={family!r}, target_time={target_time!r}): {detail}. Report this as a "
+                    "finding -- do not weaken this assertion, drop the closure, or diagnose the "
+                    "encoder (out of scope)."
                 )
-            else:
-                first_false = compiled.first_false(row)
-                offending = compiled.describe(first_false) if first_false is not None else "<none>"
-                detail = (
-                    "the pure-Python re-checker ACCEPTS this candidate but the encoding's own "
-                    "emitted constraint set REJECTS it -- ADEQUACY.md section 7.3: an ENCODING "
-                    f"INCOMPLETENESS at the single-candidate level (first-failing constraint: "
-                    f"{offending})"
-                )
-            raise AssertionError(
-                f"A2-triangle PER-CANDIDATE disagreement at candidate #{total} "
-                f"(family={family!r}, target_time={target_time!r}): {detail}. Report this as a "
-                "finding -- do not weaken this assertion, drop the closure, or diagnose the "
-                "encoder (out of scope)."
-            )
 
     return total, accepted, pinned_accepted
 
@@ -220,7 +264,7 @@ def _expected_candidate_count(structure: BimodalStructure, closure_size: int) ->
     len(target_window)` (ADEQUACY section 7.3's Testing & Validation cross-check).
 
     `slots_per_lasso` (`nb+nm+nf`) is the number of independent label-choice slots each lasso
-    contributes -- one factor of `2**|C|` per slot, since `_candidates()` draws each of a
+    contributes -- one factor of `2**|C|` per slot, since `_families()` draws each of a
     lasso's `back`/`mid`/`fwd` positions independently from the same `2**|C|` labels. The
     identity `target_window_len == slots_per_lasso` holds because both equal `nb+nm+nf`
     (`target_window()` is `range(-nb, nm+nf)`, width `nb+nm+nf`) -- the previous literal `3`
@@ -449,49 +493,63 @@ def _sampled_candidates(
     in enumeration order) and up to `per_class` rejected candidates (a fixed stride over the
     rejected ones) from `structure`'s exhaustive enumeration.
 
-    Two passes over `_candidates`: the first counts how many candidates are rejected (needed to
+    Two passes over `_families`: the first counts how many candidates are rejected (needed to
     fix the stride before any candidate is chosen, so the choice does not depend on how many
     accepted candidates happened to come first); the second makes the actual selection. Each
     pass is exactly as cheap as one `TestExhaustiveTriangleWithBox` run (`recheck` alone, no
     Z3), so this doubles that closure's own enumeration cost, not the Lean cost -- the Lean
     subprocess invocations dominate this Tier's budget regardless.
 
+    **Structural amortization (implementation plan Phase 5), selection unchanged.** `_families`
+    groups by family, so each pass computes `_recheck_family`'s verdict once per family rather
+    than once per candidate -- exactly the same enumeration order the previous flat
+    `_candidates` generator produced (family-outer, target-time-inner was already that
+    generator's actual nesting), so the fixed enumeration order, the exact `total_rejected`
+    count, the derived stride, and the resulting selection are all unchanged.
+
     Returns `(accepted_samples, rejected_samples)`, each a list of `(family, target_time,
     verdict)`.
     """
+    premises = list(structure.semantics._premise_formulas)
+    conclusions = list(structure.semantics._conclusion_formulas)
 
-    def _verdict_for(family: WitnessFamily, target_time: int) -> Dict[str, Any]:
-        return recheck(
-            family,
-            structure.semantics._premise_formulas,
-            structure.semantics._conclusion_formulas,
-            target_time,
-        )
+    def _verdict_for(
+        family_failure: Optional[Dict[str, object]], family: WitnessFamily, target_time: int
+    ) -> Dict[str, Any]:
+        return _recheck_verdict(family_failure, family, premises, conclusions, target_time)
 
     total_rejected = 0
-    for family, target_time in _candidates(structure):
-        if _verdict_for(family, target_time)["status"] != "countermodel":
-            total_rejected += 1
+    for family, target_window in _families(structure):
+        family_failure, _closure = _recheck_family(family, premises, conclusions)
+        for target_time in target_window:
+            if _verdict_for(family_failure, family, target_time)["status"] != "countermodel":
+                total_rejected += 1
     stride = max(total_rejected // per_class, 1) if total_rejected else 0
 
     accepted: List[SampledCandidate] = []
     rejected: List[SampledCandidate] = []
     rejected_seen = 0
-    for family, target_time in _candidates(structure):
-        verdict = _verdict_for(family, target_time)
-        if verdict["status"] == "countermodel":
-            if len(accepted) < per_class:
-                accepted.append((family, target_time, verdict))
-        else:
-            if stride and rejected_seen % stride == 0 and len(rejected) < per_class:
-                rejected.append((family, target_time, verdict))
-            rejected_seen += 1
-        # Both quotas are filled in a fixed, deterministic prefix of the enumeration (accepted:
-        # the first `per_class` in order; rejected: a fixed stride computed from the exact
-        # `total_rejected` counted above) -- stopping here changes nothing about which
-        # candidates are chosen, only how much of the remainder is scanned needlessly.
-        if len(accepted) >= per_class and len(rejected) >= per_class:
+    done = False
+    for family, target_window in _families(structure):
+        if done:
             break
+        family_failure, _closure = _recheck_family(family, premises, conclusions)
+        for target_time in target_window:
+            verdict = _verdict_for(family_failure, family, target_time)
+            if verdict["status"] == "countermodel":
+                if len(accepted) < per_class:
+                    accepted.append((family, target_time, verdict))
+            else:
+                if stride and rejected_seen % stride == 0 and len(rejected) < per_class:
+                    rejected.append((family, target_time, verdict))
+                rejected_seen += 1
+            # Both quotas are filled in a fixed, deterministic prefix of the enumeration
+            # (accepted: the first `per_class` in order; rejected: a fixed stride computed from
+            # the exact `total_rejected` counted above) -- stopping here changes nothing about
+            # which candidates are chosen, only how much of the remainder is scanned needlessly.
+            if len(accepted) >= per_class and len(rejected) >= per_class:
+                done = True
+                break
     return accepted, rejected
 
 

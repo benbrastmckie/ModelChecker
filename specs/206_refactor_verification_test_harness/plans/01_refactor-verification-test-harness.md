@@ -449,7 +449,7 @@ machine-checking this kind of closure claim.
 
 ---
 
-### Phase 5: Restructure the harness enumeration into an explicit family-outer, target-inner loop [NOT STARTED]
+### Phase 5: Restructure the harness enumeration into an explicit family-outer, target-inner loop [COMPLETED]
 
 **Goal**: Make the amortization structural rather than incidental — an explicit outer loop over
 witness families and an inner loop over `target_window`, computing each family's `_recheck_family`
@@ -518,6 +518,30 @@ the enumeration.
   `back=mid=fwd=1`.
 - Invariant 1 confirmed: with `BIMODAL_LOGIC_PATH` unset, Tier 2 still skips cleanly (same skip
   count as baseline), never fails.
+
+**Results (standalone, non-`-n4`, this host -- Phase 6 re-measures under the CI shape)**:
+- `test_boxed_closure_enumeration_agrees_with_z3_nb2_nf2` (widest, 10,485,760 candidates):
+  **29.56s**, down from 109.79s pre-Phase-5 (this file's own commit-history baseline) -- a
+  73.1% reduction, 3.71x, ahead of the research report's 70.9%/3.43x projection.
+- `test_boxed_closure_enumeration_agrees_with_z3` (1,572,864 candidates): **6.56s**, down from
+  15.60s -- a 57.9% reduction, 2.37x.
+- Tier 2's `boxed_closure_sat` (Lean cross-check, resolvable in this environment -- see below):
+  **8.20s**, down from 19.92s.
+- All three counts (`total`/`accepted`/`pinned_accepted`) bit-for-bit identical to Phase 1's
+  baseline for both boxed cases, confirmed by the tests' own unedited pinned assertions passing.
+- Invariant 1, this environment's own shape: `BIMODAL_LOGIC_PATH` is unset, but `lake` and
+  `~/Projects/BimodalLogic` are both present on this host, so `_lean_check.py`'s resolution
+  finds a real checker and Tier 2 **passes for real** rather than skipping -- a legitimate
+  alternate branch of its skip-or-pass discipline (never a silent degrade), already recorded
+  this way in the Phase 1 baseline file. `_lean_check.py` itself is untouched by this phase.
+- Invariant 4 confirmed by scratch-only monkeypatch (not committed, discarded after use): forcing
+  `_recheck_verdict` to always reject fires the ENCODING UNSOUNDNESS branch on the first
+  pinned-accepted candidate; forcing it to always accept fires the ENCODING INCOMPLETENESS branch
+  on the first pinned-rejected candidate; both messages retain "do not weaken this assertion".
+- Invariant 5 confirmed by direct comparison against the pre-Phase-5 committed module (loaded
+  standalone via `importlib`, not edited): `_sampled_candidates` selects byte-identical
+  `(family, target_time, status)` sequences, both accepted and rejected, for the boxed
+  `back=mid=fwd=1` closure and both box-free closures.
 
 ---
 
