@@ -94,7 +94,26 @@ class ModelConstraints:
             self.semantics.conclusion_behavior(conclusion)
             for conclusion in self.conclusions
         ]
-        self.all_constraints = (
+
+    @property
+    def all_constraints(self) -> List["ExprRef"]:
+        """Live view of every constraint this ModelConstraints currently carries.
+
+        (a) Recomputed on every access, so growth in `frame_constraints` after
+        construction -- bimodal's two-phase encoding (decision D6) populates it later,
+        via `BimodalSemantics.finalize_certificate()`, once every boxed subformula is
+        known -- is picked up rather than frozen at the construction-time snapshot this
+        property replaces.
+        (b) Read-only on purpose: assigning to it raises `AttributeError` (no setter is
+        provided, per CLAUDE.md's fail-fast/no-backwards-compatibility principles), and
+        appending to the list this property returns is a no-op on the next access, since
+        a fresh list is built each time -- callers must append into the component list
+        they actually mean (`frame_constraints`, `model_constraints`, etc.).
+        (c) Diagnostic/derivative only: `models/structure.py`'s `_setup_solver` builds
+        its tracked solver from the four component lists directly and never reads this
+        attribute, for any theory, so this property is never solve-determining.
+        """
+        return (
             self.frame_constraints
             + self.model_constraints
             + self.premise_constraints

@@ -145,7 +145,7 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 touch disjoi
 
 ---
 
-### Phase 1: Baseline and failing tests (RED) [IN PROGRESS]
+### Phase 1: Baseline and failing tests (RED) [COMPLETED]
 
 **Goal**: Record the pre-fix gate state, then add tests that fail for the right reason — the
 property semantics and the bimodal certificate gap — before any production edit.
@@ -206,7 +206,7 @@ property semantics and the bimodal certificate gap — before any production edi
 
 ---
 
-### Phase 2: Convert `all_constraints` to a read-only property; migrate the production write site [NOT STARTED]
+### Phase 2: Convert `all_constraints` to a read-only property; migrate the production write site [COMPLETED]
 
 **Goal**: Replace the eager concatenation with a computed property, and remove the one production
 assignment, leaving bimodal's existing pin bypass and the generic pinning loop untouched.

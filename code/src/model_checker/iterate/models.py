@@ -148,9 +148,15 @@ class ModelBuilder:
             if self.iterator is not None:
                 self.iterator._pin_theory_specific_values(temp_solver, z3_model, model_constraints)
 
-            # Store the constraints in model_constraints so the model will use them
-            model_constraints.all_constraints = list(temp_solver.assertions())
-            
+            # `all_constraints` is a computed read-only property now (see constraints.py),
+            # so it can't be assigned here. Nothing read the old assignment's value:
+            # `_setup_solver` builds its solver from the four component lists directly,
+            # never from `all_constraints`. Consequence, NOT fixed here: temp_solver's
+            # generic is_world/verify/falsify pins are discarded for theories with no
+            # `_pin_theory_specific_values` override (bimodal has one; logos, exclusion,
+            # imposition don't, so their rebuilds are effectively unpinned) -- pre-existing,
+            # separate, tracked for its own follow-up task.
+
             # Now create the model structure which will solve with all constraints
             model_structure_class = original_build.model_structure_class
             model_structure = model_structure_class(model_constraints, settings)
