@@ -236,58 +236,145 @@ test is not exercising the path and must be fixed before Phase 3.
 
 ---
 
-### Phase 3: GREEN — Route Generic Pins Into the Live Constraint List [NOT STARTED]
+### Phase 3: GREEN — Route Generic Pins Into the Live Constraint List [BLOCKED]
 
 **Goal**: Make the generic loop's pins reach `_setup_solver`, turning Phase 2's failing test
 green without changing `_pin_theory_specific_values`.
 
 **Tasks**:
-- [ ] In `code/src/model_checker/iterate/models.py`'s `build_new_model_structure`, for each of the
+- [x] In `code/src/model_checker/iterate/models.py`'s `build_new_model_structure`, for each of the
       eight existing `temp_solver.add(...)` pin sites (is_world true/false, possible true/false,
       verify true/false, falsify true/false), add a matching
       `model_constraints.frame_constraints.append(<same literal>)`. Keep every existing
       `temp_solver.add(...)` call exactly as it is (interface parity with tests asserting against
-      `temp_solver`, and with bimodal's own precedent).
-- [ ] Preserve the existing `hasattr(semantics, 'is_world')` / `'possible'` / `'verify'` /
+      `temp_solver`, and with bimodal's own precedent). *(deviation, reasoned: implemented as a
+      shared `pinned = ... if ... else ...; temp_solver.add(pinned); model_constraints.
+      frame_constraints.append(pinned)` per true/false pair rather than duplicating literal
+      `temp_solver.add(...)` calls in each branch — this is the exact pattern bimodal's own
+      `_pin_theory_specific_values` already uses at `theory_lib/bimodal/iterate.py:239-241`, which
+      this plan cites as "the mechanism bimodal's own override already validates, applied one call
+      site up." `temp_solver.add()` is still called with byte-identical literals under
+      byte-identical conditions -- interface parity for any test asserting against `temp_solver`
+      is unaffected. Net effect: 4 append call sites in source (one per predicate), not 8, because
+      the true/false branches share one call after computing `pinned` rather than repeating it in
+      each branch. Confirmed no site is missed or double-added: is_world, possible, verify,
+      falsify each get exactly one append, matching all 4 predicate types the original loop pins.)*
+- [x] Preserve the existing `hasattr(semantics, 'is_world')` / `'possible'` / `'verify'` /
       `'falsify'` guards unchanged — bimodal must remain on its override path with no generic
-      pins appended.
-- [ ] Rewrite the stale comment block at `iterate/models.py:150-159`: state that
+      pins appended. (Unchanged; bimodal has none of these attributes so its `hasattr` checks
+      still never fire.)
+- [x] Rewrite the stale comment block at `iterate/models.py:150-159`: state that
       `all_constraints` is a read-only computed property (so nothing is assigned here), that
       `_setup_solver` builds its solver from the four component lists, and that the generic pins
       are therefore appended into `frame_constraints` above so they reach the solve. Remove the
       "Consequence, NOT fixed here" claim entirely. No task-number reference in the comment text.
-- [ ] Run Phase 2's test class; confirm all three parametrizations now pass.
-- [ ] Verify the list-growth risk empirically: instrument a single live run to log
+- [x] Run Phase 2's test class; confirm all three parametrizations now pass. **Result: exclusion
+      PASSES (2/3 models found, all correctly pinned). logos and imposition FAIL — see Blocking
+      Finding below; this is not a defect in this phase's own edit.**
+- [x] Verify the list-growth risk empirically: instrument a single live run to log
       `len(model_constraints.frame_constraints)` at the top of each `build_new_model_structure`
       call and confirm it does not grow monotonically across successive rebuilds (i.e. each
       rebuild gets fresh `model_constraints`). Record the observed numbers in the phase notes. If
       it does grow, stop and scope the append to a per-rebuild copy before proceeding.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/iterate/ -q` and compare against
-      Phase 1's `01_pre-fix-iterate.txt`.
+      **Result: confirmed non-growing. A live exclusion run (`EX_CM_6`, N=3, iterate:3) logged
+      `len(frame_constraints)` at 36 across all 138 successful rebuilds in the run — constant,
+      never growing, because each `build_new_model_structure` call constructs entirely fresh
+      `model_constraints` (and therefore a fresh `frame_constraints` list) via `ModelConstraints(settings, syntax, semantics, proposition_class)`.**
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/iterate/ -q` and compare against
+      Phase 1's `01_pre-fix-iterate.txt`. **Result: 238 passed, matching the Phase 1 baseline
+      exactly (0 regressions). Initially surfaced one regression during this step --
+      `test_simplified_iterator.py::TestSimplifiedIterator::test_simplified_method_shorter`, a
+      mechanical line-count ceiling (`< 170` lines) on `build_new_model_structure` -- caused by
+      this phase's own added comments pushing the method to 185 lines. Fixed by trimming comment
+      verbosity (no code-behavior change) down to 169 lines; re-ran and confirmed 238 passed, 0
+      failed.**
 - [ ] Confirm each of the three theories still finds more than one model on its Phase 1
       representative example (a collapse to a single model is a blocking finding, not expected
-      fallout — see Risks).
+      fallout — see Risks). **logos and imposition COLLAPSE to 1/3 models under the live-pinned
+      rebuild (matching this exact anticipated Risk). exclusion does not collapse (2/3 models,
+      matching Phase 1's own baseline count). This is the blocking finding below.**
 
-**Timing**: 1 hour
+**BLOCKING FINDING (discovered during this phase's own verification, not anticipated by the
+plan or its research report):**
+
+The candidate Z3 model each rebuild pins from is drawn from the live iteration loop's own
+*persistent search solver* (`iterate/constraints.py`'s `ConstraintGenerator._create_persistent_solver`).
+For every theory tested (confirmed directly for logos, exclusion, and imposition via a
+non-mocked, real `BuildExample`/iterator construction), that persistent solver is built from
+`self.build_example.model_structure.solver` — which is unconditionally `None` by the time the
+iterator is constructed, because `models/structure.py`'s `solve()` calls
+`self._cleanup_solver_resources()` in its `finally` block on every solve, for every theory, with
+no exception. The fallback, `model_structure.stored_solver`, is *also* always empty: `solve()`
+assigns `self.stored_solver = self.solver` (a reference to the freshly-created, still-unpopulated
+`create_solver(...)` result) **before** calling `_setup_solver` (which is what actually populates
+and *reassigns* `self.solver` to a different, populated solver object) — so `stored_solver` is
+left pointing at the solver's pristine, pre-population state, forever, for every theory. Verified
+empirically: `len(iterator.constraint_generator.solver.assertions())` is `0` immediately after
+constructing `LogosModelIterator`/`ExclusionModelIterator`/`ImpositionModelIterator` against a
+real, solved `BuildExample`.
+
+This is **exactly the same root-cause defect** bimodal's own
+`_ensure_frame_constraints_in_search_solver` (`theory_lib/bimodal/iterate.py:105-196`) already
+documents and works around for itself — its docstring calls it "a bug in the shared engine
+(`models/structure.py`'s `solve()`)" — but that workaround has never been applied to logos,
+exclusion, or imposition. Because their persistent search solvers are empty, the "candidate"
+models the search loop hands to `build_new_model_structure` for pinning are not actually
+constrained by the real semantics (frame/model/premise/conclusion constraints) at all during the
+search — only by whatever bit-difference exclusion clause exists to keep the search from
+repeating a prior model. Pre-fix, this was invisible: the write-only `temp_solver` pins were
+discarded, so the rebuild simply re-solved the real, satisfiable base problem from scratch and
+always succeeded (silently reproducing a *different, unrelated* model than the candidate — the
+defect this task exists to fix). Post-fix, the rebuild is asked to satisfy the real base
+constraints **and** the pinned literal values taken from a candidate that was never actually a
+model of those real constraints — for logos and imposition, at the settings this task's own
+regression test and Phase 1 baseline use, that combination is UNSAT on effectively every
+candidate (confirmed via `unsat_core()`: e.g. for logos, the core is exactly the four `verify(_,
+A)` pins plus the conclusion constraint that a countermodel's evaluation world must verify `A` —
+the candidate's own pinned `verify` assignment does not actually satisfy that constraint, because
+the candidate itself never had to). Exclusion happens not to hit this for the specific example
+this plan uses, but that is not evidence the underlying defect is absent for it — the persistent
+solver is confirmed equally empty for exclusion too.
+
+**Why this blocks the phase rather than being logged as expected fallout**: the plan's own Risk
+table names exactly this outcome ("a rebuild becomes UNSAT once genuinely pinned... Phase 6 treats
+a theory that can no longer find model 2 at all as a blocking finding, not expected fallout") but
+frames it as an occasional, per-candidate event to watch for in Phase 6, not a ~100% collapse
+surfacing already in Phase 3 verification, traced to a *separate*, pre-existing, generic defect in
+the shared engine (`models/structure.py`'s `solve()`) that the plan's Non-Goals explicitly place
+out of scope ("Adding a post-rebuild consistency check... A production-side guard is a larger
+design change and is out of scope here" — the search-solver population is the same class of
+change). Closing this phase as `[COMPLETED WITH EXCLUSIONS]` would require documenting the excluded
+item's `Evidence`, but the "item" here is not a single mechanically-listed candidate — it is the
+plan's own stated Done-when criterion ("a live, non-mocked, three-theory regression test... that
+test... passes after"), which is not achievable for 2 of 3 theories without a fix outside this
+plan's declared scope. Forcing a green gate by weakening Phase 2's assertions, reverting the
+(otherwise correct and beneficial — exclusion is now genuinely fixed) Phase 3 code, or silently
+expanding scope into `iterate/constraints.py`'s shared persistent-solver population would each
+violate an explicit constraint elsewhere in this plan or in project standards. This is recorded as
+a `user_decision` in this dispatch's return metadata rather than resolved unilaterally.
+
+**Timing**: 1 hour (actual: ~2.5 hours, including diagnosis of the blocking finding)
 
 **Depends on**: 1, 2
 
 **Verification Tier**: full
 
-**Scope Hypothesis**: Exactly one production file changed (`iterate/models.py`), with 8 added
-append calls plus one rewritten comment block. Confirm with
-`git diff --stat code/src/model_checker/iterate/models.py` (one file) and
-`git diff code/src/model_checker/iterate/models.py | grep -c '^+.*frame_constraints.append'`
-returning 8 — a different count means a pin site was missed or double-added and must be
-reconciled against the eight `temp_solver.add` sites before the phase closes.
+**Scope Hypothesis**: Exactly one production file changed (`iterate/models.py`). *(Confirmed —
+`git diff --stat` shows exactly one file. The append-call-count sub-check ("returning 8") does
+not hold literally, for the reasoned, documented reason above; the append-call-per-predicate-type
+count is 4, one per is_world/possible/verify/falsify, each covering both its true and false
+branches.)*
 
 **Files to modify**:
 - `code/src/model_checker/iterate/models.py` - append each pin literal into
   `model_constraints.frame_constraints`; rewrite the stale consequence comment
 
 **Verification**:
-- All three parametrizations of `TestGenericPinningReachesRebuiltSolve` pass.
-- `iterate/` suite is no worse than the Phase 1 baseline.
+- All three parametrizations of `TestGenericPinningReachesRebuiltSolve` pass. **NOT MET: 1 of 3
+  (exclusion) passes; logos and imposition fail due to the blocking finding above.**
+- `iterate/` suite is no worse than the Phase 1 baseline. **MET: 238 passed, 0 failed, matching
+  the Phase 1 baseline exactly (after fixing a transient line-count-ceiling regression, see
+  above).**
 - `frame_constraints` length does not accumulate across rebuilds within one run (recorded
   measurement, not assumption).
 - Each affected theory still yields more than one model on its baseline example.

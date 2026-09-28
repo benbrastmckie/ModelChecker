@@ -93,31 +93,31 @@ class ModelBuilder:
             for constraint in model_constraints.all_constraints:
                 temp_solver.add(constraint)
             
-            # Extract concrete values from Z3 model and add them as constraints
-            # Constrain world states
-            # Note: Not all theories have a state-existence predicate at all (e.g. the
-            # bimodal theory's certificate encoding, whose carrier is {0,...,k} x Z, not
-            # enumerated states) -- mirrors the verify/falsify guard below. A theory in
-            # this position pins its own model values via `_pin_theory_specific_values`
-            # instead (see the hook call after this loop).
+            # Extract concrete values from Z3 model and add them as constraints.
+            # Note: Not all theories have a state-existence predicate (e.g. bimodal's
+            # certificate encoding has no enumerated states) -- such a theory pins its own
+            # model values via `_pin_theory_specific_values` instead (see below).
             if hasattr(semantics, 'is_world'):
                 for state in range(2**semantics.N):
-                    # Is this state a world in the iterator model?
                     is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
                     if is_true(is_world_val):
-                        temp_solver.add(semantics.is_world(state))
+                        pinned = semantics.is_world(state)
                     else:
-                        temp_solver.add(z3.Not(semantics.is_world(state)))
+                        pinned = z3.Not(semantics.is_world(state))
+                    temp_solver.add(pinned)
+                    model_constraints.frame_constraints.append(pinned)  # see comment below
 
                     # Is this state possible in the iterator model?
                     # Note: Not all theories have a 'possible' predicate (e.g., bimodal theory)
                     if hasattr(semantics, 'possible'):
                         is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
                         if is_true(is_possible_val):
-                            temp_solver.add(semantics.possible(state))
+                            pinned = semantics.possible(state)
                         else:
-                            temp_solver.add(z3.Not(semantics.possible(state)))
-            
+                            pinned = z3.Not(semantics.possible(state))
+                        temp_solver.add(pinned)
+                        model_constraints.frame_constraints.append(pinned)
+
             # Constrain verify/falsify for sentence letters
             # Note: Some theories (e.g., bimodal) use truth_condition instead of verify/falsify
             if hasattr(semantics, 'verify'):
@@ -125,20 +125,23 @@ class ModelBuilder:
                     if hasattr(letter_obj, 'sentence_letter'):
                         atom = letter_obj.sentence_letter
                         for state in range(2**semantics.N):
-                            # Verify value
                             verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
                             if is_true(verify_val):
-                                temp_solver.add(semantics.verify(state, atom))
+                                pinned = semantics.verify(state, atom)
                             else:
-                                temp_solver.add(z3.Not(semantics.verify(state, atom)))
-                            
+                                pinned = z3.Not(semantics.verify(state, atom))
+                            temp_solver.add(pinned)
+                            model_constraints.frame_constraints.append(pinned)
+
                             # Falsify value (if it exists)
                             if hasattr(semantics, 'falsify'):
                                 falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
                                 if is_true(falsify_val):
-                                    temp_solver.add(semantics.falsify(state, atom))
+                                    pinned = semantics.falsify(state, atom)
                                 else:
-                                    temp_solver.add(z3.Not(semantics.falsify(state, atom)))
+                                    pinned = z3.Not(semantics.falsify(state, atom))
+                                temp_solver.add(pinned)
+                                model_constraints.frame_constraints.append(pinned)
 
             # Theory-specific extension point: pin whatever model content this theory
             # actually uses (e.g. certificate variables for bimodal) that the generic
@@ -148,14 +151,14 @@ class ModelBuilder:
             if self.iterator is not None:
                 self.iterator._pin_theory_specific_values(temp_solver, z3_model, model_constraints)
 
-            # `all_constraints` is a computed read-only property now (see constraints.py),
-            # so it can't be assigned here. Nothing read the old assignment's value:
-            # `_setup_solver` builds its solver from the four component lists directly,
-            # never from `all_constraints`. Consequence, NOT fixed here: temp_solver's
-            # generic is_world/verify/falsify pins are discarded for theories with no
-            # `_pin_theory_specific_values` override (bimodal has one; logos, exclusion,
-            # imposition don't, so their rebuilds are effectively unpinned) -- pre-existing,
-            # separate, tracked for its own follow-up task.
+            # `all_constraints` is a computed read-only property (constraints.py); nothing
+            # reads it here. `_setup_solver` (models/structure.py) builds its solver from
+            # the four component lists directly, which is why the generic pins above are
+            # also appended into `model_constraints.frame_constraints` (one of those four
+            # lists) as each is computed -- that is what makes them reach the solve that
+            # produces the rebuilt model, for every theory with no
+            # `_pin_theory_specific_values` override (bimodal pins its own certificate
+            # variables the same way).
 
             # Now create the model structure which will solve with all constraints
             model_structure_class = original_build.model_structure_class
