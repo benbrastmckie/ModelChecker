@@ -231,32 +231,32 @@ establish the baseline that Phase 2's `full` tier is measured against.
 
 ---
 
-### Phase 2: Fix the `\top` defect in `Sentence.update_types` [NOT STARTED]
+### Phase 2: Fix the `\top` defect in `Sentence.update_types` [COMPLETED]
 
 **Goal**: Make `store_types`'s extremal-operator branch dispatch on the shape of `derived_type`
 rather than on `self.name`, so a defined nullary operator whose expansion is complex falls through
 to the complex branch it belongs in.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/syntactic/sentence.py`'s `store_types` immediately before
+- [x] Re-read `code/src/model_checker/syntactic/sentence.py`'s `store_types` immediately before
       editing (the tree is shared with concurrent work).
-- [ ] Replace `if self.name in {'\\top', '\\bot'}:` with a shape-keyed test on `derived_type` (the
+- [x] Replace `if self.name in {'\\top', '\\bot'}:` with a shape-keyed test on `derived_type` (the
       natural form is `len(derived_type) == 1`), kept after the existing `is_const` sentence-letter
       check so a one-element `Const` still takes the letter branch first.
-- [ ] Update the branch's comment (and the detection-logic comment block above it) to say what the
+- [x] Update the branch's comment (and the detection-logic comment block above it) to say what the
       branch now means — a nullary/extremal *derived* shape — rather than naming `\top`/`\bot` by
       surface spelling.
-- [ ] Confirm the trailing `ValueError` fallthrough is still reachable only for genuinely invalid
+- [x] Confirm the trailing `ValueError` fallthrough is still reachable only for genuinely invalid
       shapes: not made dead, and not newly reachable for valid input.
-- [ ] Add a focused unit assertion that `\top` now type-updates correctly: a `\top` sentence has a
+- [x] Add a focused unit assertion that `\top` now type-updates correctly: a `\top` sentence has a
       non-`None` `operator` **and** non-`None` `arguments`, and `to_json(translate(...))` equals
       the two-`bot` implication shape its `[NegationOperator, [BotOperator]]` expansion implies
       (confirm the exact expected dict by running it, not by copying it from this plan).
-- [ ] Add a companion assertion that `\bot` is unchanged: `arguments` remain `None` and it still
+- [x] Add a companion assertion that `\bot` is unchanged: `arguments` remain `None` and it still
       translates to `{"tag": "bot"}`.
-- [ ] Add an assertion that a *nested* `\top` (e.g. `\Box \top`, `(\top \wedge p)`) also
+- [x] Add an assertion that a *nested* `\top` (e.g. `\Box \top`, `(\top \wedge p)`) also
       type-updates and translates correctly, not only a bare one.
-- [ ] Run the **full** test suite and compare against Phase 1's baseline — in particular the logos,
+- [x] Run the **full** test suite and compare against Phase 1's baseline — in particular the logos,
       exclusion and imposition suites, which share this code path.
 
 **Timing**: 1.25 hours
@@ -271,10 +271,16 @@ to `full`.
 
 **Scope Hypothesis**: only bimodal's `\top` changes behavior, because logos' `\top`/`\bot` are
 primitive `syntactic.Operator`s whose derived type is genuinely one element, and
-exclusion/imposition define no extremal operator at all. **Confirm at implementation time** by
-running every theory's suite, not only bimodal's, and diffing against Phase 1's baseline. If any
-non-bimodal test changes behavior, the hypothesis is wrong and the branch condition needs
-revisiting before Phases 3-5 proceed.
+exclusion/imposition define no extremal operator at all. **Confirmed at implementation time**:
+`len(derived_type)` traced by hand for every candidate — bimodal `\top` (`TopOperator`, a
+`DefinedOperator`) derives to `[NegationOperator, [BotOperator]]`, length 2 (was wrongly
+truncated by the name-keyed branch, now correctly falls to the complex branch); bimodal `\bot`,
+logos `\top`/`\bot` (both plain primitive `syntactic.Operator`s per
+`logos/subtheories/extensional/operators.py:212-249`) all derive to a genuine one-element
+`derived_type`, unchanged by the shape-keyed branch. `grep`-confirmed `arity = 0` exists nowhere
+else in `theory_lib/` (only bimodal's and logos' `\top`/`\bot`, plus two syntactic-package unit
+test fixtures using plain primitive `Operator` subclasses, themselves unaffected). The full-suite
+run below confirms the hypothesis: no non-bimodal test changed behavior.
 
 **Files to modify**:
 - `code/src/model_checker/syntactic/sentence.py` — the `store_types` extremal branch and its
@@ -283,9 +289,15 @@ revisiting before Phases 3-5 proceed.
   implementer's choice) — the new `\top`/`\bot`/nesting assertions.
 
 **Verification**:
-- The new `\top` assertions pass; the `\bot` companion assertions are unchanged.
-- The full suite matches Phase 1's baseline with no new failures in any theory.
-- A `\top` sentence no longer reaches `translate` with `arguments` set to `None`.
+- The new `\top` assertions pass; the `\bot` companion assertions are unchanged. **Confirmed**:
+  new `TestExtremalOperatorUpdateTypes` class (5 tests) all pass; full `test_formula.py` module
+  136 passed.
+- The full suite matches Phase 1's baseline with no new failures in any theory. **Confirmed**:
+  `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q` -> **3284 passed, 5 skipped,
+  2 warnings in 351.12s** — exactly baseline's 3279 passed + 5 new tests, same 5 skipped, zero
+  failures, zero regressions in logos/exclusion/imposition.
+- A `\top` sentence no longer reaches `translate` with `arguments` set to `None`. **Confirmed**
+  by direct interpreter check and by the new unit assertions.
 
 ---
 

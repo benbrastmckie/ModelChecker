@@ -313,6 +313,71 @@ class TestScopeHypothesisDefinedOperatorsAreExpandedBeforeTranslate:
         assert translate(_sentence("\\Diamond p")) == expected
 
 
+class TestExtremalOperatorUpdateTypes:
+    """`Sentence.update_types`'s `store_types` extremal-operator branch used to dispatch on
+    `self.name in {'\\top', '\\bot'}` -- the *original*, pre-derivation operator name -- rather
+    than the shape of `derived_type`. `\\top` is a `DefinedOperator` whose
+    `derived_definition` (`TopOperator.derived_definition`, `operators.py`) expands to
+    `[NegationOperator, [BotOperator]]`, a **two**-element `derived_type`; the name-keyed branch
+    fired anyway (since `self.name == '\\top'` regardless of the derived shape) and truncated
+    the expansion to `(first_elem, None, None)`, discarding the negation's `BotOperator`
+    argument entirely -- so a `\\top` sentence's `operator` was set but its `arguments` stayed
+    `None`, and `translate` (which reads `sentence.arguments`) could never see the argument it
+    needs. The fix dispatches on `len(derived_type) == 1` instead, so a two-element derived
+    shape (however it originated) falls through to the complex branch it belongs in. `\\bot` is
+    a *primitive* `syntactic.Operator` with a genuinely one-element `derived_type`, so the
+    shape-keyed branch is behavior-identical for it -- covered by the companion assertion
+    below."""
+
+    def test_bare_top_type_updates_with_operator_and_arguments_set(self):
+        sentence = _sentence("\\top")
+        assert sentence.operator is NegationOperator
+        assert sentence.arguments is not None
+        assert len(sentence.arguments) == 1
+
+    def test_bare_top_translates_to_the_negated_bot_shape(self):
+        expected = Imp(Bot(), Bot())
+        top_formula = translate(_sentence("\\top"))
+        assert top_formula == expected
+        assert to_json(top_formula) == {
+            "tag": "imp",
+            "left": {"tag": "bot"},
+            "right": {"tag": "bot"},
+        }
+
+    def test_bare_bot_is_unchanged_by_the_shape_keyed_fix(self):
+        sentence = _sentence("\\bot")
+        assert sentence.arguments is None
+        bot_formula = translate(sentence)
+        assert bot_formula == Bot()
+        assert to_json(bot_formula) == {"tag": "bot"}
+
+    def test_nested_top_under_box_type_updates_and_translates(self):
+        """`\\Box \\top` -- a nested bare `\\top`, not only the bare-formula case above."""
+        sentence = _sentence("\\Box \\top")
+        boxed = sentence.arguments[0]
+        assert boxed.operator is NegationOperator
+        assert boxed.arguments is not None
+        expected = Box(Imp(Bot(), Bot()))
+        top_formula = translate(sentence)
+        assert top_formula == expected
+        assert to_json(top_formula) == {
+            "tag": "box",
+            "child": {"tag": "imp", "left": {"tag": "bot"}, "right": {"tag": "bot"}},
+        }
+
+    def test_nested_top_inside_conjunction_type_updates_and_translates(self):
+        """`(\\top \\wedge p)` -- `\\top` nested as a conjunction operand, not the root."""
+        p = Atom("p")
+        sentence = _sentence("(\\top \\wedge p)")
+        top_arg = sentence.arguments[0]
+        assert top_arg.operator is NegationOperator
+        assert top_arg.arguments is not None
+        top = Imp(Bot(), Bot())
+        expected = Imp(Imp(top, Imp(p, Bot())), Bot())
+        assert translate(sentence) == expected
+
+
 class TestTranslatePrimitives:
     def test_atom(self):
         assert translate(_sentence("p")) == Atom("p")

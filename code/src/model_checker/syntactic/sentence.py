@@ -224,7 +224,14 @@ class Sentence:
         def store_types(derived_type):
             # Detection logic:
             # - Sentence letters: Z3 Const objects (from atomic parsing)
-            # - Extremal operators: \top, \bot
+            # - Nullary/extremal derived shape: a single-element derived_type whose element is
+            #   not a Z3 Const -- e.g. a primitive nullary operator such as \bot, or a defined
+            #   nullary operator (e.g. \top) whose derived_definition happens to reduce back to
+            #   a single primitive operator with no arguments. Dispatch on the *shape* of
+            #   derived_type, not on self.name (the original, pre-derivation operator name):
+            #   a defined nullary operator whose expansion is itself complex (e.g. \top's
+            #   [NegationOperator, [BotOperator]], a two-element derived_type) must fall through
+            #   to the complex branch below rather than being truncated here.
             # - Complex sentences: operator + arguments
 
             from model_checker.solver.expressions import is_const
@@ -235,8 +242,8 @@ class Sentence:
             if len(derived_type) == 1 and is_const(first_elem):
                 return None, None, first_elem
 
-            # Check for extremal operator
-            if self.name in {'\\top', '\\bot'}:
+            # Check for nullary/extremal derived shape (shape-keyed, not name-keyed)
+            if len(derived_type) == 1:
                 return first_elem, None, None
 
             # Complex sentence with operator and arguments
