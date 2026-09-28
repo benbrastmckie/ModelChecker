@@ -150,3 +150,75 @@ tolerance) in the same commit as this baseline update, replacing the pre-refacto
 17.77s / ~59% / ~2.4x figures. `TestExhaustiveTriangleBoxFree`'s docstring numbers did not move
 materially (both box-free widest cases stayed well under 2s before and after) and are left as
 recorded.
+
+## Final Verification (Phase 8)
+
+Three invocations, plus the six preserved invariants, confirmed after every phase landed.
+
+### Bimodal suite (including `slow`)
+
+`PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v --timeout=300 --timeout-method=thread`:
+**640 passed**, 1 warning, 68.90s. (640 = Run 2's pre-refactor 635 (itself 629 + Phase 3's 6 new
+equivalence tests) + Phase 4's 5 new base_row/apply_target tests.)
+
+### Four-theory gate
+
+`PYTHONPATH=code/src pytest code/tests/ -q --timeout=300 --timeout-method=thread`:
+**645 passed, 5 skipped**, 2 warnings, 50.42s.
+
+### Repository-wide target set, CI's exact shape
+
+Parallel pass:
+`pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread`:
+**1 failed, 3143 passed, 1 skipped**, 5 warnings, 106.79s -- the failure is the same pre-existing,
+out-of-scope `test_checker.py::TestLazyBoundedMemoizedProbe::test_import_performs_no_subprocess_call`
+flake recorded in the "Before" and "After" sections above, reproduced a third time here.
+Re-confirmed standalone (`PYTHONPATH=src pytest .../test_checker.py::TestLazyBoundedMemoizedProbe::test_import_performs_no_subprocess_call -v --timeout=60`):
+**passed** in 0.58s -- a `-n 4` worker-contention-sensitive timing assertion in a module this
+task never touches (`git log` confirms `_lean_check.py`-adjacent `test_checker.py` is owned by a
+different task's commits only), not a regression from this task.
+
+Serial pass:
+`pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread`:
+**10 passed**, 3274 deselected, 2.45s.
+
+No test's pass/fail/skip status changed from Run 2's pre-refactor baseline other than the
+intended wall-clock changes and the net addition of this task's own 11 new tests (6 in
+`test_certificate.py`, 5 in `test_pinned_eval.py`) -- the one failure present in both the
+pre-refactor and post-refactor runs is the same pre-existing, unrelated flake.
+
+### Preserved invariants, confirmed
+
+1. **Tier 2 clean-skip / pass-for-real discipline.** `_lean_check.py`'s `SKIP_REASON`/
+   `PROTOCOL_FAILURE` split is untouched by this task -- `git log -- .../tests/_lean_check.py`
+   shows only task 205's and task 197's commits, none of this task's. In this environment
+   (`lake` and `~/Projects/BimodalLogic` both present, `BIMODAL_LOGIC_PATH` unset), Tier 2
+   resolves a real checker and passes for real rather than skipping, in every run recorded
+   above -- the discipline's other legitimate branch, never a silent degrade.
+2. **`timeout is False` assertions.** `git diff` of this task's full commit range
+   (`98318fd4..HEAD`) against `test_structure.py`'s `TestA0FrameClassStandingTest` and
+   `test_search_period_coverage.py`'s grid pins shows zero hits on either `timeout is False`
+   line -- byte-identical throughout.
+3. **Retained aggregate assertion.** `git diff` of the same range against
+   `test_certificate_a2_triangle.py`'s `(accepted > 0) == structure.z3_model_status ==
+   expected_sat` assertion (in `_assert_exhaustive_triangle_agrees`) shows zero hits --
+   byte-identical, and the function itself was never edited by any phase.
+4. **First-divergence raise, both attribution branches.** Confirmed by Phase 5's scratch-only
+   monkeypatch check (not committed): forcing every verdict to reject fires the ENCODING
+   UNSOUNDNESS branch on the first pinned-accepted candidate; forcing every verdict to accept
+   fires the ENCODING INCOMPLETENESS branch on the first pinned-rejected candidate.
+5. **`_sampled_candidates` selection determinism.** Confirmed by Phase 5's direct comparison
+   against the pre-Phase-5 committed module (loaded standalone, not edited): identical
+   `(family, target_time, status)` selections for the boxed and both box-free closures.
+6. **`len(closure) <= 4` ADEQUACY-bound assertion.** `git diff` of the full commit range shows
+   zero hits on this assertion line in `_families` (formerly `_candidates`) -- byte-identical,
+   still asserted on every call.
+
+### Task-reference cleanliness
+
+Manually grepped every file this task touched under `code/` for `task 20[0-9]`/`(task [0-9]`
+patterns (the repo-wide `check-task-references.sh` script scans only
+`agent-system/extensions`/`.opencode`/`lua`/`.memory`, not `code/`, so it does not apply to this
+task's touched paths): zero hits across `_build_support.py`, `_pinned_eval.py`, `README.md`,
+`test_certificate_a2_triangle.py`, `test_search_period_coverage.py`, `test_structure.py`,
+`test_pinned_eval.py`, `test_certificate.py`, and `semantic/certificate.py`.

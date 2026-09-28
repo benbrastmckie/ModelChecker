@@ -1,7 +1,7 @@
 # Implementation Plan: Refactor Verification Test Harness
 
 - **Task**: 206 - Refactor Verification Test Harness
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 9.5 hours (plus up to 1.5 hours if Phase 7's contingency branch is taken)
 - **Dependencies**: task 207 (completed — the `all_constraints` fix this harness's
   `full_constraints` helper now aliases); task 205 (concurrent — owns the trust-boundary /
@@ -684,7 +684,16 @@ the PR gate — without letting it silently stop running.
 
 ---
 
-### Phase 8: Final verification across the bimodal suite, the four-theory gate, and the repository-wide target set [NOT STARTED]
+### Phase 8: Final verification across the bimodal suite, the four-theory gate, and the repository-wide target set [COMPLETED]
+
+**Results**: bimodal suite 640 passed (68.90s); four-theory gate 645 passed / 5 skipped (50.42s);
+repository-wide parallel pass 3143 passed / 1 skipped / 1 failed (106.79s, the failure being the
+same pre-existing, out-of-scope `test_checker.py` flake recorded throughout this task, confirmed
+passing standalone and confirmed via `git log` to be owned only by task 205's/197's commits);
+serial `xdist_serial` pass 10 passed (2.45s). All six preserved invariants confirmed with citations
+in the baseline record's "Final Verification (Phase 8)" section. No task-number reference found in
+any touched file under `code/`. Full detail:
+`specs/206_refactor_verification_test_harness/baselines/01_ci-shaped-baseline.md`.
 
 **Goal**: Confirm nothing regressed anywhere, per the dispatch's explicit verification
 instruction, and leave the evidence on record.
