@@ -227,7 +227,8 @@ class TestCertificateExtraction:
 
 from model_checker.theory_lib.bimodal.tests._lean_check import (  # noqa: E402
     SKIP_REASON as _LEAN_SKIP_REASON,
-    run_check_certificate as _run_lean_check_certificate,
+    assert_echo_matches_sent as _assert_echo_matches_sent,
+    run_check_certificate_with_sent as _run_lean_check_certificate_with_sent,
 )
 
 # This module's own per-invocation timeout bound, matching
@@ -249,7 +250,13 @@ class TestExportedCertificateAgreesWithLeanBinary:
     certificate (a kernel-checked proof); an absent field reads as `"decided"` (the weaker
     four-`Decidable`-instances claim). `"acceptance"` appears on `countermodel` only, never on
     `rejected` or `error` -- this is the one place in the suite where a certificate this
-    repository actually *built* (not a fixture) gets an entailment-grade verdict."""
+    repository actually *built* (not a fixture) gets an entailment-grade verdict.
+
+    The same live-extracted certificate also exercises axis 2's parse-echo comparison
+    (`_lean_check.assert_echo_matches_sent`): the fixture corpus alone cannot catch a key-order
+    or escaping defect specific to this repository's own exporter (`bx` iteration order, atom-
+    name escaping), since the corpus's bytes were hand-written rather than produced by
+    `export_certificate_json`."""
 
     def test_exported_json_for_a_simple_countermodel_agrees_with_the_lean_binary(self):
         semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
@@ -262,7 +269,7 @@ class TestExportedCertificateAgreesWithLeanBinary:
         wire = semantics.export_certificate_json(family, target_time)
         python_verdict = certificate_module.recheck_json(wire)
 
-        lean_verdict = _run_lean_check_certificate(wire, _LEAN_TIMEOUT_SECONDS)
+        lean_verdict, sent = _run_lean_check_certificate_with_sent(wire, _LEAN_TIMEOUT_SECONDS)
         assert lean_verdict is not None, "lake exe check_certificate did not respond in time"
         assert lean_verdict["status"] == python_verdict["status"] == "countermodel", (
             python_verdict,
@@ -277,3 +284,7 @@ class TestExportedCertificateAgreesWithLeanBinary:
             "expected 'entailment' (Lean constructed the paper-countermodel existence term) "
             f"for this live-extracted certificate against the current binary, got {acceptance!r}"
         )
+        # Axis 2: the live exporter's bytes must round-trip through the Lean parser's echo --
+        # the one place in the suite this is checked against a certificate this repository
+        # actually built, not a hand-written fixture.
+        _assert_echo_matches_sent(lean_verdict, sent)

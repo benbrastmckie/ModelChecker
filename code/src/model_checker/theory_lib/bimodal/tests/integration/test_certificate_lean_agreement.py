@@ -33,6 +33,14 @@ reads as `"decided"` -- the four `Decidable` instances returned true on the fami
 the wire input, with no such term constructed. `"acceptance"` appears on `countermodel` verdicts
 only, never on `rejected` or `error`.
 
+**`"echo"` (parse-echo verification, axis 2)**: `countermodel` and `rejected` verdicts now carry
+an `"echo"` field, a canonical reprint of what the binary parsed. Every fixture in this module
+compares `echo` bytewise against the exact bytes sent (`_lean_check.assert_echo_matches_sent`),
+so a parser defect on the Lean side cannot silently mean the verified side certified a different
+certificate than the one this repository exported. A mismatch, or a missing `"echo"` where one is
+expected, is a protocol error, never a `rejected`-shaped outcome or a fixture-corpus
+disagreement.
+
 This module resolves the BimodalLogic checkout from the `BIMODAL_LOGIC_PATH` environment
 variable first, then `~/Projects/BimodalLogic`, and resolves `lake` via `PATH`. It skips the
 whole module -- cleanly, with a named reason, never a failure -- if either is unavailable, or if
@@ -57,7 +65,9 @@ from model_checker.theory_lib.bimodal.semantic.certificate import recheck_json
 from model_checker.theory_lib.bimodal.tests._lean_check import (
     PROTOCOL_FAILURE,
     SKIP_REASON,
+    assert_echo_matches_sent,
     run_check_certificate as _run_check_certificate,
+    run_check_certificate_with_sent as _run_check_certificate_with_sent,
 )
 
 FIXTURES_DIR = Path(__file__).parent.parent / "fixtures" / "certificates"
@@ -104,7 +114,7 @@ class TestLeanAgreement:
         with open(fixture_path) as f:
             payload = json.load(f)
 
-        verdict = _run_check_certificate(payload, PER_FIXTURE_TIMEOUT_SECONDS)
+        verdict, sent = _run_check_certificate_with_sent(payload, PER_FIXTURE_TIMEOUT_SECONDS)
         assert verdict is not None, (
             f"{fixture_path.name}: lake exe check_certificate did not respond within "
             f"{PER_FIXTURE_TIMEOUT_SECONDS}s"
@@ -133,6 +143,9 @@ class TestLeanAgreement:
                 f"paper-countermodel existence term) against the current binary, got "
                 f"{acceptance!r} -- absent reads as 'decided', the weaker Decidable-only claim"
             )
+        # Axis 2: the Lean side's echo of what it parsed must match the bytes actually sent --
+        # a mismatch is a protocol error, not a fixture-corpus disagreement (module docstring).
+        assert_echo_matches_sent(verdict, sent)
 
 
 class TestErrorPaths:
@@ -148,7 +161,7 @@ class TestErrorPaths:
             "bx": [],
             "lassos": [{"back": [[]], "mid": [], "fwd": [[]]}],
         }
-        verdict = _run_check_certificate(payload, PER_FIXTURE_TIMEOUT_SECONDS)
+        verdict, sent = _run_check_certificate_with_sent(payload, PER_FIXTURE_TIMEOUT_SECONDS)
         assert verdict is not None, "lake exe check_certificate did not respond in time"
         assert verdict["status"] == "error", (
             f"a certificate missing 'target' must be 'error', got {verdict!r}"
@@ -156,6 +169,8 @@ class TestErrorPaths:
         assert recheck_json(payload)["status"] == "error", (
             "the Python-side recheck_json must agree with the Lean side on this payload"
         )
+        # Negative half of axis 2: an 'error' verdict must carry no 'echo' at all.
+        assert_echo_matches_sent(verdict, sent)
 
     def test_missing_target_time_is_error(self):
         payload = {
@@ -163,7 +178,7 @@ class TestErrorPaths:
             "bx": [],
             "lassos": [{"back": [[]], "mid": [], "fwd": [[]]}],
         }
-        verdict = _run_check_certificate(payload, PER_FIXTURE_TIMEOUT_SECONDS)
+        verdict, sent = _run_check_certificate_with_sent(payload, PER_FIXTURE_TIMEOUT_SECONDS)
         assert verdict is not None, "lake exe check_certificate did not respond in time"
         assert verdict["status"] == "error", (
             f"a certificate missing 'target.time' must be 'error', got {verdict!r}"
@@ -171,6 +186,8 @@ class TestErrorPaths:
         assert recheck_json(payload)["status"] == "error", (
             "the Python-side recheck_json must agree with the Lean side on this payload"
         )
+        # Negative half of axis 2: an 'error' verdict must carry no 'echo' at all.
+        assert_echo_matches_sent(verdict, sent)
 
 
 class TestPythonRecheckerAgreesWithLean:

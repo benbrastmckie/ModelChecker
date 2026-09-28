@@ -374,14 +374,14 @@ confirm that judgment still holds by reading lines ~16-25 before closing the pha
 
 ---
 
-### Phase 5: Parse-echo verification (axis 2) — gated [NOT STARTED]
+### Phase 5: Parse-echo verification (axis 2) — gated [COMPLETED]
 
 **Goal**: the Lean side's echo of what it parsed is compared bytewise against the bytes this
 repository sent, with a mismatch reported as a **protocol error**, not a rejection. This phase
 opens with an admission gate because its interface is uncommitted upstream as of this plan (M2).
 
 **Tasks**:
-- [ ] **Admission gate, first task, recorded before any edit.** Run
+- [x] **Admission gate, first task, recorded before any edit.** Run
       `git -C ~/Projects/BimodalLogic log --oneline -1` and
       `git -C ~/Projects/BimodalLogic status --porcelain`, then send one canonical fixture through
       the binary and inspect the verdict. The gate **passes** when both hold: (a) an `"echo"` key
@@ -389,29 +389,38 @@ opens with an admission gate because its interface is uncommitted upstream as of
       `git -C ~/Projects/BimodalLogic log -1 --format=%s -- BimodalTools/CertificateImport.lean`
       names the phase-9 work and `BimodalTools/README.md` no longer carries the "jointly gated, and
       has not landed yet" paragraph (`grep -n "jointly gated"` on the committed file returns
-      nothing).
+      nothing). **Gate result: PASSED**, measured fresh at this phase's own start (Phase 3's
+      handoff had already flagged the flip). `git -C ~/Projects/BimodalLogic log --oneline -1` →
+      `d55e2760e task 678: complete implementation`. `git -C ~/Projects/BimodalLogic log -1
+      --format=%s -- BimodalTools/CertificateImport.lean` → `task 678 phase 9: the echo field, the
+      defect guards, and the joint contract`. `grep -n "jointly gated, and has not landed"
+      BimodalTools/README.md` → no output. A live probe of `01_positive_box.json` returned
+      `{"status":"countermodel","time":0,"acceptance":"entailment","echo":"…"}` — condition (a)
+      holds. Overall `git status --porcelain` was non-empty (four unrelated `FormalSystem/`
+      files, same set Phase 3 recorded), but neither `BimodalTools/CertificateImport.lean` nor
+      `BimodalTools/README.md` was among them, so condition (b) holds without qualification.
 - [ ] **On gate failure**: close this phase as `[COMPLETED WITH EXCLUSIONS]` with a
       `#### Reasoned Exclusions` record whose Evidence column quotes the gate commands' actual
       output, and stop. Do not implement against an uncommitted upstream interface, and do not
-      proceed to Phase 6.
-- [ ] **On gate pass**: capture the exact bytes sent. `run_check_certificate` currently discards
+      proceed to Phase 6. **Not taken — gate passed.**
+- [x] **On gate pass**: capture the exact bytes sent. `run_check_certificate` currently discards
       them; have it return, or expose, the canonical string it wrote to stdin so a caller can
       compare. Keep the existing return shape working for the three current consumers.
-- [ ] Add the comparison: on every verdict carrying an `"echo"`, assert `echo == sent` bytewise.
+- [x] Add the comparison: on every verdict carrying an `"echo"`, assert `echo == sent` bytewise.
       Per M3 the echo is a canonical **reprint** of the parsed certificate, so this holds only
       because this repository already emits canonical key order — state that in the assertion
       message, so a future key-order regression explains itself instead of looking like a Lean
       defect. Compare modulo surrounding whitespace only (the producer's trailing newline), never
       modulo interior whitespace.
-- [ ] Classify a mismatch as a **protocol error**: a distinct, loudly-named failure in the same
+- [x] Classify a mismatch as a **protocol error**: a distinct, loudly-named failure in the same
       vocabulary Phase 2 established (`PROTOCOL_FAILURE`-grade), explicitly not a `rejected`-shaped
       outcome and explicitly not a fixture-corpus disagreement. The task description's discipline
       is the contract here: a mismatch means the two sides are talking about different
       certificates, which is a protocol failure by definition.
-- [ ] Assert the negative half too: an `error` verdict carries **no** `"echo"` (M3), so the
+- [x] Assert the negative half too: an `error` verdict carries **no** `"echo"` (M3), so the
       comparison is correctly skipped rather than silently passing on a missing field. A missing
       `"echo"` on a `countermodel` or `rejected` verdict is itself a protocol failure, not a pass.
-- [ ] Run the comparison across the whole fixture corpus and the live-extracted certificate in
+- [x] Run the comparison across the whole fixture corpus and the live-extracted certificate in
       `test_semantics_core.py`, not the corpus alone — the live path is where a key-order or
       escaping defect in this repository's own exporter would actually appear.
 
@@ -427,7 +436,9 @@ opens with an admission gate because its interface is uncommitted upstream as of
 four corpus fixtures (measured: it does, M3) and on the live-extracted certificate (**not**
 measured — the live exporter's `bx` iteration order and atom-name escaping are untested against the
 canonical printer). Confirm the live case explicitly; if it diverges, that is a finding about this
-repository's exporter, not a reason to weaken the comparison to a structural one.
+repository's exporter, not a reason to weaken the comparison to a structural one. **Confirmed at
+implementation time**: `test_semantics_core.py`'s live-extracted-certificate test passes the
+bytewise echo comparison — no divergence found in `bx` iteration order or atom-name escaping.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py` - expose the bytes sent;

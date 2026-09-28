@@ -443,10 +443,11 @@ repository's single authoritative serializer is `semantic/certificate.py`'s
 
 Output, exactly one line, and **never a validity claim**:
 
-- `{"status":"countermodel","time":0}` — optionally carrying `"acceptance"` (below) and `"echo"`
-  (the canonical reprint of what was parsed; see §6.2).
+- `{"status":"countermodel","time":0}` — optionally carrying `"acceptance"` (below) and `"echo"`.
 - `{"status":"rejected","failed":[{"condition":…,"lasso":…,"position":…,"formula":…,"detail":…}]}`
-- `{"status":"error","message":…}`
+  — also optionally carrying `"echo"`.
+- `{"status":"error","message":…}` — never carries `"echo"`: a wire-level parse failure has
+  nothing to echo.
 
 `condition ∈ {structural, local_coherent, fulfilling, box_faithful, target, unlocalized}`. A
 missing `target` or a missing `target.time` is `error`, never `rejected` — `error` covers input
@@ -456,6 +457,13 @@ that fails the *protocol*; `rejected` covers input that parses but fails a *cond
 constructed the paper-countermodel existence term for this particular certificate (a
 kernel-checked proof); an absent field reads as `"decided"` — the four `Decidable` instances
 returned `true`, with no such term constructed. See §6.2.
+
+**`"echo"`** is a canonical *reprint* of the certificate as parsed, not a verbatim copy — it
+appears on `countermodel` and `rejected` verdicts, comparable bytewise against
+`canonical_wire_bytes(payload)` because this repository already emits canonical key order.
+`tests/_lean_check.py`'s `assert_echo_matches_sent` performs this comparison; a mismatch, or a
+missing `"echo"` where one is expected, is a **protocol error** (§6.1's error-versus-rejected
+distinction, applied on this side of the wire too), never a `rejected`-shaped outcome.
 
 ### 6.2 The four-step dual verification, on every reported countermodel
 
