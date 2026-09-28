@@ -1,19 +1,22 @@
 {
-  "status": "researched",
+  "status": "planned",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/210_fix_generic_iterator_pinning_unreached/reports/01_fix-generic-iterator-pinning.md",
-      "summary": "Confirms the F4 generic-pinning defect live for exclusion and imposition (not just logos), decides the fix mechanism (append pins into model_constraints.frame_constraints inline in iterate/models.py's generic loop, not a temp_solver-replaying _pin_theory_specific_values default), recommends shared-engine regression coverage, and confirms the separately-named bimodal docstring wording fix."
+      "type": "plan",
+      "path": "specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md",
+      "summary": "6-phase plan routing the generic iterator's is_world/possible/verify/falsify pins into model_constraints.frame_constraints so they reach _setup_solver for logos, exclusion and imposition, with TDD regression coverage, a bimodal docstring correction, and a full four-theory gate with fallout review."
     }
   ],
-  "next_steps": "Run /plan 210 to create an implementation plan from this report's Decisions/Recommendations.",
+  "next_steps": "Run /implement 210 to execute the plan",
+  "memory_candidates": [],
   "metadata": {
     "session_id": "sess_1790619552_cbba66_210",
-    "agent_type": "z3-research-agent",
+    "agent_type": "planner-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "z3-research-agent"],
-    "findings_count": 7
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 6,
+    "estimated_hours": 6,
+    "dependency_waves": [[1, 2, 5], [3], [4], [6]]
   },
-  "dispatch_seq": 7
+  "dispatch_seq": 8
 }

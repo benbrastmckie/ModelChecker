@@ -1,0 +1,14 @@
+{
+  "status": "planned",
+  "phases_completed": 0,
+  "phases_total": 6,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md",
+      "summary": "6-phase plan routing generic iterator pins into frame_constraints so they reach the rebuilt model's solve for logos, exclusion and imposition."
+    }
+  ],
+  "session_id": "sess_1790619552_cbba66_210",
+  "dispatch_seq": 8
+}
