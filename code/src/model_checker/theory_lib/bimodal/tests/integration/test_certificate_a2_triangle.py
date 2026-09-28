@@ -76,42 +76,19 @@ from typing import Any, Dict, Iterator, List, Tuple
 
 import pytest
 
-from model_checker.models.constraints import ModelConstraints
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
 from model_checker.theory_lib.bimodal.semantic.certificate import (
     LabelledLasso,
     WitnessFamily,
     recheck,
 )
-from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Box, Formula
 from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
-from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+from model_checker.theory_lib.bimodal.tests._build_support import _build
 from model_checker.theory_lib.bimodal.tests._lean_check import SKIP_REASON, run_check_certificate
 from model_checker.theory_lib.bimodal.tests._pinned_eval import compile_and_bind
 
 Candidate = Tuple[WitnessFamily, int]
 SampledCandidate = Tuple[WitnessFamily, int, Dict[str, Any]]
-
-
-def _settings(**overrides: Any) -> Dict[str, Any]:
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
-
-
-def _build(premises: List[str], conclusions: List[str], **setting_overrides: Any) -> BimodalStructure:
-    """Build one example through the real `Syntax -> ModelConstraints -> BimodalStructure`
-    pipeline -- the same construction order `builder/example.py`'s `BuildExample` drives,
-    without needing its `BuildModule` scaffolding. Matches `tests/unit/test_structure.py`'s own
-    `_build` helper."""
-    settings = _settings(**setting_overrides)
-    syntax = Syntax(premises, conclusions, bimodal_operators)
-    model_constraints = ModelConstraints(
-        settings, syntax, BimodalSemantics(settings), BimodalProposition
-    )
-    return BimodalStructure(model_constraints, settings)
 
 
 def _subsets(items: List[Formula]) -> Iterator[frozenset]:
@@ -339,6 +316,11 @@ class TestExhaustiveTriangleBoxFree:
     `box_free_contradiction_unsat_nb2_nf2` ~0s UNSAT at 160 candidates / 0 accepted) -- both
     left unconditional (no `slow` marker), well inside a non-`slow` local run's budget."""
 
+    # This grid is local to the property it pins -- the A2-triangle encoding-completeness
+    # comparison at these two closures and two grid sizes -- and is deliberately not merged
+    # with `test_search_period_coverage.py`'s `_GRID` or `test_structure.py`'s
+    # `_A0_SWEPT_GRID`, each of which pins an independent property over its own
+    # premises/conclusions and grid points (implementation plan Phase 2, declined route F2).
     @pytest.mark.parametrize(
         "premises, conclusions, expected_closure_size, expected_total, expected_accepted, "
         "expected_sat, back, mid, fwd",
