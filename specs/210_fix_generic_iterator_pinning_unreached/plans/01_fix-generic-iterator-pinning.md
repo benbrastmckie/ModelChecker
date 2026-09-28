@@ -179,35 +179,38 @@ a pytest summary line or a completed model printout.
 
 ---
 
-### Phase 2: RED — Live Three-Theory Pinning Regression Test [NOT STARTED]
+### Phase 2: RED — Live Three-Theory Pinning Regression Test [COMPLETED]
 
 **Goal**: Add the permanent regression test that encodes the pinning invariant, and confirm it
 fails today for all three theories (TDD RED).
 
 **Tasks**:
-- [ ] Add a real-`BuildExample` helper to `code/src/model_checker/iterate/tests/integration/test_models.py`,
+- [x] Add a real-`BuildExample` helper to `code/src/model_checker/iterate/tests/integration/test_models.py`,
       modeled on bimodal's `_real_build_example` (`theory_lib/bimodal/tests/integration/test_iterate.py:559`):
       only the surrounding `BuildModule` is a `Mock`; the semantics, solver and model-checking
       path are real. Parametrize the theory via `theory_lib.{logos,exclusion,imposition}`'s own
       `get_theory()`.
-- [ ] Add `class TestGenericPinningReachesRebuiltSolve`, parametrized over the three theories
+- [x] Add `class TestGenericPinningReachesRebuiltSolve`, parametrized over the three theories
       with the research-confirmed cases: logos `([], [r"\neg A"], N=2)`, exclusion `EX_CM_6`
       (`N=3`), imposition `IM_CM_0` (`N=4`); `iterate: 2` or `3`, bounded `max_time` (40).
-- [ ] Intercept every `ModelBuilder.build_new_model_structure` call (monkeypatch wrapping the
+- [x] Intercept every `ModelBuilder.build_new_model_structure` call (monkeypatch wrapping the
       real method) to capture each `(candidate_z3_model, returned_structure)` pair.
-- [ ] For every captured pair, assert that `is_world`, `possible`, `verify` and `falsify`
+- [x] For every captured pair, assert that `is_world`, `possible`, `verify` and `falsify`
       (each guarded by `hasattr`, matching the production loop's own guards) evaluated at every
       state — and, for `verify`/`falsify`, every sentence-letter atom — under
       `returned_structure.z3_model` equal the same predicate evaluated under
       `candidate_z3_model`, with `model_completion=True` on both sides.
-- [ ] Assert at least one rebuild was actually intercepted, so a test that silently captures
+- [x] Assert at least one rebuild was actually intercepted, so a test that silently captures
       nothing cannot pass vacuously.
-- [ ] Do NOT duplicate `TestAllConstraintsReflectsCertificateAfterSolve` per theory — its subject
+- [x] Do NOT duplicate `TestAllConstraintsReflectsCertificateAfterSolve` per theory — its subject
       is a different attribute and would not catch a regression of this defect (Recommendation 2).
-- [ ] Run the new class and record the failure output; confirm all three theory parametrizations
-      fail with predicate mismatches, matching the research's F3 signatures.
-- [ ] Time the class; if it exceeds roughly 30s, add the existing `slow` marker.
-- [ ] Commit the RED test on its own (it is a green sub-step of this phase: the test exists and
+- [x] Run the new class and record the failure output; confirm all three theory parametrizations
+      fail with predicate mismatches, matching the research's F3 signatures. Confirmed: logos
+      `possible mismatch at state 0`, exclusion `is_world mismatch at state 1`, imposition
+      `possible mismatch at state 0` — all three FAIL, zero errors/skips.
+- [x] Time the class; if it exceeds roughly 30s, add the existing `slow` marker. Class took
+      92.45s total across the three parametrizations; `@pytest.mark.slow` added to the class.
+- [x] Commit the RED test on its own (it is a green sub-step of this phase: the test exists and
       correctly fails).
 
 **Timing**: 1.5 hours
