@@ -1,0 +1,60 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/summaries/01_close-diagnosis-record-gaps-summary.md",
+      "summary": "Execution summary for all 5 phases: corrected marker record, TESTING_GUIDE annotation, ORACLE_GATING_SCAN_OUT_DIR instrumentation, follow-on task 183 allocation, and the C1-C7 closure gate (with the CI-accurate command correction noted)."
+    },
+    {
+      "type": "implementation",
+      "path": "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+      "summary": "Corrected/extended the unstable marker's entry-criteria comment block (Phase 1), and added the opt-in ORACLE_GATING_SCAN_OUT_DIR instrumentation helper, call-site wiring, and 5 new Z3-free tests (Phase 3)."
+    },
+    {
+      "type": "implementation",
+      "path": "code/docs/core/TESTING_GUIDE.md",
+      "summary": "Added one pointer-shaped sentence to section 8.9's Currently marked bullet noting the recorded signature was last confirmed pre-axiom, without rewriting the documented signature or criteria."
+    },
+    {
+      "type": "handoff",
+      "path": "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md",
+      "summary": "Cross-referenced follow-on task 183 into the report's What remains open section."
+    }
+  ],
+  "next_steps": "Task 183 (discriminate_gating_shortfall_axiom_vs_contention) is allocated and not_started; it carries the discriminating-observation follow-up forward.",
+  "metadata": {
+    "session_id": "sess_1788263678_7f5c4a",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 5,
+    "phases_total": 5
+  },
+  "modified_files": [
+    "code/docs/core/TESTING_GUIDE.md",
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-1-handoff-20260901T125032Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-2-handoff-20260901T125144Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-3-handoff-20260901T130038Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-4-handoff-20260901T130235Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/handoffs/phase-5-handoff-20260901T140948Z.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/plans/01_close-diagnosis-record-gaps.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/reports/01_gating-conclusive-shortfall-diagnosis.md",
+    "specs/180_diagnose_oracle_conclusive_population_shortfall/summaries/01_close-diagnosis-record-gaps-summary.md",
+    "specs/events.jsonl",
+    "specs/state.json",
+    "specs/TODO.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When running an oracle/bimodal_logic/tests/ fast gate, always include 'and not development' in the -m expression -- oracle/conftest.py's pytest_collection_modifyitems applies a tree-level development marker blanket to every oracle test except the six differential/soundness-core classes, and omitting the filter surfaces expected, tracked bimodal-construction failures as if they were regressions.",
+      "category": "PATTERN",
+      "source_artifact": "specs/180_diagnose_oracle_conclusive_population_shortfall/summaries/01_close-diagnosis-record-gaps-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["oracle", "development marker", "pytest", "gating", "bimodal"]
+    }
+  ],
+  "errors": [],
+  "started_at": "2026-09-01T00:00:00Z"
+}

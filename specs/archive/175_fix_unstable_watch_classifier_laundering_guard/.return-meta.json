@@ -1,0 +1,30 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/175_fix_unstable_watch_classifier_laundering_guard/summaries/01_laundering-guard-fix-summary.md",
+      "summary": "Implementation summary covering all 7 phases, decisions, and the out-of-scope concurrent-task failures observed."
+    },
+    {
+      "type": "plan",
+      "path": "specs/175_fix_unstable_watch_classifier_laundering_guard/plans/01_laundering-guard-fix.md",
+      "summary": "7-phase implementation plan, all phases marked [COMPLETED]."
+    }
+  ],
+  "next_steps": "User-only: push/dispatch unstable-watch.yml to confirm the fix on real CI. A separate, unrelated fix is needed for 3 pre-existing code/tests/cli/ failures caused by task 158's project_name CLI flag addition (outside this task's file_scope).",
+  "metadata": {
+    "session_id": "sess_1788198229_79cf9f",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"]
+  },
+  "modified_files": [
+    ".github/scripts/unstable_watch_classify.py",
+    "code/tests/ci/test_unstable_watch_classifier.py",
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    "code/docs/core/TESTING_GUIDE.md",
+    "specs/175_fix_unstable_watch_classifier_laundering_guard/plans/01_laundering-guard-fix.md",
+    "specs/175_fix_unstable_watch_classifier_laundering_guard/summaries/01_laundering-guard-fix-summary.md"
+  ]
+}

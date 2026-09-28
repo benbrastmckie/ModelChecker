@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "agent_type": "general-implementation-agent",
+  "task_number": 123,
+  "session_id": "sess_1784888436_d0273f_123",
+  "status": "implemented",
+  "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+  "artifacts": [
+    {
+      "path": "specs/123_rewrite_the_nix_flake_for_multisystem_build_and_te/plans/01_nix-flake-multisystem-rewrite.md",
+      "type": "plan",
+      "summary": "4-phase plan to rewrite the root flake.nix into a multi-system flake with packages.default (nixpkgs-native z3), checks.default (scoped green gate), and a devShell subsuming code/shell.nix."
+    },
+    {
+      "path": "specs/123_rewrite_the_nix_flake_for_multisystem_build_and_te/summaries/01_nix-flake-multisystem-rewrite-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary: multi-system flake.nix rewrite complete, nix build and nix flake check both green, code/shell.nix deleted, flake.lock committed."
+    }
+  ],
+  "phase_count": 4,
+  "phases_completed": 4,
+  "phases_total": 4,
+  "estimated_hours": 2.5,
+  "dependency_waves": [[1], [2, 3], [4]],
+  "completion_data": {
+    "completion_summary": "Rewrote flake.nix into a multi-system flake (flake-utils eachDefaultSystem) with packages.default (nixpkgs-native buildPythonPackage rooted at ./code, z3-solver/networkx propagated deps), devShells.default (subsumes code/shell.nix, optional BimodalHarness sibling), and checks.default (hermetic pytest gate scoped to the known-green bimodal suite, 286/286 passed). code/shell.nix deleted; flake.lock committed with the new flake-utils input. nix build and nix flake check both verified green.",
+    "roadmap_items": []
+  },
+  "memory_candidates": [
+    {
+      "content": "In the nixos-unstable pin as of mid-2026, nixpkgs' Python Z3 bindings attribute was renamed from `python3Packages.z3` to `python3Packages.z3-solver` (a naming collision with the PyPI wheel of the same name). It is still the nixpkgs-native, source-built derivation (built from Z3Prover/z3 GitHub source, `meta.description` = 'High-performance theorem prover and SMT solver'), NOT the PyPI wheel -- but it ships no PyPI dist-info at all, so buildPythonPackage's pythonRuntimeDepsCheckHook can never be satisfied for a pyproject.toml `z3-solver` dependency by relaxing the version constraint (`pythonRelaxDeps`) alone; the requirement must be stripped entirely via `pythonRemoveDeps = [ \"z3-solver\" ]` plus `nativeBuildInputs = [ pythonRelaxDepsHook ]`.",
+      "category": "PATTERN",
+      "source_artifact": "specs/123_rewrite_the_nix_flake_for_multisystem_build_and_te/summaries/01_nix-flake-multisystem-rewrite-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["nix", "buildPythonPackage", "z3-solver", "pythonRemoveDeps", "pythonRuntimeDepsCheckHook", "nixpkgs"]
+    },
+    {
+      "content": "For a hermetic `nix flake check` pytest gate that should stay decoupled from the package's own build/doCheck machinery, use a plain `pkgs.stdenv.mkDerivation` with `nativeBuildInputs = [ (python.withPackages (...)) ]`, `dontBuild = true`, and a `checkPhase` that directly invokes `pytest <scoped-path> -n <N> -q`, rather than routing through `buildPythonPackage`'s pytestCheckHook -- this avoids re-running package-build steps just to execute a scoped test subset and keeps the check's pytest scope decision (e.g. excluding a known-flaky or out-of-scope subtree) fully explicit and independently documented.",
+      "category": "PATTERN",
+      "source_artifact": "specs/123_rewrite_the_nix_flake_for_multisystem_build_and_te/summaries/01_nix-flake-multisystem-rewrite-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["nix", "flake check", "checks.default", "pytest", "hermetic", "stdenv.mkDerivation"]
+    }
+  ],
+  "modified_files": [
+    "flake.nix",
+    "flake.lock",
+    "code/shell.nix"
+  ],
+  "next_steps": "Task ready for PR / merge review per project workflow."
+}

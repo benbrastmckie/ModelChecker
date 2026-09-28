@@ -1,0 +1,74 @@
+{
+  "status": "implemented",
+  "started_at": "2026-09-25T00:00:00Z",
+  "completed_at": "2026-09-25T03:25:00Z",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/summaries/01_uniform-clauses-evidence-closure-summary.md",
+      "summary": "All 6 plan phases completed: BimodalLogic alignment review, general-task-relation oracle, constrained-frame experiments (open items 1-2), Frame G2 family-level witness (open item 5), Settler Minimality/padding resolution (open items 3-4), and a full report-01 integration pass plus a narrowed follow-up specification."
+    },
+    {
+      "type": "report",
+      "path": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
+      "summary": "Amended with F11-F14, a round-2 Executive Summary bullet, updated Decisions (D1-D7), a rewritten open-items list, extended appendices, and a new Recommendations section."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Closed all five of report 01's round-1 open items (BimodalLogic alignment corroborates but does not supply Settler Minimality's content; a certified constrained frame confirms realizable pointwise-E3 failure and gives a recorded negative result for multi-time settlers; Frame G2 gives a directly-computed family-level hyperintensionality witness; padding and Settler Minimality are closed, the latter already decided by the manual itself). Discovered the Logos manual independently adopted almost all of round 1's recommendation already, and narrowed the follow-up task's scope accordingly."
+  },
+  "modified_files": [
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/plans/01_uniform-clauses-evidence-closure.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle-output-regression.txt",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle-output-c12.txt",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle-output-g2.txt",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/followup-task-spec.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/summaries/01_uniform-clauses-evidence-closure-summary.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/progress/phase-1-progress.json",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/progress/phase-2-progress.json",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/progress/phase-3-progress.json",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/progress/phase-4-progress.json",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/progress/phase-5-progress.json",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/progress/phase-6-progress.json",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/handoffs/phase-1-handoff-20260925T010000Z.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/handoffs/phase-2-handoff-20260925T013000Z.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/handoffs/phase-3-handoff-20260925T020000Z.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/handoffs/phase-4-handoff-20260925T022500Z.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/handoffs/phase-5-handoff-20260925T024500Z.md",
+    "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/handoffs/phase-6-handoff-20260925T032000Z.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When backgrounding a Python script for a bounded wait, never pipe its stdout through `| tail -N`: Python fully buffers stdout when writing to a pipe (not a TTY), so if the process is killed by a timeout before it flushes, ALL output is lost, even output from steps that already completed. Redirect directly to a file instead (`python3 -u script.py > out.log 2>&1 &`, or without `-u` the same buffering risk applies on early kill) and tail/read that file; use a PID-liveness poll loop (`kill -0 $PID`) rather than repeated short sleeps.",
+      "category": "PATTERN",
+      "source_artifact": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["bash background process", "python stdout buffering", "bounded wait", "tail pipe timeout", "detached run"]
+    },
+    {
+      "content": "When generalizing a pinned research oracle from a fixed 'shortcut' schema (e.g. a product-of-independent-maximal-parts construction valid only under a specific relation) to an arbitrary relation, do not simply generalize the shortcut's search space -- re-derive it from the definition's literal clauses (here: enumerate ALL parts of the bounding value at each point, not just per-point-maximal-compatible ones, then filter and take the pointwise-maximal survivors). A relation with genuine cross-point interaction can make a jointly-maximal solution fail to decompose into independently-maximal per-point choices, so the shortcut silently misses solutions the direct clauses find. Memoize the direct computation keyed on its two structural inputs; the brute-force search is combinatorially far more expensive than the shortcut and needs it to finish in reasonable time even at small (3-4 atom, 2-3 time-point) scales.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/baselines/02_constrained-frame-oracle.py",
+      "confidence": 0.8,
+      "suggested_keywords": ["oracle generalization", "maximal compatible subevolutions", "direct clause implementation", "memoization", "brute-force enumeration"]
+    },
+    {
+      "content": "Before extending a research report's findings (F11+), check whether the target document (a manual, spec, or codebase the report reviews) has moved since an earlier round's report was written -- a separate task on the same underlying material can independently adopt a round's recommendation between rounds, without the current task's own pipeline knowing. Diagnostic: compare the earlier report's completion timestamp against `git log` on the reviewed file in its own repository; if commits post-date the report, re-read the CURRENT text of every anchor the report cites before treating the report's characterization as still accurate, and record the discrepancy explicitly rather than silently inheriting stale claims into new findings.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/186_review_manual_counterfactual_semantics_for_uniform_clauses/reports/01_family-level-settled-verification.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["report currency", "stale research findings", "concurrent independent tasks", "git log cross-check", "manual review"]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790358492_1a5334",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  },
+  "dispatch_seq": 4
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "status": "implemented",
+  "agent_type": "general-implementation-agent",
+  "task_number": 125,
+  "session_id": "sess_1784888436_d0273f_125",
+  "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+  "plan_path": "specs/125_release_engineering_and_pypi_rehearsal/plans/01_release-engineering-pypi-rehearsal.md",
+  "phases_completed": 5,
+  "phases_total": 5,
+  "artifacts": [
+    {
+      "path": "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/parity-diff.md",
+      "type": "other",
+      "summary": "Local NixOS-safe build rehearsal evidence and classified parity diff of model_checker-1.3.0 against the last published model-checker==1.2.12: artifact identity confirmed, check-wheel-contents clean, twine check --strict PASSED, no oracle path in wheel or sdist."
+    },
+    {
+      "path": "specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md",
+      "type": "other",
+      "summary": "User-gated step-by-step publish checklist for model-checker 1.3.0; ends in USER-ONLY push/tag/publish actions, cross-references RELEASE_SETUP.md and the Phase 4 rehearsal evidence."
+    },
+    {
+      "path": "specs/125_release_engineering_and_pypi_rehearsal/summaries/01_release-engineering-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary for task 125: release.yml casing fix + OIDC Trusted Publishing migration, RELEASE_SETUP.md reconciliation, NixOS-safe local rehearsal with parity diff, and user-gated publish checklist."
+    }
+  ],
+  "modified_files": [
+    ".github/workflows/release.yml",
+    ".github/RELEASE_SETUP.md",
+    "specs/125_release_engineering_and_pypi_rehearsal/plans/01_release-engineering-pypi-rehearsal.md",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/build.log",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/wheel-contents.txt",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/twine-check.txt",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/pip-download-1.2.12.log",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/sha256sums.txt",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/new-wheel-files.txt",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/ref-1.2.12-wheel-files.txt",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/top-level-dir-diff.txt",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/wheel-files-diff.txt",
+    "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/parity-diff.md",
+    "specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md",
+    "specs/125_release_engineering_and_pypi_rehearsal/summaries/01_release-engineering-summary.md"
+  ],
+  "completion_data": {
+    "completion_summary": "Fixed release.yml directory casing, migrated PyPI publishing to OIDC Trusted Publishing (removing the long-lived PYPI_API_TOKEN), reconciled RELEASE_SETUP.md with the single real workflow, rehearsed the build locally in a NixOS-safe isolated venv with a parity diff against model-checker==1.2.12 (clean twine check --strict, no oracle in the artifact), and produced a user-gated PUBLISH-CHECKLIST.md. No PyPI/TestPyPI upload, git push, tag push, or PR/merge was performed."
+  },
+  "memory_candidates": [
+    {
+      "content": "On this NixOS host, `~/.config/pip/pip.conf` sets `install.user=true` globally (a `user` pip config setting is picked up outside any project's control). This silently breaks `pip install` inside a freshly-created Python venv with 'Can not perform a --user install. User site-packages are not visible in this virtualenv.' The fix is NOT to edit the user's pip.conf (out of scope for a repo-scoped task) but to override per-invocation with `PIP_USER=0` env var plus `--no-user` on every `pip install` call while working inside that venv.",
+      "category": "CONFIG",
+      "source_artifact": "specs/125_release_engineering_and_pypi_rehearsal/summaries/01_release-engineering-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["nixos", "pip", "venv", "pip-user", "pip.conf", "install-user"]
+    },
+    {
+      "content": "`nix develop` (and `nix-shell`) assigns a fresh, non-persisting TMPDIR on every separate shell invocation — it appends a new `nix-shell.XXXXXX` subdirectory to whatever TMPDIR was passed in, and this suffix changes each time `nix develop` starts. Combined with the fact that each Bash tool call in this harness is a brand-new shell (exported env vars do not persist across calls), any multi-step NixOS-safe rehearsal (create venv -> install tools -> build -> check -> compare) MUST run as a single script inside ONE `nix develop --command bash /path/to/script.sh` invocation. Splitting the steps across multiple Bash tool calls silently loses the venv/tmp state between calls.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/125_release_engineering_and_pypi_rehearsal/summaries/01_release-engineering-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["nix-develop", "nix-shell", "tmpdir", "venv", "rehearsal", "nixos"]
+    },
+    {
+      "content": "Canonical GitHub Actions job graph for PyPI Trusted Publishing (OIDC), replacing a long-lived PYPI_API_TOKEN: a `build` job (runs once, `python -m build` + `twine check --strict`, then `actions/upload-artifact`) feeds two OIDC publish jobs via `actions/download-artifact` — `publish-testpypi` (`environment: testpypi`, `permissions: id-token: write`, `repository-url: https://test.pypi.org/legacy/`, `continue-on-error: true` so an unconfigured/failing TestPyPI rehearsal never blocks production) and `publish-pypi` (`environment: pypi`, `permissions: id-token: write`, default PyPI). Both use `pypa/gh-action-pypi-publish@release/v1` with `skip-existing: true`. Top-level workflow `permissions` should be scoped to `contents: read`, with each job granting only the extra permission it needs (`id-token: write` for the two publish jobs, `contents: write` for a final GitHub-Release-creation job).",
+      "category": "PATTERN",
+      "source_artifact": "specs/125_release_engineering_and_pypi_rehearsal/summaries/01_release-engineering-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["github-actions", "oidc", "trusted-publishing", "pypi", "gh-action-pypi-publish", "release-workflow"]
+    }
+  ]
+}

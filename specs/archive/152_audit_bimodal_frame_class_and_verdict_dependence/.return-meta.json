@@ -1,0 +1,58 @@
+{
+  "status": "completed",
+  "modified_files": [
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/plans/01_audit-frame-class-ledger.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/02_task-restriction-verdict.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/01_abundance-removal-verdicts.json",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/01_abundance-removal-run.log",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/02_phase3-rerun-script.py",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/baselines/README.md",
+    "specs/152_audit_bimodal_frame_class_and_verdict_dependence/summaries/01_audit-frame-class-ledger-summary.md",
+    "specs/TODO.md",
+    "specs/state.json"
+  ],
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/summaries/01_audit-frame-class-ledger-summary.md",
+      "summary": "Six-phase audit-only implementation: re-verified all report references (zero drift), settled the asserted-vs-free split for Limit/Spherical against ModelChecker's actual encoding (only Seriality/Interpolation must be newly asserted), decided BM_TH_1/BM_TH_2 at a capped 90s re-run (remained inconclusive-at-90s, per the plan's own contingency), documented the baseline as a re-runnable regression net, produced the standalone task_restriction verdict, and propagated the corrected axiom premise to tasks 153/154."
+    },
+    {
+      "type": "report",
+      "path": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/02_task-restriction-verdict.md",
+      "summary": "Standalone, self-contained verdict: task_restriction remains an independent gap not subsumed by the frame axioms, stated against the corrected asserted-vs-free axiom set."
+    }
+  ],
+  "next_steps": "Task 152 is fully implemented. Tasks 153 (assert Seriality/Interpolation) and 154 (extension-certified search) can now be planned/implemented with corrected premises and pointers to the baseline README and task_restriction verdict.",
+  "metadata": {
+    "session_id": "sess_1788198229_79cf9f_152",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6,
+    "non_goals_respected": {
+      "core_py_operators_py_examples_py_unmodified": true,
+      "task_restriction_not_enabled": true,
+      "architecture_md_frame_class_table_not_written": true
+    },
+    "known_deviation": "BM_TH_1/BM_TH_2's baseline side remained inconclusive at the capped 90s re-run (recorded as inconclusive-at-90s); this is the plan's own pre-written Phase 3 contingency outcome, not a blocking failure -- the dependence conclusion rests on the no-abundance side plus pre-existing corroboration, unchanged from the original report."
+  },
+  "memory_candidates": [
+    {
+      "content": "When auditing whether a formal proof's consumed axioms must be newly asserted in an implementation, always check each candidate discharging lemma's literal hypotheses against the implementation's actual encoding rather than citing the lemma by name. In this audit, a duration-bounding guard (is_valid_duration restricting to (-M,M)) looked like it would block a discharge lemma stated over an unbounded duration type, but the guard turned out to be a value-level predicate applied selectively inside specific constraints -- never a restriction on the Z3 sort itself, which remained the full unbounded Int/ZZ. The discharge lemma's own proof only needed the hypothesis at duration 0 or 1, so the bounding question never actually entered. Always separate 'is this a type-level restriction' from 'is this a value-level guard inside one constraint' before concluding a hypothesis is blocked.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/reports/01_frame_class_and_verdict_ledger.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["hypothesis-checking", "duration-domain", "sort-vs-guard", "formal-discharge", "bimodal-frame-axioms"]
+    },
+    {
+      "content": "In a shared multi-agent orchestration session, specs/state.json is a single JSON file that multiple sibling task agents concurrently read-modify-write. A targeted edit via json.load/json.dump correctly preserves concurrent siblings' uncommitted status transitions (they round-trip through unchanged), but the resulting git diff will include those siblings' fields even though only the intended fields were programmatically changed. Verify scope correctness by diffing per-record (e.g. by project_number) against git HEAD rather than trusting the raw git diff line count, and document in the summary that other entries' status/last_updated changes are pre-existing concurrent work, not something this edit touched.",
+      "category": "PATTERN",
+      "source_artifact": "specs/152_audit_bimodal_frame_class_and_verdict_dependence/summaries/01_audit-frame-class-ledger-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["state.json", "concurrent-agents", "shared-json-state", "targeted-staging", "multi-agent-session"]
+    }
+  ]
+}

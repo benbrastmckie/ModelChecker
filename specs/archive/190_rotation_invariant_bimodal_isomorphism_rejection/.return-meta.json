@@ -1,0 +1,10 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/190_rotation_invariant_bimodal_isomorphism_rejection/summaries/01_rotation-invariant-isomorphism-rejection-summary.md",
+      "summary": "Rotation/permutation-invariant isomorphism detection and orbit exclusion for the bimodal iterator, plus three discovered-and-fixed shared-engine bugs; all six plan phases closed."
+    }
+  ]
+}

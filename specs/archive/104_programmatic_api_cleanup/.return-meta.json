@@ -1,0 +1,12 @@
+{
+  "status": "in_progress",
+  "summary": "Dead-code cleanup and thin CLI implementation in progress",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "executing phases",
+  "phases_completed": 0,
+  "phases_total": 5,
+  "artifacts": [
+    {"type": "plan", "path": "specs/104_programmatic_api_cleanup/plans/01_dead-code-cleanup-plan.md"}
+  ]
+}

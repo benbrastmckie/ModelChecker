@@ -1,0 +1,10 @@
+{
+  "status": "in_progress",
+  "agent_type": "python-implementation-agent",
+  "task_number": 118,
+  "session_id": "sess_1784861238_c08d5c_118",
+  "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+  "plan_path": "specs/118_bootstrap_branch_baseline_capture_and_oracle_reloc/plans/01_branch-baseline-oracle-relocation.md",
+  "phases_total": 6,
+  "phases_completed": 0
+}

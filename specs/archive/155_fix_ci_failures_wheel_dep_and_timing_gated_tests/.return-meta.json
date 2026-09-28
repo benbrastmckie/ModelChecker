@@ -1,0 +1,42 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/summaries/01_ci-fixes-summary.md",
+      "summary": "Readiness report: wheel dep fix, performance-marker deselection, raised timing budgets, local build+lint evidence, and the named workflow runs to observe"
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Fixed three independent CI failure classes from the 2026-08-12 live workflow runs: added the missing `wheel` build dependency to packaging.yml and release.yml's build job (release-blocking); marked two wall-clock speed-assertion tests @pytest.mark.performance and deselected them identically in both tests.yml and flake.nix; raised application-level max_time/subprocess-timeout budgets for two correctness tests that ran out of time under CI contention (never deselecting them); and raised the differential-tests broad-step timeout from 300s to 900s for the xdist_serial TestGatingConclusiveScan. Verified locally with the exact CI selector (2254 passed, exact -2 delta), a local `python -m build --no-isolation` (exit 0), and check-wheel-contents (exit 1 on pre-existing, out-of-scope W002; `--ignore W002` returns OK). No CI-green is claimed; no branch pushed, no PR opened, no tag created.",
+    "roadmap_items": []
+  },
+  "reflection": {
+    "what_worked": "Probing each mechanical edit-site list before applying it (grep counts, line reads) caught zero false positives and let every phase close on the first attempt with a clean atomic-batch commit for the two-file phases (1 and 3).",
+    "what_was_hard": "Reconciling the local full-suite passed count (2254) against the task description's CI-observed baseline (2000-2002) required explicitly separating the delta invariant (which held exactly, -2) from the absolute count (which differs due to environment, not a defect) so the readiness report neither papered over the discrepancy nor wrongly treated it as a regression.",
+    "what_was_missed": "Nothing; all nine planned edit sites landed, all phases closed COMPLETED, and the check-wheel-contents non-blocking contract was followed exactly as revised.",
+    "successes": "All six phases closed COMPLETED with clean per-phase commits; local delta verification matched Phase 3's own --collect-only prediction exactly; both raised-budget tests confirmed the raise was load-bearing (61s and 0.73s wall-clock respectively) rather than cosmetic; the wheel build and check-wheel-contents lint reproduced the exact expected exit codes (0 and 1/0) with no surprises."
+  },
+  "modified_files": [
+    ".github/workflows/packaging.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/tests.yml",
+    ".github/workflows/differential-tests.yml",
+    "flake.nix",
+    "code/src/model_checker/builder/tests/test_refactoring_target_behavior.py",
+    "code/tests/integration/test_performance.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py",
+    "code/src/model_checker/builder/tests/e2e/test_full_pipeline.py",
+    "specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/plans/01_ci-fixes-wheel-and-timing.md",
+    "specs/155_fix_ci_failures_wheel_dep_and_timing_gated_tests/summaries/01_ci-fixes-summary.md"
+  ],
+  "next_steps": "Push the branch (user-only) and observe: .github/workflows/packaging.yml, .github/workflows/tests.yml (general-tests + flake-check jobs), and .github/workflows/differential-tests.yml. release.yml's build-job fix can only be observed via a user-only tag push.",
+  "metadata": {
+    "session_id": "sess_1786548941_459312",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  }
+}

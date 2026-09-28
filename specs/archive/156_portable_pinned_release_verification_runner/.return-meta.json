@@ -1,0 +1,89 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "implementation",
+      "path": "code/scripts/release-verify.sh",
+      "summary": "Portable, pinned local release-verification runner: single nix develop re-exec guard, 10 named steps writing an 11-file evidence set plus summary.txt"
+    },
+    {
+      "type": "implementation",
+      "path": "code/scripts/release-tools-requirements.txt",
+      "summary": "Pinned tool manifest: build==1.5.0, twine==7.0.0, check-wheel-contents==0.6.3 with rationale header"
+    },
+    {
+      "type": "implementation",
+      "path": ".github/RELEASE_SETUP.md",
+      "summary": "Rewritten Local Rehearsal section: runner invocation, evidence-file table, hard-gate/informational reading guide, exit-code contract, W002 guidance"
+    },
+    {
+      "type": "implementation",
+      "path": "code/scripts/README.md",
+      "summary": "New release-verify.sh section following the file's Usage/Flags/Output Files convention"
+    },
+    {
+      "type": "summary",
+      "path": "specs/156_portable_pinned_release_verification_runner/summaries/01_release-verify-runner-summary.md",
+      "summary": "Implementation summary including the full Phase 5 end-to-end run evidence report quoted verbatim from produced files"
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Built and ran end to end a pinned, portable local release-verification runner (code/scripts/release-verify.sh) that provisions build/twine/check-wheel-contents into a venv inside a single nix develop invocation and writes a 12-file evidence set; rewrote .github/RELEASE_SETUP.md's Local Rehearsal section and code/scripts/README.md to document it; archived the real run's evidence under specs/156_.../rehearsal/. All 5 plan phases closed COMPLETED; flake.nix and .github/workflows/ untouched; no push/tag/PR."
+  },
+  "memory_candidates": [
+    {
+      "content": "For a Bash CLI runner that must survive nix develop's non-persisting TMPDIR across a multi-step sequence (provisioning + build + checks + network fetch), use a guarded self-re-exec: parse args and resolve --out to an absolute path FIRST, then `if [ -z \"${GUARD_VAR:-}\" ]; then export GUARD_VAR=1; exec nix develop --command bash \"$0\" <resolved-args>; fi`. This guarantees exactly one nix develop invocation regardless of how many times the script would otherwise be re-entered, and keeps the guard un-recursable since the child inherits the exported var. Verified end-to-end across 5+ real runs.",
+      "category": "PATTERN",
+      "source_artifact": "code/scripts/release-verify.sh",
+      "confidence": 0.85,
+      "suggested_keywords": ["nix-develop", "re-exec-guard", "TMPDIR", "bash-cli", "single-invocation"]
+    },
+    {
+      "content": "When a verification step's nonzero exit is EXPECTED and tracked separately (e.g. check-wheel-contents' W002 duplicate-file warning on this repo's theory_lib VERSION files), classify it as informational in a status ledger and capture its exit code with `cmd; rc=$?` rather than a bare `if cmd; then`, so set -uo pipefail (no -e) never aborts the run on that step, and pair it with a second, hard-gated run using the tool's own --ignore flag to answer 'is there anything NEW beyond the known issue?'. This pattern separates 'known, tracked, expected' from 'a gate that must stay green' without needing two different scripts.",
+      "category": "PATTERN",
+      "source_artifact": "code/scripts/release-verify.sh",
+      "confidence": 0.75,
+      "suggested_keywords": ["check-wheel-contents", "W002", "informational-vs-gate", "record-and-continue", "exit-code-capture"]
+    }
+  ],
+  "reflection": {
+    "what_worked": "Testing each phase's real logic (not just stubs) with actual networked nix develop runs before committing caught a bug immediately: the grep -c '==' verification would have failed due to '==' appearing in a header comment, and the setup_fail label mismatch (SETUP FAILED vs REFERENCE FETCH FAILED) was caught by re-reading the plan's Risks table closely rather than assuming my first-pass wording sufficed.",
+    "what_was_hard": "One interim test run hit a real race condition where another concurrently active agent session in the same shared working tree touched code/dist/ mid-run, causing a transient FileNotFoundError. Diagnosing this required checking git status --porcelain for evidence of concurrent activity (another task's file also changing) rather than assuming the script itself was broken.",
+    "what_was_missed": "Nothing significant was missed; the plan's phase structure, evidence-file naming, and verification tiers were followed closely and matched the archived task 125 precedent almost exactly on the first real run.",
+    "successes": "All 5 phases closed COMPLETED with real, networked, end-to-end verification at every phase (not just syntax checks) -- including a genuine provisioning-failure simulation, two independent --ref override confirmations, and a fully archived official Phase 5 run producing all 12 evidence files with content matching the documented reading guide exactly."
+  },
+  "modified_files": [
+    "code/scripts/release-verify.sh",
+    "code/scripts/release-tools-requirements.txt",
+    ".github/RELEASE_SETUP.md",
+    "code/scripts/README.md",
+    "specs/156_portable_pinned_release_verification_runner/plans/01_release-verify-runner.md",
+    "specs/156_portable_pinned_release_verification_runner/summaries/01_release-verify-runner-summary.md",
+    "specs/156_portable_pinned_release_verification_runner/handoffs/phase-1-handoff-20260812T165524Z.md",
+    "specs/156_portable_pinned_release_verification_runner/handoffs/phase-2-handoff-20260812T170000Z.md",
+    "specs/156_portable_pinned_release_verification_runner/handoffs/phase-3-handoff-20260812T171500Z.md",
+    "specs/156_portable_pinned_release_verification_runner/handoffs/phase-4-handoff-20260812T172000Z.md",
+    "specs/156_portable_pinned_release_verification_runner/handoffs/phase-5-handoff-20260812T172700Z.md",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/build.log",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/twine-check.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/wheel-contents.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/wheel-contents-ignore-w002.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/new-wheel-files.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/ref-1.2.12-wheel-files.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/wheel-files-diff.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/top-level-dir-diff.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/pip-download-1.2.12.log",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/sha256sums.txt",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/parity-diff.md",
+    "specs/156_portable_pinned_release_verification_runner/rehearsal/summary.txt"
+  ],
+  "next_steps": "Task complete. Optional future follow-up (out of this task's file_scope): update PUBLISH-CHECKLIST.md's pre-flight cross-reference to point at the new runner instead of the archived rehearsal evidence.",
+  "metadata": {
+    "session_id": "sess_1786552888_007b13",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 5,
+    "phases_total": 5
+  }
+}

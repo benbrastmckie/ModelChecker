@@ -1,0 +1,18 @@
+{
+  "status": "completed",
+  "task_number": 136,
+  "session_id": "sess_1786211832_501137_136",
+  "phases_completed": [1, 2, 3, 4, 5, 6, 7],
+  "phases_total": 7,
+  "summary_path": "specs/136_ground_wallclock_performance_budgets/summaries/01_wallclock-budget-grounding-summary.md",
+  "evidence_path": "specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-repeat-results.md",
+  "tests_passed": true,
+  "verification": "3 separate unfiltered pytest invocations: 2190 passed / 0 failed / 0 deselected each",
+  "modified_files": [
+    "code/src/model_checker/builder/tests/integration/test_performance.py",
+    "code/tests/integration/test_performance.py",
+    "code/tests/integration/test_timeout_resources.py",
+    "code/pyproject.toml",
+    "specs/135_fix_concurrent_model_building_segfault/plans/01_single-threaded-construction-guard.md"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/191_a2_triangle_encoding_completeness_test/summaries/01_a2-triangle-encoding-completeness-summary.md",
+      "summary": "Implementation summary for the A2-triangle encoding-completeness test: all five plan phases complete, observed verdicts per closure, and the unrelated task-189 test_iterate.py finding."
+    }
+  ],
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantics_core.py",
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+    "specs/191_a2_triangle_encoding_completeness_test/plans/01_a2-triangle-encoding-completeness.md",
+    "specs/191_a2_triangle_encoding_completeness_test/summaries/01_a2-triangle-encoding-completeness-summary.md"
+  ]
+}

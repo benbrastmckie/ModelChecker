@@ -1,0 +1,33 @@
+{
+  "status": "completed",
+  "agent_type": "python-implementation-agent",
+  "task_number": 131,
+  "task_name": "fix_oracle_ternary_sat_regression",
+  "session_id": "sess_1784998815_1581ee_131",
+  "delegation_path": ["orchestrator", "orchestrate", "skill-orchestrate", "python-implementation-agent"],
+  "delegation_depth": 2,
+  "artifacts": [
+    {
+      "path": "specs/131_fix_oracle_ternary_sat_regression/plans/01_fix-oracle-ternary-timeout.md",
+      "type": "plan"
+    },
+    {
+      "path": "specs/131_fix_oracle_ternary_sat_regression/summaries/01_fix-oracle-ternary-timeout-summary.md",
+      "type": "summary"
+    }
+  ],
+  "metadata": {
+    "phase_count": 3,
+    "phases_completed": 3,
+    "estimated_hours": 2,
+    "dependency_waves": [[1], [2], [3]],
+    "complexity": "simple",
+    "research_integrated": true,
+    "plan_version": 1
+  },
+  "memory_candidates": [
+    "Z3 solve times for temporal-depth>0 bimodal formulas at M=3 (MBQI-avoidance dispatch) cluster 50-65s in this environment; a 60000ms budget sits at 88-98% of typical solve time and produces wall-clock boundary flakes rather than signal, consistent with code/docs/core/TESTING_GUIDE.md section 8.6.",
+    "Tests that compare two solver calls for SAT/UNSAT agreement (e.g. enriched vs primitive form) can pass spuriously when both calls independently time out and return None==None -- this masks a genuinely slow query as a false agreement; the all_future case in test_enriched_vs_primitive_sat_agreement exceeds even a 180000ms budget on both forms."
+  ],
+  "next_steps": "Task complete. Downstream full-suite baseline task should use: nix develop --command bash -c 'PYTHONPATH=code/src:/home/benjamin/Projects/BimodalHarness/src python -m pytest oracle/ -n 6' -- not -n auto. pytest-xdist is confirmed live in the devShell."
+}

@@ -1,0 +1,43 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/summaries/01_budget-floor-worker-count-telemetry-summary.md",
+      "summary": "Item-by-item disposition: B closed/untouched, C landed (57 budgets raised, re-measured beyond the research report's 22), A decided clean-branch (-n 6 -> -n 4), D instrumented not fixed (root cause open)."
+    }
+  ],
+  "next_steps": "All 5 plan phases closed. A future task should read accumulated Python 3.12 CI telemetry (worker_rss_sample.py output) to decide D's memory hypothesis, and watch the next several CI runs for the named -n 4 revert trigger.",
+  "metadata": {
+    "session_id": "sess_1787724742_be20e8",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 5,
+    "phases_total": 5
+  },
+  "modified_files": [
+    ".github/scripts/worker_rss_sample.py",
+    ".github/workflows/tests.yml",
+    "code/docs/core/TESTING_GUIDE.md",
+    "code/src/model_checker/theory_lib/bimodal/examples.py",
+    "code/src/model_checker/theory_lib/exclusion/examples.py",
+    "code/src/model_checker/theory_lib/imposition/examples.py",
+    "code/tests/ci/test_example_budget_floor.py",
+    "code/tests/ci/test_worker_rss_sampler.py",
+    "flake.nix",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/evidence/n4-draw1-outcomes.txt",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/evidence/n4-draw2-outcomes.txt",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/evidence/n6-draw1-outcomes.txt",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/evidence/n6-draw2-outcomes.txt",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/evidence/phase2-screen-results.md",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-1-handoff-20260826T090310Z.md",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-2-handoff-20260826T091857Z.md",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-3-handoff-20260826T092151Z.md",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-4-handoff-20260826T092707Z.md",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/handoffs/phase-5-handoff-20260826T093433Z.md",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/plans/01_budget-floor-worker-count-telemetry.md",
+    "specs/170_resolve_xdist_worker_count_and_differential_oracle_floor/summaries/01_budget-floor-worker-count-telemetry-summary.md"
+  ],
+  "completion_summary": "All 5 plan phases closed and committed. Phase 1 (item C): re-scanned and found 57 below-floor max_time dicts (not the research report's 22), measured the previously-unmeasured max_time:5 cohort (35 examples, 0.012s-1.549s isolated), raised all 57 to the 10s floor, extended _COVERED to bimodal/exclusion/imposition -- full gate green (2323/2323). Phase 2 (item A input): ran a four-draw -n6-vs-n4 falsification screen under taskset -c0-3; all four pairwise diffs empty -- CLEAN. Phase 3 (item A decision): applied the clean-branch rule, changed -n 6 to -n 4 in tests.yml and flake.nix together, demonstrated the parity guard RED on a one-sided edit first, retained the BM_CM_1/never-auto rationale verbatim, appended the falsification-screen evidence and an explicit CI-safety-not-proven statement plus a named revert trigger; timeout-minutes left unchanged with a written comparison. Phase 4 (item D): added a /proc-only peak-RSS-per-worker sampler (20 hermetic unit tests, live-smoke-tested), wired 3.12-gated and non-gating into tests.yml, root cause left explicitly open. Phase 5: rewrote TESTING_GUIDE.md 8.13 and 8.11, ran the full gate set (code/tests/ci/ 58/58, code/tests/ 439 passed/1 skipped, full -n4 gating selection two-pass split all green), and verified the task-wide hard-constraint gate (GATING_RECHECK_SOLVE_TIMEOUT_MS, MIN_CONCLUSIVE_GATING_FORMULAS, _MIN_MAX_TIME unchanged; oracle differential test file untouched; no max_time lowered; BM_CM_1/BM_CM_4 byte-identical). Item B was already closed and remained untouched throughout, reconfirmed by the hard-constraint gate. Five commits, one per phase, all with tests passing before commit."
+}

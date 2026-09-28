@@ -1,0 +1,43 @@
+{
+  "status": "implemented",
+  "dispatch_seq": 17,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/195_research_encoder_spec_proof_routes/summaries/01_encoder-spec-proof-routes-summary.md",
+      "summary": "6-phase documentation-plus-one-test implementation: three new A2_GAP.md route rows (g/h/i) with an extended recommendation-and-declined-routes record, the aggregate-vs-per-candidate limit, ADEQUACY.md's concrete 7.1(iii) prerequisite list and max_witnesses precondition, and a swept-grid non-inconclusive A0 standing test. All phases completed, no deviations, bimodal suite and four-theory gate both green."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Landed the encoder-specification proof-routes research's durable conclusions into A2_GAP.md (three new route rows, the aggregate-vs-per-candidate limit, and the recommended-route/declined-routes record) and ADEQUACY.md (the concrete section 7.1(iii) prerequisite list and the max_witnesses precondition for A2/A3), and strengthened the A0 frame-class standing test to a swept 11-point grid with a non-inconclusiveness assertion. Bimodal suite: 528 passed. Four-theory gate: 645 passed, 5 skipped."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When a multi-phase documentation plan spreads a cross-reference across two later phases (e.g. phase N adds a pointer to a statement phase N+1 will write), it is safe to write the forward pointer in the earlier phase, since the document is only externally consistent once the whole plan lands and each phase is committed in the same run. Verify the pointer resolves once the target phase completes, rather than deferring the pointer itself.",
+      "category": "PATTERN",
+      "source_artifact": "specs/195_research_encoder_spec_proof_routes/summaries/01_encoder-spec-proof-routes-summary.md",
+      "confidence": 0.6,
+      "suggested_keywords": ["forward-reference", "multi-phase-plan", "cross-reference", "documentation-plan"]
+    },
+    {
+      "content": "Before parametrizing a pytest test over a grid a research report measured, run the exact grid manually first and record each verdict (including a timeout/inconclusive flag if the framework distinguishes one) rather than asserting the report's Scope Hypothesis blind. A report's prose can render a formula differently than the suite's own test bodies; take formula strings verbatim from the current test source, not from report prose.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/195_research_encoder_spec_proof_routes/summaries/01_encoder-spec-proof-routes-summary.md",
+      "confidence": 0.7,
+      "suggested_keywords": ["pytest", "parametrize", "manual-sweep", "scope-hypothesis", "verbatim-source"]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790489608_0857c5",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  }
+}

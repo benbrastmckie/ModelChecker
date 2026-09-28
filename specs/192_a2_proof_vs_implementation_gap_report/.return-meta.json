@@ -1,0 +1,44 @@
+{
+  "status": "implemented",
+  "dispatch_seq": 10,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/192_a2_proof_vs_implementation_gap_report/summaries/01_a2-gap-companion-document-summary.md",
+      "summary": "Implementation summary for the A2_GAP.md companion document, including the mid-dispatch concurrent-sibling deviation record."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Created code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md, the deep-treatment companion to ADEQUACY.md/TRUST_PIPELINE.md on the A2 proof-versus-implementation gap, and wired it into ADEQUACY.md section 7.3, docs/README.md, and TRUST_PIPELINE.md's See also. Adapted sections 5-10 mid-dispatch to reflect real, committed changes landed by concurrent sibling tasks 193 and 194 (grid widening, window sharing, and a selector-conservativity property test)."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/README.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When a documentation task runs concurrently with sibling implementation tasks touching the same subsystem, re-read the shared file(s) with `git status --short` + `git diff`/`git log` immediately before each edit and immediately before final verification, not just once at dispatch start. Content the plan/research asked to be documented as an open gap can become closed (committed) mid-dispatch by a concurrent sibling; the honest response is to rewrite the affected sections to describe the current state (with a 'why this closure is/isn't a proof' framing consistent with the document's own thesis), not to ship a claim the same working tree already contradicts.",
+      "category": "PATTERN",
+      "source_artifact": "specs/192_a2_proof_vs_implementation_gap_report/summaries/01_a2-gap-companion-document-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["concurrent siblings", "territory", "documentation staleness", "orchestrate", "hunk isolation"]
+    },
+    {
+      "content": "When two concurrently-dispatched agents may both edit the same file in a shared working tree, and your own edit's insertion point risks landing adjacent to their uncommitted hunk, anchor your Edit at a textually distant, stable location in the file (e.g. a section's opening rather than its end) so `git diff` naturally produces non-adjacent hunks. This lets `git status`/`git diff` review stay legible and avoids a whole-file `git add` inadvertently staging a sibling's in-progress uncommitted work under your own commit message.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/192_a2_proof_vs_implementation_gap_report/summaries/01_a2-gap-companion-document-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["git hunk isolation", "concurrent edits", "shared working tree", "territory contract"]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790440270_1867f0",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  }
+}

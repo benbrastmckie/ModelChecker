@@ -1,0 +1,33 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/168_pypi_install_and_full_cli_verification_ci/summaries/01_pypi-install-verification-pipeline-summary.md",
+      "summary": "Full verification table and resolved-design-decisions record for the completed 6-phase implementation: installed_venv parameterized over install source, release.yml's verify-pypi matrix, pypi-smoke.yml, and the one documented deviation (collection-hook mechanism)."
+    }
+  ],
+  "next_steps": "All 6 phases implemented and verified. No publish/push/tag/PR step was performed (non-negotiable constraint). Task is ready for review/completion; three deliberate follow-ups are named in the summary's Non-Goals section (fold inline shell smoke scripts onto the fixture, extend test_unstable_deselection_wiring.py's scanned-driver list, fix PYPI_RELEASE_GUIDE.md's stale pip index versions advice).",
+  "metadata": {
+    "session_id": "sess_1788198229_79cf9f",
+    "agent_type": "python-implementation-agent",
+    "phase_count": 6,
+    "phases_completed": 6,
+    "modified_files": [
+      "code/tests/packaging/conftest.py",
+      "code/tests/packaging/test_install_source_selection.py",
+      ".github/workflows/release.yml",
+      ".github/workflows/pypi-smoke.yml",
+      "specs/168_pypi_install_and_full_cli_verification_ci/plans/01_pypi-install-verification-pipeline.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/baselines/01_packaging-suite-baseline.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/handoffs/phase-1-handoff-20260831.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/handoffs/phase-2-handoff-20260831.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/handoffs/phase-3-handoff-20260831.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/handoffs/phase-4-handoff-20260831.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/handoffs/phase-5-handoff-20260831.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/handoffs/phase-6-handoff-20260831.md",
+      "specs/168_pypi_install_and_full_cli_verification_ci/summaries/01_pypi-install-verification-pipeline-summary.md"
+    ]
+  },
+  "memory_candidates": []
+}

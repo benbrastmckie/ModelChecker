@@ -1,0 +1,69 @@
+{
+  "status": "implemented",
+  "dispatch_seq": 10,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/summaries/03_final-verification-and-completion-summary.md",
+      "summary": "Final summary closing task 184: Phases 22-24 (documentation rewrite, development-marker removal and gating re-enablement, final verification) landed on top of the already-complete Phases 1-21. All 24 phases are now [COMPLETED] or [COMPLETED WITH EXCLUSIONS]. Measured final suite numbers: bimodal 366/366, oracle 567 passed + 4 xfailed (plus pass 2's 5 passed), main gating selection 2855+9 passed with 0 failures, code/tests/ci 136 passed, certificate/Lean round-trip 10/10 passed live. Two carried-forward exclusions from Phases 15 and 21 are named explicitly, not silently absorbed: iterate: N > 1 crashes via shared framework code (docs/ITERATE.md), and oracle/run-oracle-suite.sh pass 2's dead node-id fragment issue resolved itself as a side effect of the marker retirement rather than being deliberately fixed."
+    }
+  ],
+  "next_steps": "None -- task 184 is complete. If a follow-on task is opened, it should address: (1) the iterate: N > 1 crash in model_checker/iterate/models.py (shared framework code needing cross-theory regression coverage before fixing), (2) the shared iterate/constraints.py ConstraintGenerator's is_world-gated exclusion mechanism gap for bimodal, (3) docs/ADEQUACY.md's one stale sentence describing semantic/core.py as the retired encoding (owned by the separate adequacy-layer task), and (4) the two successor tasks the research report names (a Lean tableau bridge as a differential oracle, and JSON certificate export with a Lean re-verification round trip -- note the round trip is already live via lake exe check_certificate, so this successor is narrower than originally scoped).",
+  "phase_count": 24,
+  "phases_completed": 24,
+  "memory_candidates": [
+    {
+      "content": "When a shared, cross-theory framework routine (e.g. model_checker/iterate/models.py's build_new_model_structure) calls a theory-specific method (semantics.is_world(state)) unconditionally rather than behind a hasattr() guard -- unlike its own neighboring calls to other optional theory methods in the same function, which ARE guarded -- removing that theory's state-existence predicate as part of a semantic redesign will make the framework's iteration path crash outright (AttributeError) the first time a caller requests more than one model, rather than degrading gracefully. This kind of asymmetric guarding (some optional-method calls guarded, one sibling call in the same function not) is easy to miss during a redesign's own test suite if no existing test exercises iterate: N > 1 for that theory, since the default N=1 short-circuits before the unguarded code path is ever reached. Direct empirical testing (e.g. a real dev_cli.py run with iterate: 3 set) surfaces this kind of gap when code review alone does not.",
+      "category": "PATTERN",
+      "source_artifact": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/docs/ITERATE.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["hasattr-gating-asymmetry", "shared-framework-code", "model-iteration", "unguarded-optional-method"]
+    },
+    {
+      "content": "A theory-wide pytest marker blanket applied by a pytest_collection_modifyitems hook (used here to quarantine an incomplete theory from release gating) can leave residual coupling in unexpected places once the underlying incompleteness is resolved: per-test markings outside the theory's own tree (an authorized allowlist for completeness claims coupled to the theory's solve cost), a dedicated CI contract test asserting the blanket's exact coverage, and prose in multiple documentation files all need updating together when the marker retires, not just the registration and the gating -m expressions. A repo-wide grep for the marker's own name (not just its registration site) is the reliable way to find every real consumer before declaring the retirement complete.",
+      "category": "PATTERN",
+      "source_artifact": "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["marker-retirement", "pytest-marker-blanket", "ci-contract-test", "gating-wiring"]
+    }
+  ],
+  "modified_files": [
+    ".github/workflows/README.md",
+    ".github/workflows/packaging.yml",
+    ".github/workflows/pypi-smoke.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/tests.yml",
+    "code/CHANGELOG.md",
+    "code/docs/core/TESTING_GUIDE.md",
+    "code/pyproject.toml",
+    "code/run_tests.py",
+    "code/src/model_checker/builder/tests/unit/test_example.py",
+    "code/src/model_checker/theory_lib/bimodal/README.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/API_REFERENCE.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ITERATE.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/README.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/conftest.py",
+    "code/tests/ci/test_development_marker_application.py",
+    "code/tests/ci/test_example_budget_floor.py",
+    "code/tests/ci/test_gating_selection_bimodal_decoupling.py",
+    "code/tests/ci/test_oracle_development_marker_application.py",
+    "code/tests/ci/test_run_tests_markers.py",
+    "code/tests/ci/test_unstable_deselection_wiring.py",
+    "code/tests/packaging/test_generate_then_execute.py",
+    "flake.nix",
+    "oracle/bimodal_logic/README.md",
+    "oracle/conftest.py",
+    "oracle/run-oracle-suite.sh",
+    "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md"
+  ],
+  "metadata": {
+    "session_id": "sess_1790372317_19a415",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"]
+  }
+}

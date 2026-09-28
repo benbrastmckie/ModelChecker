@@ -1,0 +1,35 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/149_wheel_and_sdist_packaging_contract_tests/summaries/01_packaging-contract-tests-summary.md",
+      "summary": "Implementation summary covering all 6 phases: build fixture, exclusions, registry-driven inclusions, wheel/sdist parity, entry-point assertion, and CI wiring"
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Added an executable code/tests/packaging/ suite (108 tests under the new packaging pytest marker) that builds fresh wheel/sdist artifacts and asserts exclusions, registry-driven inclusions, wheel/sdist parity, and console-script installability, then wired a push/PR-triggered packaging.yml workflow plus an additive packaging-test step in release.yml's build job so the suite actually runs in CI. Post-hoc: the plan's deliberate-drift smoke check surfaced a stale-build-cache defect (python -m build --no-isolation reused code/build/ and src/model_checker.egg-info/ incrementally, causing a false pass); fixed by clearing both before/after every session build. Re-verified the smoke check now correctly detects drift."
+  },
+  "modified_files": [
+    "code/pyproject.toml",
+    "code/tests/packaging/__init__.py",
+    "code/tests/packaging/conftest.py",
+    "code/tests/packaging/test_build_smoke.py",
+    "code/tests/packaging/test_exclusions.py",
+    "code/tests/packaging/test_inclusions.py",
+    "code/tests/packaging/test_parity.py",
+    "code/tests/packaging/test_entry_point.py",
+    ".github/workflows/packaging.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/README.md"
+  ],
+  "next_steps": "Task complete. No further action required.",
+  "metadata": {
+    "session_id": "sess_1786500059_e89d8c",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  }
+}

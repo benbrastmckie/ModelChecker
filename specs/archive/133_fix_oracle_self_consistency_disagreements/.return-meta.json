@@ -1,0 +1,23 @@
+{
+  "status": "completed",
+  "task_number": 133,
+  "session_id": "sess_1786211832_501137_133",
+  "phases_completed": 7,
+  "phases_total": 7,
+  "commit": "71457351",
+  "files_modified": [
+    "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/evidence/verification-results.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/handoffs/phase-7-handoff-1786214600.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/.orchestrator-handoff.json",
+    "specs/state.json",
+    "specs/TODO.md"
+  ],
+  "code_files_modified": [],
+  "verification": {
+    "exhaustive_scan": "GREEN: SCAN_COMPLETE, agreements=103 disagreements=0 timeout_count=171 over 274 formulas, 3651.2s; conclusive 103 >= floor 90",
+    "gating_suite": "RED: 3 failures, all timeout/conclusiveness-shaped, none a disagreement; 2 confirmed contention artifacts (pass in isolation), 1 out-of-scope floor mis-calibration"
+  },
+  "notes": "Phase 7 was verification-only; no file under oracle/ or code/ changed. Both delegated soft blockers were already resolved at HEAD by commit c8087c4d before this dispatch started."
+}

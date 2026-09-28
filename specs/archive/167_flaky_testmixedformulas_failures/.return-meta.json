@@ -1,0 +1,32 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/167_flaky_testmixedformulas_failures/summaries/01_deterministic-mixed-formula-budgets-summary.md",
+      "summary": "Route A decision rationale, measured rlimit values and applied budgets, and exactly which verification gates ran versus were narrowed."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Closed out the already-written Route A fix for the flaky TestMixedFormulas tests: plumbed an optional, deterministic max_rlimit budget through Z3OracleProvider.find_countermodel() and OracleTimeoutError, and applied calibrated budgets (>=3x measured rlimit) to both target tests. Verified with the two target node ids (2 passed, 126.32s) and the full CI-contract gate (35 passed); the full oracle/bimodal_logic/tests/ suite (~46 minutes) was not re-run in this dispatch and is recorded as an open exclusion in Phase 7."
+  },
+  "modified_files": [
+    "oracle/bimodal_logic/provider.py",
+    "oracle/bimodal_logic/errors.py",
+    "oracle/bimodal_logic/tests/test_oracle_interface.py",
+    "specs/167_flaky_testmixedformulas_failures/plans/01_deterministic-mixed-formula-budgets.md",
+    "specs/167_flaky_testmixedformulas_failures/summaries/01_deterministic-mixed-formula-budgets-summary.md",
+    "specs/167_flaky_testmixedformulas_failures/handoffs/phase-4-handoff-20260826T082700Z.md",
+    "specs/167_flaky_testmixedformulas_failures/handoffs/phase-5-handoff-20260826T083500Z.md",
+    "specs/167_flaky_testmixedformulas_failures/handoffs/phase-7-handoff-20260826T084500Z.md"
+  ],
+  "next_steps": "Task 167 is fully implemented (all 7 phases closed). Two full-suite verification gates (the full-file xdist_serial run and the full parallel-pass selection over oracle/bimodal_logic/tests/) remain open verification debt for CI or a future time-unconstrained run.",
+  "metadata": {
+    "session_id": "sess_1787724742_be20e8",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 7,
+    "phases_total": 7
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "status": "partial",
+  "phases_completed": 1,
+  "phases_total": 3,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/161_fix_testpypi_trusted_publisher/summaries/01_fix-testpypi-trusted-publisher-summary.md",
+      "summary": "Phase 1 (OIDC-claims diagnostic step) implemented and verified; Phases 2 and 3 remain outstanding as USER GATE work."
+    },
+    {
+      "type": "handoff",
+      "path": "specs/161_fix_testpypi_trusted_publisher/handoffs/phase-1-handoff-20260826T011646Z.md",
+      "summary": "Phase-end handoff recording Phase 1 completion and that Phases 2-3 are user-only."
+    }
+  ],
+  "next_steps": "User must complete Phase 2 (register the TestPyPI trusted publisher at https://test.pypi.org/manage/project/model-checker/publishing/) and Phase 3 (push a real v* tag and verify publish-testpypi goes green). See plan Phase 2 (line 250) and Phase 3 (line 348).",
+  "metadata": {
+    "session_id": "sess_1787706122_ec4532",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": [
+      "orchestrator",
+      "implement",
+      "python-implementation-agent"
+    ],
+    "cycles_used": 3,
+    "final_state": "blocked",
+    "detected_defects": []
+  },
+  "modified_files": [
+    ".github/workflows/release.yml",
+    "specs/161_fix_testpypi_trusted_publisher/plans/01_fix-testpypi-trusted-publisher.md",
+    "specs/161_fix_testpypi_trusted_publisher/handoffs/phase-1-handoff-20260826T011646Z.md",
+    "specs/161_fix_testpypi_trusted_publisher/summaries/01_fix-testpypi-trusted-publisher-summary.md"
+  ],
+  "errors": [],
+  "blockers": [
+    {
+      "phase": 2,
+      "target": "Register the GitHub Actions trusted publisher for model-checker on test.pypi.org",
+      "verbatim_goal": "A GitHub Actions trusted publisher for `model-checker` exists on test.pypi.org with field values that exactly match this workflow's OIDC claims.",
+      "what_was_tried": "Not attempted -- USER-ONLY per the plan's explicit MUST-NOT-ATTEMPT language; no agent may log into or register on test.pypi.org.",
+      "why_it_failed": "Web-UI account action outside any agent's tool access; requires the user's TestPyPI account and judgment on the fallback ladder."
+    },
+    {
+      "phase": 3,
+      "target": "Verify publish-testpypi goes green on a real v* tag push",
+      "verbatim_goal": "The `publish-testpypi` job goes green on a real release run, and the diagnostic step's printed claims are confirmed to match the registered publisher fields.",
+      "what_was_tried": "Not attempted -- USER-ONLY per .claude/rules/pr-prohibition.md; git push/git tag/twine upload are all user-only operations.",
+      "why_it_failed": "Requires Phase 2 to be complete first, and requires a real tag push which no agent may perform."
+    }
+  ]
+}

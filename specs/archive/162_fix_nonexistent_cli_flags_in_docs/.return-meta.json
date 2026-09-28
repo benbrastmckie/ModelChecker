@@ -1,0 +1,47 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "implementation",
+      "path": "code/tests/cli/test_docs_flag_matrix.py",
+      "summary": "Doc-flag regression guard: derives allowed CLI flags from the parser, scans documented shell invocations, and hard-fails on any unregistered/fabricated flag token."
+    },
+    {
+      "type": "report",
+      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/reports/02_violation-inventory.md",
+      "summary": "RED violation inventory (46 tokens/11 files) with final per-phase before/after counts down to zero."
+    },
+    {
+      "type": "summary",
+      "path": "specs/162_fix_nonexistent_cli_flags_in_docs/summaries/01_nonexistent-cli-flags-summary.md",
+      "summary": "Implementation summary covering all 8 phases, verification results, and plan deviations."
+    }
+  ],
+  "modified_files": [
+    "code/tests/cli/test_docs_flag_matrix.py",
+    "docs/usage/WORKFLOW.md",
+    "docs/usage/PROJECT.md",
+    "docs/installation/GETTING_STARTED.md",
+    "docs/usage/OUTPUT.md",
+    "docs/usage/TOOLS.md",
+    "docs/architecture/PIPELINE.md",
+    "docs/architecture/SETTINGS.md",
+    "docs/architecture/ITERATE.md",
+    "code/src/model_checker/settings/README.md",
+    "code/docs/contracts/THEORY_LICENSING.md",
+    "code/src/model_checker/theory_lib/docs/CONTRIBUTING.md",
+    "docs/installation/DEVELOPER_SETUP.md",
+    "code/src/model_checker/output/errors.py",
+    "specs/162_fix_nonexistent_cli_flags_in_docs/reports/02_violation-inventory.md",
+    "specs/162_fix_nonexistent_cli_flags_in_docs/summaries/01_nonexistent-cli-flags-summary.md",
+    "specs/162_fix_nonexistent_cli_flags_in_docs/plans/01_nonexistent-cli-flags-fix.md"
+  ],
+  "next_steps": "All 8 phases COMPLETED. Full test suite green (474 passed, 4 skipped pre-existing/unrelated). No further action required for this task; ready for postflight completion.",
+  "metadata": {
+    "session_id": "sess_1786575006_67aff7",
+    "agent_type": "python-implementation-agent",
+    "cycles_used": 3,
+    "final_state": "completed",
+    "detected_defects": []
+  }
+}

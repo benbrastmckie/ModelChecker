@@ -1,0 +1,22 @@
+{
+  "status": "planned",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/103_oracle_provider_implementation/plans/01_oracle-provider-plan.md",
+      "summary": "5-phase TDD plan: test infrastructure, serialization helpers, provider implementation, Z3 isolation tests, 43-example regression via oracle interface"
+    }
+  ],
+  "next_steps": "Run /implement 103 to execute the plan",
+  "metadata": {
+    "session_id": "sess_1780344785_b03781",
+    "agent_type": "planner-agent",
+    "duration_seconds": 300,
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 5,
+    "estimated_hours": 6,
+    "dependency_waves": [[1], [2], [3], [4], [5]]
+  },
+  "memory_candidates": []
+}

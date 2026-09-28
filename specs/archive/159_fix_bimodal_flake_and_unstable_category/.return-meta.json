@@ -1,0 +1,82 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md",
+      "summary": "Implementation summary covering all 8 plan phases: BM_CM_1 repair-frontier recording, the oracle budget widening, unstable marker registration/marking/wiring, unstable-watch.yml, TESTING_GUIDE.md 8.9, and the conditional follow-up task."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Recorded BM_CM_1's full repair frontier (a third closed encoding avenue) and marked it unstable with all four entry criteria in-line since no fix exists. Landed a measurement-justified widening of the oracle gating re-check budget (20000->40000ms), verified locally at 103/103 conclusive but not yet on real CI. Registered and wired the unstable marker's deselection across tests.yml, differential-tests.yml, release.yml, and flake.nix; added the non-gating unstable-watch.yml observation workflow; documented the full policy in TESTING_GUIDE.md 8.9; and created follow-up task 160 since neither defect fully closed within this round.",
+    "roadmap_items": []
+  },
+  "memory_candidates": [
+    {
+      "content": "For a pytest suite with an ini file that is a sibling (not ancestor) of a standalone test tree (e.g. code/pyproject.toml vs. oracle/), marker registration must be mirrored in BOTH the ini file AND a conftest.py in the standalone tree's own pytest_configure via config.addinivalue_line -- ini-discovery never reaches a sibling directory's ini file, so registering only in the ini file leaves the standalone tree emitting unknown-marker warnings (or erroring under --strict-markers).",
+      "category": "PATTERN",
+      "source_artifact": "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": [
+        "pytest",
+        "markers",
+        "conftest.py",
+        "ini-discovery",
+        "addinivalue_line"
+      ]
+    },
+    {
+      "content": "When converting a pytest parametrize call from a bare dict.items() view to pytest.param(...) objects (e.g. to attach per-case marks), passing no explicit ids= reproduces the original auto-generated node IDs exactly, verified via a --collect-only diff before/after -- this is the safe way to add a conditional mark to select parametrized cases without breaking existing node-ID-dependent -k selections or CI history.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": [
+        "pytest",
+        "parametrize",
+        "pytest.param",
+        "node-id-stability",
+        "collect-only"
+      ]
+    }
+  ],
+  "reflection": {
+    "what_worked": "Reading the research report's measurement tables closely before writing any comment made the in-line entry-criteria and budget-justification blocks fast to draft accurately -- the evidence was already assembled, so the work was transcription with fidelity checks, not re-derivation.",
+    "what_was_hard": "The no-task-references-in-deliverables hook blocked the first operators.py docstring edit for citing task numbers in a code comment; had to rewrite the historical cross-references using dates and durable anchors instead.",
+    "what_was_missed": "Phases 2 and 3's git adds were batched together before the first commit, merging what the plan intended as two separate phase commits into one -- caught and recorded honestly in the summary rather than silently left unremarked.",
+    "successes": "All 8 phases completed and verified: node IDs byte-identical before/after the unstable marking, the widened oracle budget still passes at 103/103 conclusive locally, all workflow YAML parses, the unstable-watch.yml classification logic tested correct against a hand-written TIMING/NEW sample, and TESTING_GUIDE.md 8.9 cross-references all verified to exist."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/operators.py",
+    "code/src/model_checker/theory_lib/bimodal/examples.py",
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    ".github/workflows/differential-tests.yml",
+    "code/pyproject.toml",
+    "oracle/conftest.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py",
+    ".github/workflows/tests.yml",
+    ".github/workflows/release.yml",
+    "flake.nix",
+    ".github/workflows/unstable-watch.yml",
+    "code/docs/core/TESTING_GUIDE.md",
+    "specs/state.json",
+    "specs/TODO.md",
+    "specs/159_fix_bimodal_flake_and_unstable_category/plans/01_bimodal-flake-unstable-category.md",
+    "specs/159_fix_bimodal_flake_and_unstable_category/summaries/01_bimodal-flake-unstable-category-summary.md"
+  ],
+  "next_steps": "USER ACTION REQUIRED: push and dispatch .github/workflows/differential-tests.yml via workflow_dispatch 2-3 times to verify the widened GATING_RECHECK_SOLVE_TIMEOUT_MS=40000 on real CI (agents cannot push/dispatch per .claude/rules/pr-prohibition.md). Follow-up task 160 tracks this obligation and the unstable-watch.yml promotion path for BM_CM_1.",
+  "metadata": {
+    "session_id": "sess_1786562372_0f5f79",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": [
+      "orchestrator",
+      "implement",
+      "python-implementation-agent"
+    ],
+    "phases_completed": 8,
+    "phases_total": 8,
+    "cycles_used": 3,
+    "final_state": "completed",
+    "detected_defects": []
+  }
+}

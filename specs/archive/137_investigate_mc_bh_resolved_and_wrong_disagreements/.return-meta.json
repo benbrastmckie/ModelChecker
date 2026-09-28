@@ -1,0 +1,29 @@
+{
+  "task_number": 137,
+  "status": "planned",
+  "agent_type": "planner-agent",
+  "session_id": "sess_1786219326_e8aed5_137",
+  "delegation_path": ["orchestrator", "plan", "planner-agent"],
+  "summary": "Five-phase plan converting the unexplained strict xfail into a self-verifying record of a confirmed external BimodalHarness boundary-scan defect. No ModelChecker semantics change; MC is correct on all 12 disagreements.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/plans/01_record-external-bh-boundary-defect.md",
+      "summary": "Ground-truth evaluator promotion, solver-free disagreement classifier, xfail removal with five ordered loud-failure guards, upstream defect record, end-to-end verification."
+    }
+  ],
+  "phase_count": 5,
+  "estimated_hours": 6,
+  "dependency_waves": [[1], [2, 4], [3], [5]],
+  "blockers": [],
+  "next_steps": "Run /implement 137 to execute the plan",
+  "memory_candidates": [
+    {
+      "content": "When a differential/cross-oracle test suite records a divergence caused by a defect in an EXTERNAL reference implementation, an xfail is the wrong mechanism: an xfail asserts the test is expected to fail, but once the divergence is attributed the test should pass. The durable pattern is instead an independent in-repo ground-truth adjudicator plus three-way bucketing of each disagreement (external-defect / own-defect / unadjudicable), guarded by ordered assertions: (1) a conclusive-count floor asserted FIRST so a starved solve budget is diagnosed as a performance regression rather than misread as an upstream fix, (2) own-defect empty, (3) unadjudicable empty so a new differently-shaped divergence cannot be absorbed, (4) external-defect bucket NON-empty as a staleness guard that fires when upstream fixes the defect and the accommodation becomes dead code, (5) per-entry verdict-signature match so a different external defect cannot hide inside the accommodation bucket. Adjudicating against a ground-truth evaluator generalizes strictly better than excluding a syntactic shape family, and turns 'our side is correct here' from a comment into a checked assertion. The adjudicator itself needs a stability test (verdict invariant as its search window widens) because a bounded brute-force evaluator is vulnerable to the same boundary-truncation artifact it exists to diagnose.",
+      "category": "PATTERN",
+      "source_artifact": "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/plans/01_record-external-bh-boundary-defect.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["differential-testing", "xfail", "external-defect", "ground-truth-oracle", "staleness-guard", "boundary-artifact"]
+    }
+  ]
+}

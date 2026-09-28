@@ -1,0 +1,68 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/150_add_general_ci_workflow_and_flake_check_gate/summaries/01_ci-workflow-and-flake-gate-summary.md",
+      "summary": "All 5 phases completed: added .github/workflows/tests.yml (general test matrix + nix flake check job), broadened flake.nix's checks.default and corrected its false justification, documented the new workflow's scoping rationale, and closed two ROADMAP items. Verified locally only (YAML validity, exact selector runs, real nix flake check); no push, no PR."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Added .github/workflows/tests.yml (push/PR general-tests matrix across Python 3.10/3.11/3.12 plus a nix flake check job) and broadened flake.nix's checks.default beyond the bimodal-only suite, correcting its false '28 documented failures' justification. Discovered and fixed one additional genuine missing dependency (typing-extensions) not anticipated in the plan, needed in both flake.nix's devPython and the workflow's pip install list to reach a true green. Documented the new workflow's scoping decisions in .github/workflows/README.md and closed the two answered specs/ROADMAP.md Phase 1 items. All verification was local-only (YAML parse, exact pytest selectors, a real nix flake check run) per the plan's local-only verification contract; nothing was pushed and no PR was opened.",
+    "roadmap_items": [
+      "Add `nix flake check` as a CI gate job",
+      "Follow-up task for the 28 documented \"everything-else\" failures"
+    ]
+  },
+  "modified_files": [
+    "flake.nix",
+    ".github/workflows/tests.yml",
+    ".github/workflows/README.md",
+    "specs/ROADMAP.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "On this NixOS host, flake.nix's devPython (python.withPackages) does NOT get transitive Python dependencies the same way a pip venv does. code/src/model_checker/theory_lib/logos/protocols.py imports typing_extensions at module level but pyproject.toml never declares it -- a pip venv installing ipywidgets/jupyter/etc. pulls it in transitively, but the nixpkgs closure does not, so it must be listed explicitly in devPython (python312Packages.typing-extensions) or every test that collects the logos subtheory fails with a hard ModuleNotFoundError, not a skip. Same failure mode class as unittest.mock.patch needing ipywidgets to pre-exist as an attribute.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/150_add_general_ci_workflow_and_flake_check_gate/summaries/01_ci-workflow-and-flake-gate-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": [
+        "nix",
+        "flake.nix",
+        "devPython",
+        "typing_extensions",
+        "undeclared dependency",
+        "modulechecker"
+      ]
+    },
+    {
+      "content": "When writing rationale prose inside a CI workflow YAML comment that documents a forbidden flag (e.g. explaining why '-n auto' must never be used), a literal grep-based verification like `grep -n \"n auto\" file.yml` returning nothing will be tripped by the prose itself if it contains the exact substring. Reword explanatory comments to avoid the literal forbidden-flag substring (e.g. 'xdist's auto worker-count mode' instead of '-n auto') so the file both documents the rationale and passes a naive substring-absence check.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/150_add_general_ci_workflow_and_flake_check_gate/summaries/01_ci-workflow-and-flake-gate-summary.md",
+      "confidence": 0.7,
+      "suggested_keywords": [
+        "ci workflow",
+        "grep verification",
+        "yaml comments",
+        "forbidden flag",
+        "pytest-xdist"
+      ]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1786521375_7a5f0d",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": [
+      "orchestrator",
+      "orchestrate",
+      "skill-orchestrate",
+      "general-implementation-agent"
+    ],
+    "phases_completed": 5,
+    "phases_total": 5,
+    "cycles_used": 3,
+    "final_state": "completed",
+    "detected_defects": []
+  }
+}

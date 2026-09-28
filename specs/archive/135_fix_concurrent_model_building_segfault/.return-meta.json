@@ -1,0 +1,17 @@
+{
+  "status": "partial",
+  "task_number": 135,
+  "session_id": "sess_1786211832_501137_135",
+  "phases_completed": [1, 2, 3, 4, 5, 6],
+  "phases_total": 7,
+  "phase_blocked": 7,
+  "blocker": "Phase 7 (remove -m \"not slow\" from code/pyproject.toml) is hard-gated on task 136 (ground_wallclock_performance_budgets), status not_started. code/pyproject.toml deliberately untouched.",
+  "tests_run": {
+    "phase4_subprocess_samples": "60/60 exit 0 (three batches of 20)",
+    "full_scope_sweep": "2154 passed, 0 failed, 41 deselected, exit 0",
+    "baseline": "2137 passed, 0 failed, 43 deselected",
+    "slow_set_two_files": "1 failed (documented wall-clock budget, task 136), 29 passed, 2 deselected"
+  },
+  "summary_path": "specs/135_fix_concurrent_model_building_segfault/summaries/01_single-threaded-construction-guard-summary.md",
+  "handoff_path": "specs/135_fix_concurrent_model_building_segfault/.orchestrator-handoff.json"
+}

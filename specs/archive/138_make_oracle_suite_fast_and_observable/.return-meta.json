@@ -1,0 +1,58 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md",
+      "summary": "7-phase plan splitting the oracle suite into fast gating and explicitly-invoked exhaustive variants with instrumentation, result artifacts, bounded timeouts, and a persisted known-conclusive baseline"
+    },
+    {
+      "type": "summary",
+      "path": "specs/138_make_oracle_suite_fast_and_observable/summaries/01_oracle-suite-fast-observable-summary.md",
+      "summary": "Implementation summary: all 7 phases complete, gating suite ~4.76x faster with both assertion teeth intact, exhaustive path split off, split documented in TESTING_GUIDE.md 8.8 and oracle README"
+    }
+  ],
+  "next_steps": "None required. Task complete. Environmental contention finding from Phase 6 (documented in the plan and summary) is informational only, not a blocker.",
+  "metadata": {
+    "session_id": "sess_1786028151_150316_138",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phase_count": 7,
+    "phases_completed": 7,
+    "estimated_hours": 11,
+    "dependency_waves": [[1], [2, 3], [4], [5], [6], [7]]
+  },
+  "memory_candidates": [
+    {
+      "content": "Splitting a long-running test suite into a fast gating variant and a slow exhaustive variant without weakening assertions has a reliable four-part shape: (1) put instrumentation (progress callback, flushed JSONL side-channel, result artifact, completion marker) inside the ONE shared scan function as default-off parameters, so existing call sites are untouched and no second loop can drift; (2) persist a baseline manifest recording the known-decidable subset by BOTH index and canonical content, never index alone, so an enumerator/generator change fails loudly instead of silently misaligning; (3) have the gating variant assert the real soundness property over the decidable subset while asserting the undecidable set has not grown as a cheap structural invariant (population size fixed + membership fixed), rather than re-solving known-timeout items; (4) leave the exhaustive variant as the sole re-deriver of the full population and sole detector of drift. Two ordering constraints are load-bearing: the baseline must be derived BEFORE any gating assertion depends on it, from a contention-free serial run (a baseline derived under load permanently shrinks gating coverage -- the exact assertion-weakening the split exists to avoid), and the completion marker must be written strictly AFTER the result artifact is closed, since a marker that can precede a durable artifact reintroduces the false-completion failure mode.",
+      "category": "PATTERN",
+      "source_artifact": "specs/138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["test-suite-split", "gating-vs-exhaustive", "baseline-manifest", "completion-marker", "long-running-tests", "assertion-preservation"]
+    },
+    {
+      "content": "When verifying a shared multi-tenant dev machine is 'idle' before a timing-sensitive test run, checking for competing pytest/xdist processes is not sufficient -- unrelated heavy CPU consumers from OTHER tools (observed: a `lean --worker` Lean 4 proof-search process sustaining 300-1200% CPU) can push near-budget Z3 solves over their timeout just as effectively as sibling pytest workers would, even inside a nominally-serial (`xdist_serial`, no `-n`) pytest pass. Diagnose intermittent solve-budget floor misses by checking `ps aux --sort=-%cpu` / `/proc/loadavg` for ANY heavy process, not just pytest; and corroborate with pre-existing, untouched tests in the same run failing the same way, which rules out a regression in whatever you just changed.",
+      "category": "PATTERN",
+      "source_artifact": "specs/138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["shared-machine-contention", "z3-solve-budget", "flaky-tests", "cpu-contention", "diagnosis"]
+    }
+  ],
+  "modified_files": [
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    "oracle/scan_runner.py",
+    "oracle/run-oracle-exhaustive-scan.sh",
+    "oracle/run-oracle-suite.sh",
+    "oracle/.gitignore",
+    "oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json",
+    "oracle/bimodal_logic/README.md",
+    "code/docs/core/TESTING_GUIDE.md",
+    "specs/138_make_oracle_suite_fast_and_observable/baselines/derivation-run/progress.jsonl",
+    "specs/138_make_oracle_suite_fast_and_observable/baselines/derivation-run/report.json",
+    "specs/138_make_oracle_suite_fast_and_observable/baselines/derivation-run/SCAN_COMPLETE",
+    "specs/138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md",
+    "specs/138_make_oracle_suite_fast_and_observable/summaries/01_oracle-suite-fast-observable-summary.md",
+    "specs/138_make_oracle_suite_fast_and_observable/.orchestrator-handoff.json"
+  ]
+}

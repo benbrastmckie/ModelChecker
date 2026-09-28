@@ -1,0 +1,59 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/summaries/01_decouple-gating-tests-summary.md",
+      "summary": "Implementation summary: all 8 phases completed, decoupling release-gating tests from bimodal solve cost with a paired before/after wall-clock record."
+    },
+    {
+      "type": "summary",
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/baselines/before-wall-clocks.md",
+      "summary": "Pre-implementation wall-clock baselines for all six gating selections, with machine-load readings."
+    },
+    {
+      "type": "summary",
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/baselines/after-wall-clocks.md",
+      "summary": "Post-implementation wall-clock measurements for the same six gating selections, with machine-load readings and honesty notes."
+    },
+    {
+      "type": "summary",
+      "path": "specs/181_audit_gating_tests_coupled_to_bimodal_solve_cost/baselines/before-after-comparison.md",
+      "summary": "Paired before/after wall-clock comparison table with numeric no-regression verification and the one deliberately-retained bimodal exception."
+    }
+  ],
+  "next_steps": "Task fully implemented; nix flake check was deferred (not run) and should be verified by a human before relying on flake.nix's gating shape as separately confirmed.",
+  "metadata": {
+    "session_id": "sess_1788263678_7f5c4a",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "duration_seconds": 3960
+  },
+  "phases_completed": 8,
+  "phases_total": 8,
+  "modified_files": [
+    "code/tests/utils/helpers.py",
+    "code/tests/utils/base.py",
+    "code/tests/integration/test_performance.py",
+    "code/tests/integration/test_error_handling.py",
+    "code/tests/integration/test_timeout_resources.py",
+    "code/src/model_checker/builder/tests/unit/test_example.py",
+    "code/tests/packaging/test_cli_console_script.py",
+    "code/tests/e2e/test_batch_output_real.py",
+    "code/tests/cli/test_flag_matrix.py",
+    "code/src/model_checker/builder/tests/e2e/test_full_pipeline.py",
+    ".github/workflows/packaging.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/pypi-smoke.yml",
+    "code/tests/ci/test_unstable_deselection_wiring.py",
+    "code/docs/core/TESTING_GUIDE.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/conftest.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+    "code/tests/ci/test_development_marker_application.py",
+    "code/tests/packaging/test_generate_then_execute.py",
+    "code/tests/ci/test_gating_selection_bimodal_decoupling.py",
+    "code/src/model_checker/builder/tests/integration/test_performance.py"
+  ],
+  "errors": []
+}

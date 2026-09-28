@@ -1,0 +1,64 @@
+{
+  "status": "implemented",
+  "dispatch_seq": 14,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md",
+      "summary": "All 8 phases completed: production checker resolver and capability handshake, the verify-setting output gate with three honest states, the test-helper refactor onto the production resolver, gate documentation, a fresh trimmed-binary measurement confirming the out-of-band packaging route, and the item-3 ledger/direction-claim extensions across seven surfaces."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Implemented the certifying-countermodel output gate (a 'verify' setting with three honest states rendered on every reported countermodel), the production checker resolver with a capability handshake and optional digest pinning, refactored the test differential tier onto that same resolver (incidentally speeding it up substantially), measured a trimmed checker binary to confirm the out-of-band opt-in packaging recommendation, and extended four ledger/coverage documents plus three test surfaces to state that the standing A2 tiers are UNSAT-direction evidence, not countermodel trust."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/SEARCH_COVERAGE.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md",
+    "code/src/model_checker/theory_lib/bimodal/semantic/checker.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/model.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/README.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_search_period_coverage.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py",
+    "specs/205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "In this codebase (ModelChecker), a theory's semantics class must never set an attribute literally named `verify` unless it truly implements the verify/falsify state-predicate pattern (logos/exclusion): models/semantic.py's initialize_with_state and iterate/models.py's generic model-rebuild path both branch on hasattr(semantics, 'verify') as the theory-capability test. Any other feature needing a setting called 'verify' must store its resolved value under a differently-named attribute (e.g. verify_mode) while keeping the settings dict key itself as 'verify' -- the collision only manifests during model iteration (a live, multi-solve test path), not on a plain single-solve construction, so it can pass ordinary unit tests and only surface in an integration/iteration test suite.",
+      "category": "PATTERN",
+      "source_artifact": "specs/205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md",
+      "confidence": 0.9,
+      "suggested_keywords": ["bimodal", "hasattr", "framework collision", "verify", "iterate", "SemanticDefaults"]
+    },
+    {
+      "content": "A leading-underscore helper function can be deliberately imported across modules within the same package for code-sharing purposes without being promoted to that module's public __all__ -- this codebase already has two instances of the pattern (certificate.py's window helpers imported by witness_constraints.py; semantic/checker.py's _invoke imported by tests/_lean_check.py). Document the reuse explicitly in both the source module's docstring and the consuming module's docstring so a future reader does not 'fix' the leading underscore by making the function harder to reach.",
+      "category": "PATTERN",
+      "source_artifact": "specs/205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["python", "private function reuse", "cross-module import", "code sharing"]
+    },
+    {
+      "content": "code/tests/ci/test_timing_marker_coverage.py is an AST-based project-wide gate: any test function that reads a real wall-clock (time.time/perf_counter/monotonic) AND asserts a bound comparison on the derived value must carry @pytest.mark.performance or @pytest.mark.xdist_serial, even if the operation being timed is itself monkeypatched to be instant/deterministic. When writing a new test with a 'confirms no hang' style elapsed-time assertion, add @pytest.mark.xdist_serial proactively rather than discovering the gate failure only when running the whole-project test suite.",
+      "category": "CONFIG",
+      "source_artifact": "specs/205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["pytest", "xdist_serial", "timing marker", "CI gate", "wall clock"]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790553242_29e5aa",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 8,
+    "phases_total": 8
+  }
+}

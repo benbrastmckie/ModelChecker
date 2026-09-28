@@ -1,0 +1,101 @@
+{
+  "status": "implemented",
+  "dispatch_seq": 4,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/summaries/02_ilmc-settled-imposition-verifiers-summary.md",
+      "summary": "Per-phase record of the seven-phase implementation, its verification counts, plan deviations, and the deferred stash drop."
+    },
+    {
+      "type": "implementation",
+      "path": "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/report/verifier_clauses.md",
+      "summary": "The recommendation document: ILMC named, measurement tables citing tests and baselines, Concessions and Further Tests sections."
+    },
+    {
+      "type": "implementation",
+      "path": "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidates.py",
+      "summary": "Six candidate Z3 operators (I, ILC, ILMC, W, L, MC) plus might variants sharing the truth clause verbatim."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Implemented and measured the candidate verifier clauses for the logos counterfactual: recovered the stashed Z3 substrate, ported every research clause and witness frame into the committed oracle with pinned characterization tests, added ILC/ILMC/MC as Z3 operators cross-validated against the oracle, built nested-antecedent and constitutive example collections with Z3 confirmation, and delivered the recommendation report naming ILMC (exact settled-imposition verifiers) with its concessions. Along the way fixed a pre-existing bound-variable capture in CounterfactualOperator.true_at/false_at and established, against the research's small-frame hypothesis, that ILMC/ILC are hyperintensional on possible states already at four atoms (Z3-confirmed at N=4)."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/__init__.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidates.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidate_examples.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/frame_oracle.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/report/verifier_clauses.md",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/README.md",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/witness_frames.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/f3_candidate_sets.json",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/n4_separation_witnesses.json",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_status_quo_audit.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_frame_oracle.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_candidate_operators.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_candidate_structure.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_candidate_logic_oracle.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_candidate_logic.py",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/plans/02_ilmc-settled-imposition-verifiers.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/summaries/02_ilmc-settled-imposition-verifiers-summary.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/03_research-exploration.py",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/04_structure-matrix.json",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/05_regression-matrix.json",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/06_logic-matrix.json",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/07_hyperintensionality.json",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/08_nesting-cost.json",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/09_constitutive-countermodels.json",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/baselines/10_possible-state-separation-n4.json",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-1-handoff-plan02-20260909T004521Z.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-2-handoff-plan02-20260909T004852Z.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-3-handoff-plan02-20260909T005143Z.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-4-handoff-plan02-20260909T005340Z.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-5-handoff-plan02-20260909T010308Z.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-6-handoff-plan02-20260909T012309Z.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-7-handoff-plan02-20260909T013650Z.md",
+    "specs/185_design_and_test_hyperintensional_counterfactual_verifiers/handoffs/phase-3-handoff-20260908T235211Z.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "model_checker.utils.ForAll/Exists expand quantifiers by substituting for a NAMED z3 constant. Any operator whose true_at/false_at creates bound variables with a fixed name (e.g. z3.BitVec('t_cf_u', N)) and passes that bound variable as the evaluation world to a nested occurrence of the same operator suffers variable capture: the inner expansion substitutes the outer's bound world too, and the inner clause loses its evaluation world entirely. Fix: draw fresh names per call (itertools.count suffix). Probe: build sem.true_at(inner, {'world': z3.BitVec('probe', N)}) and check the expression still mentions 'probe'. imposition/operators.py still has the fixed-name pattern.",
+      "category": "INSIGHT",
+      "source_artifact": "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_status_quo_audit.py",
+      "confidence": 0.9,
+      "suggested_keywords": ["z3", "ForAll", "variable capture", "nested operators", "counterfactual", "true_at"]
+    },
+    {
+      "content": "Oracle-first measurement pattern for semantic clause exploration: state every candidate clause over explicit finite frames in pure Python (bitmask states), pin counts as characterization tests on seeded/exhaustive populations, then confirm with Z3 at small N via cross-validation (Python side == oracle on the extracted frame == Z3 clause at every state and evaluation world). Sampling zeros are not coincidence proofs: a 300-model sample at n=4 missed separations that a 20,000-model sample and Z3's exhaustive search both found; scale the sample or ask Z3 before declaring two clauses coincide.",
+      "category": "TECHNIQUE",
+      "source_artifact": "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/README.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["oracle", "characterization tests", "cross-validation", "z3", "sampling", "hyperintensionality"]
+    },
+    {
+      "content": "For Z3 clauses with several quantifier layers over concrete states (fusion closure, minimality, settling, imposition), iterate concrete states in Python and memoize each per-state subterm on the semantics instance keyed by (clause, argument names, state, encoding). Shared DAG subterms keep a four-layer clause (ILMC) at ~1 s for N=4; an unmemoized settler term made one cross-validation test take 27 s.",
+      "category": "PATTERN",
+      "source_artifact": "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidates.py",
+      "confidence": 0.8,
+      "suggested_keywords": ["z3", "memoization", "quantifier layers", "concrete states", "performance"]
+    }
+  ],
+  "reflection": {
+    "what_worked": "Recovering the stashed substrate by explicit path and running the full suite immediately surfaced the capture defect before any new clause depended on it; the oracle-first split let every structural and logical claim be pinned in seconds and left Z3 only the confirmation role.",
+    "what_was_hard": "Interpreting the N=4 constitutive countermodels: Z3's returned models separated the pair only on impossible states, so it took large oracle samples and a Z3 seed sweep to establish that possible-state separations exist at four atoms too.",
+    "what_was_missed": "The plan assumed the tree would be clean for the stash drop; inside an orchestrated dispatch the orchestrator's own lock and event files keep it dirty, so that step had to be recorded as a reasoned exclusion rather than executed.",
+    "successes": "All seven phases closed with green gates (logos 747, code/tests 680); the recommendation is backed by pinned tests and ten baselines, and two research claims were corrected by measurement (the SR/SRC count and the small-frame-coincidence reading)."
+  },
+  "next_steps": "Drop stash@{0} on a clean tree (redundant with commit 64eb483b) and remove .git-snapshot-marker and working-progress-1788911805.patch; consider follow-up tasks for adopting \\boxrightILMC as the successor operator and for the same bound-variable fix in imposition/operators.py.",
+  "metadata": {
+    "session_id": "sess_1788911899_64b5b6",
+    "agent_type": "python-implementation-agent",
+    "duration_seconds": 3900,
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 7,
+    "phases_total": 7
+  }
+}

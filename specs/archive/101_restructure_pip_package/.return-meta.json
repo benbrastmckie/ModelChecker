@@ -1,0 +1,19 @@
+{
+  "status": "completed",
+  "summary": "Restructured codebase as bimodal-logic pip package: overhauled pyproject.toml, created bimodal_logic/ facade stubs, cleaned egg-info, verified editable install. 171 tests pass, 1 pre-existing failure (BM_CM_1).",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/101_restructure_pip_package/plans/01_restructure-plan.md",
+      "summary": "4-phase implementation plan: all phases completed"
+    },
+    {
+      "type": "summary",
+      "path": "specs/101_restructure_pip_package/summaries/01_restructure-summary.md",
+      "summary": "Implementation summary with all verification results"
+    }
+  ],
+  "phases_completed": 4,
+  "phases_total": 4,
+  "memory_candidates": []
+}

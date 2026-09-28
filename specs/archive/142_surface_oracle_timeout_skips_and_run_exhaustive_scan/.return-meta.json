@@ -1,0 +1,16 @@
+{
+  "status": "completed",
+  "summary": "All 7 phases of the plan implemented and verified: ground-truth hard gate cleared; three expected_sat labels corrected (TN_TH_2, TN_CM_1, BM_TH_1) with TN_TH_2 still correctly SKIPPED; timeout-skip inventory ([KNOWN]/[NEW]/[RESOLVED]) added to oracle/conftest.py and wired into run-oracle-suite.sh via -rs plus opt-in JSON artifacts; exhaustive-scan cadence decision recorded with a verified freshness checker; get_theory(config) contract documented with zero behavior change. Full gating suite re-verified green (both passes PASSED, exit 0).",
+  "artifacts": [
+    {
+      "path": "specs/142_surface_oracle_timeout_skips_and_run_exhaustive_scan/summaries/01_surface-oracle-timeout-skips-summary.md",
+      "type": "summary",
+      "summary": "Full implementation summary with what-changed, decisions, plan deviations, impacts, and follow-ups."
+    }
+  ],
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "Ready for review/PR. See summary's Follow-ups section for seven scoped next tasks.",
+  "phases_completed": 7,
+  "phases_total": 7
+}

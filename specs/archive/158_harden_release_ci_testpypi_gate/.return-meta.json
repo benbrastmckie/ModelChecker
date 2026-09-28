@@ -1,0 +1,63 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/158_harden_release_ci_testpypi_gate/summaries/01_harden-testpypi-gate-summary.md",
+      "summary": "All 8 phases completed: hard TestPyPI gate with skip_testpypi escape, verify-testpypi install/smoke job, fail-fast preflight job, non-interactive project generation, orchestrator loop-guard gitignore/untrack, RELEASE_SETUP.md docs, release-verify.sh evidence-commit recording, and full-suite green (566 passed, 5 skipped)."
+    },
+    {
+      "type": "plan",
+      "path": "specs/158_harden_release_ci_testpypi_gate/plans/01_harden-testpypi-gate.md",
+      "summary": "Eight-phase plan, all phases marked [COMPLETED] with per-phase deviation notes and locally-exercised verification results recorded inline."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Converted the TestPyPI rehearsal step in release.yml from a soft canary (continue-on-error: true) into a hard gate with a workflow_dispatch skip_testpypi escape hatch, added a verify-testpypi job that installs and smoke-tests the just-uploaded TestPyPI artifact, and added a seconds-cheap preflight job that fails fast on tag/version/CHANGELOG/tag-shape mismatches before the 9-job matrix. Also added non-interactive project generation (-y/--project_name), untracked orchestrator loop-guard files, documented the push-before-tag ordering hazard in RELEASE_SETUP.md, and recorded the rehearsal-evidence commit SHA in release-verify.sh."
+  },
+  "modified_files": [
+    ".github/RELEASE_SETUP.md",
+    ".github/workflows/release.yml",
+    ".gitignore",
+    "code/scripts/release-verify.sh",
+    "code/src/model_checker/__main__.py",
+    "code/src/model_checker/builder/project.py",
+    "code/src/model_checker/builder/tests/unit/test_project.py",
+    "code/tests/cli/test_flag_matrix.py",
+    "code/tests/cli/test_parse_file_flags.py",
+    "code/tests/unit/test_main_cli.py",
+    "specs/158_harden_release_ci_testpypi_gate/plans/01_harden-testpypi-gate.md",
+    "specs/158_harden_release_ci_testpypi_gate/summaries/01_harden-testpypi-gate-summary.md",
+    "specs/161_fix_testpypi_trusted_publisher/.orchestrator-loop-guard",
+    "specs/archive/096_investigate_perpetuity_validity_alignment/.orchestrator-loop-guard",
+    "specs/archive/097_optimize_build_frame_constraints/.orchestrator-loop-guard",
+    "specs/archive/107_boundary_temporal_depth_mitigation/.orchestrator-loop-guard",
+    "specs/archive/112_fold_unfold_formula_normalization/.orchestrator-loop-guard",
+    "specs/archive/113_enriched_operator_equivalence_tests/.orchestrator-loop-guard"
+  ],
+  "next_steps": "Task ready for user review. No git push/tag/merge/twine action was taken (user-only, per pr-prohibition.md); the next real tag push is the first live exercise of the hardened gate and should be watched closely, especially the skip_testpypi expression's runtime behavior, which could not be rehearsed by the implementer.",
+  "metadata": {
+    "session_id": "sess_1788198229_79cf9f",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 8,
+    "phases_total": 8
+  },
+  "memory_candidates": [
+    {
+      "content": "In GitHub Actions, a job's own custom `if:` expression REPLACES the implicit `if: success()` default applied to any job with `needs:` -- it does not layer on top of it. Writing e.g. `if: ${{ inputs.skip_testpypi != true }}` on a job with `needs: [a, b]` lets that job attempt to run even after `a`/`b` failed, since the expression never inspects their result. The safe pattern to add a custom condition while preserving the standard fail-fast chain is `if: ${{ success() && <custom condition> }}`, or explicit `needs.<job>.result == 'success'` checks when different jobs need different treatment (e.g. a skip-vs-success distinction for a deliberate bypass path).",
+      "category": "INSIGHT",
+      "source_artifact": "specs/158_harden_release_ci_testpypi_gate/summaries/01_harden-testpypi-gate-summary.md",
+      "confidence": 0.9,
+      "suggested_keywords": ["github-actions", "job-if-condition", "success-function", "needs-skip-propagation", "ci-gate"]
+    },
+    {
+      "content": "GitHub Actions' default `if: success()` job condition treats a SKIPPED needed job the same as a FAILED one for downstream skip-propagation purposes -- a skipped dependency does not let a default-conditioned downstream job run. When a workflow needs a deliberate bypass path (e.g. an escape-hatch input that skips one job in a chain) to still let later jobs proceed, every downstream job in the chain needs its own explicit `if:` distinguishing 'upstream succeeded' from 'upstream was deliberately skipped for the same reason' -- otherwise the skip cascades all the way through and silently defeats the escape hatch. Gating the individual STEPS inside the downstream job (rather than just the job) on the same bypass condition lets the job still report overall success with all-skipped steps, which is what allows a job further downstream with the plain default `if: success()` to proceed without needing any change itself.",
+      "category": "PATTERN",
+      "source_artifact": "specs/158_harden_release_ci_testpypi_gate/summaries/01_harden-testpypi-gate-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["github-actions", "skip-propagation", "escape-hatch", "workflow_dispatch", "step-level-if"]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "status": "implemented",
+  "dispatch_seq": 3,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md",
+      "summary": "All six phases completed: ADEQUACY.md states and proves (SOUND) in full with a verified Lean citation table and records (ADEQ) as open; a checker-independent certificate fixture corpus mechanically demonstrates the proved re-check windows and is validated against the real lake exe check_certificate binary; the certificate-redesign task's plan is amended with the corrected windows and state-sharing rationale across D7, D9 and nine phases; the false exclusion-comment claim about the modal-future axiom is corrected in prose."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Authored ADEQUACY.md stating and fully proving (SOUND) for the witness-family certificate design with a verified Lean citation table, built and Lean-differentially-validated a window-discriminating certificate fixture corpus, amended the certificate-redesign task's plan (D7, D9, and nine phases) with the corrected proved windows before it was dispatched, and corrected the one false claim about the paper's semantics in the current test suite's exclusion comment."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/README.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/README.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/01_positive_box.json",
+    "code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/02_infinite_postponement.json",
+    "code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/03_box_unfaithful.json",
+    "code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/04_window_discriminator_coherence.json",
+    "code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/README.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/fixtures/certificates/expected_verdicts.json",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_lean_agreement.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_certificate_fixtures.py",
+    "specs/184_refactor_bimodal_theory_tests_green_and_paper_lean_aligned/plans/01_witness-family-certificate-redesign.md",
+    "specs/187_establish_adequacy_theorem_bimodal_countermodels/plans/01_adequacy-theorem-bimodal-countermodels.md",
+    "specs/187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When building fixture-based differential tests against an external formally-verified decision procedure (e.g. a Lean-built CLI binary), pin expected verdicts EMPIRICALLY by piping each hand-built fixture through the real binary first, rather than deriving expected output by hand-reasoning alone. Hand-reasoning about biconditional fixpoint clauses (e.g. an until/since local-coherence clause referencing neighbouring positions) is highly error-prone; the binary is cheap to invoke and is the actual contract. Record the binary's commit hash in the test module docstring so a later disagreement is diagnosable.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["differential-testing", "fixture-corpus", "lean", "empirical-validation", "certificate"]
+    },
+    {
+      "content": "To construct a test fixture that proves a periodicity-collapse decision-procedure window bound is TIGHT (not merely sufficient), exploit the seam between a periodic region and the real (non-periodic) boundary it approximates: a position one period further back than the boundary has an identical LABEL to its periodic image, but its NEIGHBOUR (used by a fixpoint check referencing t+/-1) differs between the real boundary case and the periodic-reuse case. Building a violation that only manifests via that neighbour-mismatch, at a position outside the narrow window but inside the wide one, mechanically demonstrates the narrower bound is unsound. This generalizes beyond bimodal logic to any bi-infinite periodic-decoding verification scheme (lasso-shaped label/state sequences, ultimately-periodic traces, etc.).",
+      "category": "PATTERN",
+      "source_artifact": "specs/187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["periodicity", "window-bound", "test-construction", "lasso", "decision-procedure"]
+    },
+    {
+      "content": "When one task's report discovers a hard constraint (e.g. a wrong bound) that another, not-yet-started sibling task's plan currently gets wrong, amend that sibling plan directly and in-place (an explicit 'Amendment' block plus per-decision and per-phase inline annotations, sourced and dated) rather than filing a separate note to be applied later. Verify the amendment mechanically: re-run the target plan's own validator, and confirm invariant counts (phase heading count, status-marker count, a distinctive literal-pattern count) are unchanged from before the edit -- a plan-level check like 'grep -c \"[NOT STARTED]\"' will catch prose that incidentally reintroduces the literal bracketed status string outside a phase heading.",
+      "category": "WORKFLOW",
+      "source_artifact": "specs/187_establish_adequacy_theorem_bimodal_countermodels/summaries/01_adequacy-theorem-bimodal-countermodels-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["plan-amendment", "cross-task", "multi-task-coordination", "sibling-plan", "mechanical-verification"]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790312099_19329d",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  }
+}

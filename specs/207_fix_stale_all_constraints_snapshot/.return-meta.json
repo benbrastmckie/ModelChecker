@@ -1,0 +1,56 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/207_fix_stale_all_constraints_snapshot/plans/01_fix-stale-all-constraints.md",
+      "summary": "6-phase plan converting ModelConstraints.all_constraints to a read-only computed property, migrating the one production write site and three silent-no-op append sites, with CI-shape cross-theory verification; all six phases now [COMPLETED]."
+    },
+    {
+      "type": "summary",
+      "path": "specs/207_fix_stale_all_constraints_snapshot/summaries/01_fix-stale-all-constraints-summary.md",
+      "summary": "Implementation summary: all_constraints is now a live computed property, all readers migrated, full gate green with zero regressions, F4 follow-up recorded for a separate task."
+    }
+  ],
+  "next_steps": "Task 207 implementation complete. Consider spawning a follow-up task for F4 (generic iterator pinning never reaching the rebuilt structure's real solve for logos/exclusion/imposition) -- evidence and scope recorded in the summary's Follow-ups section.",
+  "metadata": {
+    "session_id": "sess_1790553242_29e5aa",
+    "agent_type": "z3-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "z3-implementation-agent"],
+    "phase_count": 6,
+    "phases_completed": 6,
+    "estimated_hours": 4.5,
+    "dependency_waves": [[1], [2], [3, 4], [5], [6]]
+  },
+  "memory_candidates": [
+    {
+      "content": "When converting a stored attribute to a computed @property, grep for both `.attr =` (assignment, raises AttributeError on a property with no setter) and `.attr.append(...)` (silently becomes a no-op on a property returning a fresh list each access) separately -- the second failure mode is silent and will not raise, so it needs its own migration pass distinct from the assignment-site audit.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/207_fix_stale_all_constraints_snapshot/summaries/01_fix-stale-all-constraints-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["computed property", "stale snapshot", "silent no-op", "python property migration"]
+    }
+  ],
+  "modified_files": [
+    "code/src/model_checker/models/constraints.py",
+    "code/src/model_checker/iterate/models.py",
+    "code/src/model_checker/theory_lib/logos/semantic/core.py",
+    "code/src/model_checker/theory_lib/exclusion/semantic/core.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+    "code/src/model_checker/theory_lib/logos/tests/integration/test_injection.py",
+    "code/src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py",
+    "code/src/model_checker/theory_lib/imposition/tests/integration/test_injection.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/_pinned_eval.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_pinned_eval.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py",
+    "code/src/model_checker/models/tests/unit/test_constraints.py",
+    "code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md",
+    "specs/207_fix_stale_all_constraints_snapshot/baselines/01_pre-fix-gate.md",
+    "specs/207_fix_stale_all_constraints_snapshot/baselines/02_post-fix-gate.md",
+    "specs/207_fix_stale_all_constraints_snapshot/summaries/01_fix-stale-all-constraints-summary.md",
+    "specs/207_fix_stale_all_constraints_snapshot/plans/01_fix-stale-all-constraints.md"
+  ],
+  "dispatch_seq": 8
+}

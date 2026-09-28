@@ -1,0 +1,98 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/163_full_cli_suite_against_installed_wheel/plans/01_installed-cli-test-mode.md",
+      "summary": "7-phase plan, all phases COMPLETED with per-phase evidence recorded inline."
+    },
+    {
+      "type": "summary",
+      "path": "specs/163_full_cli_suite_against_installed_wheel/summaries/01_installed-cli-test-mode-summary.md",
+      "summary": "Implementation summary covering all 7 phases, verification evidence, and plan deviations."
+    }
+  ],
+  "next_steps": "None blocking. Optional follow-ups recorded as recommendations: (1) a low-priority spawned task to track the confirmed nixpkgs-z3 (4.16.0) vs PyPI-z3-solver (5.0.0) version gap independent of the Phase 1 flake; (2) the R4 CI-wiring YAML in the research report remains a handoff for the task that owns .github/workflows/release.yml.",
+  "metadata": {
+    "session_id": "sess_1786598278_060fba",
+    "agent_type": "python-implementation-agent",
+    "duration_seconds": 10800,
+    "delegation_depth": 2,
+    "delegation_path": [
+      "orchestrator",
+      "implement",
+      "python-implementation-agent"
+    ],
+    "cycles_used": 2,
+    "final_state": "completed",
+    "detected_defects": []
+  },
+  "memory_candidates": [
+    {
+      "content": "pytest's --import-mode=importlib resolves a collected package (e.g. 'tests.cli.foo') via direct sys.modules population during collection, not via a sys.path search -- so a submodule import like 'from tests.utils.helpers import X' inside a test body succeeds even when the package's root directory never appears anywhere in sys.path. Purging sys.path entries to prevent a different package (e.g. an installed library's source tree) from shadowing does not break this, since it operates through a completely separate resolution mechanism.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/163_full_cli_suite_against_installed_wheel/plans/01_installed-cli-test-mode.md",
+      "confidence": 0.8,
+      "suggested_keywords": [
+        "pytest",
+        "import-mode=importlib",
+        "sys.path",
+        "package resolution"
+      ]
+    },
+    {
+      "content": "On this NixOS host, rootless podman works fine via `nix run nixpkgs#podman` without any setuid newuidmap wrapper -- the only blockers were two missing config files, ~/.config/containers/policy.json ({\"default\": [{\"type\": \"insecureAcceptAnything\"}]}) and registries.conf (unqualified-search-registries = [\"docker.io\"]). A prior assumption that ad hoc podman requires host setuid wrapper support should be re-verified before being treated as a hard blocker.",
+      "category": "CONFIG",
+      "source_artifact": "specs/163_full_cli_suite_against_installed_wheel/plans/01_installed-cli-test-mode.md",
+      "confidence": 0.85,
+      "suggested_keywords": [
+        "podman",
+        "nix run",
+        "rootless containers",
+        "NixOS",
+        "policy.json"
+      ]
+    },
+    {
+      "content": "This host's pip.conf sets install.user=true globally, which breaks `python -m build`'s isolated build-env creation with 'Can not perform a --user install' errors. Workaround: PIP_USER=0 python -m build.",
+      "category": "CONFIG",
+      "source_artifact": "specs/163_full_cli_suite_against_installed_wheel/plans/01_installed-cli-test-mode.md",
+      "confidence": 0.8,
+      "suggested_keywords": [
+        "pip.conf",
+        "install.user",
+        "python -m build",
+        "PIP_USER"
+      ]
+    }
+  ],
+  "modified_files": [
+    "code/tests/utils/cli_mode.py",
+    "code/tests/utils/helpers.py",
+    "code/tests/cli/test_cli_mode.py",
+    "code/tests/cli/test_installed_mode_guard.py",
+    "code/tests/conftest.py",
+    "code/conftest.py",
+    "code/tests/cli/test_flag_matrix.py",
+    "code/scripts/verify-installed-cli.sh",
+    "code/scripts/README.md",
+    "code/tests/README.md",
+    "code/tests/cli/conftest.py",
+    "specs/163_full_cli_suite_against_installed_wheel/plans/01_installed-cli-test-mode.md",
+    "specs/163_full_cli_suite_against_installed_wheel/summaries/01_installed-cli-test-mode-summary.md"
+  ],
+  "errors": [],
+  "completion_data": {
+    "phases_completed": 7,
+    "phases_total": 7,
+    "phase_status": {
+      "1": "COMPLETED (diagnosis-only; verdict: divergent draw)",
+      "2": "COMPLETED",
+      "3": "COMPLETED",
+      "4": "COMPLETED",
+      "5": "COMPLETED (fallback-ladder prediction corrected; real container verification achieved)",
+      "6": "COMPLETED (load_theory exclusion retired; _EXCLUDED_FLAGS now empty)",
+      "7": "COMPLETED"
+    }
+  }
+}

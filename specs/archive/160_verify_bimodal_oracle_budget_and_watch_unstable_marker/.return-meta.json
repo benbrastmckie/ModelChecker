@@ -1,0 +1,33 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/summaries/01_unstable-marker-and-watch-classifier-summary.md",
+      "summary": "Phase 6 close-out: TESTING_GUIDE 8.9 documentation updates, full gate-set results including the narrowed oracle-suite gate, and the hard-constraint gate confirmation."
+    },
+    {
+      "type": "handoff",
+      "path": "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/handoffs/phase-6-handoff-20260826-080000.md",
+      "summary": "Phase 6 handoff recording what was done, verification results, and files touched."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Completed Phase 6: extended TESTING_GUIDE.md 8.9 with the gating-scan marker entry, oracle-tree deselection wiring note, promotion-streak upper-bound limitation, and classifier-location note; ran the full verification gate set (code/tests/ci/, code/tests/, and the oracle unstable-collection check all green; the whole-directory oracle gate was narrowed to the single modified test file after exceeding a bounded foreground timeout, and passed); confirmed the hard-constraint gate (MIN_CONCLUSIVE_GATING_FORMULAS=100, GATING_RECHECK_SOLVE_TIMEOUT_MS=40000, no max_time changed by any phase) and both required marker-site records (xdist_serial lead CLOSED, seven timing-out formulas UNRECOVERABLE)."
+  },
+  "modified_files": [
+    "code/docs/core/TESTING_GUIDE.md",
+    "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/plans/01_unstable-marker-and-watch-classifier.md",
+    "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/summaries/01_unstable-marker-and-watch-classifier-summary.md",
+    "specs/160_verify_bimodal_oracle_budget_and_watch_unstable_marker/handoffs/phase-6-handoff-20260826-080000.md"
+  ],
+  "next_steps": "Task 160 implementation is complete (6 of 6 phases). No CI dispatch or further re-verification is needed or permitted per the task's standing constraints.",
+  "metadata": {
+    "session_id": "sess_1787724742_be20e8",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 6,
+    "phases_total": 6
+  }
+}

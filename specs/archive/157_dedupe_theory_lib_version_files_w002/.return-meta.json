@@ -1,0 +1,73 @@
+{
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/157_dedupe_theory_lib_version_files_w002/summaries/01_version-file-dedupe-summary.md",
+      "summary": "Implementation summary for the VERSION-file dedupe (remedy a), with the release-verify.sh / RELEASE_SETUP.md downstream handoff note"
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Removed the four byte-identical theory_lib/{bimodal,exclusion,imposition,logos}/VERSION files and consolidated per-theory versioning on __init__.py's __version__, relaxing scaffolding and packaging-test requirements before deleting the files so every phase stayed green. A from-scratch build now passes plain check-wheel-contents with exit 0 and no --ignore W002; the full packaging contract suite (including the generate-then-execute journey for all four theories and an independent unpacked-wheel spot-check) is green.",
+    "roadmap_items": []
+  },
+  "memory_candidates": [
+    {
+      "content": "When a packaging lint (check-wheel-contents W002 duplicate-file finding) is caused by files that are asserted as required in multiple contracts (scaffolding REQUIRED_COPY_ITEMS, a conformance test's REQUIRED_ROOT_ITEMS, and packaging-test REQUIRED_ROOT_FILES/_is_data_path allowlists), the safe removal order is: relax every consumer's requirement to optional/absent first (verifying green at each step with the files still present and still shipped), then stop shipping and delete the files last, then verify with a from-scratch rebuild. Reversing this order (deleting first) can break scaffolding paths that read from the installed package (e.g. builder/project.py's REQUIRED_COPY_ITEMS fail-fast) for pip-installed users before the requirement is relaxed.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/157_dedupe_theory_lib_version_files_w002/summaries/01_version-file-dedupe-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["check-wheel-contents", "W002", "packaging", "phase-ordering", "scaffolding", "REQUIRED_COPY_ITEMS"]
+    },
+    {
+      "content": "A risk-closure controlled experiment (build the same wheel twice, once with a candidate file present and once without, then exercise the consuming code path against each unpacked variant) is an effective way to settle whether project-scaffolding code reads from an installed package versus a source checkout, resolving ambiguity that pure code-reading left open.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/157_dedupe_theory_lib_version_files_w002/plans/01_version-file-dedupe.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["risk-closure", "controlled-experiment", "wheel", "scaffolding", "installed-package"]
+    }
+  ],
+  "reflection": {
+    "what_worked": "Following the plan's mandated phase ordering (relax scaffolding, then relax packaging tests, then stop shipping) kept every phase green and independently verifiable, which made the pre-edit-gate probes (grep scope hypotheses, find counts, collected-test-count reconciliation) cheap and conclusive at each boundary.",
+    "what_was_hard": "The Phase 7 repo-wide VERSION sweep, scoped to code/ per the plan, still required judgment to classify each hit correctly (deliberately-untouched handoff target vs. an unrelated CLI-flag placeholder vs. this task's own corrected references) rather than mechanically trusting the grep output.",
+    "what_was_missed": "The plan named only code/scripts/release-verify.sh as a downstream stale-claim site; the Phase 7 sweep additionally surfaced .github/RELEASE_SETUP.md (outside file_scope, not code/) describing the same now-superseded W002 expectation. It was reported in the summary's handoff note rather than edited, consistent with the pre-edit-gate contract's record-don't-silently-skip rule for an out-of-scope finding.",
+    "successes": "All 7 phases closed COMPLETED with a from-scratch build confirming plain check-wheel-contents exits 0 with no --ignore, zero VERSION members in the wheel/sdist, the full packaging contract suite green (106 passed, 4 pre-existing skips), test_generate_then_execute passing for all four theories, and an independent unpacked-wheel spot-check confirming scaffolding still works without the file."
+  },
+  "modified_files": [
+    "code/src/model_checker/builder/project.py",
+    "code/src/model_checker/theory_lib/tests/test_theory_conformance.py",
+    "code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md",
+    "code/tests/packaging/test_inclusions.py",
+    "code/tests/packaging/test_parity.py",
+    "code/pyproject.toml",
+    "code/MANIFEST.in",
+    "code/src/model_checker/theory_lib/bimodal/VERSION",
+    "code/src/model_checker/theory_lib/exclusion/VERSION",
+    "code/src/model_checker/theory_lib/imposition/VERSION",
+    "code/src/model_checker/theory_lib/logos/VERSION",
+    "specs/157_dedupe_theory_lib_version_files_w002/plans/01_version-file-dedupe.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/summaries/01_version-file-dedupe-summary.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/evidence/01_baseline-check-wheel-contents.txt",
+    "specs/157_dedupe_theory_lib_version_files_w002/evidence/01_phase1-baseline-summary.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/evidence/02_after-check-wheel-contents.txt",
+    "specs/157_dedupe_theory_lib_version_files_w002/evidence/02_phase5-before-after-summary.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/evidence/03_phase6-full-suite-summary.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/evidence/04_phase7-regression-sweep.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/handoffs/phase-2-handoff-20260812.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/handoffs/phase-3-handoff-20260812.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/handoffs/phase-4-handoff-20260812.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/handoffs/phase-5-handoff-20260812.md",
+    "specs/157_dedupe_theory_lib_version_files_w002/handoffs/phase-6-handoff-20260812.md",
+    "specs/state.json",
+    "specs/TODO.md"
+  ],
+  "next_steps": "Task can be marked COMPLETED. Downstream: task 156 (release-verify.sh, currently IMPLEMENTING) and task 151 (release rehearsal) should update the stale W002 expectation noted in the handoff section of the summary -- release-verify.sh lines 15, 16, 52-57, and .github/RELEASE_SETUP.md lines 197 and 205.",
+  "metadata": {
+    "session_id": "sess_1786552888_007b13",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 7,
+    "phases_total": 7
+  }
+}
