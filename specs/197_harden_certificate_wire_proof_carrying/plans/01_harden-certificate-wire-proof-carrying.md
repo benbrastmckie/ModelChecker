@@ -253,7 +253,7 @@ the grep finds must still skip cleanly under an absent checkout.
 
 ---
 
-### Phase 3: Consume the `"acceptance"` key (axis 1) [NOT STARTED]
+### Phase 3: Consume the `"acceptance"` key (axis 1) [COMPLETED]
 
 **Goal**: an accepting verdict's `"acceptance"` is read, asserted, and its absent-field rule
 encoded, so a `countermodel` from the binary is recorded as "Lean constructed the entailment term"
@@ -261,23 +261,30 @@ where it says so — and as the weaker "four `Decidable` instances returned true
 absent.
 
 **Tasks**:
-- [ ] In `test_certificate_lean_agreement.py`'s `TestLeanAgreement`, on fixtures whose expected
+- [x] In `test_certificate_lean_agreement.py`'s `TestLeanAgreement`, on fixtures whose expected
       status is `countermodel`, read `verdict.get("acceptance", "decided")`, assert it is one of
       `{"entailment", "decided"}`, and assert it is `"entailment"` against the current binary.
       Write the absent-reads-as-`"decided"` rule into the assertion message, not only a comment,
       so a future older-binary run explains itself.
-- [ ] Extend `test_semantics_core.py`'s `TestExportedCertificateAgreesWithLeanBinary` the same
+- [x] Extend `test_semantics_core.py`'s `TestExportedCertificateAgreesWithLeanBinary` the same
       way, on the live-extracted certificate rather than a fixture: this is the one place a
       certificate this repository actually *built* gets an entailment-grade verdict.
-- [ ] Record in both modules' docstrings what the two values mean and that `"acceptance"` appears
+- [x] Record in both modules' docstrings what the two values mean and that `"acceptance"` appears
       on `countermodel` only — never on `rejected` or `error` — so no one asserts it on a
       rejection path.
-- [ ] Refresh `BIMODAL_LOGIC_COMMIT` in `_lean_check.py`, and the matching provenance line in
+- [x] Refresh `BIMODAL_LOGIC_COMMIT` in `_lean_check.py`, and the matching provenance line in
       `test_certificate_lean_agreement.py`'s docstring ("**Agreement observed against BimodalLogic
       commit**"), to the commit actually exercised. Before pinning, confirm
       `git -C ~/Projects/BimodalLogic status --porcelain` is empty; if it is not (M2 says it
       currently is not), pin HEAD **and** state in the docstring that uncommitted work was present
-      in that checkout when agreement was observed.
+      in that checkout when agreement was observed. **Update since plan authoring**: BimodalLogic
+      advanced past M2's snapshot while this phase was in flight -- phase 9 (the echo field) is
+      now committed (`3fad162e5`), with two further commits on top, HEAD now
+      `d55e2760e6731a2240f3db5d761658947bf69125`. Pinned that commit; the checkout's *overall*
+      `git status --porcelain` was still non-empty (four unrelated `FormalSystem/` files), but
+      `BimodalTools/CertificateImport.lean` and `BimodalTools/README.md` were each individually
+      clean, so the dirty-tree caveat names the unrelated files rather than asserting a blanket
+      uncommitted-work caveat.
 
 **Timing**: 1.25 hours
 
@@ -314,27 +321,27 @@ carries a constructed entailment; the wire is canonical-bytes-only) without asse
 trust-base demotion that has not landed.
 
 **Tasks**:
-- [ ] `docs/ADEQUACY.md` §6.1: add the canonical-bytes requirement to the wire contract — the
+- [x] `docs/ADEQUACY.md` §6.1: add the canonical-bytes requirement to the wire contract — the
       consuming parser accepts canonical bytes only (compact separators, no interior whitespace;
       trailing whitespace skipped), key order is fixed, `ensure_ascii=False`, and this repository's
       single serializer is `certificate.canonical_wire_bytes`. Add `"acceptance"` to the documented
       output shapes, on `countermodel` only, with the absent-reads-as-`"decided"` rule.
-- [ ] `docs/ADEQUACY.md` §6.2: **add to**, do not replace, the existing sentence. The "four
+- [x] `docs/ADEQUACY.md` §6.2: **add to**, do not replace, the existing sentence. The "four
       `Decidable` instances returned true" reading remains exactly right for the Python re-checker
       and for a `"decided"` verdict; the new sentence says that where the binary reports
       `"acceptance":"entailment"`, Lean constructed the paper-countermodel existence term for that
       certificate rather than printing a verdict. Keep the never-a-validity-claim and
       error-versus-rejected language untouched.
-- [ ] `docs/TRUST_PIPELINE.md` "What remains" → split the single row **"Consume a proof-producing
+- [x] `docs/TRUST_PIPELINE.md` "What remains" → split the single row **"Consume a proof-producing
       checker; verify the parse"** into two rows, one per axis, and mark the proof-producing half
       done in the test tier with the echo half still open. Leave "The **re-checker
       implementation**" in the "In it" trust-base list, with a one-clause note that the test tier
       now observes entailment-grade acceptance but the live path (`semantic/model.py`) still
       depends on the Python re-checker alone.
-- [ ] `docs/A2_GAP.md` route (f): update the "Cost / status" cell — the first half of (f) has
+- [x] `docs/A2_GAP.md` route (f): update the "Cost / status" cell — the first half of (f) has
       landed and is consumed in the differential tier; the echo half remains. Do not change what
       route (f) *buys*; that is unchanged.
-- [ ] **Prohibition, enforced by this phase's verification**: do not write "fast pre-filter", "no
+- [x] **Prohibition, enforced by this phase's verification**: do not write "fast pre-filter", "no
       longer in the trust base", or any equivalent demotion of the Python re-checker. That
       sentence belongs to Phase 6 alone.
 

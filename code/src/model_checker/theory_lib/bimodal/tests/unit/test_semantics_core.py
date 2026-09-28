@@ -242,7 +242,14 @@ class TestExportedCertificateAgreesWithLeanBinary:
     live `lake exe check_certificate` binary when available (reusing
     `test_certificate_lean_agreement.py`'s resolution/subprocess plumbing rather than
     duplicating it -- matching the Phase 8 handoff's precedent of extending, not
-    re-implementing, that module's harness)."""
+    re-implementing, that module's harness).
+
+    A `countermodel` verdict's `"acceptance"` field distinguishes what the binary actually did:
+    `"entailment"` means it constructed the paper-countermodel existence term for this
+    certificate (a kernel-checked proof); an absent field reads as `"decided"` (the weaker
+    four-`Decidable`-instances claim). `"acceptance"` appears on `countermodel` only, never on
+    `rejected` or `error` -- this is the one place in the suite where a certificate this
+    repository actually *built* (not a fixture) gets an entailment-grade verdict."""
 
     def test_exported_json_for_a_simple_countermodel_agrees_with_the_lean_binary(self):
         semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
@@ -260,4 +267,13 @@ class TestExportedCertificateAgreesWithLeanBinary:
         assert lean_verdict["status"] == python_verdict["status"] == "countermodel", (
             python_verdict,
             lean_verdict,
+        )
+        # Absent 'acceptance' reads as "decided" -- see class docstring.
+        acceptance = lean_verdict.get("acceptance", "decided")
+        assert acceptance in {"entailment", "decided"}, (
+            f"unrecognized acceptance value {acceptance!r}"
+        )
+        assert acceptance == "entailment", (
+            "expected 'entailment' (Lean constructed the paper-countermodel existence term) "
+            f"for this live-extracted certificate against the current binary, got {acceptance!r}"
         )

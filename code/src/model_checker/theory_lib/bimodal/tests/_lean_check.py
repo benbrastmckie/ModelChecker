@@ -64,7 +64,7 @@ __all__ = [
 # probe-then-run structure follows.
 PROBE_TIMEOUT_SECONDS = 60
 
-BIMODAL_LOGIC_COMMIT = "6529c6e853f1c29358a7e74a76055f64f68b7ff7"
+BIMODAL_LOGIC_COMMIT = "d55e2760e6731a2240f3db5d761658947bf69125"
 
 
 def resolve_bimodal_logic_path() -> Optional[Path]:

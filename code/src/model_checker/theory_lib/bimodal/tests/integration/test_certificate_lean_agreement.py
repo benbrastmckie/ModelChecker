@@ -14,10 +14,24 @@ contract (ADEQUACY.md Section 5.3) -- a disagreement here is a Python-side defec
 (encoding completeness). The full three-leg triangle, including leg (iii), lives in
 `test_certificate_a2_triangle.py`; see that module's docstring.
 
-**Agreement observed against BimodalLogic commit**: `6529c6e853f1c29358a7e74a76055f64f68b7ff7`
-(2026-09-24T22:21:44-07:00). Re-run this module after updating the BimodalLogic checkout to
-confirm the corpus still agrees; a disagreement after an update is a signal that either the
-corpus's expected verdicts or the Lean side's decision procedure changed shape.
+**Agreement observed against BimodalLogic commit**: `d55e2760e6731a2240f3db5d761658947bf69125`
+(the certificate-envelope migration's completion commit, following the echo-field phase). That
+checkout's working tree carried unrelated uncommitted changes at observation time
+(`FormalSystem/Metalogic/SoundnessLemmas/README.md`,
+`FormalSystem/Semantics/Extension/{Completion,Extension}.lean`,
+`FormalSystem/Semantics/StateTopology/ConstraintWitnesses.lean`) -- none of them touch
+`BimodalTools/CertificateImport.lean` or the certificate wire protocol, so the pinned commit is
+the one actually exercised for everything this module tests. Re-run this module after updating
+the BimodalLogic checkout to confirm the corpus still agrees; a disagreement after an update is a
+signal that either the corpus's expected verdicts or the Lean side's decision procedure changed
+shape.
+
+**`"acceptance"`**: a `countermodel` verdict now carries an `"acceptance"` field. `"entailment"`
+means `lake exe check_certificate` constructed the paper-countermodel existence term for this
+particular certificate (a kernel-checked proof, not merely a printed verdict); an absent field
+reads as `"decided"` -- the four `Decidable` instances returned true on the family rebuilt from
+the wire input, with no such term constructed. `"acceptance"` appears on `countermodel` verdicts
+only, never on `rejected` or `error`.
 
 This module resolves the BimodalLogic checkout from the `BIMODAL_LOGIC_PATH` environment
 variable first, then `~/Projects/BimodalLogic`, and resolves `lake` via `PATH`. It skips the
@@ -106,6 +120,18 @@ class TestLeanAgreement:
             assert expected["condition"] in conditions, (
                 f"{fixture_path.name}: expected condition {expected['condition']!r} among "
                 f"Lean's reported conditions {conditions!r}"
+            )
+        if expected["status"] == "countermodel":
+            # Absent 'acceptance' reads as "decided" (the four Decidable instances returned
+            # true, no kernel-checked entailment term constructed) -- see module docstring.
+            acceptance = verdict.get("acceptance", "decided")
+            assert acceptance in {"entailment", "decided"}, (
+                f"{fixture_path.name}: unrecognized acceptance value {acceptance!r}"
+            )
+            assert acceptance == "entailment", (
+                f"{fixture_path.name}: expected 'entailment' (Lean constructed the "
+                f"paper-countermodel existence term) against the current binary, got "
+                f"{acceptance!r} -- absent reads as 'decided', the weaker Decidable-only claim"
             )
 
 
