@@ -356,7 +356,7 @@ if the counts differ, extend the file list before editing rather than skipping a
 
 ---
 
-### Phase 4: Delegate the test tree's `full_constraints()` to the property [NOT STARTED]
+### Phase 4: Delegate the test tree's `full_constraints()` to the property [COMPLETED]
 
 **Goal**: Remove the divergence risk between the production property and the test helper without
 changing the helper's observable behaviour, keeping the A2-triangle per-candidate comparison green.

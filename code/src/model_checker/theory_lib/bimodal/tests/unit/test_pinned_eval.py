@@ -261,9 +261,9 @@ _TIER1_SETTINGS = [
 class TestOperatorInventoryIsClosed:
     """Finding 4/5, machine-checked rather than trusted: every node in
     `full_constraints(structure)` (the complete, post-`finalize_certificate` constraint set --
-    see that function's docstring for why `structure.model_constraints.all_constraints` itself
-    is NOT this set) compiles without raising, for both box-free and boxed closures at both grid
-    sizes."""
+    now a named alias for `structure.model_constraints.all_constraints` itself, a computed,
+    read-only property; see that function's docstring for the history) compiles without
+    raising, for both box-free and boxed closures at both grid sizes."""
 
     @pytest.mark.parametrize("back, mid, fwd", _TIER1_SETTINGS)
     def test_box_free_closure(self, back, mid, fwd):
