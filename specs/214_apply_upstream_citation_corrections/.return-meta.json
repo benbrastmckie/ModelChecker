@@ -1,0 +1,28 @@
+{
+  "status": "researched",
+  "dispatch_seq": 2,
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/214_apply_upstream_citation_corrections/reports/01_citation-corrections-mapping.md",
+      "summary": "Name-keyed before/after mapping for all four dispatched citation corrections and three residue rows against BimodalLogic's lean-citation-manifest.json, plus a flagged additional stale-citation cluster found in the same tables but outside the dispatch's named scope."
+    }
+  ],
+  "next_steps": "Run /plan 214 to create an implementation plan applying the tabulated corrections to ADEQUACY.md and ARCHITECTURE.md.",
+  "metadata": {
+    "session_id": "sess_1790619552_cbba66_214",
+    "agent_type": "general-research-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "research", "general-research-agent"],
+    "findings_count": 8
+  },
+  "memory_candidates": [
+    {
+      "content": "When a cross-repository task hands off corrections keyed by declaration name against a generated, gate-checked manifest (e.g. BimodalLogic's lean-citation-manifest.json + C35), resolve every row by grepping the consuming repo's docs fresh for each declaration name rather than trusting the task description's named file/line list -- the same upstream table can contain additional stale rows (a second drift cluster, a wrong-file citation) that predate the task but were left out of its description, and the same citation often recurs at multiple sites within one file (a table row plus a prose discussion) that must be corrected together.",
+      "category": "PATTERN",
+      "source_artifact": "specs/214_apply_upstream_citation_corrections/reports/01_citation-corrections-mapping.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["citation-manifest", "cross-repository", "mechanical-lookup", "BimodalLogic", "C35", "transcription-audit"]
+    }
+  ]
+}
