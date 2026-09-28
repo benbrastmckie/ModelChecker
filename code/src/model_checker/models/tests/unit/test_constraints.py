@@ -159,7 +159,73 @@ class TestModelConstraints(unittest.TestCase):
         
         # Check all_constraints combines everything
         self.assertEqual(len(constraints.all_constraints), 5)  # 2 + 1 + 1 + 1
-    
+
+    def test_all_constraints_reflects_late_frame_constraint_mutation(self):
+        """Live-view contract: `all_constraints` is a computed view over the current
+        component lists, not a construction-time snapshot. Bimodal's two-phase encoding
+        (decision D6) grows `frame_constraints` after `ModelConstraints.__init__` returns
+        (via `finalize_certificate()`); this test pins that growth being visible through
+        `all_constraints` without re-constructing the object."""
+        self.semantics.frame_constraints = [Bool('frame1'), Bool('frame2')]
+
+        letter1 = Mock()
+        letter1.sentence_letter = Bool('A')
+        self.syntax.sentence_letters = [letter1]
+
+        premise1 = Mock()
+        premise1.arguments = []
+        premise1.update_objects = Mock()
+        conclusion1 = Mock()
+        conclusion1.arguments = []
+        conclusion1.update_objects = Mock()
+        self.syntax.premises = [premise1]
+        self.syntax.conclusions = [conclusion1]
+
+        constraints = ModelConstraints(
+            self.settings,
+            self.syntax,
+            self.semantics,
+            self.proposition_class
+        )
+
+        self.assertEqual(len(constraints.all_constraints), 5)  # 2 + 1 + 1 + 1
+
+        # Simulate a late emitter (e.g. finalize_certificate()) growing frame_constraints
+        # after construction.
+        constraints.frame_constraints.append(Bool('late'))
+
+        self.assertEqual(len(constraints.all_constraints), 6)
+
+    def test_appending_to_all_constraints_value_does_not_mutate_the_source(self):
+        """Recompute-not-stored contract: `all_constraints` is recomputed on every access,
+        so appending to the list a caller receives back must not change what the next
+        access returns -- the component lists are the only real state."""
+        constraints = ModelConstraints(
+            self.settings,
+            self.syntax,
+            self.semantics,
+            self.proposition_class
+        )
+
+        before = len(constraints.all_constraints)
+        constraints.all_constraints.append(Bool('injected'))
+
+        self.assertEqual(len(constraints.all_constraints), before)
+
+    def test_assigning_to_all_constraints_raises(self):
+        """Fail-fast contract (CLAUDE.md: no backwards compatibility, fail fast): the
+        property is read-only, with no setter, so assignment raises `AttributeError`
+        rather than silently accepting a stale snapshot again."""
+        constraints = ModelConstraints(
+            self.settings,
+            self.syntax,
+            self.semantics,
+            self.proposition_class
+        )
+
+        with self.assertRaises(AttributeError):
+            constraints.all_constraints = []
+
     def test_instantiate_method(self):
         """Test the instantiate method updates sentence objects."""
         # Create mock sentences with arguments

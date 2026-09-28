@@ -1,7 +1,7 @@
 # Implementation Plan: Fix stale `ModelConstraints.all_constraints` snapshot
 
 - **Task**: 207 - Fix stale `all_constraints` snapshot; audit every production reader
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 4.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/207_fix_stale_all_constraints_snapshot/reports/01_fix-stale-all-constraints.md
@@ -145,7 +145,7 @@ Phases within the same wave can execute in parallel. Phases 3 and 4 touch disjoi
 
 ---
 
-### Phase 1: Baseline and failing tests (RED) [NOT STARTED]
+### Phase 1: Baseline and failing tests (RED) [IN PROGRESS]
 
 **Goal**: Record the pre-fix gate state, then add tests that fail for the right reason — the
 property semantics and the bimodal certificate gap — before any production edit.

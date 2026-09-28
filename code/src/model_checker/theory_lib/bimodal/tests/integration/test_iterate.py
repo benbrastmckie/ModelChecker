@@ -43,6 +43,7 @@ from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso,
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Atom
 from model_checker.theory_lib.bimodal.semantic import certificate, symmetry
+from model_checker.theory_lib.bimodal.tests._pinned_eval import full_constraints
 
 
 def _settings(**overrides):
@@ -710,3 +711,32 @@ class TestLiveIteration:
         structures = list(iterator.iterate_generator())
 
         assert iterator.isomorphic_model_count >= 1
+
+
+class TestAllConstraintsReflectsCertificateAfterSolve:
+    """Regression coverage for the stale `ModelConstraints.all_constraints` snapshot
+    (`models/constraints.py`): bimodal's encoding is deliberately two-phase (decision D6)
+    -- `frame_constraints` starts empty and is populated later by
+    `BimodalSemantics.finalize_certificate()`, once every boxed subformula is known. A
+    plain eager-concatenation `all_constraints`, computed once in `ModelConstraints.__init__`
+    before `finalize_certificate()` ever runs, permanently omits the entire (C1)-(C4)
+    certificate encoding -- for every real solve, not only iterated ones (this class uses
+    `iterate_count=1`, i.e. no iteration at all, to isolate that). `full_constraints()`
+    (`tests/_pinned_eval.py`) re-concatenates the four live component lists post-solve and
+    is the ground truth for what Z3 actually solved; `all_constraints` must match it once
+    the property fix lands."""
+
+    def test_all_constraints_contains_certificate_encoding_after_solve(self):
+        example = _real_build_example(
+            BM_CM_1_premises, BM_CM_1_conclusions, BM_CM_1_settings, iterate_count=1
+        )
+        structure = example.model_structure
+
+        true_constraints = full_constraints(structure)
+        snapshot_constraints = structure.model_constraints.all_constraints
+
+        assert len(snapshot_constraints) == len(true_constraints), (
+            f"all_constraints ({len(snapshot_constraints)}) must match the true post-solve "
+            f"constraint set ({len(true_constraints)}) -- a stale snapshot omits the "
+            "certificate encoding installed by finalize_certificate() after construction"
+        )
