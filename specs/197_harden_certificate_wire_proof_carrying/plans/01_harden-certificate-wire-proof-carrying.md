@@ -1,7 +1,7 @@
 # Implementation Plan: Harden Certificate Wire Proof-Carrying
 
 - **Task**: 197 - Harden certificate wire proof carrying
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6.75 hours
 - **Dependencies**: BimodalLogic task 677 (landed, committed — axis 1 unblocked); BimodalLogic
   task 678 phase 9 (in flight, uncommitted — axis 2 gated, see Phase 5's admission gate)
