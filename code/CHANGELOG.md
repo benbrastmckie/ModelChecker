@@ -4,7 +4,7 @@ All notable changes to the ModelChecker project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [1.4.0] - 2026-09-28
 
 ### Changed
 - The bimodal theory's semantic core is redesigned around witness-family certificate search over
@@ -16,6 +16,65 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   then-incomplete completeness claims from release gating -- is removed: bimodal is a gating
   theory again. See `code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md` and
   `docs/ADEQUACY.md` for the design and its soundness proof.
+
+### Fixed
+- Live model iteration searched an **unconstrained** problem for every theory except bimodal.
+  `ConstraintGenerator` populated its persistent search solver by copying `assertions()` off the
+  original model structure's solver, but `ModelDefaults.solve()` assigns
+  `stored_solver = solver` *before* `_setup_solver` reassigns `self.solver` to the freshly
+  populated one, and then clears `self.solver` in its `finally` block -- so the copy yielded zero
+  assertions. `ConstraintGenerator._ensure_original_constraints_in_solver` now re-asserts the four
+  real constraint lists (frame/model/premise/conclusion) directly onto the search solver,
+  generalizing what had been a bimodal-only workaround into the shared engine. Re-ordering the
+  `stored_solver` assignment would not have fixed this: `assert_tracked` records constraints as
+  `Implies(label, constraint)`, so copying a populated solver's assertions is vacuously
+  satisfiable.
+- The generic iterator's model-value pinning never reached bimodal, whose model content is not a
+  bitvector state space with an `is_world` predicate. Pinned values now route into the constraint
+  group that actually feeds the solver.
+- `ModelConstraints.all_constraints` was a construction-time snapshot, so constraint lists that
+  grow after construction -- bimodal's two-phase certificate encoding populates `frame_constraints`
+  from `finalize_certificate()` -- were silently missing from it. It is now a read-only computed
+  property (assignment raises `AttributeError`), and the three `inject_z3_model_values`
+  implementations that appended to it (logos, exclusion, bimodal) append to the component list
+  they actually mean.
+- `\top` lost its derived structure during type assignment. `Sentence.update_types` keyed
+  extremal-operator detection on `self.name`, which truncated `\top`'s
+  `[NegationOperator, [BotOperator]]` expansion to a nullary shape; detection is now keyed on the
+  shape of `derived_type`, so any defined nullary operator with a complex expansion is handled
+  correctly.
+- Bimodal iteration reported rotations and witness-lasso relabelings of an already-found
+  certificate as fresh models. `_check_model_isomorphism` now compares an orbit-invariant
+  canonical key, and `_create_non_isomorphic_constraint` excludes the whole orbit rather than a
+  single certificate.
+
+### Added
+- Three documented theory-specific extension points on `BaseModelIterator` --
+  `_pin_theory_specific_values`, `_create_difference_constraint`, and `_check_model_isomorphism` --
+  for theories whose model content is not a bitvector state space with an `is_world` predicate.
+  Each has a behavior-preserving base-class default, so a theory that overrides none of them keeps
+  exactly its previous behavior; `_build_stronger_constraint` *composes* the generic escape
+  constraint with any theory override rather than replacing it. Documented with a hook table in
+  `src/model_checker/iterate/README.md`.
+- `theory_lib/bimodal/semantic/symmetry.py`: the certificate rotation/permutation symmetry group
+  `(Z/nb x Z/nf)^L (semidirect) S_{L-1}`, its action on decoded certificates and on raw witness
+  registry keys, and the orbit-invariant canonical key -- one shared definition consumed by both
+  the isomorphism detector and the orbit excluder so they cannot drift apart.
+
+### Testing and release infrastructure
+- Certificate fixture corpus differentialled against the Lean certificate checker, an A2-triangle
+  encoding-completeness test, and a sentence-translation agreement channel between the Python
+  translator and the Lean-mirroring `Formula` ADT.
+- The differential oracle provider is rewritten for the new bimodal encoding; the abundance-era
+  oracle tests and manifest are retired.
+- Duplicate bimodal test helpers consolidated onto single definitions, and the timing-marker
+  coverage scan extended through embedded source strings.
+- The live bimodal iteration test that asserted a rotation/permutation duplicate is encountered
+  (`isomorphic_model_count >= 1`) no longer depends on how a search draw falls. That assertion was
+  a release-gating flake -- a `PYTHONHASHSEED` sweep showed zero duplicates is the *lucky* path
+  (the runs that cleanly fill the whole request), and raising the drive did not close it. It is
+  replaced by a deterministic assertion over the same solver-produced certificate: every image of
+  it under the symmetry group is detected as a duplicate, and an out-of-orbit certificate is not.
 
 ## [1.3.9] - 2026-09-01
 
