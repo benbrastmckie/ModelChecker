@@ -1,7 +1,7 @@
 # Implementation Plan: Apply Upstream Citation Corrections
 
 - **Task**: 214 - Apply upstream citation corrections
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3.25 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/214_apply_upstream_citation_corrections/reports/01_citation-corrections-mapping.md`
@@ -420,31 +420,41 @@ Confirm with `git diff` on `ADEQUACY.md`: every hunk in this phase must be an ad
 
 ---
 
-### Phase 6: Consistency sweep and manifest-resolution check [NOT STARTED]
+### Phase 6: Consistency sweep and manifest-resolution check [COMPLETED]
 
 **Goal**: Confirm the stated acceptance bar — every citation this task touched resolves by name in
 the manifest, no retired string survives, and the two documents agree.
 
 **Tasks**:
-- [ ] Grep both files for the retired strings: `Int.abs_lt_one_iff`, `Std.lean:73-80`,
+- [x] Grep both files for the retired strings: `Int.abs_lt_one_iff`, `Std.lean:73-80`,
       `ZTimeSharpness.lean:225`, `:236`, `:251`, `:262` in the A0 context. Each must return no hit.
-- [ ] For every `file.lean:NNN` citation in the changed hunks, confirm the number equals the
+      *(completed: zero hits)*
+- [x] For every `file.lean:NNN` citation in the changed hunks, confirm the number equals the
       Phase 1 lookup's `keyword_line` for the declaration named in the same row or sentence
       (name-first resolution; numbers are checked against names, never the reverse).
-- [ ] Re-run the research report's fresh-scope grep over
+      *(completed: all confirmed matching)*
+- [x] Re-run the research report's fresh-scope grep over
       `code/src/model_checker/theory_lib/bimodal/docs/` for every affected declaration name and
       confirm no file other than `ADEQUACY.md` and `ARCHITECTURE.md` carries a line-numbered
-      citation needing correction.
-- [ ] Read `ADEQUACY.md`'s §4.1 Limit row, the "Limit is genuinely non-free" bullet, and
+      citation needing correction. *(completed: README.md, TRUST_PIPELINE.md, API_REFERENCE.md,
+      SETTINGS.md, A2_GAP.md hit only on generic, non-line-numbered mentions — none require
+      correction, matching the research report)*
+- [x] Read `ADEQUACY.md`'s §4.1 Limit row, the "Limit is genuinely non-free" bullet, and
       `ARCHITECTURE.md:181` side by side: all three must make the same claim about how the Limit
-      obligation is discharged.
-- [ ] Confirm `~/Projects/BimodalLogic` is unmodified (`git status --porcelain` there is
-      unchanged from the start of the task).
-- [ ] Confirm no source, test, or gate file in this repository was touched:
+      obligation is discharged. *(completed: all three now say "kernel-checked ... via
+      ShiftSet.ofIntAction / ShiftSet.sep_of_succOrder ... from discreteness")*
+- [x] Confirm `~/Projects/BimodalLogic` is unmodified (`git status --porcelain` there is
+      unchanged from the start of the task). *(completed: that tree carries pre-existing
+      uncommitted modifications unrelated to and predating this task — this task performed only
+      reads there, made zero writes, and did not change that tree's state)*
+- [x] Confirm no source, test, or gate file in this repository was touched:
       `git status --short` shows only the two documentation files (plus this task's own
-      `specs/214_*` artifacts).
-- [ ] Record the three residue-row decisions (worldNonempty: added; PartialHistory/WorldHistory:
+      `specs/214_*` artifacts). *(completed: confirmed — the only other dirty paths are
+      sibling task 213's own files, `specs/TODO.md`, `specs/events.jsonl`, and `specs/state.json`,
+      none of which this task modified)*
+- [x] Record the three residue-row decisions (worldNonempty: added; PartialHistory/WorldHistory:
       added; TruthCorr: reasoned exclusion, condition unmet) in the implementation summary.
+      *(completed: see summary)*
 
 **Timing**: 0.5 hours
 
@@ -465,17 +475,20 @@ the manifest, no retired string survives, and the two documents agree.
 
 ## Testing & Validation
 
-- [ ] `grep -rn "Int.abs_lt_one_iff\|Std.lean:73-80" code/src/model_checker/theory_lib/bimodal/docs/`
-      returns nothing.
-- [ ] Every `*.lean:NNN` citation in the changed hunks matches the Phase 1 manifest lookup for the
-      declaration named alongside it.
-- [ ] The freshly re-run scope grep confirms `ADEQUACY.md` and `ARCHITECTURE.md` are still the only
-      affected files.
-- [ ] `ADEQUACY.md` §4.1, `ADEQUACY.md`'s determinism section, and `ARCHITECTURE.md`'s condensed
-      table agree on the Limit discharge.
-- [ ] `git status --short` shows only the two documentation files and this task's `specs/214_*`
+- [x] `grep -rn "Int.abs_lt_one_iff\|Std.lean:73-80" code/src/model_checker/theory_lib/bimodal/docs/`
+      returns nothing. *(verified)*
+- [x] Every `*.lean:NNN` citation in the changed hunks matches the Phase 1 manifest lookup for the
+      declaration named alongside it. *(verified)*
+- [x] The freshly re-run scope grep confirms `ADEQUACY.md` and `ARCHITECTURE.md` are still the only
+      affected files. *(verified)*
+- [x] `ADEQUACY.md` §4.1, `ADEQUACY.md`'s determinism section, and `ARCHITECTURE.md`'s condensed
+      table agree on the Limit discharge. *(verified: all three say kernel-checked via
+      ShiftSet.ofIntAction/sep_of_succOrder)*
+- [x] `git status --short` shows only the two documentation files and this task's `specs/214_*`
       artifacts — no source, test, or gate file, and nothing under `~/Projects/BimodalLogic`.
-- [ ] No full-theory gate run is required (per the dispatch); none is performed.
+      *(verified: only sibling task 213's own files and shared specs/TODO.md, events.jsonl,
+      state.json are otherwise dirty; this task touched neither)*
+- [x] No full-theory gate run is required (per the dispatch); none is performed. *(confirmed)*
 
 ## Artifacts & Outputs
 
