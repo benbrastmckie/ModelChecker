@@ -14,12 +14,7 @@ from model_checker.theory_lib.bimodal.operators import bimodal_operators
 from model_checker.theory_lib.bimodal.semantic import certificate as certificate_module
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Atom, Box, translate
-
-
-def _settings(**overrides):
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
+from model_checker.theory_lib.bimodal.tests._build_support import _settings
 
 
 def _sentence(infix: str):

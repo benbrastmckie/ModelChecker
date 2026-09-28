@@ -29,13 +29,8 @@ from model_checker.theory_lib.bimodal import (
     bimodal_operators,
 )
 from model_checker.theory_lib.bimodal.operators import bimodal_operators as _bimodal_operators
+from model_checker.theory_lib.bimodal.tests._build_support import _settings
 from model_checker.utils.context import isolated_z3_context
-
-
-def _settings(**overrides):
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
 
 
 def _run(premises, conclusions, **setting_overrides):

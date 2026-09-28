@@ -179,28 +179,28 @@ behaviorally identical to the shared `_build`, `BimodalSemantics` used elsewhere
 unrelated shape). Pre-change baseline: `--collect-only` reports 686 tests collected, clean
 import, no collection errors.
 
-### Phase 2: Consolidate `_settings`-Only Duplicates [NOT STARTED]
+### Phase 2: Consolidate `_settings`-Only Duplicates [COMPLETED]
 
 **Goal**: Remove the five local `_settings` duplicates that have no local `_build`, replacing
 each with an import from `_build_support`.
 
 **Tasks**:
-- [ ] For each module in the Group B set confirmed by Phase 1, delete the local `def _settings`
+- [x] For each module in the Group B set confirmed by Phase 1, delete the local `def _settings`
       body and add
       `from model_checker.theory_lib.bimodal.tests._build_support import _settings`
       to the module's import block, placed with the other
       `model_checker.theory_lib.bimodal.tests.*` imports and respecting the project's import
       ordering convention (stdlib, third-party, local).
-- [ ] After each removal, grep the module for every symbol the deleted body referenced
+- [x] After each removal, grep the module for every symbol the deleted body referenced
       (`BimodalSemantics` in particular) and count surviving references. Delete an import line
       only when the count drops to zero. In this group `BimodalSemantics` is expected to remain
       in use elsewhere in every module — verify rather than assume.
-- [ ] Leave `test_iterate.py`'s `_mock_build_example` and `_real_build_example` untouched.
-- [ ] Leave `test_until_since_integration.py`'s `_run` untouched (it targets the `run_test()`
+- [x] Leave `test_iterate.py`'s `_mock_build_example` and `_real_build_example` untouched.
+- [x] Leave `test_until_since_integration.py`'s `_run` untouched (it targets the `run_test()`
       API, not the `Syntax -> ModelConstraints -> BimodalStructure` pipeline).
-- [ ] Run the five modules' tests:
+- [x] Run the five modules' tests:
       `PYTHONPATH=code/src pytest <the five module paths> -q` and confirm green.
-- [ ] Commit at each green sub-step per `.claude/rules/git-workflow.md`.
+- [x] Commit at each green sub-step per `.claude/rules/git-workflow.md`.
 
 **Timing**: 0.5 hours
 
@@ -231,6 +231,15 @@ by assumption.
 - The five modules' tests pass, with the same test counts as the Phase 1 baseline for those files.
 
 ---
+
+**Confirmation (re-run at implementation time)**: all five Group B modules lost exactly one
+`_settings` def and zero import lines. Per-module post-edit grep confirms `BimodalSemantics`
+remains referenced outside the removed body in every module (28, 3, 13, 13, and 22 remaining
+occurrences respectively across `test_iterate.py`, `test_until_since_integration.py`,
+`test_operators.py`, `test_proposition.py`, `test_semantics_core.py`), so the import line was
+kept in all five, exactly as the Scope Hypothesis predicted. `test_iterate.py`'s
+`_mock_build_example`/`_real_build_example` and `test_until_since_integration.py`'s `_run` were
+left untouched. `PYTHONPATH=code/src pytest <five modules> -q`: 76 passed, 0 failed.
 
 ### Phase 3: Consolidate Full Duplicates and Their Import Fallout [NOT STARTED]
 

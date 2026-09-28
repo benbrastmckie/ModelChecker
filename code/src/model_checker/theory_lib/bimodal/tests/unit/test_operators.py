@@ -15,12 +15,7 @@ from model_checker.syntactic import Syntax
 from model_checker.theory_lib.bimodal.operators import bimodal_operators
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Bot, Box, Imp, Snce, Untl, translate
-
-
-def _settings(**overrides):
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
+from model_checker.theory_lib.bimodal.tests._build_support import _settings
 
 
 def _sentence(infix: str):
