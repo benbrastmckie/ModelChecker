@@ -1,0 +1,17 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 5,
+  "summary": "Authored a 6-phase implementation plan: convert ModelConstraints.all_constraints from an eager construction-time snapshot to a read-only computed property, migrate the single production write site (iterate/models.py:152) and the three inject_z3_model_values append sites that the property would silently turn into no-ops, delegate the test tree's full_constraints() to the property, and verify under CI's own two-invocation gate plus the bimodal suite against a recorded pre-fix baseline. Research finding F4 (generic iterator pinning never reaching the rebuilt structure's real solve for logos/exclusion/imposition) is explicitly out of scope and recorded for a follow-up task.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/207_fix_stale_all_constraints_snapshot/plans/01_fix-stale-all-constraints.md",
+      "summary": "6-phase plan: all_constraints becomes a read-only computed property; write site and three append sites migrated; CI-shape cross-theory gate; F4 out of scope."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 6,
+  "blockers": [],
+  "next_action_hint": "Run /implement 207 to execute the plan"
+}

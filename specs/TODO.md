@@ -22,7 +22,7 @@ next_project_number: 209
 
 ### Architecture
 
-207 [PLANNING] — Fix ModelConstraints.allconstraints being a stale eager...
+207 [PLANNED] — Fix ModelConstraints.allconstraints being a stale eager...
 205 [NOT STARTED] — Decide and stage how a reported countermodel becomes...
 
 ### Testing
@@ -61,11 +61,12 @@ CONSTRAINTS. Do not simply raise the timeout to make a 320-second test fit -- th
 ---
 
 ### 207. Fix stale all constraints snapshot
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: z3
 - **Topic**: architecture
 - **Dependencies**: None
 - **Research**: [207_fix_stale_all_constraints_snapshot/reports/01_fix-stale-all-constraints.md]
+- **Plan**: [207_fix_stale_all_constraints_snapshot/plans/01_fix-stale-all-constraints.md]
 
 **Description**: Fix ModelConstraints.all_constraints being a stale eager snapshot that misses everything bimodal's two-phase constraint emission adds after construction, and audit every production reader of it. This was surfaced as a side finding while strengthening the A2-triangle differential: that work needed the true post-solve constraint set, could not get it from all_constraints, and added a local full_constraints() reconstruction inside the test tree to work around it. The workaround is fine for tests; the underlying attribute is still wrong for every production reader, and those were explicitly left out of scope there.
 
