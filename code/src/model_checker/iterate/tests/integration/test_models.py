@@ -201,6 +201,87 @@ class TestGenericPinningReachesRebuiltSolve:
         )
 
 
+class TestGenericPinAppendedToFrameConstraints:
+    """Structural pin-presence coverage mirroring bimodal's own
+    `TestPinTheorySpecificValues` (`theory_lib/bimodal/tests/integration/test_iterate.py`):
+    for a theory with no `_pin_theory_specific_values` override, the generic pins
+    `build_new_model_structure` computes must land in `model_constraints.frame_constraints`
+    itself -- the live list `_setup_solver` reads -- not merely in the write-only
+    `temp_solver`. Complements `TestGenericPinningReachesRebuiltSolve`'s solved-value
+    comparison with a direct structural check on the constraint list, and adds a
+    companion assertion that bimodal (which has its own override and no generic
+    `is_world`/`possible`/`verify`/`falsify` attributes) is unaffected.
+    """
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _generic_pinning_cases(),
+    )
+    def test_pins_present_in_frame_constraints(
+        self, theory, iterator_class, premises, conclusions, settings
+    ):
+        example = _real_build_example(theory, premises, conclusions, settings)
+        candidate_z3_model = example.model_structure.z3_model
+        assert candidate_z3_model is not None, "example's own model 1 must be solved"
+
+        baseline_example = _real_build_example(theory, premises, conclusions, settings)
+        baseline_frame_len = len(
+            baseline_example.model_structure.model_constraints.frame_constraints
+        )
+
+        builder = ModelBuilder(example)
+        returned_structure = builder.build_new_model_structure(candidate_z3_model)
+        assert returned_structure is not None, (
+            "rebuild against the example's own model 1 must be SAT -- it is the exact "
+            "model the search already found"
+        )
+
+        semantics = returned_structure.semantics
+        frame_constraints = returned_structure.model_constraints.frame_constraints
+        assert len(frame_constraints) > baseline_frame_len, (
+            "no generic pins were appended into frame_constraints -- expected the pin "
+            "count to grow relative to a fresh, unpinned ModelConstraints for the same "
+            "example"
+        )
+
+        assert hasattr(semantics, 'is_world'), (
+            "this case is expected to exercise the generic is_world pinning loop"
+        )
+        is_world_val = is_true(
+            candidate_z3_model.eval(semantics.is_world(0), model_completion=True)
+        )
+        expected_literal = (
+            semantics.is_world(0) if is_world_val else z3.Not(semantics.is_world(0))
+        )
+        assert any(c.eq(expected_literal) for c in frame_constraints), (
+            "expected pinned is_world(0) literal not found in frame_constraints"
+        )
+
+    def test_bimodal_unaffected_no_generic_pins_appended(self):
+        """Bimodal has no `is_world`/`possible`/`verify`/`falsify` attributes (its model
+        content is the certificate encoding, pinned entirely through
+        `_pin_theory_specific_values`), so the generic loop's `hasattr` guards above must
+        never fire for it -- confirming the fix does not touch bimodal's own, already
+        validated pinning path."""
+        from model_checker.theory_lib.bimodal import get_theory as get_bimodal_theory
+        from model_checker.theory_lib.bimodal.examples import (
+            BM_CM_1_premises, BM_CM_1_conclusions, BM_CM_1_settings,
+        )
+
+        theory = get_bimodal_theory()
+        example = _real_build_example(
+            theory, BM_CM_1_premises, BM_CM_1_conclusions, BM_CM_1_settings
+        )
+        semantics = example.model_structure.semantics
+        for attr in ("is_world", "possible", "verify", "falsify"):
+            assert not hasattr(semantics, attr), (
+                f"bimodal semantics unexpectedly has {attr!r}; if this now holds, the "
+                "generic pinning loop would fire for bimodal too and this test's premise "
+                "(that bimodal is unaffected because it has none of these attributes) "
+                "is stale and must be revisited"
+            )
+
+
 class TestModelBuilder:
     """Test cases for ModelBuilder functionality."""
     
