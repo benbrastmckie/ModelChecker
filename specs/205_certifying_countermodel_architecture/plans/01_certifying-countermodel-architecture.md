@@ -301,27 +301,31 @@ in scope for this phase.
 
 ---
 
-### Phase 4: Refactor the test helper onto the production resolver [NOT STARTED]
+### Phase 4: Refactor the test helper onto the production resolver [COMPLETED]
 
 **Goal**: One invocation-and-echo implementation, on the production side, consumed by the tests —
 rather than two that can drift. Test behaviour is preserved exactly, including the import-time
 probe the differential modules' `skipif` markers depend on.
 
 **Tasks**:
-- [ ] Re-read `tests/_lean_check.py` and each consuming module immediately before editing (sibling
+- [x] Re-read `tests/_lean_check.py` and each consuming module immediately before editing (sibling *(completed)*
       task 206 shares this tree).
-- [ ] Rewrite `tests/_lean_check.py` to delegate invocation, echo comparison, and resolution to
+- [x] Rewrite `tests/_lean_check.py` to delegate invocation, echo comparison, and resolution to *(completed)*
       `semantic/checker.py`, keeping every currently exported name and its exact semantics:
       `SKIP_REASON`, `PROTOCOL_FAILURE`, `run_check_certificate`,
       `run_check_certificate_with_sent`, `assert_echo_matches_sent`, `probe`,
       `resolve_bimodal_logic_path`, `resolve_lake`, `BIMODAL_LOGIC_PATH`, `LAKE`,
       `BIMODAL_LOGIC_COMMIT`, `PROBE_TIMEOUT_SECONDS`.
-- [ ] Keep the module-level probe *in the test helper* (the `skipif` markers read `SKIP_REASON` at
+      *(deviation: altered -- `run_check_certificate_with_sent` now invokes the built binary
+      directly via `semantic/checker.py`'s `_invoke` rather than `lake exe check_certificate`,
+      per F5; exported names and semantics unchanged, confirmed by re-running all three
+      consuming modules both with and without a real checkout)*
+- [x] Keep the module-level probe *in the test helper* (the `skipif` markers read `SKIP_REASON` at *(completed)*
       collection time); the production resolver's own probe stays lazy. Document the asymmetry in
       the helper's docstring so it is not "fixed" later by mistake.
-- [ ] Preserve the environment-absence versus protocol-failure split verbatim in behaviour; the
+- [x] Preserve the environment-absence versus protocol-failure split verbatim in behaviour; the *(completed)*
       helper's docstring account of why it exists stays.
-- [ ] Run every consuming module with a checkout available, and again with `BIMODAL_LOGIC_PATH`
+- [x] Run every consuming module with a checkout available, and again with `BIMODAL_LOGIC_PATH` *(completed)*
       pointed at a nonexistent directory, confirming clean skips in the second case.
 
 **Timing**: 1 hour

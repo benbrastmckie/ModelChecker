@@ -1,0 +1,25 @@
+{
+  "phase": 4,
+  "phase_name": "Refactor the test helper onto the production resolver",
+  "started_at": "2026-09-28T02:30:00Z",
+  "last_updated": "2026-09-28T02:45:00Z",
+  "objectives": [
+    {"id": 1, "description": "Re-read tests/_lean_check.py and each consuming module immediately before editing", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Rewrite tests/_lean_check.py to delegate invocation/echo/resolution to semantic/checker.py, keeping every exported name", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py"]},
+    {"id": 3, "description": "Keep the module-level probe in the test helper (skipif markers read SKIP_REASON at collection time)", "status": "done", "files_touched": []},
+    {"id": 4, "description": "Preserve the environment-absence versus protocol-failure split verbatim in behaviour", "status": "done", "files_touched": []},
+    {"id": 5, "description": "Run every consuming module with a checkout, and again with BIMODAL_LOGIC_PATH nonexistent, confirming clean skips", "status": "done", "files_touched": []}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "4.2",
+      "description": "Rewrite tests/_lean_check.py to delegate invocation to semantic/checker.py",
+      "type": "altered",
+      "reason": "run_check_certificate_with_sent now invokes the built check_certificate binary directly via semantic/checker.py's private _invoke helper (mirroring witness_constraints.py's existing precedent of importing certificate.py's leading-underscore window helpers across modules), rather than through `lake exe check_certificate`. This is a deliberate, documented consequence of F5 (measured ~50ms direct vs ~2.2s via lake) flowing through to the test differential tier as a speed side effect -- confirmed live: the three consuming modules' real-checker runs dropped from an expected ~2.2s/call to 0.01s-0.3s/call. Every exported name, signature, and skip/failure semantic is unchanged; only the subprocess command underneath differs.",
+      "annotation": "*(deviation: altered -- run_check_certificate_with_sent now invokes the built binary directly via semantic/checker.py's _invoke rather than `lake exe check_certificate`, per F5; exported names and semantics unchanged, confirmed by re-running all three consuming modules both with and without a real checkout)*"
+    }
+  ]
+}

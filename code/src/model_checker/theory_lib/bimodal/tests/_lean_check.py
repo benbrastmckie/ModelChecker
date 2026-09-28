@@ -1,4 +1,4 @@
-"""Shared `lake exe check_certificate` invocation and skip-resolution helper.
+"""Shared `check_certificate` invocation and skip-resolution helper.
 
 Extracted from `test_certificate_lean_agreement.py` once a second consumer
 (`test_certificate_a2_triangle.py`, `docs/ADEQUACY.md` section 7.3's A2-triangle Tier 2 leg)
@@ -8,8 +8,8 @@ underscore -- since other modules are meant to import them.
 
 Resolves the BimodalLogic checkout from the `BIMODAL_LOGIC_PATH` environment variable first, then
 `~/Projects/BimodalLogic`, and resolves `lake` via `PATH`. `SKIP_REASON` is computed once, at this
-module's first import: `None` if the checkout, `lake`, and a bounded probe of `lake exe
-check_certificate` all succeed, else a named reason a consumer can pass straight to
+module's first import: `None` if the checkout, `lake`, and a bounded probe of the built
+`check_certificate` binary all succeed, else a named reason a consumer can pass straight to
 `pytest.mark.skipif`.
 
 **Runs once per session, not once per consuming module.** The module-level probe used to be a
@@ -17,6 +17,25 @@ private copy inside `test_certificate_lean_agreement.py`, re-run every time that
 imported. Since Python caches module imports, every consumer importing this module now shares
 the single probe run performed at this module's own first import -- one subprocess invocation
 per pytest session across every consumer, not one per consumer.
+
+**Direct binary invocation (item 1, certifying_countermodel_architecture, Phase 4).** This
+module used to invoke `lake exe check_certificate`, paying `lake`'s own incremental build-check
+overhead (~2.2s) on every call. It now delegates the actual subprocess invocation to
+`semantic/checker.py`'s `_invoke` -- the same production-side helper the output gate uses,
+invoking the already-built binary at `<checkout>/.lake/build/bin/check_certificate` directly
+(measured ~50ms; see that module's own docstring for the full rationale). This is the same
+"import a leading-underscore helper across modules within this package" pattern
+`witness_constraints.py` already uses for `certificate.py`'s window helpers -- `_invoke` is a
+private name because it is not part of `semantic/checker.py`'s own public contract
+(`resolve_checker`/`check_certificate`), not because it is unsafe to reuse here. **This module's
+own resolution stays independent of `semantic/checker.py`'s resolver**: it still requires a
+`BIMODAL_LOGIC_PATH` checkout specifically (not `BIMODAL_CHECKER_BIN` or the per-user cache --
+this module tests *that checkout's* binary, not "any available checker") and still requires
+`lake` on `PATH` as a proxy for "this checkout is properly set up to build", even though `lake`
+itself is no longer invoked for the actual check. Every exported name and its skip/failure
+semantics are otherwise unchanged; only the subprocess command underneath `run_check_certificate*`
+differs, and only in a way that makes it faster, not in a way that changes what a `None` verdict
+or `PROTOCOL_FAILURE` means to a caller.
 
 **Environment absence versus protocol failure.** `SKIP_REASON` and `PROTOCOL_FAILURE` are two
 separate vocabularies, deliberately not folded into one, because conflating them once deleted
@@ -26,13 +45,14 @@ whitespace, the probe saw `{"status": "error", ...}`, the old single-vocabulary 
 that into `SKIP_REASON`, and every differential test module reported a clean skip -- with a
 present checkout and a working binary -- for as long as that regression went unnoticed.
 `SKIP_REASON` covers **environment absence only**: no checkout, no `lake`, or a binary that never
-answers within the probe timeout (unresponsive or unbuildable) -- conditions where skipping is
-the only sane thing to do, since there is nothing to test against. `PROTOCOL_FAILURE` covers a
-binary that **does** answer, but not with the `"countermodel"` status the trivial, well-formed
-probe certificate below must produce -- a protocol disagreement between this repository and the
-binary it is talking to, which must fail loudly rather than disappear as a skip. Exactly one of
-the two is a skip condition for `pytest.mark.skipif`; `PROTOCOL_FAILURE` is asserted `None` by a
-dedicated test instead (`test_certificate_lean_agreement.py`'s `TestErrorPaths`).
+answers within the probe timeout (unresponsive, unbuilt, or unbuildable) -- conditions where
+skipping is the only sane thing to do, since there is nothing to test against. `PROTOCOL_FAILURE`
+covers a binary that **does** answer, but not with the `"countermodel"` status the trivial,
+well-formed probe certificate below must produce -- a protocol disagreement between this
+repository and the binary it is talking to, which must fail loudly rather than disappear as a
+skip. Exactly one of the two is a skip condition for `pytest.mark.skipif`; `PROTOCOL_FAILURE` is
+asserted `None` by a dedicated test instead (`test_certificate_lean_agreement.py`'s
+`TestErrorPaths`).
 
 **Parse-echo verification (axis 2).** The Lean side parses the exported JSON, so a parser defect
 could mean the verified side certifies a different certificate than the one this repository
@@ -45,13 +65,12 @@ different certificates.
 
 from __future__ import annotations
 
-import json
 import os
 import shutil
-import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
+from model_checker.theory_lib.bimodal.semantic import checker as _checker_module
 from model_checker.theory_lib.bimodal.semantic.certificate import canonical_wire_bytes
 
 __all__ = [
@@ -71,7 +90,10 @@ __all__ = [
 
 # Hard timeout bound for the module-level probe, explicit in source rather than implicit in the
 # test harness. See `context/patterns/bounded-build-waiter.md` for the general discipline this
-# probe-then-run structure follows.
+# probe-then-run structure follows. Deliberately generous (unlike `semantic/checker.py`'s own
+# tighter `PROBE_TIMEOUT_SECONDS`, sized for a per-run production gate over the ~50ms binary):
+# this module's probe runs once, at test-collection time, and the direct-invocation binary it
+# now calls is the same ~50ms one -- the generous bound is legacy headroom, not a requirement.
 PROBE_TIMEOUT_SECONDS = 60
 
 BIMODAL_LOGIC_COMMIT = "d55e2760e6731a2240f3db5d761658947bf69125"
@@ -90,7 +112,10 @@ def resolve_bimodal_logic_path() -> Optional[Path]:
 
 
 def resolve_lake() -> Optional[str]:
-    """The `lake` executable path, or `None` if it is not on `PATH`."""
+    """The `lake` executable path, or `None` if it is not on `PATH`. No longer used to invoke
+    the checker directly (see module docstring) -- kept as a proxy for "this checkout is
+    properly set up to build", and because `LAKE` remains part of this module's public
+    contract."""
     return shutil.which("lake")
 
 
@@ -98,8 +123,19 @@ BIMODAL_LOGIC_PATH = resolve_bimodal_logic_path()
 LAKE = resolve_lake()
 
 
+def _binary_path() -> Optional[Path]:
+    """The built `check_certificate` binary inside `BIMODAL_LOGIC_PATH`, or `None` if there is
+    no checkout or the binary has not been built there -- mirrors
+    `semantic/checker.py`'s own checkout-candidate binary path, scoped to this module's already
+    -resolved `BIMODAL_LOGIC_PATH` rather than re-running that module's full resolution order."""
+    if BIMODAL_LOGIC_PATH is None:
+        return None
+    candidate = BIMODAL_LOGIC_PATH / ".lake" / "build" / "bin" / "check_certificate"
+    return candidate if candidate.is_file() else None
+
+
 def run_check_certificate(payload: Dict[str, Any], timeout: int) -> Optional[Dict[str, Any]]:
-    """Run `lake exe check_certificate` on one JSON payload. Returns the parsed verdict, or
+    """Run `check_certificate` on one JSON payload. Returns the parsed verdict, or
     `None` if the process failed or timed out (the caller decides how to report that).
 
     Thin wrapper over `run_check_certificate_with_sent`, keeping this function's return shape
@@ -114,31 +150,24 @@ def run_check_certificate(payload: Dict[str, Any], timeout: int) -> Optional[Dic
 def run_check_certificate_with_sent(
     payload: Dict[str, Any], timeout: int
 ) -> Tuple[Optional[Dict[str, Any]], str]:
-    """Run `lake exe check_certificate` on one JSON payload, returning `(verdict, sent)` --
+    """Run `check_certificate` on one JSON payload, returning `(verdict, sent)` --
     `sent` is the exact canonical bytes written to the binary's stdin, needed by
     `assert_echo_matches_sent` for axis 2's parse-echo comparison: the Lean side's `"echo"` field
     must match *this* string bytewise, not merely `json.dumps(payload)` recomputed after the
     fact, since a caller might otherwise recompute it with different `json.dumps` arguments than
-    what was actually sent."""
-    sent = canonical_wire_bytes(payload)
-    try:
-        result = subprocess.run(
-            [LAKE, "exe", "check_certificate"],
-            input=sent,
-            capture_output=True,
-            text=True,
-            cwd=str(BIMODAL_LOGIC_PATH),
-            timeout=timeout,
-        )
-    except subprocess.TimeoutExpired:
-        return None, sent
-    if result.returncode != 0:
-        return None, sent
-    line = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
-    try:
-        return json.loads(line), sent
-    except (json.JSONDecodeError, IndexError):
-        return None, sent
+    what was actually sent.
+
+    Delegates the actual subprocess invocation to `semantic/checker.py`'s `_invoke` (module
+    docstring's "Direct binary invocation"), invoking the built binary directly rather than
+    through `lake exe check_certificate`. A missing or unbuilt binary produces the same `(None,
+    sent)` shape `_invoke` would produce for any other unresponsive candidate, so `probe()`'s
+    existing "did not respond ... or failed to build" wording stays accurate without a separate
+    branch here.
+    """
+    binary = _binary_path()
+    if binary is None:
+        return None, canonical_wire_bytes(payload)
+    return _checker_module._invoke(binary, payload, timeout)
 
 
 def assert_echo_matches_sent(verdict: Dict[str, Any], sent: str) -> None:
@@ -182,10 +211,10 @@ def probe() -> Tuple[Optional[str], Optional[str]]:
     """Probe the binary once, under a hard timeout, before any real invocation.
 
     Returns `(skip_reason, protocol_failure)`; at most one is non-`None`, and both are `None` on
-    success. `skip_reason` covers a binary that never answers within the timeout -- unresponsive
-    or unbuildable, an environment condition safe to skip. `protocol_failure` covers a binary
-    that *does* answer, but not with the `"countermodel"` status this trivial, well-formed probe
-    certificate must produce -- a protocol disagreement (see module docstring's M1 account),
+    success. `skip_reason` covers a binary that never answers within the timeout -- unresponsive,
+    unbuilt, or unbuildable, an environment condition safe to skip. `protocol_failure` covers a
+    binary that *does* answer, but not with the `"countermodel"` status this trivial, well-formed
+    probe certificate must produce -- a protocol disagreement (see module docstring's M1 account),
     which is reported separately rather than folded into `skip_reason`.
     """
     trivial = {
@@ -196,7 +225,7 @@ def probe() -> Tuple[Optional[str], Optional[str]]:
     verdict = run_check_certificate(trivial, PROBE_TIMEOUT_SECONDS)
     if verdict is None:
         return (
-            f"`lake exe check_certificate` did not respond within {PROBE_TIMEOUT_SECONDS}s "
+            f"check_certificate did not respond within {PROBE_TIMEOUT_SECONDS}s "
             "or failed to build",
             None,
         )
