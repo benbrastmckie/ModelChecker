@@ -265,24 +265,27 @@ so this path requires an explicit finding, not a preference.
 
 ---
 
-### Phase 4: Full-tree scan and single parallel gate run [NOT STARTED]
+### Phase 4: Full-tree scan and single parallel gate run [COMPLETED]
 
 **Goal**: Confirm the broadened scan introduces no real-tree violations and that the flake is gone
 from a contended run.
 
 **Tasks**:
-- [ ] Run the CI guard module against the real tree and confirm
+- [x] Run the CI guard module against the real tree and confirm
       `test_all_wall_clock_timing_assertions_are_marked` and
-      `test_scan_finds_the_known_marked_inventory` both pass unchanged.
-- [ ] Run the full parallel gate once:
+      `test_scan_finds_the_known_marked_inventory` both pass unchanged. (Already confirmed in the
+      Phase 2-3 verification: 4 passed, including these two.)
+- [x] Run the full parallel gate once:
       `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread`
-- [ ] Confirm no `test_import_performs_no_subprocess_call` failure in that run. Do NOT repeat the
+- [x] Confirm no `test_import_performs_no_subprocess_call` failure in that run. Do NOT repeat the
       run to accumulate draws — Item 1's correctness is by construction, and the dispatch
-      explicitly forbids proving a negative by repetition.
-- [ ] If an unrelated failure appears in a file outside these two, check `git log`/`git status`
+      explicitly forbids proving a negative by repetition. (Not repeated; single run only.)
+- [x] If an unrelated failure appears in a file outside these two, check `git log`/`git status`
       first: it may be sibling task 214's in-flight edit, not a regression from this work. Report
-      rather than silently fixing.
-- [ ] Record the run's outcome (pass/fail counts, duration) in the handoff.
+      rather than silently fixing. (No unrelated failures occurred; N/A.)
+- [x] Record the run's outcome (pass/fail counts, duration) in the handoff. **Outcome: 3192
+      passed, 1 skipped, 0 failed, 5 warnings in 108.26s.**
+      `test_import_performs_no_subprocess_call` present and passing (0.26s).
 
 **Timing**: 0.5 hours
 
@@ -304,13 +307,13 @@ from a contended run.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py -q` — all pass.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ci/test_timing_marker_coverage.py -q` — 4 passed
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py -q` — all pass.
+- [x] `PYTHONPATH=code/src pytest code/tests/ci/test_timing_marker_coverage.py -q` — 4 passed
       (2 pre-existing + 2 new).
-- [ ] New positive self-test flags the synthetic unmarked embedded-clock fixture.
-- [ ] New negative self-test does not flag the `@pytest.mark.xdist_serial` variant.
-- [ ] `test_scan_finds_the_known_marked_inventory`'s known set is unmodified and still fully found.
-- [ ] One full parallel gate run under `-n 4` passes clean.
+- [x] New positive self-test flags the synthetic unmarked embedded-clock fixture.
+- [x] New negative self-test does not flag the `@pytest.mark.xdist_serial` variant.
+- [x] `test_scan_finds_the_known_marked_inventory`'s known set is unmodified and still fully found.
+- [x] One full parallel gate run under `-n 4` passes clean.
 
 ## Artifacts & Outputs
 
