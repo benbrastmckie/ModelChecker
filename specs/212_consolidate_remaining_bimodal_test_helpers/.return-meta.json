@@ -1,15 +1,42 @@
 {
-  "status": "in_progress",
-  "started_at": "2026-09-28T00:00:00Z",
-  "artifacts": [],
-  "partial_progress": {
-    "stage": "initializing",
-    "details": "Agent started, parsing dispatch context and plan"
+  "status": "implemented",
+  "dispatch_seq": 3,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/212_consolidate_remaining_bimodal_test_helpers/summaries/01_consolidate-remaining-bimodal-helpers-summary.md",
+      "summary": "Implementation summary covering the five-phase bimodal test-helper consolidation and the full four-theory gate results."
+    }
+  ],
+  "next_steps": "Task is fully implemented; the plan's five phases are all [COMPLETED] and the full four-theory gate plus per-theory unit suites are green.",
+  "completion_data": {
+    "completion_summary": "Consolidated all eight genuinely duplicated _settings/_build helpers in the bimodal test tree onto tests/_build_support.py (five _settings-only duplicates, two full-pipeline duplicates, one differently-named duplicate renamed at its call sites), refreshed _build_support.py's module docstring, and verified with the full four-theory gate (647 passed/5 skipped) plus per-theory unit suites (1277 passed). The two non-candidates (unit/test_structure.py's documented verify='off' wrapper and unit/test_witness_constraints.py's unrelated _build_selector_family) were left untouched as scoped."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_proposition.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantics_core.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_data_extraction.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/_build_support.py",
+    "specs/212_consolidate_remaining_bimodal_test_helpers/plans/01_consolidate-remaining-bimodal-helpers.md",
+    "specs/212_consolidate_remaining_bimodal_test_helpers/summaries/01_consolidate-remaining-bimodal-helpers-summary.md"
+  ],
+  "reflection": {
+    "what_worked": "Re-running the discovery grep fresh and reading every matched helper body against _build_support.py's before editing (rather than trusting the plan's enumerated count) caught the stale test_output_gate.py docstring immediately and confirmed every other module's classification matched the plan with zero divergence.",
+    "what_was_hard": "The first full four-theory gate run hit a transient Z3 segfault in an unrelated file (test_timeout_resources.py, never touched by this task); confirming it was pre-existing flakiness rather than a regression required an isolated re-run of that file plus a clean retry of the full gate.",
+    "what_was_missed": "Nothing identified; the plan's scope hypothesis matched the tree exactly at both Phase 1 and Phase 5 re-checks.",
+    "successes": "All five phases closed cleanly in order with a green commit at each boundary; final four-theory gate and per-theory suites both green with zero regressions and zero assertion/setting changes."
   },
   "metadata": {
     "session_id": "sess_1790634050_886f74",
     "agent_type": "python-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"]
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 5,
+    "phases_total": 5
   }
 }

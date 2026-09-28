@@ -11,7 +11,7 @@ next_project_number: 216
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,212 | -- | testing, semantics |
+| 1 | 198,200 | -- | semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -19,10 +19,6 @@ next_project_number: 216
 ### Documentation
 
 199 [NOT STARTED] — Write the round-trip ledger in...
-
-### Testing
-
-212 [IMPLEMENTING] — Consolidate the remaining bimodal test modules that define...
 
 ### Semantics
 
@@ -188,12 +184,13 @@ by repeated draws. Item 2 is verified by its own self-test.
 ---
 
 ### 212. Consolidate remaining bimodal test helpers
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 210
 - **Research**: [212_consolidate_remaining_bimodal_test_helpers/reports/01_consolidate-remaining-bimodal-helpers.md]
 - **Plan**: [212_consolidate_remaining_bimodal_test_helpers/plans/01_consolidate-remaining-bimodal-helpers.md]
+- **Summary**: [212_consolidate_remaining_bimodal_test_helpers/summaries/01_consolidate-remaining-bimodal-helpers-summary.md]
 
 **Description**: Consolidate the remaining bimodal test modules that define their own _settings/_build helpers onto tests/_build_support.py. Four call sites were folded onto the shared helper when it was introduced; the rest were outside that task's declared scope.
 
