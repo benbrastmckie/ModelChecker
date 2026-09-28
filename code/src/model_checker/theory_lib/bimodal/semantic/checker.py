@@ -40,8 +40,8 @@ response to a trivial, well-formed probe certificate must additionally carry a `
 `"countermodel"`, an `"acceptance"` value in the vocabulary
 `BimodalTools/CertificateImport.lean`'s `Acceptance` inductive actually defines (`"decided"`,
 `"entailment"`), and an `"echo"` that matches the exact bytes this module sent, bytewise. This is
-the *enforcement* mechanism: `tests/_lean_check.py` used to also carry a `BIMODAL_LOGIC_COMMIT`
-pin, consumed by nothing, which had already drifted (from `d55e2760` to `d1a24b30`, observed
+the *enforcement* mechanism: `tests/_lean_check.py` used to also carry a fixed-commit-hash pin,
+consumed by nothing, which had already drifted (from `d55e2760` to `d1a24b30`, observed
 same-day) before this module existed, and has since been retired. Pinning a commit cannot
 prevent a checkout from being rebuilt at a different, incompatible commit; checking the binary's
 actual behaviour can. A

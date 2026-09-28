@@ -563,9 +563,10 @@ deleted rather than tested, was considered and rejected as infeasible: `translat
 *evaluation* time inside every primitive operator's own `true_at` (not only at export), and Lean
 has no callable verified elimination pass to relocate into — its `neg`/`and`/`always` etc. are
 already six-primitive `def`-level abbreviations. A Lean-side translation with its own
-truth-preservation theorem remains a real, separate improvement, but its counterpart was confirmed
-absent from the local `BimodalLogic` checkout and is deferred, not attempted here (see
-`docs/TRUST_PIPELINE.md`).
+truth-preservation theorem is a real, separate improvement: it has now landed upstream
+(`BimodalLogic`'s `SentenceTruth.lean` proves `sat_iff`), but it certifies BimodalLogic's own
+reference translation, not this repository's, and this repository has not yet diffed its own
+translation against the upstream fixture (see `docs/TRUST_PIPELINE.md`'s "What remains").
 
 ---
 
