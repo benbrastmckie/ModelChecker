@@ -22,7 +22,7 @@ next_project_number: 216
 
 ### Testing
 
-212 [NOT STARTED] — Consolidate the remaining bimodal test modules that define...
+212 [RESEARCHED] — Consolidate the remaining bimodal test modules that define...
 
 ### Semantics
 
@@ -188,10 +188,11 @@ by repeated draws. Item 2 is verified by its own self-test.
 ---
 
 ### 212. Consolidate remaining bimodal test helpers
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 210
+- **Research**: [212_consolidate_remaining_bimodal_test_helpers/reports/01_consolidate-remaining-bimodal-helpers.md]
 
 **Description**: Consolidate the remaining bimodal test modules that define their own _settings/_build helpers onto tests/_build_support.py. Four call sites were folded onto the shared helper when it was introduced; the rest were outside that task's declared scope.
 

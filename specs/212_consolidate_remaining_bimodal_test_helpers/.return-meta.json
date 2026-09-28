@@ -1,0 +1,19 @@
+{
+  "status": "researched",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/212_consolidate_remaining_bimodal_test_helpers/reports/01_consolidate-remaining-bimodal-helpers.md",
+      "summary": "Splits the dispatch's ten grep-matched bimodal test modules into three groups (2 full _settings+_build duplicates, 5 _settings-only duplicates, 1 same-shape-but-differently-named _build_solved) and identifies two of the ten as non-candidates on direct read: unit/test_structure.py (dispatch-excluded documented wrapper) and unit/test_witness_constraints.py (a grep false positive with no shared _build_support shape at all), plus flags the unused-import fallout in the two full-duplicate modules and a call-site naming decision for test_injection.py's _build_solved."
+    }
+  ],
+  "next_steps": "Run /plan 212 to create an implementation plan for the eight-module consolidation (2 full _settings+_build replacements with unused-import cleanup, 5 _settings-only replacements, 1 _build_solved-to-_build replacement/alias decision), verified with the full four-theory gate.",
+  "metadata": {
+    "session_id": "sess_1790634050_886f74_212",
+    "agent_type": "python-research-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "research", "python-research-agent"],
+    "findings_count": 10
+  },
+  "dispatch_seq": 1
+}

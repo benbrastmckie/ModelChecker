@@ -34,7 +34,7 @@
     {
       "project_number": 212,
       "project_name": "consolidate_remaining_bimodal_test_helpers",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
       "description": "Consolidate the remaining bimodal test modules that define their own _settings/_build helpers onto tests/_build_support.py. Four call sites were folded onto the shared helper when it was introduced; the rest were outside that task's declared scope.\n\nDERIVE THE LIST FRESH, do not trust a count. At the time of writing, grep -rln for '^def _settings' and '^def _build' across code/src/model_checker/theory_lib/bimodal/tests/, excluding _build_support.py itself, reports ten modules: integration/test_data_extraction.py, integration/test_injection.py, integration/test_iterate.py, integration/test_output_gate.py, integration/test_until_since_integration.py, unit/test_operators.py, unit/test_proposition.py, unit/test_semantics_core.py, unit/test_structure.py, unit/test_witness_constraints.py. Re-run the grep before starting, since concurrent work in this tree changes the set.\n\nONE OF THOSE TEN IS NOT A CANDIDATE. unit/test_structure.py's local _build is a deliberate, documented four-line wrapper that defaults the 'verify' setting to 'off' before delegating to the shared helper, preserving an output-gate determinism fix. Leave it. It is also the precedent for how to handle any other module whose helper turns out not to be equivalent: keep a documented local wrapper that delegates, rather than either forcing the module onto the shared form or leaving a full duplicate.\n\nEstablish equivalence by reading each helper against _build_support.py's, not by assuming the shared name implies a shared shape. Where a module's helper differs, say why in the module and do not silently normalize the difference away. Verify with the full four-theory gate rather than the bimodal subset.",
       "topic": "testing",
@@ -42,7 +42,16 @@
         210
       ],
       "created": "2026-09-28T06:53:21Z",
-      "last_updated": "2026-09-28T06:53:21Z"
+      "last_updated": "2026-09-28T22:24:15Z",
+      "session_id": "sess_1790634050_886f74",
+      "artifacts": [
+        {
+          "path": "specs/212_consolidate_remaining_bimodal_test_helpers/reports/01_consolidate-remaining-bimodal-helpers.md",
+          "type": "report",
+          "summary": "Splits the dispatch's ten grep-matched bimodal test modules into three groups (2 full _settings+_build duplicates, 5 _settings-only duplicates, 1 same-shape-but-differently-named _build_solved) and identifies two of the ten as non-candidates on direct read: unit/test_structure.py (dispatch-excluded documented wrapper) and unit/test_witness_constraints.py (a grep false positive with no shared _build_support shape at all), plus flags the unused-import fallout in the two full-duplicate modules and a call-site naming decision for test_injection.py's _build_solved."
+        }
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 211,
