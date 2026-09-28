@@ -1,0 +1,18 @@
+{
+  "phase": 5,
+  "phase_name": "Residue rows and the Limit-transcription note in ADEQUACY.md §4.2",
+  "started_at": "2026-09-28T18:59:00Z",
+  "last_updated": "2026-09-28T19:08:00Z",
+  "objectives": [
+    {"id": 1, "description": "Add worldNonempty residue row to section 4.2 table", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 2, "description": "Add PartialHistory/WorldHistory residue row to section 4.2 table", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 3, "description": "Add TruthCorr reasoned-exclusion note, preserving conditional verbatim", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "Add Row 4 Limit-transcription note attached to Lemma 1's Limit bullet", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 5, "description": "Verify consistency with state-sharing passage", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 5,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [],
+  "notes": "git diff on ADEQUACY.md for this phase shows 0 deletions, all additions, matching the Scope Hypothesis exactly. ADEQUACY.md:295's TimeShift.timeShift_preserves_truth citation verified unchanged (Decision D3). Residue-row decisions: worldNonempty=added, PartialHistory/WorldHistory=added, TruthCorr=reasoned exclusion (condition unmet)."
+}

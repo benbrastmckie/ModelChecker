@@ -122,6 +122,15 @@ it is a temporal order (`:961`). `W` is nonempty since `k ≥ 0`. The four const
   Over `ℤ`, `x > 0` implies `x ≥ 1`, so `(w)_1` is already a member of the family, and `|y| < 1`
   over `ℤ` forces `y = 0`, whence `(w)_1 = ⟨w, 0⟩ = {(w₁, w₂)} = {w}`. Since every `(w)_x` contains
   `w` (take `y = 0`), the intersection is exactly `{w}`.
+
+  *(General-transcription note. This calculation proves the paper's Limit set-equation in full,
+  both directions, for the concrete certified construction. The general Lean transcription is
+  narrower: `TaskFrame.Limit` transcribes only the `⊆` half — the intersection is contained in
+  `{w}`. The `⊇` half — that `w` lies in each of its own positive cones — is `lem:nullity`,
+  **derived** choice-free from Seriality together with the `⊆` half, via
+  `TaskFrame.nullity_of_serial_limit`, not postulated; carrying it as an axiom would duplicate a
+  theorem. Nothing in this proof weakens: it is about the specific carrier above, not about
+  `TaskFrame.Limit`'s general definition.)*
 - *Saturation*: every fibre `⟨w, x⟩ = {(w₁, w₂+x)}` is a singleton, and every segment
   `[w,u]_x^y = ⟨w,x⟩ ∩ ⟨u,−y⟩` is a subset of a singleton, hence empty or a singleton. Let `𝒮` be a
   `⊇`-directed family of nonempty fibres and segments; every member is a singleton. For
@@ -300,6 +309,17 @@ paper line, not by proof.
 | `Γ ⊨ φ` (`:1124`, `def:logical-consequence` `:3236`) | `ConsequenceOnFrames P Γ φ` / `SemanticConsequenceIn .Base` (`Semantics/Validity.lean:80, 89`) | **Exact** modulo `Γ` finite (a `Context`, i.e. a list) rather than a set — harmless for model checking, where `Γ` is always finite |
 | `app:auto_existence` (`:3197`) | not needed: Corollary 2.1 derives it | **Not a dependency** |
 | `lem:history-time-shift-preservation` (`:3212`) | `TimeShift.timeShift_preserves_truth` (`Semantics/TruthTransport.lean`), consumed by `ShiftSet.reverse_repr` and `modal_future_valid` | **Exact**, and unconditional |
+| — (no paper anchor of its own) | `FrameOver`'s `worldNonempty` field (`Semantics/TaskFrame.lean:1055`), accessed via `TaskFrame.worldNonempty` (`Semantics/TaskFrame.lean:2642`) | **Transcribed, not derived.** The paper's reading of `W` as a *nonempty* set is exactly this field. An empty carrier would satisfy all four frame constraints vacuously while validating falsehood — this document's own Lemma 1 proof above already relies on the fact ("`W` is nonempty since `k ≥ 0`") |
+| `def:world-history` | `PartialHistory` (`Semantics/PartialHistory.lean:136`), `PartialHistory.IsTotal` (`:225`), `WorldHistory` (`:423`) | **Transcribed.** `TruthAt`'s Box clause quantifies over the **total** histories (row above, `Semantics/Truth.lean:232-238`; see also `joint_countermodel`'s `(τ : WorldHistory F)` at `:266`), so the whole Box case rests on this transcription |
+
+**Residue row not reached.** `Semantics.TruthCorr` (`Semantics/TruthTransport.lean:92`) is
+reachable as an audit row only if this table cites the *general* time-shift lemma
+(`Truth.truthAt_of_truthCorr` at `TimeShift.shiftCorr`) rather than the *instantiated* one. The
+row above cites the instantiated `TimeShift.timeShift_preserves_truth`, so the condition is unmet
+and `TruthCorr`'s five fields do not currently enter this audit. This does not contradict the
+`app:auto_existence` row's own position above ("not needed: Corollary 2.1 derives it"); it names
+the structure that position's own derivation is stated in terms of, and applies only under the
+general-lemma reading.
 
 **Residual.** The paper's `BL` is `⟨SL, ⊥, →, □, S, U⟩`, exactly the Lean `Formula` grammar. This
 theory's operator set is richer — nine primitives plus eight defined operators. The audit

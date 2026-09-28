@@ -354,44 +354,49 @@ line in `ARCHITECTURE.md`. Confirm with `git diff --stat` plus a hunk read-throu
 
 ---
 
-### Phase 5: Residue rows and the Limit-transcription note in ADEQUACY.md §4.2 [NOT STARTED]
+### Phase 5: Residue rows and the Limit-transcription note in ADEQUACY.md §4.2 [COMPLETED]
 
 **Goal**: The three handed-off residue rows each have a recorded outcome in this repository's
 adequacy argument, and the Row 4 correction is stated where a reader would otherwise assume
 `TaskFrame.Limit` alone transcribes the paper's full set equation.
 
 **Tasks**:
-- [ ] Add a §4.2 audit-table row for `worldNonempty`: paper column `—` (the upstream hand-off
+- [x] Add a §4.2 audit-table row for `worldNonempty`: paper column `—` (the upstream hand-off
       states this row has no paper anchor of its own — the paper's reading of `W` as a **nonempty**
       set is exactly this field, transcribed rather than derived); Lean column naming both
       `FrameOver`'s `worldNonempty` field and the `TaskFrame.worldNonempty` accessor with their
       manifest locations; verdict column recording why it matters — an empty carrier satisfies all
       four constraints vacuously while validating falsehood. Note that this document's own Lemma 1
       proof already relies on `W` being nonempty (`ADEQUACY.md:113`, "`W` is nonempty since
-      `k ≥ 0`"), so the transcription decision is load-bearing here too.
-- [ ] Add a §4.2 audit-table row for `PartialHistory` / `PartialHistory.IsTotal` /
+      `k ≥ 0`"), so the transcription decision is load-bearing here too. *(completed)*
+- [x] Add a §4.2 audit-table row for `PartialHistory` / `PartialHistory.IsTotal` /
       `WorldHistory` against the paper anchor `def:world-history`, noting that `TruthAt`'s Box
       clause quantifies over the **total** histories — so the whole Box case rests on this
       transcription. Cross-reference the existing uses at `ADEQUACY.md:266`
-      (`joint_countermodel`'s `(τ : WorldHistory F)`) and `:292` (the `box` clause).
-- [ ] Add a short reasoned-exclusion note for the `TruthCorr` residue row (upstream row 24),
+      (`joint_countermodel`'s `(τ : WorldHistory F)`) and `:292` (the `box` clause). *(completed)*
+- [x] Add a short reasoned-exclusion note for the `TruthCorr` residue row (upstream row 24),
       preserving its conditional **exactly** as the producing side wrote it rather than
       paraphrasing: the row is reachable only if §4.2 cites the general
       `Truth.truthAt_of_truthCorr` (at `TimeShift.shiftCorr`) rather than the instantiated
       lemma. State that §4.2 cites the instantiated
       `TimeShift.timeShift_preserves_truth` (`ADEQUACY.md:295`), so the condition is unmet and the
       row does not currently apply. Do not change the `:295` citation (Decision D3).
-- [ ] Add the Row 4 correction as a short note attached to Lemma 1's *Limit* bullet
+      *(completed: `:295` citation verified unchanged)*
+- [x] Add the Row 4 correction as a short note attached to Lemma 1's *Limit* bullet
       (~lines 121-124): `TaskFrame.Limit` transcribes only the **subset** half of the paper's set
       equation; the superset half — that `w` lies in each of its own positive cones — is
       `lem:nullity`, **derived** choice-free from Seriality together with the subset half via
       `TaskFrame.nullity_of_serial_limit`, not postulated (carrying it as an axiom would duplicate
       a theorem). Make clear the note is about the general Lean transcription, and that the
       concrete certified construction's own proof immediately above establishes both directions
-      directly, so nothing in Lemma 1 weakens.
-- [ ] Verify the new note does not contradict the "Why the design is deterministic" passage
+      directly, so nothing in Lemma 1 weakens. *(completed)*
+- [x] Verify the new note does not contradict the "Why the design is deterministic" passage
       (~lines 328-342), which correctly locates the real state-sharing obstruction at Lemma 2 and
       the Box case rather than at Limit or Saturation. Record that the check was made.
+      *(completed: check made, no inconsistency — that passage still discusses only Limit/
+      Saturation's role in determinism and the Lemma 2/Box-case obstruction; the new note is
+      solely about which half of the Limit equation is transcribed vs. derived, an orthogonal
+      distinction)*
 
 **Timing**: 0.75 hours
 
