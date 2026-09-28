@@ -1,10 +1,44 @@
 {
-  "status": "in_progress",
+  "status": "implemented",
   "dispatch_seq": 6,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/211_correct_kernel_checked_proof_overclaim/summaries/01_kernel-checked-proof-overclaim-summary.md",
+      "summary": "Corrected the ADEQUACY.md kernel-checked-proof overclaim, retired the dead BIMODAL_LOGIC_COMMIT pin, and fixed TRUST_PIPELINE.md/ADEQUACY.md's stale S4 deferral claims; all five plan phases completed and full test gate passed."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Rewrote the two ADEQUACY.md sites overclaiming a kernel-checked proof, retired the unconsumed BIMODAL_LOGIC_COMMIT constant, and corrected TRUST_PIPELINE.md and ADEQUACY.md's stale claim that the Lean-side S4 truth-preservation theorem was unattempted (it has landed upstream as sat_iff). All four bimodal trust docs now agree on both claims; full bimodal (640 passed) and repo-wide (645 passed, 5 skipped) test suites are green."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md",
+    "code/src/model_checker/theory_lib/bimodal/tests/_lean_check.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/checker.py"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When a plan phase's own Scope Hypothesis enumerates a fixed set of sites for a documentation-consistency fix (e.g. 'exactly two sites'), schedule a final sweep phase that re-greps the SAME search terms across the WHOLE affected directory (not just the enumerated files) before closing the task. In task 211, a Phase 4 scope hypothesis of {ADEQUACY.md:80, ADEQUACY.md:300} missed a third stale site (ADEQUACY.md:567) with the identical defect (a stale 'deferred, not attempted' claim about a since-landed Lean theorem), only caught because Phase 5's sweep grepped the whole docs/ directory for the underlying claim language rather than re-checking only the two hypothesized lines.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/211_correct_kernel_checked_proof_overclaim/summaries/01_kernel-checked-proof-overclaim-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["scope-hypothesis", "consistency-sweep", "plan-verification", "documentation-defect", "grep-sweep"]
+    },
+    {
+      "content": "When retiring a dead constant that a docstring elsewhere narrates for its rationale (e.g. 'X is a pin that is consumed by nothing and had drifted'), a strict 'grep for the constant name returns nothing' verification criterion is violated if the retiring docstring itself still spells out the literal constant name to preserve the historical rationale. Fix: reword the narrating prose to describe the retired thing generically (e.g. 'a fixed-commit-hash pin' instead of 'BIMODAL_LOGIC_COMMIT') while keeping the concrete evidence (commit hashes, dates) that makes the rationale credible.",
+      "category": "PATTERN",
+      "source_artifact": "specs/211_correct_kernel_checked_proof_overclaim/summaries/01_kernel-checked-proof-overclaim-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["dead-code-removal", "docstring-rewording", "grep-verification", "zero-hits-criterion"]
+    }
+  ],
   "metadata": {
     "session_id": "sess_1790578867_05c8df",
     "agent_type": "general-implementation-agent",
     "delegation_depth": 2,
-    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"]
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 5,
+    "phases_total": 5
   }
 }
