@@ -309,27 +309,27 @@ were removed from each -- matching the Scope Hypothesis's six-import figure exac
 failed (9 in `test_data_extraction.py`, 7 in `test_output_gate.py`, matching the Phase 1 baseline
 for these files).
 
-### Phase 4: Collapse `test_injection.py`'s Differently-Named Duplicate [NOT STARTED]
+### Phase 4: Collapse `test_injection.py`'s Differently-Named Duplicate [COMPLETED]
 
 **Goal**: Replace `integration/test_injection.py`'s `_settings` and `_build_solved` with the
 shared helpers, adopting the naming convention the already-migrated call sites use.
 
 **Tasks**:
-- [ ] Confirm `_build_solved`'s body is the same three-line
+- [x] Confirm `_build_solved`'s body is the same three-line
       `Syntax -> ModelConstraints -> BimodalStructure` pipeline as `_build_support._build`, with
       no `'verify'` override and no other divergence. If a real difference surfaces, keep a
       documented local wrapper delegating to `_build` instead of completing the rename.
-- [ ] Delete the local `_settings` and `_build_solved` defs; add
+- [x] Delete the local `_settings` and `_build_solved` defs; add
       `from model_checker.theory_lib.bimodal.tests._build_support import _build, _settings`.
-- [ ] Rename every `_build_solved(...)` call site to `_build(...)` (approach (a) from the
+- [x] Rename every `_build_solved(...)` call site to `_build(...)` (approach (a) from the
       research report — it matches the convention every already-migrated call site uses). The
       import-alias fallback (`import _build as _build_solved`) is acceptable only if a call-site
       rename proves disruptive; record the reason if taken.
-- [ ] Grep the module for `_build_solved` and require zero hits.
-- [ ] Re-derive the dead-import set as in Phase 3. `BimodalSemantics` is expected to survive —
+- [x] Grep the module for `_build_solved` and require zero hits.
+- [x] Re-derive the dead-import set as in Phase 3. `BimodalSemantics` is expected to survive —
       it is used at a call site outside the removed bodies (`BimodalSemantics(_settings())`) —
       so verify its reference count rather than deleting it by analogy with Phase 3.
-- [ ] Run the module's tests and confirm green; commit.
+- [x] Run the module's tests and confirm green; commit.
 
 **Timing**: 0.25 hours
 
@@ -354,6 +354,19 @@ Confirm both by grep before and after the edit.
 - The module's tests pass with an unchanged test count.
 
 ---
+
+**Confirmation (re-run at implementation time)**: `_build_solved`'s body was byte-equivalent in
+shape to `_build_support._build` (same three-line pipeline, only differing by an intermediate
+`structure = ...; return structure` versus a direct return -- functionally identical, no
+`'verify'` override), so the bare rename route applied rather than a documented wrapper. Exactly
+3 `_build_solved(...)` call sites were found and renamed to `_build(...)`; a post-edit grep
+confirms zero remaining `_build_solved` occurrences. Post-edit reference counts:
+`ModelConstraints`/`Syntax`/`bimodal_operators`/`BimodalStructure`/`BimodalProposition` all
+dropped to zero references (all five import lines removed), while `BimodalSemantics` survived at
+its `BimodalSemantics(_settings())` call site outside the removed body (kept, imported directly
+from `semantic.core` since the module doesn't otherwise need `_build_support` to re-export it).
+`PYTHONPATH=code/src pytest integration/test_injection.py -q`: 4 passed, 0 failed (unchanged from
+the Phase 1 baseline for this file).
 
 ### Phase 5: Refresh `_build_support.py` Docstring and Run the Full Four-Theory Gate [NOT STARTED]
 

@@ -18,29 +18,9 @@ from unittest.mock import Mock
 
 import z3
 
-from model_checker.models.constraints import ModelConstraints
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
-from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
-from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+from model_checker.theory_lib.bimodal.tests._build_support import _build, _settings
 from model_checker.solver import is_true
-
-
-def _settings(**overrides):
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
-
-
-def _build_solved(premises, conclusions, **setting_overrides):
-    """Build and solve one example through the real pipeline, mirroring
-    `test_structure.py`'s own `_build` helper."""
-    settings = _settings(**setting_overrides)
-    syntax = Syntax(premises, conclusions, bimodal_operators)
-    model_constraints = ModelConstraints(settings, syntax, BimodalSemantics(settings), BimodalProposition)
-    structure = BimodalStructure(model_constraints, settings)
-    return structure
 
 
 class TestInjectZ3ModelValuesExists:
@@ -51,7 +31,7 @@ class TestInjectZ3ModelValuesExists:
 
 class TestInjectPinsLabelBitsAndGuesses:
     def test_every_bit_and_guess_pinned_matching_the_found_model(self):
-        structure = _build_solved(["A"], ["\\Box A"], back=1, mid=1, fwd=1)
+        structure = _build(["A"], ["\\Box A"], back=1, mid=1, fwd=1)
         assert structure.certificate is not None, "expected a countermodel"
         assert structure.z3_model is not None
 
@@ -87,7 +67,7 @@ class TestInjectPinsLabelBitsAndGuesses:
     def test_injected_constraints_are_satisfiable_together_with_the_original_model(self):
         """Re-solving with the injected constraints added must still be `sat` -- they pin
         the found model's own values, so they cannot conflict with it."""
-        structure = _build_solved(["A"], ["\\Box A"], back=1, mid=1, fwd=1)
+        structure = _build(["A"], ["\\Box A"], back=1, mid=1, fwd=1)
         assert structure.certificate is not None
 
         mock_constraints = Mock()
@@ -112,7 +92,7 @@ class TestInjectRequiresARealModel:
         blocking constraint against it, so there is no "UNSAT but inject anyway" case to
         support. This test records the `z3_model is None` precondition so a future change
         to `inject_z3_model_values` cannot silently start assuming a model exists."""
-        structure = _build_solved(["A"], ["A"], back=1, mid=1, fwd=1)
+        structure = _build(["A"], ["A"], back=1, mid=1, fwd=1)
         assert structure.certificate is None
         assert structure.z3_model_status is False
         assert structure.z3_model is None
