@@ -1,0 +1,49 @@
+{
+  "phase": 2,
+  "phase_name": "Enforced capability handshake and recorded provenance",
+  "started_at": "2026-09-28T02:00:00Z",
+  "last_updated": "2026-09-28T01:52:45.557914+00:00",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Extend tests/unit/test_checker.py (RED): capability-failure and protocol-failure cases",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Implement the handshake in semantic/checker.py: status/acceptance/echo validation",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/checker.py"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Add optional integrity pinning (SHA-256 digest, env var or digest file)",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/checker.py"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "Record provenance (checkout HEAD) rather than enforce it",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/checker.py"
+      ]
+    },
+    {
+      "id": 5,
+      "description": "Tests to green; bimodal unit suite green",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

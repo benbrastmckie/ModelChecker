@@ -186,7 +186,7 @@ probe.
 
 ---
 
-### Phase 2: Enforced capability handshake and recorded provenance [NOT STARTED]
+### Phase 2: Enforced capability handshake and recorded provenance [COMPLETED]
 
 **Goal**: The gate knows which checker contract it is gating against. The acceptance vocabulary and
 the `echo` field are properties of a particular binary, so their presence is *enforced*, not
@@ -194,22 +194,22 @@ assumed — and the commit pin, which is currently consumed by nothing and alrea
 demoted to provenance rather than promoted to a gate.
 
 **Tasks**:
-- [ ] Extend `tests/unit/test_checker.py` (RED): a probe answering `countermodel` but carrying no
+- [x] Extend `tests/unit/test_checker.py` (RED): a probe answering `countermodel` but carrying no *(completed: implemented together with Phase 1's checker.py)*
       `acceptance` field is rejected as a capability failure, not accepted as available; a probe
       whose `echo` does not match the sent bytes is a protocol failure; an `acceptance` value
       outside the known vocabulary is a capability failure naming the value seen.
-- [ ] Implement the handshake in `semantic/checker.py`: availability requires the probe certificate
+- [x] Implement the handshake in `semantic/checker.py`: availability requires the probe certificate *(completed: implemented together with Phase 1's checker.py)*
       to return `status == "countermodel"`, an `acceptance` value in the known vocabulary
       (`decided`, `entailment`), and an `echo` matching the bytes sent bytewise.
-- [ ] Add optional integrity pinning: when a SHA-256 digest is configured (environment variable, or
+- [x] Add optional integrity pinning: when a SHA-256 digest is configured (environment variable, or *(completed: implemented together with Phase 1's checker.py)*
       a digest file beside a cached binary), a resolved standalone binary whose digest does not
       match is refused with a named reason. Absent configuration, no digest check — this is the hook
       the out-of-band artifact route needs, not a new mandatory requirement.
-- [ ] Record provenance rather than enforce it: when the checker resolves inside a
+- [x] Record provenance rather than enforce it: when the checker resolves inside a *(completed: implemented together with Phase 1's checker.py)*
       `BIMODAL_LOGIC_PATH` checkout, capture that checkout's HEAD for inclusion in the output label;
       state in the module docstring why the commit is provenance and the handshake is the
       enforcement (F9/D4, and the observed same-day drift from `d55e2760` to `d1a24b30`).
-- [ ] Tests to green; bimodal unit suite green.
+- [x] Tests to green; bimodal unit suite green. *(completed: implemented together with Phase 1's checker.py)*
 
 **Timing**: 1.5 hours
 
