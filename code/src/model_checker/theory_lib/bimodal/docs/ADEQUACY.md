@@ -494,6 +494,19 @@ certificate `tests/unit/test_semantics_core.py` exercises (§7.3), but is silent
 repository does not export to the Lean binary — the live path (`semantic/model.py`) still relies
 on the Python re-checker alone, since it never calls `lake exe check_certificate`.
 
+Both halves of the proof-producing checker have now landed and are consumed: the constructed
+entailment above, and a bytewise comparison of the Lean side's `"echo"` against the bytes this
+repository sent (§6.1, `assert_echo_matches_sent`). The residual decoding step this leaves — that
+`checkCertified` rebuilt the family the sender meant — is no longer merely *trusted*; it is
+*pinned* by `BimodalTools.CanonicalWire.print_parse_canonical`, which says that on canonical
+bytes the echo is byte-identical to what was sent. Together, in the **differential test tier**
+only, this makes the Python re-checker a fast **pre-filter** rather than part of what a
+`countermodel` verdict there rests on: Lean's kernel checks the entailment for the certificate
+actually sent, and the echo confirms it is the certificate this repository meant. The **live
+path** (`semantic/model.py`) is unaffected — it never calls `lake exe check_certificate`, so the
+Python re-checker remains fully in that path's trust base (`TRUST_PIPELINE.md`, "The trust
+base").
+
 ### 6.3 Obligation S4: the translation bridge, uncovered by the round-trip alone
 
 A round-trip comparing the Python re-checker against `lake exe check_certificate` on the same

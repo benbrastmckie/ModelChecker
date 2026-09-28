@@ -459,30 +459,37 @@ bytewise echo comparison — no divergence found in `bx` iteration order or atom
 
 ---
 
-### Phase 6: The joint trust-base claim — gated on Phase 5 executing [NOT STARTED]
+### Phase 6: The joint trust-base claim — gated on Phase 5 executing [COMPLETED]
 
 **Goal**: once, and only once, both axes are consumed, record in the docs that the Python
 re-checker's role in the test tier has become a fast pre-filter rather than part of what the
 verdict rests on.
 
 **Tasks**:
-- [ ] **Admission check**: proceed only if Phase 5 closed `[COMPLETED]`. If Phase 5 closed
+- [x] **Admission check**: proceed only if Phase 5 closed `[COMPLETED]`. If Phase 5 closed
       `[COMPLETED WITH EXCLUSIONS]`, close this phase the same way, citing Phase 5's own gate
-      evidence, and write nothing.
-- [ ] `docs/TRUST_PIPELINE.md`: state the demotion precisely and with its scope attached — the
+      evidence, and write nothing. Phase 5 closed `[COMPLETED]` — admitted.
+- [x] `docs/TRUST_PIPELINE.md`: state the demotion precisely and with its scope attached — the
       **differential test tier**'s verdict no longer rests on the Python re-checker (Lean
       constructs the entailment, and the echo pins that it did so for the certificate actually
       sent), while the **live path** (`semantic/model.py`) still does, because it never calls the
       binary. Do not write an unqualified demotion; the qualification is the honest part.
-- [ ] `docs/ADEQUACY.md` §6.2: add the corresponding sentence, and name the theorem the guarantee
+- [x] `docs/ADEQUACY.md` §6.2: add the corresponding sentence, and name the theorem the guarantee
       rests on (`print_parse_canonical`, per BimodalLogic's committed `CertificateImport.lean`
-      header) rather than asserting the guarantee bare.
-- [ ] `docs/A2_GAP.md` route (f): mark both halves landed and consumed, leaving "removes the
+      header) rather than asserting the guarantee bare. Cited with its fully-qualified name,
+      `BimodalTools.CanonicalWire.print_parse_canonical`, per the header's own wording.
+- [x] `docs/A2_GAP.md` route (f): mark both halves landed and consumed, leaving "removes the
       re-checker — not the encoder — from the trust base" scoped to the tier that actually calls
       the binary.
-- [ ] Re-read BimodalLogic's committed `BimodalTools/README.md` certificate-protocol section
+- [x] Re-read BimodalLogic's committed `BimodalTools/README.md` certificate-protocol section
       first and quote its post-phase-9 wording rather than this plan's paraphrase — the producing
-      side's contract prose is authoritative for what the joint claim licenses.
+      side's contract prose is authoritative for what the joint claim licenses. Re-read "The joint
+      canonical contract" section in full: its own post-phase-9 wording states "The downstream
+      payoff was jointly gated, and both halves have now landed on this side... What remains is on
+      the consuming side: it must actually perform the comparison, and pin `ensure_ascii=False` in
+      its exporter" — this repository has now done both (Phase 1 pinned `ensure_ascii=False`,
+      Phase 5 performs the comparison), so the joint claim is fully licensed by the producing
+      side's own contract prose.
 
 **Timing**: 0.75 hours
 
