@@ -37,16 +37,17 @@ next_project_number: 209
 
 ### Test Reliability
 
-208 [PLANNING] — Fix the logos subtheory-orchestration meta-test, which sits...
+208 [PLANNED] — Fix the logos subtheory-orchestration meta-test, which sits...
 
 ## Tasks
 
 ### 208. Fix logos subtheory meta test timeout
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
 - **Research**: [208_fix_logos_subtheory_meta_test_timeout/reports/01_logos-subtheory-meta-test-timeout.md]
+- **Plan**: [208_fix_logos_subtheory_meta_test_timeout/plans/01_delete-duplicate-subtheory-meta-test.md]
 
 **Description**: Fix the logos subtheory-orchestration meta-test, which sits over CI's per-test timeout ceiling with negative margin and duplicates coverage the gate already collects directly. This is a pre-existing condition, not a regression: it was observed intermittently failing and then passing across two runs of the same gate in the same working tree with no intervening code change, which is the signature of a test sitting exactly on its timeout boundary.
 
