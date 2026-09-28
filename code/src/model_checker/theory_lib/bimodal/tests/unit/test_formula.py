@@ -1022,15 +1022,18 @@ _BOX_PROPERTY_ASTS = [
     ("box", ("until", ("atom", "q"), ("atom", "p"))),
     ("box", ("def_future", ("atom", "p"))),
     ("def_future", ("box", ("atom", "p"))),
+    ("top",),
+    ("box", ("top",)),
 ]
 
-# `\top` is excluded from the differential exercise below (though it stays in
-# `_GENERATED_CORPUS` for the coverage assertion): a bare/nested `\top` sentence hits a
-# pre-existing, already-documented TopOperator bug in `Sentence.update_types`'s extremal-operator
-# branch (see `examples.py`'s own "explicit expansion to avoid TopOperator bug" comment, which
-# routes around it the same way everywhere else in this theory) -- out of scope for this
-# translation-bridge obligation to fix as a drive-by.
-_BOX_TEST_CORPUS = [ast for ast in _GENERATED_CORPUS if ast[0] != "top"] + _BOX_PROPERTY_ASTS
+# `\top` used to be excluded from the differential exercise below: a bare/nested `\top` sentence
+# hit a TopOperator bug in `Sentence.update_types`'s `store_types` (the extremal branch dispatched
+# on the original operator name rather than the shape of the derived type, truncating `\top`'s
+# `[NegationOperator, [BotOperator]]` expansion). That defect is fixed (see `store_types`'s
+# shape-keyed branch), so `\top` is no longer excluded here -- both a bare `\top` and a nested
+# `\Box \top` are covered by construction via `_BOX_PROPERTY_ASTS` above, not left to the seeded
+# generator alone.
+_BOX_TEST_CORPUS = _GENERATED_CORPUS + _BOX_PROPERTY_ASTS
 
 
 class TestDefinedOperatorCoverage:

@@ -301,27 +301,37 @@ run below confirms the hypothesis: no non-bimodal test changed behavior.
 
 ---
 
-### Phase 3: Remove the `\top` workaround in the box test corpus [NOT STARTED]
+### Phase 3: Remove the `\top` workaround in the box test corpus [COMPLETED]
 
 **Goal**: Delete the exclusion that routed around the now-fixed defect, so the differential
 exercise actually covers `\top`.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/theory_lib/bimodal/tests/unit/test_formula.py` around
+- [x] Re-read `code/src/model_checker/theory_lib/bimodal/tests/unit/test_formula.py` around
       `_BOX_TEST_CORPUS` immediately before editing.
-- [ ] Replace `_BOX_TEST_CORPUS = [ast for ast in _GENERATED_CORPUS if ast[0] != "top"] +
+- [x] Replace `_BOX_TEST_CORPUS = [ast for ast in _GENERATED_CORPUS if ast[0] != "top"] +
       _BOX_PROPERTY_ASTS` with the unfiltered `_GENERATED_CORPUS + _BOX_PROPERTY_ASTS`.
-- [ ] Delete the multi-line comment documenting the TopOperator bug and the reason for the
+- [x] Delete the multi-line comment documenting the TopOperator bug and the reason for the
       exclusion, replacing it with a one-line note that the defect is fixed — citing
       `sentence.py`'s `store_types` by function name, not by line number.
-- [ ] Add `("top",)` and at least one nesting containing it (e.g. `("box", ("top",))`) to
+- [x] Add `("top",)` and at least one nesting containing it (e.g. `("box", ("top",))`) to
       `_BOX_PROPERTY_ASTS`, so `\top` coverage is by construction rather than incidental to the
       seeded generator.
-- [ ] Record the explicit decision to **leave** `examples.py`'s `\neg \bot` hand-expansions and
+- [x] Record the explicit decision to **leave** `examples.py`'s `\neg \bot` hand-expansions and
       their "avoid TopOperator bug" comments in place: they are correct as written, and rewriting
       the theory's example corpus is a separate cleanup on its own merits. Note in the progress
-      record that those comments are now stale prose, not live workarounds.
-- [ ] Run `test_formula.py` in full.
+      record that those comments are now stale prose, not live workarounds. **Decision recorded**:
+      `code/src/model_checker/theory_lib/bimodal/examples.py:1050,1069` carry
+      `# Note: \top = \neg \bot (explicit expansion to avoid TopOperator bug)`. Both hand
+      expansions remain correct as written (`\neg \bot` is semantically identical to `\top`, and
+      is now also *mechanically* identical post-fix, since `\top` type-updates to exactly
+      `NegationOperator(BotOperator)` — the same shape these hand-expansions spell out directly).
+      Left untouched: rewriting `examples.py` to use bare `\top` instead is a separate,
+      independently-motivated cleanup with no bearing on this task's two obligations (items 5/6),
+      and is out of this task's Non-Goals. The two comments are now stale *prose* (the bug they
+      warn against no longer exists) but not live workarounds — a future drive-by cleanup can
+      simplify them; this task does not.
+- [x] Run `test_formula.py` in full.
 
 **Timing**: 0.5 hours
 
@@ -337,8 +347,10 @@ risk was already discharged by Phase 2's `full` tier.
   `_BOX_PROPERTY_ASTS`, and the exclusion comment.
 
 **Verification**:
-- `test_formula.py` passes in full with `\top` present in the differential corpus.
-- No `ast[0] != "top"` filter remains anywhere in the module.
+- `test_formula.py` passes in full with `\top` present in the differential corpus. **Confirmed**:
+  139 passed (was 136; +1 from the now-unfiltered seeded `("top",)` generator entry, +2 from the
+  two new `_BOX_PROPERTY_ASTS` entries).
+- No `ast[0] != "top"` filter remains anywhere in the module. **Confirmed** via grep.
 
 ---
 
