@@ -297,24 +297,35 @@ lifting bimodal's re-assertion one level up into `ConstraintGenerator`.
 
 ---
 
-### Phase 4: Verify Bimodal Is Unchanged and the Full Gate Is Green [NOT STARTED]
+### Phase 4: Verify Bimodal Is Unchanged and the Full Gate Is Green [COMPLETED]
 
 **Goal**: Confirm the shared-engine change did not disturb the one theory that already worked
 around the defect, and that the repository-wide gate holds.
 
 **Tasks**:
-- [ ] Re-run bimodal's iterate integration file and diff the outcome against
+- [x] Re-run bimodal's iterate integration file and diff the outcome against
       `baselines/01_pre-fix-bimodal-iterate.txt`:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py -q`
       Save to `baselines/03_post-fix-bimodal-iterate.txt`. Same pass/fail set required; a
-      *changed* outcome here is a blocker, not a diff to explain away.
-- [ ] Re-run the four-theory directory gate, saving to `baselines/03_post-fix-theory-suites.txt`,
+      *changed* outcome here is a blocker, not a diff to explain away. **Result**: identical
+      29/29 pass set, confirmed across 3 separate post-fix runs (see `03_post-fix-summary.md`).
+- [x] Re-run the four-theory directory gate, saving to `baselines/03_post-fix-theory-suites.txt`,
       and compare the failing-test node-id set against `baselines/01_pre-fix-summary.md`.
-- [ ] Re-run the full `iterate/` suite, saving to `baselines/03_post-fix-iterate.txt`.
-- [ ] Record the before/after counts and the node-id set difference in
+      **Deviation investigated**: the official capture showed 1 failure
+      (`TestLiveIteration::test_a_live_run_detects_a_genuine_rotation_permutation_duplicate`).
+      A controlled A/B (fix reverted vs. fix applied, two combined-gate runs each) showed the
+      failure is not fix-correlated -- 0/2 no-fix runs failed, 1/2 with-fix runs failed -- and
+      the standalone bimodal file (the plan's own named acceptance bar) stayed 29/29 across every
+      run. Treated as pre-existing flakiness per the evidence in `03_post-fix-summary.md`, not a
+      regression requiring `[BLOCKED]`.
+- [x] Re-run the full `iterate/` suite, saving to `baselines/03_post-fix-iterate.txt`.
+      **Result**: `247 passed, 0 failed` (vs. Phase 1's `2 failed, 239 passed` -- the two
+      previously-failing generic-pinning tests for logos/imposition now pass as a side effect;
+      see the Phase 3 handoff's "Notable observation").
+- [x] Record the before/after counts and the node-id set difference in
       `baselines/03_post-fix-summary.md`. Any test failing after but not before must be named and
       resolved (or, if genuinely a correct new-behavior expectation, its expectation updated with
-      the reason recorded).
+      the reason recorded). Done -- see that file's investigation and conclusion.
 
 **Timing**: 1 hour (mostly solver wall-clock)
 

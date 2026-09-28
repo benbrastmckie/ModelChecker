@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, xdist-3.8.0, hypothesis-6.151.10, cov-7.1.0
+collected 29 items
+
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py . [  3%]
+............................                                             [100%]
+
+============================== slowest durations ===============================
+1.90s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestLiveIteration::test_a_live_run_detects_a_genuine_rotation_permutation_duplicate
+0.36s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestLiveIteration::test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly
+0.28s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestLiveIteration::test_iterate_three_yields_three_pairwise_distinct_certificates
+0.07s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestNonIsomorphicOrbitExclusion::test_clause_excludes_every_retained_orbit_element_not_just_the_representative
+0.07s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestLiveIteration::test_exclusion_constraint_for_model_two_is_enforced_not_coincidental
+0.05s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestNonIsomorphicOrbitExclusion::test_clause_is_false_against_its_own_model
+0.05s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestAllConstraintsReflectsCertificateAfterSolve::test_all_constraints_contains_certificate_encoding_after_solve
+0.05s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestNonIsomorphicOrbitExclusion::test_conjunct_count_matches_the_number_of_countermodel_elements
+0.01s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestConstruction::test_iterator_constructs_against_a_real_bimodal_semantics
+
+(78 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================== 29 passed in 3.46s ==============================
