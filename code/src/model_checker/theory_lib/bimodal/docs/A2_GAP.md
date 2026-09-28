@@ -184,10 +184,28 @@ after that instance's own `finalize_certificate()` has already run once (called 
 `iterate.py:231` to allocate every bit/guess/lasso before pinning). For every `_bits`/`_guesses`
 Z3 variable and every `sel(t)` for `t in registry.target_window()`, evaluates the variable
 against the previous model and appends the resulting unit literal (`var` or `Not(var)`) directly
-to `semantics.frame_constraints` (`iterate.py:266`, `:280`) — bypassing the shared engine's
-`all_constraints` path, which `models/structure.py`'s `_setup_solver` never reads. This path
-emits no (C1)-(C4) content of its own; it pins previously-derived values so a rebuilt structure
-reflects the model the search actually found, rather than an unconstrained re-solve.
+to `semantics.frame_constraints` (`iterate.py:266`, `:280`). This path emits no (C1)-(C4) content
+of its own; it pins previously-derived values so a rebuilt structure reflects the model the
+search actually found, rather than an unconstrained re-solve.
+
+**Correction: `all_constraints` is now a computed view, and was never solve-determining.**
+`ModelConstraints.all_constraints` (`models/constraints.py`) used to be a construction-time
+snapshot — `frame_constraints + model_constraints + premise_constraints + conclusion_constraints`,
+concatenated once in `__init__`, before `finalize_certificate()` had populated
+`frame_constraints` with any of its (C1)-(C4) content. It is now a read-only `@property`
+recomputed on every access from the same four live component lists, so it reflects
+`finalize_certificate`'s additions (and call site (8)'s, when iterating) rather than permanently
+omitting them. This was a **diagnostic/display defect, never a soundness one**:
+`models/structure.py`'s `_setup_solver` builds its tracked solver groups directly from
+`frame_constraints`/`model_constraints`/`premise_constraints`/`conclusion_constraints` (the
+"Assembly into what Z3 actually sees" paragraph below), never from `all_constraints`, for any
+theory — so the stale snapshot never changed what Z3 was asked to solve. What it did affect: the
+verbose "SATISFIABLE CONSTRAINTS:" display and bimodal's `--save` output
+(`_get_relevant_constraints`, `models/structure.py`; `save_to`,
+`theory_lib/bimodal/semantic/model.py`) both read `all_constraints`, and under-reported this
+theory's real encoding (a measured 2-constraint snapshot against a 132-constraint true set for a
+representative example) for as long as the snapshot was stale. Both now report the full
+certificate encoding.
 
 **Assembly into what Z3 actually sees.** The seven single-solve call sites above collapse into
 exactly four solver-visible tracked groups, each `assert_tracked` individually for unsat-core

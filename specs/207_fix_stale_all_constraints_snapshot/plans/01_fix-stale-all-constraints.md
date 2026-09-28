@@ -1,7 +1,7 @@
 # Implementation Plan: Fix stale `ModelConstraints.all_constraints` snapshot
 
 - **Task**: 207 - Fix stale `all_constraints` snapshot; audit every production reader
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/207_fix_stale_all_constraints_snapshot/reports/01_fix-stale-all-constraints.md
@@ -152,13 +152,13 @@ property semantics and the bimodal certificate gap — before any production edi
 
 **Tasks**:
 
-- [ ] Record the pre-fix baseline to `specs/207_fix_stale_all_constraints_snapshot/baselines/01_pre-fix-gate.md`:
+- [x] Record the pre-fix baseline to `specs/207_fix_stale_all_constraints_snapshot/baselines/01_pre-fix-gate.md`:
       run CI's two invocations (see Phase 5 for the exact commands) plus
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -q`, and record
       pass/fail/skip counts and the name of every pre-existing failure. A pre-existing failure is
       a baseline fact, not something this task fixes — but it must be named, so Phase 5 can tell a
       regression from an inherited failure.
-- [ ] Add to `code/src/model_checker/models/tests/unit/test_constraints.py` (alongside the existing
+- [x] Add to `code/src/model_checker/models/tests/unit/test_constraints.py` (alongside the existing
       real-instance assertion at :160-161, which must keep passing unchanged):
       - a test that mutating a component list after construction (e.g.
         `constraints.frame_constraints.append(z3.Bool('late'))`) is reflected in
@@ -168,14 +168,14 @@ property semantics and the bimodal certificate gap — before any production edi
         silent-no-op contract named in Research Integration);
       - a test that assigning to `all_constraints` raises `AttributeError` (fail-fast, per
         CLAUDE.md principle 3 and the no-backwards-compatibility rule — no setter is provided).
-- [ ] Add a bimodal regression test asserting that after a real solve, `all_constraints` contains
+- [x] Add a bimodal regression test asserting that after a real solve, `all_constraints` contains
       the certificate encoding — i.e. `len(structure.model_constraints.all_constraints)` equals
       `len(full_constraints(structure))` (import the helper from
       `theory_lib/bimodal/tests/_pinned_eval.py`) and is far larger than the pre-fix value. Place
       it with the existing bimodal integration coverage
       (`theory_lib/bimodal/tests/integration/`), reusing the `_real_build_example` construction
       pattern that `test_iterate.py` already uses — a real, non-mocked solve, not a mock.
-- [ ] Run the new tests and confirm they FAIL for the intended reason (stale snapshot / assignment
+- [x] Run the new tests and confirm they FAIL for the intended reason (stale snapshot / assignment
       permitted), not for a setup error. Record the observed failure messages in the baseline file.
 
 **Timing**: 0.75 hours
@@ -213,10 +213,10 @@ assignment, leaving bimodal's existing pin bypass and the generic pinning loop u
 
 **Tasks**:
 
-- [ ] Re-grep for every assignment to `all_constraints` across `code/` before editing
+- [x] Re-grep for every assignment to `all_constraints` across `code/` before editing
       (`grep -rn "all_constraints *=" code/src`), and confirm each hit is either the definition
       being replaced or a `Mock`/`MagicMock` attribute in the test tree. Record the confirmed list.
-- [ ] In `code/src/model_checker/models/constraints.py`: delete the `self.all_constraints = (...)`
+- [x] In `code/src/model_checker/models/constraints.py`: delete the `self.all_constraints = (...)`
       assignment at the end of `__init__` (currently line 97) and add a read-only property:
       ```python
       @property
@@ -232,7 +232,7 @@ assignment, leaving bimodal's existing pin bypass and the generic pinning loop u
       (b) it is read-only on purpose — assignment raises, and appending to the returned list is a
       no-op, so callers must append into the component list they mean; (c) `_setup_solver` never
       reads this attribute, so it is diagnostic/derivative, never solve-determining.
-- [ ] In `code/src/model_checker/iterate/models.py`: remove the assignment at line 152
+- [x] In `code/src/model_checker/iterate/models.py`: remove the assignment at line 152
       (`model_constraints.all_constraints = list(temp_solver.assertions())`) and replace it with a
       comment recording precisely why: the attribute is now a computed view, and per the audit
       nothing downstream ever read the value written here (`_setup_solver` reads the four live
@@ -240,12 +240,12 @@ assignment, leaving bimodal's existing pin bypass and the generic pinning loop u
       `temp_solver` above are consequently discarded for theories without a
       `_pin_theory_specific_values` override — a pre-existing, separate live defect (F4) tracked
       by its own follow-up task, deliberately NOT fixed here.
-- [ ] Leave `iterate/models.py:93` (the read), the generic `is_world`/`possible`/`verify`/`falsify`
+- [x] Leave `iterate/models.py:93` (the read), the generic `is_world`/`possible`/`verify`/`falsify`
       pinning loop, the `temp_solver` construction, and the
       `self.iterator._pin_theory_specific_values(temp_solver, z3_model, model_constraints)` call
       exactly as they are. The hook's bimodal override has a load-bearing
       `semantics.frame_constraints.append(...)` side effect (F3) that must keep running.
-- [ ] Do not add a setter, and do not add a compatibility shim (CLAUDE.md: no backwards
+- [x] Do not add a setter, and do not add a compatibility shim (CLAUDE.md: no backwards
       compatibility, fail fast).
 
 **Timing**: 1 hour
@@ -294,30 +294,30 @@ the new target at identical strength.
 
 **Tasks**:
 
-- [ ] Re-read each site immediately before editing (sibling tasks share this tree):
+- [x] Re-read each site immediately before editing (sibling tasks share this tree):
       `theory_lib/logos/semantic/core.py` (`inject_z3_model_values`, ~lines 455-491),
       `theory_lib/exclusion/semantic/core.py` (~lines 533-570),
       `theory_lib/bimodal/semantic/core.py` (~lines 443-451).
-- [ ] In each, change every `model_constraints.all_constraints.append(x)` to append into a live
+- [x] In each, change every `model_constraints.all_constraints.append(x)` to append into a live
       component list instead. Use `model_constraints.model_constraints.append(x)` — these are
       pinned model-content literals, and that list is owned by `ModelConstraints` itself rather
       than aliased to `semantics.frame_constraints`, so injection does not mutate semantics state.
       Add a short comment at the first site in each file noting that the doubled attribute name
       (`model_constraints.model_constraints`) is the ModelConstraints-owned model-constraint group,
       and that appending to `all_constraints` is now a silent no-op because it is a computed view.
-- [ ] Do **not** switch these sites to `frame_constraints`: bimodal's `iterate.py` uses
+- [x] Do **not** switch these sites to `frame_constraints`: bimodal's `iterate.py` uses
       `frame_constraints` for certificate pins by design, and this path is unrelated to that one.
       Keep the two patterns distinct and commented.
-- [ ] Update the injection tests to read the new target, keeping every assertion's count and
+- [x] Update the injection tests to read the new target, keeping every assertion's count and
       structural check identical (redirect only, never weaken):
       `theory_lib/logos/tests/integration/test_injection.py` (setUp :25 and reads at :51, :82,
       :137, :159), `theory_lib/exclusion/tests/integration/test_injection.py` (:24, :50, :83,
       :112, :139, :153), `theory_lib/bimodal/tests/integration/test_injection.py` (:63, :69, :91,
       :97), `theory_lib/imposition/tests/integration/test_injection.py` (:23, :46 — imposition has
       no own `inject_z3_model_values` and exercises the inherited logos implementation).
-- [ ] Also seed the `Mock`'s other component lists where a test's mock previously only carried
+- [x] Also seed the `Mock`'s other component lists where a test's mock previously only carried
       `all_constraints`, so the mock keeps matching the real attribute surface.
-- [ ] Leave `models/constraints.py`'s `inject_z3_values` delegation hook and
+- [x] Leave `models/constraints.py`'s `inject_z3_values` delegation hook and
       `iterate/build_example.py`'s `create_with_z3_model` factory unchanged — the path remains dead
       (zero production callers); this phase only stops it from being silently broken.
 
@@ -363,19 +363,19 @@ changing the helper's observable behaviour, keeping the A2-triangle per-candidat
 
 **Tasks**:
 
-- [ ] Re-read `code/src/model_checker/theory_lib/bimodal/tests/_pinned_eval.py`'s
+- [x] Re-read `code/src/model_checker/theory_lib/bimodal/tests/_pinned_eval.py`'s
       `full_constraints()` (~lines 391-411) and the note in
       `theory_lib/bimodal/tests/unit/test_pinned_eval.py:264` that points at its docstring.
-- [ ] Prove equivalence before changing anything: assert in a scratch run (or a temporary
+- [x] Prove equivalence before changing anything: assert in a scratch run (or a temporary
       assertion) that `full_constraints(structure)` and
       `list(structure.model_constraints.all_constraints)` are element-for-element equal on a real
       bimodal solve. Only proceed if they match.
-- [ ] Replace `full_constraints()`'s body with a delegation to the property
+- [x] Replace `full_constraints()`'s body with a delegation to the property
       (`return list(structure.model_constraints.all_constraints)`), and rewrite its docstring:
       the production attribute has caught up, so this helper now exists as a named alias for
       callers rather than a workaround. Keep the historical explanation of why the workaround was
       needed, marked as history, so the A2-triangle reader still has the context.
-- [ ] Update the pointer at `theory_lib/bimodal/tests/unit/test_pinned_eval.py:264` if its wording
+- [x] Update the pointer at `theory_lib/bimodal/tests/unit/test_pinned_eval.py:264` if its wording
       now misdescribes the helper. Do not change what that test asserts.
 
 **Timing**: 0.5 hours
@@ -409,7 +409,7 @@ Phase 1 baseline rather than to an assumption.
 
 **Tasks**:
 
-- [ ] Run CI's exact two invocations from `.github/workflows/tests.yml`:
+- [x] Run CI's exact two invocations from `.github/workflows/tests.yml`:
       ```
       cd code
       PYTHONPATH=src pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread
@@ -417,17 +417,17 @@ Phase 1 baseline rather than to an assumption.
       ```
       Background each run and wait with a bounded waiter (hard timeout, writer liveness via
       `kill -0` on the captured PID) per `context/patterns/bounded-build-waiter.md`.
-- [ ] Run the bimodal suite explicitly:
+- [x] Run the bimodal suite explicitly:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -v`. Per
       `code/docs/core/TESTING_GUIDE.md` section 8.14 the earlier blanket `development`-marker
       exclusion for bimodal is retired, so bimodal gates like any other theory and is not
       advisory-only here.
-- [ ] Diff every result against `baselines/01_pre-fix-gate.md`. Any failure not named in the
+- [x] Diff every result against `baselines/01_pre-fix-gate.md`. Any failure not named in the
       baseline is a regression from this task and must be fixed inside this task, not deferred.
       Any failure named in the baseline stays out of scope and is restated in the summary.
-- [ ] Append the post-fix counts to the baseline file (or write
+- [x] Append the post-fix counts to the baseline file (or write
       `baselines/02_post-fix-gate.md`) so the comparison is recorded, not just observed.
-- [ ] If a failure appears in a file outside this plan's file list, check `git log` and
+- [x] If a failure appears in a file outside this plan's file list, check `git log` and
       `git status` before assuming ownership — sibling tasks 197 and 208 share this working tree.
       Report a foreign change rather than "fixing" it.
 
@@ -452,25 +452,25 @@ Phase 1 baseline rather than to an assumption.
 
 ---
 
-### Phase 6: Documentation and follow-up record [NOT STARTED]
+### Phase 6: Documentation and follow-up record [COMPLETED]
 
 **Goal**: Record the corrected severity precisely where a future reader will look, and hand F4 off
 rather than losing it.
 
 **Tasks**:
 
-- [ ] Update `code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md` (around its existing
+- [x] Update `code/src/model_checker/theory_lib/bimodal/docs/A2_GAP.md` (around its existing
       `all_constraints` note at :188): state that `all_constraints` is now a computed view rather
       than a construction-time snapshot; state explicitly that `models/structure.py`'s
       `_setup_solver` never read `all_constraints` for any theory, so the solve path was never
       implicated and this was a diagnostic/display defect, not a soundness defect; and note that
       the verbose "SATISFIABLE CONSTRAINTS:" display and bimodal's `--save` output now report the
       full certificate encoding.
-- [ ] Check `docs/architecture/MODELS.md` and `docs/architecture/SEMANTICS.md` for any prose
+- [x] Check `docs/architecture/MODELS.md` and `docs/architecture/SEMANTICS.md` for any prose
       describing `all_constraints` as a stored list built in `__init__`, and correct it if present.
       (`docs/architecture/MODELS.md:1300` is an unrelated local variable in an example — leave it.)
       Skip any file where no such claim is actually made rather than editing for its own sake.
-- [ ] Record the F4 follow-up recommendation in the implementation summary with enough detail for
+- [x] Record the F4 follow-up recommendation in the implementation summary with enough detail for
       `/task` to create it from: generic `is_world`/`verify`/`falsify` pinning in
       `iterate/models.py` never reaches the rebuilt structure's real solve for
       logos/exclusion/imposition; research evidence is in
@@ -478,7 +478,7 @@ rather than losing it.
       `is_world` signature is an independent unpinned resolve, and `iterate/core.py`'s loop has no
       consistency check that would catch a divergent rebuild). Do not create the task from inside
       this phase — surface it for the user.
-- [ ] Do not reference task numbers in any file outside `specs/**`
+- [x] Do not reference task numbers in any file outside `specs/**`
       (`.claude/rules/no-task-references-in-deliverables.md`); cite durable anchors (file names,
       the F-numbers, section headings) in `A2_GAP.md` and code comments instead.
 
@@ -508,17 +508,17 @@ rather than losing it.
 
 ## Testing & Validation
 
-- [ ] New `models` unit tests: live-view behaviour, recompute-not-stored behaviour, assignment
+- [x] New `models` unit tests: live-view behaviour, recompute-not-stored behaviour, assignment
       raises `AttributeError`.
-- [ ] Existing real-instance assertion `models/tests/unit/test_constraints.py:160-161`
+- [x] Existing real-instance assertion `models/tests/unit/test_constraints.py:160-161`
       (`len(all_constraints) == 5`) still passes unchanged.
-- [ ] New bimodal post-solve test: `all_constraints` length equals `full_constraints()` length
+- [x] New bimodal post-solve test: `all_constraints` length equals `full_constraints()` length
       (certificate encoding present).
-- [ ] All four `test_injection.py` files green with assertions redirected, not weakened.
-- [ ] Bimodal A2-triangle / pinned-eval tests green after `full_constraints()` delegation.
-- [ ] CI's two-invocation gate over `tests/` and `src/model_checker` green relative to baseline.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -v` green.
-- [ ] `grep -rn "all_constraints.append\|all_constraints *=" code/src --include=*.py` shows no
+- [x] All four `test_injection.py` files green with assertions redirected, not weakened.
+- [x] Bimodal A2-triangle / pinned-eval tests green after `full_constraints()` delegation.
+- [x] CI's two-invocation gate over `tests/` and `src/model_checker` green relative to baseline.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -v` green.
+- [x] `grep -rn "all_constraints.append\|all_constraints *=" code/src --include=*.py` shows no
       production write site (test-tree `Mock` assignments excepted).
 
 ## Artifacts & Outputs
