@@ -186,38 +186,42 @@ them; if the pre-existing failure set differs from task 210's record, record the
 
 ---
 
-### Phase 2: Write the Failing Regression Tests (RED) [NOT STARTED]
+### Phase 2: Write the Failing Regression Tests (RED) [COMPLETED]
 
 **Goal**: Encode the acceptance bar as executable, live, non-mocked tests that fail against
 today's engine — including the strong, model-level criterion that a mere assertion-count check
 cannot provide.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/iterate/tests/integration/test_search_solver_population.py`.
-- [ ] Copy the `_real_build_example(theory, premises, conclusions, settings)` construction pattern
+- [x] Create `code/src/model_checker/iterate/tests/integration/test_search_solver_population.py`.
+- [x] Copy the `_real_build_example(theory, premises, conclusions, settings)` construction pattern
       from `iterate/tests/integration/test_models.py:14-30` (real `BuildExample`, `Mock` only for
-      the surrounding `BuildModule`). Do not import from `test_models.py`; duplicate the helper so
-      task 210's file and this one stay independent.
-- [ ] Define a `_search_solver_cases()` parametrization covering logos, exclusion and imposition,
+      the surrounding `BuildModule`). Duplicated, not imported, so the two test files stay
+      independent.
+- [x] Define a `_search_solver_cases()` parametrization covering logos, exclusion and imposition,
       reusing the concrete per-theory parameters already proven to work in
       `test_models.py::_generic_pinning_cases` (logos `[] |- \neg A` N=2; exclusion `EX_CM_6`
       N=3 max_time=40; imposition `IM_CM_0` N=4 max_time=40). Build the theory imports lazily
       inside the function, matching that file's rationale.
-- [ ] Add the fast diagnostic test: for each theory, construct the real iterator and assert
+- [x] Add the fast diagnostic test: for each theory, construct the real iterator and assert
       `len(iterator.constraint_generator.solver.assertions()) > 0`. Mark clearly in its docstring
       that this is a **diagnostic only** and is not sufficient — a tracking-literal-implication
       copy would satisfy it vacuously.
-- [ ] Add the strong test, which is the real acceptance criterion: for each theory, construct the
+- [x] Add the strong test, which is the real acceptance criterion: for each theory, construct the
       real iterator, `check()` the persistent search solver, require `sat`, take its `model()`,
       and assert that **every** constraint in `model_constraints.frame_constraints`,
       `.model_constraints`, `.premise_constraints` and `.conclusion_constraints` evaluates true
       under that model. Use `model.eval(c, model_completion=True)` and the project's
       `model_checker.solver.is_true` helper rather than raw truthiness. Report the first
       violating constraint in the failure message.
-- [ ] Mark the class `@pytest.mark.slow`, matching `TestGenericPinningReachesRebuiltSolve`.
-- [ ] Run the new file and confirm it **fails** today for all three theories, saving output to
+- [x] Mark the class `@pytest.mark.slow`, matching `TestGenericPinningReachesRebuiltSolve`.
+- [x] Run the new file and confirm it **fails** today for all three theories, saving output to
       `baselines/02_red-search-solver-population.txt`. Record which assertion fires for each
-      theory (expected: the count assertion, since today's count is 0).
+      theory. **Deviation**: for the strong (model-satisfies-constraints) test, the failing
+      assertion is the constraint-satisfaction check itself (`frame_constraints[1]` violated),
+      not the `sat`-result check, because an empty solver trivially checks `sat` and produces an
+      arbitrary, unconstrained model -- both the diagnostic count test and the strong test fail
+      today, exactly as the plan anticipates (all 6 parametrized tests fail).
 
 **Timing**: 2 hours
 
