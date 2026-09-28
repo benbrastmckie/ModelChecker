@@ -11,15 +11,14 @@ next_project_number: 215
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,210,214 | -- | documentation, semantics |
-| 2 | 199,212 | 198,210,214 | documentation, testing |
+| 1 | 198,200,210 | -- | semantics |
+| 2 | 199,212 | 198,210 | documentation, testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-214 [IMPLEMENTING] — Apply the citation corrections the BimodalLogic repository...
-  └─ 199 [NOT STARTED] — Write the round-trip ledger in...
+199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
 
@@ -34,12 +33,13 @@ next_project_number: 215
 ## Tasks
 
 ### 214. Apply upstream citation corrections
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
 - **Research**: [214_apply_upstream_citation_corrections/reports/01_citation-corrections-mapping.md]
 - **Plan**: [214_apply_upstream_citation_corrections/plans/01_apply-citation-corrections.md]
+- **Summary**: [214_apply_upstream_citation_corrections/summaries/01_apply-citation-corrections-summary.md]
 
 **Description**: Apply the citation corrections the BimodalLogic repository has already derived and made copy-ready for this side, to code/src/model_checker/theory_lib/bimodal/docs/.
 
