@@ -18,7 +18,7 @@ next_project_number: 214
 
 ### Documentation
 
-211 [NOT STARTED] — Resolve the kernel-checked-proof contradiction in the bimodal...
+211 [RESEARCHING] — Resolve the kernel-checked-proof contradiction in the bimodal...
   └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
@@ -34,7 +34,7 @@ next_project_number: 214
 
 ### Cross Repo Contract
 
-209 [NOT STARTED] — Fix the extremal-operator defect in Sentence.updatetypes and...
+209 [RESEARCHED] — Fix the extremal-operator defect in Sentence.updatetypes and...
 
 ## Tasks
 
@@ -67,7 +67,7 @@ Establish equivalence by reading each helper against _build_support.py's, not by
 ---
 
 ### 211. Correct kernel checked proof overclaim
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
@@ -109,10 +109,11 @@ ALSO FIX while in this area: theory_lib/bimodal/iterate.py's _ensure_frame_const
 ---
 
 ### 209. Bimodal sentence translation contract
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: cross-repo-contract
 - **Dependencies**: Task 205, Task 206
+- **Research**: [209_bimodal_sentence_translation_contract/reports/01_sentence-translation-contract.md]
 
 **Description**: Fix the extremal-operator defect in Sentence.update_types and wire the sentence-translation conformance channel against BimodalLogic's fixture. Relocated from the BimodalLogic repository, where the research and plan were authored but every source edit lands here; that plan is complete, strict-validated, and should be READ RATHER THAN REDERIVED.
 
