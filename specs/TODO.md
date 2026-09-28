@@ -1,5 +1,5 @@
 ---
-next_project_number: 209
+next_project_number: 210
 ---
 
 # TODO
@@ -12,7 +12,7 @@ next_project_number: 209
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 198,200,205,206 | -- | architecture, testing, semantics |
-| 2 | 199 | 198 | documentation |
+| 2 | 199,209 | 198,205,206 | documentation, cross-repo-contract |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -22,18 +22,55 @@ next_project_number: 209
 
 ### Architecture
 
-205 [PLANNED] — Decide and stage how a reported countermodel becomes...
+205 [IMPLEMENTING] — Decide and stage how a reported countermodel becomes...
 
 ### Testing
 
-206 [PLANNED] — Refactor the bimodal verification test harness for...
+206 [IMPLEMENTING] — Refactor the bimodal verification test harness for...
 
 ### Semantics
 
 198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 
+### Cross Repo Contract
+
+209 [NOT STARTED] — Fix the extremal-operator defect in Sentence.updatetypes and...
+
 ## Tasks
+
+### 209. Bimodal sentence translation contract
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: cross-repo-contract
+- **Dependencies**: Task 205, Task 206
+
+**Description**: Fix the extremal-operator defect in Sentence.update_types and wire the sentence-translation conformance channel against BimodalLogic's fixture. Relocated from the BimodalLogic repository, where the research and plan were authored but every source edit lands here; that plan is complete, strict-validated, and should be READ RATHER THAN REDERIVED.
+
+UPSTREAM ARTIFACTS, read both before planning:
+- Research: /home/benjamin/Projects/BimodalLogic/specs/686_modelchecker_contract_handoffs/reports/01_modelchecker-contract-handoffs.md
+- Plan (6 phases, 5 waves, --strict PASS): /home/benjamin/Projects/BimodalLogic/specs/686_modelchecker_contract_handoffs/plans/01_modelchecker-contract-handoffs.md
+The upstream research covered BOTH repositories with file:line and commit evidence; a fresh single-repo research round would be strictly weaker. Prefer adopting the upstream plan (revising for anything 205/206 have since changed) over authoring a new one.
+
+WHAT IS ACTUALLY OUTSTANDING. Of six contract hand-off items originally assumed open, upstream research established that only two are real work here:
+
+ITEM 6, A LOCATED DEFECT (do this first). code/src/model_checker/syntactic/sentence.py's store_types extremal-operator branch (around lines 238-240) keys off self.name being in {'\top','\bot'} -- the ORIGINAL operator name -- rather than the shape of the derived type. Consequence: \top's Imp-of-two-Bots expansion is silently truncated to (first_elem, None, None). Corroborating evidence already in-tree: examples.py's 'avoid TopOperator bug' workaround comments, and an exclusion in theory_lib/bimodal/tests/unit/test_formula.py's _BOX_TEST_CORPUS. The fix is to dispatch on the derived shape. Upstream planning bounded the blast radius: logos' \top/\bot are PRIMITIVE syntactic.Operators yielding a one-element derived type, so a shape-keyed branch in the shared syntactic/sentence.py is behavior-identical outside bimodal -- verify that claim, do not assume it, and run the FULL suite rather than the bimodal subset. Removing the _BOX_TEST_CORPUS exclusion is how the fix proves itself from the site that documented the defect.
+
+ITEM 5, AN UNWIRED CONFORMANCE CHANNEL (depends on item 6). Nothing here consumes BimodalLogic's Tests/fixtures/sentence-translation-fixtures.jsonl -- zero references. Add an integration test asserting, per fixture row, that this repository's own update_types + formula.translate + to_json output equals the row's formula field COMPARED AS PARSED JSON, never as bytes (both repositories' docs require this). Natural home is theory_lib/bimodal/tests/integration/, following _lean_check.py's skip-resolution idiom. It depends on item 6 because at least one fixture row is a \top sentence. Assert the row count so a truncated or unreadable fixture fails loudly instead of passing vacuously, and give checkout-absence its own distinctly named skip. Read the fixture live from the resolved BimodalLogic checkout rather than mirroring a copy here: one source of truth cannot drift, and drift is what this channel exists to detect. The channel is forward-only (tr is not injective), so do not add an inverse formula-to-sentence pass.
+
+ALREADY LANDED HERE, VERIFY ONLY, DO NOT REIMPLEMENT. Three items landed via tasks 197 and 207 (through commit ec430559) and need a verification pass, not source edits: the echo comparison (assert_echo_matches_sent is defined AND called in test_certificate_lean_agreement.py and test_semantics_core.py); ensure_ascii=False as the sole wire serializer (certificate.py's canonical_wire_bytes); and the acceptance absent-default of 'decided' in both consumers. Re-doing any of these at face value from a stale description is the main failure mode to avoid.
+
+CLOSED WITH A NEGATIVE RESULT, NO WORK. An audit for an out-of-repository Lean consumer of the CheckResult.countermodel pattern match found no target anywhere on the machine: this repository contains zero .lean files, and no other checkout imports BimodalTools/CertificateImport/CanonicalWire. Record the negative result; do not re-open the search.
+
+WHY THE DEPENDENCIES. Task 206 (refactor_verification_test_harness) is actively restructuring theory_lib/bimodal/tests/ including its README, which is where this task's new module and doc edits land. Task 205 (certifying_countermodel_architecture) edits _lean_check.py, tests/README.md, test_certificate_lean_agreement.py and test_semantics_core.py, and carries substantial acceptance-field work -- overlapping both this task's Phase 6 targets and its item-1/item-4 verification sites. Landing this task before either settles would collide on files neither declares in a file_scope. Sequence after both.
+
+RELATED, NOT BLOCKING. BimodalLogic has separately catalogued citation drift in this repository's theory_lib/bimodal/docs/ADEQUACY.md -- four stale ZTimeSharpness.lean citations and an eight-citation wrong-declaration cluster in section 4.1's proof-mapping table, now seeded into its C35 manifest gate. Task 205 also edits ADEQUACY.md. See /home/benjamin/Projects/BimodalLogic/docs/reference/transcription-audit-surface.md for the corrections table. Coordinating that is out of scope here.
+
+PROVENANCE NOTE. Because this task now lives in this repository under its own number, ordinary 'task 209: {action}' commit messages are correct. The upstream plan proposed a 'bimodal-contract:' prefix only to avoid falsely claiming a number in this repository's sequence; that workaround is no longer needed and should not be carried over.
+
+CONSTRAINTS. This repository's working tree may carry concurrent in-flight work from other sessions. Stage only this task's own explicitly named files -- never a directory or glob pathspec, never git add -A, and never a destructive git command (reset --hard, checkout --, clean -fd, restore) while the tree is dirty. To revert a landed phase, git revert that phase's own commit. Do not write anything under /home/benjamin/Projects/BimodalLogic.
+
+---
 
 ### 208. Fix logos subtheory meta test timeout
 - **Status**: [COMPLETED]
@@ -83,7 +120,7 @@ CONSTRAINTS. Verify against the full repository gate under CI's own invocation s
 ---
 
 ### 206. Refactor verification test harness
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 207
@@ -101,7 +138,7 @@ CONSTRAINTS. Preserve Tier 2's clean-skip behaviour as it stands (its promotion 
 ---
 
 ### 205. Certifying countermodel architecture
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: formal
 - **Topic**: architecture
 - **Dependencies**: Task 197
