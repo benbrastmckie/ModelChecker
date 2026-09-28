@@ -1,18 +1,23 @@
 {
-  "status": "planned",
-  "task_number": 213,
-  "phase": "plan",
-  "dispatch_seq": 3,
-  "session_id": "sess_1790619552_cbba66_213",
-  "phases_completed": 0,
-  "phases_total": 4,
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 5,
+  "summary": "Deleted the redundant wall-clock assertion from test_import_performs_no_subprocess_call and extended the timing-marker AST scanner to resolve embedded source strings passed to subprocess/exec-style call sites; a single full parallel gate run under -n 4 passed clean (3192 passed, 1 skipped, 0 failed).",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/plans/01_lazy-bounded-probe-flake-fix.md",
-      "summary": "4-phase implementation plan for the lazy-bounded-probe flake fix and the timing-marker scanner extension."
+      "type": "summary",
+      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/summaries/01_lazy-bounded-probe-flake-fix-summary.md",
+      "summary": "Implementation summary covering both the flake fix and the scanner extension."
+    },
+    {
+      "type": "handoff",
+      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/handoffs/phase-4-handoff-20260928115200.md",
+      "summary": "Final phase handoff recording the clean full-gate run outcome."
     }
   ],
-  "next_steps": "Dispatch implement for task 213 against plans/01_lazy-bounded-probe-flake-fix.md",
-  "notes": "Phase 3 (scanner extension) depends on Phase 1 (assertion deletion) as well as Phase 2: landing the broadened detection before the assertion is removed would make test_all_wall_clock_timing_assertions_are_marked fail on the real test_checker.py. Sibling task 214 shares this working tree with no declared file_scope."
+  "phases_completed": 4,
+  "phases_total": 4,
+  "blockers": [],
+  "plan_markers_verified": true,
+  "continuation_path": null
 }

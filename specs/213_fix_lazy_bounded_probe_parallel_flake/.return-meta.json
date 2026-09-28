@@ -1,30 +1,10 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/plans/01_lazy-bounded-probe-flake-fix.md",
-      "summary": "4-phase plan: delete the flaky wall-clock assertion from the injected subprocess source, then extend the timing-marker AST guard to see clock-read/bound-assert pairs inside embedded source strings, with RED self-tests and a single parallel gate run."
+      "type": "summary",
+      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/summaries/01_lazy-bounded-probe-flake-fix-summary.md",
+      "summary": "Deleted the redundant wall-clock assertion from test_import_performs_no_subprocess_call and extended the timing-marker AST scanner to resolve embedded source strings passed to subprocess/exec-style call sites; full parallel gate run under -n 4 passed clean (3192 passed, 1 skipped, 0 failed)."
     }
-  ],
-  "phase_count": 4,
-  "estimated_hours": 2.5,
-  "dependency_waves": [[1, 2], [3], [4]],
-  "next_steps": "Run /implement 213 to execute the plan",
-  "memory_candidates": [
-    {
-      "content": "AST-based CI guards that scan test bodies for a pattern (e.g. clock-read + bound-assert) have a structural blind spot at string-literal boundaries: code handed to subprocess.run([sys.executable, '-c', src]) or exec/eval is a single ast.Constant to the outer scan, so the pattern is invisible. Closing it needs three steps, not one: (1) recognize subprocess/exec-style call targets, (2) resolve simple same-scope local string bindings (the string is usually bound to a name first and referenced inside a list literal, not passed inline), (3) ast.parse the resolved string under try/except SyntaxError and re-apply the EXISTING detectors against the sub-tree, unioning results with the function's own nodes. Two traps: a tmp_path fixture breaks any label computation built on path.relative_to(REPO_ROOT), and a guard module that duplicates its detection logic inline in a second self-test will silently drift unless both call sites are routed through the shared helpers.",
-      "category": "PATTERN",
-      "source_artifact": "specs/213_fix_lazy_bounded_probe_parallel_flake/plans/01_lazy-bounded-probe-flake-fix.md",
-      "confidence": 0.75,
-      "suggested_keywords": ["ast-scan", "ci-guard", "subprocess-injected-source", "string-literal-blind-spot", "test-flake", "wall-clock"]
-    }
-  ],
-  "metadata": {
-    "session_id": "sess_1790619552_cbba66_213",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"]
-  },
-  "dispatch_seq": 3
+  ]
 }
