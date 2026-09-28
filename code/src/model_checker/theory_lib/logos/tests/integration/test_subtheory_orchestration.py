@@ -3,11 +3,18 @@ Integration test orchestration for all Logos subtheories.
 
 This module ensures that all subtheory tests run together and validates
 the integration between subtheories and the main Logos framework.
+
+Each subtheory's own `tests/` directory (under `logos/subtheories/*/tests/`) is already
+collected directly by the repository-wide pytest selection via `code/pyproject.toml`'s
+`testpaths`. A nested-`pytest`-via-`subprocess` re-execution of those same suites would
+therefore duplicate that coverage with worse diagnostics (opaque captured stdout/stderr instead
+of native pytest reporting) while re-running hundreds of Z3-backed tests a second time, so it is
+deliberately absent here. The one property such re-execution could additionally guard -- that
+loading every subtheory together introduces no cross-subtheory conflict -- is already asserted
+in-process by `test_no_operator_conflicts` and `test_dependency_resolution` below.
 """
 
 import pytest
-import subprocess
-import sys
 from pathlib import Path
 from typing import Dict, List, Any
 
@@ -144,36 +151,6 @@ class TestSubtheoryOrchestration:
             print(f"Operator compatibility issues: {issues}")
 
         assert len(issues) == 0, f"Found operator compatibility issues: {issues}"
-
-    def test_all_subtheory_tests_pass(self, subtheory_names: List[str]):
-        """Run all individual subtheory test suites."""
-        base_path = Path(__file__).parent.parent.parent  # Go to logos root
-        failures = []
-
-        for name in subtheory_names:
-            test_path = base_path / 'subtheories' / name / 'tests'
-            if test_path.exists():
-                # Run pytest on this subtheory's tests
-                result = subprocess.run([
-                    sys.executable, '-m', 'pytest',
-                    str(test_path),
-                    '-v', '--tb=short'
-                ], capture_output=True, text=True, cwd=base_path)
-
-                if result.returncode != 0:
-                    failures.append({
-                        'subtheory': name,
-                        'stdout': result.stdout,
-                        'stderr': result.stderr,
-                        'returncode': result.returncode
-                    })
-
-        # Report failures
-        if failures:
-            failure_msg = f"Subtheory tests failed for: {[f['subtheory'] for f in failures]}\n"
-            for failure in failures:
-                failure_msg += f"\n{failure['subtheory']} errors:\n{failure['stderr']}\n"
-            pytest.fail(failure_msg)
 
     def test_iterator_contract_compliance(self):
         """Test that LogosModelIterator complies with iterator contracts."""
