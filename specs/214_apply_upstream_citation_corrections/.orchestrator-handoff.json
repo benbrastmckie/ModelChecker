@@ -1,5 +1,11 @@
 {
   "status": "planned",
+  "task_number": 214,
+  "phase": "plan",
+  "dispatch_seq": 4,
+  "session_id": "sess_1790619552_cbba66_214",
+  "phases_completed": 0,
+  "phases_total": 6,
   "artifacts": [
     {
       "type": "plan",
@@ -7,10 +13,6 @@
       "summary": "Six-phase documentation-only plan applying the four dispatched upstream citation corrections plus the three handed-off residue rows to bimodal/docs/ADEQUACY.md and ARCHITECTURE.md by mechanical manifest lookup."
     }
   ],
-  "phase_count": 6,
-  "estimated_hours": 3.25,
-  "dependency_waves": [[1], [2], [3, 4], [5], [6]],
-  "memory_candidates": [],
   "user_decision": {
     "question": "Research found a second stale-citation cluster (six ShiftSet citations plus a wrong-file Truth.box_const citation) sitting inside the very same ADEQUACY.md/ARCHITECTURE.md table rows this task already edits; it comes from the same upstream corrections table but was not among the dispatch's enumerated 'FOUR ROWS TO APPLY'. Should it be fixed in this task or deferred?",
     "options": [
@@ -20,12 +22,7 @@
     "recommended": "Fix it now in this task (Phase 2 and Phase 4 carry it as separate, severable checklist items)",
     "blocking": false
   },
-  "next_steps": "Run /implement 214 to execute the plan",
-  "metadata": {
-    "session_id": "sess_1790619552_cbba66_214",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"]
-  },
-  "dispatch_seq": 4
+  "summary": "Authored a six-phase, documentation-only implementation plan applying the four dispatched upstream citation corrections plus the three handed-off residue rows to bimodal/docs/ADEQUACY.md and ARCHITECTURE.md by mechanical lookup against BimodalLogic's lean-citation-manifest.json. Research surfaced extra correction sites the dispatch did not name and a second stale-citation cluster in the same table rows; the plan scopes both in explicitly and surfaces the scope ruling as a non-blocking user_decision.",
+  "blockers": [],
+  "next_action_hint": "Run /implement 214; Phase 1 must re-resolve every declaration name against a fresh manifest read before any edit."
 }

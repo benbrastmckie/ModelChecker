@@ -19,7 +19,7 @@ next_project_number: 215
 
 ### Documentation
 
-214 [PLANNING] — Apply the citation corrections the BimodalLogic repository...
+214 [PLANNED] — Apply the citation corrections the BimodalLogic repository...
   └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
@@ -36,11 +36,12 @@ next_project_number: 215
 ## Tasks
 
 ### 214. Apply upstream citation corrections
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
 - **Research**: [214_apply_upstream_citation_corrections/reports/01_citation-corrections-mapping.md]
+- **Plan**: [214_apply_upstream_citation_corrections/plans/01_apply-citation-corrections.md]
 
 **Description**: Apply the citation corrections the BimodalLogic repository has already derived and made copy-ready for this side, to code/src/model_checker/theory_lib/bimodal/docs/.
 
