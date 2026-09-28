@@ -1,7 +1,7 @@
 # Implementation Plan: Fix lazy-bounded-probe parallel flake and close the scanner blind spot
 
 - **Task**: 213 - Fix the wall-clock flake in test_checker.py::TestLazyBoundedMemoizedProbe, and close the scanner blind spot that let it land unmarked
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md
@@ -96,15 +96,15 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Delete the wall-clock assertion from the injected subprocess source [NOT STARTED]
+### Phase 1: Delete the wall-clock assertion from the injected subprocess source [COMPLETED]
 
 **Goal**: `test_import_performs_no_subprocess_call` no longer reads a clock or asserts a timing
 bound, while still proving that importing the checker module does not eagerly resolve.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py` immediately
+- [x] Re-read `code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py` immediately
       before editing (sibling task 214 shares this tree).
-- [ ] In `test_import_performs_no_subprocess_call` (currently ~line 141), reduce the injected
+- [x] In `test_import_performs_no_subprocess_call` (currently ~line 141), reduce the injected
       `code` string to exactly the import plus the `_UNSET` assertion, dropping the `import time`,
       `t = time.time()`, `elapsed = time.time() - t`, and `assert elapsed < 1.0, elapsed` lines:
       ```python
@@ -113,11 +113,11 @@ bound, while still proving that importing the checker module does not eagerly re
           "assert m._memoized_result is m._UNSET, 'import must not resolve eagerly'\n"
       )
       ```
-- [ ] Leave `subprocess.run(..., timeout=15)` and `assert result.returncode == 0, ...` untouched —
+- [x] Leave `subprocess.run(..., timeout=15)` and `assert result.returncode == 0, ...` untouched —
       the timeout is the genuine-hang guard and the returncode assert is how the inner assertion
       surfaces.
-- [ ] Confirm `test_probe_timeout_yields_unavailable_not_a_hang` is byte-for-byte unchanged.
-- [ ] Commit this file alone with an explicit single-file `git add`.
+- [x] Confirm `test_probe_timeout_yields_unavailable_not_a_hang` is byte-for-byte unchanged.
+- [x] Commit this file alone with an explicit single-file `git add`.
 
 **Timing**: 0.25 hours
 

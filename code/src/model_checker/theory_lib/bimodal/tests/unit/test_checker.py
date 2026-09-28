@@ -148,12 +148,8 @@ class TestLazyBoundedMemoizedProbe:
         import sys
 
         code = (
-            "import time\n"
-            "t = time.time()\n"
             "import model_checker.theory_lib.bimodal.semantic.checker as m\n"
-            "elapsed = time.time() - t\n"
             "assert m._memoized_result is m._UNSET, 'import must not resolve eagerly'\n"
-            "assert elapsed < 1.0, elapsed\n"
         )
         result = subprocess.run(
             [sys.executable, "-c", code], capture_output=True, text=True, timeout=15
