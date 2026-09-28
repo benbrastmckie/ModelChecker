@@ -77,7 +77,7 @@ this repository:
 | **S1** | (C1)–(C4) ⟹ a paper countermodel exists | **Proved** below (§3); machine-checked, `WitnessFamily.joint_countermodel` (`Metalogic/Decidability/WitnessFamily/Agreement.lean:232`). |
 | **S2** | The Lean definitions transcribe the paper's | Discharged by inspection, §4 (the transcription audit); an audit, not a theorem. |
 | **S3** | Whatever the search reports satisfies (C1)–(C4) | Discharged by *deciding* the antecedent on every reported countermodel, independently, twice — §6 (presentation and re-verification). |
-| **S4** | The `Sentence` → `Formula` translation preserves truth | Discharged for both the tense and box halves by a differential property test — §6.3; still not covered by any Lean theorem cited here. |
+| **S4** | The `Sentence` → `Formula` translation preserves truth | Discharged for both the tense and box halves by a differential property test — §6.3; an upstream Lean theorem (`sat_iff`, `BimodalLogic`'s `SentenceTruth.lean`) now exists for BimodalLogic's own reference translation, but this repository's own translation is not yet diffed against it. |
 
 **S3 is the architectural point of the whole design.** (SOUND)'s antecedent is decidable (the
 four conditions collapse to finite windows — §5), so nothing in this repository has to prove the
@@ -297,9 +297,11 @@ paper line, not by proof.
 **Residual.** The paper's `BL` is `⟨SL, ⊥, →, □, S, U⟩`, exactly the Lean `Formula` grammar. This
 theory's operator set is richer — nine primitives plus eight defined operators. The audit
 therefore extends to the **translation** from theory sentences into the six-primitive grammar,
-which is obligation S4 and is not covered by any theorem cited here. Both halves of that
-translation (tense and box) are now discharged by a differential property test — see §6.3 for
-the evidence and its residual scope.
+which is obligation S4. Both halves of that translation (tense and box) are now discharged by a
+differential property test — see §6.3 for the evidence and its residual scope. Separately, an
+upstream Lean theorem (`sat_iff`, `BimodalLogic`'s `SentenceTruth.lean`) now exists for
+BimodalLogic's own reference translation, but this repository's own translation is not yet
+diffed against it (see `docs/TRUST_PIPELINE.md`'s "What remains").
 
 ---
 

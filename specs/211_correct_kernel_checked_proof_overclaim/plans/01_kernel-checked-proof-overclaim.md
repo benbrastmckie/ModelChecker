@@ -286,23 +286,24 @@ repeat the claim, fold them into this phase rather than leaving them.
 
 ---
 
-### Phase 4: Align ADEQUACY.md's two matching S4 statements [NOT STARTED]
+### Phase 4: Align ADEQUACY.md's two matching S4 statements [COMPLETED]
 
 **Goal**: `ADEQUACY.md`'s obligation table and transcription-audit residual no longer say the S4
 translation is "not covered by any theorem cited here" in a way that contradicts the corrected
 `TRUST_PIPELINE.md`.
 
 **Tasks**:
-- [ ] Re-read `ADEQUACY.md` lines 76-84 and 296-304 after Phase 1's edits have landed.
-- [ ] Update the **S4** row of the obligation table (currently ~line 80): keep "Discharged for both
+- [x] Re-read `ADEQUACY.md` lines 76-84 and 296-304 after Phase 1's edits have landed. *(completed)*
+- [x] Update the **S4** row of the obligation table (currently ~line 80): keep "Discharged for both
       the tense and box halves by a differential property test — §6.3", and replace "still not
       covered by any Lean theorem cited here" with the accurate position — an upstream Lean
       theorem (`sat_iff`) now exists for BimodalLogic's own reference translation, and this
-      repository's own translation is not yet diffed against it.
-- [ ] Update the **Residual** paragraph (currently ~line 300) the same way, keeping the distinction
-      that the upstream theorem is about the reference translation, not this one.
-- [ ] Use wording consistent with Phase 3's, so the two documents agree verbatim on the fact.
-- [ ] Commit (`task 211 phase 4: ...`), staging `docs/ADEQUACY.md` by explicit path only.
+      repository's own translation is not yet diffed against it. *(completed)*
+- [x] Update the **Residual** paragraph (currently ~line 300) the same way, keeping the distinction
+      that the upstream theorem is about the reference translation, not this one. *(completed)*
+- [x] Use wording consistent with Phase 3's, so the two documents agree verbatim on the fact.
+      *(completed)*
+- [x] Commit (`task 211 phase 4: ...`), staging `docs/ADEQUACY.md` by explicit path only. *(completed)*
 
 **Timing**: 0.25 hours
 
