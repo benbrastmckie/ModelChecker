@@ -11,9 +11,8 @@ next_project_number: 216
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,215 | -- | semantics |
-| 2 | 199,210 | 198,215 | documentation, semantics |
-| 3 | 212 | 210 | testing |
+| 1 | 198,200,210 | -- | semantics |
+| 2 | 199,212 | 198,210 | documentation, testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -29,19 +28,19 @@ next_project_number: 216
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-215 [IMPLEMENTING] — code/src/modelchecker/models/structure.py's...
-  └─ 210 [BLOCKED] — Fix generic iterator pinning never reaching the rebuilt...
+210 [BLOCKED] — Fix generic iterator pinning never reaching the rebuilt...
 
 ## Tasks
 
 ### 215. Fix persistent searchsolver population in shared iterate engine
 - **Effort**: 3-4 hours
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [210_fix_generic_iterator_pinning_unreached/reports/02_spawn-analysis.md]
 - **Plan**: [215_fix_persistent_searchsolver_population_in_shared_iterate_engine/plans/01_populate-persistent-search-solver.md]
+- **Summary**: [215_fix_persistent_searchsolver_population_in_shared_iterate_engine/summaries/01_populate-persistent-search-solver-summary.md]
 
 **Description**: code/src/model_checker/models/structure.py's ModelDefaults.solve() assigns self.stored_solver = self.solver BEFORE calling self._setup_solver(model_constraints), which is what actually populates constraints and reassigns self.solver to a new, populated solver object (structure.py:254-260). Because stored_solver is captured before that reassignment, it permanently references the solver's empty, pre-population state, for every theory. Combined with solve()'s finally-block cleanup (_cleanup_solver_resources(), structure.py:298-300) unconditionally setting self.solver = None, iterate/constraints.py's ConstraintGenerator._create_persistent_solver() (lines 56-98) builds the live iteration loop's persistent search solver from an empty assertion set for every theory without a bimodal-style workaround (logos, exclusion, imposition) -- confirmed empirically, len(iterator.constraint_generator.solver.assertions()) == 0 immediately after constructing a real LogosModelIterator/ExclusionModelIterator/ImpositionModelIterator. Bimodal already works around this exact defect for itself via theory_lib/bimodal/iterate.py's _ensure_frame_constraints_in_search_solver (lines 105-196), whose own docstring names the root cause as 'a bug in the shared engine (models/structure.py's solve())' -- but that workaround was never generalized to the other three theories. Fix strategy (choose one during research/planning, both are viable and should be weighed on their merits, not decided here): (1) root-cause reorder fix -- move self.stored_solver = self.solver in solve() to AFTER _setup_solver reassigns self.solver, so stored_solver correctly references the populated solver (it is not cleared by _cleanup_solver_resources(), so it survives past solve()'s return); before making this change, search all stored_solver usages repo-wide to confirm nothing relies on the current broken pre-population timing. (2) generalize bimodal's re-assertion into the shared ConstraintGenerator base class (iterate/constraints.py), re-asserting frame_constraints/model_constraints/premise_constraints/conclusion_constraints onto self.solver after _create_persistent_solver() runs, for every theory, mirroring theory_lib/bimodal/iterate.py:105-196 moved one level up. Either strategy must leave bimodal's existing _ensure_frame_constraints_in_search_solver override in place, unmodified -- the two mechanisms being redundant for bimodal post-fix is an accepted side effect, not a defect to resolve in this task. Add live, non-mocked regression coverage (new or extended file under code/src/model_checker/iterate/tests/) asserting, for logos, exclusion, and imposition: the persistent search solver has a non-zero assertion count immediately after iterator construction against a real, solved BuildExample (fails today, confirmed 0 for all three); and more strongly, that a model produced by that persistent solver actually satisfies the real frame_constraints/model_constraints/premise_constraints/conclusion_constraints (not merely a non-empty assertion count). Confirm bimodal's tests/integration/test_iterate.py is unchanged in outcome. Run the full iterate/ suite plus the four-theory directory gate and record results. Explicitly OUT OF SCOPE: code/src/model_checker/iterate/models.py's generic pinning loop and iterate/tests/integration/test_models.py's TestGenericPinningReachesRebuiltSolve class (both are task 210's own Phase 3/4 territory, not this task's) and removing/simplifying bimodal's own workaround. This task unblocks task 210's Phase 3 closure: once the persistent search solver is genuinely populated, task 210's already-correct pin-routing fix (appending pins into model_constraints.frame_constraints) will make the pinned candidate satisfiable rather than UNSAT for logos and imposition, exactly as it already is for exclusion.
 
