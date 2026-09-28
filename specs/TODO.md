@@ -11,20 +11,20 @@ next_project_number: 214
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,209,210,211,212,213 | -- | documentation, testing, semantics, ... |
-| 2 | 199 | 198 | documentation |
+| 1 | 198,200,209,210,211,213 | -- | documentation, testing, semantics, ... |
+| 2 | 199,212 | 198,210,211 | documentation, testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-211 [NOT STARTED] — Correct the kernel-checked-proof overclaim in the bimodal...
-199 [NOT STARTED] — Write the round-trip ledger in...
+211 [NOT STARTED] — Resolve the kernel-checked-proof contradiction in the bimodal...
+  └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
 
-212 [NOT STARTED] — Consolidate the seven remaining bimodal test modules that...
 213 [NOT STARTED] — Fix the TestLazyBoundedMemoizedProbe flake under parallel...
+212 [NOT STARTED] — Consolidate the remaining bimodal test modules that define...
 
 ### Semantics
 
@@ -54,11 +54,15 @@ Diagnose whether the probe's bound is a wall-clock timeout that host contention 
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: testing
-- **Dependencies**: None
+- **Dependencies**: Task 210
 
-**Description**: Consolidate the seven remaining bimodal test modules that carry their own independent _settings/_build helpers. A mechanical grep -rn for '^def _settings' and '^def _build' across code/src/model_checker/theory_lib/bimodal/tests/ found seven further modules defining their own helpers, beyond the four already folded into tests/_build_support.py. They were outside the consolidating task's declared scope and are recorded for a future task in that directory's tests/README.md.
+**Description**: Consolidate the remaining bimodal test modules that define their own _settings/_build helpers onto tests/_build_support.py. Four call sites were folded onto the shared helper when it was introduced; the rest were outside that task's declared scope.
 
-Fold them onto the shared helper where they are genuinely equivalent. Where one is not, document why rather than forcing it: test_structure.py is the precedent, keeping a four-line local wrapper that defaults the 'verify' setting to 'off' before delegating to the shared helper, preserving an output-gate determinism fix rather than silently reverting it. Establish equivalence by reading each helper, not by assuming the name implies the shape. Verify with the full four-theory gate rather than the bimodal subset.
+DERIVE THE LIST FRESH, do not trust a count. At the time of writing, grep -rln for '^def _settings' and '^def _build' across code/src/model_checker/theory_lib/bimodal/tests/, excluding _build_support.py itself, reports ten modules: integration/test_data_extraction.py, integration/test_injection.py, integration/test_iterate.py, integration/test_output_gate.py, integration/test_until_since_integration.py, unit/test_operators.py, unit/test_proposition.py, unit/test_semantics_core.py, unit/test_structure.py, unit/test_witness_constraints.py. Re-run the grep before starting, since concurrent work in this tree changes the set.
+
+ONE OF THOSE TEN IS NOT A CANDIDATE. unit/test_structure.py's local _build is a deliberate, documented four-line wrapper that defaults the 'verify' setting to 'off' before delegating to the shared helper, preserving an output-gate determinism fix. Leave it. It is also the precedent for how to handle any other module whose helper turns out not to be equivalent: keep a documented local wrapper that delegates, rather than either forcing the module onto the shared form or leaving a full duplicate.
+
+Establish equivalence by reading each helper against _build_support.py's, not by assuming the shared name implies a shared shape. Where a module's helper differs, say why in the module and do not silently normalize the difference away. Verify with the full four-theory gate rather than the bimodal subset.
 
 ---
 
@@ -68,13 +72,23 @@ Fold them onto the shared helper where they are genuinely equivalent. Where one 
 - **Topic**: documentation
 - **Dependencies**: None
 
-**Description**: Correct the kernel-checked-proof overclaim in the bimodal trust documentation, and decide the BIMODAL_LOGIC_COMMIT pin's fate. Three items, all deferred here by the certificate-verification work rather than discovered fresh.
+**Description**: Resolve the kernel-checked-proof contradiction in the bimodal trust documentation, and decide the BIMODAL_LOGIC_COMMIT pin's fate. Three items.
 
-ITEM 1, THE OVERCLAIM. code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md section 6.2 and TRUST_PIPELINE.md's Stage 5 section both describe an acceptance: entailment verdict as "a kernel-checked proof for that particular certificate". Per BimodalTools/CertificateImport.lean's Acceptance inductive docstring, that phrase names the reserved, not-yet-introduced third Acceptance value (per-certificate kernel checking by re-elaboration); nothing the binary produces today is that. The accurate narrower claim, already used throughout semantic/checker.py and the documentation written alongside it: Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions. The overclaim does not propagate into new user-facing text, since semantic/model.py's _verification_label is written from the Lean docstring directly, but both source documents still carry it.
+ITEM 1, A LIVE SELF-CONTRADICTION (verified against the tree, not inherited from a report). Two documents in code/src/model_checker/theory_lib/bimodal/docs/ now say opposite things about what an acceptance: entailment verdict licenses.
+
+ASSERTS the claim, and is the side that is wrong:
+- ADEQUACY.md line ~457: '"entailment" means the binary constructed the paper-countermodel existence term for this particular certificate (a kernel-checked proof)'.
+- ADEQUACY.md line ~490: '... constructing the paper-countermodel existence term rather than printing a verdict -- a kernel-checked proof for that particular certificate, not merely four Decidable instances agreeing'.
+
+DENIES the claim, and is already correct -- DO NOT "fix" these:
+- TRUST_PIPELINE.md line ~162 and A2_GAP.md line ~519 both read 'It is not a kernel-checked proof for ...'.
+- SETTINGS.md line ~108 states the accurate position explicitly: the phrase belongs to a reserved third Acceptance value (per-certificate kernel checking by re-elaboration) that nothing this checker produces today.
+
+Per BimodalTools/CertificateImport.lean's Acceptance inductive docstring, SETTINGS.md is right. The accurate narrower claim, already used throughout semantic/checker.py and the docs written alongside it: Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions. Rewrite the two ADEQUACY.md sites to that wording. The overclaim does not reach users -- semantic/model.py's _verification_label is written from the Lean docstring directly -- so this is a documentation-consistency defect, not a false user-facing claim. Re-grep for 'kernel-checked proof' across the docs directory when done: every surviving occurrence should either deny the claim or be SETTINGS.md's explanation of why the phrase is reserved.
 
 ITEM 2, A DEAD PIN. Decide whether to auto-track or retire tests/_lean_check.py's BIMODAL_LOGIC_COMMIT constant. It is declared and exported but consumed by nothing, and has drifted repeatedly. Enforcement now lives in semantic/checker.py's capability handshake, with the commit captured dynamically as CheckerHandle.provenance per resolution rather than read from the stale constant.
 
-ITEM 3, VERIFY WHILE IN TRUST_PIPELINE.md. That document records the Lean-side half of obligation S4 as deferred and not yet attempted, but the companion BimodalLogic repository now declares a translate_sentence executable (root BimodalTools.TranslateSentenceMain) in its lakefile.toml. Infrastructure may exist even where the truth-preservation theorem does not; check before restating the deferral.
+ITEM 3, VERIFY A DEFERRAL BEFORE RESTATING IT. TRUST_PIPELINE.md records the Lean-side half of obligation S4 as deferred and not yet attempted, but the companion BimodalLogic repository now declares a translate_sentence executable (root BimodalTools.TranslateSentenceMain) in its lakefile.toml. Infrastructure may exist even where the truth-preservation theorem does not. If the sentence-translation conformance task has already landed, prefer its findings over a fresh probe.
 
 ---
 
@@ -288,7 +302,7 @@ Out of scope: the A1 compression bound, the divisor-period sweep driver, the har
 - **Status**: [NOT STARTED]
 - **Task Type**: markdown
 - **Topic**: documentation
-- **Dependencies**: Task 192, Task 193, Task 194, Task 195, Task 196, Task 197, Task 198
+- **Dependencies**: Task 192, Task 193, Task 194, Task 195, Task 196, Task 197, Task 198, Task 211
 
 **Description**: Write the round-trip ledger in code/src/model_checker/theory_lib/bimodal/docs/: a single document stating, once and end to end, the biconditional between what the model checker reports and what paper models exist, with every leg's discharge cited and every residual named. The statement to record is the achievable one, not the desired one: that the search returns a certificate for a given premise/conclusion pair at lengths at or above f of the closure size if and only if the conclusion is not a Z-time consequence of the premises -- the forward direction being (SOUND), the backward being (ADEQ), and the frame class being Z-time rather than the paper's full consequence relation. For each leg, cite how it is discharged and by what kind of evidence, keeping the four categories distinct: machine-checked theorem, audit by inspection, decided per run, and property-tested. Cover at minimum: S1 (proved), S2 (an audit, narrowable but never a theorem), S3 (decided per run, twice, independently -- and record the consequence that the Z3 encoder, the decoder and Z3 itself are not in the soundness trust base, so encoder defects can cost completeness or raise a loud rejection but cannot manufacture a false countermodel report), S4 (the translation bridge), A0 (a permanent frame-class limit, not an open problem), A1 (BimodalLogic's compression theorem), A2 (encoding completeness) and A3 (bound realization). Close with the honest ceiling: three residuals no further work removes -- A0's frame-class gap, S2's irreducibly informal paper-to-formalism boundary, and the deciding procedure's scope covering the language without the stability modal. Documentation only: this task synthesizes and cites the work of the others rather than doing any of it.
 CORRECTION to the closing section specified above: do not present the three residuals as alike. Two are permanent and no further work removes them -- the frame-class gap, and the irreducibly informal paper-to-formalism boundary of the transcription audit. The third, the deciding procedure's scope covering only the language without the stability modal, is NOT permanent: it is an open but scoped limitation with a named route, and a task chain now exists for it on both sides (verified side: a decidability-provenance gate, a state-sharing witness structure with the box condition redesigned, an agreement lemma over all walks, and a compression bound; this side: the theory extension that consumes them). State it as such, citing the obstruction accurately -- not Limit or Saturation, but the histories characterization and the box case of the truth lemma -- so a reader is not left believing the stability modal is excluded in principle when it is excluded pending identified work.
