@@ -349,23 +349,27 @@ the summary line alone.
 
 ---
 
-### Phase 5: Document the Residual `stored_solver` Defect [NOT STARTED]
+### Phase 5: Document the Residual `stored_solver` Defect [COMPLETED]
 
 **Goal**: Leave the next reader an accurate, in-place account of why `models/structure.py`'s
 `stored_solver` ordering was deliberately not changed, so the rejected strategy is not
 re-attempted as an "obvious" cleanup.
 
 **Tasks**:
-- [ ] Add a short `NOTE:` comment beside `self.stored_solver = self.solver` in
+- [x] Add a short `NOTE:` comment beside `self.stored_solver = self.solver` in
       `code/src/model_checker/models/structure.py` recording: the assignment precedes
       `_setup_solver`'s reassignment, so `stored_solver` references the pre-population solver;
       that this was deliberately left in place because `_setup_solver` uses `assert_tracked` and
       the resulting `Implies(label, constraint)` assertions are vacuously satisfiable when copied
       into a fresh solver; and that the iterate engine no longer depends on this value being
       populated because `ConstraintGenerator` re-asserts the real constraint lists directly.
-- [ ] Update `code/src/model_checker/iterate/README.md` if it documents
+- [x] Update `code/src/model_checker/iterate/README.md` if it documents
       `_create_persistent_solver`'s behavior, so the described mechanism matches the code.
-- [ ] Do not change any executable statement in `models/structure.py`.
+      **Confirmed no update needed**: grepped for `persistent`, `stored_solver`, and
+      `_create_persistent_solver` in the README -- zero matches. It mentions `ConstraintGenerator`
+      only generically (construction call site, difference-constraint delegation), never
+      describing the solver-population mechanism this task touches.
+- [x] Do not change any executable statement in `models/structure.py`.
 
 **Timing**: 0.5 hours
 

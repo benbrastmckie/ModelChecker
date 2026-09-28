@@ -253,6 +253,20 @@ class ModelDefaults:
         """
         # Create a new solver via abstraction layer
         self.solver = create_solver(self.settings)
+        # NOTE: this assignment precedes `_setup_solver`'s reassignment of
+        # `self.solver` below (to a *different*, freshly populated solver object),
+        # so `stored_solver` is left referencing the solver's pristine,
+        # pre-population state -- it never carries the model's actual constraints.
+        # This was deliberately left in place rather than "fixed" by reordering:
+        # `_setup_solver` adds every constraint via `assert_tracked`, which Z3
+        # records as `Implies(label, constraint)`, so even a *populated* solver's
+        # `assertions()` would return tracked implications, not the raw
+        # constraints -- copying those into a fresh solver would be vacuously
+        # satisfiable. The shared iterate engine no longer depends on
+        # `stored_solver` being populated: `ConstraintGenerator.
+        # _ensure_original_constraints_in_solver` (`iterate/constraints.py`)
+        # re-asserts the real constraint lists directly instead of relying on
+        # this value.
         self.stored_solver = self.solver
 
         try:
