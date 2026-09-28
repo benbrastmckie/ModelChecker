@@ -1,30 +1,30 @@
 {
-  "status": "researched",
-  "dispatch_seq": 1,
+  "status": "planned",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md",
-      "summary": "Confirms the flake's root cause (redundant wall-clock assertion with ~0.4s headroom inside a subprocess-injected source string) and the scanner's exact blind spot (clock-read/bound-assert pair lives inside a same-function string-literal variable passed by name to subprocess.run), and recommends deleting the timing assertion outright plus extending the AST scanner to resolve simple same-scope string-variable bindings passed to subprocess/exec-style calls, with a synthetic self-test since no other real instance of the shape exists in the tree."
+      "type": "plan",
+      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/plans/01_lazy-bounded-probe-flake-fix.md",
+      "summary": "4-phase plan: delete the flaky wall-clock assertion from the injected subprocess source, then extend the timing-marker AST guard to see clock-read/bound-assert pairs inside embedded source strings, with RED self-tests and a single parallel gate run."
     }
   ],
-  "next_steps": "Run /plan 213 to create an implementation plan covering: (1) delete the wall-clock assertion and its now-dead supporting lines from test_import_performs_no_subprocess_call's injected subprocess source; (2) extend test_timing_marker_coverage.py's AST scan to resolve same-function string-literal variables passed to subprocess/exec-style calls and recursively apply the existing clock-read/bound-assert detectors, with a synthetic self-test proving both the positive and marker-suppressed negative cases; (3) verify with one clean full-gate -n 4 run plus the scanner's own test suite.",
-  "metadata": {
-    "session_id": "sess_1790619552_cbba66_213",
-    "agent_type": "python-research-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "python-research-agent"]
-  },
+  "phase_count": 4,
+  "estimated_hours": 2.5,
+  "dependency_waves": [[1, 2], [3], [4]],
+  "next_steps": "Run /implement 213 to execute the plan",
   "memory_candidates": [
     {
-      "content": "AST-based timing-marker scanners (code/tests/ci/test_timing_marker_coverage.py style) only see literal source text as an opaque ast.Constant when a test embeds Python code in a string handed to subprocess.run/exec/eval -- including when the string is first bound to a local variable and referenced by name inside a list literal (e.g. [sys.executable, \"-c\", code]). Extending such a scanner requires resolving same-scope simple string-variable bindings and re-parsing/re-scanning the resolved string, not just scanning literal call arguments directly.",
+      "content": "AST-based CI guards that scan test bodies for a pattern (e.g. clock-read + bound-assert) have a structural blind spot at string-literal boundaries: code handed to subprocess.run([sys.executable, '-c', src]) or exec/eval is a single ast.Constant to the outer scan, so the pattern is invisible. Closing it needs three steps, not one: (1) recognize subprocess/exec-style call targets, (2) resolve simple same-scope local string bindings (the string is usually bound to a name first and referenced inside a list literal, not passed inline), (3) ast.parse the resolved string under try/except SyntaxError and re-apply the EXISTING detectors against the sub-tree, unioning results with the function's own nodes. Two traps: a tmp_path fixture breaks any label computation built on path.relative_to(REPO_ROOT), and a guard module that duplicates its detection logic inline in a second self-test will silently drift unless both call sites are routed through the shared helpers.",
       "category": "PATTERN",
-      "source_artifact": "specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md",
-      "confidence": 0.8,
-      "suggested_keywords": ["ast-scanner", "wall-clock-flake", "xdist", "subprocess", "timing-marker-coverage"]
+      "source_artifact": "specs/213_fix_lazy_bounded_probe_parallel_flake/plans/01_lazy-bounded-probe-flake-fix.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["ast-scan", "ci-guard", "subprocess-injected-source", "string-literal-blind-spot", "test-flake", "wall-clock"]
     }
   ],
-  "modified_files": [
-    "specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md"
-  ]
+  "metadata": {
+    "session_id": "sess_1790619552_cbba66_213",
+    "agent_type": "planner-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "plan", "planner-agent"]
+  },
+  "dispatch_seq": 3
 }

@@ -19,12 +19,12 @@ next_project_number: 215
 
 ### Documentation
 
-214 [RESEARCHED] — Apply the citation corrections the BimodalLogic repository...
+214 [PLANNING] — Apply the citation corrections the BimodalLogic repository...
   └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
 
-213 [RESEARCHED] — Fix the wall-clock flake in...
+213 [PLANNED] — Fix the wall-clock flake in...
 212 [NOT STARTED] — Consolidate the remaining bimodal test modules that define...
 
 ### Semantics
@@ -36,7 +36,7 @@ next_project_number: 215
 ## Tasks
 
 ### 214. Apply upstream citation corrections
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
@@ -113,11 +113,12 @@ line number left behind is a future instance of this same task.
 ---
 
 ### 213. Fix lazy bounded probe parallel flake
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md]
+- **Plan**: [213_fix_lazy_bounded_probe_parallel_flake/plans/01_lazy-bounded-probe-flake-fix.md]
 
 **Description**: Fix the wall-clock flake in test_checker.py::TestLazyBoundedMemoizedProbe, and close the scanner blind spot that let it land unmarked.
 
