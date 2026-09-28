@@ -192,7 +192,11 @@ Collecting the above, the trust base for a reported countermodel is:
 - Lean's kernel (for S1).
 - The **transcription audit** (S2): that the Lean definitions transcribe the paper's. An audit,
   not a theorem — see below.
-- The **re-checker implementation**, mitigated but not eliminated by the dual check.
+- The **re-checker implementation**, mitigated but not eliminated by the dual check. The
+  differential test tier now observes entailment-grade acceptance from the Lean binary on the
+  fixture corpus and the live-extracted certificate (`"acceptance":"entailment"`, above), but the
+  **live path** (`semantic/model.py`) still depends on the Python re-checker alone — it never
+  calls `lake exe check_certificate`.
 - The **translation** (S4).
 
 **Deliberately outside it:**
@@ -274,7 +278,8 @@ absent from the local `BimodalLogic` checkout).
 
 | Work | Why it matters |
 |------|----------------|
-| **Consume a proof-producing checker; verify the parse** | Turns a `countermodel` verdict into a constructed entailment, and removes the Python re-checker from the trust base. Compare an echo of what Lean parsed against the bytes sent. |
+| **Consume a proof-producing checker (done in the differential test tier)** | Turns a `countermodel` verdict into a constructed entailment: an accepting verdict's `"acceptance":"entailment"` means `lake exe check_certificate`'s accepting branch applied `WitnessFamily.joint_countermodel` to the decided hypothesis, constructing the paper-countermodel existence term rather than printing a verdict. Consumed on the fixture corpus and the live-extracted certificate (`test_certificate_lean_agreement.py`, `test_semantics_core.py`). |
+| **Verify the parse (still open)** | Compare a Lean-side echo of what it parsed against the bytes this repository sent, so a parser defect cannot mean the verified side certified a different certificate than the one exported. The `"echo"` field is present on the wire; this repository does not yet compare it. |
 | **Make the Lean check a gate on reported output** | Stage 5 is currently a *sampled test tier* that clean-skips when `BIMODAL_LOGIC_PATH` is unset, so in a default CI run the only check validating a candidate countermodel against the semantics disappears. A countermodel that has not been checked should be labelled unchecked or not reported. This is what makes an encoder, decoder or Z3 defect a *liveness* failure rather than a *soundness* one. |
 | **Ship the checker so the gate does not require a Lean toolchain** | A mandatory check must not imply a mandatory `lake` install for users. Extraction to a standalone verified artifact (Lean's C backend or equivalent) versus a two-tier trust model, a Python re-implementation (which reinstates the code-to-specification gap), or requiring the toolchain. Unscoped everywhere else; it is the practical blocker on the row above. |
 | **Compute bounds from the closure (A3)** | Once `f` exists, set lengths from `|C|` and report "exhaustive at this closure" versus "bounded" honestly. Blocked until the Lean side supplies `f`. |

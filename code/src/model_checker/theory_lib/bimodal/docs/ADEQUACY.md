@@ -434,15 +434,28 @@ Input:
 - **Atom identity is base-only.** `Formula.toJson` drops `Atom.freshIndex`, so a certificate
   carrying a fresh/Skolem atom is rejected outright; an exporter must refuse to emit one.
 
+**The consuming parser accepts canonical bytes only.** Compact separators (no interior
+whitespace; trailing whitespace is skipped), the key order shown above (fixed by construction,
+not by sorting), and `ensure_ascii=False` so a non-ASCII atom name survives unescaped. This
+repository's single authoritative serializer is `semantic/certificate.py`'s
+`canonical_wire_bytes`; every call site that feeds the binary uses it, never a bare
+`json.dumps`.
+
 Output, exactly one line, and **never a validity claim**:
 
-- `{"status":"countermodel","time":0}`
+- `{"status":"countermodel","time":0}` — optionally carrying `"acceptance"` (below) and `"echo"`
+  (the canonical reprint of what was parsed; see §6.2).
 - `{"status":"rejected","failed":[{"condition":…,"lasso":…,"position":…,"formula":…,"detail":…}]}`
 - `{"status":"error","message":…}`
 
 `condition ∈ {structural, local_coherent, fulfilling, box_faithful, target, unlocalized}`. A
 missing `target` or a missing `target.time` is `error`, never `rejected` — `error` covers input
 that fails the *protocol*; `rejected` covers input that parses but fails a *condition*.
+
+**`"acceptance"`** appears on `countermodel` verdicts only. `"entailment"` means the binary
+constructed the paper-countermodel existence term for this particular certificate (a
+kernel-checked proof); an absent field reads as `"decided"` — the four `Decidable` instances
+returned `true`, with no such term constructed. See §6.2.
 
 ### 6.2 The four-step dual verification, on every reported countermodel
 
@@ -462,6 +475,16 @@ returned `true` on the family rebuilt from the wire input — it is not a kernel
 that particular certificate, the same honesty the tableau bridge's `"gates"` field records for
 itself. `rejected` says only that the object handed over is not a certificate; it never says the
 consequence holds.
+
+Where the binary's verdict instead carries `"acceptance":"entailment"`, the honesty above is
+strictly stronger for that certificate: `check_certificate`'s accepting branch applies
+`WitnessFamily.joint_countermodel` to the decided hypothesis, *constructing* the
+paper-countermodel existence term rather than printing a verdict — a kernel-checked proof for
+that particular certificate, not merely four `Decidable` instances agreeing. This upgrades the
+differential test tier's confidence in each `countermodel` fixture and in the live-extracted
+certificate `tests/unit/test_semantics_core.py` exercises (§7.3), but is silent on any run this
+repository does not export to the Lean binary — the live path (`semantic/model.py`) still relies
+on the Python re-checker alone, since it never calls `lake exe check_certificate`.
 
 ### 6.3 Obligation S4: the translation bridge, uncovered by the round-trip alone
 

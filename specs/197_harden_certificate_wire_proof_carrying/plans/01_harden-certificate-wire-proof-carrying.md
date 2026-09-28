@@ -314,7 +314,7 @@ sites were left alone and why.
 
 ---
 
-### Phase 4: Doc corrections — the narrower true claim only [NOT STARTED]
+### Phase 4: Doc corrections — the narrower true claim only [COMPLETED]
 
 **Goal**: the three doc sites state what is now true (a `countermodel` from the current binary
 carries a constructed entailment; the wire is canonical-bytes-only) without asserting the joint
