@@ -1,7 +1,7 @@
 # Implementation Plan: Fix logos subtheory-orchestration meta-test timeout
 
 - **Task**: 208 - Fix logos subtheory meta test timeout
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/208_fix_logos_subtheory_meta_test_timeout/reports/01_logos-subtheory-meta-test-timeout.md
@@ -279,27 +279,35 @@ described above; if either import is still referenced, keep it and say so.
 
 ---
 
-### Phase 4: Verify against the full gate and report before/after numbers [NOT STARTED]
+### Phase 4: Verify against the full gate and report before/after numbers [COMPLETED]
 
 **Goal**: Re-run the full repository gate under CI's exact invocation shape after the deletion,
 confirm the node-count delta is exactly one, and report both measured before and after numbers.
 
 **Tasks**:
-- [ ] Re-run `--collect-only -q` under the parallel pass's marker expression; confirm the count
+- [x] Re-run `--collect-only -q` under the parallel pass's marker expression; confirm the count
       is exactly one lower than Phase 1's and that the meta-test node id is absent.
-- [ ] Run both gating passes from `code/` exactly as in Phase 1, backgrounded to
+      **Deviation**: the raw total moved +4 (3099→3103), not -1, because sibling task 197
+      committed 5 new bimodal nodes between the before/after runs. A full sorted node-id diff
+      isolates this task's own contribution to exactly the expected -1 (the meta-test node
+      removed, nothing else), with the sibling's unrelated +5 accounted for separately — see
+      `baselines/01_gate-after.md`'s "Node-count reconciliation" section. The meta-test node id
+      is confirmed absent.
+- [x] Run both gating passes from `code/` exactly as in Phase 1, backgrounded to
       `baselines/01_gate-after.log` with the same bounded waiter discipline, `--durations=10` on
       the parallel pass.
-- [ ] Compare pass/fail node-id sets before vs. after: the only difference must be the removed
+- [x] Compare pass/fail node-id sets before vs. after: the only difference must be the removed
       meta-test node. Any other newly failing node is a stop condition — check `git log` /
       `git status` first, because a concurrent sibling task may own the change, and report rather
       than silently repairing it.
-- [ ] Write `baselines/01_gate-after.md` with the same fields as the before-file, plus a
+      Result: 0 failures after (vs. 1 before, in an unrelated bimodal test attributed to
+      transient sibling-edit contention at before-run time); no newly failing node appears.
+- [x] Write `baselines/01_gate-after.md` with the same fields as the before-file, plus a
       before/after comparison table (selected-node count, per-pass wall time, slowest-test
       durations) and an explicit statement of the one assertion dropped and why it is safe.
-- [ ] Record in the summary: the sibling-theory audit result from Phase 2, the measured
+- [x] Record in the summary: the sibling-theory audit result from Phase 2, the measured
       before/after numbers (not estimates), and the host-load caveat on the wall-time comparison.
-- [ ] Commit the baseline/verification artifacts with `task 208: complete implementation`.
+- [x] Commit the baseline/verification artifacts with `task 208: complete implementation`.
 
 **Timing**: 55 minutes (dominated by the gate run itself)
 
@@ -325,18 +333,26 @@ actual numbers.
 
 ## Testing & Validation
 
-- [ ] `pytest src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py -q`
-      passes from `code/` after the deletion.
-- [ ] Full gate, parallel pass, CI's exact shape, from `code/`:
+- [x] `pytest src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py -q`
+      passes from `code/` after the deletion. (11 passed, one fewer than the 12 before.)
+- [x] Full gate, parallel pass, CI's exact shape, from `code/`:
       `pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread`
       — run before (Phase 1) and after (Phase 4), both recorded.
-- [ ] Full gate, serial pass, CI's exact shape, from `code/`:
+- [x] Full gate, serial pass, CI's exact shape, from `code/`:
       `pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread`
       — run before and after, both recorded.
-- [ ] `--collect-only -q` node count differs by exactly one between before and after.
-- [ ] The 418 subtheory tests remain in the gate's selection after the deletion (spot-check the
-      127 subtheory example nodes research counted).
-- [ ] No timeout value, marker expression, or workflow file was changed.
+- [x] `--collect-only -q` node count differs by exactly one between before and after.
+      **Deviation**: the raw totals differ by +4 (3099→3103), not -1, because sibling task 197
+      landed 5 unrelated bimodal nodes on this shared tree between the two runs. A full sorted
+      node-id diff isolates this task's own delta to exactly -1 (only the meta-test node
+      removed) — see `baselines/01_gate-after.md`'s "Node-count reconciliation" section for the
+      diff. This is the honest reading of the checklist item's intent (this deletion's own
+      effect), not a silent pass on the raw arithmetic.
+- [x] The 418 subtheory tests remain in the gate's selection after the deletion (spot-check the
+      127 subtheory example nodes research counted). Confirmed: `grep -c "logos/subtheories/"`
+      on the after-run's collect-only output returns 418.
+- [x] No timeout value, marker expression, or workflow file was changed. Re-verified
+      `.github/workflows/tests.yml` unchanged (`git diff --stat` shows no workflow file touched).
 
 ## Artifacts & Outputs
 
