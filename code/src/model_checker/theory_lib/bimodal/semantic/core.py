@@ -130,7 +130,21 @@ class BimodalSemantics(SemanticDefaults):
         'iterate': 1,
         # Solver backend: 'z3' or 'cvc5'
         'solver': 'z3',
+        # Independent-checker verification strength for a reported countermodel (item 1,
+        # certifying_countermodel_architecture). 'off': the mandatory Python re-check
+        # (semantic/model.py's existing recheck guard) runs as before, and no independent
+        # leg is attempted at all -- no checker invocation occurs. 'auto' (the default): the
+        # independent check runs whenever a checker resolves (semantic/checker.py), and the
+        # countermodel is always reported -- labelled independently-checked when the check
+        # succeeds, labelled Python-re-checked-only when no checker is available. 'required':
+        # a countermodel that cannot be independently checked is withheld with an error
+        # instead of being reported. See docs/SETTINGS.md's "Certificate Verification"
+        # section for the full contract and the three rendered output states.
+        'verify': 'auto',
     }
+
+    # The closed vocabulary 'verify' accepts -- validated early (fail-fast) in __init__.
+    VERIFY_VALUES = ('off', 'auto', 'required')
 
     # No additional general (display) settings: the certificate printer (a later phase)
     # needs no vertical-alignment option -- histories print as a single line each.
@@ -151,6 +165,27 @@ class BimodalSemantics(SemanticDefaults):
         self.mid: int = settings['mid']
         self.fwd: int = settings['fwd']
         self.max_witnesses: Optional[int] = settings.get('max_witnesses')
+
+        # Independent-checker verification strength (item 1). Validated early and fails
+        # fast on an unknown value -- see DEFAULT_EXAMPLE_SETTINGS's own comment for the
+        # three-value contract.
+        #
+        # Deliberately NOT named `self.verify`: `models/semantic.py`'s `initialize_with_state`
+        # and `iterate/models.py`'s generic model-rebuild path both use `hasattr(semantics,
+        # 'verify')` as the theory-capability test that distinguishes a verify/falsify-based
+        # theory (logos, exclusion) from one that is not (bimodal uses `truth_condition`
+        # instead -- see this class's own module docstring). Setting `self.verify` to a
+        # string here would flip that `hasattr` check to `True` and crash the generic
+        # iterator with "'str' object is not callable" the first time it tried to call the
+        # attribute it expected to be the verify-constraint builder. `verify_mode` carries
+        # the setting's value instead; the settings *key* stays `'verify'` throughout (see
+        # `DEFAULT_EXAMPLE_SETTINGS`, `docs/SETTINGS.md`), only this attribute's name differs.
+        self.verify_mode: str = settings.get('verify', 'auto')
+        if self.verify_mode not in self.VERIFY_VALUES:
+            raise ValueError(
+                f"unknown 'verify' setting {self.verify_mode!r}; must be one of "
+                f"{self.VERIFY_VALUES!r}"
+            )
 
         # The Z3 variable layer (Phase 6) and the quantifier-free constraint generators
         # (Phases 7-8), sharing one closure that grows as premises/conclusions are

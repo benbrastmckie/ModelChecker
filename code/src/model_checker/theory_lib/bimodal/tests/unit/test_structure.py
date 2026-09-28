@@ -24,6 +24,13 @@ from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposi
 def _settings(**overrides):
     settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
     settings.update(overrides)
+    # Deterministic by default (item 1's output gate, certifying_countermodel_architecture):
+    # this module's tests are about extraction, re-checking, and print formatting, not about
+    # which of the three verification states renders -- they must not depend on whether a
+    # real checker happens to be resolvable on the machine running them. A test that
+    # specifically exercises 'verify' passes it explicitly via **overrides, which wins here.
+    if 'verify' not in overrides:
+        settings['verify'] = 'off'
     return settings
 
 
@@ -187,6 +194,49 @@ class TestPrintingDoesNotClaimValidity:
         structure.print_evaluation(output=sys.stdout)
         out = capsys.readouterr().out
         assert "No certificate found" in out
+
+
+class TestVerificationLabelRendering:
+    """Item 1's output gate (certifying_countermodel_architecture): `print_certificate` and
+    `print_evaluation` render one of the three honest states -- see
+    `tests/integration/test_output_gate.py` for the full-pipeline coverage of all three plus
+    `'verify': 'required'` withholding. This class covers only the two states reachable
+    without a real checker binary: 'off', and 'auto' with the checker forced unavailable
+    (never the checked state, which needs a real subprocess -- that belongs to the
+    integration test, which skips cleanly without one)."""
+
+    def test_verify_off_renders_the_skipped_label_and_never_probes(self, capsys, monkeypatch):
+        from model_checker.theory_lib.bimodal.semantic import checker as checker_module
+
+        def fail_if_called(*args, **kwargs):
+            raise AssertionError("verify='off' must never invoke the checker resolver")
+
+        monkeypatch.setattr(checker_module, "resolve_checker", fail_if_called)
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="off")
+        structure.print_certificate(output=sys.stdout)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "Verification: independent check skipped" in out
+        assert "kernel-checked proof" not in out
+
+    def test_verify_auto_with_no_checker_renders_the_unchecked_label(self, capsys, monkeypatch, tmp_path):
+        monkeypatch.setenv("BIMODAL_LOGIC_PATH", str(tmp_path / "no_such_checkout"))
+        monkeypatch.delenv("BIMODAL_CHECKER_BIN", raising=False)
+        from model_checker.theory_lib.bimodal.semantic import checker as checker_module
+
+        checker_module._reset_for_tests()
+        try:
+            structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="auto")
+            structure.print_certificate(output=sys.stdout)
+            structure.print_evaluation(output=sys.stdout)
+            out = capsys.readouterr().out
+            assert "Verification: re-checked by this repository's own pure-Python" in out
+            assert "no independent checker available" in out
+            assert "kernel-checked proof" not in out
+        finally:
+            # Never leak this test's forced-unavailable resolution into a later test in the
+            # same pytest session (resolve_checker() memoizes per process, not per test).
+            checker_module._reset_for_tests()
 
 
 class TestGoldenOutputCertificateFormat:

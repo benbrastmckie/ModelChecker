@@ -1,0 +1,74 @@
+{
+  "phase": 3,
+  "phase_name": "The output gate, three states, and the verify setting",
+  "started_at": "2026-09-28T02:10:00Z",
+  "last_updated": "2026-09-28T02:07:11.354971+00:00",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Write tests/integration/test_output_gate.py (RED): three states, verify=required withholding, verify=off no invocation, overclaim guard",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Add verify to DEFAULT_EXAMPLE_SETTINGS in core.py with early validation",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/core.py"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Wire the check into BimodalStructure.__init__ after recheck guard",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/model.py"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "Render the three states in print_certificate and print_evaluation",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/model.py"
+      ]
+    },
+    {
+      "id": 5,
+      "description": "verify=required withholding error with suggestion",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/semantic/model.py"
+      ]
+    },
+    {
+      "id": 6,
+      "description": "Update test_structure.py print expectations for third state",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py"
+      ]
+    },
+    {
+      "id": 7,
+      "description": "Tests to green; full bimodal suite",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "3.2",
+      "description": "Add 'verify' to BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS with early validation",
+      "type": "altered",
+      "reason": "The settings KEY is 'verify' as specified, but the resolved semantics attribute is stored as self.verify_mode, not self.verify. models/semantic.py's initialize_with_state and iterate/models.py's generic model-rebuild path both use hasattr(semantics, 'verify') as the theory-capability test distinguishing a verify/falsify-based theory (logos, exclusion) from one that is not (bimodal uses truth_condition). Setting self.verify to a string flips that hasattr check to True and crashes the generic iterator ('str' object is not callable) the first time it tries to call semantics.verify(state, atom) as a Z3 constraint builder. Discovered via test_iterate.py::TestLiveIteration failures during Phase 3 full-suite verification; fixed by renaming the attribute (never the settings key) to verify_mode throughout core.py and model.py.",
+      "annotation": "*(deviation: altered -- attribute renamed to verify_mode to avoid colliding with the framework's hasattr(semantics, 'verify') theory-capability test; settings key stays 'verify')*"
+    }
+  ]
+}

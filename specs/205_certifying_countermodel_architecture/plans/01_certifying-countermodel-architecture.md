@@ -229,40 +229,48 @@ demoted to provenance rather than promoted to a gate.
 
 ---
 
-### Phase 3: The output gate, three states, and the `verify` setting [NOT STARTED]
+### Phase 3: The output gate, three states, and the `verify` setting [COMPLETED]
 
 **Goal**: A reported countermodel says, in words drawn from the Lean module's own vocabulary,
 whether it was independently checked — and a strict mode refuses to report one that was not.
 
 **Tasks**:
-- [ ] Write the tests first (RED) in a new `tests/integration/test_output_gate.py`: with the
+- [x] Write the tests first (RED) in a new `tests/integration/test_output_gate.py`: with the *(completed)*
       checker available, a satisfying solve renders the independently-checked label and records
       `acceptance=entailment`; with it unavailable, the same solve renders the
       Python-re-checked-only label; under `verify: 'required'` with the checker unavailable, the
       countermodel is withheld with a clear error rather than reported; under `verify: 'off'` no
       checker invocation occurs at all. Add an assertion that no rendered output contains the phrase
       "kernel-checked proof" (the F2 overclaim guard).
-- [ ] Add `verify` to `BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS` in `semantic/core.py` with
+- [x] Add `verify` to `BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS` in `semantic/core.py` with *(completed)*
       default `'auto'` and the documented three values: `'off'` (Python re-check only, no
       independent leg), `'auto'` (run the independent check when a checker resolves; label
       accordingly; never fail on absence), `'required'` (an unreported-because-unchecked
       countermodel is an error). Validate the value early and fail fast on an unknown one.
-- [ ] Wire the check into `BimodalStructure.__init__` immediately after the existing mandatory
+      *(deviation: altered -- the resolved semantics attribute is `self.verify_mode`, not
+      `self.verify` (the settings key itself stays `'verify'`): `models/semantic.py`'s
+      `initialize_with_state` and `iterate/models.py`'s generic model-rebuild path both use
+      `hasattr(semantics, 'verify')` as the theory-capability test distinguishing a
+      verify/falsify-based theory from bimodal's `truth_condition`-based one, and setting
+      `self.verify` to a string flipped that check to `True`, crashing the live iterator —
+      caught by `test_iterate.py::TestLiveIteration` during this phase's full-suite
+      verification)*
+- [x] Wire the check into `BimodalStructure.__init__` immediately after the existing mandatory *(completed)*
       `recheck` guard, using `semantic/checker.py` and `WitnessFamily.to_json(premises,
       conclusions, target_time)` — the same payload shape the A2-triangle test already sends. Store
       the outcome (checked/unchecked, acceptance level, provenance, or the unavailability reason) on
       the structure; do not swallow a protocol failure, which must surface as loudly as the existing
       `recheck` guard does.
-- [ ] Render the three states in `print_certificate` and `print_evaluation` (`semantic/model.py`),
+- [x] Render the three states in `print_certificate` and `print_evaluation` (`semantic/model.py`), *(completed)*
       wording the checked state as: Lean constructed a `WitnessFamily.Refutes` term for this
       certificate by applying a compile-time kernel-checked implication to four run-time decisions —
       never as a per-certificate kernel-checked proof. Word the unchecked state as: re-checked by
       this repository's own pure-Python decision procedures only.
-- [ ] Under `verify: 'required'` with no checker, raise the withholding error with a suggestion
+- [x] Under `verify: 'required'` with no checker, raise the withholding error with a suggestion *(completed)*
       naming how to obtain a checker (pointing at the Phase 5 documentation).
-- [ ] Update `tests/unit/test_structure.py`'s existing `print_certificate`/`print_evaluation`
+- [x] Update `tests/unit/test_structure.py`'s existing `print_certificate`/`print_evaluation` *(completed)*
       expectations for the new third state; do not weaken the existing no-certificate assertions.
-- [ ] Tests to green; then the full bimodal suite.
+- [x] Tests to green; then the full bimodal suite. *(completed)*
 
 **Timing**: 2 hours
 

@@ -1,0 +1,162 @@
+"""Integration tests for item 1's output gate (`certifying_countermodel_architecture`):
+`'verify'`'s three values, the three rendered output states, and `'required'`'s withholding
+error. See `docs/SETTINGS.md`'s "Certificate Verification" section (Phase 5) for the
+user-facing contract this module locks down, and `semantic/model.py`'s module docstring
+("The output gate") for the mechanism.
+
+Three of the four scenarios below need no real checker binary at all -- they force one
+unavailable via environment isolation, matching `tests/unit/test_checker.py`'s own discipline.
+Only `TestRealCheckerReportsIndependentlyChecked` needs a real BimodalLogic checkout and `lake`,
+and skips cleanly, with a named reason, without one -- mirroring
+`test_certificate_lean_agreement.py`'s own skip discipline via the shared `_lean_check` probe.
+"""
+
+from __future__ import annotations
+
+import sys
+
+import pytest
+
+from model_checker.models.constraints import ModelConstraints
+from model_checker.syntactic import Syntax
+from model_checker.theory_lib.bimodal.operators import bimodal_operators
+from model_checker.theory_lib.bimodal.semantic import checker as checker_module
+from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
+from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
+from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+from model_checker.theory_lib.bimodal.tests._lean_check import SKIP_REASON
+from model_checker.theory_lib.errors import ModelConstructionError
+
+# The forbidden overclaim (F2, docs/TRUST_PIPELINE.md's remaining-work table): this phrase
+# describes the reserved third Acceptance value (per-certificate kernel checking by
+# re-elaboration), which nothing this checker produces today -- see
+# BimodalTools/CertificateImport.lean's Acceptance docstring. No rendered output may contain it.
+FORBIDDEN_OVERCLAIM = "kernel-checked proof"
+
+
+def _settings(**overrides):
+    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
+    settings.update(overrides)
+    return settings
+
+
+def _build(premises, conclusions, **setting_overrides):
+    """Build one example through the real Syntax -> ModelConstraints -> BimodalStructure
+    pipeline, matching `test_structure.py`'s own helper."""
+    settings = _settings(**setting_overrides)
+    syntax = Syntax(premises, conclusions, bimodal_operators)
+    model_constraints = ModelConstraints(
+        settings, syntax, BimodalSemantics(settings), BimodalProposition
+    )
+    return BimodalStructure(model_constraints, settings)
+
+
+@pytest.fixture(autouse=True)
+def _isolated_checker_resolution():
+    """Every test in this module controls checker resolution explicitly (environment
+    variables plus `_reset_for_tests()`) -- never inherit a memoized resolution left behind by
+    an earlier test in the same pytest session, and never leak one forward either."""
+    checker_module._reset_for_tests()
+    yield
+    checker_module._reset_for_tests()
+
+
+def _force_no_checker(monkeypatch, tmp_path):
+    monkeypatch.setenv("BIMODAL_LOGIC_PATH", str(tmp_path / "no_such_bimodal_logic_checkout"))
+    monkeypatch.delenv("BIMODAL_CHECKER_BIN", raising=False)
+
+
+class TestVerifyAutoWithNoChecker:
+    """'auto' (the default): the countermodel is always reported, labelled Python-re-checked
+    only when no checker is available -- absence never fails a solve."""
+
+    def test_reports_unchecked_countermodel_with_the_honest_label(
+        self, monkeypatch, tmp_path, capsys
+    ):
+        _force_no_checker(monkeypatch, tmp_path)
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="auto")
+        assert structure.z3_model_status is True
+        assert structure.certificate is not None
+        assert structure.verification_checked is False
+        assert structure.verification_reason is not None
+
+        structure.print_certificate(output=sys.stdout)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "Certificate:" in out
+        assert "re-checked by this repository's own pure-Python decision procedures only" in out
+        assert "no independent checker available" in out
+        assert FORBIDDEN_OVERCLAIM not in out
+
+
+class TestVerifyOffNeverInvokesTheChecker:
+    """'off': no independent check is attempted -- the checker is never even asked to
+    resolve, matching item 1's "no checker invocation occurs at all" requirement."""
+
+    def test_verify_off_performs_no_resolution_at_all(self, monkeypatch, tmp_path, capsys):
+        _force_no_checker(monkeypatch, tmp_path)
+
+        def fail_if_called(*args, **kwargs):
+            raise AssertionError("verify='off' must never resolve or invoke the checker")
+
+        monkeypatch.setattr(checker_module, "resolve_checker", fail_if_called)
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="off")
+        assert structure.certificate is not None
+        assert structure.verification_checked is False
+        assert structure.verification_reason is None
+
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "independent check skipped" in out
+        assert FORBIDDEN_OVERCLAIM not in out
+
+
+class TestVerifyRequiredWithholdsWithoutAChecker:
+    """'required': a countermodel that cannot be independently checked is withheld -- raised
+    as an error, never printed."""
+
+    def test_raises_instead_of_reporting_when_no_checker_is_available(
+        self, monkeypatch, tmp_path
+    ):
+        _force_no_checker(monkeypatch, tmp_path)
+        with pytest.raises(ModelConstructionError, match="required"):
+            _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="required")
+
+    def test_withholding_error_names_how_to_obtain_a_checker(self, monkeypatch, tmp_path):
+        _force_no_checker(monkeypatch, tmp_path)
+        with pytest.raises(ModelConstructionError) as excinfo:
+            _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="required")
+        assert "BIMODAL_CHECKER_BIN" in str(excinfo.value) or "SETTINGS.md" in str(
+            excinfo.value
+        )
+
+
+class TestUnknownVerifyValueFailsFast:
+    def test_unknown_verify_value_is_rejected_early(self):
+        with pytest.raises(ValueError, match="verify"):
+            _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="paranoid")
+
+
+@pytest.mark.skipif(SKIP_REASON is not None, reason=SKIP_REASON or "")
+class TestRealCheckerReportsIndependentlyChecked:
+    """Runs only with a real BimodalLogic checkout and `lake` available (the same resolution
+    order `tests/_lean_check.py`'s module-level probe already used to compute `SKIP_REASON`) --
+    the only scenario in this module that needs a real subprocess invocation."""
+
+    def test_verify_auto_with_a_real_checker_reports_the_checked_label(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="auto")
+        assert structure.certificate is not None
+        assert structure.verification_checked is True
+        assert structure.verification_acceptance in ("decided", "entailment")
+
+        structure.print_certificate(output=sys.stdout)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "independently checked" in out
+        assert "WitnessFamily.Refutes" in out
+        assert FORBIDDEN_OVERCLAIM not in out
+
+    def test_verify_required_with_a_real_checker_reports_normally(self):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="required")
+        assert structure.certificate is not None
+        assert structure.verification_checked is True

@@ -29,6 +29,42 @@ other than `"countermodel"` raises `ModelConstructionError` immediately; nothing
 An unsatisfiable solve leaves `self.certificate = None` and `self.target_time = None`.
 Everywhere this module prints that case, the wording is "no certificate found within the
 configured bounds", explicitly not a validity claim (`docs/ADEQUACY.md` section 7.4).
+
+## The output gate (item 1, certifying_countermodel_architecture)
+
+The mandatory `recheck` guard above discharges S3 against this repository's *own* Python
+decision procedures -- it cannot catch a defect shared between the Z3 encoder and `recheck`
+itself, since both are this repository's code. The governing asymmetry
+(`docs/TRUST_PIPELINE.md`) is that a countermodel is a positive, checkable witness: an
+*independent* second implementation (`semantic/checker.py`, resolving a standalone Lean-built
+`check_certificate` binary) can be run against every reported countermodel, per run, at
+negligible cost (~50ms measured). The `'verify'` setting (`self.verify_mode`, mirroring
+`self.semantics.verify_mode` -- see `semantic/core.py` for why this attribute is deliberately
+not named `self.verify`) controls whether and how strictly that second leg runs, immediately
+after the mandatory `recheck` guard:
+
+- `'off'` -- no independent check is attempted; `semantic/checker.py` is never even asked to
+  resolve. The mandatory Python re-check above still runs (it is unconditional, not part of this
+  setting).
+- `'auto'` (default) -- the independent check runs when a checker resolves; the countermodel is
+  *always* reported, labelled either independently-checked or Python-re-checked-only. Absence of
+  a checker never fails a solve.
+- `'required'` -- a countermodel that cannot be independently checked is withheld: this raises
+  `ModelConstructionError` instead of reporting it, naming how to obtain a checker.
+
+A checker that resolves but whose real-invocation echo does not match what was sent
+(`semantic/checker.py`'s `ProtocolFailure`) is never swallowed into "unchecked" -- it is
+re-raised as loudly as the mandatory `recheck` guard's own failure, since it means the two sides
+are talking about different certificates.
+
+**Wording discipline (F2).** The checked-state label is worded from
+`BimodalTools/CertificateImport.lean`'s own `Acceptance` docstring vocabulary only -- Lean
+constructed a `WitnessFamily.Refutes` term for this certificate by applying a *compile-time*
+kernel-checked implication to four *run-time* decisions. It never says "a kernel-checked proof
+for this particular certificate" (the phrase `docs/ADEQUACY.md` section 6.2 and
+`docs/TRUST_PIPELINE.md` currently use, reported as a finding for the certificate-wire hardening
+task to fix, not edited here): that phrasing describes the reserved third `Acceptance` value
+(per-certificate kernel checking by re-elaboration), which nothing this checker produces today.
 """
 
 from __future__ import annotations
@@ -41,6 +77,7 @@ from model_checker.models.structure import ModelDefaults
 from model_checker.theory_lib.errors import ModelConstructionError
 
 from .certificate import _box_window, recheck
+from .checker import ProtocolFailure, check_certificate
 from .formula import Atom, Box, Formula
 
 
@@ -58,6 +95,15 @@ class BimodalStructure(ModelDefaults):
         # re-checked certificate is found.
         self.certificate = None
         self.target_time: Optional[int] = None
+
+        # Item 1's output gate state -- always present (even for a no-certificate solve, or
+        # under 'verify': 'off') so print_certificate/print_evaluation never need a hasattr
+        # guard. Overwritten below once a certificate is found and 'verify' != 'off'.
+        self.verify_mode: str = settings.get("verify", "auto")
+        self.verification_checked = False
+        self.verification_acceptance: Optional[str] = None
+        self.verification_provenance: Optional[str] = None
+        self.verification_reason: Optional[str] = None
 
         if self.z3_model_status and self.z3_model is not None:
             # Give semantics a reference to this model structure, matching every other
@@ -102,6 +148,54 @@ class BimodalStructure(ModelDefaults):
             # main_point), so mutating it in place keeps both in sync -- mirroring D6's
             # frame_constraints aliasing discipline.
             self.main_point["position"] = target_time
+
+            # Item 1's output gate (module docstring, "The output gate"): the independent
+            # second leg, gated by 'verify' (self.verify_mode, already set above to
+            # settings['verify'] == self.semantics.verify_mode). Deliberately placed after every
+            # assignment above so a withholding raise below leaves self.certificate/
+            # target_time already set -- 'required' withholds the *report*, not the
+            # extraction; a caller inspecting the structure after catching the error still
+            # sees what was found, matching the recheck guard's own no-swallowing discipline.
+            if self.verify_mode != "off":
+                payload = self.semantics.export_certificate_json(family, target_time)
+                try:
+                    outcome = check_certificate(payload)
+                except ProtocolFailure as exc:
+                    raise ModelConstructionError(
+                        "The independent checker resolved and responded, but its echo of "
+                        "the parsed certificate does not match the exact bytes this "
+                        "repository sent -- the two sides are talking about different "
+                        "certificates. This is semantic/checker.py's protocol-failure "
+                        f"guard, not a rejection of the countermodel itself. {exc}",
+                        theory="bimodal",
+                        context={"protocol_failure": str(exc)},
+                        suggestion=(
+                            "Inspect WitnessFamily.to_json's wire export and the checker's "
+                            "own canonical-bytes parser for a mismatch -- this is a "
+                            "protocol bug, not a soundness bug in the encoding."
+                        ),
+                    ) from exc
+
+                if outcome.available:
+                    self.verification_checked = True
+                    self.verification_acceptance = outcome.verdict.get("acceptance")
+                    self.verification_provenance = outcome.checker.provenance
+                elif self.verify_mode == "required":
+                    raise ModelConstructionError(
+                        "A satisfying certificate was found, but 'verify': 'required' "
+                        "demands an independent check before reporting a countermodel, and "
+                        f"no checker is available. Reason: {outcome.reason}",
+                        theory="bimodal",
+                        context={"verify": "required", "reason": outcome.reason},
+                        suggestion=(
+                            "Obtain a standalone checker binary -- see docs/SETTINGS.md's "
+                            "'Certificate Verification' section for BIMODAL_CHECKER_BIN and "
+                            "the per-user cache location -- or relax 'verify' to 'auto' to "
+                            "report the countermodel labelled as Python-re-checked only."
+                        ),
+                    )
+                else:
+                    self.verification_reason = outcome.reason
 
     def _setup_solver(self, model_constraints: Any) -> Any:
         """D6: finalize the certificate's global constraints before the base class reads
@@ -221,11 +315,40 @@ class BimodalStructure(ModelDefaults):
                 return t
         return None
 
+    def _verification_label(self) -> str:
+        """One-line rendering of item 1's output gate state -- see the module docstring's
+        "The output gate" and "Wording discipline (F2)" sections for the contract this
+        wording follows. Never says "kernel-checked proof": that phrase names the reserved
+        third `Acceptance` value (per-certificate kernel checking), which nothing this
+        checker produces today."""
+        if self.verify_mode == "off":
+            return (
+                "independent check skipped ('verify': 'off'); re-checked by this "
+                "repository's own pure-Python decision procedures only"
+            )
+        if self.verification_checked:
+            acceptance = self.verification_acceptance or "unknown"
+            provenance = (
+                f", checkout {self.verification_provenance}"
+                if self.verification_provenance
+                else ""
+            )
+            return (
+                "independently checked -- Lean constructed a WitnessFamily.Refutes term "
+                "for this certificate by applying a compile-time kernel-checked "
+                f"implication to four run-time decisions (acceptance: {acceptance}"
+                f"{provenance})"
+            )
+        return (
+            "re-checked by this repository's own pure-Python decision procedures only "
+            f"(no independent checker available: {self.verification_reason})"
+        )
+
     def print_certificate(self, output: TextIO = sys.__stdout__) -> None:
-        """Print every lasso in the found certificate, the boxed-subformula table with
-        each guess, and each false box's witness history and position -- report 01
-        section 4.4's output shape. Prints the no-certificate case as an explicit
-        non-validity-claim message (D8) instead."""
+        """Print every lasso in the found certificate, the independent-verification label
+        (item 1's output gate), the boxed-subformula table with each guess, and each false
+        box's witness history and position -- report 01 section 4.4's output shape. Prints
+        the no-certificate case as an explicit non-validity-claim message (D8) instead."""
         print("Certificate:", file=output)
         if self.certificate is None:
             print(
@@ -237,6 +360,7 @@ class BimodalStructure(ModelDefaults):
             )
             return
 
+        print(f"  Verification: {self._verification_label()}", file=output)
         for i, lasso in enumerate(self.certificate.lassos):
             role = "main" if i == 0 else f"witness {i}"
             print(f"  L{i} ({role}): {self._format_lasso(i, lasso)}", file=output)
@@ -280,7 +404,8 @@ class BimodalStructure(ModelDefaults):
         print(
             f"\nEvaluation Point:\n"
             f"  Main lasso: L{self.main_point['lasso']}\n"
-            f"  Target position: {self.target_time}\n",
+            f"  Target position: {self.target_time}\n"
+            f"  Verification: {self._verification_label()}\n",
             file=output,
         )
 
