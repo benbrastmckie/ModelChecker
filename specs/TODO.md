@@ -11,8 +11,8 @@ next_project_number: 216
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,210 | -- | semantics |
-| 2 | 199,212 | 198,210 | documentation, testing |
+| 1 | 198,200,212 | -- | testing, semantics |
+| 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -28,7 +28,6 @@ next_project_number: 216
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-210 [BLOCKED] — Fix generic iterator pinning never reaching the rebuilt...
 
 ## Tasks
 
@@ -234,7 +233,7 @@ ITEM 3, VERIFY A DEFERRAL BEFORE RESTATING IT. TRUST_PIPELINE.md records the Lea
 ---
 
 ### 210. Fix generic iterator pinning unreached
-- **Status**: [BLOCKED]
+- **Status**: [COMPLETED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 213, Task 215

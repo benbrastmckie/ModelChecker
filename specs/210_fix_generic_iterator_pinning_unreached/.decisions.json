@@ -1,11 +1,10 @@
-{
-  "decisions": [
-    {
-      "question": "Phase 3's rebuild-pinning fix is correct and fixes exclusion, but logos and imposition still fail the live regression test because their search's persistent solver is empty (a separate, pre-existing, generic defect in models/structure.py's solve()/stored_solver, affecting every theory, not just bimodal -- confirmed via unsat_core() for logos). How should task 210 proceed given this is outside its declared Non-Goals-bounded scope?",
-      "answer": "Spawn a new, dedicated task to fix the persistent-search-solver-empty defect first (a shared-engine change affecting all four theories), then resume task 210's remaining phases (3 closure, 4, 6) against that corrected foundation",
-      "source": "user",
-      "session_id": "sess_1790619552_cbba66",
-      "decided_at": "2026-09-28T19:41:48Z"
-    }
-  ]
-}
+[
+  {
+    "question": "Phase 3's rebuild-pinning fix is correct and fixes exclusion, but logos and imposition still fail the live regression test because their search's persistent solver is empty (a separate, pre-existing, generic defect in models/structure.py's solve()/stored_solver, affecting every theory, not just bimodal -- confirmed via unsat_core() for logos). How should task 210 proceed given this is outside its declared Non-Goals-bounded scope?",
+    "answer": "Spawn a new, dedicated task to fix the persistent-search-solver-empty defect first (a shared-engine change affecting all four theories), then resume task 210's remaining phases (3 closure, 4, 6) against that corrected foundation",
+    "cycle": null,
+    "timestamp": "2026-09-28T19:41:48Z",
+    "source": "user",
+    "session_id": "sess_1790619552_cbba66"
+  }
+]

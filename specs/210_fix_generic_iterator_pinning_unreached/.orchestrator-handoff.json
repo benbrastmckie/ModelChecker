@@ -1,41 +1,33 @@
 {
-  "status": "blocked",
-  "summary": "Implemented the frame_constraints pin-routing fix (Phases 1, 2, 3, 5); Phase 3 is BLOCKED because logos and imposition still fail the live regression test due to a separate, pre-existing defect (the shared persistent search solver is empty for every non-bimodal theory), which is outside this task's declared scope.",
+  "status": "implemented",
+  "summary": "Re-verified the generic iterator pinning fix (frame_constraints routing, landed in a prior cycle) against the now-corrected shared-engine foundation (task 215's ConstraintGenerator._ensure_original_constraints_in_solver fix): TestGenericPinningReachesRebuiltSolve now passes for all three affected theories (logos, exclusion, imposition), not just exclusion. Closed Phase 3 as COMPLETED, completed Phase 4 (pin-presence structural coverage mirroring bimodal's TestPinTheorySpecificValues) and Phase 6 (full four-theory gate and fallout review, all green except one pre-existing load-sensitive bimodal flake by the same node ID recorded in the Phase 1 baseline). All six plan phases are now COMPLETED.",
   "artifacts": [
     {
       "type": "summary",
       "path": "specs/210_fix_generic_iterator_pinning_unreached/summaries/01_fix-generic-iterator-pinning-summary.md",
-      "summary": "Implementation summary covering Phases 1, 2, 3, 5, the Phase 3 blocking finding, and follow-up options."
+      "summary": "Final implementation summary covering all six phases and this cycle's re-verification/closure."
+    },
+    {
+      "type": "plan",
+      "path": "specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md",
+      "summary": "Plan with all six phase headings COMPLETED and the Phase 3 blocking finding's Resolution recorded."
     },
     {
       "type": "handoff",
-      "path": "specs/210_fix_generic_iterator_pinning_unreached/handoffs/phase-3-handoff-20260928T200500Z.md",
-      "summary": "Phase 3 handoff with the full blocking-finding diagnosis and what-not-to-try guidance."
-    }
-  ],
-  "phases_completed": 3,
-  "phases_total": 6,
-  "blockers": [
+      "path": "specs/210_fix_generic_iterator_pinning_unreached/handoffs/phase-6-handoff-20260928T221954Z.md",
+      "summary": "Final phase-end handoff."
+    },
     {
-      "phase": "3",
-      "target": "code/src/model_checker/iterate/constraints.py:ConstraintGenerator._create_persistent_solver (and models/structure.py's solve()/_cleanup_solver_resources it falls back from)",
-      "verbatim_goal": "TestGenericPinningReachesRebuiltSolve passes for all three theories (logos, exclusion, imposition) after routing generic pins into frame_constraints.",
-      "what_was_tried": "Routed every generic is_world/possible/verify/falsify pin into model_constraints.frame_constraints (the fix this plan specifies), confirmed via unsat_core() diagnosis that the resulting UNSAT for logos/imposition traces to the candidate model being drawn from an empty persistent search solver, not to an error in the routing fix itself.",
-      "why_it_failed": "models/structure.py's solve() unconditionally clears model_structure.solver in a finally block for every theory, and ConstraintGenerator's stored_solver fallback always points at the pre-population (empty) solver -- confirmed 0 assertions for logos, exclusion, and imposition alike. This is the same defect class bimodal already works around via _ensure_frame_constraints_in_search_solver, but that workaround was never generalized to the other three theories, and generalizing it is a shared-engine change outside this task's declared Non-Goals-bounded scope."
+      "type": "other",
+      "path": "specs/210_fix_generic_iterator_pinning_unreached/baselines/01_post-fix-summary.md",
+      "summary": "Post-fix four-theory gate results and fallout classification against the Phase 1 baseline."
     }
   ],
+  "phases_completed": 6,
+  "phases_total": 6,
+  "blockers": [],
   "plan_markers_verified": true,
-  "continuation_path": "specs/210_fix_generic_iterator_pinning_unreached/handoffs/phase-3-handoff-20260928T200500Z.md",
-  "next_action_hint": "Resolve the user_decision below before resuming Phase 3 closure, Phase 4, and Phase 6.",
-  "user_decision": {
-    "question": "Phase 3's rebuild-pinning fix is correct and fixes exclusion, but logos and imposition still fail the live regression test because their search's persistent solver is empty (a separate, pre-existing, generic defect in models/structure.py's solve()/stored_solver, affecting every theory, not just bimodal -- confirmed via unsat_core() for logos). How should task 210 proceed given this is outside its declared Non-Goals-bounded scope?",
-    "options": [
-      "Expand task 210's scope (via /revise) to also generalize bimodal's _ensure_frame_constraints_in_search_solver workaround to the shared engine or to each of logos/exclusion/imposition, then complete Phases 3/4/6 against the corrected foundation",
-      "Spawn a new, dedicated task to fix the persistent-search-solver-empty defect first (a shared-engine change affecting all four theories), then resume task 210's remaining phases (3 closure, 4, 6) against that corrected foundation",
-      "Narrow task 210 permanently to the mechanical routing fix already landed: keep exclusion's regression coverage, mark logos/imposition's TestGenericPinningReachesRebuiltSolve parametrizations xfail with the blocking reason cited, and accept a reduced Done-when scope for this task"
-    ],
-    "recommended": "Spawn a new, dedicated task to fix the persistent-search-solver-empty defect first (a shared-engine change affecting all four theories), then resume task 210's remaining phases (3 closure, 4, 6) against that corrected foundation",
-    "blocking": true
-  },
-  "dispatch_seq": 9
+  "continuation_path": null,
+  "next_action_hint": "No further action needed for this task; ready for postflight to mark complete.",
+  "dispatch_seq": 10
 }
