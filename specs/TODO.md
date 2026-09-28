@@ -28,7 +28,7 @@ next_project_number: 215
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-210 [PLANNED] — Fix generic iterator pinning never reaching the rebuilt...
+210 [IMPLEMENTING] — Fix generic iterator pinning never reaching the rebuilt...
 
 ## Tasks
 
@@ -220,12 +220,13 @@ ITEM 3, VERIFY A DEFERRAL BEFORE RESTATING IT. TRUST_PIPELINE.md records the Lea
 ---
 
 ### 210. Fix generic iterator pinning unreached
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 213
 - **Research**: [210_fix_generic_iterator_pinning_unreached/reports/01_fix-generic-iterator-pinning.md]
 - **Plan**: [210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md]
+- **Summary**: [210_fix_generic_iterator_pinning_unreached/summaries/01_fix-generic-iterator-pinning-summary.md]
 
 **Description**: Fix generic iterator pinning never reaching the rebuilt model's solve for logos, exclusion and imposition. The generic is_world/possible/verify/falsify pinning loop in code/src/model_checker/iterate/models.py accumulates its pins into a local temp_solver that is write-only for any theory without a _pin_theory_specific_values override -- logos, exclusion and imposition. Those three theories' rebuilt models during iteration are therefore effectively unpinned: the pins are computed but never reach the Z3 solve that actually produces the next model, and iterate/core.py's loop has no consistency check that would catch a divergent rebuild. Bimodal is unaffected, having an override that appends to frame_constraints directly.
 
