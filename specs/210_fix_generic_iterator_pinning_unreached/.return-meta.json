@@ -1,22 +1,70 @@
 {
-  "status": "planned",
+  "status": "blocked",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md",
-      "summary": "6-phase plan routing the generic iterator's is_world/possible/verify/falsify pins into model_constraints.frame_constraints so they reach _setup_solver for logos, exclusion and imposition, with TDD regression coverage, a bimodal docstring correction, and a full four-theory gate with fallout review."
+      "type": "summary",
+      "path": "specs/210_fix_generic_iterator_pinning_unreached/summaries/01_fix-generic-iterator-pinning-summary.md",
+      "summary": "Implemented the frame_constraints pin-routing fix (Phases 1, 2, 3, 5); Phase 3 blocked on a newly discovered, separate pre-existing defect in the shared persistent search solver affecting logos and imposition."
     }
   ],
-  "next_steps": "Run /implement 210 to execute the plan",
-  "memory_candidates": [],
-  "metadata": {
-    "session_id": "sess_1790619552_cbba66_210",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"],
-    "phase_count": 6,
-    "estimated_hours": 6,
-    "dependency_waves": [[1, 2, 5], [3], [4], [6]]
+  "next_steps": "Resolve the user_decision below (expand scope to fix the persistent-search-solver defect, spawn a dedicated follow-up task, or narrow task 210's Done-when scope), then resume Phase 3 closure, Phase 4, and Phase 6.",
+  "user_decision": {
+    "question": "Phase 3's rebuild-pinning fix is correct and fixes exclusion, but logos and imposition still fail the live regression test because their search's persistent solver is empty (a separate, pre-existing, generic defect in models/structure.py's solve()/stored_solver, affecting every theory, not just bimodal -- confirmed via unsat_core() for logos). How should task 210 proceed given this is outside its declared Non-Goals-bounded scope?",
+    "options": [
+      "Expand task 210's scope (via /revise) to also generalize bimodal's _ensure_frame_constraints_in_search_solver workaround to the shared engine or to each of logos/exclusion/imposition, then complete Phases 3/4/6 against the corrected foundation",
+      "Spawn a new, dedicated task to fix the persistent-search-solver-empty defect first (a shared-engine change affecting all four theories), then resume task 210's remaining phases (3 closure, 4, 6) against that corrected foundation",
+      "Narrow task 210 permanently to the mechanical routing fix already landed: keep exclusion's regression coverage, mark logos/imposition's TestGenericPinningReachesRebuiltSolve parametrizations xfail with the blocking reason cited, and accept a reduced Done-when scope for this task"
+    ],
+    "recommended": "Spawn a new, dedicated task to fix the persistent-search-solver-empty defect first (a shared-engine change affecting all four theories), then resume task 210's remaining phases (3 closure, 4, 6) against that corrected foundation",
+    "blocking": true
   },
-  "dispatch_seq": 8
+  "errors": [
+    {
+      "type": "execution",
+      "message": "TestGenericPinningReachesRebuiltSolve fails for logos and imposition (all intercepted rebuilds return None/UNSAT) because the live search's persistent solver is empty (0 assertions) for these theories -- a separate, pre-existing defect in models/structure.py's solve()/ConstraintGenerator.stored_solver fallback, confirmed for logos, exclusion, and imposition alike, not introduced by this task's own fix.",
+      "recoverable": true,
+      "recommendation": "See user_decision above. The fix itself (routing pins into frame_constraints) is correct, committed, and already verified working for exclusion; the blocker is a separate defect outside this task's declared scope."
+    }
+  ],
+  "modified_files": [
+    "code/src/model_checker/iterate/models.py",
+    "code/src/model_checker/theory_lib/bimodal/iterate.py",
+    "code/src/model_checker/iterate/tests/integration/test_models.py",
+    "specs/210_fix_generic_iterator_pinning_unreached/baselines/01_pre-fix-theory-suites.txt",
+    "specs/210_fix_generic_iterator_pinning_unreached/baselines/01_pre-fix-iterate.txt",
+    "specs/210_fix_generic_iterator_pinning_unreached/baselines/01_pre-fix-summary.md",
+    "specs/210_fix_generic_iterator_pinning_unreached/baselines/01_pre-fix-logos-iteration.txt",
+    "specs/210_fix_generic_iterator_pinning_unreached/baselines/01_pre-fix-exclusion-iteration.txt",
+    "specs/210_fix_generic_iterator_pinning_unreached/baselines/01_pre-fix-imposition-iteration.txt",
+    "specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md",
+    "specs/210_fix_generic_iterator_pinning_unreached/summaries/01_fix-generic-iterator-pinning-summary.md",
+    "specs/210_fix_generic_iterator_pinning_unreached/handoffs/phase-1-handoff-20260928T192500Z.md",
+    "specs/210_fix_generic_iterator_pinning_unreached/handoffs/phase-2-handoff-20260928T193500Z.md",
+    "specs/210_fix_generic_iterator_pinning_unreached/handoffs/phase-3-handoff-20260928T200500Z.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "models/structure.py's solve() unconditionally clears model_structure.solver in a finally block for every theory (not just bimodal), and ConstraintGenerator._create_persistent_solver's stored_solver fallback always points at the pre-population (empty) solver -- so iterate/constraints.py's persistent search solver is empty (0 assertions) at construction for every theory. This means live iterate:N>1 search candidates for logos/exclusion/imposition are not actually constrained by real semantics during the search itself, only by whatever bit-difference exclusion clause is added -- verify with len(iterator.constraint_generator.solver.assertions()) == 0 immediately after constructing any theory's ModelIterator against a real, solved BuildExample. Bimodal already works around this for itself via _ensure_frame_constraints_in_search_solver; the same fix has never been generalized.",
+      "category": "PATTERN",
+      "source_artifact": "specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md",
+      "confidence": 0.9,
+      "suggested_keywords": ["iterate", "persistent_solver", "stored_solver", "cleanup_solver_resources", "frame_constraints", "z3", "model_checker"]
+    },
+    {
+      "content": "z3.Function(name, ...) and z3.BitVec(name, ...) declarations with the same name+signature are interned within the same Z3 context, even across separate Python-object constructions -- so cross-instance pinning (evaluating a fresh semantics instance's Z3 term against a Z3 model produced by a different, earlier semantics instance) works correctly as long as names/sorts match. This is what makes the generic iterator pinning loop's cross-instance eval technique sound.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/210_fix_generic_iterator_pinning_unreached/plans/01_fix-generic-iterator-pinning.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["z3", "function_interning", "cross-instance-eval", "model_completion"]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790619552_cbba66",
+    "agent_type": "z3-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "z3-implementation-agent"],
+    "phases_completed": 3,
+    "phases_total": 6
+  },
+  "dispatch_seq": 9
 }
