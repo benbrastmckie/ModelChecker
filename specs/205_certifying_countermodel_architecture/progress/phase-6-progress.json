@@ -1,0 +1,42 @@
+{
+  "phase": 6,
+  "phase_name": "Packaging decision gate -- measure the trimmed checker",
+  "started_at": "2026-09-28T03:30:00Z",
+  "last_updated": "2026-09-28T03:50:00Z",
+  "objectives": [
+    {"id": 1, "description": "Record the baseline from research for comparison", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Set supportInterpreter=false for check_certificate only, rebuild, re-measure", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Re-run the capability handshake against the trimmed binary", "status": "done", "files_touched": []},
+    {"id": 4, "description": "Decide and record the packaging route based on the measurement", "status": "done", "files_touched": []},
+    {"id": 5, "description": "Restore the flag in the companion repository and note the finding", "status": "done", "files_touched": []}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [],
+  "findings": {
+    "baseline_measured_live": {
+      "unstripped_bytes": 313863000,
+      "stripped_bytes": 219351032,
+      "gzip9_bytes": 69143714,
+      "note": "Matches research report's recorded baseline (313,863,000 / 219,351,032 / 69,143,681) to within gzip metadata/version noise."
+    },
+    "trimmed_measured_supportInterpreter_false": {
+      "unstripped_bytes": 139076848,
+      "stripped_bytes": 91420336,
+      "gzip9_bytes": 34389441,
+      "gzip9_mib": 32.8,
+      "commands": [
+        "cd ~/Projects/BimodalLogic && lake build check_certificate",
+        "strip -o trimmed_stripped .lake/build/bin/check_certificate",
+        "gzip -9 -c trimmed_stripped > trimmed_stripped.gz"
+      ]
+    },
+    "handshake_on_trimmed_binary": {
+      "result": "status=countermodel, acceptance=entailment, echo matches bytewise",
+      "invocation_time_seconds": 0.047
+    },
+    "decision": "Out-of-band opt-in artifact remains the recommendation; in-wheel shipping (Route A) is declined on the measured number. supportInterpreter=false shrinks the gzip-9 artifact from ~65.9MiB to ~32.8MiB (roughly halved), but 32.8MiB is still in the tens of MiB, not single-digit -- the threshold Phase 6's own decision rule names for in-wheel plausibility. This does not change Phase 1-5's recommendation (Route B: documented opt-in via BIMODAL_CHECKER_BIN plus optional SHA-256 pinning), which stands alone and blocked on nothing here.",
+    "companion_repo_state": "lakefile.toml restored to HEAD (git diff clean); .lake/build/bin/check_certificate rebuilt back to the exact baseline size (313863000 bytes) so no build artifact is left in the trimmed state either."
+  }
+}

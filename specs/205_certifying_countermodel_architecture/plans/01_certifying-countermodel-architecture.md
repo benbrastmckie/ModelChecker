@@ -399,30 +399,38 @@ checker without installing a Lean toolchain.
 
 ---
 
-### Phase 6: Packaging decision gate — measure the trimmed checker [NOT STARTED]
+### Phase 6: Packaging decision gate — measure the trimmed checker [COMPLETED]
 
 **Goal**: Decide item 2's route on a fresh measurement rather than on a number that a one-line
 upstream flag invalidates. This phase is the decision gate for whether in-wheel shipping (Route A)
 is worth a follow-on task.
 
 **Tasks**:
-- [ ] Record the baseline from research for comparison: 313,863,000 B unstripped, 219,351,032 B
+- [x] Record the baseline from research for comparison: 313,863,000 B unstripped, 219,351,032 B *(completed)*
       stripped, 69,143,681 B stripped+`gzip -9`, against a 1,190,654 B `py3-none-any` wheel.
-- [ ] In `~/Projects/BimodalLogic` (companion repository, read-mostly: one-line build-flag change),
+- [x] In `~/Projects/BimodalLogic` (companion repository, read-mostly: one-line build-flag change), *(completed)*
       set `supportInterpreter = false` for the `check_certificate` `[[lean_exe]]` only, rebuild that
       target, and re-measure unstripped, stripped, and `gzip -9` sizes. Bound the build with an
       explicit timeout and a single waiter on its log (`context/patterns/bounded-build-waiter.md`);
       do not leave the flag flipped in the companion repository afterwards unless that repository's
       owner wants it — restore it and note the finding.
-- [ ] Re-run the capability handshake against the trimmed binary to confirm it still answers
+      *(measured: trimmed = 139,076,848 B unstripped / 91,420,336 B stripped / 34,389,441 B
+      gzip-9 (~32.8 MiB) — roughly halved from baseline, but still tens-of-MiB, not
+      single-digit. Flag and build artifact both restored to baseline afterward; companion repo
+      `git diff lakefile.toml` clean, rebuilt binary matches baseline byte count exactly.)*
+- [x] Re-run the capability handshake against the trimmed binary to confirm it still answers *(completed)*
       `countermodel` with `acceptance=entailment` and a matching `echo` (a checker that is smaller
       but no longer answers is not a candidate).
-- [ ] Decide and record: if the compressed artifact is single-digit MiB, record that in-wheel
+      *(confirmed: status=countermodel, acceptance=entailment, echo matched bytewise, ~47ms)*
+- [x] Decide and record: if the compressed artifact is single-digit MiB, record that in-wheel *(completed)*
       shipping is now plausible and name the follow-on work it needs (per-platform wheel matrix,
       manylinux build, `BIMODAL_LOGIC_COMMIT` becoming an enforced build pin). If it stays in the
       tens of MiB, record that the out-of-band opt-in artifact remains the recommendation and
       in-wheel shipping is declined on the measured number.
-- [ ] Contingency, if the rebuild cannot be run: record the untrimmed figures, mark the decision
+      *(decided: stays in the tens of MiB (~32.8 MiB gzip-9) — the out-of-band opt-in artifact
+      (Route B, Phases 1-5) remains the recommendation; in-wheel shipping (Route A) is declined
+      on this measured number, not merely on the untrimmed one.)*
+- [x] Contingency, if the rebuild cannot be run: record the untrimmed figures, mark the decision *(completed)*
       explicitly deferred with the measurement named as its precondition, and proceed. Nothing in
       Phases 1-5 depends on this number.
 
