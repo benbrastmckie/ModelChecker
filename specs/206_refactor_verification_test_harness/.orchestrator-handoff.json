@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 13,
+  "summary": "Wrote an 8-phase implementation plan for the bimodal verification test harness: consolidate the four duplicated _settings/_build helpers, record the three deliberately declined organization routes (grids, tier gating, _pinned_eval.py location) plus the promotion coordination note, land the research-measured family-only amortization across certificate.py / _pinned_eval.py / the enumeration loop, then re-measure under CI's exact invocation shape at a decision gate that decides the scheduled-run question.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/206_refactor_verification_test_harness/plans/01_refactor-verification-test-harness.md",
+      "summary": "8 phases, ~9.5h, 7 dependency waves; includes a measurement decision gate (Phase 6) and a conditional scheduled-run contingency (Phase 7)."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 8,
+  "blockers": []
+}

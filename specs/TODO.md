@@ -26,7 +26,7 @@ next_project_number: 209
 
 ### Testing
 
-206 [PLANNING] — Refactor the bimodal verification test harness for...
+206 [PLANNED] — Refactor the bimodal verification test harness for...
 
 ### Semantics
 
@@ -83,11 +83,12 @@ CONSTRAINTS. Verify against the full repository gate under CI's own invocation s
 ---
 
 ### 206. Refactor verification test harness
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 207
 - **Research**: [206_refactor_verification_test_harness/reports/01_refactor-verification-test-harness.md]
+- **Plan**: [206_refactor_verification_test_harness/plans/01_refactor-verification-test-harness.md]
 
 **Description**: Refactor the bimodal verification test harness for organization and performance, refactoring structure rather than preserving it where that produces a better result. This task owns the harness itself; the trust boundary between testing and formal verification is owned by a separate task and is explicitly out of scope here. Nothing in this task may weaken what the existing tests establish, and any narrowing of an enumeration must be stated explicitly rather than absorbed as a speedup.
 
