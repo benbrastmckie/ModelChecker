@@ -246,37 +246,37 @@ before changing it.
 
 ---
 
-### Phase 3: Generalize Re-Assertion into the Shared ConstraintGenerator (GREEN) [NOT STARTED]
+### Phase 3: Generalize Re-Assertion into the Shared ConstraintGenerator (GREEN) [COMPLETED]
 
 **Goal**: Make the persistent search solver carry the real constraints for every theory, by
 lifting bimodal's re-assertion one level up into `ConstraintGenerator`.
 
 **Tasks**:
-- [ ] In `code/src/model_checker/iterate/constraints.py`, add a
+- [x] In `code/src/model_checker/iterate/constraints.py`, add a
       `ConstraintGenerator._ensure_original_constraints_in_solver()` method that reads
       `build_example.model_constraints`' four component lists —
       `frame_constraints`, `model_constraints`, `premise_constraints`, `conclusion_constraints` —
       and `self.solver.add(...)`s each. Read the four component lists directly, **not**
       `all_constraints`, mirroring `_setup_solver`'s own `constraint_groups` (finding 3).
-- [ ] Guard every source with `isinstance(value, list)` before extending, so a `Mock()`
+- [x] Guard every source with `isinstance(value, list)` before extending, so a `Mock()`
       `model_constraints` in existing unit tests contributes nothing and raises nothing
       (mirrors `theory_lib/bimodal/iterate.py:180-193`).
-- [ ] Call the new method from `ConstraintGenerator.__init__` immediately after
+- [x] Call the new method from `ConstraintGenerator.__init__` immediately after
       `self.solver = self._create_persistent_solver()`, and before the existing
       `original_constraints` debug bookkeeping.
-- [ ] Skip re-assertion on the reused-CVC5 path: `_create_persistent_solver` returns the
+- [x] Skip re-assertion on the reused-CVC5 path: `_create_persistent_solver` returns the
       *original* already-populated CVC5 solver there rather than a fresh copy, so re-asserting
       would duplicate. Have `_create_persistent_solver` record whether it took the reuse branch
       (e.g. set `self._reused_original_solver = True`) and have the new method return early when
       it did, keeping the change a strict no-op for CVC5.
-- [ ] Write a module-level or method-level docstring on the new method that states the root cause
+- [x] Write a module-level or method-level docstring on the new method that states the root cause
       in one paragraph and records finding (2) explicitly: that `_setup_solver` uses
       `assert_tracked`, that Z3 stores those as `Implies(label, constraint)`, and that copying
       such assertions into a fresh solver is vacuously satisfiable — so re-asserting the real
       constraint lists is required and reordering `stored_solver` in `models/structure.py` would
       not have sufficed.
-- [ ] Leave `theory_lib/bimodal/iterate.py` completely untouched.
-- [ ] Leave `models/structure.py` completely untouched.
+- [x] Leave `theory_lib/bimodal/iterate.py` completely untouched.
+- [x] Leave `models/structure.py` completely untouched.
 
 **Timing**: 1.5 hours
 

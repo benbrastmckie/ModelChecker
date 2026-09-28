@@ -1,0 +1,78 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, xdist-3.8.0, hypothesis-6.151.10, cov-7.1.0
+collected 247 items
+
+code/src/model_checker/iterate/tests/e2e/test_edge_cases.py .......      [  2%]
+code/src/model_checker/iterate/tests/integration/test_build_example.py . [  3%]
+....                                                                     [  4%]
+code/src/model_checker/iterate/tests/integration/test_constraint_preservation.py . [  5%]
+..                                                                       [  6%]
+code/src/model_checker/iterate/tests/integration/test_core_orchestration.py . [  6%]
+.........                                                                [ 10%]
+code/src/model_checker/iterate/tests/integration/test_enhanced_tracking.py . [ 10%]
+....                                                                     [ 12%]
+code/src/model_checker/iterate/tests/integration/test_error_handling.py . [ 12%]
+...........                                                              [ 17%]
+code/src/model_checker/iterate/tests/integration/test_generator_interface.py . [ 17%]
+.....                                                                    [ 19%]
+code/src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py . [ 19%]
+.........                                                                [ 23%]
+code/src/model_checker/iterate/tests/integration/test_graph_utils.py ... [ 24%]
+                                                                         [ 24%]
+code/src/model_checker/iterate/tests/integration/test_isomorphism.py ... [ 25%]
+....                                                                     [ 27%]
+code/src/model_checker/iterate/tests/integration/test_iteration_control.py . [ 27%]
+..............                                                           [ 33%]
+code/src/model_checker/iterate/tests/integration/test_iterator_generator.py . [ 34%]
+...........                                                              [ 38%]
+code/src/model_checker/iterate/tests/integration/test_metrics.py ....... [ 41%]
+.                                                                        [ 41%]
+code/src/model_checker/iterate/tests/integration/test_models.py ........ [ 44%]
+.....                                                                    [ 46%]
+code/src/model_checker/iterate/tests/integration/test_real_theory_integration.py . [ 47%]
+........                                                                 [ 50%]
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py . [ 51%]
+.....                                                                    [ 53%]
+code/src/model_checker/iterate/tests/unit/test_base_iterator.py .......  [ 55%]
+code/src/model_checker/iterate/tests/unit/test_constraints.py .......... [ 59%]
+                                                                         [ 59%]
+code/src/model_checker/iterate/tests/unit/test_constraints_error_paths.py . [ 60%]
+.......                                                                  [ 63%]
+code/src/model_checker/iterate/tests/unit/test_core.py ...............   [ 69%]
+code/src/model_checker/iterate/tests/unit/test_core_abstract_methods.py . [ 69%]
+..                                                                       [ 70%]
+code/src/model_checker/iterate/tests/unit/test_core_no_state_transfer.py . [ 70%]
+.                                                                        [ 71%]
+code/src/model_checker/iterate/tests/unit/test_coverage_improvements.py . [ 71%]
+.........                                                                [ 75%]
+code/src/model_checker/iterate/tests/unit/test_errors.py ..............  [ 80%]
+code/src/model_checker/iterate/tests/unit/test_models_edge_cases.py .... [ 82%]
+.................                                                        [ 89%]
+code/src/model_checker/iterate/tests/unit/test_simplified_iterator.py .. [ 90%]
+...                                                                      [ 91%]
+code/src/model_checker/iterate/tests/unit/test_validation.py ........    [ 94%]
+code/src/model_checker/iterate/tests/unit/test_z3_utils.py ............. [100%]
+
+============================== slowest durations ===============================
+47.15s call     src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[logos]
+42.09s call     src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[exclusion]
+19.54s call     src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[imposition]
+0.39s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[exclusion]
+0.38s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[imposition]
+0.25s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[exclusion]
+0.23s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[imposition]
+0.22s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphManagerCacheBehavior::test_cache_growth_limitation
+0.15s call     src/model_checker/iterate/tests/integration/test_iteration_control.py::TestTerminationManager::test_should_terminate_timeout
+0.10s call     src/model_checker/iterate/tests/unit/test_base_iterator.py::TestBaseModelIterator::test_timeout_handling
+0.10s call     src/model_checker/iterate/tests/integration/test_iteration_control.py::TestTerminationManager::test_get_elapsed_time
+0.02s teardown src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[logos]
+0.01s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphIsomorphismIntegration::test_cache_behavior_under_load
+0.01s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphIsomorphismIntegration::test_large_graph_isomorphism
+0.01s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[logos]
+0.01s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[logos]
+
+(725 durations < 0.005s hidden.  Use -vv to show these durations.)
+======================= 247 passed in 111.37s (0:01:51) ========================

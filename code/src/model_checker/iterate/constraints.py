@@ -44,7 +44,8 @@ class ConstraintGenerator:
         """
         self.build_example = build_example
         self.solver = self._create_persistent_solver()
-        
+        self._ensure_original_constraints_in_solver()
+
         # Preserve original constraints for iteration
         original_constraints = []
         if hasattr(build_example, 'model_constraints') and \
@@ -84,6 +85,12 @@ class ConstraintGenerator:
                 raw.set('tlimit-per', str(timeout_ms))
             except Exception:
                 logger.warning("Could not set CVC5 solver timeout for iteration")
+            # The CVC5 path reuses the *original*, already-populated solver rather than
+            # copying into a fresh one -- record this so
+            # `_ensure_original_constraints_in_solver` can skip re-assertion here and
+            # remain a strict no-op for CVC5 (re-asserting would duplicate constraints
+            # already present on this exact solver object).
+            self._reused_original_solver = True
             return raw
 
         # Z3 path: create new solver and copy assertions
@@ -95,8 +102,73 @@ class ConstraintGenerator:
 
         for assertion in original_solver.assertions():
             persistent_solver.add(assertion)
+        self._reused_original_solver = False
         return persistent_solver
-    
+
+    def _ensure_original_constraints_in_solver(self) -> None:
+        """Re-assert the real frame/model/premise/conclusion constraints onto the
+        persistent search solver, generalizing bimodal's own theory-local workaround
+        (`theory_lib/bimodal/iterate.py`'s `_ensure_frame_constraints_in_search_solver`)
+        into this shared base class so every theory benefits, not just bimodal.
+
+        Root cause this works around: `_create_persistent_solver` above populates the
+        search solver by copying `assertions()` off the *original* model structure's
+        solver (`build_example.model_structure.solver`, or its `stored_solver`
+        fallback). `ModelDefaults.solve()` (`models/structure.py`) assigns
+        `self.stored_solver = self.solver` *before* `_setup_solver` reassigns
+        `self.solver` to a freshly populated solver and returns it -- `stored_solver` is
+        left referencing the solver's pristine, pre-population state. `solve()`'s
+        `finally` block then unconditionally clears `self.solver = None`. For every
+        theory without a bimodal-style workaround, the copy above therefore yields
+        **zero** assertions, and the live iteration search runs against an
+        unconstrained problem.
+
+        Re-ordering `self.stored_solver = self.solver` in `models/structure.py` to
+        occur *after* `_setup_solver` would not fix this: `_setup_solver` adds every
+        constraint via `assert_tracked`, which `Z3SolverAdapter.assert_tracked`
+        implements as `z3.Solver.assert_and_track(constraint, z3.Bool(label))`. Z3
+        records that as `Implies(label, constraint)`, so a *populated* solver's
+        `assertions()` returns tracked implications, not the raw constraints --
+        copying those into a fresh solver would be vacuously satisfiable (every
+        tracking Boolean simply set `False`). Re-asserting the real constraint lists
+        directly, as this method does, is required regardless of that ordering.
+
+        Reads the four component lists directly off `build_example.model_constraints`
+        -- `frame_constraints`, `model_constraints`, `premise_constraints`,
+        `conclusion_constraints` -- **not** `all_constraints`, mirroring
+        `_setup_solver`'s own `constraint_groups`.
+
+        Skipped entirely when `_create_persistent_solver` reused the original,
+        already-populated solver (the CVC5 path): re-asserting there would duplicate
+        constraints already present on that exact solver object.
+
+        Defensive about test doubles: several existing unit tests construct this class
+        against a `Mock()` `model_constraints`, whose `.frame_constraints` etc. are
+        auto-created `Mock` attributes, not real lists. Each of the four sources is
+        only used when it is an actual `list`, mirroring bimodal's own defensive
+        treatment -- a test double simply contributes nothing.
+        """
+        if getattr(self, '_reused_original_solver', False):
+            return
+
+        model_constraints = getattr(self.build_example, 'model_constraints', None)
+        if model_constraints is None:
+            return
+
+        constraints: list = []
+        for attr in (
+            'frame_constraints',
+            'model_constraints',
+            'premise_constraints',
+            'conclusion_constraints',
+        ):
+            value = getattr(model_constraints, attr, None)
+            if isinstance(value, list):
+                constraints.extend(value)
+
+        for constraint in constraints:
+            self.solver.add(constraint)
+
     def create_extended_constraints(self, previous_models: List[z3.ModelRef]) -> List[z3.BoolRef]:
         """Create constraints that exclude all previous models.
         
