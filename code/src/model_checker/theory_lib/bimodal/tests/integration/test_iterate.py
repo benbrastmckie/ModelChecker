@@ -685,27 +685,110 @@ class TestLiveIteration:
             "solver returned unsat" in message for message in iterator.debug_messages
         )
 
-    def test_a_live_run_detects_a_genuine_rotation_permutation_duplicate(self):
-        """Branch A (Phase 1's gate answered "yes" -- a live rotation/permutation
-        duplicate is reachable for `BM_CM_1`): drive a real, non-mocked `iterate: 6`
-        run and assert `isomorphic_model_count >= 1`, proving the orbit-key detector
-        fired on a genuine solver-produced duplicate -- not a hand-seeded one -- with
-        the exclusion clause then keeping the search moving rather than looping.
-        `iterate: 15` (not `2`): the search sometimes reaches a second genuinely new
-        orbit on its very first candidate with no duplicate along the way, so a
-        small request does not reliably exercise the detector -- a run that keeps
-        asking for models until the small space of reachable orbits is exhausted
-        does, empirically, always hit at least one genuine duplicate along the way."""
+    def test_the_detector_covers_the_whole_orbit_of_a_solver_produced_certificate(self):
+        """The orbit-key detector fires on every rotation/permutation image of a
+        certificate the solver genuinely produced -- not a hand-built one. The
+        certificate comes from `BM_CM_1`'s own live, non-mocked first solve; only the
+        group action applied to it is synthetic, which is precisely the mathematical
+        content under test.
+
+        HISTORY -- why this is not the `isomorphic_model_count >= 1` assertion it
+        replaces. The earlier form drove a live `iterate: 15` run and asserted the
+        counter had advanced, on the stated premise that a run asking for models until
+        the reachable orbits run out "does, empirically, always hit at least one genuine
+        duplicate along the way". That premise is false, and the assertion was a
+        release-gating flake: it failed on CI's Python 3.11 leg while 3.10 and 3.12
+        passed on the same commit, and reproduced locally at 2 failures in 15 runs of the
+        same interpreter. A `PYTHONHASHSEED` sweep isolated the mechanism and showed it
+        is not a budget overrun (8.6) and not repairable by a longer drive:
+
+        - The search order depends on hash ordering, so the whole run is
+          seed-determined: `iterate: 15` yields `isomorphic_model_count == 0` for seeds
+          7, 8, 11, 12, 13 and 25, and a nonzero count for the rest.
+        - Zero duplicates is the *lucky* path, not a degenerate one. Those zero-count
+          seeds are exactly the runs that cleanly fill the whole request (14 new
+          structures); the seeds with large counts are runs that churn on duplicates and
+          return far fewer models (e.g. 149 duplicates, 1 model). Encountering a
+          duplicate is therefore evidence of the search struggling -- nothing the
+          detector's correctness entitles the test to demand.
+        - Raising the drive does not close it. At `iterate: 30`, seed 48 still yields
+          `isomorphic_model_count == 0` (1 of 30 seeds swept), while the seeds that churn
+          push the run into its 30s `max_time` -- strictly worse on both axes.
+
+        What this asserts instead holds for *every* solve, however the draw falls: each
+        image of the first solve's certificate under the symmetry group must be reported
+        as a duplicate of it, and a certificate outside that orbit must not be. Whether
+        the group actually *moves* this particular certificate is itself solve-dependent
+        and deliberately not asserted -- measured both ways on the same commit (an orbit
+        of 2 distinct certificates from a fresh process, a rotation fixed point when the
+        preceding tests in this module have run first), which is exactly the kind of
+        incidental property the replaced assertion mistook for a guarantee. The negative
+        control below is what keeps the positive half honest when the orbit is a single
+        point: it fails if the detector degenerates into a constant `True`. Deterministic
+        coverage of a rotation that provably moves its certificate is
+        `TestCheckModelIsomorphism::test_a_rotation_of_a_previous_certificate_is_detected`
+        (hand-built precisely so the group action is guaranteed nontrivial), and live
+        end-to-end coverage of the detector on the real iteration path stays with
+        `test_live_iterate_yields_pairwise_orbit_distinct_certificates` and
+        `test_iterate_beyond_the_admitted_certificate_space_exhausts_cleanly` -- none of
+        which depends on which way a search draw happened to fall.
+        """
         settings = dict(BM_CM_1_settings)
         settings["max_time"] = 30
         example = _real_build_example(
-            BM_CM_1_premises, BM_CM_1_conclusions, settings, iterate_count=15
+            BM_CM_1_premises, BM_CM_1_conclusions, settings, iterate_count=2
         )
         iterator = BimodalModelIterator(example)
 
-        structures = list(iterator.iterate_generator())
+        first_structure = example.model_structure
+        certificate_family = first_structure.certificate
+        assert isinstance(certificate_family, WitnessFamily)
+        target_time = first_structure.target_time
 
-        assert iterator.isomorphic_model_count >= 1
+        iterator.model_structures = [first_structure]
+        iterator.found_models = [first_structure.z3_model]
+
+        group = list(
+            symmetry.enumerate_group(
+                settings["back"], settings["fwd"], len(certificate_family.lassos)
+            )
+        )
+        images = [
+            symmetry.apply(element, certificate_family, target_time) for element in group
+        ]
+        assert len(images) == len(group) > 1
+
+        for rotated_family, rotated_target_time in images:
+            rotated_structure = SimpleNamespace(
+                certificate=rotated_family, target_time=rotated_target_time
+            )
+
+            is_isomorphic, matched_model = iterator._check_model_isomorphism(
+                rotated_structure, Mock(name="rotated_z3_model")
+            )
+
+            assert is_isomorphic, (
+                "an image of the first certificate under the symmetry group must be "
+                "detected as a duplicate of it"
+            )
+            assert matched_model is first_structure.z3_model
+
+        # Negative control: a certificate carrying one more witness lasso than the found
+        # one cannot be any group image of it -- `certificate_orbit_key`'s witness tuple
+        # is a different length, and no rotation or witness permutation changes a
+        # family's lasso count. A detector that answered `True` unconditionally, or that
+        # compared nothing at all, would fail here.
+        out_of_orbit = SimpleNamespace(
+            certificate=WitnessFamily(
+                bx=dict(certificate_family.bx),
+                lassos=certificate_family.lassos + (certificate_family.lassos[0],),
+            ),
+            target_time=target_time,
+        )
+
+        assert iterator._check_model_isomorphism(
+            out_of_orbit, Mock(name="out_of_orbit_z3_model")
+        ) == (False, None)
 
 
 class TestAllConstraintsReflectsCertificateAfterSolve:
