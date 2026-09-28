@@ -1,15 +1,20 @@
 {
-  "status": "planned",
-  "phases_completed": 0,
+  "status": "implemented",
+  "phases_completed": 8,
   "phases_total": 8,
-  "dispatch_seq": 12,
+  "dispatch_seq": 14,
   "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md",
+      "summary": "All 8 phases completed: production checker resolver and capability handshake, the verify-setting output gate with three honest states, the test-helper refactor onto the production resolver, gate documentation, a fresh trimmed-binary measurement confirming the out-of-band packaging route, and the item-3 ledger/direction-claim extensions across seven surfaces."
+    },
     {
       "type": "plan",
       "path": "specs/205_certifying_countermodel_architecture/plans/01_certifying-countermodel-architecture.md",
-      "summary": "Eight-phase plan for the countermodel output gate, the checker's runtime availability, and the test-tier repositioning; 12 hours across five dependency waves."
+      "summary": "All 8 phase headings marked [COMPLETED]; plan-level Status field updated to [COMPLETED]."
     }
   ],
-  "next_steps": "Run /implement 205 to execute the plan",
-  "notes": "Research finding F1 supersedes the dispatch's 'verdict-producing today' premise: check_certificate already returns acceptance=entailment with a matching echo, so no interim weaker-gate branch is planned. Two deferrals recorded for the certificate-wire hardening task: ADEQUACY.md 6.2 and TRUST_PIPELINE.md's trust base both overclaim that level as a per-certificate kernel-checked proof, and whether BIMODAL_LOGIC_COMMIT's contents should track the companion repository. Phase 6 is a decision gate whose measurement lives in ~/Projects/BimodalLogic (one-line lakefile flag, restored afterwards); nothing in Phases 1-5 depends on its number."
+  "next_steps": "Task complete. Two findings deferred to the certificate-wire hardening task (see summary's Follow-ups): ADEQUACY.md section 6.2 / TRUST_PIPELINE.md's trust-base 'kernel-checked proof for that particular certificate' overclaim, and whether BIMODAL_LOGIC_COMMIT should track the companion repository automatically. A structural-conformance-check follow-on was recorded (not built) in TRUST_PIPELINE.md's remaining-work table, explicitly sequenced after items 1-2 as UNSAT-direction work.",
+  "notes": "Full project gate green (645 passed, 5 skipped, code/tests/) and bimodal suite green both with and without a resolvable checker (629 passed solo-with-checker; 612 passed/17 skipped without). One collision was found and fixed during Phase 3: BimodalSemantics must not set an attribute literally named 'verify' (models/semantic.py and iterate/models.py both use hasattr(semantics, 'verify') as a theory-capability test) -- the resolved attribute is self.verify_mode instead, settings key unaffected. Phase 6's companion-repo measurement (supportInterpreter=false) halved the compressed checker artifact (~65.9MiB -> ~32.8MiB) but it stays in the tens of MiB, so the out-of-band opt-in route (Phases 1-5) is confirmed as the recommendation, not in-wheel shipping; the companion repo's lakefile and build artifact were both restored to baseline afterward."
 }

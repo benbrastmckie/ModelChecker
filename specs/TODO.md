@@ -11,18 +11,14 @@ next_project_number: 210
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,205,206 | -- | architecture, testing, semantics |
-| 2 | 199,209 | 198,205,206 | documentation, cross-repo-contract |
+| 1 | 198,200,206 | -- | testing, semantics |
+| 2 | 199,209 | 198,206 | documentation, cross-repo-contract |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
 199 [NOT STARTED] — Write the round-trip ledger in...
-
-### Architecture
-
-205 [IMPLEMENTING] — Decide and stage how a reported countermodel becomes...
 
 ### Testing
 
@@ -138,12 +134,13 @@ CONSTRAINTS. Preserve Tier 2's clean-skip behaviour as it stands (its promotion 
 ---
 
 ### 205. Certifying countermodel architecture
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: formal
 - **Topic**: architecture
 - **Dependencies**: Task 197
 - **Research**: [205_certifying_countermodel_architecture/reports/01_certifying-countermodel-architecture.md]
 - **Plan**: [205_certifying_countermodel_architecture/plans/01_certifying-countermodel-architecture.md]
+- **Summary**: [205_certifying_countermodel_architecture/summaries/01_certifying-countermodel-architecture-summary.md]
 
 **Description**: Decide and stage how a reported countermodel becomes trustworthy in the hands of a user who has no Lean toolchain, and reposition the existing test tiers to match what each one actually establishes. Narrow scope deliberately: the proof-carrying acceptance mode and the deserialization trust base are owned by the certificate-wire hardening task and must be consumed here, not re-decided; the test-harness reorganization and its performance work are owned by the harness refactoring task. This task owns three things only -- the output gate, the checker's runtime availability, and the tier repositioning.
 
