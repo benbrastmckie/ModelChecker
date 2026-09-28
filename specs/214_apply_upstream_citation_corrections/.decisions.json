@@ -1,11 +1,10 @@
-{
-  "decisions": [
-    {
-      "question": "Research found a second stale-citation cluster (six ShiftSet citations plus a wrong-file Truth.box_const citation) sitting inside the very same ADEQUACY.md/ARCHITECTURE.md table rows this task already edits; it comes from the same upstream corrections table but was not among the dispatch's enumerated 'FOUR ROWS TO APPLY'. Should it be fixed in this task or deferred?",
-      "answer": "Fix it now in this task (Phase 2 and Phase 4 carry it as separate, severable checklist items)",
-      "source": "auto_recommendation",
-      "session_id": "sess_1790619552_cbba66",
-      "decided_at": "2026-09-28T19:41:48Z"
-    }
-  ]
-}
+[
+  {
+    "question": "Research found a second stale-citation cluster (six ShiftSet citations plus a wrong-file Truth.box_const citation) sitting inside the very same ADEQUACY.md/ARCHITECTURE.md table rows this task already edits; it comes from the same upstream corrections table but was not among the dispatch's enumerated 'FOUR ROWS TO APPLY'. Should it be fixed in this task or deferred?",
+    "answer": "Fix it now in this task (Phase 2 and Phase 4 carry it as separate, severable checklist items)",
+    "cycle": null,
+    "timestamp": "2026-09-28T19:41:48Z",
+    "source": "auto_recommendation",
+    "session_id": "sess_1790619552_cbba66"
+  }
+]
