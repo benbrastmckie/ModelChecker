@@ -1,30 +1,41 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/plans/01_populate-persistent-search-solver.md",
-      "summary": "6-phase plan generalizing bimodal's search-solver re-assertion into the shared ConstraintGenerator, with live non-mocked regression coverage for logos/exclusion/imposition."
+      "type": "summary",
+      "path": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/summaries/01_populate-persistent-search-solver-summary.md",
+      "summary": "6-phase implementation: generalized bimodal's persistent-search-solver re-assertion into the shared ConstraintGenerator base class, added live model-level regression coverage, and documented the residual stored_solver ordering; full iterate/ suite improved from 2 failed/239 passed to 247 passed/0 failed."
     }
   ],
+  "next_steps": "Task 215 is fully implemented and verified. A dependent task can now verify its own Phase 3 pin-routing blocker has cleared for logos/imposition, since the persistent search solver is genuinely populated (already observed as a passing side effect in iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve).",
   "metadata": {
-    "session_id": "sess_1790629202_db51b1_215",
-    "agent_type": "planner-agent",
+    "session_id": "sess_1790629202_db51b1",
+    "agent_type": "z3-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "delegation_path": ["orchestrator", "implement", "z3-implementation-agent"],
     "phase_count": 6,
-    "estimated_hours": 7.5,
-    "dependency_waves": 5
+    "phases_completed": 6
   },
   "memory_candidates": [
     {
-      "content": "In the ModelChecker Z3 stack, ModelDefaults._setup_solver (models/structure.py) adds every constraint via assert_tracked, which Z3SolverAdapter implements as z3.Solver.assert_and_track(c, Bool(label)). Z3 records that as Implies(label, c), so solver.assertions() returns TRACKED IMPLICATIONS, not the raw constraints. Copying those assertions into a fresh z3.Solver() yields a vacuously satisfiable set -- the copy checks sat with every tracking Boolean set False, even when the original checked unsat. Consequence: any mechanism that reconstructs a solver by copying assertions() off a tracked solver is silently unconstrained, and a regression test asserting only len(assertions()) > 0 will pass against a broken engine. Re-assert the real constraint lists (frame/model/premise/conclusion off ModelConstraints) instead of copying assertions, and make the acceptance criterion model-level (the produced model satisfies each constraint), not count-level.",
-      "category": "INSIGHT",
+      "content": "In the ModelChecker Z3 stack, iterate/constraints.py's ConstraintGenerator._create_persistent_solver built the live iteration loop's persistent search solver by copying assertions() off the original model structure's solver, which was empty for every theory lacking a bimodal-style workaround (logos, exclusion, imposition) -- confirmed len(solver.assertions()) == 0 immediately after construction. Fix: generalize bimodal's theory-local re-assertion pattern (theory_lib/bimodal/iterate.py's _ensure_frame_constraints_in_search_solver) up into the shared ConstraintGenerator base class -- a new _ensure_original_constraints_in_solver() method, called from __init__ right after _create_persistent_solver(), reads model_constraints' four component lists directly (frame_constraints/model_constraints/premise_constraints/conclusion_constraints, NOT all_constraints) and re-asserts them, guarded by isinstance(value, list) so Mock() test doubles contribute nothing, and skipped on the CVC5 reused-solver path (tracked via a _reused_original_solver flag) to avoid duplicate assertion. A regression test asserting only len(assertions()) > 0 is insufficient -- it would pass against a still-broken engine, since _setup_solver's assert_tracked calls make a POPULATED solver's assertions() return Implies(label, constraint) tracking implications, which are vacuously satisfiable when copied into a fresh solver. The real acceptance criterion must be model-level: check() the persistent solver, require sat, and verify model.eval() on every real constraint returns true.",
+      "category": "PATTERN",
       "source_artifact": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/plans/01_populate-persistent-search-solver.md",
       "confidence": 0.9,
-      "suggested_keywords": ["z3", "assert_and_track", "solver-assertions", "tracking-literal", "vacuous-satisfiability", "regression-test-design"]
+      "suggested_keywords": ["z3", "iterate", "constraint-generator", "persistent-solver", "assert-and-track", "regression-test-design", "model-checker"]
+    },
+    {
+      "content": "In the ModelChecker repo's bimodal theory test suite, theory_lib/bimodal/tests/integration/test_iterate.py::TestLiveIteration::test_a_live_run_detects_a_genuine_rotation_permutation_duplicate is a known-flaky test: it depends on Z3 actually re-visiting an already-seen orbit during a bounded, heuristic-driven search, which is not guaranteed by construction (the test's own docstring documents this). It reliably passes standalone (29/29 every time observed) but intermittently fails only inside the much larger, longer-running four-theory combined pytest gate (logos+exclusion+imposition+bimodal together), independent of unrelated code changes -- confirmed via a controlled A/B where reverting an unrelated fix did not change the failure's presence/absence. When investigating an apparent regression here, always compare the standalone bimodal/tests/integration/test_iterate.py run first before concluding a code change caused it.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/baselines/03_post-fix-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["flaky-test", "bimodal", "z3", "test-iterate", "model-checker", "ci-investigation"]
     }
   ],
-  "next_steps": "Run /implement 215 to execute the plan",
-  "dispatch_seq": 10
+  "reflection": {
+    "what_worked": "The planning-time verification (isolated Z3 repro proving assert_and_track copies are vacuously satisfiable) made the strong, model-level regression test obvious and correct on the first attempt -- RED/GREEN both demonstrated cleanly. Staging the RED capture before applying the fix (via a targeted git stash of just constraints.py) kept the RED evidence honest without losing the already-drafted fix.",
+    "what_was_hard": "Phase 4's official four-theory-gate run showed one bimodal test failure that looked like a fix-induced regression at first glance. Distinguishing genuine regression from pre-existing flakiness required a controlled A/B (reverting the fix, re-running the identical gate command twice in each condition) rather than trusting a single capture -- a single pass/fail comparison against Phase 1's baseline was not sufficient evidence either way.",
+    "what_was_missed": "None identified -- the plan's own risk table had already anticipated both the bimodal double-assertion risk and the 'newly-constrained search finds fewer models' risk, so no scope was missed, only the investigation effort to confirm which anticipated risk (if any) was actually in play.",
+    "successes": "Full iterate/ suite went from 2 failed/239 passed to 247 passed/0 failed, with the two newly-passing tests being another task's own generic-pinning regression tests for logos/imposition -- a side effect the task description explicitly predicted and this task's evidence corroborates without touching that task's own file territory."
+  }
 }

@@ -1,17 +1,16 @@
 {
-  "status": "planned",
-  "task_number": 215,
-  "phase": "plan",
-  "session_id": "sess_1790629202_db51b1_215",
-  "dispatch_seq": 10,
-  "phases_completed": 0,
-  "phases_total": 6,
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 11,
+  "summary": "All 6 plan phases complete: generalized bimodal's persistent-search-solver re-assertion into the shared ConstraintGenerator base class, added live model-level regression coverage (RED before the fix, GREEN after), documented the residual stored_solver ordering, and verified the full iterate/ suite and four-theory gate (with a controlled A/B investigation ruling out one apparent bimodal test failure as pre-existing flakiness, not a regression).",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/plans/01_populate-persistent-search-solver.md",
-      "summary": "6-phase plan generalizing bimodal's search-solver re-assertion into the shared ConstraintGenerator, with live non-mocked regression coverage for logos/exclusion/imposition."
+      "type": "summary",
+      "path": "specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/summaries/01_populate-persistent-search-solver-summary.md",
+      "summary": "6-phase implementation summary: shared-engine fix, live regression coverage, and full pre/post-fix evidence trail."
     }
   ],
-  "next_steps": "Run /implement 215 to execute the plan"
+  "phases_completed": 6,
+  "phases_total": 6,
+  "blockers": []
 }
