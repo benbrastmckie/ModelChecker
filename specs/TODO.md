@@ -11,14 +11,14 @@ next_project_number: 214
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,209,210,211,213 | -- | documentation, testing, semantics, ... |
+| 1 | 198,200,210,211,213 | -- | documentation, testing, semantics |
 | 2 | 199,212 | 198,210,211 | documentation, testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-211 [PLANNED] — Resolve the kernel-checked-proof contradiction in the bimodal...
+211 [IMPLEMENTING] — Resolve the kernel-checked-proof contradiction in the bimodal...
   └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
@@ -31,10 +31,6 @@ next_project_number: 214
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
 210 [NOT STARTED] — Fix generic iterator pinning never reaching the rebuilt...
-
-### Cross Repo Contract
-
-209 [PLANNED] — Fix the extremal-operator defect in Sentence.updatetypes and...
 
 ## Tasks
 
@@ -67,7 +63,7 @@ Establish equivalence by reading each helper against _build_support.py's, not by
 ---
 
 ### 211. Correct kernel checked proof overclaim
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
@@ -111,12 +107,13 @@ ALSO FIX while in this area: theory_lib/bimodal/iterate.py's _ensure_frame_const
 ---
 
 ### 209. Bimodal sentence translation contract
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: cross-repo-contract
 - **Dependencies**: Task 205, Task 206
 - **Research**: [209_bimodal_sentence_translation_contract/reports/01_sentence-translation-contract.md]
 - **Plan**: [209_bimodal_sentence_translation_contract/plans/01_sentence-translation-contract.md]
+- **Summary**: [209_bimodal_sentence_translation_contract/summaries/01_sentence-translation-contract-summary.md]
 
 **Description**: Fix the extremal-operator defect in Sentence.update_types and wire the sentence-translation conformance channel against BimodalLogic's fixture. Relocated from the BimodalLogic repository, where the research and plan were authored but every source edit lands here; that plan is complete, strict-validated, and should be READ RATHER THAN REDERIVED.
 
