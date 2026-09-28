@@ -1,7 +1,7 @@
 # Implementation Plan: Fix logos subtheory-orchestration meta-test timeout
 
 - **Task**: 208 - Fix logos subtheory meta test timeout
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/208_fix_logos_subtheory_meta_test_timeout/reports/01_logos-subtheory-meta-test-timeout.md
@@ -106,29 +106,29 @@ was performed and no roadmap phases are included.
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Confirm evidence and capture the pre-change gate baseline [NOT STARTED]
+### Phase 1: Confirm evidence and capture the pre-change gate baseline [COMPLETED]
 
 **Goal**: Independently confirm the defect as stated, then capture the full repository gate's
 pre-change selected-node count and wall time under CI's exact invocation shape, as the baseline
 Phase 4 compares against.
 
 **Tasks**:
-- [ ] Re-read `code/src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py`
+- [x] Re-read `code/src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py`
       and confirm `test_all_subtheory_tests_pass` still has the serial `subprocess.run` nested-pytest
       loop described in research Finding 1, and carries no `pytest.mark` decorator.
-- [ ] Re-read `.github/workflows/tests.yml` and confirm the two gating invocations are still
+- [x] Re-read `.github/workflows/tests.yml` and confirm the two gating invocations are still
       exactly (`working-directory: code`):
       `pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread`
       and
       `pytest tests/ src/model_checker -m "xdist_serial and not packaging and not unstable" -q --timeout=300 --timeout-method=thread`.
       If either has drifted from the shape research recorded, use the current shape and say so.
-- [ ] `mkdir -p specs/208_fix_logos_subtheory_meta_test_timeout/baselines/`.
-- [ ] Record the pre-change selection size with `--collect-only -q` under the parallel pass's
+- [x] `mkdir -p specs/208_fix_logos_subtheory_meta_test_timeout/baselines/`.
+- [x] Record the pre-change selection size with `--collect-only -q` under the parallel pass's
       marker expression, and confirm `test_all_subtheory_tests_pass` is present in it.
-- [ ] Run both gating passes from `code/`, backgrounded to
+- [x] Run both gating passes from `code/`, backgrounded to
       `baselines/01_gate-before.log`, with a bounded waiter (hard timeout, `kill -0` on the
       captured PID) per `context/patterns/bounded-build-waiter.md`. Capture wall time per pass.
-- [ ] Write `baselines/01_gate-before.md` recording: date, host-load caveat, both `-m`
+- [x] Write `baselines/01_gate-before.md` recording: date, host-load caveat, both `-m`
       expressions used, selected-node count, per-pass wall time, pass/fail counts, and the
       reported duration of `test_all_subtheory_tests_pass` (add `--durations=10` to the parallel
       pass to capture it).
