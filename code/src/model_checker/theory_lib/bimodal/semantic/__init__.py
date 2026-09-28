@@ -22,4 +22,8 @@ from .core import BimodalSemantics
 from .proposition import BimodalProposition
 from .model import BimodalStructure
 
-__all__ = ['BimodalSemantics', 'BimodalProposition', 'BimodalStructure']
+__all__ = [
+    'BimodalSemantics',
+    'BimodalProposition',
+    'BimodalStructure'
+]
