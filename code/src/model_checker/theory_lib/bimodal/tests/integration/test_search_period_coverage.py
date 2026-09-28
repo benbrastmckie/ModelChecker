@@ -57,36 +57,15 @@ module's sibling."""
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
-
 import pytest
 
-from model_checker.models.constraints import ModelConstraints
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
-from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
-from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
-from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+from model_checker.theory_lib.bimodal.tests._build_support import _build
 
+# Local to the property this module pins -- the search's non-monotonicity in `back`/`fwd` --
+# and deliberately not merged with `test_certificate_a2_triangle.py`'s A2-triangle grid or
+# `test_structure.py`'s `_A0_SWEPT_GRID`, each of which pins an independent property over its
+# own premises/conclusions and grid points (implementation plan Phase 2, declined route F2).
 _GRID = [(2, 1, 2), (3, 1, 3), (4, 1, 4), (5, 1, 5), (6, 1, 6)]
-
-
-def _settings(**overrides: Any) -> Dict[str, Any]:
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
-
-
-def _build(premises: List[str], conclusions: List[str], **setting_overrides: Any) -> BimodalStructure:
-    """Build one example through the real `Syntax -> ModelConstraints -> BimodalStructure`
-    pipeline. Matches `test_certificate_a2_triangle.py`'s and `test_structure.py`'s own `_build`
-    helper."""
-    settings = _settings(**setting_overrides)
-    syntax = Syntax(premises, conclusions, bimodal_operators)
-    model_constraints = ModelConstraints(
-        settings, syntax, BimodalSemantics(settings), BimodalProposition
-    )
-    return BimodalStructure(model_constraints, settings)
 
 
 def _prev_chain(depth: int, atom: str) -> str:

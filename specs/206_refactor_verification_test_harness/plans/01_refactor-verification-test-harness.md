@@ -226,7 +226,7 @@ and flag the divergence in the record before proceeding.
 
 ---
 
-### Phase 2: Consolidate the duplicated build helpers; record the declined organization routes [NOT STARTED]
+### Phase 2: Consolidate the duplicated build helpers; record the declined organization routes [COMPLETED]
 
 **Goal**: Replace the four byte-equivalent `_settings`/`_build` helpers with one shared
 test-support module, and record in place — in the docstrings that already carry this kind of
@@ -306,6 +306,27 @@ adjust rather than forcing the hypothesis.
   `bash .claude/scripts/check-task-references.sh` clean for the touched paths.
 - Preserved invariants 2 and 6 untouched: the `timeout is False` assertions and the
   `len(closure) <= 4` assertion are byte-identical in the diff.
+
+**Deviations from the plan as written (discovered at implementation time)**:
+- Task 205 landed on this working tree between this plan's authoring and this phase's
+  execution, adding item 1's output gate (`semantic/checker.py`). It changed
+  `test_structure.py`'s `_settings` to default `'verify'` to `'off'` -- a real behavioral
+  difference from the other three call sites' `_settings`, not present when the plan's Risk
+  table called the four helpers "byte-equivalent apart from type annotations and docstrings."
+  Resolution: `_build_support.py` carries the annotated form (no `verify` override, matching
+  three of the four call sites); `test_structure.py` keeps a four-line local `_build` wrapper
+  that defaults `'verify'` to `'off'` before delegating to the shared helper, preserving task
+  205's determinism fix rather than silently reverting it. Documented in both modules' own
+  docstrings and in `tests/README.md`'s "Declined Reorganizations" section.
+- The mechanical check `grep -rn "^def _settings\|^def _build" .../tests/` found `_settings`/
+  `_build`-shaped helpers in seven further modules
+  (`test_injection.py`, `test_iterate.py`, `test_data_extraction.py`, `test_semantics_core.py`,
+  `test_operators.py`, `test_proposition.py`, `test_until_since_integration.py`) plus one more
+  task 205 added (`test_output_gate.py`) -- none named by the dispatch's ORGANIZATION paragraph
+  or this plan's F1/Scope Hypothesis. Left untouched: out of this task's declared scope (the
+  dispatch names exactly `test_certificate_a2_triangle.py`, `test_search_period_coverage.py`,
+  `test_witness_registry.py`, and `test_structure.py`). Recorded in `tests/README.md`'s
+  "Declined Reorganizations" section for a future task rather than silently absorbed here.
 
 ---
 

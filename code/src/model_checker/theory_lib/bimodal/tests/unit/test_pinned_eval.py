@@ -20,14 +20,9 @@ from typing import Any, Dict, List
 import pytest
 import z3
 
-from model_checker.models.constraints import ModelConstraints
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
 from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, WitnessFamily, recheck
-from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
 from model_checker.theory_lib.bimodal.semantic.formula import Atom, Box, Formula
-from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
-from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
+from model_checker.theory_lib.bimodal.tests._build_support import _build
 from model_checker.theory_lib.bimodal.tests._pinned_eval import (
     AssignmentCollisionError,
     AtomNotAssignedError,
@@ -40,23 +35,6 @@ from model_checker.theory_lib.bimodal.tests._pinned_eval import (
     compile_constraints,
     full_constraints,
 )
-
-
-def _settings(**overrides: Any) -> Dict[str, Any]:
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    return settings
-
-
-def _build(premises: List[str], conclusions: List[str], **setting_overrides: Any) -> BimodalStructure:
-    """Matches `tests/unit/test_structure.py`'s own `_build` helper and
-    `tests/integration/test_certificate_a2_triangle.py`'s `_build` exactly."""
-    settings = _settings(**setting_overrides)
-    syntax = Syntax(premises, conclusions, bimodal_operators)
-    model_constraints = ModelConstraints(
-        settings, syntax, BimodalSemantics(settings), BimodalProposition
-    )
-    return BimodalStructure(model_constraints, settings)
 
 
 # ---------------------------------------------------------------------------

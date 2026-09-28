@@ -12,37 +12,24 @@ import sys
 
 import pytest
 
-from model_checker.models.constraints import ModelConstraints
-from model_checker.syntactic import Syntax
-from model_checker.theory_lib.bimodal.operators import bimodal_operators
 from model_checker.theory_lib.bimodal.semantic.certificate import recheck
-from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
-from model_checker.theory_lib.bimodal.semantic.model import BimodalStructure
-from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposition
-
-
-def _settings(**overrides):
-    settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
-    settings.update(overrides)
-    # Deterministic by default (item 1's output gate):
-    # this module's tests are about extraction, re-checking, and print formatting, not about
-    # which of the three verification states renders -- they must not depend on whether a
-    # real checker happens to be resolvable on the machine running them. A test that
-    # specifically exercises 'verify' passes it explicitly via **overrides, which wins here.
-    if 'verify' not in overrides:
-        settings['verify'] = 'off'
-    return settings
+from model_checker.theory_lib.bimodal.tests._build_support import _build as _shared_build
 
 
 def _build(premises, conclusions, **setting_overrides):
-    """Build one example through the real Syntax -> ModelConstraints -> BimodalStructure
-    pipeline -- the same construction order `builder/example.py`'s `BuildExample` drives,
-    without needing its `BuildModule` scaffolding."""
-    settings = _settings(**setting_overrides)
-    syntax = Syntax(premises, conclusions, bimodal_operators)
-    model_constraints = ModelConstraints(settings, syntax, BimodalSemantics(settings), BimodalProposition)
-    structure = BimodalStructure(model_constraints, settings)
-    return structure
+    """Build one example through the shared `Syntax -> ModelConstraints -> BimodalStructure`
+    pipeline (`_build_support._build`), with one local addition: `'verify'` defaults to `'off'`
+    unless a test explicitly overrides it. This module's tests are about extraction,
+    re-checking, and print formatting, not about which of item 1's three verification states
+    renders -- they must not depend on whether a real checker binary happens to be resolvable
+    on the machine running them. A test that specifically exercises `'verify'`
+    (`TestVerificationLabelRendering`) passes it explicitly, which wins here. This is the one
+    call site the implementation plan's Phase 2 keeps a local wrapper for, rather than
+    collapsing to a bare import of the shared helper -- see `_build_support.py`'s own docstring
+    for the same note from the other side."""
+    if 'verify' not in setting_overrides:
+        setting_overrides = dict(setting_overrides, verify='off')
+    return _shared_build(premises, conclusions, **setting_overrides)
 
 
 class TestFinalizeCalledExactlyOnceAcrossSetupAndReSolve:
@@ -271,6 +258,11 @@ class TestGoldenOutputCertificateFormat:
             assert "Witness: L1" in out
 
 
+# Local to the property this module pins -- the A0 frame-class standing test's
+# non-inconclusiveness across a swept grid of lengths -- and deliberately not merged with
+# `test_certificate_a2_triangle.py`'s A2-triangle grid or `test_search_period_coverage.py`'s
+# `_GRID`, each of which pins an independent property over its own premises/conclusions and
+# grid points (implementation plan Phase 2, declined route F2).
 _A0_SWEPT_GRID = [
     (1, 1, 1), (2, 1, 1), (3, 1, 1),
     (1, 1, 2), (2, 1, 2), (3, 1, 2),

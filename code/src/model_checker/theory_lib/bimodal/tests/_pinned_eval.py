@@ -51,6 +51,18 @@ strings once `compile_and_bind` has run.
 - `check_coverage` asserts, once per structure, that the assignment builder's produced key set
   is exactly the compiled constraints' `atom_index` key set -- neither a stray key nor a missing
   one -- raising `CoverageError` naming the mismatch.
+
+## Coordination note: a future promotion
+
+This module stays inside `tests/` (implementation plan Phase 2's declined-reorganization
+record, `tests/README.md`'s "Declined Reorganizations" section): it already matches this
+tree's own precedent of a leading-underscore, non-test, library-like module living alongside
+the tests that import it, the same way `_lean_check.py` does. If a separately-tracked
+trust-boundary decision promotes a checker built on this module's machinery onto the production
+path, the natural destination is alongside `semantic/certificate.py` in `semantic/` (mirroring
+that module's own home), with a narrowed public surface -- this module's existing explicit
+`__all__` above already lists every name deliberately, which would ease that future move. Stated
+here for coordination only; no promotion decision is made and no location is changed here.
 """
 
 from __future__ import annotations

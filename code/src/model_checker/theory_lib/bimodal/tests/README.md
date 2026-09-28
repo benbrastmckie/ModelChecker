@@ -80,6 +80,51 @@ tests/
 | `test_iterate.py` | `BimodalModelIterator`: difference/non-isomorphism constraints over labels and guesses |
 | `test_until_since_integration.py` | `\Until`/`\Since` semantic claims (top-guard equivalence to `future`/`past`, the open guard interval, boundary/immediate-witness behaviour) through the full solve path |
 
+## Declined Reorganizations
+
+An assessment of this tree's organization (implementation plan Phase 2) considered three further
+consolidations and declined each, for reasons recorded here rather than only in the assessment
+itself:
+
+- **The three grids stay separate.** `test_certificate_a2_triangle.py`'s A2-triangle
+  parametrize table, `test_search_period_coverage.py`'s `_GRID`, and `test_structure.py`'s
+  `_A0_SWEPT_GRID` each pin an independent property over its own premises/conclusions and grid
+  points. Merging them into one declarative registry would either force three unrelated test
+  purposes to share entries they have no logical reason to share, or just relocate three still-
+  separate tables into one file with no reduction in what a reader has to understand at each
+  call site. Each grid's own module docstring states why it exists.
+- **Tier-gating mechanics are unchanged.** Tier membership (Tier 1 exhaustive vs. Tier 2 bounded
+  Lean cross-check, in `test_certificate_a2_triangle.py`) is expressed via module docstring
+  prose, `pytest.mark.slow`, and a `skipif` keyed on `BIMODAL_LOGIC_PATH` availability. These are
+  three different *mechanisms* pytest requires at three different decision points -- prose for a
+  human reader, `slow` for local `-m "not slow"` deselection, `skipif` for environment-
+  availability gating -- not one fact restated three times. A home-grown registry wrapping
+  pytest's own marker/`skipif` mechanics would add indirection without removing duplication.
+- **`_pinned_eval.py` stays inside `tests/`.** It is a compile-once, interpret-many evaluator and
+  candidate-to-assignment builder that behaves like a library, but it already matches this
+  tree's own precedent: `_lean_check.py` is the same kind of leading-underscore, non-test,
+  library-like module living inside `tests/`. Moving it into `theory_lib` proper would be a real
+  elevation in surface area (a stable public API, docs, likely its own `tests/` directory) that
+  only makes sense if it becomes a *shipped* artifact -- a promotion decision owned by a separate,
+  concurrent task, not this one. **Coordination note**: if that task promotes a checker onto the
+  production path, `_pinned_eval.py`'s natural destination is alongside `semantic/certificate.py`
+  in `semantic/` (mirroring that module's own home), with a narrowed public surface -- its
+  existing explicit `__all__` already lists every name deliberately, which would ease that future
+  move. Stated here for coordination; no promotion decision is made and no location changed by
+  this task.
+
+The one real duplication found -- four byte-equivalent `_settings`/`_build` pipeline-construction
+helpers, in `test_certificate_a2_triangle.py`, `test_search_period_coverage.py`,
+`test_structure.py`, and `test_pinned_eval.py` -- is consolidated into `_build_support.py`
+(sibling of `_pinned_eval.py`/`_lean_check.py`, same leading-underscore convention).
+`test_structure.py` keeps a four-line local wrapper around the shared `_build` to default
+`'verify'` to `'off'` (see that module's own `_build` docstring); the other three call sites
+import the shared helper directly. Several other modules in this tree (`test_injection.py`,
+`test_iterate.py`, `test_data_extraction.py`, `test_semantics_core.py`, `test_operators.py`,
+`test_proposition.py`, `test_until_since_integration.py`, `test_output_gate.py`) carry their own,
+independent `_settings`/`_build`-shaped helpers; these were not part of what this task's
+dispatch named as restated, and consolidating them is out of this task's scope.
+
 ## Solve Budgets
 
 The certificate encoding is quantifier-free (no `ForAll`/`Exists`/MBQI/E-matching anywhere in the
