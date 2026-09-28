@@ -28,6 +28,8 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from model_checker.theory_lib.bimodal.semantic.certificate import canonical_wire_bytes
+
 __all__ = [
     "BIMODAL_LOGIC_COMMIT",
     "BIMODAL_LOGIC_PATH",
@@ -75,7 +77,7 @@ def run_check_certificate(payload: Dict[str, Any], timeout: int) -> Optional[Dic
     try:
         result = subprocess.run(
             [LAKE, "exe", "check_certificate"],
-            input=json.dumps(payload),
+            input=canonical_wire_bytes(payload),
             capture_output=True,
             text=True,
             cwd=str(BIMODAL_LOGIC_PATH),

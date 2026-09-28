@@ -1,7 +1,7 @@
 # Implementation Plan: Harden Certificate Wire Proof-Carrying
 
 - **Task**: 197 - Harden certificate wire proof carrying
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6.75 hours
 - **Dependencies**: BimodalLogic task 677 (landed, committed — axis 1 unblocked); BimodalLogic
   task 678 phase 9 (in flight, uncommitted — axis 2 gated, see Phase 5's admission gate)
@@ -139,7 +139,7 @@ was performed.
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Canonical wire bytes, in the protocol module [NOT STARTED]
+### Phase 1: Canonical wire bytes, in the protocol module [COMPLETED]
 
 **Goal**: this repository emits canonical wire bytes, so `lake exe check_certificate` at
 BimodalLogic's committed HEAD accepts what it is sent, and the differential tier stops skipping.
@@ -147,19 +147,19 @@ The serializer lives with the protocol, not in a test helper, because axis 2's c
 bytes this repository sent") needs exactly one authoritative answer to what those bytes are.
 
 **Tasks**:
-- [ ] Add `canonical_wire_bytes(payload: Mapping[str, object]) -> str` to
+- [x] Add `canonical_wire_bytes(payload: Mapping[str, object]) -> str` to
       `semantic/certificate.py`, next to the wire writer: `json.dumps(payload, separators=(",", ":"),
       ensure_ascii=False)`. Document in its docstring *why* each argument is load-bearing — the
       consuming parser rejects interior whitespace (trailing whitespace only is skipped), and
       `ensure_ascii=False` is the producing-side hand-off BimodalLogic's phase 9 names — and that
       key order is already canonical by construction of `WitnessFamily.to_json` and
       `formula.to_json`, not by sorting.
-- [ ] Do **not** sort keys. Canonical order is insertion order here; `sort_keys=True` would
+- [x] Do **not** sort keys. Canonical order is insertion order here; `sort_keys=True` would
       actively break it (`target` before `bx` before `lassos` is not alphabetical).
-- [ ] Change `_lean_check.py`'s `run_check_certificate` to send `canonical_wire_bytes(payload)`
+- [x] Change `_lean_check.py`'s `run_check_certificate` to send `canonical_wire_bytes(payload)`
       instead of `json.dumps(payload)`. Export nothing new from `_lean_check.py`; it imports the
       serializer.
-- [ ] Add a unit test in `tests/unit/` asserting the canonical-form properties directly: no
+- [x] Add a unit test in `tests/unit/` asserting the canonical-form properties directly: no
       `", "` or `": "` substring in the output; a non-ASCII atom name survives unescaped; and the
       emitted key order for a payload exercising **every** `formula.to_json` tag (`atom`, `bot`,
       `imp`, `box`, `untl`, `snce`) matches the canonical order the consuming printer uses.

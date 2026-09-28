@@ -51,12 +51,19 @@ this existential," which every other witness in a certificate has.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any, Dict, FrozenSet, Iterable, List, Mapping, Optional, Tuple
 
 from .formula import Atom, Bot, Box, Formula, Imp, Snce, Untl, closure_of, from_json, to_json
 
-__all__ = ["LabelledLasso", "WitnessFamily", "recheck", "recheck_json"]
+__all__ = [
+    "LabelledLasso",
+    "WitnessFamily",
+    "canonical_wire_bytes",
+    "recheck",
+    "recheck_json",
+]
 
 
 Label = FrozenSet[Formula]
@@ -165,6 +172,38 @@ class WitnessFamily:
             "bx": [[to_json(formula), bool(value)] for formula, value in self.bx.items()],
             "lassos": [lasso.to_json() for lasso in self.lassos],
         }
+
+
+def canonical_wire_bytes(payload: Mapping[str, object]) -> str:
+    """Serialize `payload` to the exact byte string `lake exe check_certificate` accepts.
+
+    This is the **single** authoritative answer to "what bytes did this repository send",
+    consumed by `tests/_lean_check.py`'s `run_check_certificate` today and, once axis 2's
+    parse-echo comparison lands (see `docs/ADEQUACY.md` section 6.1), by the echo comparison
+    too -- both need the identical bytes, so both call this function rather than each
+    re-deriving its own serialization.
+
+    Each `json.dumps` argument is load-bearing, not a style choice:
+
+    - `separators=(",", ":")` -- BimodalLogic's committed HEAD (`12be620c2`, "migrate the
+      certificate envelope onto the verified codec") routes `parseCertificate` through
+      `parseCertificateCanonical`, a strict canonical-bytes parser that **rejects interior
+      whitespace** (only trailing whitespace is skipped). `json.dumps`'s default separators are
+      `", "` and `": "`, whose embedded spaces are exactly the interior whitespace that parser
+      rejects -- sending them produces `{"status": "error", "message": "expected a decimal
+      numeral"}` rather than a verdict. Compact separators emit no such whitespace.
+    - `ensure_ascii=False` -- this is the producing-side hand-off BimodalLogic's phase 9 names
+      in `BimodalTools/README.md`: a non-ASCII atom name must survive unescaped for the wire
+      bytes to match what the canonical printer echoes back, not be rewritten to a `\\uXXXX`
+      escape by the default `ensure_ascii=True` behavior.
+    - No `sort_keys` argument (defaults to `False`) -- key order here is already canonical *by
+      construction* of `WitnessFamily.to_json` and `formula.to_json`'s insertion order
+      (`target{premises,conclusions,time}`, `bx`, `lassos{back,mid,fwd}`; `imp{left,right}`,
+      `untl`/`snce`{`event`,`guard`}, `box{child}`, `atom{name}`), not by sorting. Passing
+      `sort_keys=True` would actively break it: `target` sorts after `bx` and `lassos`
+      alphabetically, which is not the order the consuming printer emits or expects.
+    """
+    return json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------

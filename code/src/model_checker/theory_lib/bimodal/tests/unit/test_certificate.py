@@ -21,9 +21,19 @@ import pytest
 from model_checker.theory_lib.bimodal.semantic.certificate import (
     LabelledLasso,
     WitnessFamily,
+    canonical_wire_bytes,
     recheck_json,
 )
-from model_checker.theory_lib.bimodal.semantic.formula import Atom, Box, from_json, to_json
+from model_checker.theory_lib.bimodal.semantic.formula import (
+    Atom,
+    Bot,
+    Box,
+    Imp,
+    Snce,
+    Untl,
+    from_json,
+    to_json,
+)
 
 P = Atom("p")
 Q = Atom("q")
@@ -480,3 +490,87 @@ class TestRecheckJsonAgreesWithRecheck:
         actual = recheck_json(raw)
 
         assert actual == expected
+
+
+class TestCanonicalWireBytes:
+    """`canonical_wire_bytes` is the single authoritative serializer for what this repository
+    sends `lake exe check_certificate`. Its consuming parser (BimodalLogic's committed HEAD,
+    `12be620c2`) rejects interior whitespace, so these tests assert the canonical-form
+    properties directly rather than trusting `json.dumps`'s defaults."""
+
+    def build_all_tags_formula(self):
+        """A formula exercising every `formula.to_json` tag: `atom`, `bot`, `imp`, `box`,
+        `untl`, `snce` -- so the canonical key-order assertion below covers the whole tag
+        vocabulary, not only the tags the corpus fixtures happen to use."""
+        return Imp(
+            left=Box(Atom("p")),
+            right=Untl(guard=Snce(guard=Bot(), event=Atom("q")), event=Atom("r")),
+        )
+
+    def test_no_separator_whitespace(self):
+        family = WitnessFamily(
+            bx={P: True},
+            lassos=(LabelledLasso(back=(frozenset({P}),), mid=(), fwd=(frozenset({P}),)),),
+        )
+        wire = family.to_json(premises=[BOX_P], conclusions=[Q], target_time=0)
+        text = canonical_wire_bytes(wire)
+        assert ", " not in text
+        assert ": " not in text
+
+    def test_non_ascii_atom_name_survives_unescaped(self):
+        family = WitnessFamily(
+            bx={},
+            lassos=(
+                LabelledLasso(
+                    back=(frozenset({Atom("átom")}),),
+                    mid=(),
+                    fwd=(frozenset({Atom("átom")}),),
+                ),
+            ),
+        )
+        wire = family.to_json(premises=[Atom("átom")], conclusions=[], target_time=0)
+        text = canonical_wire_bytes(wire)
+        assert "átom" in text
+        assert "\\u00e1" not in text.lower()
+
+    def test_key_order_matches_canonical_order_for_every_formula_tag(self):
+        """Key order is canonical by construction (insertion order), not by sorting -- this
+        test pins that order for every `formula.to_json` tag so a future refactor that
+        introduces `sort_keys=True` or reorders a dataclass field is caught here."""
+        formula = self.build_all_tags_formula()
+        family = WitnessFamily(
+            bx={formula: True},
+            lassos=(LabelledLasso(back=(frozenset({formula}),), mid=(), fwd=(frozenset({formula}),)),),
+        )
+        wire = family.to_json(premises=[formula], conclusions=[formula], target_time=3)
+        text = canonical_wire_bytes(wire)
+
+        # Top-level and target order.
+        assert text.index('"target"') < text.index('"bx"') < text.index('"lassos"')
+        assert (
+            text.index('"premises"')
+            < text.index('"conclusions"')
+            < text.index('"time"')
+        )
+        # lassos{back,mid,fwd} order.
+        assert text.index('"back"') < text.index('"mid"') < text.index('"fwd"')
+        # imp{left,right} order.
+        assert text.index('"left"') < text.index('"right"')
+        # untl/snce{event,guard} order -- event first, per Formula.to_json's insertion order.
+        assert text.index('"event"') < text.index('"guard"')
+
+        # Round-trips through stdlib json and decodes back to the same formula.
+        reparsed = json.loads(text)
+        assert from_json(reparsed["target"]["premises"][0]) == formula
+
+    def test_sort_keys_would_break_canonical_order(self):
+        """Documents *why* `canonical_wire_bytes` must never pass `sort_keys=True`: `target`
+        sorts alphabetically after `bx` and `lassos`, which is not the canonical order the
+        consuming printer emits or expects."""
+        wire = {"target": {}, "bx": [], "lassos": []}
+        sorted_text = json.dumps(wire, sort_keys=True, separators=(",", ":"))
+        assert sorted_text.index('"bx"') < sorted_text.index('"target"')
+        # The actual serializer preserves insertion order instead.
+        assert canonical_wire_bytes(wire).index('"target"') < canonical_wire_bytes(wire).index(
+            '"bx"'
+        )
