@@ -1,0 +1,16 @@
+{
+  "phase": 1,
+  "phase_name": "Rewrite the two ADEQUACY.md kernel-checked-proof sites",
+  "started_at": "2026-09-28T07:09:21Z",
+  "last_updated": "2026-09-28T07:20:00Z",
+  "objectives": [
+    {"id": 1, "description": "Re-read docs/ADEQUACY.md lines 450-500 to confirm current line numbers", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Re-read docs/SETTINGS.md 104-113 and semantic/model.py _verification_label", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Rewrite section 6.1 acceptance paragraph", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "Rewrite section 6.2 entailment paragraph", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 5, "description": "Leave ADEQUACY.md:482 untouched, verify sweep and citations", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 5,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

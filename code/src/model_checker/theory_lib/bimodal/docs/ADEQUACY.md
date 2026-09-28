@@ -453,10 +453,14 @@ Output, exactly one line, and **never a validity claim**:
 missing `target` or a missing `target.time` is `error`, never `rejected` — `error` covers input
 that fails the *protocol*; `rejected` covers input that parses but fails a *condition*.
 
-**`"acceptance"`** appears on `countermodel` verdicts only. `"entailment"` means the binary
-constructed the paper-countermodel existence term for this particular certificate (a
-kernel-checked proof); an absent field reads as `"decided"` — the four `Decidable` instances
-returned `true`, with no such term constructed. See §6.2.
+**`"acceptance"`** appears on `countermodel` verdicts only. `"entailment"` means Lean constructed
+a `WitnessFamily.Refutes` term for this certificate by applying a compile-time kernel-checked
+implication to four run-time decisions; an absent field reads as `"decided"` — the four
+`Decidable` instances returned `true`, with no such term constructed. This is deliberately not
+worded as "a kernel-checked proof for this particular certificate" — that phrase belongs to a
+reserved third `Acceptance` value (per-certificate kernel checking by re-elaboration) that
+nothing this checker produces today; see `docs/SETTINGS.md` and
+`BimodalTools/CertificateImport.lean`'s `Acceptance` docstring. See §6.2.
 
 **`"echo"`** is a canonical *reprint* of the certificate as parsed, not a verbatim copy — it
 appears on `countermodel` and `rejected` verdicts, comparable bytewise against
@@ -487,8 +491,13 @@ consequence holds.
 Where the binary's verdict instead carries `"acceptance":"entailment"`, the honesty above is
 strictly stronger for that certificate: `check_certificate`'s accepting branch applies
 `WitnessFamily.joint_countermodel` to the decided hypothesis, *constructing* the
-paper-countermodel existence term rather than printing a verdict — a kernel-checked proof for
-that particular certificate, not merely four `Decidable` instances agreeing. This upgrades the
+paper-countermodel existence term rather than printing a verdict — Lean constructed a
+`WitnessFamily.Refutes` term for this certificate by applying a compile-time kernel-checked
+implication to four run-time decisions, not merely four `Decidable` instances agreeing. This is
+deliberately not "a kernel-checked proof for that particular certificate" — that phrase belongs
+to a reserved third `Acceptance` value (per-certificate kernel checking by re-elaboration) that
+nothing this checker produces today; see `docs/SETTINGS.md` and
+`BimodalTools/CertificateImport.lean`'s `Acceptance` docstring. This upgrades the
 differential test tier's confidence in each `countermodel` fixture and in the live-extracted
 certificate `tests/unit/test_semantics_core.py` exercises (§7.3), but is silent on any run this
 repository does not export to the Lean binary — the live path (`semantic/model.py`) still relies

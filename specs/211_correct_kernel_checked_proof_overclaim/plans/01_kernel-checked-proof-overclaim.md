@@ -1,7 +1,7 @@
 # Implementation Plan: Task #211
 
 - **Task**: 211 - Correct kernel-checked-proof overclaim
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2.25 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/211_correct_kernel_checked_proof_overclaim/reports/01_kernel-checked-proof-overclaim.md
@@ -106,32 +106,32 @@ both edit `ADEQUACY.md`, and after Phase 3 because it must use the same correcte
 
 ---
 
-### Phase 1: Rewrite the two ADEQUACY.md kernel-checked-proof sites [NOT STARTED]
+### Phase 1: Rewrite the two ADEQUACY.md kernel-checked-proof sites [COMPLETED]
 
 **Goal**: `ADEQUACY.md` §6.1 and §6.2 state what an `"acceptance":"entailment"` verdict actually
 licenses, matching `SETTINGS.md` and `semantic/model.py`, and no longer contradict
 `TRUST_PIPELINE.md` or `A2_GAP.md`.
 
 **Tasks**:
-- [ ] Re-read `docs/ADEQUACY.md` lines 450-500 to confirm current line numbers before editing
-      (they are a hypothesis — see Scope Hypothesis below).
-- [ ] Re-read `docs/SETTINGS.md` lines 104-113 and `semantic/model.py`'s `_verification_label`
-      (~lines 320-340) to copy the canonical wording exactly.
-- [ ] Rewrite §6.1's `**"acceptance"**` paragraph (currently ~line 456-459): replace
+- [x] Re-read `docs/ADEQUACY.md` lines 450-500 to confirm current line numbers before editing
+      (they are a hypothesis — see Scope Hypothesis below). *(completed)*
+- [x] Re-read `docs/SETTINGS.md` lines 104-113 and `semantic/model.py`'s `_verification_label`
+      (~lines 320-340) to copy the canonical wording exactly. *(completed)*
+- [x] Rewrite §6.1's `**"acceptance"**` paragraph (currently ~line 456-459): replace
       "constructed the paper-countermodel existence term for this particular certificate (a
       kernel-checked proof)" with the narrower landed wording — Lean constructed a
       `WitnessFamily.Refutes` term for this certificate by applying a compile-time kernel-checked
       implication to four run-time decisions — and state that "a kernel-checked proof for this
       particular certificate" is reserved for a third `Acceptance` value nothing this checker
       produces today, citing `SETTINGS.md` and `BimodalTools/CertificateImport.lean`'s
-      `Acceptance` docstring.
-- [ ] Rewrite §6.2's entailment paragraph (currently ~line 487-491): keep the accurate mechanical
+      `Acceptance` docstring. *(completed)*
+- [x] Rewrite §6.2's entailment paragraph (currently ~line 487-491): keep the accurate mechanical
       description (`check_certificate`'s accepting branch applies `WitnessFamily.joint_countermodel`
       to the decided hypothesis, constructing a term rather than printing a verdict) and replace
       the trailing "— a kernel-checked proof for that particular certificate" clause with the same
-      narrower wording plus an explicit denial of the reserved phrase.
-- [ ] Leave `ADEQUACY.md:482`'s existing denial untouched.
-- [ ] Commit (`task 211 phase 1: ...`), staging `docs/ADEQUACY.md` by explicit path only.
+      narrower wording plus an explicit denial of the reserved phrase. *(completed)*
+- [x] Leave `ADEQUACY.md:482`'s existing denial untouched. *(completed: verified byte-identical)*
+- [x] Commit (`task 211 phase 1: ...`), staging `docs/ADEQUACY.md` by explicit path only. *(completed)*
 
 **Timing**: 0.5 hours
 
