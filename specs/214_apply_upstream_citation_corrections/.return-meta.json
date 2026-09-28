@@ -1,31 +1,9 @@
 {
-  "status": "planned",
-  "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/214_apply_upstream_citation_corrections/plans/01_apply-citation-corrections.md",
-      "summary": "Six-phase documentation-only plan applying the four dispatched upstream citation corrections plus the three handed-off residue rows to bimodal/docs/ADEQUACY.md and ARCHITECTURE.md by mechanical manifest lookup."
-    }
-  ],
-  "phase_count": 6,
-  "estimated_hours": 3.25,
-  "dependency_waves": [[1], [2], [3, 4], [5], [6]],
-  "memory_candidates": [],
-  "user_decision": {
-    "question": "Research found a second stale-citation cluster (six ShiftSet citations plus a wrong-file Truth.box_const citation) sitting inside the very same ADEQUACY.md/ARCHITECTURE.md table rows this task already edits; it comes from the same upstream corrections table but was not among the dispatch's enumerated 'FOUR ROWS TO APPLY'. Should it be fixed in this task or deferred?",
-    "options": [
-      "Fix it now in this task (Phase 2 and Phase 4 carry it as separate, severable checklist items)",
-      "Defer it to a follow-up task and leave those citations stale for now"
-    ],
-    "recommended": "Fix it now in this task (Phase 2 and Phase 4 carry it as separate, severable checklist items)",
-    "blocking": false
-  },
-  "next_steps": "Run /implement 214 to execute the plan",
+  "status": "in_progress",
   "metadata": {
-    "session_id": "sess_1790619552_cbba66_214",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"]
+    "session_id": "sess_1790619552_cbba66",
+    "agent_type": "general-implementation-agent",
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"]
   },
-  "dispatch_seq": 4
+  "dispatch_seq": 6
 }

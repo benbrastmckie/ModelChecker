@@ -1,0 +1,16 @@
+{
+  "phase": 1,
+  "phase_name": "Re-resolve every citation against a fresh manifest read",
+  "started_at": "2026-09-28T18:30:00Z",
+  "last_updated": "2026-09-28T18:37:59Z",
+  "objectives": [
+    {"id": 1, "description": "Read lean-citation-manifest.json and extract file/keyword_line/span for all 27 names", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Confirm every entry resolved status; record divergences vs research report", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Re-read transcription-audit-surface.md hand-off wording for rows 3, 20, 24 verbatim", "status": "done", "files_touched": []},
+    {"id": 4, "description": "Write resulting lookup to scratchpad", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "notes": "All 27 declaration names resolved status=resolved against the manifest. Divergences from the research report's numbers were negligible (report used its own re-derivation at research time; manifest values used here: not_validIn_base_prior_UZ=263, not_validIn_base_z1=274, prior_UZ_minFrameClass_sharp=289, z1_minFrameClass_sharp=300, ShiftSet.ofIntAction=494, ShiftSet.sep_of_succOrder=472, WitnessFamily.std_isZTime=81, std_sat_ztime=87, std_sat_base=92, sh_surj=98, ProofSystem.FrameClass.Sat=151, TaskFrame.Limit=828, TaskFrame.nullity_of_serial_limit=941, FrameOver.worldNonempty field=1055, TaskFrame.worldNonempty accessor=2642, PartialHistory=136, PartialHistory.IsTotal=225, WorldHistory=423, ShiftSet.shRel_comp=157, shRel_serial=172, shRel_saturation=180, fibre_isRegular=209, frame_isRegular=234, forward_repr=293, Truth.box_const=310, Semantics.TruthCorr=92, ShiftSet.total_eq_orbit=261 (unchanged, upstream says no correction needed), TimeShift.timeShift_preserves_truth=254 (unchanged, Decision D3), Truth.truthAt_of_truthCorr=122, TimeShift.shiftCorr=228). All match research report values exactly except minor keyword_line vs span nuances already accounted for in the plan's Decisions section."
+}

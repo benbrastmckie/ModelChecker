@@ -238,23 +238,30 @@ axioms (`FormalSystem/MainResults.lean` runs `#print axioms` at build time as a 
 | This document | Lean name | File:line |
 |---|---|---|
 | The construction (`𝔇`, `W`, `⇒`, `\|·\|`) | `WitnessFamily.std` | `Metalogic/Decidability/WitnessFamily/Std.lean:65` |
-| Lemma 1, Compositionality | `ShiftSet.shRel_comp` | `Semantics/ShiftSet.lean:148` |
-| Lemma 1, Seriality | `ShiftSet.shRel_serial` | `Semantics/ShiftSet.lean:163` |
-| Lemma 1, Limit | the `sep` field, via `TaskFrame.limit_reflect_of_reflective` | `Semantics/ShiftSet.lean:115, 203`; discharged for `std` at `Metalogic/Decidability/WitnessFamily/Std.lean:73-80` by `Int.abs_lt_one_iff` |
-| Lemma 1, Saturation | `ShiftSet.shRel_saturation` (`saturation_of_fib_subsingleton`) | `Semantics/ShiftSet.lean:171` |
-| Lemma 1, whole | `ShiftSet.fibre_isRegular` / `frame_isRegular` | `Semantics/ShiftSet.lean:200, 225` |
-| The frame is ℤ-time | `WitnessFamily.std_isZTime`, `std_sat_ztime`, `std_sat_base` | `Metalogic/Decidability/WitnessFamily/Std.lean:84, 91, 96` |
+| Lemma 1, Compositionality | `ShiftSet.shRel_comp` | `Semantics/ShiftSet.lean:157` |
+| Lemma 1, Seriality | `ShiftSet.shRel_serial` | `Semantics/ShiftSet.lean:172` |
+| Lemma 1, Limit | the `sep` field, via `TaskFrame.limit_reflect_of_reflective` | `Semantics/ShiftSet.lean:115, 203`; discharged for `std` via `ShiftSet.ofIntAction` (`Semantics/ShiftSet.lean:494`) and `ShiftSet.sep_of_succOrder` (`Semantics/ShiftSet.lean:472`) — **kernel-checked** from discreteness, not hand-proved |
+| Lemma 1, Saturation | `ShiftSet.shRel_saturation` (`saturation_of_fib_subsingleton`) | `Semantics/ShiftSet.lean:180` |
+| Lemma 1, whole | `ShiftSet.fibre_isRegular` / `frame_isRegular` | `Semantics/ShiftSet.lean:209, 234` |
+| The frame is ℤ-time | `WitnessFamily.std_isZTime`, `std_sat_ztime`, `std_sat_base` | `Metalogic/Decidability/WitnessFamily/Std.lean:81, 87, 92` |
 | Lemma 2 | `ShiftSet.total_eq_orbit` | `Semantics/ShiftSet.lean:252` |
-| Lemma 3 / Corollary 3.1 | `ShiftSet.forward_repr`, `WitnessFamily.sh_surj`, `Truth.box_const` | `Semantics/ShiftSet.lean:284`; `Metalogic/Decidability/WitnessFamily/Std.lean:101` |
+| Lemma 3 / Corollary 3.1 | `ShiftSet.forward_repr`, `WitnessFamily.sh_surj`, `Truth.box_const` | `Semantics/ShiftSet.lean:293`; `Metalogic/Decidability/WitnessFamily/Std.lean:98`; `Semantics/TruthTransport.lean:310` |
 | Lemma 4 | `WitnessFamily.shiftTruth_iff_mem`, `truth_iff_mem` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:109, 193` |
 | Lemma 4, `U`/`S` helper | `untl_mem_of_witness`, `snce_mem_of_witness` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:65, 85` |
 | **The Theorem** | `WitnessFamily.joint_countermodel` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:232` |
 | Theorem, single-conclusion | `not_consequence_ztime`, `not_consequence_base` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:203, 219` |
 | The modal-future axiom is valid | `modal_future_valid` | `Metalogic/Soundness.lean:373` |
 | No certificate refutes the modal-future axiom | `no_witnessFamily_of_MF` | `Metalogic/Decidability/WitnessFamily/Examples.lean:275` |
-| A0: `prior_UZ` is not Base-valid | `not_validIn_base_prior_UZ` | `Metalogic/Independence/ZTimeSharpness.lean:225` |
-| A0: `z1` is not Base-valid | `not_validIn_base_z1` | `Metalogic/Independence/ZTimeSharpness.lean:236` |
-| A0: the `.ZTime` tag is minimal for both | `prior_UZ_minFrameClass_sharp`, `z1_minFrameClass_sharp` | `Metalogic/Independence/ZTimeSharpness.lean:251, 262` |
+| A0: `prior_UZ` is not Base-valid | `not_validIn_base_prior_UZ` | `Metalogic/Independence/ZTimeSharpness.lean:263` |
+| A0: `z1` is not Base-valid | `not_validIn_base_z1` | `Metalogic/Independence/ZTimeSharpness.lean:274` |
+| A0: the `.ZTime` tag is minimal for both | `prior_UZ_minFrameClass_sharp`, `z1_minFrameClass_sharp` | `Metalogic/Independence/ZTimeSharpness.lean:289, 300` |
+
+**Provenance note.** The declaration names in this table are the load-bearing citation; the line
+numbers are a derived view taken from BimodalLogic's generated, C35-gated
+`scripts/lean-citation-manifest.json`, and are re-resolvable by name against it. Every gate in
+both repositories was green while several of the numbers above were stale — a docstring edit
+upstream shifted them underneath unchanged names without breaking any check on either side — which
+is exactly why the manifest and its C35 gate exist.
 
 `joint_countermodel`'s statement is literally (SOUND)'s consequent:
 

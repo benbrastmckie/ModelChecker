@@ -1,0 +1,22 @@
+{
+  "phase": 2,
+  "phase_name": "Correct the ADEQUACY.md §4.1 citation table",
+  "started_at": "2026-09-28T18:38:00Z",
+  "last_updated": "2026-09-28T18:45:00Z",
+  "objectives": [
+    {"id": 1, "description": "Row 1 - fix three A0 line citations", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 2, "description": "Row 2 - replace deleted Std.lean:73-80/Int.abs_lt_one_iff citation with ShiftSet.ofIntAction/sep_of_succOrder", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 3, "description": "Row 2 verdict - state kernel-checked provenance", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "Row 3 - split grouped Std.lean:84,91,96 citation into per-name keyword_line", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 5, "description": "Row 3 - tighten sh_surj citation to keyword_line", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 6, "description": "Second cluster - update six stale ShiftSet citations", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 7, "description": "Split Truth.box_const/sh_surj wrong-file citation", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 8, "description": "Add provenance note after table", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 9, "description": "Leave total_eq_orbit and out-of-scope rows untouched", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 9,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [],
+  "notes": "Actual changed-row count is 10 (241,242,243,244,245,246,248,255,256,257), not the phase's Scope Hypothesis estimate of 8; every changed row maps to an enumerated checklist item (no row outside the correction set touched), verified by git diff read-through."
+}

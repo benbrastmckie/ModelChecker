@@ -1,7 +1,7 @@
 # Implementation Plan: Apply Upstream Citation Corrections
 
 - **Task**: 214 - Apply upstream citation corrections
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 3.25 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/214_apply_upstream_citation_corrections/reports/01_citation-corrections-mapping.md`
@@ -143,16 +143,16 @@ same-file edits never race.
 
 ---
 
-### Phase 1: Re-resolve every citation against a fresh manifest read [NOT STARTED]
+### Phase 1: Re-resolve every citation against a fresh manifest read [COMPLETED]
 
 **Goal**: Produce an authoritative, current name -> (file, keyword_line, span) lookup covering
 every declaration this task will cite, so no later phase reads a line number from the research
 report.
 
 **Tasks**:
-- [ ] Read `~/Projects/BimodalLogic/scripts/lean-citation-manifest.json` (read-only; never write
-      anything under `~/Projects/BimodalLogic`).
-- [ ] Extract the current `file`, `keyword_line`, and span for every name in the set:
+- [x] Read `~/Projects/BimodalLogic/scripts/lean-citation-manifest.json` (read-only; never write
+      anything under `~/Projects/BimodalLogic`). *(completed)*
+- [x] Extract the current `file`, `keyword_line`, and span for every name in the set:
       `not_validIn_base_prior_UZ`, `not_validIn_base_z1`, `prior_UZ_minFrameClass_sharp`,
       `z1_minFrameClass_sharp`, `ShiftSet.ofIntAction`, `ShiftSet.sep_of_succOrder`,
       `WitnessFamily.std`, `WitnessFamily.std_isZTime`, `WitnessFamily.std_sat_ztime`,
@@ -161,16 +161,20 @@ report.
       field), `TaskFrame.worldNonempty`, `PartialHistory`, `PartialHistory.IsTotal`,
       `WorldHistory`, `ShiftSet.shRel_comp`, `ShiftSet.shRel_serial`,
       `ShiftSet.shRel_saturation`, `ShiftSet.fibre_isRegular`, `ShiftSet.frame_isRegular`,
-      `ShiftSet.forward_repr`, `Truth.box_const`, `Semantics.TruthCorr`.
-- [ ] Confirm each entry's `status` is `resolved`; record any name that is missing or unresolved
-      rather than substituting a guess.
-- [ ] Diff the extracted values against the research report's tables and record every divergence
-      explicitly — the manifest wins on every disagreement.
-- [ ] Re-read
+      `ShiftSet.forward_repr`, `Truth.box_const`, `Semantics.TruthCorr`. *(completed: all 27
+      names, plus `ShiftSet.total_eq_orbit`, `TimeShift.timeShift_preserves_truth`,
+      `Truth.truthAt_of_truthCorr` and `TimeShift.shiftCorr` for cross-checking, resolved)*
+- [x] Confirm each entry's `status` is `resolved`; record any name that is missing or unresolved
+      rather than substituting a guess. *(completed: all 27 resolved; none missing)*
+- [x] Diff the extracted values against the research report's tables and record every divergence
+      explicitly — the manifest wins on every disagreement. *(completed: no material divergence —
+      manifest values match the research report's tables exactly)*
+- [x] Re-read
       `~/Projects/BimodalLogic/docs/reference/transcription-audit-surface.md`'s "Corrections the
       consuming table owes" table and its "Hand-off" subsection, capturing rows 3, 20 and 24's
-      wording verbatim for Phase 5.
-- [ ] Write the resulting lookup to the scratchpad (not into the repository).
+      wording verbatim for Phase 5. *(completed)*
+- [x] Write the resulting lookup to the scratchpad (not into the repository). *(completed: see
+      `specs/214_apply_upstream_citation_corrections/progress/phase-1-progress.json` notes field)*
 
 **Timing**: 0.5 hours
 
@@ -193,7 +197,7 @@ the report's numbers.
 
 ---
 
-### Phase 2: Correct the ADEQUACY.md §4.1 citation table [NOT STARTED]
+### Phase 2: Correct the ADEQUACY.md §4.1 citation table [COMPLETED]
 
 **Goal**: Every citation in the §4.1 "Every step, mapped to a landed, sorry-free Lean
 counterpart" table (currently `ADEQUACY.md:240-257`) points at the declaration the manifest says
@@ -202,37 +206,38 @@ it does, and the Limit row's verdict records the improvement.
 **Tasks**:
 
 *Dispatched rows:*
-- [ ] Row 1 — update the three A0 rows (currently `:225`, `:236`, `:251, :262`) to the manifest's
+- [x] Row 1 — update the three A0 rows (currently `:225`, `:236`, `:251, :262`) to the manifest's
       current `keyword_line` values for `not_validIn_base_prior_UZ`, `not_validIn_base_z1`,
-      `prior_UZ_minFrameClass_sharp`, `z1_minFrameClass_sharp`.
-- [ ] Row 2 — in the "Lemma 1, Limit" row, remove the `Std.lean:73-80` range and the
+      `prior_UZ_minFrameClass_sharp`, `z1_minFrameClass_sharp`. *(completed: 263, 274, 289, 300)*
+- [x] Row 2 — in the "Lemma 1, Limit" row, remove the `Std.lean:73-80` range and the
       `Int.abs_lt_one_iff` attribution entirely (the proof is deleted; this is not a re-point) and
-      cite `ShiftSet.ofIntAction` and `ShiftSet.sep_of_succOrder` instead.
-- [ ] Row 2 (verdict, separate item) — rewrite the row's framing so it states the obligation is
+      cite `ShiftSet.ofIntAction` and `ShiftSet.sep_of_succOrder` instead. *(completed)*
+- [x] Row 2 (verdict, separate item) — rewrite the row's framing so it states the obligation is
       now **kernel-checked** (discharged from discreteness through the shift action) rather than
-      hand-proved. Do not swap the citation and leave the old weaker wording.
-- [ ] Row 3 — replace the grouped `Std.lean:84, 91, 96` citation with each of
+      hand-proved. Do not swap the citation and leave the old weaker wording. *(completed)*
+- [x] Row 3 — replace the grouped `Std.lean:84, 91, 96` citation with each of
       `std_isZTime`, `std_sat_ztime`, `std_sat_base` against its own manifest `keyword_line`
       (this repairs the one-position shift where `:91` and `:96` currently land inside the *next*
-      declaration's span).
-- [ ] Row 3 — tighten `sh_surj`'s citation from its `span_end` to its own `keyword_line`.
+      declaration's span). *(completed: 81, 87, 92)*
+- [x] Row 3 — tighten `sh_surj`'s citation from its `span_end` to its own `keyword_line`.
+      *(completed: 98)*
 
 *Second cluster and wrong-file citation (per Decision D1; severable):*
-- [ ] Update the six stale `ShiftSet` citations in this table — `shRel_comp`, `shRel_serial`,
+- [x] Update the six stale `ShiftSet` citations in this table — `shRel_comp`, `shRel_serial`,
       `shRel_saturation`, `fibre_isRegular`, `frame_isRegular`, `forward_repr` — to their current
-      manifest `keyword_line` values.
-- [ ] Split the "Lemma 3 / Corollary 3.1" row's second citation in two: `Truth.box_const` cites
+      manifest `keyword_line` values. *(completed: 157, 172, 180, 209, 234, 293)*
+- [x] Split the "Lemma 3 / Corollary 3.1" row's second citation in two: `Truth.box_const` cites
       `Semantics/TruthTransport.lean` (it is not declared in `Std.lean` at all) and `sh_surj`
-      keeps its own `Std.lean` location.
+      keeps its own `Std.lean` location. *(completed)*
 
 *Provenance note (per Decision D2):*
-- [ ] Add a short note immediately after the table recording that the declaration names are the
+- [x] Add a short note immediately after the table recording that the declaration names are the
       load-bearing citation and the line numbers are a derived view taken from BimodalLogic's
       generated, C35-gated `lean-citation-manifest.json`, re-resolvable by name. Note for the
       record that every gate in both repositories was green while the stale citations stood —
-      which is why the manifest and its check exist.
-- [ ] Leave `total_eq_orbit` (`:252`), `ShiftSet#sep`, and every row outside the correction set
-      untouched.
+      which is why the manifest and its check exist. *(completed)*
+- [x] Leave `total_eq_orbit` (`:252`), `ShiftSet#sep`, and every row outside the correction set
+      untouched. *(completed: verified unchanged)*
 
 **Timing**: 0.75 hours
 
