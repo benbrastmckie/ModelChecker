@@ -1,16 +1,25 @@
 {
-  "next_project_number": 214,
+  "next_project_number": 215,
   "active_projects": [
     {
       "project_number": 213,
       "project_name": "fix_lazy_bounded_probe_parallel_flake",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
-      "description": "Fix the TestLazyBoundedMemoizedProbe flake under parallel test execution. code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py::TestLazyBoundedMemoizedProbe fails intermittently in full-repository gate runs under pytest -n 4, and passes standalone every time, which points at CPU-contention sensitivity in the lazy bounded probe rather than a logic defect. It was observed in every full-gate run during the verification-harness refactor and reported rather than fixed there, being owned entirely by the checker work that introduced it.\n\nDiagnose whether the probe's bound is a wall-clock timeout that host contention can exceed. If so, make the test independent of host load -- a deterministic injected clock, or a generous and explicitly justified bound -- rather than raising a magic number until the flake stops reproducing. Confirm with repeated full-gate runs under -n 4 on a loaded host, not a standalone pass.",
+      "description": "Fix the wall-clock flake in test_checker.py::TestLazyBoundedMemoizedProbe, and close the scanner blind spot that let it land unmarked.\n\nSCOPE CORRECTION (this task's original framing named the wrong test and a fix that has already landed). The original description proposed diagnosing \"the probe's bound\" as a wall-clock timeout and marking it. That fix is already in the tree: test_probe_timeout_yields_unavailable_not_a_hang carries @pytest.mark.xdist_serial, added by the certifying-countermodel work's final-gate phase, four hours before this task was written. It is NOT the failing test and must not be touched.\n\nTHE ACTUAL FAILING TEST, named identically in three independent full-gate reproductions:\nTestLazyBoundedMemoizedProbe::test_import_performs_no_subprocess_call\n(code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py, currently ~line 142).\n\nEVIDENCE, already recorded -- do not re-derive it from scratch:\nspecs/206_refactor_verification_test_harness/baselines/01_ci-shaped-baseline.md reproduces it\nthree times (Run 2 post-task-205 baseline, the Phase 6 \"After\" run, and the parallel pass),\neach time as the single failure in an otherwise green ~3140-item run under\n`-m \"not packaging and not performance and not unstable and not xdist_serial\" -n 4`.\nStandalone it passed in 0.58s and 0.60s. The same task's .orchestrator-handoff.json records it\nas an out-of-scope pre-existing flake.\n\nWHY IT FAILS. The test spawns a subprocess (`sys.executable -c <source string>`) whose source\nreads a real clock around an import and asserts `elapsed < 1.0`. Measured standalone cost is\n~0.6s, so the bound carries roughly 0.4s of headroom -- headroom that a contended four-worker\npool routinely consumes. When the inner assert trips, the subprocess exits non-zero and the\nouter `assert result.returncode == 0` fails. This is host-load sensitivity, not a logic defect,\nwhich is exactly why it never reproduces standalone.\n\nITEM 1 -- FIX THE ASSERTION. Prefer deleting the wall-clock assertion outright over marking or\nwidening it. The test's stated purpose is that importing the module must not probe, and the\nneighbouring assertion `m._memoized_result is m._UNSET` already establishes precisely that,\ndeterministically and independently of host load; `subprocess.run(..., timeout=15)` already\nguards against a genuine hang. On that reading `elapsed < 1.0` is a redundant proxy for an\ninvariant the test checks directly, and removing it costs no coverage. If the timing assertion\nis judged to carry independent value, then mark it and justify the bound in a comment -- but\nmake that case explicitly rather than by default, and do not simply raise the number until the\nflake stops reproducing.\n\nITEM 2 -- CLOSE THE SCANNER BLIND SPOT. code/tests/ci/test_timing_marker_coverage.py exists to\nstop exactly this shape from reaching the contended pool unmarked, and it did not catch this\none. Its own docstring is accurate about why: detection is a structural AST scan over a test\nfunction's own body plus a one-hop same-module helper, looking for a `time.time()` /\n`perf_counter()` / `monotonic()` call node together with a bound-comparison `assert` node. Here\nboth live inside a string literal handed to `subprocess.run`, so the AST sees one\n`ast.Constant` and nothing to flag. Extend the guard to recognize clock-read-plus-bound-assert\npairs inside string literals passed to subprocess/exec-style call sites, and add a self-test in\nthat module's existing style proving the extended scan flags the shape. If that detection is\njudged too broad or too fragile to implement as an AST rule, record the decision and the\nreasoning in the module docstring alongside its existing scope carve-outs (the deliberately\nexcluded `time.sleep()` case is the precedent for how to document a boundary) rather than\nleaving the gap silently open.\n\nVERIFICATION. Item 1's correctness does not depend on a contended reproduction: if the\nassertion is removed, the failure mode is gone by construction, and a single full-gate run\nunder `-n 4` confirming a clean parallel pass is sufficient. Do not attempt to prove a negative\nby repeated draws. Item 2 is verified by its own self-test.",
       "topic": "testing",
       "dependencies": [],
       "created": "2026-09-28T06:53:21Z",
-      "last_updated": "2026-09-28T06:53:21Z"
+      "last_updated": "2026-09-28T18:28:45Z",
+      "session_id": "sess_1790619552_cbba66",
+      "artifacts": [
+        {
+          "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md",
+          "type": "report",
+          "summary": "Confirms the flake's root cause (redundant wall-clock assertion with ~0.4s headroom inside a subprocess-injected source string) and the scanner's exact blind spot (clock-read/bound-assert pair lives inside a same-function string-literal variable passed by name to subprocess.run), and recommends deleting the timing assertion outright plus extending the AST scanner to resolve simple same-scope string-variable bindings passed to subprocess/exec-style calls, with a synthetic self-test since no other real instance of the shape exists in the tree."
+        }
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 212,
@@ -63,9 +72,11 @@
       "task_type": "z3",
       "description": "Fix generic iterator pinning never reaching the rebuilt model's solve for logos, exclusion and imposition. The generic is_world/possible/verify/falsify pinning loop in code/src/model_checker/iterate/models.py accumulates its pins into a local temp_solver that is write-only for any theory without a _pin_theory_specific_values override -- logos, exclusion and imposition. Those three theories' rebuilt models during iteration are therefore effectively unpinned: the pins are computed but never reach the Z3 solve that actually produces the next model, and iterate/core.py's loop has no consistency check that would catch a divergent rebuild. Bimodal is unaffected, having an override that appends to frame_constraints directly.\n\nEVIDENCE: a live, non-mocked logos iteration probe showing rebuilt model 2's is_world signature is an independent, unpinned resolve. Recorded as finding F4 in specs/207_fix_stale_all_constraints_snapshot/reports/01_fix-stale-all-constraints.md, and deliberately left out of scope by that task's plan because fixing it changes iteration results for three theories.\n\nSCOPE: (1) confirm the same live probe for exclusion and imposition rather than assuming the logos result generalizes; (2) decide whether the fix is a _pin_theory_specific_values default that actually applies temp_solver's assertions, or a different mechanism; (3) add regression coverage for iteration correctness analogous to TestAllConstraintsReflectsCertificateAfterSolve, which covers display completeness only. Run the full four-theory gate, since this changes iteration results.\n\nALSO FIX while in this area: theory_lib/bimodal/iterate.py's _ensure_frame_constraints_in_search_solver docstring still says, in the present tense, that all_constraints \"permanently misses\" the certificate encoding. That stopped being true when all_constraints became a read-only computed property; the defensive design the docstring documents (reading the four component lists directly) remains correct and necessary for the separate stored_solver bug it is actually about.",
       "topic": "semantics",
-      "dependencies": [],
+      "dependencies": [
+        213
+      ],
       "created": "2026-09-28T06:53:19Z",
-      "last_updated": "2026-09-28T06:53:19Z"
+      "last_updated": "2026-09-28T18:11:42Z"
     },
     {
       "project_number": 208,
@@ -315,7 +326,7 @@
     {
       "project_number": 200,
       "project_name": "extend_bimodal_to_stability_modal",
-      "status": "not_started",
+      "status": "blocked",
       "task_type": "z3",
       "topic": "semantics",
       "description": "Extend the bimodal theory to the language with the stability modal, once the verified side supplies a state-sharing witness structure, its histories characterization, its redesigned box condition, and a compression bound. The modal is absent from this theory entirely today: operators.py defines negation, conjunction, disjunction, bottom, Box, Future, Past, Until, Since and the defined operators, with no stability modal, and ADEQUACY.md states it is out of scope throughout. Adding it is not an operator definition plus a truth clause. The received account of why this design is deterministic is explicit that the obstruction is not Limit or Saturation but the histories characterization and the box case of the truth lemma: determinism is what makes every world history one of the lasso orbits, so sharing states between lassos lets a history cross from one lasso to another, breaks that characterization and the corollary that the frame's history set is exactly the certified histories, and breaks box faithfulness, which is calibrated against \"every position of every lasso\" and stops enumerating the history set once histories recombine. Consequently this task's scope is: add the operator and its truth conditions; replace the certificate datatype with the verified side's branching structure; re-encode the conditions for Z3 over that structure, box faithfulness in particular, which can no longer be a conjunction over lasso positions; extend the wire contract and the re-checker in step, coordinating the breaking change with the producing side; and set search bounds from the new compression function. Also revisit the iteration machinery: the symmetry group for orbit-distinctness (rotation per lasso, permutation of witness lassos) is defined for a family of lassos and will need a different group action on a branching structure. BLOCKED on the four verified-side tasks (decidability provenance gate, state-sharing structure and box-condition redesign, agreement lemma over all walks, compression and assembly); until the agreement lemma lands there is no soundness argument for any certificate this encoding could emit, and emitting one anyway would violate the never-report-validity discipline in the opposite direction, by reporting countermodels nothing certifies.",
@@ -325,7 +336,8 @@
         197
       ],
       "created": "2026-09-26T12:07:50Z",
-      "last_updated": "2026-09-26T16:16:35Z"
+      "last_updated": "2026-09-28T17:43:12Z",
+      "session_id": "sess_1790617392_batchplan"
     },
     {
       "project_number": 196,
@@ -419,10 +431,11 @@
         196,
         197,
         198,
-        211
+        211,
+        214
       ],
       "created": "2026-09-26T11:54:26Z",
-      "last_updated": "2026-09-26T12:27:20Z"
+      "last_updated": "2026-09-28T18:11:42Z"
     },
     {
       "project_number": 192,
@@ -597,6 +610,18 @@
       "last_updated": "2026-09-28T07:42:08Z",
       "session_id": "sess_1790578867_05c8df",
       "completion_summary": "Fixed the \\top extremal-operator defect in Sentence.update_types (shape-keyed dispatch instead of name-keyed), removed the now-obsolete \\top exclusion from the box test corpus, and wired a new sentence-translation conformance channel (fixture-only plus optional live-binary differential leg) against BimodalLogic's 26-row fixture. Verified items 1/2/4 already landed and item 3's negative result stands. Full repository test suite: 3325 passed, 5 skipped, 0 failed (baseline 3279 passed plus 46 new tests, zero regressions)."
+    },
+    {
+      "project_number": 214,
+      "project_name": "apply_upstream_citation_corrections",
+      "status": "researching",
+      "task_type": "general",
+      "description": "Apply the citation corrections the BimodalLogic repository has already derived and made copy-ready for this side, to code/src/model_checker/theory_lib/bimodal/docs/.\n\nPROVENANCE. This is not a fresh audit. The producing repository's cross-repository citation\ngating work completed its half and deliberately wrote nothing under ~/Projects/ModelChecker,\nrecording instead a \"Corrections the consuming table owes\" table at\n~/Projects/BimodalLogic/docs/reference/transcription-audit-surface.md (currently ~line 148).\nThat table is the input to this task. It states explicitly that the corrections are to be\napplied \"by mechanical lookup rather than by re-deriving them\", and that every row resolves\nagainst the generated ~/Projects/BimodalLogic/scripts/lean-citation-manifest.json, which the\nproducing side's check C35 keeps current. Read the corrections table and the manifest; do not\nre-derive line numbers by hand, and do not edit anything in the producing repository.\n\nFOUR ROWS TO APPLY. Confirm each against the manifest before editing, since the producing tree\nmoves.\n\n(1) FOUR STALE LINE CITATIONS. not_validIn_base_prior_UZ, not_validIn_base_z1,\nprior_UZ_minFrameClass_sharp and z1_minFrameClass_sharp each now land inside a different\ntheorem, not_validOn_z1_dense, after a uniform shift caused by a docstring edit above the\ntargets. ADEQUACY.md cites all four with explicit line numbers in at least two places -- its\nmachine-checked-results table (~lines 255-257, citing ZTimeSharpness.lean:225, 236, 251, 262)\nand its A0 discussion (~lines 716-725, repeating :225, :236, :251, :262). Both sites are wrong.\nNote for the record while fixing it that every gate in both repositories was green while these\ncitations were wrong; that is the stated reason the manifest and C35 exist, and it is the\nargument for preferring name citations over line citations below.\n\n(2) ONE CITED RANGE THAT NO LONGER EXISTS. The hand separation proof that ADEQUACY.md's Lemma-1\nLimit row points at (~line 243, \"discharged for `std` at\nMetalogic/Decidability/WitnessFamily/Std.lean:73-80\") has been deleted.\nWitnessFamily.std is now built through Semantics.ShiftSet.ofIntAction; cite that and\nShiftSet.sep_of_succOrder instead. The row's verdict IMPROVES and the edit must say so: the\nobligation is now kernel-checked rather than hand-proved. Do not silently swap the citation and\nleave the old weaker verdict standing.\n\n(3) TWO LOOSE RANGES. WitnessFamily.std_isZTime, std_sat_ztime, std_sat_base, sh_surj and\nProofSystem.FrameClass.Sat are cited over ranges that are correct under the span convention but\nwider than the declaration. The manifest carries both the keyword line and the full span.\n\n(4) THE LIMIT VERDICT IS TOO STRONG, AND THIS ONE IS A SUBSTANTIVE CORRECTION, NOT A STALE\nPOINTER. TaskFrame.Limit transcribes only the subset half of the paper's set equation. The\nsuperset half -- that w lies in each of its own positive cones -- is lem:nullity, DERIVED\nchoice-free from Seriality together with the subset half, via\nTaskFrame.nullity_of_serial_limit; it is not postulated, and carrying it as an axiom would\nduplicate a theorem. Soften every consuming statement that presents Limit as transcribing the\nfull equation. Note that ADEQUACY.md's surrounding argument about state-sharing already says,\ncorrectly and at length (~lines 318-342), that the real obstruction is not Limit or Saturation\nbut Lemma 2 and the Box case -- so check whether this correction interacts with that passage\nbefore editing, and keep the two consistent.\n\nTHREE RESIDUE ROWS HANDED OFF. The producing table's rows 3, 20 and 24 are the ones its own\naudit does not reach, and were made copy-ready with explicit hand-off framing for this side.\nRow 3 is FrameOver's worldNonempty field and its TaskFrame.worldNonempty accessor -- the\npaper's reading of W as a NONEMPTY set, mattering because an empty carrier satisfies all four\nconstraints vacuously while validating falsehood. Row 24 carries a conditional that the\nproducing side preserved exactly; preserve it exactly here too rather than paraphrasing it.\nDecide, and record, whether each belongs in this repository's adequacy argument at all.\n\nSCOPE. Documentation only, confined to code/src/model_checker/theory_lib/bimodal/docs/ --\nADEQUACY.md primarily, with ARCHITECTURE.md carrying WitnessFamily.std and sh_surj as well.\nDerive the affected file set fresh by grepping the docs directory for each declaration name\nrather than trusting this list. No source, test or gate changes; no full-theory gate run is\nrequired, and the verification that matters is that every citation this task touches resolves\nby name in the manifest.\n\nPREFER NAMES OVER LINES where the surrounding prose allows it. Four of these rows are stale\npurely because a docstring edit shifted line numbers underneath them, and the producing side's\ninstruction on every such row is \"cite the names; take the locations from the manifest\". Each\nline number left behind is a future instance of this same task.",
+      "topic": "documentation",
+      "dependencies": [],
+      "created": "2026-09-28T18:11:42Z",
+      "last_updated": "2026-09-28T18:19:38Z",
+      "session_id": "sess_1790619552_cbba66_214"
     }
   ],
   "repository_health": {

@@ -1,5 +1,5 @@
 ---
-next_project_number: 214
+next_project_number: 215
 ---
 
 # TODO
@@ -11,37 +11,164 @@ next_project_number: 214
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,210,213 | -- | testing, semantics |
-| 2 | 199,212 | 198,210 | documentation, testing |
+| 1 | 198,200,213,214 | -- | documentation, testing, semantics |
+| 2 | 199,210 | 198,213,214 | documentation, semantics |
+| 3 | 212 | 210 | testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-199 [NOT STARTED] — Write the round-trip ledger in...
+214 [RESEARCHING] — Apply the citation corrections the BimodalLogic repository...
+  └─ 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Testing
 
-213 [NOT STARTED] — Fix the TestLazyBoundedMemoizedProbe flake under parallel...
+213 [RESEARCHED] — Fix the wall-clock flake in...
 212 [NOT STARTED] — Consolidate the remaining bimodal test modules that define...
 
 ### Semantics
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
-200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
+200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 210 [NOT STARTED] — Fix generic iterator pinning never reaching the rebuilt...
 
 ## Tasks
 
+### 214. Apply upstream citation corrections
+- **Status**: [RESEARCHING]
+- **Task Type**: general
+- **Topic**: documentation
+- **Dependencies**: None
+
+**Description**: Apply the citation corrections the BimodalLogic repository has already derived and made copy-ready for this side, to code/src/model_checker/theory_lib/bimodal/docs/.
+
+PROVENANCE. This is not a fresh audit. The producing repository's cross-repository citation
+gating work completed its half and deliberately wrote nothing under ~/Projects/ModelChecker,
+recording instead a "Corrections the consuming table owes" table at
+~/Projects/BimodalLogic/docs/reference/transcription-audit-surface.md (currently ~line 148).
+That table is the input to this task. It states explicitly that the corrections are to be
+applied "by mechanical lookup rather than by re-deriving them", and that every row resolves
+against the generated ~/Projects/BimodalLogic/scripts/lean-citation-manifest.json, which the
+producing side's check C35 keeps current. Read the corrections table and the manifest; do not
+re-derive line numbers by hand, and do not edit anything in the producing repository.
+
+FOUR ROWS TO APPLY. Confirm each against the manifest before editing, since the producing tree
+moves.
+
+(1) FOUR STALE LINE CITATIONS. not_validIn_base_prior_UZ, not_validIn_base_z1,
+prior_UZ_minFrameClass_sharp and z1_minFrameClass_sharp each now land inside a different
+theorem, not_validOn_z1_dense, after a uniform shift caused by a docstring edit above the
+targets. ADEQUACY.md cites all four with explicit line numbers in at least two places -- its
+machine-checked-results table (~lines 255-257, citing ZTimeSharpness.lean:225, 236, 251, 262)
+and its A0 discussion (~lines 716-725, repeating :225, :236, :251, :262). Both sites are wrong.
+Note for the record while fixing it that every gate in both repositories was green while these
+citations were wrong; that is the stated reason the manifest and C35 exist, and it is the
+argument for preferring name citations over line citations below.
+
+(2) ONE CITED RANGE THAT NO LONGER EXISTS. The hand separation proof that ADEQUACY.md's Lemma-1
+Limit row points at (~line 243, "discharged for `std` at
+Metalogic/Decidability/WitnessFamily/Std.lean:73-80") has been deleted.
+WitnessFamily.std is now built through Semantics.ShiftSet.ofIntAction; cite that and
+ShiftSet.sep_of_succOrder instead. The row's verdict IMPROVES and the edit must say so: the
+obligation is now kernel-checked rather than hand-proved. Do not silently swap the citation and
+leave the old weaker verdict standing.
+
+(3) TWO LOOSE RANGES. WitnessFamily.std_isZTime, std_sat_ztime, std_sat_base, sh_surj and
+ProofSystem.FrameClass.Sat are cited over ranges that are correct under the span convention but
+wider than the declaration. The manifest carries both the keyword line and the full span.
+
+(4) THE LIMIT VERDICT IS TOO STRONG, AND THIS ONE IS A SUBSTANTIVE CORRECTION, NOT A STALE
+POINTER. TaskFrame.Limit transcribes only the subset half of the paper's set equation. The
+superset half -- that w lies in each of its own positive cones -- is lem:nullity, DERIVED
+choice-free from Seriality together with the subset half, via
+TaskFrame.nullity_of_serial_limit; it is not postulated, and carrying it as an axiom would
+duplicate a theorem. Soften every consuming statement that presents Limit as transcribing the
+full equation. Note that ADEQUACY.md's surrounding argument about state-sharing already says,
+correctly and at length (~lines 318-342), that the real obstruction is not Limit or Saturation
+but Lemma 2 and the Box case -- so check whether this correction interacts with that passage
+before editing, and keep the two consistent.
+
+THREE RESIDUE ROWS HANDED OFF. The producing table's rows 3, 20 and 24 are the ones its own
+audit does not reach, and were made copy-ready with explicit hand-off framing for this side.
+Row 3 is FrameOver's worldNonempty field and its TaskFrame.worldNonempty accessor -- the
+paper's reading of W as a NONEMPTY set, mattering because an empty carrier satisfies all four
+constraints vacuously while validating falsehood. Row 24 carries a conditional that the
+producing side preserved exactly; preserve it exactly here too rather than paraphrasing it.
+Decide, and record, whether each belongs in this repository's adequacy argument at all.
+
+SCOPE. Documentation only, confined to code/src/model_checker/theory_lib/bimodal/docs/ --
+ADEQUACY.md primarily, with ARCHITECTURE.md carrying WitnessFamily.std and sh_surj as well.
+Derive the affected file set fresh by grepping the docs directory for each declaration name
+rather than trusting this list. No source, test or gate changes; no full-theory gate run is
+required, and the verification that matters is that every citation this task touches resolves
+by name in the manifest.
+
+PREFER NAMES OVER LINES where the surrounding prose allows it. Four of these rows are stale
+purely because a docstring edit shifted line numbers underneath them, and the producing side's
+instruction on every such row is "cite the names; take the locations from the manifest". Each
+line number left behind is a future instance of this same task.
+
+---
+
 ### 213. Fix lazy bounded probe parallel flake
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md]
 
-**Description**: Fix the TestLazyBoundedMemoizedProbe flake under parallel test execution. code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py::TestLazyBoundedMemoizedProbe fails intermittently in full-repository gate runs under pytest -n 4, and passes standalone every time, which points at CPU-contention sensitivity in the lazy bounded probe rather than a logic defect. It was observed in every full-gate run during the verification-harness refactor and reported rather than fixed there, being owned entirely by the checker work that introduced it.
+**Description**: Fix the wall-clock flake in test_checker.py::TestLazyBoundedMemoizedProbe, and close the scanner blind spot that let it land unmarked.
 
-Diagnose whether the probe's bound is a wall-clock timeout that host contention can exceed. If so, make the test independent of host load -- a deterministic injected clock, or a generous and explicitly justified bound -- rather than raising a magic number until the flake stops reproducing. Confirm with repeated full-gate runs under -n 4 on a loaded host, not a standalone pass.
+SCOPE CORRECTION (this task's original framing named the wrong test and a fix that has already landed). The original description proposed diagnosing "the probe's bound" as a wall-clock timeout and marking it. That fix is already in the tree: test_probe_timeout_yields_unavailable_not_a_hang carries @pytest.mark.xdist_serial, added by the certifying-countermodel work's final-gate phase, four hours before this task was written. It is NOT the failing test and must not be touched.
+
+THE ACTUAL FAILING TEST, named identically in three independent full-gate reproductions:
+TestLazyBoundedMemoizedProbe::test_import_performs_no_subprocess_call
+(code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py, currently ~line 142).
+
+EVIDENCE, already recorded -- do not re-derive it from scratch:
+specs/206_refactor_verification_test_harness/baselines/01_ci-shaped-baseline.md reproduces it
+three times (Run 2 post-task-205 baseline, the Phase 6 "After" run, and the parallel pass),
+each time as the single failure in an otherwise green ~3140-item run under
+`-m "not packaging and not performance and not unstable and not xdist_serial" -n 4`.
+Standalone it passed in 0.58s and 0.60s. The same task's .orchestrator-handoff.json records it
+as an out-of-scope pre-existing flake.
+
+WHY IT FAILS. The test spawns a subprocess (`sys.executable -c <source string>`) whose source
+reads a real clock around an import and asserts `elapsed < 1.0`. Measured standalone cost is
+~0.6s, so the bound carries roughly 0.4s of headroom -- headroom that a contended four-worker
+pool routinely consumes. When the inner assert trips, the subprocess exits non-zero and the
+outer `assert result.returncode == 0` fails. This is host-load sensitivity, not a logic defect,
+which is exactly why it never reproduces standalone.
+
+ITEM 1 -- FIX THE ASSERTION. Prefer deleting the wall-clock assertion outright over marking or
+widening it. The test's stated purpose is that importing the module must not probe, and the
+neighbouring assertion `m._memoized_result is m._UNSET` already establishes precisely that,
+deterministically and independently of host load; `subprocess.run(..., timeout=15)` already
+guards against a genuine hang. On that reading `elapsed < 1.0` is a redundant proxy for an
+invariant the test checks directly, and removing it costs no coverage. If the timing assertion
+is judged to carry independent value, then mark it and justify the bound in a comment -- but
+make that case explicitly rather than by default, and do not simply raise the number until the
+flake stops reproducing.
+
+ITEM 2 -- CLOSE THE SCANNER BLIND SPOT. code/tests/ci/test_timing_marker_coverage.py exists to
+stop exactly this shape from reaching the contended pool unmarked, and it did not catch this
+one. Its own docstring is accurate about why: detection is a structural AST scan over a test
+function's own body plus a one-hop same-module helper, looking for a `time.time()` /
+`perf_counter()` / `monotonic()` call node together with a bound-comparison `assert` node. Here
+both live inside a string literal handed to `subprocess.run`, so the AST sees one
+`ast.Constant` and nothing to flag. Extend the guard to recognize clock-read-plus-bound-assert
+pairs inside string literals passed to subprocess/exec-style call sites, and add a self-test in
+that module's existing style proving the extended scan flags the shape. If that detection is
+judged too broad or too fragile to implement as an AST rule, record the decision and the
+reasoning in the module docstring alongside its existing scope carve-outs (the deliberately
+excluded `time.sleep()` case is the precedent for how to document a boundary) rather than
+leaving the gap silently open.
+
+VERIFICATION. Item 1's correctness does not depend on a contended reproduction: if the
+assertion is removed, the failure mode is gone by construction, and a single full-gate run
+under `-n 4` confirming a clean parallel pass is sufficient. Do not attempt to prove a negative
+by repeated draws. Item 2 is verified by its own self-test.
 
 ---
 
@@ -94,7 +221,7 @@ ITEM 3, VERIFY A DEFERRAL BEFORE RESTATING IT. TRUST_PIPELINE.md records the Lea
 - **Status**: [NOT STARTED]
 - **Task Type**: z3
 - **Topic**: semantics
-- **Dependencies**: None
+- **Dependencies**: Task 213
 
 **Description**: Fix generic iterator pinning never reaching the rebuilt model's solve for logos, exclusion and imposition. The generic is_world/possible/verify/falsify pinning loop in code/src/model_checker/iterate/models.py accumulates its pins into a local temp_solver that is write-only for any theory without a _pin_theory_specific_values override -- logos, exclusion and imposition. Those three theories' rebuilt models during iteration are therefore effectively unpinned: the pins are computed but never reach the Z3 solve that actually produces the next model, and iterate/core.py's loop has no consistency check that would catch a divergent rebuild. Bimodal is unaffected, having an override that appends to frame_constraints directly.
 
@@ -290,7 +417,7 @@ Out of scope: the A1 compression bound, the divisor-period sweep driver, the har
 ---
 
 ### 200. Extend bimodal to stability modal
-- **Status**: [NOT STARTED]
+- **Status**: [BLOCKED]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: Task 193, Task 194, Task 197
@@ -303,7 +430,7 @@ Out of scope: the A1 compression bound, the divisor-period sweep driver, the har
 - **Status**: [NOT STARTED]
 - **Task Type**: markdown
 - **Topic**: documentation
-- **Dependencies**: Task 192, Task 193, Task 194, Task 195, Task 196, Task 197, Task 198, Task 211
+- **Dependencies**: Task 192, Task 193, Task 194, Task 195, Task 196, Task 197, Task 198, Task 211, Task 214
 
 **Description**: Write the round-trip ledger in code/src/model_checker/theory_lib/bimodal/docs/: a single document stating, once and end to end, the biconditional between what the model checker reports and what paper models exist, with every leg's discharge cited and every residual named. The statement to record is the achievable one, not the desired one: that the search returns a certificate for a given premise/conclusion pair at lengths at or above f of the closure size if and only if the conclusion is not a Z-time consequence of the premises -- the forward direction being (SOUND), the backward being (ADEQ), and the frame class being Z-time rather than the paper's full consequence relation. For each leg, cite how it is discharged and by what kind of evidence, keeping the four categories distinct: machine-checked theorem, audit by inspection, decided per run, and property-tested. Cover at minimum: S1 (proved), S2 (an audit, narrowable but never a theorem), S3 (decided per run, twice, independently -- and record the consequence that the Z3 encoder, the decoder and Z3 itself are not in the soundness trust base, so encoder defects can cost completeness or raise a loud rejection but cannot manufacture a false countermodel report), S4 (the translation bridge), A0 (a permanent frame-class limit, not an open problem), A1 (BimodalLogic's compression theorem), A2 (encoding completeness) and A3 (bound realization). Close with the honest ceiling: three residuals no further work removes -- A0's frame-class gap, S2's irreducibly informal paper-to-formalism boundary, and the deciding procedure's scope covering the language without the stability modal. Documentation only: this task synthesizes and cites the work of the others rather than doing any of it.
 CORRECTION to the closing section specified above: do not present the three residuals as alike. Two are permanent and no further work removes them -- the frame-class gap, and the irreducibly informal paper-to-formalism boundary of the transcription audit. The third, the deciding procedure's scope covering only the language without the stability modal, is NOT permanent: it is an open but scoped limitation with a named route, and a task chain now exists for it on both sides (verified side: a decidability-provenance gate, a state-sharing witness structure with the box condition redesigned, an agreement lemma over all walks, and a compression bound; this side: the theory extension that consumes them). State it as such, citing the obstruction accurately -- not Limit or Saturation, but the histories characterization and the box case of the truth lemma -- so a reader is not left believing the stability modal is excluded in principle when it is excluded pending identified work.

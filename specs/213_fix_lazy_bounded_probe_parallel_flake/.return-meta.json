@@ -1,0 +1,30 @@
+{
+  "status": "researched",
+  "dispatch_seq": 1,
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md",
+      "summary": "Confirms the flake's root cause (redundant wall-clock assertion with ~0.4s headroom inside a subprocess-injected source string) and the scanner's exact blind spot (clock-read/bound-assert pair lives inside a same-function string-literal variable passed by name to subprocess.run), and recommends deleting the timing assertion outright plus extending the AST scanner to resolve simple same-scope string-variable bindings passed to subprocess/exec-style calls, with a synthetic self-test since no other real instance of the shape exists in the tree."
+    }
+  ],
+  "next_steps": "Run /plan 213 to create an implementation plan covering: (1) delete the wall-clock assertion and its now-dead supporting lines from test_import_performs_no_subprocess_call's injected subprocess source; (2) extend test_timing_marker_coverage.py's AST scan to resolve same-function string-literal variables passed to subprocess/exec-style calls and recursively apply the existing clock-read/bound-assert detectors, with a synthetic self-test proving both the positive and marker-suppressed negative cases; (3) verify with one clean full-gate -n 4 run plus the scanner's own test suite.",
+  "metadata": {
+    "session_id": "sess_1790619552_cbba66_213",
+    "agent_type": "python-research-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "research", "python-research-agent"]
+  },
+  "memory_candidates": [
+    {
+      "content": "AST-based timing-marker scanners (code/tests/ci/test_timing_marker_coverage.py style) only see literal source text as an opaque ast.Constant when a test embeds Python code in a string handed to subprocess.run/exec/eval -- including when the string is first bound to a local variable and referenced by name inside a list literal (e.g. [sys.executable, \"-c\", code]). Extending such a scanner requires resolving same-scope simple string-variable bindings and re-parsing/re-scanning the resolved string, not just scanning literal call arguments directly.",
+      "category": "PATTERN",
+      "source_artifact": "specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["ast-scanner", "wall-clock-flake", "xdist", "subprocess", "timing-marker-coverage"]
+    }
+  ],
+  "modified_files": [
+    "specs/213_fix_lazy_bounded_probe_parallel_flake/reports/01_lazy-bounded-probe-flake-fix.md"
+  ]
+}
