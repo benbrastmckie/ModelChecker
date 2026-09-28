@@ -1,0 +1,17 @@
+{
+  "phase": 5,
+  "phase_name": "Gate documentation and the availability path",
+  "started_at": "2026-09-28T03:00:00Z",
+  "last_updated": "2026-09-28T03:20:00Z",
+  "objectives": [
+    {"id": 1, "description": "Re-read SETTINGS.md and ADEQUACY.md section 7.4 immediately before editing", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Add new Certificate Verification section to SETTINGS.md", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md"]},
+    {"id": 3, "description": "Add beside section 7.4's guards: unchecked countermodel is not a validity claim either", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "Document the availability path (resolution order, BIMODAL_CHECKER_BIN, cache location, SHA-256 pin); no Lean toolchain required", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md", "code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md"]},
+    {"id": 5, "description": "State what the checked label does/does not establish in the Lean Acceptance vocabulary", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": []
+}

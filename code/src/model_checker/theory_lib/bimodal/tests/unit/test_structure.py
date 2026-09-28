@@ -24,7 +24,7 @@ from model_checker.theory_lib.bimodal.semantic.proposition import BimodalProposi
 def _settings(**overrides):
     settings = dict(BimodalSemantics.DEFAULT_EXAMPLE_SETTINGS)
     settings.update(overrides)
-    # Deterministic by default (item 1's output gate, certifying_countermodel_architecture):
+    # Deterministic by default (item 1's output gate):
     # this module's tests are about extraction, re-checking, and print formatting, not about
     # which of the three verification states renders -- they must not depend on whether a
     # real checker happens to be resolvable on the machine running them. A test that
@@ -197,7 +197,7 @@ class TestPrintingDoesNotClaimValidity:
 
 
 class TestVerificationLabelRendering:
-    """Item 1's output gate (certifying_countermodel_architecture): `print_certificate` and
+    """Item 1's output gate: `print_certificate` and
     `print_evaluation` render one of the three honest states -- see
     `tests/integration/test_output_gate.py` for the full-pipeline coverage of all three plus
     `'verify': 'required'` withholding. This class covers only the two states reachable

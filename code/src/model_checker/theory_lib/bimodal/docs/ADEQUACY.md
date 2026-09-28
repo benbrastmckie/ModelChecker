@@ -789,6 +789,19 @@ a found countermodel is not a proof of absence, which is exactly what A1/A3 bein
 which the paper's semantics does not identify with "valid". Both grounds hold independently of
 each other and of any future progress on A1.
 
+**An unchecked countermodel is not a validity claim either** (item 1,
+the certificate verification output gate). The rule above is about the *absence* of a
+countermodel; this paragraph is about a *reported* one whose independent leg
+(`semantic/checker.py`) did not run. Once the output gate introduces a third state — reported
+but Python-re-checked only, versus reported and independently checked — a reader could mistake
+"unchecked" for hedging about the *inference* itself, as though an unchecked countermodel were
+somehow less of a refutation. It is not: the mandatory `recheck` guard (§6.2) already decided
+(C1)-(C4) hold before either label is ever chosen, so a reported countermodel is a countermodel
+either way. "Unchecked" hedges about *how strongly the report itself is corroborated* — whether
+a second, independent implementation of the same four decision procedures agrees — never about
+whether the certified model actually refutes the target. See `docs/SETTINGS.md`'s "Certificate
+Verification" section for the three output states and their exact wording.
+
 ---
 
 ## Why ℤ-time only

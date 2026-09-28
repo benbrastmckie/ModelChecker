@@ -18,7 +18,7 @@ imported. Since Python caches module imports, every consumer importing this modu
 the single probe run performed at this module's own first import -- one subprocess invocation
 per pytest session across every consumer, not one per consumer.
 
-**Direct binary invocation (item 1, certifying_countermodel_architecture, Phase 4).** This
+**Direct binary invocation (item 1's output gate, Phase 4).** This
 module used to invoke `lake exe check_certificate`, paying `lake`'s own incremental build-check
 overhead (~2.2s) on every call. It now delegates the actual subprocess invocation to
 `semantic/checker.py`'s `_invoke` -- the same production-side helper the output gate uses,

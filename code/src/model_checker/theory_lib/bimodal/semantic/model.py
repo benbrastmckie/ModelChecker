@@ -30,7 +30,7 @@ An unsatisfiable solve leaves `self.certificate = None` and `self.target_time = 
 Everywhere this module prints that case, the wording is "no certificate found within the
 configured bounds", explicitly not a validity claim (`docs/ADEQUACY.md` section 7.4).
 
-## The output gate (item 1, certifying_countermodel_architecture)
+## The output gate (item 1)
 
 The mandatory `recheck` guard above discharges S3 against this repository's *own* Python
 decision procedures -- it cannot catch a defect shared between the Z3 encoder and `recheck`

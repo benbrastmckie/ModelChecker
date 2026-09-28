@@ -353,27 +353,27 @@ dependent set from the result rather than from this list.
 
 ---
 
-### Phase 5: Gate documentation and the availability path [NOT STARTED]
+### Phase 5: Gate documentation and the availability path [COMPLETED]
 
 **Goal**: A user can tell what the label means, how to change the strictness, and how to obtain a
 checker without installing a Lean toolchain.
 
 **Tasks**:
-- [ ] Re-read `docs/SETTINGS.md` and `docs/ADEQUACY.md` §7.4 immediately before editing (wire-task
+- [x] Re-read `docs/SETTINGS.md` and `docs/ADEQUACY.md` §7.4 immediately before editing (wire-task *(completed)*
       overlap plus sibling-task concurrency).
-- [ ] Add a new `## Certificate Verification` section to `docs/SETTINGS.md` documenting `verify`'s
+- [x] Add a new `## Certificate Verification` section to `docs/SETTINGS.md` documenting `verify`'s *(completed)*
       three values, the default, the three output states in the same words the code renders, and the
       ~50 ms measured cost of the independent leg. This is a new section, not an edit to an existing
       one — there is no verification setting today.
-- [ ] Add, *beside* §7.4's existing no-certificate guards and without modifying them, the statement
+- [x] Add, *beside* §7.4's existing no-certificate guards and without modifying them, the statement *(completed)*
       that an **unchecked** countermodel is not a validity claim either — the point becomes
       non-obvious once a third state exists, because a reader can mistake "unchecked" for hedging
       about the inference rather than about the certificate.
-- [ ] Document the availability path (in `docs/SETTINGS.md`'s new section, cross-referenced from
+- [x] Document the availability path (in `docs/SETTINGS.md`'s new section, cross-referenced from *(completed)*
       `docs/USER_GUIDE.md`): the resolution order, `BIMODAL_CHECKER_BIN` for a standalone binary,
       the cache location, and the optional SHA-256 pin. State plainly that no Lean toolchain is
       required to be in tier 1 — only a checker binary.
-- [ ] State what the checked label does and does not establish, in the Lean `Acceptance`
+- [x] State what the checked label does and does not establish, in the Lean `Acceptance` *(completed)*
       vocabulary, and note that the per-certificate step rests on Lean's compiler and on the
       importing module's decoding, not on the kernel.
 

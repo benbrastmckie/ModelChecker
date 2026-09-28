@@ -177,6 +177,11 @@ settings = {
   fwd=2`) in well under 50ms.
 - **`max_witnesses`**: only lower this to bound cost on formulas with many boxed subformulas — an
   overly small cap makes the search under-complete for that formula, not merely slower.
+- **`verify`**: controls whether a reported countermodel is independently checked by a standalone
+  Lean-built binary (in addition to the mandatory Python re-check, which always runs). No Lean
+  toolchain is required to use it — only a checker binary; see
+  [SETTINGS.md's "Certificate Verification" section](SETTINGS.md#certificate-verification) for
+  the three values, the three rendered output states, and how to obtain a checker.
 
 For detailed settings documentation, see [SETTINGS.md](SETTINGS.md).
 

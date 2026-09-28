@@ -131,7 +131,7 @@ class BimodalSemantics(SemanticDefaults):
         # Solver backend: 'z3' or 'cvc5'
         'solver': 'z3',
         # Independent-checker verification strength for a reported countermodel (item 1,
-        # certifying_countermodel_architecture). 'off': the mandatory Python re-check
+        # the certificate verification output gate). 'off': the mandatory Python re-check
         # (semantic/model.py's existing recheck guard) runs as before, and no independent
         # leg is attempted at all -- no checker invocation occurs. 'auto' (the default): the
         # independent check runs whenever a checker resolves (semantic/checker.py), and the

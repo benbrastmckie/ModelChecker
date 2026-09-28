@@ -1,4 +1,4 @@
-"""Integration tests for item 1's output gate (`certifying_countermodel_architecture`):
+"""Integration tests for the certificate verification output gate:
 `'verify'`'s three values, the three rendered output states, and `'required'`'s withholding
 error. See `docs/SETTINGS.md`'s "Certificate Verification" section (Phase 5) for the
 user-facing contract this module locks down, and `semantic/model.py`'s module docstring
