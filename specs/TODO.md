@@ -29,14 +29,14 @@ next_project_number: 216
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-215 [PLANNED] — code/src/modelchecker/models/structure.py's...
+215 [IMPLEMENTING] — code/src/modelchecker/models/structure.py's...
   └─ 210 [BLOCKED] — Fix generic iterator pinning never reaching the rebuilt...
 
 ## Tasks
 
 ### 215. Fix persistent searchsolver population in shared iterate engine
 - **Effort**: 3-4 hours
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: z3
 - **Topic**: semantics
 - **Dependencies**: None

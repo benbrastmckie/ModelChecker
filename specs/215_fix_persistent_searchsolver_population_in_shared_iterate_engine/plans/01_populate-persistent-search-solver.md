@@ -1,7 +1,7 @@
 # Implementation Plan: Task #215
 
 - **Task**: 215 - Fix persistent search-solver population in the shared iterate engine
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 7.5 hours
 - **Dependencies**: None (this task unblocks task 210 Phase 3)
 - **Research Inputs**: None (no research report for this round; see "Planning-Time Verification" below)
@@ -136,29 +136,32 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Capture Pre-Fix Baseline [NOT STARTED]
+### Phase 1: Capture Pre-Fix Baseline [COMPLETED]
 
 **Goal**: Record current behavior so every post-fix change is attributable to this fix rather
 than to unrelated drift, and so a pre-existing failure is never mistaken for a new one.
 
 **Tasks**:
-- [ ] Create `specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/baselines/`.
-- [ ] Run the shared-engine iterate suite, saving full output to `baselines/01_pre-fix-iterate.txt`:
+- [x] Create `specs/215_fix_persistent_searchsolver_population_in_shared_iterate_engine/baselines/`.
+- [x] Run the shared-engine iterate suite, saving full output to `baselines/01_pre-fix-iterate.txt`:
       `PYTHONPATH=code/src pytest code/src/model_checker/iterate/ -q`
-- [ ] Run the four-theory directory gate, saving full output to
+- [x] Run the four-theory directory gate, saving full output to
       `baselines/01_pre-fix-theory-suites.txt`:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/ code/src/model_checker/theory_lib/exclusion/ code/src/model_checker/theory_lib/imposition/ code/src/model_checker/theory_lib/bimodal/ -q`
-- [ ] Run bimodal's iterate integration file on its own, saving to
+- [x] Run bimodal's iterate integration file on its own, saving to
       `baselines/01_pre-fix-bimodal-iterate.txt`:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py -q`
       This is the specific "unchanged in outcome" reference Phase 4 compares against.
-- [ ] For one representative `iterate: 3` example per affected theory, run it through
+- [x] For one representative `iterate: 3` example per affected theory, run it through
       `./dev_cli.py` and save the printed model-2+ output to
       `baselines/01_pre-fix-{theory}-iteration.txt` (logos `[] |- \neg A` N=2; exclusion
       `EX_CM_6` N=3 max_time=40; imposition `IM_CM_0` N=4 max_time=40). These are the diffs
       Phase 6 reviews.
-- [ ] Write `baselines/01_pre-fix-summary.md` recording pass/fail/skip counts, the identity of
-      every already-failing test, and the models-found count per theory.
+- [x] Write `baselines/01_pre-fix-summary.md` recording pass/fail/skip counts, the identity of
+      every already-failing test, and the models-found count per theory. **Deviation**: the
+      four-theory gate reproduced 0 failures (1695 passed) rather than the plan's Scope
+      Hypothesis of 1 pre-existing bimodal failure; recorded in the summary rather than
+      assumed away (see summary's "Deviation from the Scope Hypothesis" note).
 
 **Timing**: 1.5 hours (mostly solver wall-clock).
 

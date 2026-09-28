@@ -1,0 +1,322 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, xdist-3.8.0, hypothesis-6.151.10, cov-7.1.0
+collected 6 items
+
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py F [ 16%]
+FFFFF                                                                    [100%]
+
+=================================== FAILURES ===================================
+_ TestPersistentSearchSolverPopulated.test_persistent_solver_has_nonzero_assertions[logos] _
+
+self = <src.model_checker.iterate.tests.integration.test_search_solver_population.TestPersistentSearchSolverPopulated object at 0x7efa0ebc6850>
+theory = {'model': <class 'model_checker.theory_lib.logos.semantic.model.LogosModelStructure'>, 'operators': <model_checker.syn...tic.proposition.LogosProposition'>, 'semantics': <class 'model_checker.theory_lib.logos.semantic.core.LogosSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.logos.iterate.LogosModelIterator'>
+premises = [], conclusions = ['\\neg A']
+settings = {'N': 2, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _search_solver_cases(),
+    )
+    def test_persistent_solver_has_nonzero_assertions(
+        self, theory, iterator_class, premises, conclusions, settings
+    ):
+        """Diagnostic only -- NOT sufficient on its own. A search solver populated by
+        copying `assert_tracked`'s `Implies(label, constraint)` assertions would also
+        pass this check while being vacuously satisfiable; see the module docstring.
+        Use `test_persistent_solver_model_satisfies_real_constraints` below as the
+        actual acceptance criterion."""
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+    
+        assertion_count = len(iterator.constraint_generator.solver.assertions())
+>       assert assertion_count > 0, (
+            f"persistent search solver has {assertion_count} assertions immediately "
+            "after iterator construction -- the live iteration search is running "
+            "against an unconstrained problem"
+        )
+E       AssertionError: persistent search solver has 0 assertions immediately after iterator construction -- the live iteration search is running against an unconstrained problem
+E       assert 0 > 0
+
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py:128: AssertionError
+_ TestPersistentSearchSolverPopulated.test_persistent_solver_has_nonzero_assertions[exclusion] _
+
+self = <src.model_checker.iterate.tests.integration.test_search_solver_population.TestPersistentSearchSolverPopulated object at 0x7efa0ebc6990>
+theory = {'model': <class 'model_checker.theory_lib.exclusion.semantic.model.WitnessStructure'>, 'operators': <model_checker.sy...osition.WitnessProposition'>, 'semantics': <class 'model_checker.theory_lib.exclusion.semantic.core.WitnessSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.exclusion.iterate.ExclusionModelIterator'>
+premises = ['\\neg \\neg A'], conclusions = ['A']
+settings = {'N': 3, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _search_solver_cases(),
+    )
+    def test_persistent_solver_has_nonzero_assertions(
+        self, theory, iterator_class, premises, conclusions, settings
+    ):
+        """Diagnostic only -- NOT sufficient on its own. A search solver populated by
+        copying `assert_tracked`'s `Implies(label, constraint)` assertions would also
+        pass this check while being vacuously satisfiable; see the module docstring.
+        Use `test_persistent_solver_model_satisfies_real_constraints` below as the
+        actual acceptance criterion."""
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+    
+        assertion_count = len(iterator.constraint_generator.solver.assertions())
+>       assert assertion_count > 0, (
+            f"persistent search solver has {assertion_count} assertions immediately "
+            "after iterator construction -- the live iteration search is running "
+            "against an unconstrained problem"
+        )
+E       AssertionError: persistent search solver has 0 assertions immediately after iterator construction -- the live iteration search is running against an unconstrained problem
+E       assert 0 > 0
+
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py:128: AssertionError
+_ TestPersistentSearchSolverPopulated.test_persistent_solver_has_nonzero_assertions[imposition] _
+
+self = <src.model_checker.iterate.tests.integration.test_search_solver_population.TestPersistentSearchSolverPopulated object at 0x7efa0eb6bce0>
+theory = {'model': <class 'model_checker.theory_lib.imposition.semantic.model.ImpositionModelStructure'>, 'operators': <model_c...ition.LogosProposition'>, 'semantics': <class 'model_checker.theory_lib.imposition.semantic.core.ImpositionSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.imposition.iterate.ImpositionModelIterator'>
+premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+settings = {'N': 4, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _search_solver_cases(),
+    )
+    def test_persistent_solver_has_nonzero_assertions(
+        self, theory, iterator_class, premises, conclusions, settings
+    ):
+        """Diagnostic only -- NOT sufficient on its own. A search solver populated by
+        copying `assert_tracked`'s `Implies(label, constraint)` assertions would also
+        pass this check while being vacuously satisfiable; see the module docstring.
+        Use `test_persistent_solver_model_satisfies_real_constraints` below as the
+        actual acceptance criterion."""
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+    
+        assertion_count = len(iterator.constraint_generator.solver.assertions())
+>       assert assertion_count > 0, (
+            f"persistent search solver has {assertion_count} assertions immediately "
+            "after iterator construction -- the live iteration search is running "
+            "against an unconstrained problem"
+        )
+E       AssertionError: persistent search solver has 0 assertions immediately after iterator construction -- the live iteration search is running against an unconstrained problem
+E       assert 0 > 0
+
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py:128: AssertionError
+_ TestPersistentSearchSolverPopulated.test_persistent_solver_model_satisfies_real_constraints[logos] _
+
+self = <src.model_checker.iterate.tests.integration.test_search_solver_population.TestPersistentSearchSolverPopulated object at 0x7efa0ea742b0>
+theory = {'model': <class 'model_checker.theory_lib.logos.semantic.model.LogosModelStructure'>, 'operators': <model_checker.syn...tic.proposition.LogosProposition'>, 'semantics': <class 'model_checker.theory_lib.logos.semantic.core.LogosSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.logos.iterate.LogosModelIterator'>
+premises = [], conclusions = ['\\neg A']
+settings = {'N': 2, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _search_solver_cases(),
+    )
+    def test_persistent_solver_model_satisfies_real_constraints(
+        self, theory, iterator_class, premises, conclusions, settings
+    ):
+        """The real acceptance criterion: check the persistent search solver, require
+        `sat`, and verify that the produced model actually satisfies every constraint in
+        `model_constraints.frame_constraints`, `.model_constraints`,
+        `.premise_constraints`, and `.conclusion_constraints` -- not merely that the
+        solver's assertion count is non-zero."""
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+    
+        solver = iterator.constraint_generator.solver
+        result = solver.check()
+        assert result == z3.sat, (
+            f"persistent search solver checked {result}, expected sat -- the original "
+            "example was already solved, so its own constraints must be satisfiable"
+        )
+        model = solver.model()
+    
+        model_constraints = example.model_constraints
+        component_lists = {
+            "frame_constraints": model_constraints.frame_constraints,
+            "model_constraints": model_constraints.model_constraints,
+            "premise_constraints": model_constraints.premise_constraints,
+            "conclusion_constraints": model_constraints.conclusion_constraints,
+        }
+    
+        checked_at_least_one = False
+        for list_name, constraints in component_lists.items():
+            for index, constraint in enumerate(constraints):
+                checked_at_least_one = True
+                evaluated = model.eval(constraint, model_completion=True)
+>               assert is_true(evaluated), (
+                    f"persistent search solver's model violates "
+                    f"model_constraints.{list_name}[{index}]: {constraint}\n"
+                    f"evaluated to: {evaluated}"
+                )
+E               AssertionError: persistent search solver's model violates model_constraints.frame_constraints[1]: And(possible(w),
+E                     And(Implies(possible(0 | w), 0 | w == w),
+E                         Implies(possible(1 | w), 1 | w == w),
+E                         Implies(possible(2 | w), 2 | w == w),
+E                         Implies(possible(3 | w), 3 | w == w)))
+E                 evaluated to: False
+E               assert False
+E                +  where False = is_true(False)
+
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py:170: AssertionError
+_ TestPersistentSearchSolverPopulated.test_persistent_solver_model_satisfies_real_constraints[exclusion] _
+
+self = <src.model_checker.iterate.tests.integration.test_search_solver_population.TestPersistentSearchSolverPopulated object at 0x7efa0ea2d490>
+theory = {'model': <class 'model_checker.theory_lib.exclusion.semantic.model.WitnessStructure'>, 'operators': <model_checker.sy...osition.WitnessProposition'>, 'semantics': <class 'model_checker.theory_lib.exclusion.semantic.core.WitnessSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.exclusion.iterate.ExclusionModelIterator'>
+premises = ['\\neg \\neg A'], conclusions = ['A']
+settings = {'N': 3, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _search_solver_cases(),
+    )
+    def test_persistent_solver_model_satisfies_real_constraints(
+        self, theory, iterator_class, premises, conclusions, settings
+    ):
+        """The real acceptance criterion: check the persistent search solver, require
+        `sat`, and verify that the produced model actually satisfies every constraint in
+        `model_constraints.frame_constraints`, `.model_constraints`,
+        `.premise_constraints`, and `.conclusion_constraints` -- not merely that the
+        solver's assertion count is non-zero."""
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+    
+        solver = iterator.constraint_generator.solver
+        result = solver.check()
+        assert result == z3.sat, (
+            f"persistent search solver checked {result}, expected sat -- the original "
+            "example was already solved, so its own constraints must be satisfiable"
+        )
+        model = solver.model()
+    
+        model_constraints = example.model_constraints
+        component_lists = {
+            "frame_constraints": model_constraints.frame_constraints,
+            "model_constraints": model_constraints.model_constraints,
+            "premise_constraints": model_constraints.premise_constraints,
+            "conclusion_constraints": model_constraints.conclusion_constraints,
+        }
+    
+        checked_at_least_one = False
+        for list_name, constraints in component_lists.items():
+            for index, constraint in enumerate(constraints):
+                checked_at_least_one = True
+                evaluated = model.eval(constraint, model_completion=True)
+>               assert is_true(evaluated), (
+                    f"persistent search solver's model violates "
+                    f"model_constraints.{list_name}[{index}]: {constraint}\n"
+                    f"evaluated to: {evaluated}"
+                )
+E               AssertionError: persistent search solver's model violates model_constraints.frame_constraints[0]: And(possible(w),
+E                     Not(Or(And(And(w | 0 == 0, w != 0), possible(0)),
+E                            And(And(w | 1 == 1, w != 1), possible(1)),
+E                            And(And(w | 2 == 2, w != 2), possible(2)),
+E                            And(And(w | 3 == 3, w != 3), possible(3)),
+E                            And(And(w | 4 == 4, w != 4), possible(4)),
+E                            And(And(w | 5 == 5, w != 5), possible(5)),
+E                            And(And(w | 6 == 6, w != 6), possible(6)),
+E                            And(And(w | 7 == 7, w != 7), possible(7)))))
+E                 evaluated to: False
+E               assert False
+E                +  where False = is_true(False)
+
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py:170: AssertionError
+_ TestPersistentSearchSolverPopulated.test_persistent_solver_model_satisfies_real_constraints[imposition] _
+
+self = <src.model_checker.iterate.tests.integration.test_search_solver_population.TestPersistentSearchSolverPopulated object at 0x7efa0ebde9c0>
+theory = {'model': <class 'model_checker.theory_lib.imposition.semantic.model.ImpositionModelStructure'>, 'operators': <model_c...ition.LogosProposition'>, 'semantics': <class 'model_checker.theory_lib.imposition.semantic.core.ImpositionSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.imposition.iterate.ImpositionModelIterator'>
+premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+settings = {'N': 4, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _search_solver_cases(),
+    )
+    def test_persistent_solver_model_satisfies_real_constraints(
+        self, theory, iterator_class, premises, conclusions, settings
+    ):
+        """The real acceptance criterion: check the persistent search solver, require
+        `sat`, and verify that the produced model actually satisfies every constraint in
+        `model_constraints.frame_constraints`, `.model_constraints`,
+        `.premise_constraints`, and `.conclusion_constraints` -- not merely that the
+        solver's assertion count is non-zero."""
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+    
+        solver = iterator.constraint_generator.solver
+        result = solver.check()
+        assert result == z3.sat, (
+            f"persistent search solver checked {result}, expected sat -- the original "
+            "example was already solved, so its own constraints must be satisfiable"
+        )
+        model = solver.model()
+    
+        model_constraints = example.model_constraints
+        component_lists = {
+            "frame_constraints": model_constraints.frame_constraints,
+            "model_constraints": model_constraints.model_constraints,
+            "premise_constraints": model_constraints.premise_constraints,
+            "conclusion_constraints": model_constraints.conclusion_constraints,
+        }
+    
+        checked_at_least_one = False
+        for list_name, constraints in component_lists.items():
+            for index, constraint in enumerate(constraints):
+                checked_at_least_one = True
+                evaluated = model.eval(constraint, model_completion=True)
+>               assert is_true(evaluated), (
+                    f"persistent search solver's model violates "
+                    f"model_constraints.{list_name}[{index}]: {constraint}\n"
+                    f"evaluated to: {evaluated}"
+                )
+E               AssertionError: persistent search solver's model violates model_constraints.frame_constraints[1]: And(possible(w),
+E                     And(Implies(possible(0 | w), 0 | w == w),
+E                         Implies(possible(1 | w), 1 | w == w),
+E                         Implies(possible(2 | w), 2 | w == w),
+E                         Implies(possible(3 | w), 3 | w == w),
+E                         Implies(possible(4 | w), 4 | w == w),
+E                         Implies(possible(5 | w), 5 | w == w),
+E                         Implies(possible(6 | w), 6 | w == w),
+E                         Implies(possible(7 | w), 7 | w == w),
+E                         Implies(possible(8 | w), 8 | w == w),
+E                         Implies(possible(9 | w), 9 | w == w),
+E                         Implies(possible(10 | w), 10 | w == w),
+E                         Implies(possible(11 | w), 11 | w == w),
+E                         Implies(possible(12 | w), 12 | w == w),
+E                         Implies(possible(13 | w), 13 | w == w),
+E                         Implies(possible(14 | w), 14 | w == w),
+E                         Implies(possible(15 | w), 15 | w == w)))
+E                 evaluated to: False
+E               assert False
+E                +  where False = is_true(False)
+
+code/src/model_checker/iterate/tests/integration/test_search_solver_population.py:170: AssertionError
+============================== slowest durations ===============================
+0.28s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[exclusion]
+0.28s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[imposition]
+0.28s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[exclusion]
+0.26s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[imposition]
+0.03s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[logos]
+0.01s call     src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[logos]
+
+(12 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED code/src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[logos]
+FAILED code/src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[exclusion]
+FAILED code/src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_has_nonzero_assertions[imposition]
+FAILED code/src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[logos]
+FAILED code/src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[exclusion]
+FAILED code/src/model_checker/iterate/tests/integration/test_search_solver_population.py::TestPersistentSearchSolverPopulated::test_persistent_solver_model_satisfies_real_constraints[imposition]
+============================== 6 failed in 1.65s ===============================

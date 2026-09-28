@@ -1,0 +1,352 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, xdist-3.8.0, hypothesis-6.151.10, cov-7.1.0
+collected 241 items
+
+code/src/model_checker/iterate/tests/e2e/test_edge_cases.py .......      [  2%]
+code/src/model_checker/iterate/tests/integration/test_build_example.py . [  3%]
+....                                                                     [  4%]
+code/src/model_checker/iterate/tests/integration/test_constraint_preservation.py . [  5%]
+..                                                                       [  6%]
+code/src/model_checker/iterate/tests/integration/test_core_orchestration.py . [  6%]
+.........                                                                [ 10%]
+code/src/model_checker/iterate/tests/integration/test_enhanced_tracking.py . [ 10%]
+....                                                                     [ 12%]
+code/src/model_checker/iterate/tests/integration/test_error_handling.py . [ 12%]
+...........                                                              [ 17%]
+code/src/model_checker/iterate/tests/integration/test_generator_interface.py . [ 17%]
+.....                                                                    [ 19%]
+code/src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py . [ 20%]
+.........                                                                [ 24%]
+code/src/model_checker/iterate/tests/integration/test_graph_utils.py ... [ 25%]
+                                                                         [ 25%]
+code/src/model_checker/iterate/tests/integration/test_isomorphism.py ... [ 26%]
+....                                                                     [ 28%]
+code/src/model_checker/iterate/tests/integration/test_iteration_control.py . [ 28%]
+..............                                                           [ 34%]
+code/src/model_checker/iterate/tests/integration/test_iterator_generator.py . [ 34%]
+...........                                                              [ 39%]
+code/src/model_checker/iterate/tests/integration/test_metrics.py ....... [ 42%]
+.                                                                        [ 42%]
+code/src/model_checker/iterate/tests/integration/test_models.py F.F..... [ 46%]
+.....                                                                    [ 48%]
+code/src/model_checker/iterate/tests/integration/test_real_theory_integration.py . [ 48%]
+........                                                                 [ 51%]
+code/src/model_checker/iterate/tests/unit/test_base_iterator.py .......  [ 54%]
+code/src/model_checker/iterate/tests/unit/test_constraints.py .......... [ 58%]
+                                                                         [ 58%]
+code/src/model_checker/iterate/tests/unit/test_constraints_error_paths.py . [ 59%]
+.......                                                                  [ 62%]
+code/src/model_checker/iterate/tests/unit/test_core.py ...............   [ 68%]
+code/src/model_checker/iterate/tests/unit/test_core_abstract_methods.py . [ 68%]
+..                                                                       [ 69%]
+code/src/model_checker/iterate/tests/unit/test_core_no_state_transfer.py . [ 70%]
+.                                                                        [ 70%]
+code/src/model_checker/iterate/tests/unit/test_coverage_improvements.py . [ 70%]
+.........                                                                [ 74%]
+code/src/model_checker/iterate/tests/unit/test_errors.py ..............  [ 80%]
+code/src/model_checker/iterate/tests/unit/test_models_edge_cases.py .... [ 82%]
+.................                                                        [ 89%]
+code/src/model_checker/iterate/tests/unit/test_simplified_iterator.py .. [ 90%]
+...                                                                      [ 91%]
+code/src/model_checker/iterate/tests/unit/test_validation.py ........    [ 94%]
+code/src/model_checker/iterate/tests/unit/test_z3_utils.py ............. [100%]
+
+=================================== FAILURES ===================================
+_ TestGenericPinningReachesRebuiltSolve.test_rebuilt_solve_matches_pinned_values[logos] _
+
+self = <src.model_checker.iterate.tests.integration.test_models.TestGenericPinningReachesRebuiltSolve object at 0x715b95030190>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x715b95284c30>
+theory = {'model': <class 'model_checker.theory_lib.logos.semantic.model.LogosModelStructure'>, 'operators': <model_checker.syn...tic.proposition.LogosProposition'>, 'semantics': <class 'model_checker.theory_lib.logos.semantic.core.LogosSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.logos.iterate.LogosModelIterator'>
+premises = [], conclusions = ['\\neg A']
+settings = {'N': 2, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _generic_pinning_cases(),
+    )
+    def test_rebuilt_solve_matches_pinned_values(
+        self, monkeypatch, theory, iterator_class, premises, conclusions, settings
+    ):
+        original_build_new_model_structure = ModelBuilder.build_new_model_structure
+        captured = []
+    
+        def _wrapped(self_builder, z3_model):
+            result = original_build_new_model_structure(self_builder, z3_model)
+            captured.append((z3_model, result))
+            return result
+    
+        monkeypatch.setattr(ModelBuilder, "build_new_model_structure", _wrapped)
+    
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+        list(iterator.iterate_generator())
+    
+        assert len(captured) > 0, (
+            "no rebuild was intercepted -- the test would pass vacuously without "
+            "exercising build_new_model_structure at all"
+        )
+    
+        checked_at_least_one_pair = False
+        for candidate_z3_model, returned_structure in captured:
+            if returned_structure is None:
+                # UNSAT rebuild (or a build failure the production loop already treats as
+                # a skip) -- nothing to compare against.
+                continue
+            checked_at_least_one_pair = True
+    
+            semantics = returned_structure.semantics
+            actual_z3_model = returned_structure.z3_model
+            atoms = returned_structure.model_constraints.sentence_letters
+            num_states = 2 ** semantics.N
+    
+            if hasattr(semantics, 'is_world'):
+                for state in range(num_states):
+                    candidate_val = is_true(
+                        candidate_z3_model.eval(semantics.is_world(state), model_completion=True)
+                    )
+                    actual_val = is_true(
+                        actual_z3_model.eval(semantics.is_world(state), model_completion=True)
+                    )
+                    assert candidate_val == actual_val, (
+                        f"is_world mismatch at state {state}: pinned {candidate_val}, "
+                        f"actual solve {actual_val}"
+                    )
+    
+                    if hasattr(semantics, 'possible'):
+                        candidate_possible = is_true(
+                            candidate_z3_model.eval(semantics.possible(state), model_completion=True)
+                        )
+                        actual_possible = is_true(
+                            actual_z3_model.eval(semantics.possible(state), model_completion=True)
+                        )
+                        assert candidate_possible == actual_possible, (
+                            f"possible mismatch at state {state}: pinned {candidate_possible}, "
+                            f"actual solve {actual_possible}"
+                        )
+    
+            if hasattr(semantics, 'verify'):
+                for atom in atoms:
+                    for state in range(num_states):
+                        candidate_verify = is_true(
+                            candidate_z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                        )
+                        actual_verify = is_true(
+                            actual_z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                        )
+                        assert candidate_verify == actual_verify, (
+                            f"verify mismatch at state {state}, atom {atom}: pinned "
+                            f"{candidate_verify}, actual solve {actual_verify}"
+                        )
+    
+                        if hasattr(semantics, 'falsify'):
+                            candidate_falsify = is_true(
+                                candidate_z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                            )
+                            actual_falsify = is_true(
+                                actual_z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                            )
+                            assert candidate_falsify == actual_falsify, (
+                                f"falsify mismatch at state {state}, atom {atom}: pinned "
+                                f"{candidate_falsify}, actual solve {actual_falsify}"
+                            )
+    
+>       assert checked_at_least_one_pair, (
+            "every intercepted rebuild returned None (all UNSAT) -- no pair was available "
+            "to check pinning against"
+        )
+E       AssertionError: every intercepted rebuild returned None (all UNSAT) -- no pair was available to check pinning against
+E       assert False
+
+code/src/model_checker/iterate/tests/integration/test_models.py:198: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[ITERATION] Too many consecutive model building failures - stopping iteration
+
+ITERATION REPORT
+    Model 1: Initial model (0.00s)
+
+Total: 1/3 models found, 0 isomorphic models skipped, 0.24s elapsed
+
+========================================
+------------------------------ Captured log call -------------------------------
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+ERROR    model_checker.iterate.core:core.py:309 Too many consecutive model building failures - stopping iteration
+_ TestGenericPinningReachesRebuiltSolve.test_rebuilt_solve_matches_pinned_values[imposition] _
+
+self = <src.model_checker.iterate.tests.integration.test_models.TestGenericPinningReachesRebuiltSolve object at 0x715b95287230>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x715b905eae70>
+theory = {'model': <class 'model_checker.theory_lib.imposition.semantic.model.ImpositionModelStructure'>, 'operators': <model_c...ition.LogosProposition'>, 'semantics': <class 'model_checker.theory_lib.imposition.semantic.core.ImpositionSemantics'>}
+iterator_class = <class 'model_checker.theory_lib.imposition.iterate.ImpositionModelIterator'>
+premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
+conclusions = ['((A \\wedge B) \\boxright C)']
+settings = {'N': 4, 'contingent': True, 'disjoint': False, 'iterate': 3, ...}
+
+    @pytest.mark.parametrize(
+        "theory, iterator_class, premises, conclusions, settings",
+        _generic_pinning_cases(),
+    )
+    def test_rebuilt_solve_matches_pinned_values(
+        self, monkeypatch, theory, iterator_class, premises, conclusions, settings
+    ):
+        original_build_new_model_structure = ModelBuilder.build_new_model_structure
+        captured = []
+    
+        def _wrapped(self_builder, z3_model):
+            result = original_build_new_model_structure(self_builder, z3_model)
+            captured.append((z3_model, result))
+            return result
+    
+        monkeypatch.setattr(ModelBuilder, "build_new_model_structure", _wrapped)
+    
+        example = _real_build_example(theory, premises, conclusions, settings)
+        iterator = iterator_class(example)
+        list(iterator.iterate_generator())
+    
+        assert len(captured) > 0, (
+            "no rebuild was intercepted -- the test would pass vacuously without "
+            "exercising build_new_model_structure at all"
+        )
+    
+        checked_at_least_one_pair = False
+        for candidate_z3_model, returned_structure in captured:
+            if returned_structure is None:
+                # UNSAT rebuild (or a build failure the production loop already treats as
+                # a skip) -- nothing to compare against.
+                continue
+            checked_at_least_one_pair = True
+    
+            semantics = returned_structure.semantics
+            actual_z3_model = returned_structure.z3_model
+            atoms = returned_structure.model_constraints.sentence_letters
+            num_states = 2 ** semantics.N
+    
+            if hasattr(semantics, 'is_world'):
+                for state in range(num_states):
+                    candidate_val = is_true(
+                        candidate_z3_model.eval(semantics.is_world(state), model_completion=True)
+                    )
+                    actual_val = is_true(
+                        actual_z3_model.eval(semantics.is_world(state), model_completion=True)
+                    )
+                    assert candidate_val == actual_val, (
+                        f"is_world mismatch at state {state}: pinned {candidate_val}, "
+                        f"actual solve {actual_val}"
+                    )
+    
+                    if hasattr(semantics, 'possible'):
+                        candidate_possible = is_true(
+                            candidate_z3_model.eval(semantics.possible(state), model_completion=True)
+                        )
+                        actual_possible = is_true(
+                            actual_z3_model.eval(semantics.possible(state), model_completion=True)
+                        )
+                        assert candidate_possible == actual_possible, (
+                            f"possible mismatch at state {state}: pinned {candidate_possible}, "
+                            f"actual solve {actual_possible}"
+                        )
+    
+            if hasattr(semantics, 'verify'):
+                for atom in atoms:
+                    for state in range(num_states):
+                        candidate_verify = is_true(
+                            candidate_z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                        )
+                        actual_verify = is_true(
+                            actual_z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                        )
+                        assert candidate_verify == actual_verify, (
+                            f"verify mismatch at state {state}, atom {atom}: pinned "
+                            f"{candidate_verify}, actual solve {actual_verify}"
+                        )
+    
+                        if hasattr(semantics, 'falsify'):
+                            candidate_falsify = is_true(
+                                candidate_z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                            )
+                            actual_falsify = is_true(
+                                actual_z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                            )
+                            assert candidate_falsify == actual_falsify, (
+                                f"falsify mismatch at state {state}, atom {atom}: pinned "
+                                f"{candidate_falsify}, actual solve {actual_falsify}"
+                            )
+    
+>       assert checked_at_least_one_pair, (
+            "every intercepted rebuild returned None (all UNSAT) -- no pair was available "
+            "to check pinning against"
+        )
+E       AssertionError: every intercepted rebuild returned None (all UNSAT) -- no pair was available to check pinning against
+E       assert False
+
+code/src/model_checker/iterate/tests/integration/test_models.py:198: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[ITERATION] Too many consecutive model building failures - stopping iteration
+
+ITERATION REPORT
+    Model 1: Initial model (0.06s)
+
+Total: 1/3 models found, 0 isomorphic models skipped, 11.41s elapsed
+
+========================================
+------------------------------ Captured log call -------------------------------
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+WARNING  model_checker.iterate.models:models.py:170 Model structure creation was not successful
+ERROR    model_checker.iterate.core:core.py:309 Too many consecutive model building failures - stopping iteration
+============================== slowest durations ===============================
+42.02s call     src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[exclusion]
+11.66s call     src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[imposition]
+0.26s call     src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[logos]
+0.25s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphManagerCacheBehavior::test_cache_growth_limitation
+0.15s call     src/model_checker/iterate/tests/integration/test_iteration_control.py::TestTerminationManager::test_should_terminate_timeout
+0.10s call     src/model_checker/iterate/tests/unit/test_base_iterator.py::TestBaseModelIterator::test_timeout_handling
+0.10s call     src/model_checker/iterate/tests/integration/test_iteration_control.py::TestTerminationManager::test_get_elapsed_time
+0.02s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphIsomorphismIntegration::test_large_graph_isomorphism
+0.02s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphIsomorphismIntegration::test_cache_behavior_under_load
+0.01s call     src/model_checker/iterate/tests/unit/test_validation.py::TestModelValidator::test_evaluate_z3_boolean_numeric_values
+0.01s call     src/model_checker/iterate/tests/integration/test_graph_utils.py::TestModelGraph::test_create_graph
+
+(712 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED code/src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[logos]
+FAILED code/src/model_checker/iterate/tests/integration/test_models.py::TestGenericPinningReachesRebuiltSolve::test_rebuilt_solve_matches_pinned_values[imposition]
+======================== 2 failed, 239 passed in 55.32s ========================
