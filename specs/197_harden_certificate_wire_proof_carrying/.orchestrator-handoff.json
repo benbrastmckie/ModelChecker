@@ -1,18 +1,17 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 4,
-  "summary": "Six-phase plan authored. Direct measurement against the BimodalLogic checkout found the differential test tier is currently DEAD-BY-SILENT-SKIP: committed HEAD (12be620c2, task 678 phase 8) routes parseCertificate through a strict canonical-bytes parser that rejects interior whitespace, and _lean_check.py sends json.dumps defaults, so SKIP_REASON is set by a protocol error and the whole Stage-5 tier clean-skips with a present checkout. Phases 1-2 fix that and make a protocol failure loud; Phase 3 consumes the landed 'acceptance' key (axis 1); Phase 4 corrects the doc sites to the narrower true claim only. Axis 2's 'echo' key was measured working (bytewise echo==sent on all four fixtures) but exists only in BimodalLogic's UNCOMMITTED working tree, so Phases 5-6 carry an explicit admission gate with a COMPLETED WITH EXCLUSIONS contingency.",
+  "status": "implemented",
+  "summary": "All six plan phases completed: canonical wire bytes, loud protocol failures, the acceptance key (axis 1), doc corrections, parse-echo verification (axis 2, admission gate passed), and the scoped joint trust-base claim.",
+  "dispatch_seq": 7,
+  "phases_completed": 6,
+  "phases_total": 6,
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/197_harden_certificate_wire_proof_carrying/plans/01_harden-certificate-wire-proof-carrying.md",
-      "summary": "Six-phase plan across four waves: canonical wire bytes, loud protocol-failure discipline, acceptance-key consumption, axis-1 doc corrections, and two gated axis-2 phases."
+      "type": "summary",
+      "path": "specs/197_harden_certificate_wire_proof_carrying/summaries/01_harden-certificate-wire-proof-carrying-summary.md",
+      "summary": "All six phases completed: canonical wire bytes, loud protocol failures, the acceptance key (axis 1), doc corrections, parse-echo verification (axis 2, gate passed), and the scoped joint trust-base claim."
     }
   ],
-  "phases_completed": 0,
-  "phases_total": 6,
   "blockers": [],
-  "plan_markers_verified": true,
-  "next_action_hint": "Run /implement 197 to execute the plan. Phase 1 is the urgent item: the differential tier is silently skipping today."
+  "next_action_hint": "Task 197 implementation complete and fully verified. Ready for review/PR submission via /merge.",
+  "continuation_path": null
 }
