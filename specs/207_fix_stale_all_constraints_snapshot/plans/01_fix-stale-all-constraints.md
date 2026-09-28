@@ -402,7 +402,7 @@ changing the helper's observable behaviour, keeping the A2-triangle per-candidat
 
 ---
 
-### Phase 5: Full repository gate under CI's own invocation shape [NOT STARTED]
+### Phase 5: Full repository gate under CI's own invocation shape [COMPLETED]
 
 **Goal**: Prove the change is cross-theory safe by running the gate CI runs, and compare to the
 Phase 1 baseline rather than to an assumption.
