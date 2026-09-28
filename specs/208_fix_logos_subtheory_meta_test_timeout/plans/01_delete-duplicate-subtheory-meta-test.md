@@ -160,22 +160,48 @@ record the real number and proceed.
 
 ---
 
-### Phase 2: Audit sibling theories for the same nested-pytest pattern [NOT STARTED]
+### Phase 2: Audit sibling theories for the same nested-pytest pattern [COMPLETED]
 
 **Goal**: Mechanically confirm (rather than inherit from research) whether `bimodal`,
 `exclusion`, or `imposition` carry an analogous nested-`pytest`-via-`subprocess` meta-test, so
 the task's reporting constraint is satisfied from first-hand evidence.
 
 **Tasks**:
-- [ ] `grep -rn "subprocess" code/src/model_checker/theory_lib/*/tests/` and record every hit.
-- [ ] `grep -rn "'-m', 'pytest'\|\"-m\", \"pytest\"\|-m pytest" code/src/model_checker/theory_lib/`
+- [x] `grep -rn "subprocess" code/src/model_checker/theory_lib/*/tests/` and record every hit.
+- [x] `grep -rn "'-m', 'pytest'\|\"-m\", \"pytest\"\|-m pytest" code/src/model_checker/theory_lib/`
       to catch nested-pytest invocations phrased differently.
-- [ ] For each hit, classify it as nested-pytest re-execution or an unrelated external-tool call,
+- [x] For each hit, classify it as nested-pytest re-execution or an unrelated external-tool call,
       naming the file and the command it invokes.
-- [ ] Record the classification for inclusion in the implementation summary. Fix nothing outside
+- [x] Record the classification for inclusion in the implementation summary. Fix nothing outside
       `logos` in this task: the sibling audit is report-only unless a hit is a mechanically
       identical nested-pytest meta-test, in which case note it and leave it for a follow-up task
       rather than widening this task's scope silently.
+
+**Findings** (verbatim grep hits, classified):
+
+`grep -rn "subprocess" code/src/model_checker/theory_lib/*/tests/`:
+- `bimodal/tests/_lean_check.py` (lines 5, 18, 27, 78, 86) — **unrelated external-tool call**:
+  shells out to `lake exe check_certificate` (a Lean 4 build/check tool), never to a nested
+  `pytest` invocation.
+- `bimodal/tests/integration/test_certificate_lean_agreement.py:29` and
+  `bimodal/tests/unit/test_semantics_core.py:243` — prose comments referencing
+  `_lean_check.py`'s subprocess plumbing, not subprocess call sites themselves.
+- `bimodal/tests/integration/test_certificate_a2_triangle.py:465` — prose comment mentioning
+  "subprocess invocations", referring to the same `_lean_check.py` plumbing; not a call site.
+- `logos/tests/integration/test_subtheory_orchestration.py` (lines 9, 157) — this task's own
+  target, the nested-pytest-via-subprocess meta-test being deleted in Phase 3.
+
+`grep -rn "'-m', 'pytest'\|\"-m\", \"pytest\"\|-m pytest" code/src/model_checker/theory_lib/`:
+- `imposition/tests/README.md` (lines 62, 70, 71, 76) — developer-facing documentation showing
+  how to invoke pytest manually from a shell; not executable test code and not a nested-pytest
+  re-execution pattern.
+- `logos/tests/integration/test_subtheory_orchestration.py:158` — this task's own target (same
+  hit as above, phrased as `sys.executable, '-m', 'pytest'`).
+
+**Conclusion**: exactly one nested-pytest-via-subprocess meta-test exists across all four
+theories — the logos target being deleted in Phase 3. `bimodal`'s only `subprocess` user invokes
+an external Lean tool, not pytest. No sibling theory shares the pattern, confirming research
+Finding 5 mechanically rather than by inheritance. No follow-up task is needed.
 
 **Timing**: 15 minutes
 
