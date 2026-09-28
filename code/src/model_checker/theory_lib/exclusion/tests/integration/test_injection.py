@@ -21,7 +21,10 @@ class TestExclusionInjection(unittest.TestCase):
         
         # Create mock model constraints
         self.mock_constraints = Mock()
-        self.mock_constraints.all_constraints = []
+        self.mock_constraints.frame_constraints = []
+        self.mock_constraints.model_constraints = []
+        self.mock_constraints.premise_constraints = []
+        self.mock_constraints.conclusion_constraints = []
         self.mock_constraints.syntax = Mock()
         self.mock_constraints.syntax.sentence_letters = []
         self.mock_constraints.settings = {'N': 2}
@@ -47,7 +50,7 @@ class TestExclusionInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Check that constraints were added
-        constraints = self.mock_constraints.all_constraints
+        constraints = self.mock_constraints.model_constraints
         
         # Should have at least world + possible + excludes constraints
         # 4 world + 4 possible + 16 excludes = 24 minimum
@@ -80,7 +83,7 @@ class TestExclusionInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Check that constraints were added
-        constraints = self.mock_constraints.all_constraints
+        constraints = self.mock_constraints.model_constraints
         
         # Should have verify constraints
         verify_constraints = [c for c in constraints if 'verify' in str(c)]
@@ -109,7 +112,7 @@ class TestExclusionInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Check that constraints were added
-        constraints = self.mock_constraints.all_constraints
+        constraints = self.mock_constraints.model_constraints
         
         # Should have excludes constraints for state pairs
         excludes_constraints = [c for c in constraints if 'excludes' in str(c)]
@@ -136,7 +139,7 @@ class TestExclusionInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Should have added constraints
-        self.assertGreater(len(self.mock_constraints.all_constraints), 0)
+        self.assertGreater(len(self.mock_constraints.model_constraints), 0)
     
     def test_uses_model_validator(self):
         """Test that inject_z3_model_values works correctly."""
@@ -150,7 +153,7 @@ class TestExclusionInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Verify injection worked
-        constraints = self.mock_constraints.all_constraints
+        constraints = self.mock_constraints.model_constraints
         self.assertGreater(len(constraints), 0)
 
 

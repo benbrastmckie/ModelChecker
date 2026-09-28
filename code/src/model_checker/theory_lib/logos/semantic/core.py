@@ -446,15 +446,21 @@ class LogosSemantics(SemanticDefaults):
         # Get number of states from model_constraints settings
         num_states = 2 ** model_constraints.settings['N']
 
+        # `model_constraints.model_constraints` -- the ModelConstraints-owned group of
+        # pinned model-content literals -- not `all_constraints`, which is now a computed
+        # view (models/constraints.py) and silently discards anything appended to it.
+        # Distinct from bimodal's iterate.py, which pins certificate values into
+        # `semantics.frame_constraints` by design; these are unrelated patterns.
+
         # Inject world constraints
         for state in range(num_states):
             # Evaluate using original is_world function
             is_world_val = z3_model.eval(original_semantics.is_world(state), model_completion=True)
             # Add constraint using new is_world function
             if is_true(is_world_val):
-                model_constraints.all_constraints.append(self.is_world(state))
+                model_constraints.model_constraints.append(self.is_world(state))
             else:
-                model_constraints.all_constraints.append(z3.Not(self.is_world(state)))
+                model_constraints.model_constraints.append(z3.Not(self.is_world(state)))
 
         # Inject possible state constraints
         for state in range(num_states):
@@ -462,9 +468,9 @@ class LogosSemantics(SemanticDefaults):
             is_possible_val = z3_model.eval(original_semantics.possible(state), model_completion=True)
             # Add constraint using new possible function
             if is_true(is_possible_val):
-                model_constraints.all_constraints.append(self.possible(state))
+                model_constraints.model_constraints.append(self.possible(state))
             else:
-                model_constraints.all_constraints.append(z3.Not(self.possible(state)))
+                model_constraints.model_constraints.append(z3.Not(self.possible(state)))
 
         # Inject verify/falsify constraints for each sentence letter
         for sentence_obj in model_constraints.syntax.sentence_letters:
@@ -476,9 +482,9 @@ class LogosSemantics(SemanticDefaults):
                 verify_val = z3_model.eval(original_semantics.verify(state, atom), model_completion=True)
                 # Add constraint using new verify function
                 if is_true(verify_val):
-                    model_constraints.all_constraints.append(self.verify(state, atom))
+                    model_constraints.model_constraints.append(self.verify(state, atom))
                 else:
-                    model_constraints.all_constraints.append(z3.Not(self.verify(state, atom)))
+                    model_constraints.model_constraints.append(z3.Not(self.verify(state, atom)))
 
             # Inject falsify constraints
             for state in range(num_states):
@@ -486,9 +492,9 @@ class LogosSemantics(SemanticDefaults):
                 falsify_val = z3_model.eval(original_semantics.falsify(state, atom), model_completion=True)
                 # Add constraint using new falsify function
                 if is_true(falsify_val):
-                    model_constraints.all_constraints.append(self.falsify(state, atom))
+                    model_constraints.model_constraints.append(self.falsify(state, atom))
                 else:
-                    model_constraints.all_constraints.append(z3.Not(self.falsify(state, atom)))
+                    model_constraints.model_constraints.append(z3.Not(self.falsify(state, atom)))
 
     def with_world(
         self,

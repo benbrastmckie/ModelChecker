@@ -286,7 +286,7 @@ phase's file list before editing.
 
 ---
 
-### Phase 3: Migrate the three `inject_z3_model_values` append sites [NOT STARTED]
+### Phase 3: Migrate the three `inject_z3_model_values` append sites [COMPLETED]
 
 **Goal**: Stop the three theory cores appending into a value nothing retains, so the dead
 injection path is at least internally coherent under the new property, and redirect its tests to

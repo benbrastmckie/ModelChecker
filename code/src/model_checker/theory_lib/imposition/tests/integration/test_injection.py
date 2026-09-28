@@ -20,7 +20,10 @@ class TestImpositionInjection(unittest.TestCase):
         
         # Create mock model constraints
         self.mock_constraints = Mock()
-        self.mock_constraints.all_constraints = []
+        self.mock_constraints.frame_constraints = []
+        self.mock_constraints.model_constraints = []
+        self.mock_constraints.premise_constraints = []
+        self.mock_constraints.conclusion_constraints = []
         self.mock_constraints.syntax = Mock()
         self.mock_constraints.syntax.sentence_letters = []
         self.mock_constraints.settings = {'N': 2}
@@ -43,7 +46,7 @@ class TestImpositionInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Check that constraints were added
-        self.assertGreater(len(self.mock_constraints.all_constraints), 0)
+        self.assertGreater(len(self.mock_constraints.model_constraints), 0)
         
     def test_imposition_specific_constraints(self):
         """Test that imposition-specific constraints work with injection."""

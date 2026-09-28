@@ -22,7 +22,10 @@ class TestLogosInjection(unittest.TestCase):
         
         # Create mock model constraints
         self.mock_constraints = Mock()
-        self.mock_constraints.all_constraints = []
+        self.mock_constraints.frame_constraints = []
+        self.mock_constraints.model_constraints = []
+        self.mock_constraints.premise_constraints = []
+        self.mock_constraints.conclusion_constraints = []
         self.mock_constraints.syntax = Mock()
         self.mock_constraints.syntax.sentence_letters = []
         self.mock_constraints.settings = {'N': 2}  # Same as self.settings
@@ -48,7 +51,7 @@ class TestLogosInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Check that constraints were added
-        constraints = self.mock_constraints.all_constraints
+        constraints = self.mock_constraints.model_constraints
         
         # Should have 8 constraints total (4 world + 4 possible)
         self.assertEqual(len(constraints), 8)
@@ -79,7 +82,7 @@ class TestLogosInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Check that constraints were added
-        constraints = self.mock_constraints.all_constraints
+        constraints = self.mock_constraints.model_constraints
         
         # Should have constraints for both world and possible states
         # With N=2, we have 2^2 = 4 states
@@ -134,7 +137,7 @@ class TestLogosInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Check that constraints were added
-        constraints = self.mock_constraints.all_constraints
+        constraints = self.mock_constraints.model_constraints
         
         # Should have verify and falsify constraints
         verify_constraints = [c for c in constraints if 'verify' in str(c)]
@@ -156,7 +159,7 @@ class TestLogosInjection(unittest.TestCase):
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
         # Verify constraints were added (indicates evaluation worked)
-        self.assertGreater(len(self.mock_constraints.all_constraints), 0)
+        self.assertGreater(len(self.mock_constraints.model_constraints), 0)
     
     def test_no_theory_concepts_leak(self):
         """Test that no theory concepts leak into core packages."""

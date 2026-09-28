@@ -60,13 +60,16 @@ class TestInjectPinsLabelBitsAndGuesses:
         assert registry._bits, "expected at least one label-bit variable to have been allocated"
 
         mock_constraints = Mock()
-        mock_constraints.all_constraints = []
+        mock_constraints.frame_constraints = []
+        mock_constraints.model_constraints = []
+        mock_constraints.premise_constraints = []
+        mock_constraints.conclusion_constraints = []
 
         structure.semantics.inject_z3_model_values(
             structure.z3_model, structure.semantics, mock_constraints
         )
 
-        pinned = mock_constraints.all_constraints
+        pinned = mock_constraints.model_constraints
         # One pinned constraint per bit + per guess + per selector variable.
         expected_count = len(registry._bits) + len(registry._guesses) + len(generator._sel)
         assert len(pinned) == expected_count
@@ -88,13 +91,16 @@ class TestInjectPinsLabelBitsAndGuesses:
         assert structure.certificate is not None
 
         mock_constraints = Mock()
-        mock_constraints.all_constraints = []
+        mock_constraints.frame_constraints = []
+        mock_constraints.model_constraints = []
+        mock_constraints.premise_constraints = []
+        mock_constraints.conclusion_constraints = []
         structure.semantics.inject_z3_model_values(
             structure.z3_model, structure.semantics, mock_constraints
         )
 
         solver = z3.Solver()
-        solver.add(*mock_constraints.all_constraints)
+        solver.add(*mock_constraints.model_constraints)
         assert solver.check() == z3.sat
 
 

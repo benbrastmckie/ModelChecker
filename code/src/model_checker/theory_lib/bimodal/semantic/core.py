@@ -438,14 +438,20 @@ class BimodalSemantics(SemanticDefaults):
         registry = original_semantics.witness_registry
         generator = original_semantics.constraint_generator
 
+        # `model_constraints.model_constraints` -- the ModelConstraints-owned group of
+        # pinned model-content literals -- not `all_constraints`, which is now a computed
+        # view (models/constraints.py) and silently discards anything appended to it.
+        # Distinct from this theory's own iterate.py, which pins certificate values into
+        # `semantics.frame_constraints` by design; these are unrelated patterns.
+
         for var in registry._bits.values():
             value = z3_model.eval(var, model_completion=True)
-            model_constraints.all_constraints.append(var if is_true(value) else z3.Not(var))
+            model_constraints.model_constraints.append(var if is_true(value) else z3.Not(var))
 
         for var in registry._guesses.values():
             value = z3_model.eval(var, model_completion=True)
-            model_constraints.all_constraints.append(var if is_true(value) else z3.Not(var))
+            model_constraints.model_constraints.append(var if is_true(value) else z3.Not(var))
 
         for var in generator._sel.values():
             value = z3_model.eval(var, model_completion=True)
-            model_constraints.all_constraints.append(var if is_true(value) else z3.Not(var))
+            model_constraints.model_constraints.append(var if is_true(value) else z3.Not(var))
