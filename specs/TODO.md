@@ -1,5 +1,5 @@
 ---
-next_project_number: 210
+next_project_number: 214
 ---
 
 # TODO
@@ -11,25 +11,88 @@ next_project_number: 210
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,209 | -- | semantics, cross-repo-contract |
+| 1 | 198,200,209,210,211,212,213 | -- | documentation, testing, semantics, ... |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
+211 [NOT STARTED] — Correct the kernel-checked-proof overclaim in the bimodal...
 199 [NOT STARTED] — Write the round-trip ledger in...
+
+### Testing
+
+212 [NOT STARTED] — Consolidate the seven remaining bimodal test modules that...
+213 [NOT STARTED] — Fix the TestLazyBoundedMemoizedProbe flake under parallel...
 
 ### Semantics
 
-198 [NOT STARTED] — Make bound realization (A3) a computation rather than an...
+198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [NOT STARTED] — Extend the bimodal theory to the language with the stability...
+210 [NOT STARTED] — Fix generic iterator pinning never reaching the rebuilt...
 
 ### Cross Repo Contract
 
 209 [NOT STARTED] — Fix the extremal-operator defect in Sentence.updatetypes and...
 
 ## Tasks
+
+### 213. Fix lazy bounded probe parallel flake
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Fix the TestLazyBoundedMemoizedProbe flake under parallel test execution. code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py::TestLazyBoundedMemoizedProbe fails intermittently in full-repository gate runs under pytest -n 4, and passes standalone every time, which points at CPU-contention sensitivity in the lazy bounded probe rather than a logic defect. It was observed in every full-gate run during the verification-harness refactor and reported rather than fixed there, being owned entirely by the checker work that introduced it.
+
+Diagnose whether the probe's bound is a wall-clock timeout that host contention can exceed. If so, make the test independent of host load -- a deterministic injected clock, or a generous and explicitly justified bound -- rather than raising a magic number until the flake stops reproducing. Confirm with repeated full-gate runs under -n 4 on a loaded host, not a standalone pass.
+
+---
+
+### 212. Consolidate remaining bimodal test helpers
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Consolidate the seven remaining bimodal test modules that carry their own independent _settings/_build helpers. A mechanical grep -rn for '^def _settings' and '^def _build' across code/src/model_checker/theory_lib/bimodal/tests/ found seven further modules defining their own helpers, beyond the four already folded into tests/_build_support.py. They were outside the consolidating task's declared scope and are recorded for a future task in that directory's tests/README.md.
+
+Fold them onto the shared helper where they are genuinely equivalent. Where one is not, document why rather than forcing it: test_structure.py is the precedent, keeping a four-line local wrapper that defaults the 'verify' setting to 'off' before delegating to the shared helper, preserving an output-gate determinism fix rather than silently reverting it. Establish equivalence by reading each helper, not by assuming the name implies the shape. Verify with the full four-theory gate rather than the bimodal subset.
+
+---
+
+### 211. Correct kernel checked proof overclaim
+- **Status**: [NOT STARTED]
+- **Task Type**: general
+- **Topic**: documentation
+- **Dependencies**: None
+
+**Description**: Correct the kernel-checked-proof overclaim in the bimodal trust documentation, and decide the BIMODAL_LOGIC_COMMIT pin's fate. Three items, all deferred here by the certificate-verification work rather than discovered fresh.
+
+ITEM 1, THE OVERCLAIM. code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md section 6.2 and TRUST_PIPELINE.md's Stage 5 section both describe an acceptance: entailment verdict as "a kernel-checked proof for that particular certificate". Per BimodalTools/CertificateImport.lean's Acceptance inductive docstring, that phrase names the reserved, not-yet-introduced third Acceptance value (per-certificate kernel checking by re-elaboration); nothing the binary produces today is that. The accurate narrower claim, already used throughout semantic/checker.py and the documentation written alongside it: Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions. The overclaim does not propagate into new user-facing text, since semantic/model.py's _verification_label is written from the Lean docstring directly, but both source documents still carry it.
+
+ITEM 2, A DEAD PIN. Decide whether to auto-track or retire tests/_lean_check.py's BIMODAL_LOGIC_COMMIT constant. It is declared and exported but consumed by nothing, and has drifted repeatedly. Enforcement now lives in semantic/checker.py's capability handshake, with the commit captured dynamically as CheckerHandle.provenance per resolution rather than read from the stale constant.
+
+ITEM 3, VERIFY WHILE IN TRUST_PIPELINE.md. That document records the Lean-side half of obligation S4 as deferred and not yet attempted, but the companion BimodalLogic repository now declares a translate_sentence executable (root BimodalTools.TranslateSentenceMain) in its lakefile.toml. Infrastructure may exist even where the truth-preservation theorem does not; check before restating the deferral.
+
+---
+
+### 210. Fix generic iterator pinning unreached
+- **Status**: [NOT STARTED]
+- **Task Type**: z3
+- **Topic**: semantics
+- **Dependencies**: None
+
+**Description**: Fix generic iterator pinning never reaching the rebuilt model's solve for logos, exclusion and imposition. The generic is_world/possible/verify/falsify pinning loop in code/src/model_checker/iterate/models.py accumulates its pins into a local temp_solver that is write-only for any theory without a _pin_theory_specific_values override -- logos, exclusion and imposition. Those three theories' rebuilt models during iteration are therefore effectively unpinned: the pins are computed but never reach the Z3 solve that actually produces the next model, and iterate/core.py's loop has no consistency check that would catch a divergent rebuild. Bimodal is unaffected, having an override that appends to frame_constraints directly.
+
+EVIDENCE: a live, non-mocked logos iteration probe showing rebuilt model 2's is_world signature is an independent, unpinned resolve. Recorded as finding F4 in specs/207_fix_stale_all_constraints_snapshot/reports/01_fix-stale-all-constraints.md, and deliberately left out of scope by that task's plan because fixing it changes iteration results for three theories.
+
+SCOPE: (1) confirm the same live probe for exclusion and imposition rather than assuming the logos result generalizes; (2) decide whether the fix is a _pin_theory_specific_values default that actually applies temp_solver's assertions, or a different mechanism; (3) add regression coverage for iteration correctness analogous to TestAllConstraintsReflectsCertificateAfterSolve, which covers display completeness only. Run the full four-theory gate, since this changes iteration results.
+
+ALSO FIX while in this area: theory_lib/bimodal/iterate.py's _ensure_frame_constraints_in_search_solver docstring still says, in the present tense, that all_constraints "permanently misses" the certificate encoding. That stopped being true when all_constraints became a read-only computed property; the defensive design the docstring documents (reading the four component lists directly) remains correct and necessary for the separate stored_solver bug it is actually about.
+
+---
 
 ### 209. Bimodal sentence translation contract
 - **Status**: [NOT STARTED]
@@ -234,7 +297,7 @@ SCOPE CHANGE (the base document now exists). TRUST_PIPELINE.md has since been wr
 ---
 
 ### 198. A3 compute bounds from closure
-- **Status**: [NOT STARTED]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None

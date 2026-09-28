@@ -1,6 +1,50 @@
 {
-  "next_project_number": 210,
+  "next_project_number": 214,
   "active_projects": [
+    {
+      "project_number": 213,
+      "project_name": "fix_lazy_bounded_probe_parallel_flake",
+      "status": "not_started",
+      "task_type": "python",
+      "description": "Fix the TestLazyBoundedMemoizedProbe flake under parallel test execution. code/src/model_checker/theory_lib/bimodal/tests/unit/test_checker.py::TestLazyBoundedMemoizedProbe fails intermittently in full-repository gate runs under pytest -n 4, and passes standalone every time, which points at CPU-contention sensitivity in the lazy bounded probe rather than a logic defect. It was observed in every full-gate run during the verification-harness refactor and reported rather than fixed there, being owned entirely by the checker work that introduced it.\n\nDiagnose whether the probe's bound is a wall-clock timeout that host contention can exceed. If so, make the test independent of host load -- a deterministic injected clock, or a generous and explicitly justified bound -- rather than raising a magic number until the flake stops reproducing. Confirm with repeated full-gate runs under -n 4 on a loaded host, not a standalone pass.",
+      "topic": "testing",
+      "dependencies": [],
+      "created": "2026-09-28T06:53:21Z",
+      "last_updated": "2026-09-28T06:53:21Z"
+    },
+    {
+      "project_number": 212,
+      "project_name": "consolidate_remaining_bimodal_test_helpers",
+      "status": "not_started",
+      "task_type": "python",
+      "description": "Consolidate the seven remaining bimodal test modules that carry their own independent _settings/_build helpers. A mechanical grep -rn for '^def _settings' and '^def _build' across code/src/model_checker/theory_lib/bimodal/tests/ found seven further modules defining their own helpers, beyond the four already folded into tests/_build_support.py. They were outside the consolidating task's declared scope and are recorded for a future task in that directory's tests/README.md.\n\nFold them onto the shared helper where they are genuinely equivalent. Where one is not, document why rather than forcing it: test_structure.py is the precedent, keeping a four-line local wrapper that defaults the 'verify' setting to 'off' before delegating to the shared helper, preserving an output-gate determinism fix rather than silently reverting it. Establish equivalence by reading each helper, not by assuming the name implies the shape. Verify with the full four-theory gate rather than the bimodal subset.",
+      "topic": "testing",
+      "dependencies": [],
+      "created": "2026-09-28T06:53:21Z",
+      "last_updated": "2026-09-28T06:53:21Z"
+    },
+    {
+      "project_number": 211,
+      "project_name": "correct_kernel_checked_proof_overclaim",
+      "status": "not_started",
+      "task_type": "general",
+      "description": "Correct the kernel-checked-proof overclaim in the bimodal trust documentation, and decide the BIMODAL_LOGIC_COMMIT pin's fate. Three items, all deferred here by the certificate-verification work rather than discovered fresh.\n\nITEM 1, THE OVERCLAIM. code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md section 6.2 and TRUST_PIPELINE.md's Stage 5 section both describe an acceptance: entailment verdict as \"a kernel-checked proof for that particular certificate\". Per BimodalTools/CertificateImport.lean's Acceptance inductive docstring, that phrase names the reserved, not-yet-introduced third Acceptance value (per-certificate kernel checking by re-elaboration); nothing the binary produces today is that. The accurate narrower claim, already used throughout semantic/checker.py and the documentation written alongside it: Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions. The overclaim does not propagate into new user-facing text, since semantic/model.py's _verification_label is written from the Lean docstring directly, but both source documents still carry it.\n\nITEM 2, A DEAD PIN. Decide whether to auto-track or retire tests/_lean_check.py's BIMODAL_LOGIC_COMMIT constant. It is declared and exported but consumed by nothing, and has drifted repeatedly. Enforcement now lives in semantic/checker.py's capability handshake, with the commit captured dynamically as CheckerHandle.provenance per resolution rather than read from the stale constant.\n\nITEM 3, VERIFY WHILE IN TRUST_PIPELINE.md. That document records the Lean-side half of obligation S4 as deferred and not yet attempted, but the companion BimodalLogic repository now declares a translate_sentence executable (root BimodalTools.TranslateSentenceMain) in its lakefile.toml. Infrastructure may exist even where the truth-preservation theorem does not; check before restating the deferral.",
+      "topic": "documentation",
+      "dependencies": [],
+      "created": "2026-09-28T06:53:20Z",
+      "last_updated": "2026-09-28T06:53:20Z"
+    },
+    {
+      "project_number": 210,
+      "project_name": "fix_generic_iterator_pinning_unreached",
+      "status": "not_started",
+      "task_type": "z3",
+      "description": "Fix generic iterator pinning never reaching the rebuilt model's solve for logos, exclusion and imposition. The generic is_world/possible/verify/falsify pinning loop in code/src/model_checker/iterate/models.py accumulates its pins into a local temp_solver that is write-only for any theory without a _pin_theory_specific_values override -- logos, exclusion and imposition. Those three theories' rebuilt models during iteration are therefore effectively unpinned: the pins are computed but never reach the Z3 solve that actually produces the next model, and iterate/core.py's loop has no consistency check that would catch a divergent rebuild. Bimodal is unaffected, having an override that appends to frame_constraints directly.\n\nEVIDENCE: a live, non-mocked logos iteration probe showing rebuilt model 2's is_world signature is an independent, unpinned resolve. Recorded as finding F4 in specs/207_fix_stale_all_constraints_snapshot/reports/01_fix-stale-all-constraints.md, and deliberately left out of scope by that task's plan because fixing it changes iteration results for three theories.\n\nSCOPE: (1) confirm the same live probe for exclusion and imposition rather than assuming the logos result generalizes; (2) decide whether the fix is a _pin_theory_specific_values default that actually applies temp_solver's assertions, or a different mechanism; (3) add regression coverage for iteration correctness analogous to TestAllConstraintsReflectsCertificateAfterSolve, which covers display completeness only. Run the full four-theory gate, since this changes iteration results.\n\nALSO FIX while in this area: theory_lib/bimodal/iterate.py's _ensure_frame_constraints_in_search_solver docstring still says, in the present tense, that all_constraints \"permanently misses\" the certificate encoding. That stopped being true when all_constraints became a read-only computed property; the defensive design the docstring documents (reading the four component lists directly) remains correct and necessary for the separate stored_solver bug it is actually about.",
+      "topic": "semantics",
+      "dependencies": [],
+      "created": "2026-09-28T06:53:19Z",
+      "last_updated": "2026-09-28T06:53:19Z"
+    },
     {
       "project_number": 208,
       "project_name": "fix_logos_subtheory_meta_test_timeout",
@@ -329,13 +373,14 @@
     {
       "project_number": 198,
       "project_name": "a3_compute_bounds_from_closure",
-      "status": "not_started",
+      "status": "blocked",
       "task_type": "python",
       "topic": "semantics",
       "description": "Make bound realization (A3) a computation rather than an assumption: once BimodalLogic's compression theorem supplies a computable f of the closure size, have the search compute f(|C|) from the closure and set its own back, mid and fwd lengths from it, instead of taking them as user settings whose adequacy is assumed. ADEQUACY.md's assumption table records A3 as vacuous until A1 supplies f, so this task is the consumer of that result. Two deliverables beyond the arithmetic: first, report the distinction honestly in output -- a run at lengths at or above f(|C|) may say \"exhaustive at this closure\", while a run below it must keep saying only that no certificate was found within these bounds, never that the argument is valid, per section 7.4's never-report-validity rule. Second, keep the frame-class caveat attached: even at adequate lengths the conclusion available is Z-time relative, since A0 is a permanent limit, and BimodalLogic's own scope note records that the deciding procedure covers the language without the stability modal, its witness models being deterministic, on which that modal is trivial. BLOCKED on BimodalLogic's compression task (the Decidable ValidZTime quasimodel/ShiftSet route, whose item 1 is A1 and whose item 2 builds the candidate list over those same bounds); there is no f to read until it lands, and nothing here should invent one.",
       "dependencies": [],
       "created": "2026-09-26T11:54:26Z",
-      "last_updated": "2026-09-26T11:54:26Z"
+      "last_updated": "2026-09-28T06:53:31Z",
+      "session_id": "sess_1790578411_95db45"
     },
     {
       "project_number": 199,
