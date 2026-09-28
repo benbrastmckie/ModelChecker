@@ -326,8 +326,9 @@ this argument.
   `sh_add`) alone. `ShiftSet.SepNotDerivable.sep_not_derivable` (`Semantics/ShiftSet.lean:520`)
   proves this by counterexample: `D = ℚ` acting on `ℚ ⧸ DyadicGroup` by translation satisfies both
   action laws and refutes separation (a dense proper stabiliser). This is why `sep` is a
-  structure field rather than a derived fact. Over `ℤ` it is discharged trivially
-  (`Metalogic/Decidability/WitnessFamily/Std.lean:73-80`, via `Int.abs_lt_one_iff`).
+  structure field rather than a derived fact. Over `ℤ` it is **kernel-checked** — discharged from
+  discreteness via `ShiftSet.ofIntAction` and `ShiftSet.sep_of_succOrder`
+  (`Semantics/ShiftSet.lean`) — not a hand proof.
 - **Saturation is free only from subsingleton fibres**
   (`TaskFrame.saturation_of_fib_subsingleton`, consumed at `Semantics/ShiftSet.lean:172`) —
   precisely Lemma 1's argument above.
@@ -719,17 +720,17 @@ particular task frame, and one countermodel suffices. **(ADEQ) does not run the 
 - `Axiom.prior_UZ φ : Fφ → (¬φ U φ)` (`ProofSystem/Axioms.lean:341, 612`) — "every definable
   future set has a least element"; Reynolds 1992 §10, Venema 1993 axiom (W). Its
   non-Base-validity is machine-checked: `not_validIn_base_prior_UZ`
-  (`Metalogic/Independence/ZTimeSharpness.lean:225`).
+  (`Metalogic/Independence/ZTimeSharpness.lean`).
 - `Axiom.z1 φ : G(Gφ → φ) → (FGφ → Gφ)` (`ProofSystem/Axioms.lean:353, 613`) — the
   `IsSuccArchimedean` characteristic axiom; Doets 1987 Claim 10, Reynolds 1994 §10. Its
   non-Base-validity is machine-checked: `not_validIn_base_z1`
-  (`Metalogic/Independence/ZTimeSharpness.lean:236`).
+  (`Metalogic/Independence/ZTimeSharpness.lean`).
 
 By (SOUND), **no certificate can ever exist for these**: any certificate would exhibit a ℤ-time
 countermodel, contradicting their ℤ-time validity. Yet they are not Base-valid, and that half is
 now **proved rather than cited**: `not_validIn_base_prior_UZ` and `not_validIn_base_z1`
-(`Metalogic/Independence/ZTimeSharpness.lean:225, 236`) refute both at `FrameClass.Base`, and
-`prior_UZ_minFrameClass_sharp` / `z1_minFrameClass_sharp` (`:251, :262`) strengthen this to every
+(`Metalogic/Independence/ZTimeSharpness.lean`) refute both at `FrameClass.Base`, and
+`prior_UZ_minFrameClass_sharp` / `z1_minFrameClass_sharp` (same file) strengthen this to every
 `fc < FrameClass.ZTime` — so the `.ZTime` tag of `Axiom.minFrameClass` is minimal for both, not
 merely asserted. So the search is, by design and **permanently**, silent on a nonempty class of paper-invalid inferences, independently of A1,
 A2 and A3. Even a fully proved A1 upgrades "no certificate within bounds" to "ℤ-time valid",

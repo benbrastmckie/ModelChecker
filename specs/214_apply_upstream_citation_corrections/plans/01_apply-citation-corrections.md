@@ -263,29 +263,30 @@ additional changed row is an overreach to be reverted.
 
 ---
 
-### Phase 3: Correct the ADEQUACY.md prose sites [NOT STARTED]
+### Phase 3: Correct the ADEQUACY.md prose sites [COMPLETED]
 
 **Goal**: The two prose passages outside §4.1 that repeat the corrected citations agree with the
 table, and shed their line numbers per Decision D2.
 
 **Tasks**:
-- [ ] "Why the design is deterministic" — the **Limit is genuinely non-free** bullet (~line 323)
+- [x] "Why the design is deterministic" — the **Limit is genuinely non-free** bullet (~line 323)
       currently reads "Over `ℤ` it is discharged trivially
       (`Metalogic/Decidability/WitnessFamily/Std.lean:73-80`, via `Int.abs_lt_one_iff`)". Replace
       the deleted citation with `ShiftSet.ofIntAction` / `ShiftSet.sep_of_succOrder`, cited by
-      file and name without a line number.
-- [ ] Same bullet, separate item — replace "discharged trivially" with wording that records the
+      file and name without a line number. *(completed)*
+- [x] Same bullet, separate item — replace "discharged trivially" with wording that records the
       kernel-checked provenance, matching Phase 2's table verdict. The bullet's own point (that
       `sep` is a structure field rather than a derived fact, proved non-derivable by
-      `SepNotDerivable.sep_not_derivable`) is correct and stays.
-- [ ] §7.2 "A0 — the frame-class gap" (~lines 713-726) — drop the `:225`, `:236` and `:251, :262`
+      `SepNotDerivable.sep_not_derivable`) is correct and stays. *(completed)*
+- [x] §7.2 "A0 — the frame-class gap" (~lines 713-726) — drop the `:225`, `:236` and `:251, :262`
       suffixes from the three citations there, citing
       `Metalogic/Independence/ZTimeSharpness.lean` by file and declaration name only (the
-      existing precedent is `ADEQUACY.md:295`).
-- [ ] Confirm the state-sharing passage (~lines 328-342) still reads correctly alongside the
+      existing precedent is `ADEQUACY.md:295`). *(completed)*
+- [x] Confirm the state-sharing passage (~lines 328-342) still reads correctly alongside the
       edits — it already says, correctly, that the real obstruction is Lemma 2 and the Box case,
       not Limit or Saturation. Change nothing there unless the Phase 2/3 edits create an actual
-      inconsistency; record that the check was made.
+      inconsistency; record that the check was made. *(completed: check made, no inconsistency,
+      passage left unchanged)*
 
 **Timing**: 0.5 hours
 

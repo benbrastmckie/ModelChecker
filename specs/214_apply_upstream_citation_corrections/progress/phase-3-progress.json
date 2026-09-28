@@ -1,0 +1,25 @@
+{
+  "phase": 3,
+  "phase_name": "Correct the ADEQUACY.md prose sites",
+  "started_at": "2026-09-28T18:46:00Z",
+  "last_updated": "2026-09-28T18:52:00Z",
+  "objectives": [
+    {"id": 1, "description": "Replace deleted Std.lean:73-80/Int.abs_lt_one_iff citation in the determinism bullet with ShiftSet.ofIntAction/sep_of_succOrder", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 2, "description": "Replace 'discharged trivially' wording with kernel-checked framing", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 3, "description": "Drop line-number suffixes from the three A0 citations in section 7.2", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 4, "description": "Confirm state-sharing passage still consistent", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "3.verification",
+      "description": "Plan's literal verification grep `grep -n \"ZTimeSharpness.lean:2\" ADEQUACY.md` returns no hit",
+      "type": "altered",
+      "reason": "The grep pattern as literally written also matches the CORRECTED §4.1 table values (263, 274, 289 all start with digit 2), which Decision D2 explicitly keeps as numbered citations in the table. The pattern cannot distinguish stale from fresh values sharing the same leading digit, so it was over-broad by construction. Verified the actual intent instead: targeted greps for the exact retired strings (`Int.abs_lt_one_iff`, `Std.lean:73-80`) return zero hits anywhere in the file, and the three §7.2 prose citations now carry no line-number suffix at all (only the §4.1 table, which Decision D2 authorizes to keep numbers, still has them).",
+      "annotation": "N/A - verification-criterion deviation, not a checklist-item deviation"
+    }
+  ],
+  "notes": "Section 7.2 A0 discussion at ADEQUACY.md now cites ZTimeSharpness.lean by name only, no line numbers, matching the existing :295 precedent. Determinism bullet at ~line 325 now cites ShiftSet.ofIntAction / ShiftSet.sep_of_succOrder with kernel-checked framing, matching the Phase 2 table verdict."
+}
