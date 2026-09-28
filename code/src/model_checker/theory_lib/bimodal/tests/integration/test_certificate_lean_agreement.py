@@ -41,6 +41,7 @@ import pytest
 
 from model_checker.theory_lib.bimodal.semantic.certificate import recheck_json
 from model_checker.theory_lib.bimodal.tests._lean_check import (
+    PROTOCOL_FAILURE,
     SKIP_REASON,
     run_check_certificate as _run_check_certificate,
 )
@@ -61,6 +62,22 @@ def _load_expected_verdicts() -> dict:
 
 def _fixture_files():
     return sorted(p for p in FIXTURES_DIR.glob("*.json") if p.name != "expected_verdicts.json")
+
+
+class TestProtocolFailureIsLoud:
+    """`PROTOCOL_FAILURE` must be `None` whenever this module runs at all (it is computed once,
+    at `_lean_check`'s first import, before `pytestmark`'s `skipif` decides whether this module's
+    tests run). A present, responding binary that disagrees with the trivial probe certificate's
+    expected `"countermodel"` verdict is a protocol-level regression -- exactly the failure mode
+    that once made this whole differential tier silently report clean skips (see `_lean_check`'s
+    module docstring, M1) -- and must fail this assertion loudly rather than hide behind a skip.
+    """
+
+    def test_protocol_failure_is_none(self):
+        assert PROTOCOL_FAILURE is None, (
+            "the BimodalLogic binary answered the trivial probe certificate, but not with "
+            f"the expected 'countermodel' status -- protocol disagreement: {PROTOCOL_FAILURE}"
+        )
 
 
 class TestLeanAgreement:

@@ -194,7 +194,7 @@ one.
 
 ---
 
-### Phase 2: A protocol failure is loud, never a clean skip [NOT STARTED]
+### Phase 2: A protocol failure is loud, never a clean skip [COMPLETED]
 
 **Goal**: the skip path covers *environment absence* only. A present checkout whose binary
 responds with `"error"` on a well-formed probe certificate is a protocol disagreement and must fail
@@ -203,20 +203,26 @@ this side of it. This is the guard that would have surfaced M1 the day it appear
 silently deleting the tier.
 
 **Tasks**:
-- [ ] Split `probe()`'s failure vocabulary in `_lean_check.py`: an unresponsive, unbuildable, or
+- [x] Split `probe()`'s failure vocabulary in `_lean_check.py`: an unresponsive, unbuildable, or
       absent binary (and an absent checkout, and `lake` missing) remain clean skip reasons; a
       binary that *answers* with `status == "error"` on the trivial well-formed probe becomes a
-      distinct, non-skip condition.
-- [ ] Surface that condition as a hard failure rather than a skip. Prefer a module-level
+      distinct, non-skip condition. **Deviation (widened, not narrowed)**: implemented as
+      `status != "countermodel"` rather than the literal `status == "error"` — the trivial probe
+      certificate is engineered to produce exactly `"countermodel"`, so any other status from an
+      *answering* binary (`"error"`, `"rejected"`, or anything else) is equally a protocol
+      disagreement, not only the specific `"error"` status M1 happened to measure. This was
+      already the pre-existing condition (`verdict.get("status") != "countermodel"`) in the old
+      single-vocabulary `probe()`; Phase 2 only reclassifies which bucket it lands in.
+- [x] Surface that condition as a hard failure rather than a skip. Prefer a module-level
       `PROTOCOL_FAILURE: Optional[str]` alongside `SKIP_REASON`, and a single test in the
       differential module asserting `PROTOCOL_FAILURE is None` with the verdict quoted in the
       message, so the failure names the payload shape and the verdict — not merely "a test failed".
       Keep `SKIP_REASON`'s existing meaning and spelling intact so the three consuming modules'
       `skipif` markers keep working unchanged.
-- [ ] Add the new name to `__all__` and record the distinction in the module docstring: which
+- [x] Add the new name to `__all__` and record the distinction in the module docstring: which
       outcomes are environment (skip) and which are protocol (fail), and why conflating them cost
       the tier its liveness.
-- [ ] Verify the three consumers still skip cleanly with the checkout absent:
+- [x] Verify the three consumers still skip cleanly with the checkout absent:
       `BIMODAL_LOGIC_PATH=/nonexistent` must skip, not fail.
 
 **Timing**: 0.75 hours

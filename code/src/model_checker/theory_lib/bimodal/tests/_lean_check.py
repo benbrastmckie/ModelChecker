@@ -17,6 +17,22 @@ private copy inside `test_certificate_lean_agreement.py`, re-run every time that
 imported. Since Python caches module imports, every consumer importing this module now shares
 the single probe run performed at this module's own first import -- one subprocess invocation
 per pytest session across every consumer, not one per consumer.
+
+**Environment absence versus protocol failure.** `SKIP_REASON` and `PROTOCOL_FAILURE` are two
+separate vocabularies, deliberately not folded into one, because conflating them once deleted
+this whole differential tier silently: an upstream migration to a strict canonical-bytes parser
+(BimodalLogic commit `12be620c2`) began rejecting this repository's non-canonical `json.dumps`
+whitespace, the probe saw `{"status": "error", ...}`, the old single-vocabulary `probe()` folded
+that into `SKIP_REASON`, and every differential test module reported a clean skip -- with a
+present checkout and a working binary -- for as long as that regression went unnoticed.
+`SKIP_REASON` covers **environment absence only**: no checkout, no `lake`, or a binary that never
+answers within the probe timeout (unresponsive or unbuildable) -- conditions where skipping is
+the only sane thing to do, since there is nothing to test against. `PROTOCOL_FAILURE` covers a
+binary that **does** answer, but not with the `"countermodel"` status the trivial, well-formed
+probe certificate below must produce -- a protocol disagreement between this repository and the
+binary it is talking to, which must fail loudly rather than disappear as a skip. Exactly one of
+the two is a skip condition for `pytest.mark.skipif`; `PROTOCOL_FAILURE` is asserted `None` by a
+dedicated test instead (`test_certificate_lean_agreement.py`'s `TestErrorPaths`).
 """
 
 from __future__ import annotations
@@ -26,7 +42,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from model_checker.theory_lib.bimodal.semantic.certificate import canonical_wire_bytes
 
@@ -35,6 +51,7 @@ __all__ = [
     "BIMODAL_LOGIC_PATH",
     "LAKE",
     "PROBE_TIMEOUT_SECONDS",
+    "PROTOCOL_FAILURE",
     "SKIP_REASON",
     "resolve_bimodal_logic_path",
     "resolve_lake",
@@ -94,9 +111,16 @@ def run_check_certificate(payload: Dict[str, Any], timeout: int) -> Optional[Dic
         return None
 
 
-def probe() -> Optional[str]:
-    """Probe the binary once, under a hard timeout, before any real invocation. Returns an
-    error string on failure, or `None` on success."""
+def probe() -> Tuple[Optional[str], Optional[str]]:
+    """Probe the binary once, under a hard timeout, before any real invocation.
+
+    Returns `(skip_reason, protocol_failure)`; at most one is non-`None`, and both are `None` on
+    success. `skip_reason` covers a binary that never answers within the timeout -- unresponsive
+    or unbuildable, an environment condition safe to skip. `protocol_failure` covers a binary
+    that *does* answer, but not with the `"countermodel"` status this trivial, well-formed probe
+    certificate must produce -- a protocol disagreement (see module docstring's M1 account),
+    which is reported separately rather than folded into `skip_reason`.
+    """
     trivial = {
         "target": {"premises": [], "conclusions": [{"tag": "atom", "name": "p"}], "time": 0},
         "bx": [],
@@ -106,14 +130,16 @@ def probe() -> Optional[str]:
     if verdict is None:
         return (
             f"`lake exe check_certificate` did not respond within {PROBE_TIMEOUT_SECONDS}s "
-            "or failed to build"
+            "or failed to build",
+            None,
         )
     if verdict.get("status") != "countermodel":
-        return f"probe certificate produced unexpected verdict: {verdict!r}"
-    return None
+        return None, f"probe certificate produced unexpected verdict: {verdict!r}"
+    return None, None
 
 
 SKIP_REASON: Optional[str] = None
+PROTOCOL_FAILURE: Optional[str] = None
 if BIMODAL_LOGIC_PATH is None:
     SKIP_REASON = (
         "BimodalLogic checkout not found (set BIMODAL_LOGIC_PATH or check out to "
@@ -123,4 +149,4 @@ elif LAKE is None:
     SKIP_REASON = "`lake` not found on PATH"
 
 if SKIP_REASON is None:
-    SKIP_REASON = probe()
+    SKIP_REASON, PROTOCOL_FAILURE = probe()
