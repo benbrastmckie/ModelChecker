@@ -1,7 +1,7 @@
 # Implementation Plan: Consolidate Remaining Bimodal Test Helpers
 
 - **Task**: 212 - Consolidate remaining bimodal test helpers onto `_build_support.py`
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/212_consolidate_remaining_bimodal_test_helpers/reports/01_consolidate-remaining-bimodal-helpers.md
@@ -110,31 +110,31 @@ sets (5 modules / 2 modules / 1 module respectively) with no shared edit surface
 
 ---
 
-### Phase 1: Re-derive Scope and Confirm Helper Equivalence [NOT STARTED]
+### Phase 1: Re-derive Scope and Confirm Helper Equivalence [COMPLETED]
 
 **Goal**: Establish, by reading rather than by name match, exactly which modules carry a
 consolidatable helper in the tree as it stands right now — and record a pre-change baseline.
 
 **Tasks**:
-- [ ] Re-run the discovery grep fresh:
+- [x] Re-run the discovery grep fresh:
       `grep -rln '^def _settings\|^def _build' code/src/model_checker/theory_lib/bimodal/tests/`,
       excluding `_build_support.py` itself. Record the resulting module list. Do not assume it
       matches this plan's list — concurrent work in this tree changes the set.
-- [ ] Read `code/src/model_checker/theory_lib/bimodal/tests/_build_support.py` in full: the
+- [x] Read `code/src/model_checker/theory_lib/bimodal/tests/_build_support.py` in full: the
       `_settings` and `_build` bodies plus the module docstring.
-- [ ] For each module the grep names, read the matched function body in full and compare it
+- [x] For each module the grep names, read the matched function body in full and compare it
       against `_build_support.py`'s. Classify each as: full duplicate (both helpers),
       `_settings`-only duplicate, same-shape-different-name, documented exception, or
       false positive. Record the classification and the reason.
-- [ ] For any module NOT in this plan's expected set, or whose classification differs from this
+- [x] For any module NOT in this plan's expected set, or whose classification differs from this
       plan's, note the divergence explicitly and handle it under the rule below rather than
       forcing it into a phase it does not fit.
-- [ ] **Divergence rule**: a helper that is genuinely not equivalent to the shared one keeps a
+- [x] **Divergence rule**: a helper that is genuinely not equivalent to the shared one keeps a
       documented local wrapper that *delegates* to `_build_support` (the
       `unit/test_structure.py` pattern), with the reason for the difference written in the
       module. Never force a non-equivalent module onto the shared form, and never leave a full
       duplicate in place unexplained.
-- [ ] Record the pre-change collection baseline:
+- [x] Record the pre-change collection baseline:
       `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q`
       and note the collected test count and clean-import status.
 
@@ -160,6 +160,24 @@ below to match what the tree actually contains before editing anything.
 - The `--collect-only` baseline runs clean with a recorded test count.
 
 ---
+
+**Confirmation (re-run at implementation time)**: fresh grep matches this plan's ten-module list
+exactly, with no additions or removals. Every module's helper body was read against
+`_build_support.py`'s and matches this plan's classification with no divergence: Group A (full
+duplicate of both `_settings`/`_build`) = `integration/test_data_extraction.py`,
+`integration/test_output_gate.py` (8 `_build(...)` call sites, all passing `verify=` explicitly
+-- the docstring claiming a `'verify'='off'` mirror of `test_structure.py` is confirmed stale,
+the body applies no such override); Group B (`_settings`-only duplicate, byte-identical to
+`_build_support._settings`) = `integration/test_iterate.py`,
+`integration/test_until_since_integration.py`, `unit/test_operators.py`,
+`unit/test_proposition.py`, `unit/test_semantics_core.py`; Group C (same-shape,
+differently-named) = `integration/test_injection.py`'s `_build_solved` (3 call sites,
+behaviorally identical to the shared `_build`, `BimodalSemantics` used elsewhere in the module at
+`BimodalSemantics(_settings())`); non-candidates = `unit/test_structure.py` (documented
+`'verify'='off'` wrapper delegating to `_build_support._build`, left untouched) and
+`unit/test_witness_constraints.py` (`_build_selector_family` -- confirmed grep false positive,
+unrelated shape). Pre-change baseline: `--collect-only` reports 686 tests collected, clean
+import, no collection errors.
 
 ### Phase 2: Consolidate `_settings`-Only Duplicates [NOT STARTED]
 

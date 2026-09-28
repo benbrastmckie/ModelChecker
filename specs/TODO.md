@@ -22,7 +22,7 @@ next_project_number: 216
 
 ### Testing
 
-212 [PLANNED] — Consolidate the remaining bimodal test modules that define...
+212 [IMPLEMENTING] — Consolidate the remaining bimodal test modules that define...
 
 ### Semantics
 
@@ -188,7 +188,7 @@ by repeated draws. Item 2 is verified by its own self-test.
 ---
 
 ### 212. Consolidate remaining bimodal test helpers
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 210
