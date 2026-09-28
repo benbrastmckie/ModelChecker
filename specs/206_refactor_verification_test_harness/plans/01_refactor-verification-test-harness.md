@@ -545,7 +545,17 @@ the enumeration.
 
 ---
 
-### Phase 6: Re-measure under CI's invocation shape; decide the scheduling question [NOT STARTED]
+### Phase 6: Re-measure under CI's invocation shape; decide the scheduling question [COMPLETED]
+
+**Results**: widest boxed case 121.78s -> **33.90s** (72.2%, 3.59x); second boxed case 17.93s ->
+**7.14s** (60.2%, 2.51x) -- both ahead of the Scope Hypothesis's ~36s / ~5-8s projection. Gate
+criterion measured at **88.7% headroom / 8.85x CI-hardware slowdown tolerance** against the 59% /
+2.4x pre-fix margin. **Decision: Adequate — Phase 7 is not taken** (see that phase's own
+`[COMPLETED WITH EXCLUSIONS]` closure). Full record:
+`specs/206_refactor_verification_test_harness/baselines/01_ci-shaped-baseline.md`'s "After
+(post-refactor, Phase 6)" section. Docstrings updated in place in
+`test_certificate_a2_triangle.py` (module docstring, `TestExhaustiveTriangleWithBox`); full
+bimodal suite (640 passed) re-confirmed green after the docstring edits.
 
 **Goal**: Report before and after under the same invocation shape on the same host, record both
 numbers where this codebase already records measured numbers, and decide on the *measured*
@@ -609,7 +619,13 @@ re-decide the gate on the measured number rather than the projection.
 
 ---
 
-### Phase 7: Contingency — move the widest case to a scheduled run with a freshness check [NOT STARTED]
+### Phase 7: Contingency — move the widest case to a scheduled run with a freshness check [COMPLETED WITH EXCLUSIONS]
+
+#### Reasoned Exclusions
+
+| Item | Reason | Evidence |
+|---|---|---|
+| The entire phase (new marker, scheduled workflow, freshness check, `TESTING_GUIDE.md` cadence note) | Phase 6's gate verdict was **Adequate**, not inadequate -- this phase is taken "only if" the post-fix margin was found inadequate (this phase's own Goal). The post-fix widest case leaves 88.7% headroom (8.85x CI-hardware slowdown tolerance) against the 300s ceiling, a large improvement over the pre-fix 59%/2.4x margin that originally motivated considering this route. | `specs/206_refactor_verification_test_harness/baselines/01_ci-shaped-baseline.md`'s "Gate criterion and decision (Phase 6)" section: 33.90s measured, 88.7% headroom, 8.85x tolerance, `Decision: Adequate`. |
 
 **Goal**: Taken **only if** Phase 6's gate found the post-fix margin inadequate. Move the widest
 boxed Tier 1 case off the per-PR path to a scheduled run while keeping the second boxed case in

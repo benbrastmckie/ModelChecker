@@ -94,6 +94,59 @@ The recorded 123.29s / 17.77s numbers already on file were confirmed to reproduc
 measurements land within ~1.5% below them), so Phase 1's Scope Hypothesis is confirmed: no
 material divergence to flag.
 
-## After (post-refactor)
+## After (post-refactor, Phase 6)
 
-See the "Phase 6" section appended below once Phases 2-5 land.
+Re-ran Phase 1's verbatim recorded command, same host, same shape, after Phases 2-5 landed
+(`_recheck_family` extraction, the pinned evaluator's family-only/target-time split, and the
+family-outer/target-inner harness restructure):
+
+```
+pytest tests/ src/model_checker -m "not packaging and not performance and not unstable and not xdist_serial" -n 4 -q --timeout=300 --timeout-method=thread --durations=25
+```
+
+- Total: 3145 items (11 more than Run 2 -- this task's own new equivalence/partition tests in
+  Phases 3-4), 3143 passed, 1 skipped, **1 failed**, wall clock 105.69s (0:01:45) -- down from
+  Run 2's 179.38s.
+- **Failure**: the same pre-existing, out-of-scope `test_checker.py::TestLazyBoundedMemoizedProbe::test_import_performs_no_subprocess_call`
+  flake recorded in the "Before" section above -- reproduces again here, confirming it is an
+  environmental (`-n 4` contention) flake in a module this task does not touch, not a
+  regression introduced by this task's changes.
+
+### Before/After table (both numbers, per the dispatch's explicit requirement)
+
+| Case | Candidates | Before (Run 2) | After (Phase 6) | Reduction | Multiplier |
+|---|---|---|---|---|---|
+| `test_boxed_closure_enumeration_agrees_with_z3_nb2_nf2` (widest) | 10,485,760 | 121.78s | **33.90s** | 72.2% | 3.59x |
+| `test_boxed_closure_enumeration_agrees_with_z3` | 1,572,864 | 17.93s | **7.14s** | 60.2% | 2.51x |
+
+Both counts (`total`/`accepted`/`pinned_accepted`) are bit-for-bit identical to the recorded
+baseline for both cases, confirmed by the tests' own unedited pinned assertions passing.
+
+The widest case's standalone (non-`-n4`) measurement from Phase 5's own record was 29.56s;
+33.90s under the real `-n 4` CI shape is consistent with the worker-contention gap already
+observed between standalone and CI-shaped numbers throughout this record.
+
+### Gate criterion and decision (Phase 6)
+
+**Criterion** (as stated in the plan): is the post-fix margin adequate -- does the widest case's
+measured CI-shaped wall clock leave headroom against the 300s ceiling that tolerates CI hardware
+materially slower than this host, stated as a concrete ratio?
+
+**Measured**: 33.90s against the 300s ceiling leaves **88.7% headroom** (`(300-33.90)/300`), a
+**8.85x** CI-hardware slowdown tolerance (`300/33.90`) -- almost exactly the research report's
+~88% / ~8x projection (F8/F10), and a large improvement over the pre-fix 59% / 2.4x margin this
+task's Phase 1 baseline recorded.
+
+**Decision: Adequate.** Phase 7 (the scheduled-run contingency) is **not taken**. Closed
+`[COMPLETED WITH EXCLUSIONS]` with its own `#### Reasoned Exclusions` record citing this
+measurement as Evidence.
+
+### Recorded-measurement docstring updates (this phase)
+
+`TestExhaustiveTriangleWithBox`'s class docstring and the module docstring's Tier 1 bullet, in
+`code/src/model_checker/theory_lib/bimodal/tests/integration/test_certificate_a2_triangle.py`,
+are updated in place to carry these numbers (33.90s / 7.14s, 88.7% headroom, 8.85x slowdown
+tolerance) in the same commit as this baseline update, replacing the pre-refactor 123.29s /
+17.77s / ~59% / ~2.4x figures. `TestExhaustiveTriangleBoxFree`'s docstring numbers did not move
+materially (both box-free widest cases stayed well under 2s before and after) and are left as
+recorded.
