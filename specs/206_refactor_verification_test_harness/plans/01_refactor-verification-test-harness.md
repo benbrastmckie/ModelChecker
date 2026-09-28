@@ -385,7 +385,7 @@ or test callers, so the harness can compute it once per witness family.
 
 ---
 
-### Phase 4: Split the pinned evaluator's entries into family-only and target-time groups [NOT STARTED]
+### Phase 4: Split the pinned evaluator's entries into family-only and target-time groups [COMPLETED]
 
 **Goal**: Let `PinnedAssignmentBuilder` build a candidate's row as a cached per-family base row
 plus a cheap per-`target_time` overlay, instead of re-resolving every `lab_`/`bx_` atom for every

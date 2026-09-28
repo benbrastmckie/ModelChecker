@@ -261,6 +261,16 @@ class PinnedAssignmentBuilder:
     Holds only plain data read from the structure at construction time (`builder_for` is the
     usual way to build one) -- never a live reference to the structure itself, so it stays valid
     across the whole enumeration even if the structure's own mutable state changes.
+
+    **Family-only / target-time partition (implementation plan Phase 4).** Of the module
+    docstring's three closed atom families, `lab_`/`bx_` resolvers ignore `target_time`
+    entirely; only `sel_` resolvers use it. `_parse_atom` tags each entry with this fact at
+    construction time (the same call that builds its resolver, not a second inspection of the
+    atom-name prefix), splitting `_entries` into `_family_only_entries` and `_target_entries`.
+    `base_row`/`apply_target` expose this split directly so a caller re-checking the same
+    family across many `target_time` values (the harness's per-family amortization) computes
+    the family-only portion once instead of once per `target_time`; `assign` is unchanged
+    behaviourally, now implemented as `base_row` + `apply_target`.
     """
 
     def __init__(
@@ -299,10 +309,20 @@ class PinnedAssignmentBuilder:
             self._formula_by_repr[key] = formula
 
         # Parse every interned atom name into a typed resolver exactly once (compile-once,
-        # interpret-many on the assignment side too).
-        self._entries: List[Tuple[str, int, _AtomResolver]] = [
-            (name, index, self._parse_atom(name)) for name, index in atom_index.items()
-        ]
+        # interpret-many on the assignment side too), partitioning family-only (lab_/bx_) from
+        # target-time (sel_) entries at the same pass -- the resolver kind is already known
+        # here, from _parse_atom's own three-family dispatch, so this never re-inspects the
+        # atom-name prefix a second time.
+        self._entries: List[Tuple[str, int, _AtomResolver]] = []
+        self._family_only_entries: List[Tuple[int, _AtomResolver]] = []
+        self._target_entries: List[Tuple[int, _AtomResolver]] = []
+        for name, index in atom_index.items():
+            resolver, family_only = self._parse_atom(name)
+            self._entries.append((name, index, resolver))
+            if family_only:
+                self._family_only_entries.append((index, resolver))
+            else:
+                self._target_entries.append((index, resolver))
 
     def _segment_for_slot(self, slot: int) -> Tuple[str, int]:
         """Map a wrapped slot index to `(segment_attr, offset_within_segment)`, agreeing with
@@ -322,18 +342,21 @@ class PinnedAssignmentBuilder:
             )
         return formula
 
-    def _parse_atom(self, name: str) -> _AtomResolver:
+    def _parse_atom(self, name: str) -> Tuple[_AtomResolver, bool]:
         """Parse one interned atom name into a `(family, target_time) -> bool` resolver, per the
-        three closed atom families (module docstring). Raises `ValueError` -- loudly, at
-        construction time -- on anything outside those three families or an out-of-range lasso
-        index, rather than deferring the failure into the hot loop."""
+        three closed atom families (module docstring), plus a `family_only` tag: `True` for
+        `lab_`/`bx_` (the resolver ignores `target_time`), `False` for `sel_` (the resolver
+        reads `target_time`) -- the source the family-only/target-time partition above is built
+        from. Raises `ValueError` -- loudly, at construction time -- on anything outside those
+        three families or an out-of-range lasso index, rather than deferring the failure into
+        the hot loop."""
         if name.startswith("bx_"):
             formula = self._lookup_formula(name[len("bx_"):], name)
-            return lambda family, target_time: family.bx_of(formula)
+            return (lambda family, target_time: family.bx_of(formula)), True
 
         if name.startswith("sel_"):
             t = int(name[len("sel_"):])
-            return lambda family, target_time: target_time == t
+            return (lambda family, target_time: target_time == t), False
 
         if name.startswith("lab_"):
             rest = name[len("lab_"):]
@@ -354,35 +377,65 @@ class PinnedAssignmentBuilder:
                 label = getattr(lasso, segment_attr)[offset]
                 return formula in label
 
-            return _resolve
+            return _resolve, True
 
         raise ValueError(
             f"atom name {name!r} is outside the three closed families (lab_/bx_/sel_)"
         )
 
-    def build_names(self, family: WitnessFamily, target_time: int) -> Dict[str, bool]:
-        """Build the full `name -> value` dict for one candidate, driven by `atom_index` -- used
-        by the unit tests and by `check_coverage`; the hot path uses `assign` instead."""
+    def _check_lasso_count(self, family: WitnessFamily) -> None:
+        """The lasso-count guard, shared by every entry point (`assign`, `base_row`,
+        `apply_target`) so it is not reachable only through the slow (`assign`) path."""
         if len(family.lassos) != len(self.active_lassos):
             raise ValueError(
                 f"family carries {len(family.lassos)} lasso(s) but this structure has "
                 f"{len(self.active_lassos)} active lasso(s)"
             )
+
+    def build_names(self, family: WitnessFamily, target_time: int) -> Dict[str, bool]:
+        """Build the full `name -> value` dict for one candidate, driven by `atom_index` -- used
+        by the unit tests and by `check_coverage`; the hot path uses `assign` instead."""
+        self._check_lasso_count(family)
         return {name: resolver(family, target_time) for name, _, resolver in self._entries}
+
+    def base_row(self, family: WitnessFamily) -> List[Optional[bool]]:
+        """Build the family-only (`lab_`/`bx_`) portion of the row once for `family` --
+        `target_time` never enters into any of these resolvers, so a caller re-checking the same
+        family across many `target_time` values (the harness's per-family amortization,
+        implementation plan Phase 5) calls this once per family rather than once per candidate.
+        `sel_` slots are left `None`; `apply_target` fills them in for one `target_time`. Returns
+        a fresh, caller-owned `Row` -- never aliased across calls."""
+        self._check_lasso_count(family)
+        row: List[Optional[bool]] = [None] * self.size
+        for index, resolver in self._family_only_entries:
+            # target_time is unused by every family-only resolver (module docstring); None
+            # makes that explicit rather than passing a real target_time that would be ignored.
+            row[index] = resolver(family, None)  # type: ignore[arg-type]
+        return row
+
+    def apply_target(
+        self, row: List[Optional[bool]], family: WitnessFamily, target_time: int
+    ) -> List[Optional[bool]]:
+        """Overlay the target-time (`sel_`) entries for one `target_time` onto `row`, in place
+        -- the cheap per-`target_time` step once `base_row` has been computed for `family`. Every
+        `sel_` slot is written on every call, so reusing the same `row` object across a family's
+        `target_window` (the harness's intended usage) never leaks a stale `sel_` value from one
+        `target_time` into the next; only `base_row`'s family-only slots are ever left
+        untouched here. Returns `row` (the same object, mutated) for convenient chaining."""
+        self._check_lasso_count(family)
+        for index, resolver in self._target_entries:
+            row[index] = resolver(family, target_time)
+        return row
 
     def assign(self, family: WitnessFamily, target_time: int) -> List[Optional[bool]]:
         """Project the candidate's data into a preallocated `Row` indexed by `atom_index` -- the
         per-candidate hot path: no dict allocation, no string parsing, only the resolvers
-        precomputed at construction time."""
-        if len(family.lassos) != len(self.active_lassos):
-            raise ValueError(
-                f"family carries {len(family.lassos)} lasso(s) but this structure has "
-                f"{len(self.active_lassos)} active lasso(s)"
-            )
-        row: List[Optional[bool]] = [None] * self.size
-        for _, index, resolver in self._entries:
-            row[index] = resolver(family, target_time)
-        return row
+        precomputed at construction time. Behaviourally unchanged from before the family-only/
+        target-time split: implemented as `base_row` + `apply_target`, always fresh (a caller
+        wanting the amortized form calls `base_row` once and `apply_target` per `target_time`
+        directly instead)."""
+        row = self.base_row(family)
+        return self.apply_target(row, family, target_time)
 
 
 def builder_for(structure, atom_index: Mapping[str, int]) -> PinnedAssignmentBuilder:

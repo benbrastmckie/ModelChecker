@@ -293,6 +293,74 @@ class TestAssignmentCoverage:
             check_coverage({"lab_0_0_x": True}, {"lab_0_0_x": 0, "sel_0": 1})
 
 
+class TestBaseRowAndApplyTargetAgreeWithAssign:
+    """`base_row` + `apply_target` (implementation plan Phase 4's family-only/target-time
+    split) must produce results identical to `assign` for every `target_time` in a structure's
+    window (a), the partition must be exhaustive against `atom_index` (b), and reusing one
+    `base_row` result across several `apply_target` calls must not leak a stale `sel_` value
+    from one `target_time` into the next (c)."""
+
+    @pytest.mark.parametrize("back, mid, fwd", _TIER1_SETTINGS)
+    def test_base_row_plus_apply_target_equals_assign_for_every_target_time(self, back, mid, fwd):
+        structure = _build(["\\Box A"], ["B"], back=back, mid=mid, fwd=fwd)
+        compiled, builder = compile_and_bind(structure)
+        family = structure.certificate
+        assert family is not None
+        window = list(structure.semantics.witness_registry.target_window())
+        assert window, "target_window must be non-empty for this to be a meaningful check"
+
+        base = builder.base_row(family)
+        for t in window:
+            expected = builder.assign(family, t)
+            row = list(base)  # a caller-owned copy, matching apply_target's "caller-owned" contract
+            actual = builder.apply_target(row, family, t)
+            assert actual == expected, f"base_row + apply_target diverged from assign at t={t}"
+
+    @pytest.mark.parametrize("back, mid, fwd", _TIER1_SETTINGS)
+    def test_partition_is_exhaustive_against_atom_index(self, back, mid, fwd):
+        structure = _build(["\\Box A"], ["B"], back=back, mid=mid, fwd=fwd)
+        compiled, builder = compile_and_bind(structure)
+        family_only_indices = {index for index, _ in builder._family_only_entries}
+        target_indices = {index for index, _ in builder._target_entries}
+        # Exhaustive: every entry lands in exactly one of the two groups.
+        assert not (family_only_indices & target_indices), (
+            "an atom index appears in both the family-only and target-time groups"
+        )
+        assert family_only_indices | target_indices == set(compiled.atom_index.values()), (
+            "the union of the two groups is not atom_index's full key set -- some entry was "
+            "dropped by the partition"
+        )
+
+    def test_reusing_a_base_row_across_target_times_does_not_leak_stale_sel_values(self):
+        structure = _build(["\\Box A"], ["B"], back=1, mid=1, fwd=1)
+        compiled, builder = compile_and_bind(structure)
+        family = structure.certificate
+        assert family is not None
+        window = list(structure.semantics.witness_registry.target_window())
+        assert len(window) >= 2, "need at least two target_times to exercise reuse"
+
+        row = builder.base_row(family)
+        results = []
+        for t in window:
+            builder.apply_target(row, family, t)
+            # Snapshot immediately -- row is mutated in place by the next apply_target call.
+            results.append((t, list(row)))
+
+        for t, snapshot in results:
+            assert snapshot == builder.assign(family, t), (
+                f"the row reused across target_times diverged from a fresh assign() at t={t} "
+                "-- a stale sel_ value from a previous target_time leaked into this one"
+            )
+        # Family-only slots are identical across every snapshot -- only sel_ slots moved.
+        family_only_indices = {index for index, _ in builder._family_only_entries}
+        for index in family_only_indices:
+            values = {snapshot[index] for _t, snapshot in results}
+            assert len(values) == 1, (
+                f"family-only slot {index} changed across target_times -- apply_target must "
+                "only ever touch target-time (sel_) slots"
+            )
+
+
 class TestExtractedCertificateRoundTrip:
     """The strongest self-check: for an expected-SAT case, the assignment built from the
     extracted certificate (which came from a genuinely satisfying Z3 model) makes `evaluate_all`
