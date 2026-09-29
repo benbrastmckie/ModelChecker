@@ -1,12 +1,68 @@
 {
-  "status": "in_progress",
+  "status": "implemented",
   "dispatch_seq": 3,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/220_unicode_operator_characters/summaries/01_unicode-operator-aliases-summary.md",
+      "summary": "Implementation summary for the Operator.aliases Unicode operator character mechanism: attribute, collection registration, error handling, seven-theory adoption, docs, and full regression."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Added an optional Operator.aliases class attribute registered by OperatorCollection.add_operator alongside the canonical LaTeX name, with a conflict-aware DuplicateOperatorError policy and UnknownOperatorError on lookup; adopted curated Unicode aliases across all seven shipped theory operators.py files (discovering and fixing an alias-inheritance collision in counterfactual/candidates.py and imposition's LogosCounterfactual along the way); updated docs/usage/OPERATORS.md and five other docs that asserted the now-false 'never use Unicode' rule. Full test suite green (2834 passed in code/src/model_checker/, 647 passed in code/tests/), with dev_cli.py acceptance runs confirming identical model output for LaTeX- and Unicode-spelled formulas."
+  },
+  "modified_files": [
+    "code/docs/core/CODE_STANDARDS.md",
+    "code/docs/core/DOCUMENTATION.md",
+    "code/docs/implementation/ERROR_HANDLING.md",
+    "code/docs/specific/FORMULAS.md",
+    "code/docs/standards/documentation/DOCUMENTATION_STANDARDS.md",
+    "code/src/model_checker/syntactic/collection.py",
+    "code/src/model_checker/syntactic/formulas.py",
+    "code/src/model_checker/syntactic/operators.py",
+    "code/src/model_checker/syntactic/tests/integration/test_collection.py",
+    "code/src/model_checker/syntactic/tests/unit/test_collection.py",
+    "code/src/model_checker/syntactic/tests/unit/test_formulas.py",
+    "code/src/model_checker/theory_lib/bimodal/operators.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_unicode_aliases.py",
+    "code/src/model_checker/theory_lib/exclusion/operators.py",
+    "code/src/model_checker/theory_lib/exclusion/tests/unit/test_unicode_aliases.py",
+    "code/src/model_checker/theory_lib/imposition/operators.py",
+    "code/src/model_checker/theory_lib/imposition/tests/unit/test_unicode_aliases.py",
+    "code/src/model_checker/theory_lib/logos/operators.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/operators.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_unicode_aliases.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidates.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_unicode_aliases.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_unicode_aliases.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py",
+    "code/src/model_checker/theory_lib/logos/subtheories/modal/tests/test_unicode_aliases.py",
+    "docs/usage/OPERATORS.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When adding a multi-key registration mechanism (e.g. operator aliases) to a registry whose add() is called once per existing key by a deserializer, a blanket 'raise on duplicate' policy breaks the round-trip: the same class gets re-registered N+1 times. The correct policy is conflict-aware -- re-registering the SAME object under a key it already owns is a silent no-op, while a DIFFERENT object claiming a taken key raises. In ModelChecker this applies to OperatorCollection.add_operator, whose re-add paths are builder/serialize.py::deserialize_operators (iterates every dictionary key) and add_operator's own OperatorCollection-merge branch.",
+      "category": "PATTERN",
+      "source_artifact": "specs/220_unicode_operator_characters/summaries/01_unicode-operator-aliases-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["registry", "duplicate", "idempotent", "deserialize", "alias", "OperatorCollection"]
+    },
+    {
+      "content": "A subclass that does not override a non-empty class-level list attribute inherits the PARENT's actual list value via ordinary Python attribute lookup (not the base class's empty default several levels up). This is a distinct trap from the classic 'mutable default shared across siblings' bug: here the parent legitimately owns a non-empty list, and a grandchild/sibling subclass built for a genuinely different purpose (a differently-named experimental/candidate variant) silently inherits it unless it explicitly re-declares the attribute (even as an empty list) to shadow the parent's value. In ModelChecker this bit Operator.aliases: CounterfactualOperator declares aliases=['□→'], and subclasses in counterfactual/candidates.py (and imposition's LogosCounterfactual) that give themselves distinct `name`s but do not override `aliases` silently inherited '□→' and collided with it and each other once more than one was registered in the same collection. Fix: an explicit `aliases: List[str] = []` override on the shared intermediate base class (or on each leaf subclass) that never intends to share the parent's alias.",
+      "category": "PATTERN",
+      "source_artifact": "specs/220_unicode_operator_characters/summaries/01_unicode-operator-aliases-summary.md",
+      "confidence": 0.85,
+      "suggested_keywords": ["python", "inheritance", "class-attribute", "shared-default", "alias-collision", "subclass"]
+    }
+  ],
   "metadata": {
     "session_id": "sess_1790695815_82e5a1",
     "agent_type": "general-implementation-agent",
     "delegation_depth": 2,
     "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
-    "phases_completed": 0,
+    "phases_completed": 6,
     "phases_total": 6
   }
 }

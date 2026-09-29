@@ -1,16 +1,21 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "task_number": 220,
-  "session_id": "sess_1790695815_82e5a1_220",
-  "dispatch_seq": 2,
-  "phases_completed": 0,
+  "session_id": "sess_1790695815_82e5a1",
+  "dispatch_seq": 3,
+  "phases_completed": 6,
   "phases_total": 6,
   "artifacts": [
     {
+      "type": "summary",
+      "path": "specs/220_unicode_operator_characters/summaries/01_unicode-operator-aliases-summary.md",
+      "summary": "Implementation summary for the Operator.aliases Unicode operator character mechanism: attribute, collection registration, error handling, seven-theory adoption, docs, and full regression."
+    },
+    {
       "type": "plan",
       "path": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
-      "summary": "Six-phase implementation plan for Operator.aliases-based user-specifiable Unicode operator characters in theory operators.py files."
+      "summary": "Six-phase implementation plan, all phases marked [COMPLETED]."
     }
   ],
-  "next_steps": "Run /implement 220 to execute the plan"
+  "next_steps": "All 6 phases complete and verified. Task ready for completion/postflight; no further implementation work outstanding."
 }
