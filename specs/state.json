@@ -1,6 +1,16 @@
 {
-  "next_project_number": 218,
+  "next_project_number": 219,
   "active_projects": [
+    {
+      "project_number": 218,
+      "project_name": "refactor_bimodal_countermodel_presentation",
+      "status": "not_started",
+      "task_type": "python",
+      "description": "Refactor bimodal/ theory countermodel presentation in dev_cli.py output: review the old presentation in /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/bimodal/examples.py for salvageable elements (inspiration only, theory is outdated), research best CLI display methods online, and systematically improve the presentation elements for the current bimodal/ theory in this repo, making any other systematic model-checker changes only as needed",
+      "topic": "cli-presentation",
+      "created": "2026-09-29T00:18:24Z",
+      "last_updated": "2026-09-29T00:18:24Z"
+    },
     {
       "project_number": 217,
       "project_name": "rescope_blocked_adequacy_consumers",
@@ -767,12 +777,18 @@
     "testing",
     "semantics",
     "release-engineering",
-    "test-reliability"
+    "test-reliability",
+    "cli-presentation"
   ],
   "deployment_versions": {
-    "last_deployed": "v1.3.9",
-    "last_deployed_at": "2026-09-01T15:49:21Z",
+    "last_deployed": "v1.4.0",
+    "last_deployed_at": "2026-09-29T00:02:34Z",
     "deployment_history": [
+      {
+        "version": "v1.4.0",
+        "deployed_at": "2026-09-29T00:02:34Z",
+        "commit_sha": "01af7033a1ccaff30094082b93dc4ac10f76c97b"
+      },
       {
         "version": "v1.3.9",
         "deployed_at": "2026-09-01T15:49:21Z",

@@ -1,17 +1,17 @@
 ---
-next_project_number: 218
+next_project_number: 219
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-09-28. Generated from state.json dependency graph.*
+*Updated 2026-09-29. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,216,217 | -- | documentation, semantics |
+| 1 | 198,200,216,217,218 | -- | documentation, semantics, cli-presentation |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -27,7 +27,21 @@ next_project_number: 218
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 217 [NOT STARTED] — Re-scope the two blocked bimodal adequacy consumers in...
 
+### Cli Presentation
+
+218 [NOT STARTED] — Refactor bimodal/ theory countermodel presentation in...
+
 ## Tasks
+
+### 218. Refactor bimodal countermodel presentation
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: cli-presentation
+- **Dependencies**: None
+
+**Description**: Refactor bimodal/ theory countermodel presentation in dev_cli.py output: review the old presentation in /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/bimodal/examples.py for salvageable elements (inspiration only, theory is outdated), research best CLI display methods online, and systematically improve the presentation elements for the current bimodal/ theory in this repo, making any other systematic model-checker changes only as needed
+
+---
 
 ### 217. Rescope blocked adequacy consumers
 - **Status**: [NOT STARTED]
