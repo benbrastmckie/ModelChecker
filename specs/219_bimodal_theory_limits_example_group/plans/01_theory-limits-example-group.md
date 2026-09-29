@@ -1,7 +1,7 @@
 # Implementation Plan: Bimodal Theory-Limits Example Group
 
 - **Task**: 219 - Add a documented THEORY-LIMITS example group to bimodal's examples.py
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 3 hours
 - **Dependencies**: None (tasks 216 and 217 are concurrent siblings this cycle with undeclared
   file scope; neither is known to touch `code/src/model_checker/theory_lib/bimodal/examples.py`)
@@ -109,19 +109,19 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 1: Baseline, Citation, and Placement Confirmation [NOT STARTED]
+### Phase 1: Baseline, Citation, and Placement Confirmation [COMPLETED]
 
 **Goal**: Establish a clean pre-change baseline, re-confirm the research report's load-bearing
 facts against the live trees at implementation time, and fix the exact insertion anchor.
 
 **Tasks**:
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -q` and record the passing count. Expect 53.
-- [ ] Confirm `git status --short` shows no foreign modification to `code/src/model_checker/theory_lib/bimodal/examples.py`. If one is present, check `git log` and stop-and-report rather than proceeding.
-- [ ] Re-read `examples.py` in full immediately before any edit, to pick up any sibling change.
-- [ ] Confirm no stability modal exists: grep `code/src/model_checker/theory_lib/bimodal/` `.py` files for `stab` and `stability`, expecting no operator hit.
-- [ ] Confirm all five cited declarations resolve by name in the live BimodalLogic tree, read-only: `stabSnceTarget`, `snce_share_congr`, `not_plusCertifies_stabSnce`, `not_plusCertifies_stabSnce_premise`, `not_plusValidZTime_stabSnce`. Do not edit that repository.
-- [ ] Confirm `FormalSystem.Syntax.Formula`'s six constructors and that `FormalSystem.ProofSystem.Axiom` is declared over `Formula`, so the "not an axiom problem" paragraph is grounded in the live source.
-- [ ] Fix the insertion anchor: immediately after the final `BX7P_LINEAR_S_TH_example` block and before the `### DEFINE EXAMPLES AND THEORIES TO COMPUTE ###` banner. This keeps all theorem definitions contiguous and places the new section after `MD_CM_3` and `BM_CM_1`/`BM_CM_2`, which the header text refers to as "above", and before `TL_CM_1`/`TL_CM_2`, which it refers to as "below".
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -q` and record the passing count. Expect 53. (Confirmed: 53 passed.)
+- [x] Confirm `git status --short` shows no foreign modification to `code/src/model_checker/theory_lib/bimodal/examples.py`. If one is present, check `git log` and stop-and-report rather than proceeding. (Confirmed clean.)
+- [x] Re-read `examples.py` in full immediately before any edit, to pick up any sibling change.
+- [x] Confirm no stability modal exists: grep `code/src/model_checker/theory_lib/bimodal/` `.py` files for `stab` and `stability`, expecting no operator hit. (Confirmed: only unrelated "unstable"/"stable" test-timing prose hits, no operator.)
+- [x] Confirm all five cited declarations resolve by name in the live BimodalLogic tree, read-only: `stabSnceTarget`, `snce_share_congr`, `not_plusCertifies_stabSnce`, `not_plusCertifies_stabSnce_premise`, `not_plusValidZTime_stabSnce`. Do not edit that repository. (Confirmed, all five in `FormalSystem/Metalogic/Decidability/PlusWitnessFamily/Incompleteness.lean`, namespace `FormalSystem.Metalogic.Decidability.PlusSharingWitnessFamily`.)
+- [x] Confirm `FormalSystem.Syntax.Formula`'s six constructors and that `FormalSystem.ProofSystem.Axiom` is declared over `Formula`, so the "not an axiom problem" paragraph is grounded in the live source. (Confirmed: atom/bot/imp/box/untl/snce; `Axiom : Formula -> Type`; `stab` only in `PlusFormula`.)
+- [x] Fix the insertion anchor: immediately after the final `BX7P_LINEAR_S_TH_example` block and before the `### DEFINE EXAMPLES AND THEORIES TO COMPUTE ###` banner. This keeps all theorem definitions contiguous and places the new section after `MD_CM_3` and `BM_CM_1`/`BM_CM_2`, which the header text refers to as "above", and before `TL_CM_1`/`TL_CM_2`, which it refers to as "below". (Confirmed: anchor is examples.py line 1328, between `BX7P_LINEAR_S_TH_example`'s closing bracket and the `### DEFINE EXAMPLES AND THEORIES TO COMPUTE ###` banner.)
 
 **Timing**: 0.5 hours
 

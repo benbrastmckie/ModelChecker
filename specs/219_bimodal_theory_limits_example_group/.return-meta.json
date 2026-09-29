@@ -1,22 +1,10 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/219_bimodal_theory_limits_example_group/plans/01_theory-limits-example-group.md",
-      "summary": "Four-phase plan adding a documented THEORY-LIMITS example group with two expressible countermodel entries to bimodal examples.py."
+      "type": "summary",
+      "path": "specs/219_bimodal_theory_limits_example_group/summaries/02_theory-limits-example-group-summary.md",
+      "summary": "In progress: implementing the THEORY-LIMITS example group in bimodal examples.py per the 4-phase plan."
     }
-  ],
-  "memory_candidates": [],
-  "metadata": {
-    "session_id": "sess_1790680033_ca6f67_219",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"],
-    "phase_count": 4,
-    "estimated_hours": 3,
-    "dependency_waves": [[1], [2], [3], [4]]
-  },
-  "next_steps": "Run /implement 219 to execute the plan",
-  "dispatch_seq": 6
+  ]
 }
