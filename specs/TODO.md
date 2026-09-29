@@ -25,7 +25,7 @@ next_project_number: 220
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-217 [RESEARCHING] — Re-scope the two blocked bimodal adequacy consumers in...
+217 [RESEARCHED] — Re-scope the two blocked bimodal adequacy consumers in...
 219 [RESEARCHING] — Add a documented THEORY-LIMITS example group to...
 
 ## Tasks
@@ -70,10 +70,11 @@ DELIVERABLE. The group present in examples.py with its header commentary and at 
 ---
 
 ### 217. Rescope blocked adequacy consumers
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Task Type**: meta
 - **Topic**: semantics
 - **Dependencies**: None
+- **Research**: [217_rescope_blocked_adequacy_consumers/reports/01_rescope-blocked-adequacy-consumers.md]
 
 **Description**: Re-scope the two blocked bimodal adequacy consumers in specs/state.json, whose recorded blockers no longer match the upstream state. This task edits task metadata under specs/ only. It must not edit any document under code/, and it must not edit the BimodalLogic repository.
 

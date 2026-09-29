@@ -1,0 +1,34 @@
+{
+  "status": "researched",
+  "dispatch_seq": 2,
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/217_rescope_blocked_adequacy_consumers/reports/01_rescope-blocked-adequacy-consumers.md",
+      "summary": "Verifies both entries against the live BimodalLogic tree: confirms Entry 1's f-now-exists / mid-vs-back-fwd split but recommends keeping it blocked since the mid clause's own discharge is scoped to an A1 instance no example occupies; finds Entry 2's dispatch-proposed replacement blocker (three tasks, all not-started) is itself stale -- one is abandoned, one is completed -- and identifies the correct current blocker as tasks 696 and a newly created task 703, per a same-day upstream survey that names this task by number; fully verifies the shape/reflexivity root-cause correction by declaration name."
+    }
+  ],
+  "findings_count": 10,
+  "next_steps": "Run /plan 217 to create implementation plan for rewriting the two specs/state.json entries",
+  "metadata": {
+    "session_id": "sess_1790680033_ca6f67_217",
+    "agent_type": "general-research-agent",
+    "delegation_path": ["orchestrator", "research", "general-research-agent"]
+  },
+  "memory_candidates": [
+    {
+      "content": "When a task dispatch's own description names specific upstream successor tasks as the corrected blocker, re-verify each named task's current status directly in the upstream repo's specs/state.json rather than trusting the dispatch text -- the dispatch can itself go stale between authoring and dispatch if the upstream repo is under concurrent active development (observed: two of three named tasks had already changed status -- one abandoned/folded, one completed -- before the dispatch even ran, and a fourth, newly-created task had already superseded the account).",
+      "category": "PATTERN",
+      "source_artifact": "specs/217_rescope_blocked_adequacy_consumers/reports/01_rescope-blocked-adequacy-consumers.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["cross-repository", "blocker-verification", "upstream-dependency", "stale-dispatch", "bimodal"]
+    },
+    {
+      "content": "When an upstream theorem's adequacy row states a discharge as holding 'at A1's restricted scope' (or similar scope qualifier), check whether the consuming repository's actual test/example inventory instantiates that scope before treating the discharge as actionable -- a magnitude-only half of a bound can be technically satisfiable while still resting on a theorem instance (e.g. empty-premise, single-conclusion) that zero real examples occupy, making the practical adequacy of using it currently unjustified.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/217_rescope_blocked_adequacy_consumers/reports/01_rescope-blocked-adequacy-consumers.md",
+      "confidence": 0.7,
+      "suggested_keywords": ["adequacy", "scope-qualifier", "never-report-validity", "compression-bound"]
+    }
+  ]
+}
