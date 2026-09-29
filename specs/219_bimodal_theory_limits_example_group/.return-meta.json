@@ -12,7 +12,11 @@
     "session_id": "sess_1790680033_ca6f67",
     "agent_type": "python-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "delegation_path": [
+      "orchestrator",
+      "implement",
+      "python-implementation-agent"
+    ],
     "phases_completed": 4,
     "phases_total": 4,
     "modified_files": [
@@ -23,8 +27,10 @@
       "full_bimodal_suite": "735 passed",
       "four_theory_gate": "1811 passed",
       "repo_level_suite": "647 passed, 5 skipped"
-    }
+    },
+    "modified_files_note": "examples.py changes already committed in phase commits; path withheld from postflight staging because the working tree carries an unrelated uncommitted edit to the same file"
   },
   "next_steps": "Task 219 implementation complete; ready for /orchestrate postflight to mark completed.",
-  "dispatch_seq": 9
+  "dispatch_seq": 9,
+  "modified_files": []
 }
