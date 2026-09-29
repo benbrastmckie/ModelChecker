@@ -1,64 +1,30 @@
 {
-  "status": "researched",
-  "dispatch_seq": 1,
+  "status": "planned",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md",
-      "summary": "Audit of the current bimodal certificate printer (12 concrete defects incl. a verified-wrong witness line), salvage inventory from the old Logos presentation, CLI display conventions, and a phased redesign with a target output mock."
+      "type": "plan",
+      "path": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
+      "summary": "Seven-phase, 12-hour plan: formula renderer + glyphs, certificate-derived witness, shared color predicate (systemic), bimodal printer rewrite, align_vertically table view, iteration diffs, and docs/final gate."
     }
   ],
-  "next_steps": "Run /orchestrate 218 --plan (or /plan 218) to turn the seven recommended phases into an implementation plan; phases 1-5 are bimodal-local, phase 6 (shared color predicate) is the one systemic change and can be deferred.",
-  "metadata": {
-    "session_id": "sess_1790641161_19a0a0_218",
-    "agent_type": "python-research-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "python-research-agent"],
-    "findings_count": 12
-  },
+  "next_steps": "Run /implement 218 to execute the plan",
   "memory_candidates": [
     {
-      "content": "In the bimodal certificate encoding, WitnessRegistry._witness_lassos[chi] is a capacity reservation (one lasso allocated per Box in the closure, guessed-true boxes included), not the lasso that falsifies Box(chi): box_faithfulness_constraints asserts 'somewhere absent' over ALL lassos. Anything that names a falsifying witness must scan certificate.lassos x _box_window(lasso) for chi not in label(t), as recheck does.",
-      "category": "INSIGHT",
-      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md",
-      "confidence": 0.9,
-      "suggested_keywords": ["bimodal", "witness lasso", "box faithfulness", "certificate", "print_certificate"]
-    },
-    {
-      "content": "ModelChecker gates ANSI color on `output is sys.__stdout__` (models/structure.py::_print_sentence_group and every theory's print_evaluation/print_states), never on isatty()/NO_COLOR/TERM; only output/progress/animated.py reads NO_COLOR. Escapes are emitted into pipes. --save renders into a StringIO (so no colors) and echoes it, and ANSIToMarkdown only understands red/green SGR codes.",
+      "content": "ModelChecker printed-output plumbing: colors are gated framework-wide by `output is sys.__stdout__` (no isatty/NO_COLOR), so capsys/StringIO tests never see ANSI codes; `builder/module.py::_capture_model_output` renders once into StringIO under --save and `ANSIToMarkdown` only understands red (\\033[31m) and green (\\033[32m), stripping everything else. Any theory printer change must keep information textual (never color-only) and route non-ASCII glyphs through `utils/glyphs.glyph` with a cp1252 real-stream test per TESTING_GUIDE.md section 9.",
       "category": "PATTERN",
-      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md",
-      "confidence": 0.85,
-      "suggested_keywords": ["ANSI", "NO_COLOR", "isatty", "print output", "ANSIToMarkdown"]
-    },
-    {
-      "content": "Quickest way to build a BimodalStructure for experiments or print tests: run from code/ with PYTHONPATH=src:src/model_checker/theory_lib/bimodal/tests and call _build_support._build(premises, conclusions, back=2, mid=1, fwd=2, verify='off'); pass output=sys.stdout with capsys for print assertions. Driving BuildModule/BuildExample by hand needs solver/flag plumbing that fails with 'Unknown solver backend: None'.",
-      "category": "TECHNIQUE",
-      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md",
-      "confidence": 0.8,
-      "suggested_keywords": ["bimodal", "_build_support", "test helper", "BimodalStructure"]
+      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
+      "confidence": 0.7,
+      "suggested_keywords": ["ansi", "color-gating", "ANSIToMarkdown", "glyphs", "cp1252", "printer"]
     }
   ],
-  "modified_files": [
-    "specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md",
-    "specs/218_refactor_bimodal_countermodel_presentation/.return-meta.json"
-  ],
-  "proposed_file_scope": [
-    "code/src/model_checker/theory_lib/bimodal/semantic/model.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/formula.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/proposition.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
-    "code/src/model_checker/theory_lib/bimodal/iterate.py",
-    "code/src/model_checker/theory_lib/bimodal/examples.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py",
-    "code/src/model_checker/theory_lib/bimodal/README.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/ITERATE.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
-    "code/src/model_checker/utils/glyphs.py",
-    "code/src/model_checker/utils/tests/unit/test_glyphs.py",
-    "code/src/model_checker/models/structure.py",
-    "code/src/model_checker/output/__init__.py"
-  ]
+  "metadata": {
+    "session_id": "sess_1790641161_19a0a0_218",
+    "agent_type": "planner-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 7,
+    "estimated_hours": 12,
+    "dependency_waves": [[1, 2, 3], [4, 6], [5], [7]]
+  },
+  "dispatch_seq": 2
 }

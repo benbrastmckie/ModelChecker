@@ -4,12 +4,12 @@
     {
       "project_number": 218,
       "project_name": "refactor_bimodal_countermodel_presentation",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "description": "Refactor bimodal/ theory countermodel presentation in dev_cli.py output: review the old presentation in /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/bimodal/examples.py for salvageable elements (inspiration only, theory is outdated), research best CLI display methods online, and systematically improve the presentation elements for the current bimodal/ theory in this repo, making any other systematic model-checker changes only as needed",
       "topic": "cli-presentation",
       "created": "2026-09-29T00:18:24Z",
-      "last_updated": "2026-09-29T00:29:40Z",
+      "last_updated": "2026-09-29T00:35:23Z",
       "session_id": "sess_1790641161_19a0a0",
       "file_scope": [
         "code/src/model_checker/models/structure.py",
@@ -34,6 +34,11 @@
           "path": "specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md",
           "type": "report",
           "summary": "Audit of the current bimodal certificate printer (12 concrete defects incl. a verified-wrong witness line), salvage inventory from the old Logos presentation, CLI display conventions, and a phased redesign with a target output mock."
+        },
+        {
+          "path": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
+          "type": "plan",
+          "summary": "Seven-phase plan with dependency waves [[1,2,3],[4,6],[5],[7]]."
         }
       ],
       "next_artifact_number": 2
