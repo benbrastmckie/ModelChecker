@@ -1,19 +1,20 @@
 {
   "status": "implemented",
   "phase": "implement",
-  "dispatch_seq": 3,
-  "summary": "Rewrote the bimodal countermodel presentation: user-notation formulas, a certificate-derived box witness (fixing the wrong registry-index witness line), a role column, a Search bounds header, one Verification line, ^ω/∅ glyphs with cp1252 fallbacks, a live -a time-aligned table, user-notation iteration diffs, and one systemic shared use_colors predicate so pipes and NO_COLOR get plain text. Full suite 3416 passed.",
+  "dispatch_seq": 5,
+  "summary": "Phases 8-9 of the revised plan closed: the default bimodal history block is now a time-labelled arrow chain (Histories: heading with legend; (t:atoms) states joined by the DOUBLE_ARROW glyph, … marking the periodic segments, | between back/mid/fwd, [ ] on the evaluation point, columns aligned across lassos); ELLIPSIS glyph added and OMEGA retired; golden/integration/e2e tests, README samples and docs regenerated from live captures; one harness-only deviation (cp1252 packaging leg now decodes with encoding=cp1252). Full suite 3417 passed, 5 skipped.",
   "artifacts": [
     {
       "type": "summary",
-      "path": "specs/218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md",
-      "summary": "Implementation summary: seven phases, verification results, and plan deviations."
+      "path": "specs/218_refactor_bimodal_countermodel_presentation/summaries/02_bimodal-countermodel-presentation-summary.md",
+      "summary": "Round 2 implementation summary: what changed, files, verification, plan deviations."
     }
   ],
-  "phases_completed": 7,
-  "phases_total": 7,
+  "phases_completed": 9,
+  "phases_total": 9,
   "blockers": [],
   "plan_markers_verified": true,
   "continuation_path": null,
-  "git_checkpoint": "62959945"
+  "next_action_hint": "All nine phases are [COMPLETED]; postflight may mark the task completed.",
+  "git_checkpoint": "3a1219a0"
 }

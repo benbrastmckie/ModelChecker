@@ -1,12 +1,50 @@
 {
-  "status": "implementing",
+  "status": "implemented",
   "dispatch_seq": 5,
-  "artifacts": [],
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/218_refactor_bimodal_countermodel_presentation/summaries/02_bimodal-countermodel-presentation-summary.md",
+      "summary": "Round 2 (Phases 8-9): the default bimodal history block is a time-labelled arrow chain under a Histories: heading, with glyphs, golden tests, README/docs regenerated, and a cp1252 harness decode fix; full suite 3417 passed."
+    }
+  ],
+  "next_steps": "Task complete; ready for /todo archival",
   "metadata": {
     "session_id": "sess_1790656279_e5bb8c",
     "agent_type": "python-implementation-agent",
     "delegation_depth": 1,
     "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
-    "phase_range": [8, 9]
-  }
+    "phase_range": [8, 9],
+    "phases_completed_this_dispatch": 2,
+    "phase_count": 9,
+    "git_checkpoint": "3a1219a0"
+  },
+  "modified_files": [
+    "code/src/model_checker/utils/glyphs.py",
+    "code/src/model_checker/utils/tests/unit/test_glyphs.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/model.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py",
+    "code/src/model_checker/builder/tests/e2e/test_full_pipeline.py",
+    "code/src/model_checker/theory_lib/bimodal/README.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md",
+    "code/src/model_checker/theory_lib/bimodal/examples.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+    "code/tests/packaging/test_generate_then_execute.py",
+    "code/docs/core/TESTING_GUIDE.md",
+    "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
+    "specs/218_refactor_bimodal_countermodel_presentation/summaries/02_bimodal-countermodel-presentation-summary.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "A PYTHONIOENCODING=cp1252 subprocess test must decode the child's captured stdout with encoding=\"cp1252\", not text=True: text=True decodes as the parent's UTF-8 locale, and any glyph cp1252 can represent (e.g. U+2026 ellipsis = 0x85, U+00AC not-sign = 0xAC) is a valid cp1252 byte that is invalid UTF-8, so the harness raises UnicodeDecodeError on a correctly behaving child.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/summaries/02_bimodal-countermodel-presentation-summary.md",
+      "confidence": 0.9,
+      "suggested_keywords": ["cp1252", "PYTHONIOENCODING", "subprocess", "UnicodeDecodeError", "glyph fallback"]
+    }
+  ],
+  "errors": []
 }
