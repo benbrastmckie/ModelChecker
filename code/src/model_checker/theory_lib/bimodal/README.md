@@ -196,9 +196,10 @@ direct-read segment length and is a genuine maximum; raising it does enlarge the
 [Settings](docs/SETTINGS.md) for the full explanation and the operative rule. `max_witnesses`
 replaces `temporal_depth`.
 `contingent`/`disjoint` no longer exist — there is no proposition-level machinery left for them to
-gate. The bimodal theory defines no bimodal-specific *general* (display) setting any more: the
-certificate printer needs no vertical-alignment option, since every history prints as a single
-`(back)^w | mid | (fwd)^w` line (see [Sample Output](#sample-output)).
+gate. The one bimodal-specific *general* (display) setting is `align_vertically` (the `-a` flag):
+by default every history prints as a single `(back)^ω | mid | (fwd)^ω` line (see
+[Sample Output](#sample-output)); with it, the certificate prints as a time-aligned table with one
+row per position and one column per lasso (see `docs/SETTINGS.md`'s "General Settings").
 
 ### Example Structure
 
@@ -550,34 +551,83 @@ immediately — an encoder bug becomes a loud rejection, never a false report.
 
 ### Sample Output
 
-A countermodel (`BM_CM_1`, `\\Future A ⊭ \\Box A`):
+A countermodel (`BM_CM_1`, `\\Future A ⊭ \\Box A`), as printed by `dev_cli.py` (the
+`Verification:` line's wording depends on whether an independent checker resolved — see
+`docs/SETTINGS.md`'s "Certificate Verification"):
 
 ```
+EXAMPLE BM_CM_1: there is a countermodel.
+
+Search bounds: back=2, mid=1, fwd=2 (2 lassos: 1 main + 1 reserved witness)
+
+Semantic Theory: Bimodal
+
+Premise:
+1. \Future A
+
+Conclusion:
+2. \Box A
+
+Solver Run Time: 0.0017 seconds
+
+========================================
+Certificate:  (each lasso is (back)^ω | mid | (fwd)^ω over atoms; [ ] marks the evaluation point)
+  L0  main                ([A], A)^ω | A | (A, A)^ω
+  L1  witness for \Box A  (∅, ∅)^ω | ∅ | (∅, ∅)^ω
+
+Box guesses:
+  \Box A  false  falsified at L1, t=-2
+
+Evaluation point: L0 at t=-2
+Verification: independently checked -- Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions (acceptance: entailment, checkout 5ff7171dad6f)
+
+INTERPRETED PREMISE:
+
+1.  |\Future A| = < {0}, {1} >  (True at L0, t=-2)
+      |A| = < {0}, {1} >  (True at L0, t=-2)
+
+INTERPRETED CONCLUSION:
+
+2.  |\Box A| = < {}, {0, 1} >  (False at L0, t=-2)
+      |A| = < {0}, {1} >  (True at L0, t=-2)
+```
+
+`Search bounds` reports the segment lengths and how many lassos the search allocated (the main
+lasso plus one reserved witness per boxed subformula). Each certificate row is
+`(back)^ω | mid | (fwd)^ω` over the label's atoms (`∅` for an empty label), with `[ ]` marking
+the evaluation point on the main lasso: `A` holds throughout `L0`, so `\Future A` holds at
+`t=-2`. The role column says what each lasso does in *this* certificate — `L1` is the
+`witness for \Box A` because its label omits `A` everywhere — and the `Box guesses` table names
+the concrete `(lasso, t)` at which each false box is falsified, read from the certificate itself.
+Formulas print in the notation you wrote them in. On a pipe or with `NO_COLOR` set the output
+is plain text; on a terminal the evaluation point, reserved rows, and guess values are colored.
+Pass `-a` for a time-aligned table view instead of one line per lasso (see `docs/SETTINGS.md`).
+
+A no-certificate case (`BM_TH_1`, `\\Box A ⊨ \\Future A`):
+
+```
+EXAMPLE BM_TH_1: there is no countermodel.
+
+Search bounds: back=2, mid=1, fwd=2 (2 lassos: 1 main + 1 reserved witness)
+
+Semantic Theory: Bimodal
+
+Premise:
+1. \Box A
+
+Conclusion:
+2. \Future A
+
+Solver Run Time: 0.0027 seconds
+
+========================================
 Certificate:
-  L0 (main): ([{A}], {A})^w | {A} | ({A}, {A})^w
-  L1 (witness 1): ({}, {})^w | {} | ({}, {})^w
-
-Boxed subformulas:
-  Box(Atom(base='A', fresh_index=None)) = False
-    Witness: L1 at position -2 (({}, {})^w | {} | ({}, {})^w)
-
-Evaluation Point:
-  Main lasso: L0
-  Target position: -2
+  No certificate found within the configured bounds (back=2, mid=1, fwd=2). This is not a validity claim (docs/ADEQUACY.md section 7.4).
 ```
 
-`L0` is `(back)^w | mid | (fwd)^w`: `A` holds throughout the back and fwd segments and at `mid`,
-so `\\Future A` holds at the target position; `Box(A)` is guessed `False` because `L1`, the
-witness lasso, has an empty label everywhere — `A` fails at every position of `L1`, so `A` is not
-true in every history, and `\\Box A` correctly fails.
-
-A no-certificate case (`MF_MODAL_FUTURE_TH`, the paper's MF axiom):
-
-```
-EXAMPLE MF_MODAL_FUTURE_TH: there is no countermodel.
-```
-
-No `Certificate:`/`Evaluation Point:` block is printed for the no-model case — see D8 above.
+The explicit "not a validity claim" wording is D8 (see [The Certificate Search](#the-certificate-search)
+above): an unsatisfiable search within the configured bounds is a fact about the bounds, never a
+proof.
 
 ## Model Iteration
 

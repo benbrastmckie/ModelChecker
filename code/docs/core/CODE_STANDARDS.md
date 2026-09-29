@@ -598,9 +598,33 @@ stream that cannot encode it (e.g. a `cp1252`-constrained Windows pipe) instead 
 `UnicodeEncodeError`. See `code/docs/core/TESTING_GUIDE.md`'s output-encoding testing section for
 the full policy, the standing "new glyph requires a `cp1252` test in the same commit" rule, and
 the `cp1252`/`PYTHONIOENCODING` testing recipes; see
-`theory_lib/bimodal/docs/ARCHITECTURE.md`'s rendering-policy subsection for the column-alignment
+`theory_lib/bimodal/docs/ARCHITECTURE.md`'s "Rendering Policy" section for the column-alignment
 consequence this has for a fixed-width renderer specifically. This section is a pointer only —
 the policy and its rationale live in those two documents, not duplicated here.
+
+### Printed Output Conventions
+
+Model output is written to a caller-supplied `output` stream by `print_all`/`print_to` and by
+each theory's own `print_*` methods. Three conventions apply everywhere:
+
+- **Color is gated by one predicate.** Never test `output is sys.__stdout__` (or `sys.stdout`)
+  to decide whether to emit ANSI escapes; call `model_checker.output.color.use_colors(output)`,
+  which honors `NO_COLOR` (always plain), then `FORCE_COLOR` (always colored, even into a pipe or
+  `StringIO`), then `TERM=dumb`, then the stream's own `isatty()`. Pipes, redirected files,
+  `capsys`, and `--save` capture are therefore plain text by default, and the
+  `output/formatters.py` `ANSIToMarkdown` converter keeps its red-is-bold / green-is-italic
+  contract — those are the only two colors it translates, so nothing else may rely on surviving
+  a markdown export.
+- **Color never carries information alone.** The palette is: green/red for a top-level
+  sentence's truth value (and for `+`/`-` diff lines), white/yellow for nested subsentences, blue
+  for the evaluation point (world or `(lasso, t)`), gray for reserved-but-unused rows, bold for
+  the target row of a table. Every one of these is accompanied by text (`True`/`False`, the
+  `+`/`-` sign, `[ ]`, a role column) that says the same thing in plain output.
+- **Glyphs go through `utils/glyphs.py`** (see "Output-Encoding Safety" above), and every new
+  glyph ships with a `cp1252` regression test per `TESTING_GUIDE.md` section 9.
+
+The `Total Run Time` footer is the one place `output is sys.__stdout__` remains: it gates a
+timing line, not color, and is deliberately not printed into captures.
 
 ### Test Organization
 

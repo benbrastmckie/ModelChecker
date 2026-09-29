@@ -57,7 +57,7 @@ in formula strings):
 ### Lassos and Positions
 
 A certificate search produces:
-- **Lassos**: labelled bi-infinite histories, each `(back)^w | mid | (fwd)^w` — a periodic
+- **Lassos**: labelled bi-infinite histories, each `(back)^ω | mid | (fwd)^ω` — a periodic
   backward segment, a finite middle segment, and a periodic forward segment. Position `0` starts
   `mid`.
 - **A box guess table**: for each boxed subformula in the closure, whether it is `true` (holds at

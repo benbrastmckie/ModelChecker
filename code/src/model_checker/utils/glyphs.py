@@ -15,8 +15,9 @@ attribute (e.g. `io.StringIO`, which never encodes at all) or an
 `encoding` of `None` defaults to the Unicode glyph, preserving existing
 `StringIO`-based test expectations.
 
-See `code/docs/core/TESTING_GUIDE.md`'s output-encoding testing section and
-`theory_lib/bimodal/docs/ARCHITECTURE.md`'s rendering policy subsection for
+See `code/docs/core/TESTING_GUIDE.md`'s output-encoding testing section,
+`code/docs/core/CODE_STANDARDS.md`'s "Printed Output Conventions", and
+`theory_lib/bimodal/docs/ARCHITECTURE.md`'s "Rendering Policy" section for
 the durable record of this convention.
 """
 
@@ -29,9 +30,9 @@ from typing import Optional
 #
 # Each ASCII fallback is chosen to be readable on its own; callers that need
 # the substitution to stay width-neutral against a fixed layout budget (the
-# bimodal aligned world-history renderer) must derive their column budget
-# from the actually-rendered string rather than assuming any fixed width --
-# see `theory_lib/bimodal/semantic/model.py`'s `_create_time_positions`.
+# bimodal aligned history table) must derive their column budget from the
+# actually-rendered string rather than assuming any fixed width -- see
+# `theory_lib/bimodal/semantic/model.py`'s `_print_history_table`.
 _GLYPHS: dict[str, tuple[str, str]] = {
     "DOUBLE_ARROW": ("⟹", "=>"),   # ⟹
     "ARROW": ("→", "->"),          # →

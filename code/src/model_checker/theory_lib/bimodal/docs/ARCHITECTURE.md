@@ -23,6 +23,7 @@ higher-level summary.
 - [Operator Implementation](#operator-implementation)
 - [Model Iteration](#model-iteration)
 - [Never Reporting Validity (D8)](#never-reporting-validity-d8)
+- [Rendering Policy](#rendering-policy)
 - [Why ℤ-Time Only](#why-z-time-only)
 - [Extension Points](#extension-points)
 - [Retired Designs](#retired-designs)
@@ -271,6 +272,46 @@ completeness (the converse of (SOUND)) is an open theorem this package's own cor
 assumes. Deciding validity is the tableau's and the proof system's job, not this search's; see
 `ADEQUACY.md` section 7.4 for the full statement of this rule and section 7 for what the open
 (ADEQ) direction would and would not change about it.
+
+## Rendering Policy
+
+Everything `BimodalStructure` prints (`semantic/model.py`) follows four rules; `semantic/render.py`
+and `semantic/proposition.py` follow the same ones.
+
+**Label notation.** A certificate row is `L{i}  {role}  (back)^ω | mid | (fwd)^ω`: each slot is
+the label's atom valuation — a single atom bare (`A`), several as `{A,B}` so the `, ` slot
+separator stays unambiguous, none as `∅` — and `[ ]` brackets the slot the evaluation point falls
+in on the main lasso. The `align_vertically` setting (`-a`) transposes this into a table with
+one row per representative position (`-back .. mid+fwd-1`, each annotated `back[i]`/`mid[i]`/
+`fwd[i]`) and one column per lasso; see `SETTINGS.md`'s "General Settings" for both shapes.
+
+**Formulas in the user's notation.** Every formula the printer or the iteration-diff display
+shows goes through `render.render(formula, output, names)`: the `names` map (`render.build_names`)
+inverts `translate` over `Syntax.all_sentences`, so a boxed subformula prints as the user typed it
+(`\Box A`, `\Box \neg A` for the derived subsentence of `\Diamond A`), and only a closure
+formula no sentence names (an iteration diff's changed `¬A` bit, say) falls back to the
+structural `¬`/`∧`/`∨`/`→`/`□`/`◇`/`⊤`/`⊥` forms mirroring `Formula.lean`'s derived-operator
+patterns. Dataclass reprs never reach the screen; they stay the Z3 variable-name source in
+`witness_registry.py`, which is why `Formula.__repr__` is left untouched.
+
+**Witness from the certificate, never from the registry.** A false box's `falsified at L{i},
+t=±t` and a lasso's `witness for □χ` role both come from `BimodalStructure.box_witness`, a scan
+of `certificate.lassos` × `_box_window` for a position whose label omits χ — exactly the (C3)
+predicate. `WitnessRegistry._witness_lassos` is never consulted for presentation: its index is
+reserved capacity (box faithfulness lets any lasso falsify a box), so a lasso the scan does not
+name prints as `reserved, unused`, never as "reserved for □χ".
+
+**Glyphs and color.** Every non-ASCII symbol (`ω`, `∅`, `□`, `◇`, `¬`, `∧`, `∨`, `→`, `⊤`, `⊥`)
+is resolved by `utils/glyphs.py`'s `glyph(name, output)` against the output stream's encoding, so
+a `cp1252` pipe gets `w`, `{}`, `[]`, `<>`, `~`, `&`, `|`, `->`, `T`, `_|_` instead of a
+`UnicodeEncodeError`; column widths are computed from the rendered strings, never assumed. Every
+ANSI color (blue evaluation point, gray reserved rows, green/red guesses, green `+`/red `-` diff
+lines, bold target row) is gated by `output.color.use_colors(output)` — `NO_COLOR` >
+`FORCE_COLOR` > `TERM=dumb` > `isatty()` — and never carries information alone: the role column,
+the `[ ]` marker, `true`/`false`, and the `+`/`-` sign are all textual. See
+`code/docs/core/CODE_STANDARDS.md`'s "Printed Output Conventions" for the framework-wide palette
+and `code/docs/core/TESTING_GUIDE.md` section 9 for the `cp1252` test recipe every new glyph
+needs.
 
 ## Why ℤ-Time Only
 

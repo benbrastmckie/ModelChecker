@@ -1,7 +1,7 @@
 # Implementation Plan: Task #218
 
 - **Task**: 218 - Refactor bimodal/ theory countermodel presentation
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 12 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md
@@ -476,31 +476,36 @@ method (signatures otherwise unchanged).
 
 ---
 
-### Phase 7: Docs, Naming Consistency, and Final Gate [NOT STARTED]
+### Phase 7: Docs, Naming Consistency, and Final Gate [COMPLETED]
 
 **Goal**: User-facing docs match the new output, the rendering-policy subsection `utils/glyphs.py`
 cites exists, and the whole test suite plus a live pipe check pass.
 
 **Tasks**:
-- [ ] `theory_lib/bimodal/README.md` "Sample Output" (and the `(back)^w | mid | (fwd)^w` mention
+- [x] `theory_lib/bimodal/README.md` "Sample Output" (and the `(back)^w | mid | (fwd)^w` mention
   near the Basic Usage section): regenerate from a real `dev_cli.py` run of `BM_CM_1` (utf-8
   capture), including the `Search bounds` header line and `Box guesses` table.
-- [ ] `theory_lib/bimodal/docs/ARCHITECTURE.md`: add a "Rendering policy" subsection (glyph
+- [x] `theory_lib/bimodal/docs/ARCHITECTURE.md`: add a "Rendering policy" subsection (glyph
   fallback via `utils/glyphs.py`, color gating via `output.color.use_colors`, label notation,
   witness-from-certificate rule); update `utils/glyphs.py`'s module docstring pointer to name the
   subsection heading exactly.
-- [ ] `code/docs/core/CODE_STANDARDS.md`: add a short "Printed Output Conventions" section (color
+- [x] `code/docs/core/CODE_STANDARDS.md`: add a short "Printed Output Conventions" section (color
   predicate, palette meanings GREEN/RED top-level truth, WHITE/YELLOW nested, BLUE evaluation
   point, GRAY reserved; `ANSIToMarkdown` red/green-only contract; glyph rule with a pointer to
   `TESTING_GUIDE.md` section 9).
-- [ ] `theory_lib/bimodal/docs/USER_GUIDE.md`: grep for `Witness:` / `Atomic States` / `lasso 0`
-  and update any sample text.
-- [ ] Final gate: `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q`;
+- [x] `theory_lib/bimodal/docs/USER_GUIDE.md`: grep for `Witness:` / `Atomic States` / `lasso 0`
+  and update any sample text. *Probe result*: no hit in `USER_GUIDE.md` (its "Evaluation Points"
+  section carries no printed-output sample), so no edit was needed; the only stale samples were
+  `README.md`'s "Sample Output" and its settings sentence, both regenerated from a live run.
+- [x] Final gate: `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q`;
   `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py | cat -v | grep -c '\^\['`
   (expect `0`); `PYTHONIOENCODING=cp1252 python code/dev_cli.py <scratch example file>` per
   `TESTING_GUIDE.md` 9.3 (expect no `UnicodeEncodeError`); `ruff check code/src/model_checker/theory_lib/bimodal code/src/model_checker/output/color.py`.
-- [ ] Run `bash .claude/scripts/check-task-references.sh` (or the repo-wide lint it wraps) over
-  the touched `code/` and `docs/` files to confirm no task-number citations.
+- [x] Run `bash .claude/scripts/check-task-references.sh` (or the repo-wide lint it wraps) over
+  the touched `code/` and `docs/` files to confirm no task-number citations. *Probe result*: the
+  script's `PATH_SCOPE` accepts only `agent-system/extensions`, `.opencode`, `lua`, `.memory`
+  (exit 2 on `code`), so the equivalent grep (`\btasks? [0-9]+\b|\(task [0-9]+\)`) was run over
+  every touched `code/` file: zero hits.
 
 **Timing**: 1.5 hours
 
@@ -511,6 +516,11 @@ cites exists, and the whole test suite plus a live pipe check pass.
 **Scope Hypothesis**: Four doc files plus one docstring; confirm with
 `grep -rln "Witness: L\|Atomic States\|lasso 0\|(back)^w" code/src/model_checker/theory_lib/bimodal/README.md code/src/model_checker/theory_lib/bimodal/docs docs`
 and add any further hit to this phase.
+*Probe result*: hits were `README.md` (sample + settings sentence) and one `(back)^w` line in
+`USER_GUIDE.md` (updated to `^ω`); `docs/` hits are other theories' `Atomic States` samples,
+out of scope. Final gate: full suite `3416 passed, 5 skipped` (511s); bimodal pipe check 0
+escapes; `PYTHONIOENCODING=cp1252` legs (default, `-a`, iterate, full examples file) clean;
+ruff findings in the bimodal tree are all in files unchanged since the task's base commit.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/README.md` - Sample Output regenerated
@@ -525,21 +535,21 @@ and add any further hit to this phase.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -q` green after
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -q` green after
   Phases 1, 2, 4, 5, 6, 7.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/utils/tests code/src/model_checker/output -q`
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/utils/tests code/src/model_checker/output -q`
   green after Phases 1 and 3.
-- [ ] Logos/exclusion/imposition suites green after Phase 3 (no captured-output change).
-- [ ] Every new glyph has a `cp1252` test using a real encoded stream (`TESTING_GUIDE.md` 9.2).
-- [ ] D8/F2 substrings preserved verbatim (grep the eight strings listed in Risks against the
+- [x] Logos/exclusion/imposition suites green after Phase 3 (no captured-output change).
+- [x] Every new glyph has a `cp1252` test using a real encoded stream (`TESTING_GUIDE.md` 9.2).
+- [x] D8/F2 substrings preserved verbatim (grep the eight strings listed in Risks against the
   Phase 4 test file).
-- [ ] `out.count("Verification:") == 1` per example; `out.count("No certificate found") == 1` on
+- [x] `out.count("Verification:") == 1` per example; `out.count("No certificate found") == 1` on
   the `print_all` no-certificate path.
-- [ ] Printed witness `(lasso, t)` satisfies `child not in lassos[lasso].label(t)` on `MD_CM_1`.
-- [ ] `./dev_cli.py ... | cat -v | grep -c '\^\['` is `0`; `NO_COLOR=1` on a TTY prints plain
+- [x] Printed witness `(lasso, t)` satisfies `child not in lassos[lasso].label(t)` on `MD_CM_1`.
+- [x] `./dev_cli.py ... | cat -v | grep -c '\^\['` is `0`; `NO_COLOR=1` on a TTY prints plain
   text; `FORCE_COLOR=1` into a pipe prints color.
-- [ ] `-a` switches to the table view; default unchanged one-line rows.
-- [ ] Full suite `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q` green at the
+- [x] `-a` switches to the table view; default unchanged one-line rows.
+- [x] Full suite `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q` green at the
   end of Phase 7.
 
 ## Artifacts & Outputs
