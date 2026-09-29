@@ -262,28 +262,28 @@ idempotent re-add before relying on the count.
 
 ---
 
-### Phase 3: Deliberate `is_syntactically_wff` structural tightening [NOT STARTED]
+### Phase 3: Deliberate `is_syntactically_wff` structural tightening [COMPLETED]
 
 **Goal**: `is_syntactically_wff` classifies a non-backslash operator head as a connective because
 of its structure, not by falling through the "atomic sentence letter" branch — with zero change
 to which formulas are accepted or rejected in practice.
 
 **Tasks**:
-- [ ] RED/characterization: create
+- [x] RED/characterization: create
       `code/src/model_checker/syntactic/tests/unit/test_formulas.py` (no such file exists today)
       and pin the *current* accept/reject behavior for: `["p"]`, `["\\top"]`, `["\\bot"]`,
       `["\\neg", ["p"]]`, `["\\wedge", ["p"], ["q"]]`, `["∧", ["p"], ["q"]]`, `["¬", ["p"]]`, a
       Z3 `Const` head, `[]`, and a non-list input. These must all pass BEFORE the change.
-- [ ] Add a RED test asserting the desired post-change discrimination: a bare non-backslash string
+- [x] Add a RED test asserting the desired post-change discrimination: a bare non-backslash string
       head with arguments is accepted *as a connective*, and a multi-element prefix list is not
       reported as an atomic sentence letter.
-- [ ] GREEN: in `code/src/model_checker/syntactic/formulas.py`, gate the
+- [x] GREEN: in `code/src/model_checker/syntactic/formulas.py`, gate the
       `isinstance(head, str) and not head.startswith('\\')` branch on `len(prefix) == 1`, and add
       an explicit branch accepting a non-backslash string head when `len(prefix) > 1` (a
       Unicode/alias connective applied to arguments).
-- [ ] Update the function docstring's grammar list to name the alias/Unicode connective case
+- [x] Update the function docstring's grammar list to name the alias/Unicode connective case
       explicitly, so the next reader does not rediscover the coincidence.
-- [ ] REFACTOR: confirm the final `return False, f"Unrecognized formula structure..."` is still
+- [x] REFACTOR: confirm the final `return False, f"Unrecognized formula structure..."` is still
       reachable and still the right terminus for genuinely malformed input.
 
 **Timing**: 1 hour
