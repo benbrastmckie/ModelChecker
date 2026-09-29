@@ -144,24 +144,24 @@ list (the research report found the prefix list lives only in `examples.py`'s ow
 
 ---
 
-### Phase 2: THEORY-LIMITS Header Block and Docstring Convention Line [NOT STARTED]
+### Phase 2: THEORY-LIMITS Header Block and Docstring Convention Line [COMPLETED]
 
 **Goal**: Add the section banner and its full header commentary, plus the one-line docstring
 naming-convention update. Comments and docstring only, no executable definitions yet.
 
 **Tasks**:
-- [ ] Insert the `THEORY-LIMITS` banner and header comment block at the Phase 1 anchor, using the research report's ready-to-use draft (Recommendations, section 1) as the source text.
-- [ ] Verify the header states the inclusion criterion: an entry belongs here iff it records either a genuine non-validity this checker correctly reports as a countermodel and whose significance deserves recording, or a completeness gap in the verified side's certificate system. Include the explicit bar that nothing whose real content is a retracted upstream claim may be encoded as a passing assertion.
-- [ ] Verify facts (1) and (2) appear under separate, labelled sub-headings and are never merged into one claim.
-- [ ] Verify the "not an axiom problem" paragraph names both constructor lists and states that soundness constrains derivability against validity while what failed is the converse obligation.
-- [ ] Verify the "limit of the verified side, not of this checker" paragraph is present and points forward to the two entries.
-- [ ] Verify the shape-mechanism paragraph names the temporal-asymmetry diagnosis as refuted, then gives the reflexivity-alone two-instance chain and the equality-of-representatives point.
-- [ ] Verify the standing-consequence paragraph states the semi-decision-procedure point and cross-references `docs/ADEQUACY.md` section 7.4's never-report-validity rule.
-- [ ] Verify the pending-schema paragraph records the `[stab]`-form as not encodable today, with nothing unchecked asserted about it, and names the blocked extension task by description rather than by number.
-- [ ] Verify the Box-versus-stability paragraph states the answer explicitly: both nearest-expressible relatives are invalid here too, but for a different and unrelated reason, since `\Box` carries no same-state restriction and its countermodels disagree at the evaluation time itself.
-- [ ] Confirm every upstream citation is a fully qualified declaration name with no `file:line` anchor.
-- [ ] Update the top-of-file docstring's naming-convention list from `Countermodels: EX_CM_*, MD_CM_*, TN_CM_*, BM_CM_*` to include `TL_CM_*`, and add a Theory-Limits line to the "Example Categories" list in the Module Structure section.
-- [ ] Confirm no task number and no cross-repository task number appears anywhere in the added text.
+- [x] Insert the `THEORY-LIMITS` banner and header comment block at the Phase 1 anchor, using the research report's ready-to-use draft (Recommendations, section 1) as the source text.
+- [x] Verify the header states the inclusion criterion: an entry belongs here iff it records either a genuine non-validity this checker correctly reports as a countermodel and whose significance deserves recording, or a completeness gap in the verified side's certificate system. Include the explicit bar that nothing whose real content is a retracted upstream claim may be encoded as a passing assertion.
+- [x] Verify facts (1) and (2) appear under separate, labelled sub-headings and are never merged into one claim.
+- [x] Verify the "not an axiom problem" paragraph names both constructor lists and states that soundness constrains derivability against validity while what failed is the converse obligation.
+- [x] Verify the "limit of the verified side, not of this checker" paragraph is present and points forward to the two entries.
+- [x] Verify the shape-mechanism paragraph names the temporal-asymmetry diagnosis as refuted, then gives the reflexivity-alone two-instance chain and the equality-of-representatives point.
+- [x] Verify the standing-consequence paragraph states the semi-decision-procedure point and cross-references `docs/ADEQUACY.md` section 7.4's never-report-validity rule.
+- [x] Verify the pending-schema paragraph records the `[stab]`-form as not encodable today, with nothing unchecked asserted about it, and names the blocked extension task by description rather than by number.
+- [x] Verify the Box-versus-stability paragraph states the answer explicitly: both nearest-expressible relatives are invalid here too, but for a different and unrelated reason, since `\Box` carries no same-state restriction and its countermodels disagree at the evaluation time itself.
+- [x] Confirm every upstream citation is a fully qualified declaration name with no `file:line` anchor. (Confirmed: grep for a declaration name followed by `:` plus digits found nothing.)
+- [x] Update the top-of-file docstring's naming-convention list from `Countermodels: EX_CM_*, MD_CM_*, TN_CM_*, BM_CM_*` to include `TL_CM_*`, and add a Theory-Limits line to the "Example Categories" list in the Module Structure section.
+- [x] Confirm no task number and no cross-repository task number appears anywhere in the added text. (Confirmed: grep for `task [0-9]+` found nothing.)
 
 **Timing**: 1 hour
 

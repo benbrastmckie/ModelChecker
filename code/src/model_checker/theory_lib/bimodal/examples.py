@@ -31,7 +31,7 @@ The examples and theories to be run can be configured by:
 2. To add new examples:
    - Define premises, conclusions, and settings
    - Follow the naming conventions:
-     - Countermodels: EX_CM_*, MD_CM_*, TN_CM_*, BM_CM_*
+     - Countermodels: EX_CM_*, MD_CM_*, TN_CM_*, BM_CM_*, TL_CM_*
      - Theorems: EX_TH_*, MD_TH_*, TN_TH_*, BM_TH_*
    - Add to example_range dictionary
 
@@ -50,6 +50,9 @@ Module Structure:
    - Modal (MD_CM_*, MD_TH_*): Necessity and possibility operators
    - Tense (TN_CM_*, TN_TH_*): Temporal operators
    - Bimodal (BM_CM_*, BM_TH_*): Combined modal and temporal operators
+   - Theory-Limits (TL_CM_*, TL_TH_*): Permanent limits of this theory or of its verified
+     (BimodalLogic Lean) counterpart, kept deliberately so they are learned from rather than
+     rediscovered -- see the THEORY-LIMITS section header comment for the inclusion criterion
 
 4. Example Collections:
    - semantic_theories: Available semantic theory implementations
@@ -1325,6 +1328,103 @@ BX7P_LINEAR_S_TH_example = [
     BX7P_LINEAR_S_TH_conclusions,
     BX7P_LINEAR_S_TH_settings,
 ]
+
+
+
+##############################################################################
+############################# THEORY-LIMITS #################################
+##############################################################################
+# INCLUSION CRITERION: an entry belongs here iff it records an outcome that is a genuine,
+# permanent limit of this theory or of its verified (BimodalLogic Lean) counterpart -- never
+# a bug, never something a future encoding change should remove, and never evidence that any
+# axiom, operator, or truth clause in this file is wrong. Two independent kinds of limit
+# qualify: (a) a genuine ZZ-time non-validity this checker correctly reports as a countermodel,
+# whose significance deserves recording alongside the passing test; (b) a completeness gap in
+# the VERIFIED side's own certificate system -- a schema for which no certificate meeting that
+# system's conditions exists at any time or size, even though the schema is a genuine
+# non-validity, so the empty certificate class is a fact about the certificate DESIGN, not
+# about whether the schema is valid. Never encode a retracted upstream claim as a passing
+# assertion here.
+#
+# --- FACT 1: a genuine ZZ-time non-validity (correct and desirable, not a limit of anything) ---
+# `(g S e) -> [stab](g S e)` (`g`/`e` = Since's guard/event) is genuinely INVALID over ZZ-time.
+# Its atomic instance at g:=top, e:=p is `Pp -> [stab]Pp` (P = "at some past time"), proved
+# non-valid by
+# `FormalSystem.Metalogic.Decidability.PlusSharingWitnessFamily.not_plusValidZTime_stabSnce`
+# (BimodalLogic). This says the past is not determined by the present world state: two
+# histories can agree now and disagree in how they got here. Nothing here should change to
+# make this schema valid.
+#
+# --- FACT 2: a completeness gap in the VERIFIED SIDE's certificate system (the actual limit) ---
+# BimodalLogic's branching L-plus certificate provably CANNOT certify any instance of
+# `(g S e) -> [stab](g S e)`, at any time, at any size, whether the schema is a conclusion or a
+# negated premise
+# (`FormalSystem.Metalogic.Decidability.PlusSharingWitnessFamily.not_plusCertifies_stabSnce`,
+# `...not_plusCertifies_stabSnce_premise`). The certificate class is EMPTY for this schema.
+# That is a gap in that certificate SYSTEM's completeness -- not unsoundness, not a defect of
+# this theory, and not a defect of THIS checker (see below).
+#
+# --- NOT AN AXIOM PROBLEM ---
+# The stability modal is not even in the language BimodalLogic's axioms are stated over:
+# `FormalSystem.ProofSystem.Axiom` is `Formula -> Type`, and `FormalSystem.Syntax.Formula`'s
+# constructors are atom, bot, imp, box, untl, snce -- no `stab`. `stab` exists only in the
+# extended `FormalSystem.PlusLanguage.PlusFormula`. This schema was never a candidate axiom,
+# and no soundness proof could have ruled it in or out: soundness constrains derivability
+# against validity, while what fails here is the converse obligation that every non-validity
+# admit a finite certificate.
+#
+# --- A LIMIT OF THE VERIFIED SIDE, NOT OF THIS CHECKER ---
+# `[stab]` is also absent from THIS theory's operators today (adding it is the blocked
+# stability-modal-extension task's scope, not this group's -- see the last section below).
+# But this checker finds countermodels to the nearest EXPRESSIBLE relatives of this schema,
+# substituting `\Box` for the missing `[stab]`, perfectly well and fast (TL_CM_1/TL_CM_2
+# below). "No certificate exists" above is a fact about BimodalLogic's certificate design, not
+# about this Python checker's search.
+#
+# --- THE SHAPE MECHANISM (a temporal-asymmetry diagnosis is SUPERSEDED; corrected here) ---
+# An earlier diagnosis blamed a temporal asymmetry -- that the local-coherence `snce` clause
+# quantifies its predecessor at the same time as the label it is about, while the `untl`
+# clause "escapes" by quantifying at the successor time. That diagnosis is REFUTED: `snce` is
+# already the exact mirror of `untl` relative to the underlying thread's step relation, and
+# BOTH clauses collapse the same way; the mechanism has no temporal content. Any
+# local-coherence clause of the shape "for all j accessible from i, phi holds at i iff a
+# condition on j alone" is an invariance axiom for phi across the whole accessibility class,
+# derivable from REFLEXIVITY ALONE: read the clause once at an arbitrary class member, once
+# more at that member against itself via reflexivity, then chain the two biconditionals
+# (`FormalSystem.Metalogic.Decidability.PlusSharingWitnessFamily.snce_share_congr`'s entire
+# proof is exactly that two-instance chain). The certificate's "share" relation is literally an
+# equality of representatives -- an equivalence -- so the forced invariance runs across the
+# entire class, not merely a pair.
+#
+# --- STANDING CONSEQUENCE ---
+# On this fragment, the verified side has a SEMI-decision procedure, not a decision procedure:
+# an empty enumeration of certificates licenses no conclusion about validity (see
+# docs/ADEQUACY.md section 7.4's never-report-validity rule, which this reinforces rather than
+# contradicts). Recorded here as a limit to learn from, not a bug to chase.
+#
+# --- THE STABILITY-MODAL SCHEMA ITSELF: PENDING, NOT ENCODED ---
+# `(g S e) -> [stab](g S e)` cannot be written as an examples.py entry today: `[stab]` has no
+# ModelChecker operator, and adding one pre-empts the blocked stability-modal-extension task,
+# which remains blocked for its own, still-current soundness/design reasons (the histories
+# characterization and the box case of the truth lemma). This is intentional; it should stay
+# this way until that task lands. No Python object of any kind -- active, inactive, or a
+# standing test elsewhere -- is created for this schema.
+#
+# --- NEAREST EXPRESSIBLE PROBES, AND THE BOX-VERSUS-STABILITY QUESTION ---
+# `\Box` (necessity over ALL accessible world-histories) and `[stab]` (quantification
+# restricted to histories sharing the CURRENT world state) are different modals with
+# different reach; this file does not assume they agree on this schema. Both
+# nearest-expressible relatives below -- substituting `\Box` for `[stab]` -- ARE invalid here
+# too, but for a DIFFERENT, more basic reason than Fact 2's share-class invariance argument:
+# `\Box`'s countermodels use histories that do not even agree at the evaluation time itself
+# (see each entry below), because `\Box`'s accessibility carries no same-state restriction at
+# all. Any contingent formula can falsify `phi -> \Box phi` this way -- the same elementary
+# pattern already exercised by MD_CM_3 above and BM_CM_1/BM_CM_2 above. ANSWER: same verdict
+# (both invalid here), UNRELATED mechanism -- the Box-form's failure is NOT evidence of, and
+# does not need, the invariance-across-equivalence-class mechanism that empties the verified
+# side's certificate class for the `[stab]`-form. Both entries below are ordinary,
+# currently-passing countermodel regression tests, not evidence about the `[stab]`-form.
+##############################################################################
 
 
 
