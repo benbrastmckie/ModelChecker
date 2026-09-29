@@ -1,5 +1,5 @@
 ---
-next_project_number: 220
+next_project_number: 221
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 220
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200 | -- | semantics |
+| 1 | 198,200,220 | -- | semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -24,8 +24,19 @@ next_project_number: 220
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
+220 [NOT STARTED] — Implement user-specifiable unicode characters for operators...
 
 ## Tasks
+
+### 220. Unicode operator characters
+- **Status**: [NOT STARTED]
+- **Task Type**: general
+- **Topic**: semantics
+- **Dependencies**: None
+
+**Description**: Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form
+
+---
 
 ### 219. Bimodal theory limits example group
 - **Status**: [COMPLETED]

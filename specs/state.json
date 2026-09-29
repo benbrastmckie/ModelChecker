@@ -1,6 +1,16 @@
 {
-  "next_project_number": 220,
+  "next_project_number": 221,
   "active_projects": [
+    {
+      "project_number": 220,
+      "project_name": "unicode_operator_characters",
+      "status": "not_started",
+      "task_type": "general",
+      "description": "Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form",
+      "topic": "semantics",
+      "created": "2026-09-29T15:27:54Z",
+      "last_updated": "2026-09-29T15:27:54Z"
+    },
     {
       "project_number": 219,
       "project_name": "bimodal_theory_limits_example_group",
