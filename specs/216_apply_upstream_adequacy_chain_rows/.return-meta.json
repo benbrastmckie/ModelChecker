@@ -1,0 +1,17 @@
+{
+  "status": "researched",
+  "agent_type": "general-research-agent",
+  "delegation_path": ["orchestrator", "research", "general-research-agent"],
+  "session_id": "sess_1790680033_ca6f67_216",
+  "dispatch_seq": 1,
+  "findings_count": 5,
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/216_apply_upstream_adequacy_chain_rows/reports/01_apply-adequacy-chain-rows.md",
+      "summary": "Verifies every BimodalLogic declaration the upstream A1/A1-Gamma/A3 hand-off cites against the live tree (all resolve, manifest gate C35 green), measures line-number drift across every existing WitnessFamily-subtree citation in ADEQUACY.md/TRUST_PIPELINE.md, and supplies copy-ready replacement text for the section 7 component table, the section 7.1 prose rewrite, both TRUST_PIPELINE.md table corrections, and a full document-wide citation-conversion table to the name+manifest convention."
+    }
+  ],
+  "memory_candidates": [],
+  "next_steps": "Run /plan 216 to create implementation plan"
+}
