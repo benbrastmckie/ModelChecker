@@ -11,14 +11,13 @@ next_project_number: 220
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,216,217,219 | -- | documentation, semantics |
+| 1 | 198,200,217,219 | -- | semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Documentation
 
-216 [IMPLEMENTING] — Apply the upstream A1 / A1-Gamma / A3 adequacy-chain rows to...
 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Semantics
@@ -94,12 +93,13 @@ CORRECTION TO THIS DESCRIPTION'S OWN ACCOUNT OF THE ROOT CAUSE, ADDED AFTER A SE
 ---
 
 ### 216. Apply upstream adequacy chain rows
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
 - **Research**: [216_apply_upstream_adequacy_chain_rows/reports/01_apply-adequacy-chain-rows.md]
 - **Plan**: [216_apply_upstream_adequacy_chain_rows/plans/01_apply-adequacy-chain-rows.md]
+- **Summary**: [216_apply_upstream_adequacy_chain_rows/summaries/01_apply-adequacy-chain-rows-summary.md]
 
 **Description**: Apply the upstream A1 / A1-Gamma / A3 adequacy-chain rows to code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md and TRUST_PIPELINE.md, and move the WitnessFamily/Compression citations onto the name + manifest convention.
 
