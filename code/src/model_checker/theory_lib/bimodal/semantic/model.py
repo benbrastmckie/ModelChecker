@@ -71,7 +71,7 @@ from __future__ import annotations
 
 import sys
 import time
-from typing import Any, Dict, List, Optional, TextIO
+from typing import Any, Dict, List, Optional, TextIO, Tuple
 
 from model_checker.models.structure import ModelDefaults
 from model_checker.theory_lib.errors import ModelConstructionError
@@ -217,21 +217,23 @@ class BimodalStructure(ModelDefaults):
         convention."""
         states: Dict[str, List[str]] = {"worlds": [], "possible": [], "impossible": []}
         if self.certificate is not None:
-            states["worlds"] = [f"lasso{i}" for i in range(len(self.certificate.lassos))]
+            states["worlds"] = [f"L{i}" for i in range(len(self.certificate.lassos))]
         return states
 
     def extract_evaluation_world(self) -> Optional[str]:
-        """The main lasso's name, or `None` if no certificate was found."""
+        """The main lasso's on-screen name (`L0`), or `None` if no certificate was found."""
         if self.certificate is None:
             return None
-        return f"lasso{self.main_point['lasso']}"
+        return f"L{self.main_point['lasso']}"
 
     def extract_relations(self) -> Dict[str, Any]:
         """The task relation is the shift `(lasso, t) -> (lasso, t + d)` for every integer
         `d` -- true by construction of the certified `ShiftSet`
         (`docs/ADEQUACY.md` section 3, Corollary 2.1), not asserted by any Z3 constraint.
         Described structurally rather than enumerated, since it relates infinitely many
-        pairs."""
+        pairs. Also carries `box_guesses`: one JSON-ready entry per boxed subformula in the
+        closure (`formula` as its `repr`, `guess`, and for a false guess the certificate-derived
+        `witness` `{lasso, position}` -- see `box_witness`)."""
         if self.certificate is None:
             return {}
         return {
@@ -240,11 +242,22 @@ class BimodalStructure(ModelDefaults):
                     "(lasso, t) -> (lasso, t + d) for every integer d -- the shift action "
                     "on the certified ShiftSet (docs/ADEQUACY.md section 3)"
                 ),
-            }
+            },
+            "box_guesses": [
+                {
+                    "formula": repr(child),
+                    "guess": guess,
+                    "witness": (
+                        None if witness is None
+                        else {"lasso": witness[0], "position": witness[1]}
+                    ),
+                }
+                for child, guess, witness in self.box_guesses()
+            ],
         }
 
     def extract_propositions(self) -> Dict[Any, Dict[str, Optional[bool]]]:
-        """`{sentence_letter: {"lasso{i}": truth_value_or_None}}`, read at `self.target_time`
+        """`{sentence_letter: {"L{i}": truth_value_or_None}}`, read at `self.target_time`
         via each sentence letter's own built `BimodalProposition` (Phase 11)."""
         propositions: Dict[Any, Dict[str, Optional[bool]]] = {}
         if self.certificate is None:
@@ -259,7 +272,7 @@ class BimodalStructure(ModelDefaults):
                 continue
             propositions[sentence_letter] = {}
             for lasso_index in range(len(self.certificate.lassos)):
-                world_name = f"lasso{lasso_index}"
+                world_name = f"L{lasso_index}"
                 try:
                     propositions[sentence_letter][world_name] = proposition.truth_value_at(
                         lasso_index, self.target_time
@@ -306,14 +319,42 @@ class BimodalStructure(ModelDefaults):
         mid_str = ", ".join(mid_parts) if mid_parts else "-"
         return f"{back_str} | {mid_str} | {fwd_str}"
 
-    def _first_missing_position(self, lasso: Any, formula: Formula) -> Optional[int]:
-        """The first position (in `certificate.py`'s narrower, one-period `_box_window`)
-        where `formula` is absent from `lasso`'s label -- the concrete witness position
-        for a box guessed false."""
-        for t in _box_window(lasso):
-            if formula not in lasso.label(t):
-                return t
+    def box_witness(self, child: Formula) -> Optional[Tuple[int, int]]:
+        """The `(lasso_index, t)` at which the certificate falsifies `Box(child)`, or `None`
+        when the box is guessed true (or there is no certificate).
+
+        Computed from the certificate alone: the pair returned satisfies exactly the (C3)
+        predicate `child not in lassos[i].label(t)` for a `t` in `_box_window(lassos[i])`.
+        `WitnessRegistry._witness_lassos` is deliberately never consulted -- its index is
+        reserved capacity, not provenance (`box_faithfulness_constraints` lets any lasso
+        falsify a box, so the reserved lasso may not be the one that does). A non-main
+        falsifier is preferred when one exists, since "another history" is what a reader
+        expects a box witness to be; the main lasso is reported honestly otherwise.
+        """
+        if self.certificate is None or self.certificate.bx_of(child):
+            return None
+        lassos = self.certificate.lassos
+        for lasso_index, lasso in enumerate(lassos):
+            if lasso_index == 0:
+                continue
+            for t in _box_window(lasso):
+                if child not in lasso.label(t):
+                    return lasso_index, t
+        for t in _box_window(lassos[0]):
+            if child not in lassos[0].label(t):
+                return 0, t
         return None
+
+    def box_guesses(self) -> List[Tuple[Formula, bool, Optional[Tuple[int, int]]]]:
+        """`(child, guess, witness)` for every boxed subformula in the closure, sorted by
+        `repr(child)` for determinism; `witness` is `box_witness(child)`."""
+        if self.certificate is None:
+            return []
+        children = sorted(
+            {f.child for f in self.semantics.witness_registry.closure if isinstance(f, Box)},
+            key=repr,
+        )
+        return [(child, self.certificate.bx_of(child), self.box_witness(child)) for child in children]
 
     def _verification_label(self) -> str:
         """One-line rendering of item 1's output gate state -- see the module docstring's
@@ -367,25 +408,19 @@ class BimodalStructure(ModelDefaults):
         print(file=output)
 
         print("Boxed subformulas:", file=output)
-        box_children = sorted(
-            {f.child for f in self.semantics.witness_registry.closure if isinstance(f, Box)},
-            key=repr,
-        )
-        if not box_children:
+        guesses = self.box_guesses()
+        if not guesses:
             print("  (none)", file=output)
-        for child in box_children:
-            guess = self.certificate.bx_of(child)
+        for child, guess, witness in guesses:
             print(f"  Box({child!r}) = {guess}", file=output)
-            if not guess:
-                witness_index = self.semantics.witness_registry._witness_lassos.get(child)
-                if witness_index is not None and witness_index < len(self.certificate.lassos):
-                    witness_lasso = self.certificate.lassos[witness_index]
-                    position = self._first_missing_position(witness_lasso, child)
-                    print(
-                        f"    Witness: L{witness_index} at position {position} "
-                        f"({self._format_lasso(witness_index, witness_lasso)})",
-                        file=output,
-                    )
+            if witness is not None:
+                witness_index, position = witness
+                witness_lasso = self.certificate.lassos[witness_index]
+                print(
+                    f"    Witness: L{witness_index} at position {position} "
+                    f"({self._format_lasso(witness_index, witness_lasso)})",
+                    file=output,
+                )
         print(file=output)
 
     def print_evaluation(self, output: TextIO = sys.__stdout__) -> None:

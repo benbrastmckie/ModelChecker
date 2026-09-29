@@ -9,20 +9,21 @@ since `extract_states`/`extract_evaluation_world`/`extract_relations`/
 
 from __future__ import annotations
 
-from model_checker.theory_lib.bimodal.tests._build_support import _build, _settings
+from model_checker.theory_lib.bimodal.tests._build_support import _build
 
 
 class TestExtractStatesWithCertificate:
     def test_worlds_are_one_per_lasso(self):
-        """A countermodel example's `extract_states()['worlds']` names one 'lassoN' entry
-        per lasso in the found certificate; bimodal has no possible/impossible distinction."""
+        """A countermodel example's `extract_states()['worlds']` names one `LN` entry per
+        lasso in the found certificate -- the same names the printer uses on screen; bimodal
+        has no possible/impossible distinction."""
         structure = _build(["A"], ["\\Box A"], back=1, mid=1, fwd=1)
         assert structure.certificate is not None, "expected a countermodel"
         states = structure.extract_states()
         assert states["possible"] == []
         assert states["impossible"] == []
         assert states["worlds"] == [
-            f"lasso{i}" for i in range(len(structure.certificate.lassos))
+            f"L{i}" for i in range(len(structure.certificate.lassos))
         ]
         assert len(states["worlds"]) >= 1
 
@@ -41,7 +42,7 @@ class TestExtractEvaluationWorld:
         structure = _build(["A"], ["\\Box A"], back=1, mid=1, fwd=1)
         assert structure.certificate is not None
         world = structure.extract_evaluation_world()
-        assert world == f"lasso{structure.main_point['lasso']}"
+        assert world == f"L{structure.main_point['lasso']}"
 
     def test_none_when_no_certificate(self):
         structure = _build(["A"], ["A"], back=1, mid=1, fwd=1)
@@ -64,6 +65,22 @@ class TestExtractRelations:
         structure = _build(["A"], ["A"], back=1, mid=1, fwd=1)
         assert structure.certificate is None
         assert structure.extract_relations() == {}
+
+    def test_box_guesses_are_json_ready(self):
+        """`box_guesses` carries each boxed subformula's guess and, for a false guess, the
+        `(lasso, position)` witness read from the certificate -- plain `str`/`bool`/`int`/
+        `None` values only, so the JSON collector can serialize them as-is."""
+        import json
+
+        structure = _build(["A"], ["\\Box A"], back=1, mid=1, fwd=1)
+        assert structure.certificate is not None
+        guesses = structure.extract_relations()["box_guesses"]
+        json.dumps(guesses)
+        assert len(guesses) == 1
+        entry = guesses[0]
+        assert entry["guess"] is False
+        assert set(entry["witness"]) == {"lasso", "position"}
+        assert 0 <= entry["witness"]["lasso"] < len(structure.certificate.lassos)
 
 
 class TestExtractPropositions:
@@ -103,7 +120,7 @@ class TestExtractPropositions:
         assert propositions, "expected at least one sentence letter's truth values"
         for _letter, per_world in propositions.items():
             assert set(per_world.keys()) == {
-                f"lasso{i}" for i in range(len(structure.certificate.lassos))
+                f"L{i}" for i in range(len(structure.certificate.lassos))
             }
             for value in per_world.values():
                 assert value is None or isinstance(value, bool)

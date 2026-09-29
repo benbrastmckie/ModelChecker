@@ -144,12 +144,33 @@ class TestExtractionHelpers:
 
     def test_extract_evaluation_world_names_the_main_lasso(self):
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
-        assert structure.extract_evaluation_world() == f"lasso{structure.main_point['lasso']}"
+        assert structure.extract_evaluation_world() == f"L{structure.main_point['lasso']}"
+
+    def test_extract_states_names_lassos_as_on_screen(self):
+        structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)
+        assert structure.extract_states()["worlds"] == ["L0", "L1"]
 
     def test_extract_relations_describes_the_shift_when_a_certificate_exists(self):
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
         relations = structure.extract_relations()
         assert "shift" in relations
+
+    def test_extract_relations_lists_box_guesses_with_certificate_witnesses(self):
+        structure = _build(
+            ["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2
+        )
+        guesses = structure.extract_relations()["box_guesses"]
+        assert len(guesses) == 3
+        for entry in guesses:
+            assert set(entry) == {"formula", "guess", "witness"}
+            assert isinstance(entry["formula"], str)
+            assert isinstance(entry["guess"], bool)
+            if entry["guess"]:
+                assert entry["witness"] is None
+            else:
+                assert set(entry["witness"]) == {"lasso", "position"}
+        # Sorted by repr for determinism: the three children are A, B, (A -> ...) in repr order.
+        assert [e["formula"] for e in guesses] == sorted(e["formula"] for e in guesses)
 
     def test_extract_relations_is_empty_without_a_certificate(self):
         structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
@@ -226,6 +247,107 @@ class TestVerificationLabelRendering:
             checker_module._reset_for_tests()
 
 
+class TestBoxWitnessFromCertificate:
+    """The printed witness for a false box is computed from the certificate itself, never
+    from `WitnessRegistry._witness_lassos`: the registry index is reserved capacity, not
+    provenance (`box_faithfulness_constraints` lets any lasso falsify a box), so on the
+    `MD_CM_1` shape the registry names `L1` for `□A` while the only falsifier is on `L3`."""
+
+    @staticmethod
+    def _md_cm_1():
+        return _build(["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2)
+
+    def test_every_false_box_gets_a_witness_the_certificate_accepts(self):
+        from model_checker.theory_lib.bimodal.semantic.certificate import _box_window
+        from model_checker.theory_lib.bimodal.semantic.formula import Box
+
+        structure = self._md_cm_1()
+        children = {f.child for f in structure.semantics.witness_registry.closure if isinstance(f, Box)}
+        false_children = [c for c in children if not structure.certificate.bx_of(c)]
+        assert false_children, "MD_CM_1 must guess at least one box false"
+        for child in false_children:
+            witness = structure.box_witness(child)
+            assert witness is not None
+            lasso_index, t = witness
+            lasso = structure.certificate.lassos[lasso_index]
+            assert t in _box_window(lasso)
+            assert child not in lasso.label(t)
+
+    def test_witness_is_not_read_from_the_registry_index(self):
+        from model_checker.theory_lib.bimodal.semantic.formula import Atom
+
+        structure = self._md_cm_1()
+        registry = structure.semantics.witness_registry._witness_lassos
+        for child in (Atom("A"), Atom("B")):
+            if structure.certificate.bx_of(child):
+                continue
+            lasso_index, t = structure.box_witness(child)
+            reserved = registry[child]
+            reserved_lasso = structure.certificate.lassos[reserved]
+            # Either the reserved lasso genuinely falsifies at the reported position, or
+            # the reported lasso differs from the reserved one -- never a reserved index
+            # reported without evidence.
+            assert child not in structure.certificate.lassos[lasso_index].label(t)
+            if lasso_index == reserved:
+                assert child not in reserved_lasso.label(t)
+
+    def test_a_non_main_falsifier_is_preferred_when_one_exists(self):
+        from model_checker.theory_lib.bimodal.semantic.certificate import _box_window
+        from model_checker.theory_lib.bimodal.semantic.formula import Box
+
+        structure = self._md_cm_1()
+        lassos = structure.certificate.lassos
+        children = {f.child for f in structure.semantics.witness_registry.closure if isinstance(f, Box)}
+        for child in children:
+            if structure.certificate.bx_of(child):
+                continue
+            non_main = [
+                (i, t) for i, lasso in enumerate(lassos) if i != 0
+                for t in _box_window(lasso) if child not in lasso.label(t)
+            ]
+            if non_main:
+                assert structure.box_witness(child)[0] != 0
+
+    def test_falls_back_to_the_main_lasso_honestly(self):
+        from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, WitnessFamily
+        from model_checker.theory_lib.bimodal.semantic.formula import Atom
+
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        a = Atom("A")
+        only_main_falsifies = WitnessFamily(
+            bx={a: False},
+            lassos=(
+                LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset({a}),)),
+                LabelledLasso(back=(frozenset({a}),), mid=(), fwd=(frozenset({a}),)),
+            ),
+        )
+        structure.certificate = only_main_falsifies
+        assert structure.box_witness(a) == (0, -1)
+
+    def test_true_box_has_no_witness(self):
+        from model_checker.theory_lib.bimodal.semantic.formula import Atom, Bot, Imp
+
+        structure = self._md_cm_1()
+        a_or_b = Imp(Imp(Atom("A"), Bot()), Atom("B"))
+        assert structure.certificate.bx_of(a_or_b) is True
+        assert structure.box_witness(a_or_b) is None
+
+    def test_box_guesses_is_sorted_and_carries_the_witness(self):
+        from model_checker.theory_lib.bimodal.semantic.formula import Atom
+
+        structure = self._md_cm_1()
+        guesses = structure.box_guesses()
+        assert [repr(f) for f, _, _ in guesses] == sorted(repr(f) for f, _, _ in guesses)
+        by_formula = {f: (g, w) for f, g, w in guesses}
+        assert by_formula[Atom("A")] == (False, structure.box_witness(Atom("A")))
+        assert structure.box_guesses() == guesses  # deterministic across calls
+
+    def test_no_certificate_means_no_guesses(self):
+        structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
+        assert structure.box_guesses() == []
+        assert structure.extract_relations() == {}
+
+
 class TestGoldenOutputCertificateFormat:
     """Golden-output coverage for report 01 section 4.4's output shape: each history as
     `(back)^w | mid | (fwd)^w` over atom valuations, with the evaluation position marked."""
@@ -255,7 +377,7 @@ class TestGoldenOutputCertificateFormat:
         # Whichever way the guess landed, the table format itself is exercised; if guessed
         # false, a witness line for L1 must also appear.
         if "= False" in out:
-            assert "Witness: L1" in out
+            assert "Witness: L" in out
 
 
 # Local to the property this module pins -- the A0 frame-class standing test's

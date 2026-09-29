@@ -169,14 +169,14 @@ that the fallback does not cover must be added.
 
 ---
 
-### Phase 2: Certificate-Derived Witness and Extraction Consistency [NOT STARTED]
+### Phase 2: Certificate-Derived Witness and Extraction Consistency [COMPLETED]
 
 **Goal**: Replace the registry-index witness lookup with a scan of the certificate that returns a
 `(lasso_index, t)` pair (C3) accepts, expose it to the JSON collectors, and name lassos `L0..`
 in every extraction helper.
 
 **Tasks**:
-- [ ] Write tests first in `code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py`
+- [x] Write tests first in `code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py`
   (new class `TestBoxWitnessFromCertificate`): build `MD_CM_1`'s shape via
   `tests/_build_support._build(["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1,
   fwd=2, verify="off")`; for every false box `chi`, assert `structure.box_witness(chi)` returns
@@ -184,20 +184,21 @@ in every extraction helper.
   _box_window(lassos[i])`; assert a non-main lasso is preferred when one exists (construct or
   find a case, else assert the main-lasso fallback on a hand-built `LabelledLasso`); assert
   `box_witness` returns `None` for a true box.
-- [ ] Update `TestExtractionHelpers` and `tests/integration/test_data_extraction.py` to expect
+- [x] Update `TestExtractionHelpers` and `tests/integration/test_data_extraction.py` to expect
   `L0`-style names from `extract_states`/`extract_evaluation_world`, and a new
   `extract_relations()["box_guesses"]` list of `{formula: <repr>, guess: bool, witness:
   {lasso: int, position: int} | None}` entries (repr is acceptable in JSON; screen rendering is
   Phase 4's job).
-- [ ] In `semantic/model.py`: add `box_witness(self, child) -> Optional[Tuple[int, int]]`
+- [x] In `semantic/model.py`: add `box_witness(self, child) -> Optional[Tuple[int, int]]`
   (iterate `enumerate(certificate.lassos)` x `_box_window(lasso)`, skip index 0 on the first
   pass, fall back to index 0); add `box_guesses(self) -> List[Tuple[Formula, bool,
   Optional[Tuple[int,int]]]]` sorted by `repr` for determinism; delete
   `_first_missing_position`; extend `extract_relations`; rename `lasso{i}` -> `L{i}` in
   `extract_states`/`extract_evaluation_world`.
-- [ ] `grep -rn "lasso0\|lasso{" code/src/model_checker/output` to confirm no collector hardcodes
-  the old name.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -q`.
+- [x] `grep -rn "lasso0\|lasso{" code/src/model_checker/output` to confirm no collector hardcodes
+  the old name. *Probe result*: zero hits in `output/` and `builder/`; the only `lasso{i}`
+  consumers were the two bimodal test files named above (both updated).
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -q`.
 
 **Timing**: 1.5 hours
 
