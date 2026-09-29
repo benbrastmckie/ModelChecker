@@ -1,7 +1,7 @@
 # Implementation Plan: Apply Upstream A1 / A1-Γ / A3 Adequacy-Chain Rows
 
 - **Task**: 216 - Apply upstream adequacy chain rows
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 5 hours
 - **Dependencies**: None blocking. Sibling task declares
   `code/src/model_checker/theory_lib/bimodal/examples.py` as its file scope; this plan reads
@@ -116,31 +116,31 @@ bounded. This phase writes no document text; it produces the inventory the later
 
 **Tasks**:
 
-- [ ] Re-resolve every declaration name this task will cite against the live BimodalLogic tree:
+- [x] Re-resolve every declaration name this task will cite against the live BimodalLogic tree:
       `exists_witnessFamily_of_not_validZTime`, `semanticConsequenceIn_nil_iff`,
       `compressionBound`, `cands`, `mem_cands_of_bounded`, `validZTime_iff_noCertifiedCandidate`,
       `Compression.decidableValidZTime`, `WitnessFamily.Refutes`, `refutes_of_certifies`,
       `WitnessFamily.joint_countermodel`, `exists_labelledLasso_of_history_realized`,
       `exists_labelledLasso_of_history`, `WitnessFamily.Target`, and the four `Decidable`
       instances in `WitnessFamily/Decide.lean`.
-- [ ] Cross-check each against `~/Projects/BimodalLogic/scripts/lean-citation-manifest.json` and
+- [x] Cross-check each against `~/Projects/BimodalLogic/scripts/lean-citation-manifest.json` and
       record the file each resolves to. Record any name that does not resolve as a blocker rather
       than writing it.
-- [ ] Confirm `f`'s closed form by locating `compressionBound`'s definition in the live tree and
+- [x] Confirm `f`'s closed form by locating `compressionBound`'s definition in the live tree and
       reading the definitional equation, so the row states what upstream actually checks by `rfl`.
-- [ ] Re-derive from the live `examples.py`, not from the report: whether every countermodel
+- [x] Re-derive from the live `examples.py`, not from the report: whether every countermodel
       example still has a non-empty premise list, and whether `MD_CM_1` still has two conclusions.
       Read only; this file belongs to a sibling task's scope.
-- [ ] Build the citation-site inventory over both documents with two complementary greps: one for
+- [x] Build the citation-site inventory over both documents with two complementary greps: one for
       anchors carrying the `WitnessFamily` path prefix, and one for the bare module basenames
       (`Basic`, `Predicates`, `Agreement`, `Decide`, `Std`, `Examples`, `Types`, `Cycle`,
       `Fulfil`, `Extract`, `Family`, `Enumerate`, `Assembly`). Record every hit with its line
       number and the subtree it actually belongs to.
-- [ ] Mark the known traps in the inventory explicitly: the `Enumerate.lean` anchor in section 7.1
+- [x] Mark the known traps in the inventory explicitly: the `Enumerate.lean` anchor in section 7.1
       belongs to `BiLasso/` and is out of scope; the section 4.1 Lemma 3 row mixes an in-scope
       `Std.lean` anchor with out-of-scope `ShiftSet.lean` and `TruthTransport.lean` anchors, so it
       converts per-anchor, not per-row.
-- [ ] Confirm no section renumbering is needed to insert section 7.1a, by checking that no
+- [x] Confirm no section renumbering is needed to insert section 7.1a, by checking that no
       cross-reference in either document points into section 7.2 or 7.3 by an offset rather than
       by number.
 
@@ -374,28 +374,28 @@ to resolve outside the in-scope subtree.
 
 ---
 
-### Phase 5: End-to-end read-through and style verification [NOT STARTED]
+### Phase 5: End-to-end read-through and style verification [COMPLETED]
 
 **Goal**: Confirm the dispatch's VERIFICATION clause holds over the finished documents, read as
 documents rather than as diffs.
 
 **Tasks**:
 
-- [ ] Read `ADEQUACY.md` end to end. Confirm it states only current status, carries no transition
+- [x] Read `ADEQUACY.md` end to end. Confirm it states only current status, carries no transition
       narrative, no change-log prose, and no dated or recency language, and that scope restrictions
       are present as standing facts rather than as history.
-- [ ] Read `TRUST_PIPELINE.md` end to end, to the same standard.
-- [ ] Confirm the two documents agree on A0, A1, A1-Γ, A2, and A3, row by row.
-- [ ] Re-run the full anchor grep over both documents and confirm no line-number anchor into the
+- [x] Read `TRUST_PIPELINE.md` end to end, to the same standard.
+- [x] Confirm the two documents agree on A0, A1, A1-Γ, A2, and A3, row by row.
+- [x] Re-run the full anchor grep over both documents and confirm no line-number anchor into the
       in-scope subtree survives.
-- [ ] Confirm every fully-qualified declaration name cited in the edited spans resolves in the
+- [x] Confirm every fully-qualified declaration name cited in the edited spans resolves in the
       live BimodalLogic tree, by a final pass against the citation manifest.
-- [ ] Confirm no task number from either repository appears in either document, per this
+- [x] Confirm no task number from either repository appears in either document, per this
       repository's no-task-references-in-deliverables rule. Provenance belongs in this task's own
       `specs/` artifacts.
-- [ ] Run the repository's documentation-affecting checks if any apply to these paths, and record
+- [x] Run the repository's documentation-affecting checks if any apply to these paths, and record
       the result either way.
-- [ ] Confirm `git status --short` shows only the two intended documents modified by this task,
+- [x] Confirm `git status --short` shows only the two intended documents modified by this task,
       and stage them by explicit path. If a foreign modification or commit is present, stop and
       report rather than proceeding.
 
@@ -419,19 +419,19 @@ documents rather than as diffs.
 
 ## Testing & Validation
 
-- [ ] Every declaration name cited in the edited spans resolves in the live BimodalLogic tree and
+- [x] Every declaration name cited in the edited spans resolves in the live BimodalLogic tree and
       matches its citation-manifest entry.
-- [ ] No `.lean:NNN` anchor into `Metalogic/Decidability/WitnessFamily/` or its `Compression/`
+- [x] No `.lean:NNN` anchor into `Metalogic/Decidability/WitnessFamily/` or its `Compression/`
       subdirectory survives in either document.
-- [ ] Every remaining `.lean:NNN` anchor in either document is confirmed to belong to a different
+- [x] Every remaining `.lean:NNN` anchor in either document is confirmed to belong to a different
       subtree and is unchanged from its pre-task text.
-- [ ] `ADEQUACY.md` section 7 and `TRUST_PIPELINE.md`'s A-component table agree, row by row, on
+- [x] `ADEQUACY.md` section 7 and `TRUST_PIPELINE.md`'s A-component table agree, row by row, on
       A0, A1, A1-Γ, A2, and A3.
-- [ ] The magnitude form of A3 does not appear in either document.
-- [ ] Neither document contains transition narrative, change-log prose, or dated language.
-- [ ] Neither document contains a task-number reference from either repository.
-- [ ] `git status --short` shows exactly the two intended documents modified by this task.
-- [ ] `examples.py` is unmodified.
+- [x] The magnitude form of A3 does not appear in either document.
+- [x] Neither document contains transition narrative, change-log prose, or dated language.
+- [x] Neither document contains a task-number reference from either repository.
+- [x] `git status --short` shows exactly the two intended documents modified by this task.
+- [x] `examples.py` is unmodified.
 
 ## Artifacts & Outputs
 

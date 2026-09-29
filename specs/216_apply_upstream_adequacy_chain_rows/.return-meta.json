@@ -1,10 +1,36 @@
 {
-  "status": "in_progress",
+  "status": "implemented",
+  "dispatch_seq": 7,
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/216_apply_upstream_adequacy_chain_rows/summaries/01_apply-adequacy-chain-rows-summary.md",
+      "summary": "Applied the A1/A1-Gamma/A3 adequacy-chain rows to ADEQUACY.md and TRUST_PIPELINE.md, resolved the A3 magnitude/representability contradiction between the two documents, and migrated every WitnessFamily/Compression citation to the name + manifest convention."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Applied the upstream A1 (partially discharged) / A1-Gamma (open) / A3 (live and open) adequacy-chain rows to ADEQUACY.md and TRUST_PIPELINE.md, resolved the live magnitude-versus-representability contradiction between the two documents, and migrated all fourteen WitnessFamily/Compression-subtree citations from file:line anchors to the name + manifest convention, verifying every cited declaration against the live BimodalLogic tree."
+  },
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When applying a cross-repository documentation hand-off (one repo's task derives copy-ready replacement text for another repo's docs without crossing the boundary), don't transcribe the hand-off note's prose verbatim even when it looks copy-ready. Independently re-verify every cited declaration name and every substantive proof-shape claim against the live source tree first: a hand-off note can be stale relative to its own repository (e.g. it may describe a route via file X when the landed proof actually uses a differently-named, differently-located transcription of that route), and re-deriving from the live tree catches this before it's written into a durable document. A repository's own research-report artifact (produced ahead of the plan/implement phases) is often a better source than the upstream note itself, since it was written specifically to the target document's exact current structure and style constraints.",
+      "category": "PATTERN",
+      "source_artifact": "specs/216_apply_upstream_adequacy_chain_rows/summaries/01_apply-adequacy-chain-rows-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["cross-repository-handoff", "citation-verification", "documentation-status", "line-anchor-drift", "name-plus-manifest"]
+    }
+  ],
   "metadata": {
     "session_id": "sess_1790680033_ca6f67",
     "agent_type": "general-implementation-agent",
     "delegation_depth": 2,
-    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"]
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 5,
+    "phases_total": 5
   },
-  "dispatch_seq": 7
+  "next_steps": "Task 216 implementation complete; all five plan phases closed. Ready for postflight completion."
 }
