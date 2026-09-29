@@ -1,30 +1,12 @@
 {
-  "status": "planned",
-  "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
-      "summary": "Six-phase plan adding an Operator.aliases class attribute plus OperatorCollection.add_operator registration so theory operators.py files can declare user-specifiable Unicode glyphs for infix/prefix operators, with conflict-aware DuplicateOperatorError, UnknownOperatorError wiring, is_syntactically_wff tightening, theory adoption, docs, and full regression."
-    }
-  ],
-  "next_steps": "Run /implement 220 to execute the plan",
+  "status": "in_progress",
+  "dispatch_seq": 3,
   "metadata": {
-    "session_id": "sess_1790695815_82e5a1_220",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"],
-    "phase_count": 6,
-    "estimated_hours": 7.5,
-    "dependency_waves": [[1, 3], [2], [4], [5, 6]]
-  },
-  "dispatch_seq": 2,
-  "memory_candidates": [
-    {
-      "content": "When adding a multi-key registration mechanism (e.g. operator aliases) to a registry whose add() is called once per existing key by a deserializer, a blanket 'raise on duplicate' policy breaks the round-trip: the same class gets re-registered N+1 times. The correct policy is conflict-aware -- re-registering the SAME object under a key it already owns is a silent no-op, while a DIFFERENT object claiming a taken key raises. In ModelChecker this applies to OperatorCollection.add_operator, whose re-add paths are builder/serialize.py::deserialize_operators (iterates every dictionary key) and add_operator's own OperatorCollection-merge branch.",
-      "category": "PATTERN",
-      "source_artifact": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
-      "confidence": 0.8,
-      "suggested_keywords": ["registry", "duplicate", "idempotent", "deserialize", "alias", "OperatorCollection"]
-    }
-  ]
+    "session_id": "sess_1790695815_82e5a1",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 0,
+    "phases_total": 6
+  }
 }

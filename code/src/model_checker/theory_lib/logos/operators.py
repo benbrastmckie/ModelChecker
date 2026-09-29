@@ -9,6 +9,7 @@ import importlib
 from typing import Dict, List, Any, Optional, TYPE_CHECKING
 
 from model_checker.syntactic import OperatorCollection
+from model_checker.syntactic.errors import UnknownOperatorError
 
 # Import protocols for type checking
 if TYPE_CHECKING:
@@ -158,7 +159,7 @@ class LogosOperatorRegistry:
         """
         try:
             return self.operator_collection[operator_name]
-        except KeyError:
+        except (KeyError, UnknownOperatorError):
             return None
     
     def list_available_operators(self) -> Dict[str, 'OperatorClass']:

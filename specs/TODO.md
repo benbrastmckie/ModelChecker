@@ -24,12 +24,12 @@ next_project_number: 221
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-220 [PLANNED] — Implement user-specifiable unicode characters for operators...
+220 [IMPLEMENTING] — Implement user-specifiable unicode characters for operators...
 
 ## Tasks
 
 ### 220. Unicode operator characters
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: general
 - **Topic**: semantics
 - **Dependencies**: None

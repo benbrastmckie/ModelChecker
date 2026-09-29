@@ -40,7 +40,14 @@ class Operator:
         name (str): The symbol representing this operator
         arity (int): The number of arguments this operator takes
         primitive (bool): Whether this operator is primitive (default: True)
-    
+        aliases (List[str]): Optional additional user-facing spellings (e.g. Unicode
+            glyphs such as "∧") that parse to this same operator class alongside its
+            canonical `name`. Defaults to an empty list. Registered by
+            `OperatorCollection.add_operator` alongside `name`; must never be mutated
+            in place (declare a fresh list literal per subclass rather than appending
+            to an inherited one, since the empty-list default is shared across every
+            subclass that does not declare its own).
+
     Attributes:
         semantics (object): The semantics object this operator uses for evaluation
     """
@@ -48,6 +55,7 @@ class Operator:
     name: Optional[OperatorName] = None
     arity: Optional[int] = None
     primitive: bool = True
+    aliases: List[str] = []
 
     def __init__(self, semantics: SemanticDefaults) -> None:
         op_class = self.__class__.__name__

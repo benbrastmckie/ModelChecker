@@ -24,7 +24,11 @@ class OperatorCollection:
     of operators into their corresponding operator classes during sentence parsing.
     
     Attributes:
-        operator_dictionary (dict): Maps operator names to their corresponding classes
+        operator_dictionary (dict): Maps operator names to their corresponding classes.
+            An operator class declaring `aliases` is registered under multiple keys (its
+            canonical `name` plus each alias), so several dictionary keys may map to the
+            same class object; `__iter__`/`items()` yield one entry per key, not per
+            class, and `__getitem__` resolves any of those keys to the same class.
     """
 
     def __init__(self, *input: Any) -> None:
@@ -36,7 +40,12 @@ class OperatorCollection:
         yield from self.operator_dictionary
 
     def __getitem__(self, value: OperatorName) -> Type['Operator']:
-        return self.operator_dictionary[value]
+        try:
+            return self.operator_dictionary[value]
+        except KeyError:
+            raise UnknownOperatorError(
+                value, available_operators=sorted(self.operator_dictionary)
+            ) from None
     
     def items(self) -> Iterator[tuple]:
         yield from self.operator_dictionary.items()
@@ -48,8 +57,21 @@ class OperatorCollection:
         in a container (list, tuple, or set) and adds them to the operator dictionary.
         It also handles adding operators from another OperatorCollection instance.
 
-        For each operator added, its name is used as the key in the operator dictionary.
-        If an operator with the same name already exists, it is skipped.
+        For each operator added, its name is used as the key in the operator dictionary,
+        and it is additionally registered under every string in its (optional) `aliases`
+        class attribute -- typically a user-facing Unicode spelling such as "∧" alongside
+        the canonical LaTeX `name` "\\wedge". The `aliases` list is only ever read, never
+        mutated, so a subclass that declares no `aliases` of its own safely shares the
+        empty-list default on the base `Operator` class without risk of leaking another
+        subclass's aliases.
+
+        Duplicate handling is conflict-aware, not a blanket skip/raise: re-registering
+        the SAME class under a key (name or alias) it already owns is a silent no-op --
+        required for idempotent re-registration via `OperatorCollection` merging and via
+        `builder/serialize.py::deserialize_operators`, which calls `add_operator` once per
+        serialized dictionary key, i.e. once per name/alias of the same class. Registering
+        a DIFFERENT class under an already-taken name or alias raises
+        `DuplicateOperatorError` naming both the key and the existing class.
 
         Args:
             operator: Can be one of:
@@ -61,11 +83,21 @@ class OperatorCollection:
             TypeError: If the input is not an operator class, collection of operator
                       classes, or OperatorCollection instance
             ValueError: If an operator class doesn't have a name defined
+            DuplicateOperatorError: If a different class already owns the name or one of
+                      the aliases being registered
 
         Examples:
             collection.add_operator(AndOperator)  # Add single operator
             collection.add_operator([AndOperator, OrOperator])  # Add multiple operators
             collection.add_operator(other_collection)  # Merge collections
+
+            class AndOperator(Operator):
+                name = "\\wedge"
+                arity = 2
+                aliases = ["∧"]
+
+            collection.add_operator(AndOperator)
+            collection["\\wedge"] is collection["∧"] is AndOperator  # True
         """
         if isinstance(operator, OperatorCollection):
             for op_name, op_class in operator.items():
@@ -74,13 +106,26 @@ class OperatorCollection:
             for operator_class in operator:
                 self.add_operator(operator_class)
         elif isinstance(operator, type):
-            if operator.name in self.operator_dictionary.keys():
-                return
             if getattr(operator, "name", None) is None:
                 raise ValueError(f"Operator class {operator.__name__} has no name defined.")
-            self.operator_dictionary[operator.name] = operator
+
+            aliases = getattr(operator, "aliases", []) or []
+            for key in (operator.name, *aliases):
+                self._register_key(key, operator)
         else:
             raise TypeError(f"Unexpected input type {type(operator)} for add_operator.")
+
+    def _register_key(self, key: OperatorName, operator: Type['Operator']) -> None:
+        """Register a single name/alias key for `operator`, applying the
+        conflict-aware duplicate policy documented on `add_operator`: a re-registration
+        of the SAME class already owning `key` is a silent no-op; a DIFFERENT class
+        claiming `key` raises `DuplicateOperatorError`.
+        """
+        existing = self.operator_dictionary.get(key)
+        if existing is None:
+            self.operator_dictionary[key] = operator
+        elif existing is not operator:
+            raise DuplicateOperatorError(key, existing.__name__)
 
     def apply_operator(self, prefix_sentence: PrefixList) -> Any:
         """Converts a prefix notation sentence into a list of operator classes and atomic terms.
@@ -102,6 +147,8 @@ class OperatorCollection:
         Raises:
             ValueError: If an atomic term is not a valid sentence letter
             TypeError: If an operator is not provided as a string
+            UnknownOperatorError: If an operator token is not registered in this
+                collection under its `name` or any declared `aliases`
 
         Examples:
             ["∧", ["p"], ["q"]] -> [AndOperator, Const("p", AtomSort), Const("q", AtomSort)]

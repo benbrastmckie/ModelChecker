@@ -1,0 +1,25 @@
+{
+  "phase": 1,
+  "phase_name": "Core alias attribute and registration",
+  "started_at": "2026-09-29T15:42:15Z",
+  "last_updated": "2026-09-29T16:05:00Z",
+  "objectives": [
+    {"id": 1, "description": "Write RED test_collection.py (unit) for alias registration", "status": "done", "files_touched": ["code/src/model_checker/syntactic/tests/unit/test_collection.py"]},
+    {"id": 2, "description": "Write RED end-to-end Syntax parsing test for unicode aliases", "status": "done", "files_touched": ["code/src/model_checker/syntactic/tests/unit/test_collection.py"]},
+    {"id": 3, "description": "GREEN: add aliases class attribute to Operator", "status": "done", "files_touched": ["code/src/model_checker/syntactic/operators.py"]},
+    {"id": 4, "description": "GREEN: register aliases in OperatorCollection.add_operator", "status": "done", "files_touched": ["code/src/model_checker/syntactic/collection.py"]},
+    {"id": 5, "description": "REFACTOR: docstrings for iter/items/getitem multi-key behavior", "status": "done", "files_touched": ["code/src/model_checker/syntactic/collection.py"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "deviations": [
+    {
+      "task_id": "1.pre-existing-test",
+      "description": "syntactic/tests/integration/test_collection.py::test_add_duplicate_operator asserted the OLD silent-skip-on-different-class behavior",
+      "type": "altered",
+      "reason": "Phase 2's conflict-aware duplicate policy (plan Decision 1) intentionally supersedes this behavior; split into test_add_duplicate_operator_same_class_is_noop and test_add_duplicate_operator_different_class_raises",
+      "annotation": "n/a - pre-existing test file, not a plan checklist item"
+    }
+  ],
+  "handoff_count": 0
+}

@@ -7,6 +7,7 @@ from z3 import Const, ExprRef
 from model_checker.syntactic.collection import OperatorCollection
 from model_checker.syntactic.operators import Operator
 from model_checker.syntactic.atoms import AtomSort
+from model_checker.syntactic.errors import DuplicateOperatorError
 
 
 class TestOperatorCollection:
@@ -56,19 +57,35 @@ class TestOperatorCollection:
         collection = OperatorCollection(NotOp)
         assert "¬" in collection.operator_dictionary
     
-    def test_add_duplicate_operator(self):
-        """Test that duplicate operators are skipped."""
+    def test_add_duplicate_operator_same_class_is_noop(self):
+        """Re-adding the SAME class under a name it already owns is a silent no-op
+        (required for idempotent re-registration -- see
+        `OperatorCollection.add_operator`'s conflict-aware duplicate policy)."""
         class TestOp1(Operator):
             name = "∧"
             arity = 2
-            
+
+        collection = OperatorCollection(TestOp1)
+        collection.add_operator(TestOp1)  # no raise
+
+        assert collection["∧"] == TestOp1
+
+    def test_add_duplicate_operator_different_class_raises(self):
+        """Registering a DIFFERENT class under an already-taken name raises
+        `DuplicateOperatorError` (plan Decision 1: conflict-aware duplicate policy).
+        """
+        class TestOp1(Operator):
+            name = "∧"
+            arity = 2
+
         class TestOp2(Operator):
             name = "∧"
             arity = 2
-        
+
         collection = OperatorCollection(TestOp1)
-        collection.add_operator(TestOp2)
-        
+        with pytest.raises(DuplicateOperatorError):
+            collection.add_operator(TestOp2)
+
         # Should still have TestOp1, not TestOp2
         assert collection["∧"] == TestOp1
     

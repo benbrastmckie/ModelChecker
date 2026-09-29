@@ -1,7 +1,7 @@
 # Implementation Plan: Unicode operator aliases
 
 - **Task**: 220 - Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 7.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/220_unicode_operator_characters/reports/01_unicode-operator-characters.md
@@ -144,33 +144,33 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Core alias attribute and registration [NOT STARTED]
+### Phase 1: Core alias attribute and registration [COMPLETED]
 
 **Goal**: One operator class can be looked up under its canonical `name` and under any number of
 declared aliases, with canonical-name behavior byte-for-byte unchanged.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/syntactic/tests/unit/test_collection.py` (no such file
+- [x] Create `code/src/model_checker/syntactic/tests/unit/test_collection.py` (no such file
       exists today) and write failing tests FIRST (RED): an operator class with
       `name = "\\wedge"`, `arity = 2`, `aliases = ["∧"]` is retrievable from an
       `OperatorCollection` under both keys and returns the *same* class object; an operator with
       no `aliases` attribute at all still registers under `name` alone; a subclass declaring
       aliases does not cause a sibling subclass to inherit them.
-- [ ] Add an end-to-end RED test parsing `"(p ∧ q)"` (infix, arity 2) and `"¬ p"` (prefix,
+- [x] Add an end-to-end RED test parsing `"(p ∧ q)"` (infix, arity 2) and `"¬ p"` (prefix,
       arity 1) through `Syntax(...)` against a collection whose operators carry LaTeX canonical
       names plus Unicode aliases, asserting the resolved operator class matches the LaTeX-spelled
       equivalent.
-- [ ] GREEN: add `aliases: List[str] = []` to `code/src/model_checker/syntactic/operators.py`'s
+- [x] GREEN: add `aliases: List[str] = []` to `code/src/model_checker/syntactic/operators.py`'s
       `Operator` class attribute block, immediately after `primitive`, with a docstring entry in
       the class `Class Attributes:` list explaining it is the optional user-facing Unicode (or
       other) spellings that parse to this operator, and that it must never be mutated in place.
-- [ ] GREEN: extend `OperatorCollection.add_operator`'s `isinstance(operator, type)` branch in
+- [x] GREEN: extend `OperatorCollection.add_operator`'s `isinstance(operator, type)` branch in
       `code/src/model_checker/syntactic/collection.py` to register each string in
       `getattr(operator, "aliases", []) or []` after the canonical `name` registration, reading
       the list without mutating it.
-- [ ] Update `add_operator`'s docstring (the `For each operator added, its name is used as the
+- [x] Update `add_operator`'s docstring (the `For each operator added, its name is used as the
       key...` paragraph and the `Examples:` block) to document alias registration.
-- [ ] REFACTOR: confirm `__iter__`, `items()`, and `__getitem__` behave sensibly when the same
+- [x] REFACTOR: confirm `__iter__`, `items()`, and `__getitem__` behave sensibly when the same
       class appears under multiple keys; document in the `OperatorCollection` class docstring's
       `Attributes:` entry that `operator_dictionary` may map several keys to one class.
 
@@ -201,7 +201,7 @@ exists, stop and widen the phase before proceeding.
 
 ---
 
-### Phase 2: Collision and unknown-operator error handling [NOT STARTED]
+### Phase 2: Collision and unknown-operator error handling [COMPLETED]
 
 **Goal**: An alias that collides with another operator's name/alias fails loudly at theory-load
 time, and a mistyped or unregistered operator in a formula produces `UnknownOperatorError` with
@@ -209,27 +209,27 @@ an `available_operators` suggestion list instead of a bare `KeyError` — withou
 idempotent re-registration.
 
 **Tasks**:
-- [ ] RED: add tests to `test_collection.py` for (a) two *different* classes claiming the same
+- [x] RED: add tests to `test_collection.py` for (a) two *different* classes claiming the same
       alias raises `DuplicateOperatorError`; (b) an alias colliding with another operator's
       canonical `name` raises `DuplicateOperatorError`; (c) re-adding the *same* class (directly,
       via `add_operator(other_collection)` merge, and via a `serialize_operators` /
       `deserialize_operators` round-trip on an aliased collection) is a silent no-op and raises
       nothing.
-- [ ] RED: add a test that `collection["\\nosuchop"]` raises `UnknownOperatorError` whose context
+- [x] RED: add a test that `collection["\\nosuchop"]` raises `UnknownOperatorError` whose context
       carries the available-operator list, and that `apply_operator` on a prefix list with an
       unregistered head surfaces the same error.
-- [ ] Before changing the lookup path, run
+- [x] Before changing the lookup path, run
       `grep -rn "except KeyError" code/src/model_checker --include='*.py'` and inspect every hit
       that could wrap an operator lookup; update any that relied on `KeyError` from
       `OperatorCollection.__getitem__`.
-- [ ] GREEN: implement the conflict-aware duplicate policy in `add_operator` per Decision 1 —
+- [x] GREEN: implement the conflict-aware duplicate policy in `add_operator` per Decision 1 —
       for both the canonical-name and alias registration paths, `return` silently when the
       existing entry `is` the same class, raise `DuplicateOperatorError(key, existing.__name__)`
       when it is a different class.
-- [ ] GREEN: implement `OperatorCollection.__getitem__` to raise
+- [x] GREEN: implement `OperatorCollection.__getitem__` to raise
       `UnknownOperatorError(value, available_operators=sorted(self.operator_dictionary))` on a
       missing key.
-- [ ] Move the existing `if operator.name in self.operator_dictionary.keys(): return` guard so it
+- [x] Move the existing `if operator.name in self.operator_dictionary.keys(): return` guard so it *(altered: replaced with a per-key `_register_key` helper applying the same after-None-check ordering, rather than reordering the original single-name guard in place)*
       runs *after* the `getattr(operator, "name", None) is None` check — the current ordering
       dereferences `operator.name` before validating it exists.
 

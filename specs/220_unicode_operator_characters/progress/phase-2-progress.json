@@ -1,0 +1,26 @@
+{
+  "phase": 2,
+  "phase_name": "Collision and unknown-operator error handling",
+  "started_at": "2026-09-29T15:42:15Z",
+  "last_updated": "2026-09-29T16:10:00Z",
+  "objectives": [
+    {"id": 1, "description": "RED: duplicate-collision and idempotent-noop tests", "status": "done", "files_touched": ["code/src/model_checker/syntactic/tests/unit/test_collection.py"]},
+    {"id": 2, "description": "RED: UnknownOperatorError tests for __getitem__ and apply_operator", "status": "done", "files_touched": ["code/src/model_checker/syntactic/tests/unit/test_collection.py"]},
+    {"id": 3, "description": "grep except KeyError and update affected call site", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/logos/operators.py"]},
+    {"id": 4, "description": "GREEN: conflict-aware duplicate policy in add_operator", "status": "done", "files_touched": ["code/src/model_checker/syntactic/collection.py"]},
+    {"id": 5, "description": "GREEN: __getitem__ raises UnknownOperatorError", "status": "done", "files_touched": ["code/src/model_checker/syntactic/collection.py"]},
+    {"id": 6, "description": "Reorder name-guard to run after None-check", "status": "done", "files_touched": ["code/src/model_checker/syntactic/collection.py"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "deviations": [
+    {
+      "task_id": "2.6",
+      "description": "Move the existing `if operator.name in self.operator_dictionary.keys(): return` guard so it runs after the None check",
+      "type": "altered",
+      "reason": "Implemented as a new `_register_key` helper (called once for name, once per alias) rather than reordering the original single-name guard in place; achieves the same after-None-check ordering while also serving the multi-key alias registration Phase 1 needs.",
+      "annotation": "*(altered: replaced with a per-key `_register_key` helper applying the same after-None-check ordering, rather than reordering the original single-name guard in place)*"
+    }
+  ],
+  "handoff_count": 0
+}
