@@ -48,6 +48,7 @@ from model_checker.models.proposition import PropositionDefaults
 from model_checker.utils import pretty_set_print
 
 from .formula import Formula, translate
+from .render import signed_time
 
 
 class BimodalProposition(PropositionDefaults):
@@ -180,22 +181,24 @@ class BimodalProposition(PropositionDefaults):
     def print_proposition(self, eval_point: Dict[str, Any], indent_num: int, use_colors: bool) -> None:
         """Print this proposition and its truth value at `eval_point`.
 
-        `eval_point` carries `{"lasso": int, "position": int}` (D5's eval-point shape).
+        `eval_point` carries `{"lasso": int, "position": int}` (D5's eval-point shape); the
+        point prints as `L0, t=-2`, matching the certificate printer's own naming.
         """
         lasso = eval_point["lasso"]
         position = eval_point["position"]
 
         truth_value = self.truth_value_at(lasso, position)
 
+        point = f"L{lasso}, t={signed_time(position)}"
         RESET, FULL, PART = self.set_colors(
             self.name,
             indent_num,
             truth_value,
-            f"lasso {lasso}",
+            point,
             use_colors,
         )
 
         print(
             f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
-            f"  {PART}({truth_value} in lasso {lasso} at position {position}){RESET}"
+            f"  {PART}({truth_value} at {point}){RESET}"
         )

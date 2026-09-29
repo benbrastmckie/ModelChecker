@@ -295,14 +295,14 @@ path was verified with a scratch example instead.
 
 ---
 
-### Phase 4: Bimodal Printer Rewrite [NOT STARTED]
+### Phase 4: Bimodal Printer Rewrite [COMPLETED]
 
 **Goal**: `print_info` header, certificate block, box-guess table, evaluation point, verification
 line, and interpreted-sentence wording match the report's Finding 7 mock (with the `Certificate:`
 heading retained), using Phase 1's renderer, Phase 2's witness, and Phase 3's predicate.
 
 **Tasks**:
-- [ ] Rewrite the pinned tests first: `test_structure.py` `TestGoldenOutputCertificateFormat`,
+- [x] Rewrite the pinned tests first: `test_structure.py` `TestGoldenOutputCertificateFormat`,
   `TestVerificationLabelRendering`, `TestPrintingDoesNotClaimValidity`, and
   `tests/integration/test_output_gate.py`. New golden expectations (utf-8 `capsys` stream):
   header contains `Search bounds: back=2, mid=1, fwd=2 (4 lassos: 1 main + 3 reserved
@@ -314,23 +314,23 @@ heading retained), using Phase 1's renderer, Phase 2's witness, and Phase 3's pr
   line (assert `out.count("Verification:") == 1`) with the checkout shortened to 12 hex chars;
   the three D8/F2 states' substrings verbatim; empty labels as `∅`; no `Atom(` / `Imp(` / `Box(`
   substrings anywhere in `out`.
-- [ ] Add a `cp1252` end-to-end test for `print_certificate` per `TESTING_GUIDE.md` 9.2
+- [x] Add a `cp1252` end-to-end test for `print_certificate` per `TESTING_GUIDE.md` 9.2
   (expect `^w`, `[]`, `{}`, `|` fallbacks and no `UnicodeEncodeError`).
-- [ ] Keep `test_print_evaluation_reports_no_certificate_case` (standalone call still prints) but
+- [x] Keep `test_print_evaluation_reports_no_certificate_case` (standalone call still prints) but
   make `print_all` skip `print_evaluation` when `certificate is None` so the no-certificate
   message prints once; add an assertion `out.count("No certificate found") == 1` on the
   `print_all` path.
-- [ ] `proposition.py::print_proposition`: `(True at L0, t=-2)` wording; update
+- [x] `proposition.py::print_proposition`: `(True at L0, t=-2)` wording; update
   `tests/unit/test_proposition.py` if it pins the old text (grep `in lasso`).
-- [ ] Implement in `semantic/model.py`: `_print_model_details` override (bounds + lasso count);
+- [x] Implement in `semantic/model.py`: `_print_model_details` override (bounds + lasso count);
   `_format_label` -> atoms joined by `, ` with `∅` glyph for empty, `[ ]` marker preserved;
   `_format_lasso` with `^ω` glyph; `_lasso_roles()` from `box_guesses()`; `print_certificate`
   (legend line, aligned role column, `Box guesses:` table via `render`); `print_evaluation`
   (`Evaluation point:` + single `Verification:`); `_verification_label` shortens the checkout to
   `[:12]`; colors (BLUE evaluation-point row, GRAY reserved rows, GREEN/RED guess values)
   gated by `use_colors(output)` and never carrying information alone.
-- [ ] Update the `semantic/model.py` module docstring's output-shape description.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -q` and a
+- [x] Update the `semantic/model.py` module docstring's output-shape description.
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -q` and a
   live `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py | cat -v |
   grep -c '\^\['` (expect `0`).
 
@@ -344,6 +344,17 @@ heading retained), using Phase 1's renderer, Phase 2's witness, and Phase 3's pr
 `test_proposition.py` pin the current text; confirm with
 `grep -rln "Witness: L\|in lasso\|Atomic States\|Box(Atom" code/src/model_checker/theory_lib/bimodal/tests`
 before rewriting, and treat any additional hit as in scope for this phase.
+*Probe result*: exactly those files pinned the text (`test_structure.py`, `test_output_gate.py`,
+`test_proposition.py`); all rewritten. *Deviations*: (altered) the box-guess table and role
+column render in the user's own notation (`\Box A`, `witness for \Box A`) because every boxed
+closure member is a named sentence or derived subsentence (`\Diamond A` records
+`\Box \neg A`), so the mock's `□A` fallback form surfaces only in iteration diffs -- the
+golden tests pin the user-notation form; (altered) multi-atom labels keep braces (`{A,B}`) so
+the `, ` slot separator stays unambiguous, single atoms print bare; (extended) `print_all` now
+prints the certificate block on the no-certificate path too (D8 message once, then the closing
+separator) instead of returning after the header; the no-certificate header's lasso count reads
+`semantics._active_lassos` (package-internal). The cp1252 end-to-end leg pins `^w` and `{}`
+(the glyphs a real example reaches); `[]` is covered by `test_render.py`'s cp1252 leg.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/semantic/model.py` - printer rewrite, `_print_model_details` override

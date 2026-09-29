@@ -65,6 +65,20 @@ for this particular certificate" (the phrase `docs/ADEQUACY.md` section 6.2 and
 `docs/TRUST_PIPELINE.md` currently use, reported as a finding for the certificate-wire hardening
 task to fix, not edited here): that phrasing describes the reserved third `Acceptance` value
 (per-certificate kernel checking by re-elaboration), which nothing this checker produces today.
+
+## Printed output
+
+`print_all` prints, in order: the framework header with `_print_model_details` overridden to
+show `Search bounds: back=B, mid=M, fwd=F (N lassos: 1 main + K reserved witnesses)` in place
+of the meaningless `Atomic States`; the `Certificate:` block -- one row per lasso, `L{i}`, a
+role column (`main` / `witness for □χ` / `reserved, unused`, derived from the certificate scan
+in `box_guesses`, never from the registry's reserved index), and the history as
+`(back)^ω | mid | (fwd)^ω` over atom valuations with `[ ]` marking the evaluation point and
+`∅` for an empty label; a `Box guesses:` table (`formula  true|false  falsified at L{i}, t=±t`);
+then `Evaluation point: L0 at t=-2` and exactly one `Verification:` line. Formulas render via
+`semantic/render.py` in the user's notation; every non-ASCII glyph goes through
+`utils/glyphs.py`; every color is gated by `output.color.use_colors` and never carries
+information alone. See `docs/ARCHITECTURE.md`'s "Rendering policy".
 """
 
 from __future__ import annotations
@@ -74,12 +88,14 @@ import time
 from typing import Any, Dict, List, Optional, TextIO, Tuple
 
 from model_checker.models.structure import ModelDefaults
+from model_checker.output.color import use_colors
+from model_checker.utils.glyphs import glyph
 from model_checker.theory_lib.errors import ModelConstructionError
 
 from .certificate import _box_window, recheck
 from .checker import ProtocolFailure, check_certificate
 from .formula import Atom, Box, Formula
-from .render import build_names, print_differences
+from .render import build_names, print_differences, render, signed_time
 
 
 class BimodalStructure(ModelDefaults):
@@ -288,38 +304,6 @@ class BimodalStructure(ModelDefaults):
     # Printing
     # ------------------------------------------------------------------
 
-    def _format_label(self, label) -> str:
-        """A label rendered over its atom valuations (report 01 section 4.4): the sorted
-        base names of every `Atom` the label contains, e.g. `{A,B}`, or `{}` if none."""
-        atoms = sorted(f.base for f in label if isinstance(f, Atom))
-        return "{" + ",".join(atoms) + "}"
-
-    def _format_lasso(self, lasso_index: int, lasso: Any) -> str:
-        """`(back)^w | mid | (fwd)^w`, marking the evaluation position (if it falls in
-        this lasso's printed window) with brackets."""
-        registry = self.semantics.witness_registry
-        mark_slot: Optional[int] = None
-        if lasso_index == self.main_point.get("lasso") and self.target_time is not None:
-            mark_slot = registry.wrap(self.target_time)
-
-        def _segment(labels, start_slot: int) -> List[str]:
-            parts = []
-            for offset, label in enumerate(labels):
-                text = self._format_label(label)
-                if mark_slot is not None and start_slot + offset == mark_slot:
-                    text = f"[{text}]"
-                parts.append(text)
-            return parts
-
-        back_parts = _segment(lasso.back, 0)
-        mid_parts = _segment(lasso.mid, lasso.nb)
-        fwd_parts = _segment(lasso.fwd, lasso.nb + lasso.nm)
-
-        back_str = f"({', '.join(back_parts)})^w"
-        fwd_str = f"({', '.join(fwd_parts)})^w"
-        mid_str = ", ".join(mid_parts) if mid_parts else "-"
-        return f"{back_str} | {mid_str} | {fwd_str}"
-
     def box_witness(self, child: Formula) -> Optional[Tuple[int, int]]:
         """The `(lasso_index, t)` at which the certificate falsifies `Box(child)`, or `None`
         when the box is guessed true (or there is no certificate).
@@ -357,12 +341,151 @@ class BimodalStructure(ModelDefaults):
         )
         return [(child, self.certificate.bx_of(child), self.box_witness(child)) for child in children]
 
+    # ------------------------------------------------------------------
+    # Printing
+    # ------------------------------------------------------------------
+
+    # ANSI palette (gated by `use_colors(output)` at every use):
+    _BLUE = "\033[34m"    # the evaluation point (main-lasso row, `Evaluation point:` value)
+    _GRAY = "\033[90m"    # reserved-but-unused witness rows
+    _GREEN = "\033[32m"   # a box guessed true
+    _RED = "\033[31m"     # a box guessed false
+    _RESET = "\033[0m"
+
+    def _names(self) -> Dict[Formula, str]:
+        """Reverse-`translate` map over the example's sentences (`render.build_names`)."""
+        return build_names(getattr(self, "syntax", None))
+
+    def _lasso_count(self) -> int:
+        """Lassos in the search: the certificate's when one was found, else the registry's
+        allocation (`finalize_certificate`'s `_active_lassos`: main plus one reserved witness
+        per boxed subformula)."""
+        if self.certificate is not None:
+            return len(self.certificate.lassos)
+        return len(getattr(self.semantics, "_active_lassos", None) or [0])
+
+    def _print_model_details(self, theory_name: str, output: TextIO) -> None:
+        """`Search bounds: ...` in place of the framework's `Atomic States: N` -- the
+        certificate encoding has no atomic-state count (`N` is meaningless here); the bounds
+        and the lasso allocation are what actually shaped the search."""
+        count = self._lasso_count()
+        witnesses = count - 1
+        if witnesses == 0:
+            detail = "1 lasso: main only"
+        else:
+            plural = "es" if witnesses != 1 else ""
+            detail = f"{count} lassos: 1 main + {witnesses} reserved witness{plural}"
+        print(
+            f"Search bounds: back={self.semantics.back}, mid={self.semantics.mid}, "
+            f"fwd={self.semantics.fwd} ({detail})\n",
+            file=output,
+        )
+        print(f"Semantic Theory: {theory_name}\n", file=output)
+
+    def _format_label(self, label, output: TextIO) -> str:
+        """A label over its atom valuation: a single atom bare (`A`), several as `{A,B}` so
+        the slot separator stays unambiguous, none as the `∅` glyph."""
+        atoms = sorted(f.base for f in label if isinstance(f, Atom))
+        if not atoms:
+            return glyph("EMPTY_SET", output)
+        if len(atoms) == 1:
+            return atoms[0]
+        return "{" + ",".join(atoms) + "}"
+
+    def _format_lasso(self, lasso_index: int, lasso: Any, output: TextIO) -> str:
+        """`(back)^ω | mid | (fwd)^ω`, marking the evaluation position (if it falls in this
+        lasso's printed window) with brackets."""
+        registry = self.semantics.witness_registry
+        mark_slot: Optional[int] = None
+        if lasso_index == self.main_point.get("lasso") and self.target_time is not None:
+            mark_slot = registry.wrap(self.target_time)
+
+        def _segment(labels, start_slot: int) -> List[str]:
+            parts = []
+            for offset, label in enumerate(labels):
+                text = self._format_label(label, output)
+                if mark_slot is not None and start_slot + offset == mark_slot:
+                    text = f"[{text}]"
+                parts.append(text)
+            return parts
+
+        omega = glyph("OMEGA", output)
+        back_parts = _segment(lasso.back, 0)
+        mid_parts = _segment(lasso.mid, lasso.nb)
+        fwd_parts = _segment(lasso.fwd, lasso.nb + lasso.nm)
+
+        back_str = f"({', '.join(back_parts)})^{omega}"
+        fwd_str = f"({', '.join(fwd_parts)})^{omega}"
+        mid_str = ", ".join(mid_parts) if mid_parts else "-"
+        return f"{back_str} | {mid_str} | {fwd_str}"
+
+    def _lasso_roles(self, output: TextIO) -> Dict[int, str]:
+        """`main` for index 0; `witness for □χ` for a lasso the certificate scan names as a
+        falsifier (`box_witness`); `reserved, unused` otherwise. Never derived from the
+        registry's reservation, which is capacity, not provenance."""
+        names = self._names()
+        witnessed: Dict[int, List[Formula]] = {}
+        for child, _guess, witness in self.box_guesses():
+            if witness is not None and witness[0] != 0:
+                witnessed.setdefault(witness[0], []).append(child)
+        roles = {0: "main"}
+        for index in range(1, self._lasso_count()):
+            if index in witnessed:
+                boxes = ", ".join(render(Box(child), output, names) for child in witnessed[index])
+                roles[index] = f"witness for {boxes}"
+            else:
+                roles[index] = "reserved, unused"
+        return roles
+
+    def _print_history_lines(self, output: TextIO) -> None:
+        """One aligned row per lasso: name, role, history."""
+        roles = self._lasso_roles(output)
+        colored = use_colors(output)
+        lassos = self.certificate.lassos
+        name_width = max(len(f"L{i}") for i in range(len(lassos)))
+        role_width = max(len(role) for role in roles.values())
+        for index, lasso in enumerate(lassos):
+            color = ""
+            if colored and index == self.main_point.get("lasso"):
+                color = self._BLUE
+            elif colored and roles[index] == "reserved, unused":
+                color = self._GRAY
+            reset = self._RESET if color else ""
+            print(
+                f"  {color}{f'L{index}':<{name_width}}  {roles[index]:<{role_width}}  "
+                f"{self._format_lasso(index, lasso, output)}{reset}",
+                file=output,
+            )
+
+    def _print_box_guesses(self, output: TextIO) -> None:
+        """`Box guesses:` table: formula (user notation), guess, and for a false guess the
+        certificate-derived falsifier `falsified at L{i}, t=±t`."""
+        print("Box guesses:", file=output)
+        guesses = self.box_guesses()
+        if not guesses:
+            print("  (none)", file=output)
+            return
+        names = self._names()
+        colored = use_colors(output)
+        rows = []
+        for child, guess, witness in guesses:
+            detail = ""
+            if witness is not None:
+                detail = f"falsified at L{witness[0]}, t={signed_time(witness[1])}"
+            rows.append((render(Box(child), output, names), guess, detail))
+        formula_width = max(len(text) for text, _, _ in rows)
+        for text, guess, detail in rows:
+            value = f"{'true' if guess else 'false':<5}"
+            color = (self._GREEN if guess else self._RED) if colored else ""
+            reset = self._RESET if colored else ""
+            print(f"  {text:<{formula_width}}  {color}{value}{reset}  {detail}".rstrip(), file=output)
+
     def _verification_label(self) -> str:
         """One-line rendering of item 1's output gate state -- see the module docstring's
         "The output gate" and "Wording discipline (F2)" sections for the contract this
         wording follows. Never says "kernel-checked proof": that phrase names the reserved
         third `Acceptance` value (per-certificate kernel checking), which nothing this
-        checker produces today."""
+        checker produces today. The checkout hash is shortened to 12 hex characters."""
         if self.verify_mode == "off":
             return (
                 "independent check skipped ('verify': 'off'); re-checked by this "
@@ -371,7 +494,7 @@ class BimodalStructure(ModelDefaults):
         if self.verification_checked:
             acceptance = self.verification_acceptance or "unknown"
             provenance = (
-                f", checkout {self.verification_provenance}"
+                f", checkout {self.verification_provenance[:12]}"
                 if self.verification_provenance
                 else ""
             )
@@ -387,12 +510,12 @@ class BimodalStructure(ModelDefaults):
         )
 
     def print_certificate(self, output: TextIO = sys.__stdout__) -> None:
-        """Print every lasso in the found certificate, the independent-verification label
-        (item 1's output gate), the boxed-subformula table with each guess, and each false
-        box's witness history and position -- report 01 section 4.4's output shape. Prints
-        the no-certificate case as an explicit non-validity-claim message (D8) instead."""
-        print("Certificate:", file=output)
+        """Print the certificate block: the legend, one row per lasso (name, role, history
+        with the evaluation point marked), and the `Box guesses:` table with each false box's
+        certificate-derived witness. Prints the no-certificate case as an explicit
+        non-validity-claim message (D8) instead."""
         if self.certificate is None:
+            print("Certificate:", file=output)
             print(
                 f"  No certificate found within the configured bounds "
                 f"(back={self.semantics.back}, mid={self.semantics.mid}, "
@@ -402,30 +525,19 @@ class BimodalStructure(ModelDefaults):
             )
             return
 
-        print(f"  Verification: {self._verification_label()}", file=output)
-        for i, lasso in enumerate(self.certificate.lassos):
-            role = "main" if i == 0 else f"witness {i}"
-            print(f"  L{i} ({role}): {self._format_lasso(i, lasso)}", file=output)
+        omega = glyph("OMEGA", output)
+        print(
+            f"Certificate:  (each lasso is (back)^{omega} | mid | (fwd)^{omega} over atoms; "
+            "[ ] marks the evaluation point)",
+            file=output,
+        )
+        self._print_history_lines(output)
         print(file=output)
-
-        print("Boxed subformulas:", file=output)
-        guesses = self.box_guesses()
-        if not guesses:
-            print("  (none)", file=output)
-        for child, guess, witness in guesses:
-            print(f"  Box({child!r}) = {guess}", file=output)
-            if witness is not None:
-                witness_index, position = witness
-                witness_lasso = self.certificate.lassos[witness_index]
-                print(
-                    f"    Witness: L{witness_index} at position {position} "
-                    f"({self._format_lasso(witness_index, witness_lasso)})",
-                    file=output,
-                )
+        self._print_box_guesses(output)
         print(file=output)
 
     def print_evaluation(self, output: TextIO = sys.__stdout__) -> None:
-        """Print the evaluation point: the main lasso and the extracted target time, or
+        """Print the evaluation point (`L0 at t=-2`) and the single `Verification:` line, or
         the explicit no-certificate message (D8: an unsatisfiable solve is rendered, never
         raised as an error -- it is not a validity claim, just a fact to report)."""
         if self.certificate is None:
@@ -437,13 +549,11 @@ class BimodalStructure(ModelDefaults):
             )
             return
 
-        print(
-            f"\nEvaluation Point:\n"
-            f"  Main lasso: L{self.main_point['lasso']}\n"
-            f"  Target position: {self.target_time}\n"
-            f"  Verification: {self._verification_label()}\n",
-            file=output,
-        )
+        colored = use_colors(output)
+        blue, reset = (self._BLUE, self._RESET) if colored else ("", "")
+        point = f"L{self.main_point['lasso']} at t={signed_time(self.target_time)}"
+        print(f"Evaluation point: {blue}{point}{reset}", file=output)
+        print(f"Verification: {self._verification_label()}\n", file=output)
 
     def print_model_differences(self, output: TextIO = sys.stdout) -> None:
         """Print this model's label-bit/box-guess/target-time differences from the previous
@@ -465,21 +575,26 @@ class BimodalStructure(ModelDefaults):
         theory_name: str,
         output: TextIO = sys.__stdout__,
     ) -> None:
-        """Print complete model information: info header, the certificate (every lasso
-        plus the boxed-subformula table), the evaluation point, the interpreted premises/
-        conclusions, and the raw Z3 model if requested."""
+        """Print complete model information: info header, the certificate block (every
+        lasso plus the box-guess table -- or the D8 no-certificate message), the evaluation
+        point and verification line, the interpreted premises/conclusions, and the raw Z3
+        model if requested."""
         model_status = self.z3_model_status
         self.print_info(model_status, self.settings, example_name, theory_name, output)
-        if model_status:
-            self.print_certificate(output)
-            self.print_evaluation(output)
-            self.print_input_sentences(output)
-            self.print_model(output)
-            if output is sys.__stdout__:
-                total_time = round(time.time() - self.start_time, 4)
-                print(f"Total Run Time: {total_time} seconds\n", file=output)
+        # The certificate block handles both cases: with no certificate it prints the D8
+        # non-validity-claim message exactly once (print_evaluation is skipped, since its
+        # own no-certificate wording exists only for standalone callers).
+        self.print_certificate(output)
+        if self.certificate is None:
             print(f"\n{'='*40}", file=output)
             return
+        self.print_evaluation(output)
+        self.print_input_sentences(output)
+        self.print_model(output)
+        if output is sys.__stdout__:
+            total_time = round(time.time() - self.start_time, 4)
+            print(f"Total Run Time: {total_time} seconds\n", file=output)
+        print(f"\n{'='*40}", file=output)
 
     def print_to(
         self,

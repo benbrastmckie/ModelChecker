@@ -64,6 +64,7 @@ class TestVerifyAutoWithNoChecker:
         assert "Certificate:" in out
         assert "re-checked by this repository's own pure-Python decision procedures only" in out
         assert "no independent checker available" in out
+        assert out.count("Verification:") == 1
         assert FORBIDDEN_OVERCLAIM not in out
 
 
@@ -84,8 +85,10 @@ class TestVerifyOffNeverInvokesTheChecker:
         assert structure.verification_reason is None
 
         structure.print_certificate(output=sys.stdout)
+        structure.print_evaluation(output=sys.stdout)
         out = capsys.readouterr().out
         assert "independent check skipped" in out
+        assert out.count("Verification:") == 1
         assert FORBIDDEN_OVERCLAIM not in out
 
 
@@ -132,6 +135,11 @@ class TestRealCheckerReportsIndependentlyChecked:
         out = capsys.readouterr().out
         assert "independently checked" in out
         assert "WitnessFamily.Refutes" in out
+        assert out.count("Verification:") == 1
+        # The checkout hash is shortened to 12 hex characters on screen.
+        if structure.verification_provenance:
+            assert structure.verification_provenance[:12] in out
+            assert structure.verification_provenance not in out
         assert FORBIDDEN_OVERCLAIM not in out
 
     def test_verify_required_with_a_real_checker_reports_normally(self):

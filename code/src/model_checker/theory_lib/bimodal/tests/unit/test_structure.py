@@ -203,6 +203,15 @@ class TestPrintingDoesNotClaimValidity:
         out = capsys.readouterr().out
         assert "No certificate found" in out
 
+    def test_print_all_reports_no_certificate_exactly_once(self, capsys):
+        structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
+        structure.print_all(structure.settings, "EX", "Bimodal", output=sys.stdout)
+        out = capsys.readouterr().out
+        assert out.count("No certificate found") == 1
+        assert "not a validity claim" in out
+        assert "Search bounds: back=1, mid=0, fwd=1" in out
+        assert "Atomic States" not in out
+
 
 class TestVerificationLabelRendering:
     """Item 1's output gate: `print_certificate` and
@@ -225,6 +234,7 @@ class TestVerificationLabelRendering:
         structure.print_evaluation(output=sys.stdout)
         out = capsys.readouterr().out
         assert "Verification: independent check skipped" in out
+        assert out.count("Verification:") == 1
         assert "kernel-checked proof" not in out
 
     def test_verify_auto_with_no_checker_renders_the_unchecked_label(self, capsys, monkeypatch, tmp_path):
@@ -240,6 +250,7 @@ class TestVerificationLabelRendering:
             out = capsys.readouterr().out
             assert "Verification: re-checked by this repository's own pure-Python" in out
             assert "no independent checker available" in out
+            assert out.count("Verification:") == 1
             assert "kernel-checked proof" not in out
         finally:
             # Never leak this test's forced-unavailable resolution into a later test in the
@@ -349,8 +360,14 @@ class TestBoxWitnessFromCertificate:
 
 
 class TestGoldenOutputCertificateFormat:
-    """Golden-output coverage for report 01 section 4.4's output shape: each history as
-    `(back)^w | mid | (fwd)^w` over atom valuations, with the evaluation position marked."""
+    """Golden-output coverage for the certificate block: each history as
+    `(back)^ω | mid | (fwd)^ω` over atom valuations with a role column, the evaluation
+    position marked `[ ]`, empty labels as `∅`, a `Box guesses:` table whose witness is the
+    certificate-derived `(lasso, t)` pair, and formulas in the user's own notation."""
+
+    @staticmethod
+    def _md_cm_1():
+        return _build(["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2)
 
     def test_single_slot_lasso_renders_back_mid_fwd_with_the_marked_position(self, capsys):
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
@@ -359,25 +376,151 @@ class TestGoldenOutputCertificateFormat:
         lines = [line for line in out.splitlines() if line.strip().startswith("L0")]
         assert len(lines) == 1
         # Exactly one of the two slots (back or fwd) is the marked (bracketed) evaluation
-        # position and carries {A}; the other is empty. Which slot the solver picks for the
+        # position and carries A; the other is empty. Which slot the solver picks for the
         # target is not fixed by the constraints (D5's one-hot selector ranges over the
         # whole window), so assert the golden shape rather than a specific slot.
         line = lines[0].strip()
         assert line in (
-            "L0 (main): ([{A}])^w | - | ({})^w",
-            "L0 (main): ({})^w | - | ([{A}])^w",
+            "L0  main  ([A])^ω | - | (∅)^ω",
+            "L0  main  (∅)^ω | - | ([A])^ω",
         ), line
 
-    def test_boxed_subformula_table_lists_the_guess_and_a_false_boxs_witness(self, capsys):
+    def test_certificate_line_carries_the_legend(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        legend_lines = [line for line in out.splitlines() if line.startswith("Certificate:")]
+        assert len(legend_lines) == 1
+        assert "each lasso is (back)^ω | mid | (fwd)^ω over atoms; [ ] marks the evaluation point" in legend_lines[0]
+
+    def test_full_print_all_on_md_cm_1(self, capsys):
+        import re
+
+        structure = self._md_cm_1()
+        # `BuildExample` interprets before printing and carries the general settings
+        # `print_model` reads; do the same outside it.
+        structure.interpret(structure.premises + structure.conclusions)
+        structure.settings["print_z3"] = False
+        structure.print_all(structure.settings, "MD_CM_1", "Bimodal", output=sys.stdout)
+        out = capsys.readouterr().out
+
+        # Header: bounds and lasso count replace the meaningless atomic-state count.
+        assert "Search bounds: back=2, mid=1, fwd=2 (4 lassos: 1 main + 3 reserved witnesses)" in out
+        assert "Atomic States" not in out
+
+        # Histories: one row per lasso with a role column; roles come from the certificate scan.
+        rows = {line.split()[0]: line for line in out.splitlines() if re.match(r"\s+L\d\s", line)}
+        assert set(rows) == {"L0", "L1", "L2", "L3"}
+        assert re.search(r"L0\s+main\s+\(", rows["L0"])
+        roles = [re.match(r"\s+L\d\s+(.*?)\s{2,}\(", line).group(1) for line in rows.values()]
+        assert "main" in roles
+        assert any(r.startswith("witness for \\Box ") for r in roles)
+        assert "reserved, unused" in roles
+        assert "[" in rows["L0"] and "]" in rows["L0"]  # the evaluation point is marked on L0
+        assert "^ω" in rows["L0"]
+
+        # Box guesses: user notation, aligned columns, witness read from the certificate.
+        assert "Box guesses:" in out
+        assert re.search(r"\\Box A\s+false\s+falsified at L\d, t=[+-]?\d+", out)
+        assert re.search(r"\\Box B\s+false\s+falsified at L\d, t=[+-]?\d+", out)
+        assert re.search(r"\\Box \(A \\vee B\)\s+true\s*$", out, re.MULTILINE)
+        for match in re.finditer(r"falsified at L(\d), t=([+-]?\d+)", out):
+            lasso_index, t = int(match.group(1)), int(match.group(2))
+            assert lasso_index < len(structure.certificate.lassos)
+            # The witness for each false box is genuinely a falsifier (C3).
+        for child, guess, witness in structure.box_guesses():
+            if not guess:
+                lasso_index, t = witness
+                assert child not in structure.certificate.lassos[lasso_index].label(t)
+
+        # Evaluation point and exactly one verification line.
+        assert re.search(r"Evaluation point: L0 at t=[+-]?\d+", out)
+        assert out.count("Verification:") == 1
+        assert out.count("Certificate:") == 1
+
+        # Interpreted sentences read `(True at L0, t=-2)`, and no repr leaks anywhere.
+        assert re.search(r"\(True at L0, t=[+-]?\d+\)", out)
+        assert "in lasso" not in out
+        for leak in ("Atom(", "Imp(", "Box(", "Bot("):
+            assert leak not in out, leak
+        assert "\033[" not in out  # capsys is not a TTY
+
+    def test_empty_labels_render_as_the_empty_set_glyph(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "∅" in out
+        assert "{}" not in out
+
+    def test_witness_line_names_a_lasso_and_signed_time(self, capsys):
         structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)
         structure.print_certificate(output=sys.stdout)
         out = capsys.readouterr().out
-        assert "Boxed subformulas:" in out
-        assert "Box(Atom(base='A', fresh_index=None)) = " in out
-        # Whichever way the guess landed, the table format itself is exercised; if guessed
-        # false, a witness line for L1 must also appear.
-        if "= False" in out:
-            assert "Witness: L" in out
+        assert "Box guesses:" in out
+        if "false" in out:
+            import re
+            assert re.search(r"falsified at L\d, t=(?:0|[+-]\d+)", out)
+
+    def test_derived_operators_print_in_the_users_derived_notation(self, capsys):
+        """`\\Diamond A` compiles to `\\neg \\Box \\neg A`, and `Syntax` records the derived
+        subsentence `\\Box \\neg A` by name -- so the boxed closure member prints in that
+        notation, never as a dataclass repr and never as the structural `□¬A` fallback
+        (which `semantic/render.py` reserves for formulas no sentence names, e.g. an
+        iteration diff's changed label bit)."""
+        structure = _build(["\\Diamond A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "\\Box \\neg A" in out
+        assert "Box(" not in out and "Imp(" not in out
+
+    def test_cp1252_stream_gets_ascii_fallbacks_without_raising(self):
+        """`TESTING_GUIDE.md` section 9.2: a real cp1252-encoding stream, never `StringIO`.
+        The glyphs a real example reaches are `ω` (every lasso row) and `∅` (empty labels);
+        the renderer's own operator glyphs are covered by `test_render.py`'s cp1252 leg."""
+        from model_checker.utils.testing import make_encoding_test_streams, read_encoding_test_stream
+
+        structure = _build(["A"], ["\\Box A"], back=1, mid=0, fwd=1)
+        structure.interpret(structure.premises + structure.conclusions)
+        structure.settings["print_z3"] = False
+        streams = make_encoding_test_streams()
+        structure.print_all(structure.settings, "EX", "Bimodal", output=streams["cp1252"])
+        rendered = read_encoding_test_stream(streams["cp1252"])
+        assert "^w" in rendered
+        assert "{}" in rendered  # ∅ fallback
+        assert "ω" not in rendered and "∅" not in rendered
+
+        structure.print_all(structure.settings, "EX", "Bimodal", output=streams["utf8"])
+        control = read_encoding_test_stream(streams["utf8"])
+        assert "^ω" in control and "∅" in control
+
+
+class TestColorGating:
+    def test_tty_output_carries_colors_and_pipes_do_not(self, monkeypatch):
+        import io
+
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        monkeypatch.delenv("FORCE_COLOR", raising=False)
+        monkeypatch.setenv("TERM", "xterm")
+
+        class _TTY(io.StringIO):
+            def isatty(self):
+                return True
+
+        structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)
+        plain = io.StringIO()
+        structure.print_certificate(output=plain)
+        structure.print_evaluation(output=plain)
+        assert "\033[" not in plain.getvalue()
+
+        tty = _TTY()
+        structure.print_certificate(output=tty)
+        structure.print_evaluation(output=tty)
+        assert "\033[" in tty.getvalue()
+
+        monkeypatch.setenv("NO_COLOR", "1")
+        quiet = _TTY()
+        structure.print_certificate(output=quiet)
+        assert "\033[" not in quiet.getvalue()
 
 
 # Local to the property this module pins -- the A0 frame-class standing test's

@@ -177,3 +177,5 @@ class TestFindExtensionAndProposition:
         proposition.print_proposition({"lasso": 0, "position": 0}, 1, False)
         captured = capsys.readouterr()
         assert "|A|" in captured.out
+        assert "(True at L0, t=0)" in captured.out
+        assert "in lasso" not in captured.out

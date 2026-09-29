@@ -39,7 +39,7 @@ from model_checker.utils.glyphs import glyph
 
 from .formula import Atom, Bot, Box, Formula, Imp, Snce, Untl, translate
 
-__all__ = ["build_names", "print_differences", "render"]
+__all__ = ["build_names", "print_differences", "render", "signed_time"]
 
 Names = Dict[Formula, str]
 
@@ -59,6 +59,12 @@ def build_names(syntax: Any) -> Names:
             continue
         names.setdefault(formula, str(sentence.name))
     return names
+
+
+def signed_time(t: int) -> str:
+    """`-2`, `0`, `+2`: integer positions print with an explicit sign except at the origin,
+    so a reader sees at a glance which side of the `mid` segment a position lies on."""
+    return f"{t:+d}" if t else "0"
 
 
 def _is_top(formula: Formula) -> bool:
