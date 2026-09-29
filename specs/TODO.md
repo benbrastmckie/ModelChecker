@@ -11,7 +11,7 @@ next_project_number: 219
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,216,217,218 | -- | documentation, semantics, cli-presentation |
+| 1 | 198,200,216,217 | -- | documentation, semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -27,19 +27,16 @@ next_project_number: 219
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 217 [NOT STARTED] — Re-scope the two blocked bimodal adequacy consumers in...
 
-### Cli Presentation
-
-218 [IMPLEMENTING] — Refactor bimodal/ theory countermodel presentation in...
-
 ## Tasks
 
 ### 218. Refactor bimodal countermodel presentation
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: cli-presentation
 - **Dependencies**: None
 - **Research**: [218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md]
 - **Plan**: [218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md]
+- **Summary**: [218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md]
 
 **Description**: Refactor bimodal/ theory countermodel presentation in dev_cli.py output: review the old presentation in /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/bimodal/examples.py for salvageable elements (inspiration only, theory is outdated), research best CLI display methods online, and systematically improve the presentation elements for the current bimodal/ theory in this repo, making any other systematic model-checker changes only as needed
 

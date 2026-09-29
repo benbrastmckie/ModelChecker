@@ -4,12 +4,12 @@
     {
       "project_number": 218,
       "project_name": "refactor_bimodal_countermodel_presentation",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "description": "Refactor bimodal/ theory countermodel presentation in dev_cli.py output: review the old presentation in /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/bimodal/examples.py for salvageable elements (inspiration only, theory is outdated), research best CLI display methods online, and systematically improve the presentation elements for the current bimodal/ theory in this repo, making any other systematic model-checker changes only as needed",
       "topic": "cli-presentation",
       "created": "2026-09-29T00:18:24Z",
-      "last_updated": "2026-09-29T00:35:30Z",
+      "last_updated": "2026-09-29T03:49:37Z",
       "session_id": "sess_1790641161_19a0a0",
       "file_scope": [
         "code/src/model_checker/models/structure.py",
@@ -39,9 +39,15 @@
           "path": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
           "type": "plan",
           "summary": "Seven-phase plan with dependency waves [[1,2,3],[4,6],[5],[7]]."
+        },
+        {
+          "path": "specs/218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: seven phases, verification results, and plan deviations."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Rewrote the bimodal countermodel presentation: user-notation formulas, a certificate-derived box witness (fixing the wrong registry-index witness line), a role column, a Search bounds header, one Verification line, ^ω/∅ glyphs with cp1252 fallbacks, a live -a time-aligned table, user-notation iteration diffs, and one systemic shared use_colors predicate so pipes and NO_COLOR get plain text. Full suite 3416 passed."
     },
     {
       "project_number": 217,
