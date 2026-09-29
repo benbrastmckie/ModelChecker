@@ -30,7 +30,7 @@ next_project_number: 222
 
 ### 221. Align unicode aliases with logos manual
 - **Status**: [NOT STARTED]
-- **Task Type**: lean4
+- **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
 
