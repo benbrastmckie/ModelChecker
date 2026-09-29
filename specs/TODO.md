@@ -24,15 +24,16 @@ next_project_number: 222
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-221 [NOT STARTED] — Align operator Unicode aliases in theory operators.py files...
+221 [RESEARCHED] — Align operator Unicode aliases in theory operators.py files...
 
 ## Tasks
 
 ### 221. Align unicode aliases with logos manual
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
+- **Research**: [221_align_unicode_aliases_with_logos_manual/reports/01_align-unicode-aliases-logos-manual.md]
 
 **Description**: Align operator Unicode aliases in theory operators.py files with the symbols of the Logos manual (~/Projects/Logos/Theory/typst/notation/extended-notation.typ, logos-notation.typ, and manual chapters 02-constitutive and 03-dynamics), systematically assigning one terminal-printable Unicode glyph per operator. Sources of truth: the manual's Syntactic Primitives and Derived Operators tables, plus the Lean notation in Logos/Foundations/{Constitutive,Dynamical}/Syntax.lean. Seed mapping from a preliminary survey (manual symbol -> proposed alias -> current state): since `triangle.l` -> ◁ U+25C1 -> \Since has no alias; until `triangle.r` -> ▷ U+25B7 -> \Until has no alias; always `triangle.t` -> △ U+25B3 and sometimes `triangle.b` -> ▽ U+25BD -> no operator yet; stably (square with inner dot) -> ⊡ U+22A1 -> no operator yet; would-cause (circle arrow) -> ○→ and might-cause (dotted circle arrow) -> ⊙→ -> no operator yet; store/recall -> ↑ ↓ -> no operator yet; already matching the manual: ¬ ∧ ∨ → ↔ □ ◇ □→ ◇→ ≡ ≤ ⊑ ⇒. Known problems to resolve: (1) the manual writes the tense operators as the letters H, G, P, F, but alphanumeric aliases are rejected because the tokenizer reads isalnum() tokens as sentence letters, so a non-alphanumeric glyph policy must be chosen for \Past, \Future, \past, \future; (2) the current bimodal aliases ⏴ U+23F4 and ⏵ U+23F5 for \Past and \Future appear in only 3 installed fonts and 1 monospace font and match nothing in the manual, so they should be replaced; (3) ⪯ U+2AAF for \preceq has similarly thin font coverage (8 fonts, 1 monospace); (4) unaliased operators \next, \prev, \CFBox, \CFDiamond, \boxrightlogos, \diamondrightlogos and the counterfactual candidates have no manual counterpart and need an explicit keep-unaliased or assign decision; (5) \top and \bot (manual ⊤ ⊥) remain out of scope for aliasing because they are matched by literal string comparison. Deliverables: a complete manual-symbol to operator to Unicode table with code points; a printability acceptance criterion (non-alphanumeric, width-1 rendering, present in the common monospace fonts checked via fc-list, no collisions within a theory's operator collection); a test that enforces the criterion across every shipped operators.py; updated aliases; and docs/usage/OPERATORS.md updated with the table
 
