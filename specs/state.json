@@ -4,12 +4,12 @@
     {
       "project_number": 220,
       "project_name": "unicode_operator_characters",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "general",
       "description": "Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form",
       "topic": "semantics",
       "created": "2026-09-29T15:27:54Z",
-      "last_updated": "2026-09-29T15:41:54Z",
+      "last_updated": "2026-09-29T16:19:41Z",
       "session_id": "sess_1790695815_82e5a1",
       "artifacts": [
         {
@@ -21,9 +21,15 @@
           "path": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
           "type": "plan",
           "summary": "Six-phase implementation plan for Operator.aliases-based user-specifiable Unicode operator characters in theory operators.py files."
+        },
+        {
+          "path": "specs/220_unicode_operator_characters/summaries/01_unicode-operator-aliases-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for the Operator.aliases Unicode operator character mechanism: attribute, collection registration, error handling, seven-theory adoption, docs, and full regression."
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "completion_summary": "Added an optional Operator.aliases class attribute registered by OperatorCollection.add_operator alongside the canonical LaTeX name, with a conflict-aware DuplicateOperatorError policy and UnknownOperatorError on lookup; adopted curated Unicode aliases across all seven shipped theory operators.py files (discovering and fixing an alias-inheritance collision in counterfactual/candidates.py and imposition's LogosCounterfactual along the way); updated docs/usage/OPERATORS.md and five other docs that asserted the now-false 'never use Unicode' rule. Full test suite green (2834 passed in code/src/model_checker/, 647 passed in code/tests/), with dev_cli.py acceptance runs confirming identical model output for LaTeX- and Unicode-spelled formulas."
     },
     {
       "project_number": 219,

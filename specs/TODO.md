@@ -11,7 +11,7 @@ next_project_number: 221
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,220 | -- | semantics |
+| 1 | 198,200 | -- | semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -24,17 +24,17 @@ next_project_number: 221
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-220 [IMPLEMENTING] — Implement user-specifiable unicode characters for operators...
 
 ## Tasks
 
 ### 220. Unicode operator characters
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: general
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [220_unicode_operator_characters/reports/01_unicode-operator-characters.md]
 - **Plan**: [220_unicode_operator_characters/plans/01_unicode-operator-aliases.md]
+- **Summary**: [220_unicode_operator_characters/summaries/01_unicode-operator-aliases-summary.md]
 
 **Description**: Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form
 
