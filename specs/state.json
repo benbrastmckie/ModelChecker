@@ -50,17 +50,17 @@
           "summary": "Audit of the current bimodal certificate printer (12 concrete defects incl. a verified-wrong witness line), salvage inventory from the old Logos presentation, CLI display conventions, and a phased redesign with a target output mock."
         },
         {
-          "path": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
-          "type": "plan",
-          "summary": "Seven-phase plan with dependency waves [[1,2,3],[4,6],[5],[7]]."
-        },
-        {
           "path": "specs/218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md",
           "type": "summary",
           "summary": "Implementation summary: seven phases, verification results, and plan deviations."
+        },
+        {
+          "path": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
+          "type": "plan",
+          "summary": "Revised plan: Phases 1-7 preserved verbatim as [COMPLETED]; Phases 8-9 added to make the default bimodal history block a time-labelled arrow chain (Histories: heading, (t:atoms) states joined by the DOUBLE_ARROW glyph, ellipsis-marked periodic segments, columns aligned across lassos) with golden tests, README sample and docs updated in the same round."
         }
       ],
-      "next_artifact_number": 2,
+      "next_artifact_number": 3,
       "completion_summary": "Rewrote the bimodal countermodel presentation: user-notation formulas, a certificate-derived box witness (fixing the wrong registry-index witness line), a role column, a Search bounds header, one Verification line, ^ω/∅ glyphs with cp1252 fallbacks, a live -a time-aligned table, user-notation iteration diffs, and one systemic shared use_colors predicate so pipes and NO_COLOR get plain text. Full suite 3416 passed."
     },
     {

@@ -1,119 +1,25 @@
 {
-  "status": "implemented",
-  "dispatch_seq": 3,
+  "status": "planned",
+  "dispatch_seq": 4,
   "artifacts": [
     {
-      "type": "summary",
-      "path": "specs/218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md",
-      "summary": "Implementation summary: seven phases, verification results, and plan deviations."
-    },
-    {
-      "type": "implementation",
-      "path": "code/src/model_checker/theory_lib/bimodal/semantic/model.py",
-      "summary": "Rewritten bimodal certificate printer with certificate-derived witnesses and the align_vertically table."
-    },
-    {
-      "type": "implementation",
-      "path": "code/src/model_checker/output/color.py",
-      "summary": "Shared use_colors(output) predicate (NO_COLOR > FORCE_COLOR > TERM=dumb > isatty)."
+      "type": "plan",
+      "path": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
+      "summary": "Revised plan: Phases 1-7 preserved verbatim as [COMPLETED]; Phases 8-9 added to make the default bimodal history block a time-labelled arrow chain (Histories: heading, (t:atoms) states joined by the DOUBLE_ARROW glyph, ellipsis-marked periodic segments, columns aligned across lassos) with golden tests, README sample and docs updated in the same round."
     }
   ],
-  "completion_data": {
-    "completion_summary": "Rewrote the bimodal countermodel presentation: user-notation formulas, a certificate-derived box witness (fixing the wrong registry-index witness line), a role column, a Search bounds header, one Verification line, ^ω/∅ glyphs with cp1252 fallbacks, a live -a time-aligned table, user-notation iteration diffs, and one systemic shared use_colors predicate so pipes and NO_COLOR get plain text. Full suite 3416 passed."
-  },
-  "modified_files": [
-    "code/docs/core/CODE_STANDARDS.md",
-    "code/src/model_checker/builder/runner.py",
-    "code/src/model_checker/builder/tests/unit/test_module_output_capture.py",
-    "code/src/model_checker/models/structure.py",
-    "code/src/model_checker/models/tests/unit/test_structure_print.py",
-    "code/src/model_checker/output/__init__.py",
-    "code/src/model_checker/output/color.py",
-    "code/src/model_checker/output/tests/unit/test_color.py",
-    "code/src/model_checker/theory_lib/bimodal/README.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/API_REFERENCE.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/ITERATE.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md",
-    "code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md",
-    "code/src/model_checker/theory_lib/bimodal/examples.py",
-    "code/src/model_checker/theory_lib/bimodal/iterate.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/model.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/proposition.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/render.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_data_extraction.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_proposition.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_render.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py",
-    "code/src/model_checker/theory_lib/exclusion/semantic/model.py",
-    "code/src/model_checker/theory_lib/imposition/iterate.py",
-    "code/src/model_checker/theory_lib/imposition/semantic/model.py",
-    "code/src/model_checker/theory_lib/logos/semantic/model.py",
-    "code/src/model_checker/utils/glyphs.py",
-    "code/src/model_checker/utils/tests/unit/test_glyphs.py"
-  ],
-  "memory_candidates": [
-    {
-      "content": "A grep for `output is sys.__stdout__` is not a complete inventory of ANSI escape sources: printers also use `is sys.stdout`, unconditional `\\033[` literals, and `self.COLORS` dicts. Verify color gating with a live `dev_cli.py ... | cat -v | grep -c '^['` pipe check per theory, including an `iterate: N` example, since the runner calls the structure's `print_model_differences`, not the iterator's display method.",
-      "category": "TECHNIQUE",
-      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md",
-      "confidence": 0.85,
-      "suggested_keywords": [
-        "ansi",
-        "color",
-        "use_colors",
-        "NO_COLOR",
-        "pipe",
-        "dev_cli"
-      ]
-    },
-    {
-      "content": "When rendering bimodal closure formulas, invert `translate` over `Syntax.all_sentences` first (first-seen wins); every boxed closure member is a named sentence or derived subsentence (e.g. `\\Diamond A` records `\\Box \\neg A`), so the structural glyph fallback only appears for iteration-diff label bits. Dataclass reprs must stay untouched because `witness_registry.py` builds Z3 variable names from them.",
-      "category": "PATTERN",
-      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md",
-      "confidence": 0.8,
-      "suggested_keywords": [
-        "bimodal",
-        "render",
-        "translate",
-        "all_sentences",
-        "user notation"
-      ]
-    },
-    {
-      "content": "`WitnessRegistry._witness_lassos` is reserved capacity, not provenance: box faithfulness lets any lasso falsify a box, so a printed witness must be computed by scanning `certificate.lassos` x `_box_window` for a position whose label omits the child (the C3 predicate).",
-      "category": "INSIGHT",
-      "source_artifact": "specs/218_refactor_bimodal_countermodel_presentation/summaries/01_bimodal-countermodel-presentation-summary.md",
-      "confidence": 0.9,
-      "suggested_keywords": [
-        "bimodal",
-        "witness",
-        "box_witness",
-        "certificate",
-        "C3"
-      ]
-    }
-  ],
-  "reflection": {
-    "what_worked": "Closing one phase at a time with a scoped commit, and running a live dev_cli pipe check after each printer-affecting phase, caught every gap the unit tests could not (the runner's print_model_differences path, the -a warning, the iterate diff escapes).",
-    "what_was_hard": "Regex-driven bulk edits to the imposition iterate display silently clobbered my own inserted constants and missed an import; a parallel pipe check with stderr suppressed hid the NameError until I re-ran with stderr visible.",
-    "what_was_missed": "The plan's scope hypotheses undercounted color-gate sites and assumed the iterator's display method was on the live path; both surfaced only through live runs and are recorded as plan deviations.",
-    "successes": "F1 (wrong witness line) fixed with certificate-derived witnesses; zero escapes on pipes for all four theories; 3416 tests green; -a flag live with no warnings; cp1252 legs clean."
-  },
-  "next_steps": "Review the regenerated README sample and the Printed Output Conventions section; consider flipping align_vertically's default after using the table view.",
+  "next_steps": "Run /orchestrate 218 --implement to execute Phases 8-9 of the revised plan",
   "metadata": {
-    "session_id": "sess_1790641161_19a0a0",
-    "agent_type": "python-implementation-agent",
+    "session_id": "sess_1790656279_e5bb8c_218",
+    "agent_type": "reviser-agent",
     "delegation_depth": 1,
-    "delegation_path": [
-      "orchestrator",
-      "implement",
-      "python-implementation-agent"
-    ],
-    "phases_completed": 7,
-    "phases_total": 7
+    "delegation_path": ["orchestrator", "revise", "reviser-agent"],
+    "phase_count": 9,
+    "phases_new": [8, 9],
+    "phases_preserved": [1, 2, 3, 4, 5, 6, 7],
+    "estimated_hours": 16,
+    "remaining_hours": 4,
+    "revision_reason": "forced --plan round; user focus: arrow-chain default display",
+    "reports_integrated": ["01_bimodal-countermodel-presentation.md"]
   }
 }
