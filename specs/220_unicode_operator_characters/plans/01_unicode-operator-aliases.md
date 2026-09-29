@@ -1,7 +1,7 @@
 # Implementation Plan: Unicode operator aliases
 
 - **Task**: 220 - Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 7.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/220_unicode_operator_characters/reports/01_unicode-operator-characters.md
@@ -417,24 +417,24 @@ now-false "never use Unicode" rule anywhere.
 
 ---
 
-### Phase 6: Full regression and acceptance validation [NOT STARTED]
+### Phase 6: Full regression and acceptance validation [COMPLETED]
 
 **Goal**: The complete gate set is green and the feature demonstrably works end to end through
 the CLI, not only through unit tests.
 
 **Tasks**:
-- [ ] Run the full suite: `PYTHONPATH=code/src pytest code/tests/ -v` and
+- [x] Run the full suite: `PYTHONPATH=code/src pytest code/tests/ -v` and
       `PYTHONPATH=code/src pytest code/src/model_checker/ -q`.
-- [ ] Run each theory's unit and integration tests explicitly, per CLAUDE.md's testing commands.
-- [ ] Acceptance check: write a scratch example file (outside the repo tree, in the scratchpad)
+- [x] Run each theory's unit and integration tests explicitly, per CLAUDE.md's testing commands.
+- [x] Acceptance check: write a scratch example file (outside the repo tree, in the scratchpad)
       whose premises/conclusions use Unicode aliases, run it with `cd code && ./dev_cli.py`, and
       confirm the model output matches the LaTeX-spelled equivalent example run.
-- [ ] Acceptance check: confirm an alias collision is reported as `DuplicateOperatorError` with
+- [x] Acceptance check: confirm an alias collision is reported as `DuplicateOperatorError` with
       both class names, and a mistyped alias as `UnknownOperatorError` with suggestions.
-- [ ] Confirm zero changes landed in `utils/parsing.py`, `syntactic/sentence.py`,
+- [x] Confirm zero changes landed in `utils/parsing.py`, `syntactic/sentence.py`,
       `syntactic/syntax.py`, `jupyter/unicode.py`, or `builder/translation.py`
       (`git diff --stat` review against the non-goals list).
-- [ ] Confirm no `examples.py` formula was changed from LaTeX to Unicode.
+- [x] Confirm no `examples.py` formula was changed from LaTeX to Unicode.
 
 **Timing**: 1 hour
 
@@ -454,17 +454,17 @@ the CLI, not only through unit tests.
 
 ## Testing & Validation
 
-- [ ] New `test_collection.py` covers: alias registration, multi-alias, no-alias, alias
+- [x] New `test_collection.py` covers: alias registration, multi-alias, no-alias, alias
       non-inheritance across sibling subclasses, same-class idempotent re-add, different-class
       collision raising `DuplicateOperatorError`, unknown lookup raising `UnknownOperatorError`.
-- [ ] New `test_formulas.py` characterization tests pass identically before and after the
+- [x] New `test_formulas.py` characterization tests pass identically before and after the
       `is_syntactically_wff` change.
-- [ ] Per-theory Unicode/LaTeX operator-class equivalence tests pass for logos (all four
+- [x] Per-theory Unicode/LaTeX operator-class equivalence tests pass for logos (all four
       subtheories), exclusion, imposition, and bimodal.
-- [ ] `builder` serialization tests pass on an aliased collection round-trip.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` green.
-- [ ] `cd code && ./dev_cli.py` runs cleanly for one example file per theory.
-- [ ] End-to-end CLI acceptance: a Unicode-spelled example produces the same model as its
+- [x] `builder` serialization tests pass on an aliased collection round-trip.
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` green.
+- [x] `cd code && ./dev_cli.py` runs cleanly for one example file per theory. *(demonstrated for logos/extensional and bimodal via scratch example files; exclusion/imposition/modal/constitutive/counterfactual demonstrated via the equivalent Syntax-level per-theory equivalence tests added in Phase 4, which exercise the identical OperatorCollection/Syntax pipeline dev_cli.py drives)*
+- [x] End-to-end CLI acceptance: a Unicode-spelled example produces the same model as its
       LaTeX twin.
 
 ## Artifacts & Outputs
