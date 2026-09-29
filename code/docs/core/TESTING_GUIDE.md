@@ -1517,12 +1517,17 @@ import subprocess
 
 env = dict(installed_venv["env"])
 env["PYTHONIOENCODING"] = "cp1252"
-result = subprocess.run([script_path, examples_path], env=env, capture_output=True, text=True)
+result = subprocess.run(
+    [script_path, examples_path], env=env, capture_output=True, encoding="cp1252"
+)
 ```
 
 `PYTHONIOENCODING` overrides Python's encoding resolution for `sys.stdout`/`sys.stderr`
 identically on any platform, so this reproduces the exact Windows child-process condition on
-Linux CI. See `code/tests/packaging/test_generate_then_execute.py`'s
+Linux CI. Decode the captured bytes with `encoding="cp1252"`, never `text=True`: `text=True`
+decodes as the *parent's* locale encoding (UTF-8), and a glyph cp1252 can represent -- `…`
+(0x85, on every bimodal history row) or `¬` (0xAC) -- is a valid cp1252 byte that is not valid
+UTF-8, so the harness would raise `UnicodeDecodeError` on a child that behaved correctly. See `code/tests/packaging/test_generate_then_execute.py`'s
 `test_generate_then_execute_cp1252` for the reference implementation — parametrized over every
 registered theory, run through the real installed `model-checker` console script.
 

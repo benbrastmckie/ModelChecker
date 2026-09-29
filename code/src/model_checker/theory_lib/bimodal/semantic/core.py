@@ -147,8 +147,9 @@ class BimodalSemantics(SemanticDefaults):
     VERIFY_VALUES = ('off', 'auto', 'required')
 
     # The one bimodal-specific general (display) setting: `align_vertically` (the CLI's
-    # `-a` flag) switches the certificate printer from one `(back)^ω | mid | (fwd)^ω` line
-    # per lasso to a time-aligned table with one row per representative position and one
+    # `-a` flag) switches the history printer from one time-labelled arrow chain per lasso
+    # (`… (-2:A) ⟹ (-1:A) | (0:A) | (+1:A) ⟹ (+2:A) …`) to a time-aligned table with one row
+    # per representative position and one
     # column per lasso (`semantic/model.py`'s `_print_history_table`). Declaring it here is
     # what makes `-a` a known setting for this theory instead of an ignored, warned-about
     # flag. See docs/SETTINGS.md's "General Settings".

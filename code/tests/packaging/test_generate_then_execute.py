@@ -146,7 +146,12 @@ def test_generate_then_execute_cp1252(theory_name, installed_venv, tmp_path):
         [str(script_path), examples_path],
         env=cp1252_env,
         capture_output=True,
-        text=True,
+        # Decode the child's bytes with the codec the child was told to write in. `text=True`
+        # would decode them as the parent's locale encoding (UTF-8), and any glyph cp1252 CAN
+        # represent -- `…` (0x85) on every bimodal history row, `¬` (0xAC) -- is a valid cp1252
+        # byte that is not valid UTF-8, so the harness itself would raise
+        # `UnicodeDecodeError` on a child that behaved correctly.
+        encoding="cp1252",
         # Same margin as the ambient leg above -- the cp1252 constraint changes
         # glyph selection, not solve cost, so the same timeout budget applies.
         timeout=180,

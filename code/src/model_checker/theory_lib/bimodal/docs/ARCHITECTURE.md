@@ -278,12 +278,17 @@ assumes. Deciding validity is the tableau's and the proof system's job, not this
 Everything `BimodalStructure` prints (`semantic/model.py`) follows four rules; `semantic/render.py`
 and `semantic/proposition.py` follow the same ones.
 
-**Label notation.** A certificate row is `L{i}  {role}  (back)^ω | mid | (fwd)^ω`: each slot is
-the label's atom valuation — a single atom bare (`A`), several as `{A,B}` so the `, ` slot
-separator stays unambiguous, none as `∅` — and `[ ]` brackets the slot the evaluation point falls
-in on the main lasso. The `align_vertically` setting (`-a`) transposes this into a table with
-one row per representative position (`-back .. mid+fwd-1`, each annotated `back[i]`/`mid[i]`/
-`fwd[i]`) and one column per lasso; see `SETTINGS.md`'s "General Settings" for both shapes.
+**Label notation.** A `Histories:` row is `L{i}  {role}  … (t:atoms) ⟹ … | … | … ⟹ … …`: one
+`(t:atoms)` state per representative position (`-back .. mid+fwd-1`, the registry's
+`target_window()`), each carrying its signed time and the label's atom valuation — a single atom
+bare (`A`), several as `{A,B}`, none as `∅` — with `⟹` joining adjacent states inside the
+periodic `back` and `fwd` segments, `|` between the `back`/`mid`/`fwd` segments (an empty `mid`
+collapses to one `|`), `…` bracketing the two periodic segments, and `[ ]` in place of `( )` on
+the evaluation point of the main lasso. Every position's column is padded to its widest cell
+over all lassos (computed from the rendered strings, so an ASCII fallback never misaligns), so
+equal times line up across rows. The `align_vertically` setting (`-a`) transposes this into a
+table with one row per representative position (each annotated `back[i]`/`mid[i]`/`fwd[i]`)
+and one column per lasso; see `SETTINGS.md`'s "General Settings" for both shapes.
 
 **Formulas in the user's notation.** Every formula the printer or the iteration-diff display
 shows goes through `render.render(formula, output, names)`: the `names` map (`render.build_names`)
@@ -301,10 +306,12 @@ predicate. `WitnessRegistry._witness_lassos` is never consulted for presentation
 reserved capacity (box faithfulness lets any lasso falsify a box), so a lasso the scan does not
 name prints as `reserved, unused`, never as "reserved for □χ".
 
-**Glyphs and color.** Every non-ASCII symbol (`ω`, `∅`, `□`, `◇`, `¬`, `∧`, `∨`, `→`, `⊤`, `⊥`)
-is resolved by `utils/glyphs.py`'s `glyph(name, output)` against the output stream's encoding, so
-a `cp1252` pipe gets `w`, `{}`, `[]`, `<>`, `~`, `&`, `|`, `->`, `T`, `_|_` instead of a
-`UnicodeEncodeError`; column widths are computed from the rendered strings, never assumed. Every
+**Glyphs and color.** Every non-ASCII symbol (`⟹`, `…`, `∅`, `□`, `◇`, `¬`, `∧`, `∨`, `→`,
+`⊤`, `⊥`) is resolved by `utils/glyphs.py`'s `glyph(name, output)` against the output stream's
+encoding, so a `cp1252` pipe gets `=>`, `{}`, `[]`, `<>`, `~`, `&`, `|`, `->`, `T`, `_|_`
+instead of a `UnicodeEncodeError` (`…` and `¬` are cp1252 code points and survive there; only
+an `ascii` stream gets `...`); column widths are computed from the rendered strings, never
+assumed. Every
 ANSI color (blue evaluation point, gray reserved rows, green/red guesses, green `+`/red `-` diff
 lines, bold target row) is gated by `output.color.use_colors(output)` — `NO_COLOR` >
 `FORCE_COLOR` > `TERM=dumb` > `isatty()` — and never carries information alone: the role column,

@@ -164,14 +164,18 @@ The bimodal theory defines one bimodal-specific general (display) setting:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `align_vertically` | bool | `False` | Print the certificate as a time-aligned table (one row per representative position, one column per lasso) instead of one `(back)^ω \| mid \| (fwd)^ω` line per lasso. The `-a`/`--align_vertically` CLI flag sets it for a run. |
+| `align_vertically` | bool | `False` | Print the histories as a time-aligned table (one row per representative position, one column per lasso) instead of one time-labelled arrow chain `… (-2:B) ⟹ (-1:B) \| (0:B) \| (+1:B) ⟹ (+2:B) …` per lasso. The `-a`/`--align_vertically` CLI flag sets it for a run. |
 
-With the default, each lasso is a single line (see `../README.md`'s "Sample Output"):
+With the default, each lasso is one arrow-chain row of `(t:atoms)` states -- `⟹` joins adjacent
+states within the periodic `back` and `fwd` segments, `|` separates `back | mid | fwd`, `…`
+marks the periodic repetition, `[ ]` marks the evaluation point, and columns are padded so equal
+times align across rows (`\Box B ⊨ \Box A`; see `../README.md`'s "Sample Output"):
 
 ```
-Certificate:  (each lasso is (back)^ω | mid | (fwd)^ω over atoms; [ ] marks the evaluation point)
-  L0  main                ([B], B)^ω | B | (B, B)^ω
-  L1  witness for \Box A  (B, B)^ω | B | (B, B)^ω
+Histories:  (one row per lasso: (t:atoms) states joined by ⟹, … marks the periodic back/fwd segments, | separates back | mid | fwd, [ ] marks the evaluation point)
+  L0  main                … [-2:B] ⟹ (-1:B) | (0:B) | (+1:B) ⟹ (+2:B) …
+  L1  witness for \Box A  … (-2:B) ⟹ (-1:B) | (0:B) | (+1:B) ⟹ (+2:B) …
+  L2  reserved, unused    … (-2:B) ⟹ (-1:B) | (0:B) | (+1:B) ⟹ (+2:B) …
 ```
 
 With `align_vertically = True` (or `-a`), the same certificate prints as a table whose rows are
@@ -179,14 +183,14 @@ the representative positions `-back .. mid+fwd-1` with their slot, so the evolut
 lasso reads top to bottom in time; the evaluation point is still marked `[ ]`:
 
 ```
-Certificate:  (rows are representative positions; back repeats leftward, fwd rightward; [ ] marks the evaluation point)
-   t  slot     | L0 main | L1 witness for \Box A
-  ---------------+---------+----------------------
-  -2  back[0]  | [B]     | B
-  -1  back[1]  | B       | B
-   0  mid[0]   | B       | B
-  +1  fwd[0]   | B       | B
-  +2  fwd[1]   | B       | B
+Histories:  (rows are representative positions; back repeats leftward, fwd rightward; [ ] marks the evaluation point)
+   t  slot     | L0 main | L1 witness for \Box A | L2 reserved, unused
+  -------------+-------------------------------------------------------
+  -2  back[0]  | [B]     | B                     | B
+  -1  back[1]  | B       | B                     | B
+   0  mid[0]   | B       | B                     | B
+  +1  fwd[0]   | B       | B                     | B
+  +2  fwd[1]   | B       | B                     | B
 ```
 
 All standard general settings (`print_constraints`, `print_z3`, `save_output`, `maximize`,

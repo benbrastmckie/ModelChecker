@@ -1,7 +1,7 @@
 # Implementation Plan: Task #218
 
 - **Task**: 218 - Refactor bimodal/ theory countermodel presentation
-- **Status**: [IMPLEMENTING] (revised round: Phases 1-7 closed in the prior round at commit 5d259d66; Phases 8-9 are new)
+- **Status**: [COMPLETED] (revised round: Phases 1-7 closed in the prior round at commit 5d259d66; Phases 8-9 are new)
 - **Effort**: 16 hours (12 completed in Phases 1-7; 4 remaining in Phases 8-9)
 - **Dependencies**: None
 - **Research Inputs**: specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md
@@ -733,46 +733,46 @@ consumer outside that list, keep the entry and record the exclusion.
 
 ---
 
-### Phase 9: Docs, README Sample, and Final Gate [NOT STARTED]
+### Phase 9: Docs, README Sample, and Final Gate [COMPLETED]
 
 **Goal**: Every user-facing description of the printed history block matches the arrow-chain
 default and the `Histories:` heading, the code comments that describe the one-liner are updated,
 and the whole test suite plus the live pipe and cp1252 checks pass.
 
 **Tasks**:
-- [ ] `code/src/model_checker/theory_lib/bimodal/README.md`: regenerate the "Sample Output"
+- [x] `code/src/model_checker/theory_lib/bimodal/README.md`: regenerate the "Sample Output"
   countermodel block (`BM_CM_1`) and the no-certificate block (`BM_TH_1`) from a real utf-8
   `dev_cli.py` capture; rewrite the explanatory paragraph under the sample (currently "Each
   certificate row is `(back)^ω | mid | (fwd)^ω` over the label's atoms ...") to describe
   `(t:atoms)` states, the `⟹` chain, `…` for the periodic segments, `|` between back/mid/fwd,
   the empty-`mid` collapse, and `[ ]` on the main lasso; update the settings sentence near
   "Basic Usage" ("by default every history prints as a single `(back)^ω | mid | (fwd)^ω` line").
-- [ ] `code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md` "General Settings": the
+- [x] `code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md` "General Settings": the
   `align_vertically` table row's description ("instead of one `(back)^ω | mid | (fwd)^ω` line per
   lasso") and both sample blocks (`Certificate:` -> `Histories:`; the default sample regenerated
   as arrow-chain rows from the same capture).
-- [ ] `code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md` "Rendering Policy" ->
+- [x] `code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md` "Rendering Policy" ->
   "Label notation" paragraph: describe the arrow-chain row (`L{i}  {role}  … (t:atoms) ⟹ … | … |
   … ⟹ … …`), the per-position column alignment across rows, and the unchanged `-a` transposition;
   re-read the file immediately before editing.
-- [ ] `code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md` "Lassos and Positions": keep
+- [x] `code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md` "Lassos and Positions": keep
   the `(back)^ω | mid | (fwd)^ω` sentence as the *structural* description of a lasso, and add one
   sentence saying how it is printed (`Histories:` rows of `(t:atoms)` states joined by `⟹`).
-- [ ] Code comments: `code/src/model_checker/theory_lib/bimodal/examples.py` `general_settings`
+- [x] Code comments: `code/src/model_checker/theory_lib/bimodal/examples.py` `general_settings`
   comment ("False: one `(back)^ω | mid | (fwd)^ω` line per lasso") and
   `code/src/model_checker/theory_lib/bimodal/semantic/core.py`'s `ADDITIONAL_GENERAL_SETTINGS`
   comment; `code/src/model_checker/theory_lib/bimodal/semantic/render.py` module docstring if it
   mentions the period marker (grep `ω`).
-- [ ] `code/docs/core/CODE_STANDARDS.md` "Printed Output Conventions" and
+- [x] `code/docs/core/CODE_STANDARDS.md` "Printed Output Conventions" and
   `code/docs/core/TESTING_GUIDE.md` section 8.14 (the e2e bimodal-retention note): update any
   mention of the `Certificate:` label or the one-liner; grep first (see Scope Hypothesis).
-- [ ] Final gate: `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q`;
+- [x] Final gate: `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q`;
   `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py | cat -v | grep -c '\^\['`
   (expect `0`) and the same with `-a`; `PYTHONIOENCODING=cp1252 python code/dev_cli.py <scratch
   example file>` per `TESTING_GUIDE.md` 9.3 for the default and `-a` views (expect no
   `UnicodeEncodeError`, `=>` in place of `⟹`); `ruff check
   code/src/model_checker/theory_lib/bimodal/semantic/model.py code/src/model_checker/utils/glyphs.py`.
-- [ ] Task-reference lint over every touched `code/` file (the repo script's `PATH_SCOPE` rejects
+- [x] Task-reference lint over every touched `code/` file (the repo script's `PATH_SCOPE` rejects
   `code/`, so run the equivalent grep `\btasks? [0-9]+\b|\(task [0-9]+\)` as Phase 7 did): zero
   hits.
 
@@ -800,6 +800,11 @@ before editing; other theories' docs are out of scope; `docs/ADEQUACY.md`'s "Lem
 - `code/src/model_checker/theory_lib/bimodal/semantic/core.py` - comment only
 - `code/src/model_checker/theory_lib/bimodal/semantic/render.py` - docstring only, if it mentions the period marker
 - `code/docs/core/CODE_STANDARDS.md`, `code/docs/core/TESTING_GUIDE.md` - only if the grep hits
+- `code/tests/packaging/test_generate_then_execute.py`, `code/docs/core/TESTING_GUIDE.md` 9.3 -
+  DEVIATION (added in implementation): the cp1252 end-to-end leg decoded the child's cp1252
+  stdout with `text=True` (UTF-8); `…` is cp1252 0x85, which is not valid UTF-8, so the harness
+  itself raised `UnicodeDecodeError` on a correctly behaving child. Fixed by decoding with
+  `encoding="cp1252"`; the guide's recipe updated to match. No `code/src` change.
 
 **Verification**:
 - Full suite green; live pipe checks (default and `-a`) zero escapes; cp1252 subprocess legs
@@ -827,25 +832,25 @@ Closed in the prior round (Phases 1-7):
   end of Phase 7.
 
 This round (Phases 8-9):
-- [ ] `ELLIPSIS` glyph: utf-8 `…`, cp1252 `…` (survives), `ascii` `...`; `DOUBLE_ARROW` cp1252
+- [x] `ELLIPSIS` glyph: utf-8 `…`, cp1252 `…` (survives), `ascii` `...`; `DOUBLE_ARROW` cp1252
   `=>` still covered; no `OMEGA` reference remains in `code/`.
-- [ ] Golden `MD_CM_1`: four `L{i}` rows of the shape `… (t:atoms) ⟹ (t:atoms) | (t:atoms) |
+- [x] Golden `MD_CM_1`: four `L{i}` rows of the shape `… (t:atoms) ⟹ (t:atoms) | (t:atoms) |
   (t:atoms) ⟹ (t:atoms) …`, exactly one bracketed cell (on `L0`), joiners at identical column
   indices across rows, `out.count("Histories:") == 1`, `"Certificate:" not in out`,
   `"^ω" not in out`.
-- [ ] Single-slot example (`mid=0`): `… [-1:A] | (0:∅) …` or `… (-1:∅) | [0:A] …` (one `|`).
-- [ ] Cross-row alignment test with differing cell widths passes.
-- [ ] cp1252 end-to-end leg: `=>`, `{}`, `…` present; `⟹`, `∅` absent; `ascii` leg: `...`; no
+- [x] Single-slot example (`mid=0`): `… [-1:A] | (0:∅) …` or `… (-1:∅) | [0:A] …` (one `|`).
+- [x] Cross-row alignment test with differing cell widths passes.
+- [x] cp1252 end-to-end leg: `=>`, `{}`, `…` present; `⟹`, `∅` absent; `ascii` leg: `...`; no
   `UnicodeEncodeError` on either.
-- [ ] `-a` view: heading `Histories:`, table body unchanged, `"⟹" not in out`.
-- [ ] `test_output_gate.py` and `builder/tests/e2e/test_full_pipeline.py` pass with the
+- [x] `-a` view: heading `Histories:`, table body unchanged, `"⟹" not in out`.
+- [x] `test_output_gate.py` and `builder/tests/e2e/test_full_pipeline.py` pass with the
   `Histories:` pin; the seven D8/F2 substrings other than the heading remain verbatim.
-- [ ] `semantic/witness_constraints.py` and `semantic/formula.py` untouched (`git diff --stat`
+- [x] `semantic/witness_constraints.py` and `semantic/formula.py` untouched (`git diff --stat`
   against `5d259d66` lists neither).
-- [ ] Docs regenerated from a live capture; `grep -rn "(back)\^\|Certificate:"` over the bimodal
+- [x] Docs regenerated from a live capture; `grep -rn "(back)\^\|Certificate:"` over the bimodal
   README/docs/comments returns only the `USER_GUIDE.md` structural sentence and
   `ADEQUACY.md`'s lemma name.
-- [ ] Full suite `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q` green at the
+- [x] Full suite `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q` green at the
   end of Phase 9; live pipe checks (default, `-a`) zero escapes; cp1252 subprocess legs clean.
 
 ## Artifacts & Outputs

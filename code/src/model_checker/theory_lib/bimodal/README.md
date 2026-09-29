@@ -197,9 +197,10 @@ direct-read segment length and is a genuine maximum; raising it does enlarge the
 replaces `temporal_depth`.
 `contingent`/`disjoint` no longer exist — there is no proposition-level machinery left for them to
 gate. The one bimodal-specific *general* (display) setting is `align_vertically` (the `-a` flag):
-by default every history prints as a single `(back)^ω | mid | (fwd)^ω` line (see
-[Sample Output](#sample-output)); with it, the certificate prints as a time-aligned table with one
-row per position and one column per lasso (see `docs/SETTINGS.md`'s "General Settings").
+by default every history prints as one time-labelled arrow chain
+`… (-2:A) ⟹ (-1:A) | (0:A) | (+1:A) ⟹ (+2:A) …` (see [Sample Output](#sample-output)); with
+it, the histories print as a time-aligned table with one row per position and one column per
+lasso (see `docs/SETTINGS.md`'s "General Settings").
 
 ### Example Structure
 
@@ -568,18 +569,18 @@ Premise:
 Conclusion:
 2. \Box A
 
-Solver Run Time: 0.0017 seconds
+Solver Run Time: 0.0012 seconds
 
 ========================================
-Certificate:  (each lasso is (back)^ω | mid | (fwd)^ω over atoms; [ ] marks the evaluation point)
-  L0  main                ([A], A)^ω | A | (A, A)^ω
-  L1  witness for \Box A  (∅, ∅)^ω | ∅ | (∅, ∅)^ω
+Histories:  (one row per lasso: (t:atoms) states joined by ⟹, … marks the periodic back/fwd segments, | separates back | mid | fwd, [ ] marks the evaluation point)
+  L0  main                … [-2:A] ⟹ (-1:A) | (0:A) | (+1:A) ⟹ (+2:A) …
+  L1  witness for \Box A  … (-2:∅) ⟹ (-1:∅) | (0:∅) | (+1:∅) ⟹ (+2:∅) …
 
 Box guesses:
   \Box A  false  falsified at L1, t=-2
 
 Evaluation point: L0 at t=-2
-Verification: independently checked -- Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions (acceptance: entailment, checkout 5ff7171dad6f)
+Verification: independently checked -- Lean constructed a WitnessFamily.Refutes term for this certificate by applying a compile-time kernel-checked implication to four run-time decisions (acceptance: entailment, checkout 908922e779e7)
 
 INTERPRETED PREMISE:
 
@@ -593,15 +594,20 @@ INTERPRETED CONCLUSION:
 ```
 
 `Search bounds` reports the segment lengths and how many lassos the search allocated (the main
-lasso plus one reserved witness per boxed subformula). Each certificate row is
-`(back)^ω | mid | (fwd)^ω` over the label's atoms (`∅` for an empty label), with `[ ]` marking
-the evaluation point on the main lasso: `A` holds throughout `L0`, so `\Future A` holds at
-`t=-2`. The role column says what each lasso does in *this* certificate — `L1` is the
+lasso plus one reserved witness per boxed subformula). Each `Histories` row is one lasso as a
+time-labelled arrow chain: every state is `(t:atoms)` — the signed time and the label's atoms
+(`A`, `{A,B}`, or `∅` for an empty label) — adjacent states within the periodic `back` and
+`fwd` segments are joined by `⟹`, `|` separates `back | mid | fwd` (an empty `mid` collapses
+to a single `|`), `…` marks that the `back` segment repeats leftward and the `fwd` segment
+rightward forever, and `[ ]` marks the evaluation point on the main lasso. The columns are
+padded so equal times line up across rows. Here `A` holds throughout `L0`, so `\Future A` holds
+at `t=-2`. The role column says what each lasso does in *this* certificate — `L1` is the
 `witness for \Box A` because its label omits `A` everywhere — and the `Box guesses` table names
 the concrete `(lasso, t)` at which each false box is falsified, read from the certificate itself.
 Formulas print in the notation you wrote them in. On a pipe or with `NO_COLOR` set the output
 is plain text; on a terminal the evaluation point, reserved rows, and guess values are colored.
-Pass `-a` for a time-aligned table view instead of one line per lasso (see `docs/SETTINGS.md`).
+Pass `-a` for a time-aligned table view instead of one arrow chain per lasso (see
+`docs/SETTINGS.md`).
 
 A no-certificate case (`BM_TH_1`, `\\Box A ⊨ \\Future A`):
 
@@ -618,10 +624,10 @@ Premise:
 Conclusion:
 2. \Future A
 
-Solver Run Time: 0.0027 seconds
+Solver Run Time: 0.0026 seconds
 
 ========================================
-Certificate:
+Histories:
   No certificate found within the configured bounds (back=2, mid=1, fwd=2). This is not a validity claim (docs/ADEQUACY.md section 7.4).
 ```
 
