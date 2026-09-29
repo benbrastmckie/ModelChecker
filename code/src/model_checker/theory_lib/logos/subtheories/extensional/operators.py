@@ -37,6 +37,7 @@ class NegationOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\neg"
     arity = 1
+    aliases = ["¬"]
 
     def true_at(self, argument, eval_point):
         """Defines truth conditions for negation at an evaluation point."""
@@ -75,6 +76,7 @@ class AndOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\wedge"
     arity = 2
+    aliases = ["∧"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for conjunction at an evaluation point."""
@@ -148,6 +150,7 @@ class OrOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\vee"
     arity = 2
+    aliases = ["∨"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for disjunction at an evaluation point."""
@@ -292,6 +295,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     semantics: "LogosSemantics"
     name = "\\rightarrow"
     arity = 2
+    aliases = ["→"]
 
     def derived_definition(self, leftarg, rightarg):
         """Defines the conditional as negation of antecedent or consequent."""
@@ -377,6 +381,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     semantics: "LogosSemantics"
     name = "\\leftrightarrow"
     arity = 2
+    aliases = ["↔"]
 
     def derived_definition(self, leftarg, rightarg):
         """Defines the biconditional as conjunction of two conditionals."""

@@ -188,6 +188,15 @@ class CandidateCounterfactual(CounterfactualOperator):
     semantics: "LogosSemantics"
     key: str = ""
     truth_encoding: str = TRUTH_ENCODING
+    # Each concrete subclass below declares its own distinct `name` (\\boxrightI,
+    # \\boxrightW, etc.) specifically so the candidate clauses are individually
+    # selectable. Without this override they would inherit
+    # `CounterfactualOperator.aliases = ["□→"]` and collide with each other (and
+    # with CounterfactualOperator itself) the moment more than one candidate is
+    # registered in the same collection -- these deliberately-distinct-named
+    # experimental variants are not meant to share the primary operator's
+    # Unicode alias at all.
+    aliases: List[str] = []
 
     # -- Z3-side building blocks ------------------------------------------
 

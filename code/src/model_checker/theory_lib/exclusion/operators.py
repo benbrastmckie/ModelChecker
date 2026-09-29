@@ -24,6 +24,7 @@ class UniNegationOperator(Operator):
 
     name = "\\neg"
     arity = 1
+    aliases = ["¬"]
 
     def true_at(self, arg, eval_point):
         """UniNegation is true when there's a verifier in the evaluation world."""
@@ -249,6 +250,7 @@ class UniConjunctionOperator(Operator):
 
     name = "\\wedge"
     arity = 2
+    aliases = ["∧"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Conjunction is true when both arguments are true."""
@@ -293,6 +295,7 @@ class UniDisjunctionOperator(Operator):
 
     name = "\\vee"
     arity = 2
+    aliases = ["∨"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Disjunction is true when at least one argument is true."""
@@ -327,6 +330,7 @@ class UniIdentityOperator(Operator):
 
     name = "\\equiv"
     arity = 2
+    aliases = ["≡"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Identity holds when arguments have same verifiers."""

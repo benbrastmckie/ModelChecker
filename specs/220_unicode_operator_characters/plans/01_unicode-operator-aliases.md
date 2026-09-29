@@ -310,14 +310,14 @@ second production caller exists, extend the characterization tests to cover it f
 
 ---
 
-### Phase 4: Adopt Unicode aliases in shipped theory operators.py files [NOT STARTED]
+### Phase 4: Adopt Unicode aliases in shipped theory operators.py files [COMPLETED]
 
 **Goal**: Each shipped theory's `operators.py` declares Unicode aliases for its arity-1/arity-2
 operators that have a standard glyph, demonstrating the mechanism and giving users the feature
 out of the box, with every existing LaTeX formula still working.
 
 **Tasks**:
-- [ ] Enumerate the target operators and choose the glyph set. Starting proposal drawn from the
+- [x] Enumerate the target operators and choose the glyph set. Starting proposal drawn from the *(altered: \Until/\Since rejected per this task's own alphanumeric rule; \CFBox/\CFDiamond/\future/\past/\next/\prev/\boxrightlogos/\diamondrightlogos left alias-free with an inline `# No Unicode alias: ...` comment at each declaration; the six counterfactual/candidates.py context-free clauses -- discovered during implementation to inherit `CounterfactualOperator.aliases` -- were given an explicit `aliases = []` override on their shared `CandidateCounterfactual` base class to prevent that inheritance)*
       research report's inventory (canonical name -> alias), applied per theory only where that
       theory defines the operator:
       `\neg`->`¬`, `\wedge`->`∧`, `\vee`->`∨`, `\rightarrow`->`→`, `\leftrightarrow`->`↔`,
@@ -326,12 +326,12 @@ out of the box, with every existing LaTeX formula still working.
       `\Future`->`⏵`, `\Past`->`⏴`, `\Until`->`U`-class glyph, `\Since`->`S`-class glyph.
       Reject any candidate that is alphanumeric (`str.isalnum()` is true) — those would be
       tokenized as sentence letters, not operators. Record the rejection in a comment.
-- [ ] Verify the chosen set has no intra-theory and no intra-subtheory-combination collisions
+- [x] Verify the chosen set has no intra-theory and no intra-subtheory-combination collisions
       before editing, by building each shipped collection and diffing the alias keys.
-- [ ] RED: add per-theory tests asserting a Unicode-spelled formula and its LaTeX equivalent
+- [x] RED: add per-theory tests asserting a Unicode-spelled formula and its LaTeX equivalent
       resolve to the same operator class, in each theory's existing
       `tests/unit/` directory.
-- [ ] GREEN: add `aliases = [...]` to the arity-1/arity-2 operator classes in:
+- [x] GREEN: add `aliases = [...]` to the arity-1/arity-2 operator classes in:
       `theory_lib/logos/subtheories/extensional/operators.py`,
       `theory_lib/logos/subtheories/modal/operators.py`,
       `theory_lib/logos/subtheories/constitutive/operators.py`,
@@ -341,7 +341,7 @@ out of the box, with every existing LaTeX formula still working.
       `theory_lib/bimodal/operators.py`.
       Leave `\top`/`\bot` untouched (non-goal) and leave `\boxrightlogos`/`\diamondrightlogos`
       alias-free with a one-line comment saying no standard glyph exists.
-- [ ] Sanity-check that each modified module imports cleanly and the alias strings round-trip
+- [x] Sanity-check that each modified module imports cleanly and the alias strings round-trip
       (source encoding check).
 
 **Timing**: 1.5 hours

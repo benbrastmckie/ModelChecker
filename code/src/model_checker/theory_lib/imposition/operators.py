@@ -31,6 +31,7 @@ class ImpositionOperator(syntactic.Operator):
 
     name = "\\boxright"
     arity = 2
+    aliases = ["□→"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         semantics = self.semantics
@@ -161,6 +162,7 @@ class MightImpositionOperator(syntactic.DefinedOperator):
 
     name = "\\diamondright"
     arity = 2
+    aliases = ["◇→"]
 
     def derived_definition(self, leftarg, rightarg):
         return [
@@ -193,7 +195,11 @@ class LogosCounterfactual(LogosCounterfactualOperator):
     (\\boxrightlogos) in the same example.
     """
     name = "\\boxrightlogos"
-    
+    # Explicitly cleared (not just left undeclared): without this, `aliases` would be
+    # inherited from `LogosCounterfactualOperator` (== CounterfactualOperator, aliased
+    # "□→"), colliding with this theory's own ImpositionOperator, which also owns "□→".
+    aliases = []
+
 class LogosMightCounterfactual(syntactic.DefinedOperator):
     """
     Logos might counterfactual operator imported and renamed for use in imposition theory.
@@ -202,6 +208,7 @@ class LogosMightCounterfactual(syntactic.DefinedOperator):
     """
     name = "\\diamondrightlogos"
     arity = 2
+    # No Unicode alias: no standard glyph exists for this theory-specific operator
     
     def derived_definition(self, leftarg, rightarg):
         """Defines might counterfactual as negation of counterfactual with negated consequent."""

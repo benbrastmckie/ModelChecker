@@ -47,6 +47,7 @@ class CounterfactualOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\boxright"
     arity = 2
+    aliases = ["□→"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for counterfactual conditional at an evaluation point."""
@@ -200,6 +201,7 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
     semantics: "LogosSemantics"
     name = "\\diamondright"
     arity = 2
+    aliases = ["◇→"]
 
     def derived_definition(self, leftarg, rightarg):
         """Defines might counterfactual as negation of counterfactual with negated consequent."""

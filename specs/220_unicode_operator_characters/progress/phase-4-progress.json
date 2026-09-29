@@ -1,0 +1,47 @@
+{
+  "phase": 4,
+  "phase_name": "Adopt Unicode aliases in shipped theory operators.py files",
+  "started_at": "2026-09-29T16:35:00Z",
+  "last_updated": "2026-09-29T17:05:00Z",
+  "objectives": [
+    {"id": 1, "description": "Enumerate target operators and glyph set, reject alphanumeric candidates", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Verify no intra-theory/intra-combination collisions before editing", "status": "done", "files_touched": []},
+    {"id": 3, "description": "RED: per-theory Unicode/LaTeX equivalence tests", "status": "done", "files_touched": [
+      "code/src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_unicode_aliases.py",
+      "code/src/model_checker/theory_lib/logos/subtheories/modal/tests/test_unicode_aliases.py",
+      "code/src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_unicode_aliases.py",
+      "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_unicode_aliases.py",
+      "code/src/model_checker/theory_lib/exclusion/tests/unit/test_unicode_aliases.py",
+      "code/src/model_checker/theory_lib/imposition/tests/unit/test_unicode_aliases.py",
+      "code/src/model_checker/theory_lib/bimodal/tests/unit/test_unicode_aliases.py"
+    ]},
+    {"id": 4, "description": "GREEN: add aliases = [...] to the 7 theory operators.py files", "status": "done", "files_touched": [
+      "code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py",
+      "code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py",
+      "code/src/model_checker/theory_lib/logos/subtheories/constitutive/operators.py",
+      "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py",
+      "code/src/model_checker/theory_lib/exclusion/operators.py",
+      "code/src/model_checker/theory_lib/imposition/operators.py",
+      "code/src/model_checker/theory_lib/bimodal/operators.py"
+    ]},
+    {"id": 5, "description": "Sanity-check module imports cleanly, alias strings round-trip", "status": "done", "files_touched": []}
+  ],
+  "current_objective": null,
+  "approaches_tried": [
+    {
+      "approach": "Initial glyph insertion via a regex-driven Python script matching `name = \"X\"\\n    arity = N` blocks",
+      "result": "failed",
+      "reason": "Backslash-escaping mismatch between the Python string literal building the regex and the two literal backslash characters actually present in the theory .py source text (e.g. source contains `\\\\neg`, matching regex needed 4 backslash chars, script only produced 2). Switched to plain str.find/str.replace on raw-string markers (r\"\\\\neg\") which match the literal source bytes directly."
+    }
+  ],
+  "deviations": [
+    {
+      "task_id": "4.discovery",
+      "description": "Loading logos's constitutive+modal subtheories (which transitively loads counterfactual) raised DuplicateOperatorError('\\u25a1\\u2192 already registered') at import time",
+      "type": "altered",
+      "reason": "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/candidates.py defines six context-free candidate operator subclasses (ImpositionLocalCounterfactual, WorldStateCounterfactual, SettlerCounterfactual, SettlingImpositionClosureCounterfactual, ExactSettlingImpositionCounterfactual, GeneratedSettlerCounterfactual) that subclass CounterfactualOperator (via CandidateCounterfactual) without declaring their own `name`-distinct `aliases`, so they inherited CounterfactualOperator's \"\\u25a1\\u2192\" alias and collided with it and each other the moment more than one was registered together. This file was outside the plan's originally-scoped 7 theory operators.py files. Fixed by adding an explicit `aliases: List[str] = []` override on the shared `CandidateCounterfactual` base class. The identical pattern recurred in theory_lib/imposition/operators.py's LogosCounterfactual (subclasses the aliased CounterfactualOperator under the import alias LogosCounterfactualOperator) and was fixed the same way (explicit `aliases = []`).",
+      "annotation": "n/a - discovered defect in files outside the plan's declared Phase 4 file list, not a plan checklist deviation"
+    }
+  ],
+  "handoff_count": 0
+}

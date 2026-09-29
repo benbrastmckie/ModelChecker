@@ -121,6 +121,7 @@ class NegationOperator(syntactic.Operator):
 
     name = "\\neg"
     arity = 1
+    aliases = ["¬"]
 
     def true_at(self, argument, eval_point):
         """Returns true if argument is false."""
@@ -156,6 +157,7 @@ class AndOperator(syntactic.Operator):
 
     name = "\\wedge"
     arity = 2
+    aliases = ["∧"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Returns true if both arguments are true."""
@@ -199,6 +201,7 @@ class OrOperator(syntactic.Operator):
 
     name = "\\vee"
     arity = 2
+    aliases = ["∨"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Returns true if either argument is true."""
@@ -288,6 +291,7 @@ class NecessityOperator(syntactic.Operator):
     """
     name = "\\Box"
     arity = 1
+    aliases = ["□"]
 
     def true_at(self, argument, eval_point):
         """Looks up the label bit of `Box(translate(argument))` -- mirrors `translate`'s own
@@ -325,6 +329,7 @@ class FutureOperator(syntactic.Operator):
     """
     name = "\\Future"
     arity = 1
+    aliases = ["⏵"]
 
     def true_at(self, argument, eval_point):
         """Looks up the label bit of `¬(⊤ U ¬argument)` -- mirrors `translate`'s own
@@ -354,6 +359,7 @@ class PastOperator(syntactic.Operator):
     """
     name = "\\Past"
     arity = 1
+    aliases = ["⏴"]
 
     def true_at(self, argument, eval_point):
         """Looks up the label bit of `¬(⊤ S ¬argument)` -- mirrors `translate`'s own
@@ -395,6 +401,7 @@ class UntilOperator(syntactic.Operator):
 
     name = "\\Until"
     arity = 2
+    # No Unicode alias: candidate glyph "U" is alphanumeric (would tokenize as a sentence letter); no non-alphanumeric standard glyph found
 
     def true_at(self, guard_arg, event_arg, eval_point):
         """Looks up the label bit of `Untl(guard=translate(guard_arg),
@@ -426,6 +433,7 @@ class SinceOperator(syntactic.Operator):
 
     name = "\\Since"
     arity = 2
+    # No Unicode alias: candidate glyph "S" is alphanumeric (would tokenize as a sentence letter); no non-alphanumeric standard glyph found
 
     def true_at(self, guard_arg, event_arg, eval_point):
         """Looks up the label bit of `Snce(guard=translate(guard_arg),
@@ -462,6 +470,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
 
     name = "\\rightarrow"
     arity = 2
+    aliases = ["→"]
 
     def derived_definition(self, leftarg, rightarg):  # type: ignore
         return [OrOperator, [NegationOperator, leftarg], rightarg]
@@ -485,6 +494,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
 
     name = "\\leftrightarrow"
     arity = 2
+    aliases = ["↔"]
 
     def derived_definition(self, leftarg, rightarg):  # type: ignore
         right_to_left = [ConditionalOperator, leftarg, rightarg]
@@ -538,6 +548,7 @@ class DefPossibilityOperator(syntactic.DefinedOperator):
     """
     name = "\\Diamond"
     arity = 1
+    aliases = ["◇"]
 
     def derived_definition(self, argument):  # type: ignore
         """Define possibility in terms of negation and necessity."""
@@ -565,6 +576,7 @@ class DefFutureOperator(syntactic.DefinedOperator):
 
     name = "\\future"
     arity = 1
+    # No Unicode alias: no standard glyph distinct from \Future for this discrete-next-time dual
 
     def derived_definition(self, argument):  # type: ignore
         return [NegationOperator, [FutureOperator, [NegationOperator, argument]]]
@@ -580,6 +592,7 @@ class DefPastOperator(syntactic.DefinedOperator):
 
     name = "\\past"
     arity = 1
+    # No Unicode alias: no standard glyph distinct from \Past for this discrete-previous-time dual
 
     def derived_definition(self, argument):  # type: ignore
         return [NegationOperator, [PastOperator, [NegationOperator, argument]]]
@@ -599,6 +612,7 @@ class DefNextOperator(syntactic.DefinedOperator):
 
     name = "\\next"
     arity = 1
+    # No Unicode alias: no standard glyph for this discrete next-state operator
 
     def derived_definition(self, argument):  # type: ignore
         return [UntilOperator, [BotOperator], argument]
@@ -618,6 +632,7 @@ class DefPrevOperator(syntactic.DefinedOperator):
 
     name = "\\prev"
     arity = 1
+    # No Unicode alias: no standard glyph for this discrete previous-state operator
 
     def derived_definition(self, argument):  # type: ignore
         return [SinceOperator, [BotOperator], argument]

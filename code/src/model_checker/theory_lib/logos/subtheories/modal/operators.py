@@ -40,6 +40,7 @@ class NecessityOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\Box"
     arity = 1
+    aliases = ["□"]
 
     def true_at(self, argument, eval_point):
         """Defines truth conditions for necessity at an evaluation point."""
@@ -111,6 +112,7 @@ class PossibilityOperator(syntactic.DefinedOperator):
     semantics: "LogosSemantics"
     name = "\\Diamond"
     arity = 1
+    aliases = ["◇"]
 
     def derived_definition(self, argument):
         """Defines possibility as negation of necessity of negation."""
@@ -132,6 +134,7 @@ class CFNecessityOperator(syntactic.DefinedOperator):
     semantics: "LogosSemantics"
     name = "\\CFBox"
     arity = 1
+    # No Unicode alias: no distinct standard glyph from \Box; aliasing would collide with it
     
     def derived_definition(self, argument):
         """Defines counterfactual necessity using modal necessity."""
@@ -185,6 +188,7 @@ class CFPossibilityOperator(syntactic.DefinedOperator):
     semantics: "LogosSemantics"
     name = "\\CFDiamond"
     arity = 1
+    # No Unicode alias: no distinct standard glyph from \Diamond; aliasing would collide with it
     
     def derived_definition(self, argument):
         """Defines counterfactual possibility using modal possibility."""

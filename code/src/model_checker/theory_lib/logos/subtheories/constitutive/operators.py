@@ -41,6 +41,7 @@ class IdentityOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\equiv"
     arity = 2
+    aliases = ["≡"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for identity at an evaluation point."""
@@ -151,6 +152,7 @@ class GroundOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\leq"
     arity = 2
+    aliases = ["≤"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for the ground relation at an evaluation point."""
@@ -267,6 +269,7 @@ class EssenceOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\sqsubseteq"
     arity = 2
+    aliases = ["⊑"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for essence relation at an evaluation point."""
@@ -383,6 +386,7 @@ class RelevanceOperator(syntactic.Operator):
     semantics: "LogosSemantics"
     name = "\\preceq"
     arity = 2
+    aliases = ["⪯"]
 
     def true_at(self, leftarg, rightarg, eval_point):
         """Defines truth conditions for relevance relation at an evaluation point."""
@@ -477,6 +481,7 @@ class ReductionOperator(syntactic.DefinedOperator):
     semantics: "LogosSemantics"
     name = "\\Rightarrow"
     arity = 2
+    aliases = ["⇒"]
 
     def derived_definition(self, leftarg, rightarg):
         """Defines reduction as conjunction of ground and essence."""
