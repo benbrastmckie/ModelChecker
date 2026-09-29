@@ -18,20 +18,20 @@ next_project_number: 220
 
 ### Documentation
 
-216 [NOT STARTED] — Apply the upstream A1 / A1-Gamma / A3 adequacy-chain rows to...
+216 [RESEARCHED] — Apply the upstream A1 / A1-Gamma / A3 adequacy-chain rows to...
 199 [NOT STARTED] — Write the round-trip ledger in...
 
 ### Semantics
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-217 [NOT STARTED] — Re-scope the two blocked bimodal adequacy consumers in...
-219 [NOT STARTED] — Add a documented THEORY-LIMITS example group to...
+217 [RESEARCHING] — Re-scope the two blocked bimodal adequacy consumers in...
+219 [RESEARCHING] — Add a documented THEORY-LIMITS example group to...
 
 ## Tasks
 
 ### 219. Bimodal theory limits example group
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
@@ -70,7 +70,7 @@ DELIVERABLE. The group present in examples.py with its header commentary and at 
 ---
 
 ### 217. Rescope blocked adequacy consumers
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: meta
 - **Topic**: semantics
 - **Dependencies**: None
@@ -90,10 +90,11 @@ CORRECTION TO THIS DESCRIPTION'S OWN ACCOUNT OF THE ROOT CAUSE, ADDED AFTER A SE
 ---
 
 ### 216. Apply upstream adequacy chain rows
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: general
 - **Topic**: documentation
 - **Dependencies**: None
+- **Research**: [216_apply_upstream_adequacy_chain_rows/reports/01_apply-adequacy-chain-rows.md]
 
 **Description**: Apply the upstream A1 / A1-Gamma / A3 adequacy-chain rows to code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md and TRUST_PIPELINE.md, and move the WitnessFamily/Compression citations onto the name + manifest convention.
 
