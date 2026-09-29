@@ -620,37 +620,34 @@ Witness Budget section already record. This never affects soundness: a witness c
 generated against a shared lasso is exactly as valid as one against a dedicated one.
 
 **This direction must not be asserted.** It is bounded-search-relative, it is stated at frame
-class ℤ-time only, and it decomposes into three components plus one permanent limit:
+class ℤ-time only, and it decomposes into four components plus one permanent limit:
 
 | | Component | Status |
 |---|---|---|
 | **A0** | Frame-class gap: ℤ-time completeness does not imply completeness for `def:logical-consequence` at every temporal order | **Permanent limit.** §7.2. |
-| **A1** | Compression: a ℤ-time countermodel yields a certificate with lengths bounded by `f(\|C\|)` | **Open.** Route named, not built. §7.1. |
+| **A1** | Compression: a ℤ-time countermodel yields a certificate with lengths bounded by `f(\|C\|)` | **Partially discharged, at the empty-premise, single-conclusion instance.** `exists_witnessFamily_of_not_validZTime` (`Metalogic/Decidability/WitnessFamily/Compression/Family.lean`) takes `¬ ValidZTime φ` to a `WitnessFamily [] [φ]` and a target time satisfying exactly (C1)–(C4), with every lasso's three segment lengths and the target time bounded by `compressionBound [] [φ]`, at most `\|C\| + 1` lassos, and a canonically enumerable box guess `fun χ => decide (χ ∈ S)` for an explicit `S ⊆ C`. `compressionBound Γ Del = max ((2k+1)·2^k) (2·2^k)` at `k = \|closureOf (Γ ++ Δ)\|` — a bound in the closure size alone, checked by `rfl` — via a pigeonhole over subformula-set space (`TypeState C`, cardinality `2^\|C\|`), not over presentation states. Sorry-free; axiom closure `{propext, Classical.choice, Quot.sound}`. **The general `Γ ⊨ σ` form this chain consumes is a separate, open obligation — see A1-Γ.** §7.1. |
+| **A1-Γ** | Compression at non-empty premises and multiple conclusions: `¬ SemanticConsequenceIn FrameClass.ZTime Γ σ` for arbitrary finite `Γ`, target `Δ` a finite list | **Open, and this is the form (ADEQ) consumes.** The landed instance is at `Γ = []`, `Δ = [φ]`; every countermodel example in `examples.py` has a non-empty premise list, and `MD_CM_1` has `\|Δ\| = 2`. A1's "equivalently `¬ SemanticConsequenceIn FrameClass.ZTime Γ σ`" phrasing needs a context-conjunction deduction theorem; the only landed bridge, `semanticConsequenceIn_nil_iff`, covers `Γ = []` only. The residue is bounded: `WitnessFamily.Refutes`, `refutes_of_certifies`, `joint_countermodel`, `exists_labelledLasso_of_history_realized`, `compressionBound`, and all four `Decidable` instances are already stated at arbitrary `Γ Del`. §7.1a. |
 | **A2** | Encoding completeness: a certificate within the configured lengths implies the Z3 encoding is SAT (precondition: `max_witnesses` is `None` or at least the boxed-subformula count) | **Provable and testable now.** §7.3. |
-| **A3** | Bound realization: configured `back`/`fwd` are common multiples of the compressed family's periods (each bounded by `f(\|C\|)`), and `mid` is at least its mid length — a representability, not a magnitude, condition (precondition: `max_witnesses` is `None` or at least the boxed-subformula count) | Vacuous until A1 supplies `f`. |
+| **A3** | Bound realization: configured `back`/`fwd` are common multiples of the compressed family's periods (each bounded by `f(\|C\|)`), and `mid` is at least its mid length — a representability, not a magnitude, condition (precondition: `max_witnesses` is `None` or at least the boxed-subformula count) | **Live and open, at A1's scope.** `f` exists in closed form: `f(k) = max((2k+1)·2^k, 2·2^k)`. The `mid` clause is a magnitude condition, satisfiable at `mid ≥ f(\|C\|)`, since `mid` carries no periodicity. The `back`/`fwd` clause is open: the landed theorem bounds segment lengths, not minimal periods, so representability against a registry that folds by exact modulus needs §7.1(iii-a)'s bounded sweep. The `max_witnesses` precondition is exactly matched: the compressed family is `main :: (one witness lasso per boxed closure member its guess sets false)`, so `1 + \|{Box members}\|` uncapped lassos is precisely what it needs. §7.1, §7.3. |
 
-### 7.1 A1 — compression, open, with the route named
+### 7.1 A1 — compression, partially discharged
 
-A1 is stated as item 1 of the compression task recorded in the BimodalLogic repository's own
-task tracker:
-*"if `¬ ValidZTime ψ` (equivalently `¬ SemanticConsequenceIn FrameClass.ZTime Γ σ`) then some
-`WitnessFamily` satisfying the four conditions exists with every segment length bounded by a
-computable function of the closure size, whose main lasso carries the refuting point."* Status:
-`[NOT STARTED]`, effort 2–4 weeks, with the soundness half of its dependencies already complete.
-The route recorded there: take a refuting model, history and time; for each boxed subformula
-guessed false, pick a witnessing history; compress each history's *type* sequence into a bi-lasso
-using the good-cycle lemmas of `Metalogic/Decidability/BiLasso/GoodCycle.lean` and
-`BiLasso/Extraction.lean`'s `exists_annot_of_truth` as the template, re-run over subformula-set
-space rather than presentation states; `Semantics/Frames/TranslationProduct.lean`'s `validIn_iff_recurrenceFree`
-lets witness paths be taken recurrence-free, so only the type sequence need be eventually
-periodic. **Reduction to cited results**: Gabbay–Kurucz–Wolter–Zakharyaschev, *Many-Dimensional
-Modal Logics: Theory and Applications* (2003), Theorems 3.29, 5.30, 5.32, 11.7, 11.21.
+A1 states: if `¬ SemanticConsequenceIn FrameClass.ZTime Γ σ` then some `WitnessFamily`
+satisfying the four conditions exists with every segment length bounded by a computable function
+of the closure size, whose main lasso carries the refuting point. The route compresses a refuting
+model's histories into lassos via a pigeonhole over subformula-set space rather than presentation
+states — for each boxed subformula the box guess sets false, a witnessing history is picked and
+compressed alongside the refuting history, which becomes the main lasso. **Reduction to cited
+results**: Gabbay–Kurucz–Wolter–Zakharyaschev, *Many-Dimensional Modal Logics: Theory and
+Applications* (2003), Theorems 3.29, 5.30, 5.32, 11.7, 11.21.
 
-**A1 is recorded as open. It is not asserted, and (SOUND) does not depend on it.** Its only
-consequence is whether "no certificate within bounds" carries information beyond "no certificate
-was found within these bounds" — and it must not, until A1 lands.
+**A1 is discharged only at the empty-premise, single-conclusion instance; the general form
+(ADEQ) consumes is A1-Γ, and neither is asserted — (SOUND) does not depend on either.** Their
+only consequence is whether "no certificate within bounds" carries information beyond "no
+certificate was found within these bounds" — and, for any inference outside A1's proved
+instance, it must not, until A1-Γ lands.
 
-**The one candidate for reducing A1 to an already-landed Lean theorem, examined and rejected.**
+**Why `exists_annot_of_truth` does not supply A1's bound.**
 `Metalogic/Decidability/BiLasso/Extraction.lean:354`:
 
 ```lean
@@ -662,9 +659,8 @@ theorem exists_annot_of_truth (hbx : BoxOracleSound P bx)
 ```
 
 is proved and sorry-free, with enumeration completeness (`Enumerate.lean:153, 309`) and a truth
-lemma (`TruthLemma.lean:149`) beside it, and it looks superficially like a bounded-completeness
-result for exactly this setting. It does **not** discharge the reduction, for three verified
-reasons:
+lemma (`TruthLemma.lean:149`) beside it, and it looks superficially like a bound for exactly this
+setting. It does not supply A1's bound, for three reasons:
 
 1. **It is relative to a fixed finite presentation `P`.** Its hypothesis is
    `TruthAt P.toModel τ t φ` — truth in the model of a given `IntPresentation` — not truth in an
@@ -680,12 +676,14 @@ reasons:
    (`Metalogic/Decidability/BiLasso/Annotation.lean:350-355`) says as much: constructing an oracle
    meeting that specification "requires the small-model theorem and is deliberately deferred".
 
-So `exists_annot_of_truth` is the **template** for A1's compression argument, not a reduction of
-it. What would have to be true for a genuine reduction: (i) an analogue whose hypothesis is
-`¬ SemanticConsequenceIn FrameClass.ZTime Γ σ` rather than truth in a presented model;
-(ii) a bound depending only on `|closureOf (Γ ++ Δ)|`, obtained by compressing over
-**subformula-set space** (pigeonhole `2^|C|`, closed) rather than presentation states
-(pigeonhole `P.card`, unbounded); and (iii) a demonstration that this repository's search
+So `exists_annot_of_truth` is a template, not a source, for A1's bound.
+`exists_witnessFamily_of_not_validZTime` meets (i) and (ii) directly: its hypothesis is
+`¬ ValidZTime φ`, an arbitrary ℤ-time model, not a presented one; and its bound,
+`compressionBound [] [φ]`, factors through `|closureOf ([] ++ [φ])|` alone, via a pigeonhole
+over subformula-set space (`TypeState C`, cardinality `2^|C|`) rather than presentation states.
+Condition (i) is met for the carrier — the hypothesis is presentation-free — but not for the
+premise context: extending it to arbitrary `Γ` is exactly A1-Γ's obligation. What A1's proved
+instance does not meet is condition (iii): a demonstration that this repository's search
 *represents* the compressed family at the configured `back`/`fwd`/`mid` — not merely that
 `back, mid, fwd` are "at least" the bound, since `WitnessRegistry.wrap()` folds `back`/`fwd`
 positions by exact period: a family with back-period (or fwd-period) `p` is representable at
@@ -728,6 +726,24 @@ concrete work in this repository, in dependency order:
   `n` over all three segments while the search takes three independent settings.
 
 (iii-b) through (iii-d) are independently valuable now and do not wait on A1.
+
+### 7.1a A1-Γ — compression at general premises and conclusions, open
+
+(ADEQ) is stated for arbitrary `Γ` and `Δ`, and `examples.py`'s own countermodel inventory
+instantiates it there: every `_CM_` example has a non-empty premise list, and `MD_CM_1` has two
+conclusions. `exists_witnessFamily_of_not_validZTime` is proved at `Γ = []`, `Δ = [φ]` only, so
+it does not by itself instantiate A1 at the form this chain consumes; that general form is
+recorded here as its own obligation.
+
+The residue is bounded, not open-ended. `WitnessFamily.Refutes`, `refutes_of_certifies`,
+`joint_countermodel`, `exists_labelledLasso_of_history_realized`,
+`exists_labelledLasso_of_history`, `compressionBound`, and the four `Decidable` instances in
+`WitnessFamily/Decide.lean` are already stated at arbitrary `Γ Del`. What is scoped to `Γ = []`
+is the entry point's carrier normalization (the consequence-form analogue of
+`validZTime_iff_validInt`, built from `truthAt_map` at a fixed aligned triple),
+`WitnessFamily.Target`'s premise clause, and `Compression/Enumerate.lean`'s φ-specialized
+`closureSubsetsOf` / `rawLabelledLassos` / `IsLabelledLasso` / `boundedLassos` / `cands`
+(`ListEnumC.ofLen`/`upTo` are already generic).
 
 ### 7.2 A0 — the frame-class gap, a permanent limit A1 cannot close
 

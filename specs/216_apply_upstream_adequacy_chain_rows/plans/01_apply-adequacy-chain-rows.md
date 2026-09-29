@@ -1,7 +1,7 @@
 # Implementation Plan: Apply Upstream A1 / A1-Γ / A3 Adequacy-Chain Rows
 
 - **Task**: 216 - Apply upstream adequacy chain rows
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 5 hours
 - **Dependencies**: None blocking. Sibling task declares
   `code/src/model_checker/theory_lib/bimodal/examples.py` as its file scope; this plan reads
@@ -107,7 +107,7 @@ Phases within the same wave can execute in parallel. Phases 2 and 3 touch disjoi
 
 ---
 
-### Phase 1: Verify names and build the citation-site inventory [NOT STARTED]
+### Phase 1: Verify names and build the citation-site inventory [COMPLETED]
 
 **Goal**: Establish, against live sources rather than the research report, that every declaration
 name about to be written resolves, that the premise and conclusion counts the A1-Γ row asserts are
@@ -172,7 +172,7 @@ the additional sites are in scope, and if it falls short, establish why before p
 
 ---
 
-### Phase 2: ADEQUACY.md — component rows, section 7.1 status, section 7.1a [NOT STARTED]
+### Phase 2: ADEQUACY.md — component rows, section 7.1 status, section 7.1a [COMPLETED]
 
 **Goal**: Bring `ADEQUACY.md`'s record of the (ADEQ) chain onto current status: A1 partially
 discharged at a named instance, A1-Γ recorded as the open general form the chain consumes, A3 live
@@ -180,43 +180,43 @@ rather than vacuous, with section 7.1's heading and framing matching.
 
 **Tasks**:
 
-- [ ] Re-read `ADEQUACY.md` immediately before editing, in case a sibling has changed it.
-- [ ] In section 7's component table, replace the A1 row. State that A1 is discharged only at the
+- [x] Re-read `ADEQUACY.md` immediately before editing, in case a sibling has changed it.
+- [x] In section 7's component table, replace the A1 row. State that A1 is discharged only at the
       empty-premise, single-conclusion instance, via `exists_witnessFamily_of_not_validZTime`,
       sorry-free, with axiom closure `{propext, Classical.choice, Quot.sound}`, and that the
       general form is a separate open obligation. Leave A0 and A2 untouched.
-- [ ] Insert a new A1-Γ row immediately after A1. Record that every countermodel example in this
+- [x] Insert a new A1-Γ row immediately after A1. Record that every countermodel example in this
       repository's `examples.py` has a non-empty premise list and that `MD_CM_1` has two
       conclusions, using the counts re-derived in Phase 1, so the restriction reads as
       load-bearing here rather than cosmetic.
-- [ ] Replace the A3 row. State `f`'s closed form as confirmed in Phase 1 rather than a table of
+- [x] Replace the A3 row. State `f`'s closed form as confirmed in Phase 1 rather than a table of
       sampled bound values. State that the `mid` clause is satisfiable by magnitude and that the
       `back`/`fwd` clause remains open because the landed theorem bounds segment lengths and not
       minimal periods, so representability against a registry folding by exact modulus still needs
       a bounded sweep. Keep the `max_witnesses` precondition note.
-- [ ] Rewrite section 7.1's heading so it no longer asserts A1 is open outright.
-- [ ] Replace section 7.1's opening paragraph, which currently reports a status and an effort
+- [x] Rewrite section 7.1's heading so it no longer asserts A1 is open outright.
+- [x] Replace section 7.1's opening paragraph, which currently reports a status and an effort
       estimate read off the upstream repository's task tracker. That is both stale and exactly the
       kind of tracker metadata that goes out of date silently. State the route's mathematical
       content in present tense and drop the tracker status, the effort figure, and any reference
       to a tracker entry.
-- [ ] Replace the paragraph beginning "A1 is recorded as open" with a present-tense statement of
+- [x] Replace the paragraph beginning "A1 is recorded as open" with a present-tense statement of
       what is and is not discharged, and of what follows for the meaning of "no certificate within
       bounds".
-- [ ] Rewrite the heading that frames `exists_annot_of_truth` as a candidate route "examined and
+- [x] Rewrite the heading that frames `exists_annot_of_truth` as a candidate route "examined and
       rejected" into a standing statement of why that theorem does not supply A1's bound. Keep the
       three numbered reasons verbatim: they are durable technical facts, not history. Do not carry
       across any record of which route was tried when.
-- [ ] Rewrite the closing paragraph of that discussion so conditions (i) and (ii) are recorded as
+- [x] Rewrite the closing paragraph of that discussion so conditions (i) and (ii) are recorded as
       met by the landed theorem for the carrier, condition (i) as unmet for the premise context
       (which is A1-Γ's obligation), and condition (iii) as the remaining representability gap.
       Leave the measured-against-the-live-search sentence and the two-routes paragraph unchanged.
-- [ ] Leave residue items (iii-a) through (iii-e) unchanged; they are current facts about A3's
+- [x] Leave residue items (iii-a) through (iii-e) unchanged; they are current facts about A3's
       representability gap and are independent of A1's status.
-- [ ] Add section 7.1a immediately after section 7.1, recording A1-Γ as its own obligation and
+- [x] Add section 7.1a immediately after section 7.1, recording A1-Γ as its own obligation and
       naming the already-general declarations that bound the residue. Do not add an effort
       estimate or a completion forecast.
-- [ ] Confirm no anchor written in this phase carries a line number, and no sentence written in
+- [x] Confirm no anchor written in this phase carries a line number, and no sentence written in
       this phase uses transition, change-log, or dated framing.
 
 **Timing**: 1.5 hours
