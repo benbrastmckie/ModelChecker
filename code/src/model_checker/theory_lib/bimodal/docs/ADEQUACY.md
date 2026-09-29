@@ -21,7 +21,9 @@ Two statements are distinguished by name and by status:
   plus one permanent limit, never asserted. See "The (ADEQ) direction" below.
 
 All Lean citations are to `~/Projects/BimodalLogic/FormalSystem/` unless marked `BimodalTools/`.
-Every cited name was checked to resolve at the cited file and line at the time of writing.
+Every cited name was checked to resolve at the cited location at the time of writing;
+`WitnessFamily`/`Compression` declarations are cited by name only and resolved via BimodalLogic's
+citation manifest (§4.1's provenance note), while other citations retain `file:line` anchors.
 
 For the pipeline these statements sit inside — which component carries which guarantee, what kind
 of evidence backs each one, what is and is not in the trust base, and what remains open in this
@@ -39,8 +41,8 @@ untl | snce`). `bx : Formula → Bool` is the box guess. Each `Λᵢ = (backᵢ,
 of lists of subsets of `C`, with `backᵢ ≠ []` and `fwdᵢ ≠ []` (`mid` may be empty), decoded to a
 bi-infinite label function `Lᵢ : ℤ → 𝒫(C)` by the three-segment scheme: `back` repeated strictly
 left of `0`, `mid` on `[0, |mid|)`, and `fwd` repeated from `|mid|` onward. This is exactly
-`LabelledLasso` (`Metalogic/Decidability/WitnessFamily/Basic.lean:76`) and its decoding function
-`lab` (`Basic.lean:104`, via `Periodic.unrollOf`).
+`LabelledLasso` (`Metalogic/Decidability/WitnessFamily/Basic.lean`) and its decoding function
+`LabelledLasso.lab` (same file, via `Periodic.unrollOf`).
 
 A certificate must satisfy four conditions, for every `i` and every `t ∈ ℤ`:
 
@@ -74,7 +76,7 @@ this repository:
 
 | | Obligation | Status |
 |---|---|---|
-| **S1** | (C1)–(C4) ⟹ a paper countermodel exists | **Proved** below (§3); machine-checked, `WitnessFamily.joint_countermodel` (`Metalogic/Decidability/WitnessFamily/Agreement.lean:232`). |
+| **S1** | (C1)–(C4) ⟹ a paper countermodel exists | **Proved** below (§3); machine-checked, `WitnessFamily.joint_countermodel` (`Metalogic/Decidability/WitnessFamily/Agreement.lean`). |
 | **S2** | The Lean definitions transcribe the paper's | Discharged by inspection, §4 (the transcription audit); an audit, not a theorem. |
 | **S3** | Whatever the search reports satisfies (C1)–(C4) | Discharged by *deciding* the antecedent on every reported countermodel, independently, twice — §6 (presentation and re-verification). |
 | **S4** | The `Sentence` → `Formula` translation preserves truth | Discharged for both the tense and box halves by a differential property test — §6.3; an upstream Lean theorem (`sat_iff`, `BimodalLogic`'s `SentenceTruth.lean`) now exists for BimodalLogic's own reference translation, but this repository's own translation is not yet diffed against it. |
@@ -103,7 +105,7 @@ relation above is given at every `x ∈ ℤ` directly; it is consistent with the
 than merely compatible with it, since for `x ≥ 0`: `(j,u) ⇒_x (i,t)` iff `j = i ∧ t = u + x` iff
 `i = j ∧ u = t + (−x)` iff `(i,t) ⇒_{−x} (j,u)`.
 
-This construction is `WitnessFamily.std` (`Metalogic/Decidability/WitnessFamily/Std.lean:65`).
+This construction is `WitnessFamily.std` (`Metalogic/Decidability/WitnessFamily/Std.lean`).
 
 ### Lemma 1 (Frame)
 
@@ -246,31 +248,34 @@ axioms (`FormalSystem/MainResults.lean` runs `#print axioms` at build time as a 
 
 | This document | Lean name | File:line |
 |---|---|---|
-| The construction (`𝔇`, `W`, `⇒`, `\|·\|`) | `WitnessFamily.std` | `Metalogic/Decidability/WitnessFamily/Std.lean:65` |
+| The construction (`𝔇`, `W`, `⇒`, `\|·\|`) | `WitnessFamily.std` | `Metalogic/Decidability/WitnessFamily/Std.lean` |
 | Lemma 1, Compositionality | `ShiftSet.shRel_comp` | `Semantics/ShiftSet.lean:157` |
 | Lemma 1, Seriality | `ShiftSet.shRel_serial` | `Semantics/ShiftSet.lean:172` |
 | Lemma 1, Limit | the `sep` field, via `TaskFrame.limit_reflect_of_reflective` | `Semantics/ShiftSet.lean:115, 203`; discharged for `std` via `ShiftSet.ofIntAction` (`Semantics/ShiftSet.lean:494`) and `ShiftSet.sep_of_succOrder` (`Semantics/ShiftSet.lean:472`) — **kernel-checked** from discreteness, not hand-proved |
 | Lemma 1, Saturation | `ShiftSet.shRel_saturation` (`saturation_of_fib_subsingleton`) | `Semantics/ShiftSet.lean:180` |
 | Lemma 1, whole | `ShiftSet.fibre_isRegular` / `frame_isRegular` | `Semantics/ShiftSet.lean:209, 234` |
-| The frame is ℤ-time | `WitnessFamily.std_isZTime`, `std_sat_ztime`, `std_sat_base` | `Metalogic/Decidability/WitnessFamily/Std.lean:81, 87, 92` |
+| The frame is ℤ-time | `WitnessFamily.std_isZTime`, `std_sat_ztime`, `std_sat_base` | `Metalogic/Decidability/WitnessFamily/Std.lean` |
 | Lemma 2 | `ShiftSet.total_eq_orbit` | `Semantics/ShiftSet.lean:252` |
-| Lemma 3 / Corollary 3.1 | `ShiftSet.forward_repr`, `WitnessFamily.sh_surj`, `Truth.box_const` | `Semantics/ShiftSet.lean:293`; `Metalogic/Decidability/WitnessFamily/Std.lean:98`; `Semantics/TruthTransport.lean:310` |
-| Lemma 4 | `WitnessFamily.shiftTruth_iff_mem`, `truth_iff_mem` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:109, 193` |
-| Lemma 4, `U`/`S` helper | `untl_mem_of_witness`, `snce_mem_of_witness` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:65, 85` |
-| **The Theorem** | `WitnessFamily.joint_countermodel` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:232` |
-| Theorem, single-conclusion | `not_consequence_ztime`, `not_consequence_base` | `Metalogic/Decidability/WitnessFamily/Agreement.lean:203, 219` |
+| Lemma 3 / Corollary 3.1 | `ShiftSet.forward_repr`, `WitnessFamily.sh_surj`, `Truth.box_const` | `Semantics/ShiftSet.lean:293`; `Metalogic/Decidability/WitnessFamily/Std.lean`; `Semantics/TruthTransport.lean:310` |
+| Lemma 4 | `WitnessFamily.shiftTruth_iff_mem`, `truth_iff_mem` | `Metalogic/Decidability/WitnessFamily/Agreement.lean` |
+| Lemma 4, `U`/`S` helper | `untl_mem_of_witness`, `snce_mem_of_witness` | `Metalogic/Decidability/WitnessFamily/Agreement.lean` |
+| **The Theorem** | `WitnessFamily.joint_countermodel` | `Metalogic/Decidability/WitnessFamily/Agreement.lean` |
+| Theorem, single-conclusion | `not_consequence_ztime`, `not_consequence_base` | `Metalogic/Decidability/WitnessFamily/Agreement.lean` |
 | The modal-future axiom is valid | `modal_future_valid` | `Metalogic/Soundness.lean:373` |
-| No certificate refutes the modal-future axiom | `no_witnessFamily_of_MF` | `Metalogic/Decidability/WitnessFamily/Examples.lean:275` |
+| No certificate refutes the modal-future axiom | `no_witnessFamily_of_MF` | `Metalogic/Decidability/WitnessFamily/Examples.lean` |
 | A0: `prior_UZ` is not Base-valid | `not_validIn_base_prior_UZ` | `Metalogic/Independence/ZTimeSharpness.lean:263` |
 | A0: `z1` is not Base-valid | `not_validIn_base_z1` | `Metalogic/Independence/ZTimeSharpness.lean:274` |
 | A0: the `.ZTime` tag is minimal for both | `prior_UZ_minFrameClass_sharp`, `z1_minFrameClass_sharp` | `Metalogic/Independence/ZTimeSharpness.lean:289, 300` |
 
-**Provenance note.** The declaration names in this table are the load-bearing citation; the line
-numbers are a derived view taken from BimodalLogic's generated, C35-gated
-`scripts/lean-citation-manifest.json`, and are re-resolvable by name against it. Every gate in
-both repositories was green while several of the numbers above were stale — a docstring edit
-upstream shifted them underneath unchanged names without breaking any check on either side — which
-is exactly why the manifest and its C35 gate exist.
+**Provenance note.** Every `WitnessFamily`/`Compression` declaration cited in this document is a
+load-bearing citation by name; where a file is given alongside it, the file is for orientation
+only, not an anchor. BimodalLogic's generated, C35-gated `scripts/lean-citation-manifest.json`
+resolves each cited name to its current file, keyword line and span. A citation to
+`WitnessFamily.joint_countermodel` drifted from its actual line under an unchanged name while
+every gate in both repositories stayed green — a docstring edit upstream shifted it without
+breaking any check on either side — which is exactly why the manifest and its C35 gate exist, and
+why this subtree carries no line numbers in this document. Citations outside this subtree retain
+`file:line` anchors, checked to resolve at the time of writing.
 
 `joint_countermodel`'s statement is literally (SOUND)'s consequent:
 
@@ -384,18 +389,18 @@ theorem lab_sub_back_length (Λ) {t : ℤ} (ht : t < 0) : Λ.lab (t - Λ.nb) = �
 theorem lab_add_fwd_length  (Λ) {t : ℤ} (ht : Λ.nm ≤ t) : Λ.lab (t + Λ.nf) = Λ.lab t
 ```
 
-(`Metalogic/Decidability/WitnessFamily/Basic.lean:117, 123`.) `nb := |back|`, `nm := |mid|`,
+(`Metalogic/Decidability/WitnessFamily/Basic.lean`.) `nb := |back|`, `nm := |mid|`,
 `nf := |fwd|`, all as integers.
 
 ### 5.2 The four collapse results and the window table
 
-| Condition | Lean theorem | File:line | **Window (half-open)** |
+| Condition | Lean theorem | File | **Window (half-open)** |
 |---|---|---|---|
-| Local coherence | `coherent_iff_window` | `Metalogic/Decidability/WitnessFamily/Decide.lean:335` | `[−2·nb, nm + 2·nf)` |
-| Fulfilment | `fulfil_iff_window` | `Metalogic/Decidability/WitnessFamily/Decide.lean:743` | `[−2·nb, nm + 2·nf)` |
-| Box faithfulness (`∀t. χ ∈ Lᵢ t`) | `mem_all_iff_window` | `Metalogic/Decidability/WitnessFamily/Decide.lean:809` (lasso level), `:883` (family level) | `[−nb, nm + nf)` |
-| Forward witness scan for (C2) | `scan_forward` | `Metalogic/Decidability/WitnessFamily/Decide.lean:192` | a witness exists in `(t, max(t, nm) + nf]` |
-| Backward witness scan for (C2) | `scan_backward` | `Metalogic/Decidability/WitnessFamily/Decide.lean:212` | a witness exists in `[min(t, 0) − nb, t)` |
+| Local coherence | `coherent_iff_window` | `Metalogic/Decidability/WitnessFamily/Decide.lean` | `[−2·nb, nm + 2·nf)` |
+| Fulfilment | `fulfil_iff_window` | `Metalogic/Decidability/WitnessFamily/Decide.lean` | `[−2·nb, nm + 2·nf)` |
+| Box faithfulness (`∀t. χ ∈ Lᵢ t`) | `mem_all_iff_window` | `Metalogic/Decidability/WitnessFamily/Decide.lean` (lasso level and family level) | `[−nb, nm + nf)` |
+| Forward witness scan for (C2) | `scan_forward` | `Metalogic/Decidability/WitnessFamily/Decide.lean` | a witness exists in `(t, max(t, nm) + nf]` |
+| Backward witness scan for (C2) | `scan_backward` | `Metalogic/Decidability/WitnessFamily/Decide.lean` | a witness exists in `[min(t, 0) − nb, t)` |
 
 **Local coherence and fulfilment collapse to the same, wider window,
 `[−2·nb, nm + 2·nf)` — two periods on each side, not one.** The reason, recorded in
@@ -408,7 +413,7 @@ local-coherence or fulfilment violation lies outside `[−nb, nm+nf)` but inside
 `[−2·nb, nm+2·nf)`.
 
 The decidability instances `decidableLocalCoherentLab`, `decidableFulfillingLab`,
-`decidableBoxFaithful`, `decidableTarget` (`Decide.lean:865, 878, 923, 927`) are built from
+`decidableBoxFaithful`, `decidableTarget` (`Metalogic/Decidability/WitnessFamily/Decide.lean`) are built from
 exactly these collapses, and the module opens no `Classical` — the four conditions are decided
 computationally, not just classically true or false.
 

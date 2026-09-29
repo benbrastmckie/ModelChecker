@@ -308,7 +308,7 @@ file before editing, and convert every occurrence found rather than the first.
 
 ---
 
-### Phase 4: Citation convention migration across the WitnessFamily subtree [NOT STARTED]
+### Phase 4: Citation convention migration across the WitnessFamily subtree [COMPLETED]
 
 **Goal**: Convert every citation into `Metalogic/Decidability/WitnessFamily/` and its
 `Compression/` subdirectory from a line anchor to a name plus file, and record the convention in
@@ -316,31 +316,31 @@ the document's own provenance note so a future reader knows the file is for orie
 
 **Tasks**:
 
-- [ ] Re-read both documents immediately before editing.
-- [ ] Work the Phase 1 inventory site by site. For each in-scope site, keep the declaration name
+- [x] Re-read both documents immediately before editing.
+- [x] Work the Phase 1 inventory site by site. For each in-scope site, keep the declaration name
       and the file path, and drop the line number. Where a site cites a declaration only by line,
       supply the declaration's name.
-- [ ] Convert the two `joint_countermodel` occurrences in `ADEQUACY.md` and the one in
+- [x] Convert the two `joint_countermodel` occurrences in `ADEQUACY.md` and the one in
       `TRUST_PIPELINE.md` by name, not by renumbering them to the declaration's current line.
-- [ ] Handle the section 4.1 Lemma 3 row per-anchor: convert only the `WitnessFamily/Std.lean`
+- [x] Handle the section 4.1 Lemma 3 row per-anchor: convert only the `WitnessFamily/Std.lean`
       anchor, leaving the `ShiftSet.lean` and `TruthTransport.lean` anchors in the same row
       untouched.
-- [ ] Leave the `Enumerate.lean` anchor in section 7.1 untouched. It resolves in the `BiLasso/`
+- [x] Leave the `Enumerate.lean` anchor in section 7.1 untouched. It resolves in the `BiLasso/`
       subtree, which is out of scope, despite sharing a basename with a `Compression/` module.
-- [ ] Convert the two bare-basename in-scope sites: the `lab` decoding-function citation in
+- [x] Convert the two bare-basename in-scope sites: the `lab` decoding-function citation in
       section 1, and the four decidability-instance anchors in section 5.2's closing paragraph.
-- [ ] Rename section 5.2's table column from the file-and-line form to the file form, and drop
+- [x] Rename section 5.2's table column from the file-and-line form to the file form, and drop
       every line number in that table's cells. Every row in that table cites the in-scope subtree.
-- [ ] Broaden section 4.1's provenance note so it covers every `WitnessFamily` and `Compression`
+- [x] Broaden section 4.1's provenance note so it covers every `WitnessFamily` and `Compression`
       citation in the document rather than only that table. State that the file is orientation,
       not an anchor, and that the upstream generated and gated citation manifest resolves each
       cited name to its current location. The drift itself may be stated as the standing reason
       the convention exists; do not narrate when it was discovered or what the document said
       before.
-- [ ] Update the "Scope and status" sentence at the top of `ADEQUACY.md` that claims every cited
+- [x] Update the "Scope and status" sentence at the top of `ADEQUACY.md` that claims every cited
       name was checked to resolve at the cited file and line, so it records the split convention:
       this subtree by name, other subtrees by file and line.
-- [ ] Cite no task numbers from either repository anywhere in either document.
+- [x] Cite no task numbers from either repository anywhere in either document.
 
 **Timing**: 1 hour
 

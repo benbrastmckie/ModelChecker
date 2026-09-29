@@ -1,0 +1,21 @@
+{
+  "phase": 4,
+  "phase_name": "Citation convention migration across the WitnessFamily subtree",
+  "started_at": "2026-09-29T13:05:00Z",
+  "last_updated": "2026-09-29T13:30:00Z",
+  "objectives": [
+    {"id": 1, "description": "Re-read both documents before editing", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Convert every in-scope citation site from file:line to file", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md", "code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"]},
+    {"id": 3, "description": "Convert two joint_countermodel occurrences in ADEQUACY.md and one in TRUST_PIPELINE.md by name", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md", "code/src/model_checker/theory_lib/bimodal/docs/TRUST_PIPELINE.md"]},
+    {"id": 4, "description": "Handle mixed Lemma 3 row per-anchor (convert only Std.lean)", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 5, "description": "Leave the out-of-scope Enumerate.lean (BiLasso) anchor untouched", "status": "done", "files_touched": []},
+    {"id": 6, "description": "Convert bare-basename in-scope sites (lab, decidability instances)", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 7, "description": "Rename section 5.2 table column from File:line to File", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 8, "description": "Broaden section 4.1 provenance note document-wide", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 9, "description": "Update Scope and status top sentence for split convention", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/docs/ADEQUACY.md"]},
+    {"id": 10, "description": "Cite no task numbers from either repository", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 10,
+  "approaches_tried": [],
+  "handoff_count": 0
+}

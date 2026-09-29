@@ -173,7 +173,7 @@ line, never a validity claim, with `error` (failed the *protocol*) kept distinct
 ### Stage 6 — The agreement theorem
 
 **Component.** `WitnessFamily.joint_countermodel`
-(`Metalogic/Decidability/WitnessFamily/Agreement.lean:232`).
+(`Metalogic/Decidability/WitnessFamily/Agreement.lean`).
 
 **Evidence: theorem.** Machine-checked, sorry-free. Given (C1)–(C4), a paper countermodel exists
 — a model with a nontrivial totally ordered abelian group of times and a task relation satisfying
