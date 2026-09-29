@@ -1,22 +1,39 @@
 {
-  "status": "planned",
+  "status": "implemented",
+  "dispatch_seq": 8,
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/217_rescope_blocked_adequacy_consumers/plans/01_rescope-blocked-adequacy-consumers.md",
-      "summary": "5-phase plan to rewrite the blocked descriptions of projects 198 and 200 in specs/state.json via state-write.sh, keeping both blocked and regenerating TODO.md."
+      "type": "summary",
+      "path": "specs/217_rescope_blocked_adequacy_consumers/summaries/01_rescope-blocked-adequacy-consumers-summary.md",
+      "summary": "Rewrote projects 198 and 200's blocked descriptions in specs/state.json to match the live BimodalLogic tree (project 696 advanced from researched to implementing since the research round), kept both status blocked, and regenerated TODO.md; commit ee3c8a3b touches exactly specs/state.json and specs/TODO.md."
     }
   ],
-  "next_steps": "Run /implement 217 to execute the plan",
-  "phase_count": 5,
-  "estimated_hours": 3.25,
-  "dependency_waves": [[1], [2, 3], [4], [5]],
-  "memory_candidates": [],
-  "metadata": {
-    "session_id": "sess_1790680033_ca6f67_217",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"]
+  "completion_data": {
+    "completion_summary": "Rewrote projects 198 (a3_compute_bounds_from_closure) and 200 (extend_bimodal_to_stability_modal) in specs/state.json so each blocker matches the live BimodalLogic tree, kept both blocked with the reasoning stated in the entry text, and regenerated TODO.md."
   },
-  "dispatch_seq": 5
+  "modified_files": ["specs/state.json", "specs/TODO.md"],
+  "memory_candidates": [
+    {
+      "content": "When rewriting a cross-repository blocker description, re-verify every cited fact against the live upstream tree immediately before writing, even when a thorough research report already exists. Upstream project status can drift same-day: a research round observed BimodalLogic project 696 as 'researched', but by implement time it had advanced to 'implementing'. The implementer phase should treat the research report as a hypothesis to re-check (per the plan's own Scope Hypothesis field), not a fact to transcribe, and should use the freshly observed value in the final text.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/217_rescope_blocked_adequacy_consumers/summaries/01_rescope-blocked-adequacy-consumers-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["cross-repository", "blocker-rewrite", "live-verification", "state-write", "upstream-drift"]
+    },
+    {
+      "content": "A truth clause of the shape 'for all j accessible from i, phi holds at i if and only if <condition mentioning only j>' is always an invariance axiom for phi across the accessibility class, derivable from reflexivity alone (instantiate the clause once at an arbitrary class member, once at that member via reflexivity, then chain the two biconditionals). This is a general diagnostic pattern for modal/temporal logic completeness failures: when a stability-style modal collapses against a substrate relation, check first whether the relation is doing double duty as both an equivalence (for the modal's own quantifier class) and a non-symmetric/non-transitive succession relation -- the collapse is usually structural (shape), not temporal.",
+      "category": "INSIGHT",
+      "source_artifact": "specs/217_rescope_blocked_adequacy_consumers/summaries/01_rescope-blocked-adequacy-consumers-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["modal-logic", "reflexivity", "invariance-axiom", "sharing-relation", "completeness-failure"]
+    }
+  ],
+  "metadata": {
+    "session_id": "sess_1790680033_ca6f67",
+    "agent_type": "general-implementation-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"],
+    "phases_completed": 5,
+    "phases_total": 5
+  }
 }

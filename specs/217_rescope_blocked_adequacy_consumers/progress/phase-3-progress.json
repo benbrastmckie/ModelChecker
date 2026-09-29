@@ -1,0 +1,13 @@
+{
+  "phase": 3,
+  "phase_name": "Draft the replacement description for project 200",
+  "started_at": "2026-09-29T12:56:00Z",
+  "last_updated": "2026-09-29T13:10:00Z",
+  "objectives": [
+    {"id": 1, "description": "Draft full replacement description for project 200 per Phase 3 task list, using shape-form root cause and live-observed upstream statuses", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 1,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": []
+}

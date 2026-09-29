@@ -1,16 +1,21 @@
 {
-  "status": "planned",
-  "phase": "plan",
-  "dispatch_seq": 5,
-  "summary": "Wrote a 5-phase plan to rewrite the stale blockers on projects 198 and 200 in specs/state.json. Both entries stay blocked; Entry 2's blocker is restated against upstream 696 and 703 rather than the three tasks the dispatch proposed, two of which are already resolved.",
+  "status": "implemented",
+  "phase": "implement",
+  "dispatch_seq": 8,
+  "summary": "Rewrote projects 198 and 200's blocked descriptions in specs/state.json to match the live BimodalLogic tree (re-verified fact by fact, including one live drift from the research report: project 696 advanced from researched to implementing). Both entries stay status blocked, with the reasoning stated in the entry text. Regenerated TODO.md and committed exactly specs/state.json and specs/TODO.md as commit ee3c8a3b.",
   "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/217_rescope_blocked_adequacy_consumers/summaries/01_rescope-blocked-adequacy-consumers-summary.md",
+      "summary": "Full implementation summary: what changed in both entries, decisions, two documented deviations, verification results, and follow-ups."
+    },
     {
       "type": "plan",
       "path": "specs/217_rescope_blocked_adequacy_consumers/plans/01_rescope-blocked-adequacy-consumers.md",
-      "summary": "5-phase plan to rewrite the blocked descriptions of projects 198 and 200 in specs/state.json via state-write.sh, keeping both blocked and regenerating TODO.md."
+      "summary": "5-phase plan, all phases marked COMPLETED, plan-level status COMPLETED."
     }
   ],
-  "phases_completed": 0,
+  "phases_completed": 5,
   "phases_total": 5,
   "blockers": []
 }

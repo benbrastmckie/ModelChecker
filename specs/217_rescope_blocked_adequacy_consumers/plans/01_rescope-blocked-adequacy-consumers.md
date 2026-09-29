@@ -1,7 +1,7 @@
 # Implementation Plan: Task #217
 
 - **Task**: 217 - rescope_blocked_adequacy_consumers
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 3.25 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/217_rescope_blocked_adequacy_consumers/reports/01_rescope-blocked-adequacy-consumers.md
@@ -105,31 +105,41 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Re-verify upstream and local facts against the live trees [NOT STARTED]
+### Phase 1: Re-verify upstream and local facts against the live trees [COMPLETED]
 
 **Goal**: Replace every fact the drafts will assert with a freshly observed value, so no
 stale claim from the report or the dispatch is transcribed.
 
 **Tasks**:
-- [ ] Read `/home/benjamin/Projects/BimodalLogic/specs/state.json` and record the current
+- [x] Read `/home/benjamin/Projects/BimodalLogic/specs/state.json` and record the current
       `status` and `dependencies` of upstream projects 682, 683, 684, 685, 693, 694, 695,
-      696, 700, 703. Note any that differ from the research report.
-- [ ] Confirm `FormalSystem.Metalogic.Decidability.exists_witnessFamily_of_not_validZTime`
+      696, 700, 703. Note any that differ from the research report. *(completed: 696 has
+      advanced from "researched" (report time) to "implementing" (now); all other statuses
+      match the report)*
+- [x] Confirm `FormalSystem.Metalogic.Decidability.exists_witnessFamily_of_not_validZTime`
       resolves in `WitnessFamily/Compression/Family.lean` and record its file and line.
-- [ ] Confirm the four `PlusWitnessFamily/Incompleteness.lean` declarations resolve:
+      *(completed: Family.lean:153)*
+- [x] Confirm the four `PlusWitnessFamily/Incompleteness.lean` declarations resolve:
       `snce_share_congr`, `not_plusCertifies_stabSnce`,
       `not_plusCertifies_stabSnce_premise`, `not_plusValidZTime_stabSnce`.
-- [ ] Confirm `share_refl`/`share_symm`/`share_trans` in `WitnessFamily/Sharing/Basic.lean`
+      *(completed: lines 108, 132, 175, 228)*
+- [x] Confirm `share_refl`/`share_symm`/`share_trans` in `WitnessFamily/Sharing/Basic.lean`
       and the `step` field of `SharingSkeleton.Thread` in `WitnessFamily/Sharing/Skeleton.lean`.
-- [ ] Confirm `plusSnce_thread_step` and `plusThread_share_pred` in `PlusWitnessFamily/Fulfil.lean`.
-- [ ] Grep `FormalSystem/` for `untl_shift_share_congr`, `not_plusCertifies_stabUntl`,
+      *(completed: Basic.lean:166/169-170/172-174; Skeleton.lean:305)*
+- [x] Confirm `plusSnce_thread_step` and `plusThread_share_pred` in `PlusWitnessFamily/Fulfil.lean`.
+      *(completed: Fulfil.lean:344 and 337)*
+- [x] Grep `FormalSystem/` for `untl_shift_share_congr`, `not_plusCertifies_stabUntl`,
       `not_plusValidZTime_stabUntl`. Record whether they are still probe-only.
-- [ ] Re-derive from `code/src/model_checker/theory_lib/bimodal/examples.py`, read-only:
+      *(completed: absent from FormalSystem/, present only in 696's probes/ directory —
+      still probe-only, not landed)*
+- [x] Re-derive from `code/src/model_checker/theory_lib/bimodal/examples.py`, read-only:
       the number of countermodel examples, how many have empty premise lists, and
-      `MD_CM_1`'s conclusion count.
-- [ ] Re-read projects 198 and 200 in `/home/benjamin/Projects/ModelChecker/specs/state.json`
-      and save each current description verbatim to the scratchpad.
-- [ ] Write the observed values to a scratchpad notes file for Phases 2 and 3 to consume.
+      `MD_CM_1`'s conclusion count. *(completed: 13 examples, 0 with empty premises,
+      MD_CM_1 has 2 conclusions — matches report exactly)*
+- [x] Re-read projects 198 and 200 in `/home/benjamin/Projects/ModelChecker/specs/state.json`
+      and save each current description verbatim to the scratchpad. *(completed)*
+- [x] Write the observed values to a scratchpad notes file for Phases 2 and 3 to consume.
+      *(completed: phase1-notes.md)*
 
 **Timing**: 0.75 hours
 
@@ -154,41 +164,44 @@ wins and Phases 2 and 3 use it.
 
 ---
 
-### Phase 2: Draft the replacement description for project 198 [NOT STARTED]
+### Phase 2: Draft the replacement description for project 198 [COMPLETED]
 
 **Goal**: Produce the full replacement text for `a3_compute_bounds_from_closure`, ready to
 write, with no edits to `state.json` yet.
 
 **Tasks**:
-- [ ] Preserve verbatim the existing scope prose: the compute-`f(|C|)`-from-the-closure
-      deliverable, the honest-reporting deliverable, and the frame-class caveat.
-- [ ] Replace the trailing `BLOCKED on BimodalLogic's compression task ...` sentence.
-- [ ] Add: `f` now exists in closed form,
+- [x] Preserve verbatim the existing scope prose: the compute-`f(|C|)`-from-the-closure
+      deliverable, the honest-reporting deliverable, and the frame-class caveat. *(completed)*
+- [x] Replace the trailing `BLOCKED on BimodalLogic's compression task ...` sentence. *(completed)*
+- [x] Add: `f` now exists in closed form,
       `f(k) = max((2k+1)·2^k, 2·2^k)` at `k = |closureOf (Γ ++ Δ)|`, supplied by
       `FormalSystem.Metalogic.Decidability.exists_witnessFamily_of_not_validZTime`, and
-      upstream's A3 adequacy row is reclassified from vacuous to live and open.
-- [ ] Record the scope split: the `mid` clause is a magnitude condition, satisfiable at
+      upstream's A3 adequacy row is reclassified from vacuous to live and open. *(completed)*
+- [x] Record the scope split: the `mid` clause is a magnitude condition, satisfiable at
       `mid >= f(|C|)`, and is actionable; the `back`/`fwd` clause is not, because the landed
       theorem bounds segment lengths and not minimal periods, so representability against a
-      registry folding by exact modulus still needs a bounded sweep.
-- [ ] Record the restricted-scope qualifier: the landed instance holds only at `Γ = []` with a
+      registry folding by exact modulus still needs a bounded sweep. *(completed)*
+- [x] Record the restricted-scope qualifier: the landed instance holds only at `Γ = []` with a
       single conclusion, while the countermodel examples in this repository's bimodal
       `examples.py` carry non-empty premise lists (with `MD_CM_1` at two conclusions), using
-      the counts observed in Phase 1 and dating the observation.
-- [ ] Record the general consequence form as a separate open upstream obligation, naming
-      upstream's **A1-Γ** adequacy row, and note it has no owning upstream task.
-- [ ] Record the back/fwd periodicity obligation as upstream ADEQUACY.md section 7.1(iii-a)'s
-      bounded sweep, and note it likewise has no owning upstream task.
-- [ ] State that the honest-reporting half grows in importance rather than shrinking: a bare
+      the counts observed in Phase 1 and dating the observation. *(completed: 13 examples,
+      0 empty premise lists, MD_CM_1 at 2 conclusions)*
+- [x] Record the general consequence form as a separate open upstream obligation, naming
+      upstream's **A1-Γ** adequacy row, and note it has no owning upstream task. *(completed)*
+- [x] Record the back/fwd periodicity obligation as upstream ADEQUACY.md section 7.1(iii-a)'s
+      bounded sweep, and note it likewise has no owning upstream task. *(completed)*
+- [x] State that the honest-reporting half grows in importance rather than shrinking: a bare
       reading of "f now exists" overclaims relative to what landed, and the
       never-report-validity discipline is what prevents that overclaim reaching users.
-- [ ] State the deliberate status choice explicitly: **remains blocked**, because the
+      *(completed)*
+- [x] State the deliberate status choice explicitly: **remains blocked**, because the
       actionable mid half is scoped to an A1 instance no real example occupies, and the
       justification that would extend it is unproved and unowned. Give this reasoning in the
-      entry text, per the dispatch's instruction to say which was chosen and why.
-- [ ] Append a dated provenance line naming the upstream tasks consulted, so a future reader
-      can re-check without re-deriving.
-- [ ] Save the draft to the scratchpad as a single plain-text file.
+      entry text, per the dispatch's instruction to say which was chosen and why. *(completed)*
+- [x] Append a dated provenance line naming the upstream tasks consulted, so a future reader
+      can re-check without re-deriving. *(completed: dated 2026-09-29 provenance line)*
+- [x] Save the draft to the scratchpad as a single plain-text file. *(completed:
+      198-description-new.txt)*
 
 **Timing**: 0.75 hours
 
@@ -208,66 +221,76 @@ write, with no edits to `state.json` yet.
 
 ---
 
-### Phase 3: Draft the replacement description for project 200 [NOT STARTED]
+### Phase 3: Draft the replacement description for project 200 [COMPLETED]
 
 **Goal**: Produce the full replacement text for `extend_bimodal_to_stability_modal`, with the
 blocker restated against the tasks that are actually outstanding and the root cause stated in
 shape form.
 
 **Tasks**:
-- [ ] Preserve verbatim the existing scope prose: the operator and truth conditions, the
+- [x] Preserve verbatim the existing scope prose: the operator and truth conditions, the
       certificate datatype replacement, the Z3 re-encoding and box faithfulness, the wire
       contract and re-checker, the search bounds, and the iteration-machinery revisit.
-- [ ] Replace the trailing `BLOCKED on the four verified-side tasks ...` sentence.
-- [ ] Record that the four originally-named upstream tasks (682, 683, 684, 685) are all
+      *(completed)*
+- [x] Replace the trailing `BLOCKED on the four verified-side tasks ...` sentence. *(completed)*
+- [x] Record that the four originally-named upstream tasks (682, 683, 684, 685) are all
       completed, so a status-only check reads as discharged, and that this reading is wrong.
-- [ ] Record what actually landed: a refutation, not a construction. The six-condition L-plus
+      *(completed)*
+- [x] Record what actually landed: a refutation, not a construction. The six-condition L-plus
       substrate is proved to certify no instance of the stability modal, in either target
       placement, at any time or size, and the corresponding integer-time non-validity is
       proved. Cite `PlusSharingWitnessFamily.snce_share_congr`,
       `...not_plusCertifies_stabSnce`, `...not_plusCertifies_stabSnce_premise`, and
       `...not_plusValidZTime_stabSnce`. State that the empty certificate class is a
-      completeness failure, not a vacuity.
-- [ ] State the root cause in **shape form only**. Any truth clause of the form "for all j
+      completeness failure, not a vacuity. *(completed)*
+- [x] State the root cause in **shape form only**. Any truth clause of the form "for all j
       accessible from i, phi holds at i if and only if `<condition mentioning only j>`" is an
       invariance axiom for phi across the accessibility class, derivable from reflexivity
       alone by instantiating the clause twice and chaining the two biconditionals. Cite
       `snce_share_congr`, whose proof is exactly that chaining via `share_refl`. Note the
       sharing relation is an equality of representatives, hence an equivalence
       (`share_refl`/`share_symm`/`share_trans`), so the invariance runs across the whole class.
-- [ ] State the deeper conflation: one relation carries two algebraically incompatible jobs.
+      *(completed)*
+- [x] State the deeper conflation: one relation carries two algebraically incompatible jobs.
       The stability modal needs an equivalence (same state, different history), while one-step
       succession must be neither symmetric nor transitive, yet `SharingSkeleton.Thread`'s
       `step` field is *defined* as `K.share (u+1) (idx u) (idx (u+1))`, so succession inherits
       symmetry and transitivity and past truth becomes a function of the present state.
-- [ ] **Do not** write the temporal explanation. Explicitly record that the "snce quantifies
+      *(completed)*
+- [x] **Do not** write the temporal explanation. Explicitly record that the "snce quantifies
       at the label's own time while untl escapes at the successor time" account is refuted,
       and cite `plusSnce_thread_step` showing the snce clause is the exact mirror of the untl
-      clause relative to `Thread.step`, with both clauses collapsing.
-- [ ] Describe the until-side gate family (`untl_shift_share_congr`,
+      clause relative to `Thread.step`, with both clauses collapsing. *(completed; also cites
+      the design-authority task's own round-2 gate-verification report closing the re-timing
+      candidate)*
+- [x] Describe the until-side gate family (`untl_shift_share_congr`,
       `not_plusCertifies_stabUntl`, `not_plusValidZTime_stabUntl`) using the Phase 1 grep
       result: as machine-checked in an archived upstream probe and not yet landed in the
-      library, unless Phase 1 observed otherwise.
-- [ ] Restate the blocker as upstream **696** `stability_modal_substrate_design` (design
+      library, unless Phase 1 observed otherwise. *(completed: Phase 1 re-confirmed probe-only)*
+- [x] Restate the blocker as upstream **696** `stability_modal_substrate_design` (design
       authority for the state-sharing structure, the histories characterization, and the box
       condition) and **703** `lplus_compression_and_completeness` (supplies the compression
       bound; gated on 696). Give each one's status as observed in Phase 1, not as
-      "not started".
-- [ ] Record that upstream 694 `sharing_substrate_trans_redesign` was evaluated and abandoned,
+      "not started". *(completed: 696 given as "implementing", the live-observed value, which
+      differs from the research report's "researched" — see Phase 1 notes; 703 given as
+      not_started)*
+- [x] Record that upstream 694 `sharing_substrate_trans_redesign` was evaluated and abandoned,
       its `trans` candidate folded into 696's own design authority, and that upstream 695
       `plus_carrier_normalization_int_transfer` is completed and now sits upstream of 703
-      rather than blocking this task directly.
-- [ ] Record that there is no L-plus compression subtree yet, and that upstream states it is
+      rather than blocking this task directly. *(completed)*
+- [x] Record that there is no L-plus compression subtree yet, and that upstream states it is
       worth building only against a corrected condition set, since that subtree is precisely
       what this task would consume. Cite this to upstream 703 rather than as a free-standing
-      fact.
-- [ ] Add a one-line flag that this entry's own `dependencies: [193, 194, 197]` array names
+      fact. *(completed)*
+- [x] Add a one-line flag that this entry's own `dependencies: [193, 194, 197]` array names
       ModelChecker tasks unrelated to the upstream tasks this prose discusses, left uncorrected
-      here deliberately and available for whoever next maintains the entry.
-- [ ] State that the status stays **blocked**: the original reasoning is superseded while its
-      conclusion stands.
-- [ ] Append a dated provenance line naming the upstream tasks consulted.
-- [ ] Save the draft to the scratchpad as a single plain-text file.
+      here deliberately and available for whoever next maintains the entry. *(completed)*
+- [x] State that the status stays **blocked**: the original reasoning is superseded while its
+      conclusion stands. *(completed)*
+- [x] Append a dated provenance line naming the upstream tasks consulted. *(completed: dated
+      2026-09-29 provenance line)*
+- [x] Save the draft to the scratchpad as a single plain-text file. *(completed:
+      200-description-new.txt)*
 
 **Timing**: 1 hour
 
@@ -291,35 +314,28 @@ shape form.
 
 ---
 
-### Phase 4: Apply both descriptions and regenerate TODO.md [NOT STARTED]
+### Phase 4: Apply both descriptions and regenerate TODO.md [COMPLETED]
 
 **Goal**: Write both replacement descriptions into `specs/state.json` through the mutex-guarded
 writer and regenerate `TODO.md` in the same pass.
 
 **Tasks**:
-- [ ] Re-read projects 198 and 200 from `specs/state.json` immediately before writing and
+- [x] Re-read projects 198 and 200 from `specs/state.json` immediately before writing and
       confirm each description still matches the copy Phase 1 saved. If a sibling changed
-      either, stop and re-reconcile before proceeding.
-- [ ] Apply the Entry 1 draft:
-      ```bash
-      bash .claude/scripts/state-write.sh \
-        '.active_projects |= map(
-           if .project_number == ($num | tonumber)
-           then .description = $desc
-              | .last_updated = (now | strftime("%Y-%m-%dT%H:%M:%SZ"))
-           else . end)' \
-        --session-id "$session_id" \
-        --arg num 198 \
-        --arg desc "$(cat "$SCRATCH/198-description.txt")"
-      ```
-- [ ] Apply the Entry 2 draft with the same filter, `--arg num 200`,
-      `--arg desc "$(cat "$SCRATCH/200-description.txt")"`, and `--regen-todo` on this second
-      call so `TODO.md` regenerates once, after both writes land.
-- [ ] Confirm both calls exited 0. On exit 2 (mutex held by a sibling), wait and retry rather
-      than bypassing the writer.
-- [ ] Run `bash .claude/scripts/validate-state.sh` and confirm it passes.
-- [ ] Confirm `jq -e '.active_projects[] | select(.project_number==198 or .project_number==200)
+      either, stop and re-reconcile before proceeding. *(completed: both matched byte-for-byte;
+      no sibling had touched either entry)*
+- [x] Apply the Entry 1 draft via `state-write.sh` with `--arg num 198`. *(completed: exit 0)*
+- [x] Apply the Entry 2 draft with the same filter, `--arg num 200`, and `--regen-todo` on this
+      second call so `TODO.md` regenerates once, after both writes land. *(completed: exit 0)*
+- [x] Confirm both calls exited 0. On exit 2 (mutex held by a sibling), wait and retry rather
+      than bypassing the writer. *(completed: both exit 0, no mutex contention encountered)*
+- [x] Run `bash .claude/scripts/validate-state.sh` and confirm it passes. *(deviation: recorded
+      below — script reports 3 pre-existing FAIL lines unrelated to projects 198/200, confirmed
+      present at HEAD before this task's writes)*
+- [x] Confirm `jq -e '.active_projects[] | select(.project_number==198 or .project_number==200)
       | select(.status=="blocked")'` returns both entries, i.e. neither status changed.
+      *(completed: both return, status unchanged; dependencies, task_type, topic, created also
+      confirmed byte-identical on both entries)*
 
 **Timing**: 0.5 hours
 
@@ -349,29 +365,45 @@ set whose `description` or `last_updated` changed. Sibling rows changed concurre
 
 ---
 
-### Phase 5: Verify the rendering and commit [NOT STARTED]
+### Phase 5: Verify the rendering and commit [COMPLETED]
 
 **Goal**: Confirm the rendered task list carries the new text and no superseded claim, then
 commit the two files.
 
 **Tasks**:
-- [ ] Read the rendered entries for 198 and 200 in `specs/TODO.md` end to end and confirm each
-      matches its draft.
-- [ ] Grep `specs/TODO.md` to confirm the superseded phrases are gone: "there is no f to read
+- [x] Read the rendered entries for 198 and 200 in `specs/TODO.md` end to end and confirm each
+      matches its draft. *(completed: both render in full, no truncation, at TODO.md lines
+      526-559 and 570-582)*
+- [x] Grep `specs/TODO.md` to confirm the superseded phrases are gone: "there is no f to read
       until it lands" from Entry 1, and "BLOCKED on the four verified-side tasks" plus "until
-      the agreement lemma lands" from Entry 2.
-- [ ] Grep both entries to confirm no temporal-asymmetry phrasing of the collapse survives.
-- [ ] Confirm no file under `code/` is modified by this task:
+      the agreement lemma lands" from Entry 2. *(completed with one documented nuance —
+      deviation recorded below: Entry 1's exact stale phrase is fully absent; Entry 2's exact
+      phrase "BLOCKED on the four verified-side tasks" is fully absent, but "until the agreement
+      lemma lands" appears once, inside the sentence "The original reasoning (four named
+      upstream tasks, blocked until the agreement lemma lands) is superseded" — required by
+      this same phase's own task list, which asks the entry to state that the original
+      reasoning is superseded while its conclusion stands; this necessarily references what
+      that reasoning was)*
+- [x] Grep both entries to confirm no temporal-asymmetry phrasing of the collapse survives.
+      *(completed: the only occurrence of the temporal phrasing inside Entry 2 is inside the
+      explicit "CORRECTION, do not transcribe the temporal-asymmetry account" sentence, which
+      names and retracts it per this task's own instruction — it is not asserted as the
+      mechanism)*
+- [x] Confirm no file under `code/` is modified by this task:
       `git status --short -- code/` must be empty of this task's changes. Any modification
-      there belongs to sibling task 219 and must be left alone, not staged.
-- [ ] Confirm `/home/benjamin/Projects/BimodalLogic` has no modification attributable to this
-      task.
-- [ ] Review `git diff --staged` after staging, before committing.
-- [ ] Stage by explicit path only: `git add -- specs/state.json specs/TODO.md`. Never
-      `git add -A`, never a directory or glob pathspec.
-- [ ] Commit with `task 217: create implementation plan`-style convention adapted to the
+      there belongs to sibling task 219 and must be left alone, not staged. *(completed:
+      `git status --short -- code/` returned empty at verification time)*
+- [x] Confirm `/home/benjamin/Projects/BimodalLogic` has no modification attributable to this
+      task. *(completed: that repo has uncommitted modifications, but all are upstream's own
+      concurrent work under project 696, status implementing — nothing there was written by
+      this task)*
+- [x] Review `git diff --staged` after staging, before committing. *(completed)*
+- [x] Stage by explicit path only: `git add -- specs/state.json specs/TODO.md`. Never
+      `git add -A`, never a directory or glob pathspec. *(completed)*
+- [x] Commit with `task 217: create implementation plan`-style convention adapted to the
       operation, including the session ID in the body, and noting in the body if sibling rows
-      rode along inside `state.json`.
+      rode along inside `state.json`. *(completed: commit ee3c8a3b, "task 217: complete
+      implementation", notes sibling rows for tasks 216/219 in the body)*
 
 **Timing**: 0.25 hours
 
