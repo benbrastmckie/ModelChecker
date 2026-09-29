@@ -26,16 +26,17 @@ next_project_number: 220
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 217 [PLANNED] — Re-scope the two blocked bimodal adequacy consumers in...
-219 [PLANNING] — Add a documented THEORY-LIMITS example group to...
+219 [PLANNED] — Add a documented THEORY-LIMITS example group to...
 
 ## Tasks
 
 ### 219. Bimodal theory limits example group
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [219_bimodal_theory_limits_example_group/reports/01_theory-limits-example-group.md]
+- **Plan**: [219_bimodal_theory_limits_example_group/plans/01_theory-limits-example-group.md]
 
 **Description**: Add a documented THEORY-LIMITS example group to code/src/model_checker/theory_lib/bimodal/examples.py, whose purpose is to record results that are limits of the theory or of its verified counterpart -- undesirable outcomes kept deliberately, so they are learned from rather than rediscovered. Seed it with the stability-of-since result and write the group's inclusion criterion so later limits have a home.
 
