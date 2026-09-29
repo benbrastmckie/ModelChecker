@@ -1,0 +1,39 @@
+{
+  "phase": 5,
+  "phase_name": "Documentation update",
+  "started_at": "2026-09-29T17:10:00Z",
+  "last_updated": "2026-09-29T17:25:00Z",
+  "objectives": [
+    {"id": 1, "description": "Rewrite LaTeX Notation Requirements section with Unicode Alias column", "status": "done", "files_touched": ["docs/usage/OPERATORS.md"]},
+    {"id": 2, "description": "Add Unicode Aliases subsection with worked example", "status": "done", "files_touched": ["docs/usage/OPERATORS.md"]},
+    {"id": 3, "description": "Update Best Practices item 6", "status": "done", "files_touched": ["docs/usage/OPERATORS.md"]},
+    {"id": 4, "description": "Update Troubleshooting item 3 plus DuplicateOperatorError/UnknownOperatorError entries", "status": "done", "files_touched": ["docs/usage/OPERATORS.md"]},
+    {"id": 5, "description": "Grep docs tree for other LaTeX-only assertions and fix", "status": "done", "files_touched": [
+      "code/docs/specific/FORMULAS.md",
+      "code/docs/core/DOCUMENTATION.md",
+      "code/docs/standards/documentation/DOCUMENTATION_STANDARDS.md",
+      "code/docs/implementation/ERROR_HANDLING.md",
+      "code/docs/core/CODE_STANDARDS.md"
+    ]},
+    {"id": 6, "description": "Apply OPERATORS.md as one edit pass", "status": "done", "files_touched": ["docs/usage/OPERATORS.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "deviations": [
+    {
+      "task_id": "5.2",
+      "description": "Add a new `### Unicode Aliases` subsection",
+      "type": "altered",
+      "reason": "Landed as `## Unicode Aliases` (H2) to match the surrounding H2 rhythm of the document and the Table of Contents entry, rather than nesting under `## Using Defined Operators` as an H3.",
+      "annotation": "*(altered: landed as `## Unicode Aliases` (H2) ... rather than nesting under the `## Using Defined Operators` H2 as an H3)*"
+    },
+    {
+      "task_id": "5.5",
+      "description": "Grep the docs tree for other assertions of the LaTeX-only rule and fix any hit",
+      "type": "altered",
+      "reason": "The grep pattern given in the plan (`never use unicode|not ∧|LaTeX notation`) matches dozens of hits, most of which are true statements that LaTeX is the required/default canonical operator spelling and do not need changing. Only hits asserting the FALSE absolute claim (\"NEVER permitted\", \"breaks parser\", \"not allowed\") were fixed: code/docs/specific/FORMULAS.md, code/docs/core/DOCUMENTATION.md, code/docs/standards/documentation/DOCUMENTATION_STANDARDS.md, code/docs/implementation/ERROR_HANDLING.md, code/docs/core/CODE_STANDARDS.md.",
+      "annotation": "n/a - reasoned scoping decision, not a plan checklist text change"
+    }
+  ],
+  "handoff_count": 0
+}

@@ -660,18 +660,24 @@ Click [this link](logos/docs/API_REFERENCE.md) for documentation.
 
 ### LaTeX in Code, Unicode in Documentation
 
-**Core Rule**: All code must use LaTeX notation; documentation may use Unicode for clarity.
+**Core Rule**: An operator's canonical `name` is always LaTeX notation, and code should default
+to writing formulas in LaTeX; documentation may use Unicode for clarity. A theory's `operators.py`
+may additionally declare a Unicode `aliases` entry on an operator (see
+[`docs/usage/OPERATORS.md`'s Unicode Aliases section](../../../docs/usage/OPERATORS.md#unicode-aliases)),
+in which case that theory's parser also accepts the Unicode spelling in code -- but the LaTeX
+`name` remains required and is what these examples show by default.
 
 ```python
-# Code files - LaTeX only
+# Code files - LaTeX by default
 MODAL_FORMULAS = [
-    "\\Box (A \\rightarrow B)",  # LaTeX required
+    "\\Box (A \\rightarrow B)",  # LaTeX canonical name
     "\\Diamond A",
     "(\\neg A \\vee B)"
 ]
 
-# Error - Unicode in code breaks parser
-# BAD_FORMULAS = ["□(A → B)", "◇A"]  # This will fail!
+# Unicode in code only parses if the loaded theory declared it as an alias;
+# otherwise this raises UnknownOperatorError, not a generic parser failure.
+# BAD_FORMULAS = ["□(A → B)", "◇A"]  # Fails unless \Box/\Diamond declare these aliases
 ```
 
 ```markdown

@@ -400,7 +400,11 @@ def validate_input(data: str) -> None:
 
 ### LaTeX Notation Requirements
 
-**Always use LaTeX notation in code** with proper formatting:
+**Always use LaTeX notation for an operator's canonical `name` in code**, with proper formatting.
+A theory's `operators.py` may additionally declare a Unicode `aliases` entry per operator (see
+`docs/usage/OPERATORS.md`'s Unicode Aliases section), in which case that theory also accepts the
+Unicode spelling -- but the examples below, and any operator without a declared alias, still
+require LaTeX:
 
 ```python
 # CORRECT - LaTeX notation, proper formatting

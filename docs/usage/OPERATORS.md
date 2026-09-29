@@ -6,6 +6,7 @@ This guide explains how to define and work with operators in the ModelChecker fr
 
 - [Understanding Operators](#understanding-operators)
 - [Using Defined Operators](#using-defined-operators)
+- [Unicode Aliases](#unicode-aliases)
 - [Creating New Defined Operators](#creating-new-defined-operators)
 - [Defining Primitive Operators](#defining-primitive-operators)
 - [Operator Dependencies](#operator-dependencies)
@@ -84,19 +85,78 @@ When defining operators, you can use:
 
 ### LaTeX Notation Requirements
 
-Always use LaTeX commands in your operator definitions:
+The canonical `name` of an operator class must always be a LaTeX command. This is what every
+operator is *defined* by, what appears in the class's `name` attribute, and what other code
+(derived definitions, tests, documentation) should refer to when talking about the operator
+itself:
 
-| Operator              | LaTeX Code         | Example Usage            |
-| --------------------- | ------------------ | ------------------------ |
-| Negation              | `\\neg`            | `\\neg A`                |
-| Conjunction           | `\\wedge`          | `(A \\wedge B)`          |
-| Disjunction           | `\\vee`            | `(A \\vee B)`            |
-| Implication           | `\\rightarrow`     | `(A \\rightarrow B)`     |
-| Biconditional         | `\\leftrightarrow` | `(A \\leftrightarrow B)` |
-| Necessity             | `\\Box`            | `\\Box A`                |
-| Possibility           | `\\Diamond`        | `\\Diamond A`            |
-| Counterfactual        | `\\boxright`       | `(A \\boxright B)`       |
-| Constitutive Identity | `\\equiv`          | `(A \\equiv B)`          |
+| Operator              | LaTeX Code (`name`) | Unicode Alias | Example Usage            |
+| --------------------- | -------------------- | -------------- | ------------------------ |
+| Negation              | `\\neg`              | `¬`            | `\\neg A`                |
+| Conjunction           | `\\wedge`            | `∧`            | `(A \\wedge B)`          |
+| Disjunction           | `\\vee`              | `∨`            | `(A \\vee B)`            |
+| Implication           | `\\rightarrow`       | `→`            | `(A \\rightarrow B)`     |
+| Biconditional         | `\\leftrightarrow`   | `↔`            | `(A \\leftrightarrow B)` |
+| Necessity             | `\\Box`              | `□`            | `\\Box A`                |
+| Possibility           | `\\Diamond`          | `◇`            | `\\Diamond A`            |
+| Counterfactual        | `\\boxright`         | `□→`           | `(A \\boxright B)`       |
+| Constitutive Identity | `\\equiv`            | `≡`            | `(A \\equiv B)`          |
+
+The Unicode Alias column lists the alternate spelling each of the shipped theories declares for
+that operator (see [Unicode Aliases](#unicode-aliases) below) -- it is optional, additive, and
+never replaces the LaTeX `name`. A formula may freely mix LaTeX- and Unicode-spelled operators;
+both parse to the identical operator class.
+
+## Unicode Aliases
+
+Every `Operator` subclass may declare an optional `aliases: List[str]` class attribute listing
+additional user-facing spellings -- typically Unicode glyphs -- that parse to that same operator
+class alongside its canonical LaTeX `name`. Aliases are registered by
+`OperatorCollection.add_operator` the moment the operator class is added to a collection; no
+parser changes are needed, since the parser already treats any non-alphanumeric, non-parenthesis
+token generically regardless of spelling.
+
+```python
+# operators.py
+from model_checker import syntactic
+
+class AndOperator(syntactic.Operator):
+    """Logical conjunction (A ∧ B)."""
+
+    name = "\\wedge"
+    arity = 2
+    aliases = ["∧"]
+
+    # ... true_at, false_at, extended_verify, extended_falsify,
+    #     find_verifiers_and_falsifiers as usual
+```
+
+With this declaration, `"(A \\wedge B)"` and `"(A ∧ B)"` both parse to the same `AndOperator`
+class and evaluate identically -- `aliases` is purely an additional lookup key, not a separate
+operator.
+
+**Constraints**:
+
+- An alias must not be alphanumeric (`str.isalnum()` must be `False`). A token for which
+  `isalnum()` is `True` is tokenized by the parser as a sentence letter, not an operator, so an
+  alphanumeric "alias" would silently never match.
+- The nullary extremal operators `\\top` and `\\bot` cannot be aliased; they are matched by
+  hardcoded string literal at several call sites across the syntactic layer, independent of the
+  `OperatorCollection` lookup that `aliases` extends.
+- A subclass that does not declare its own `aliases` does **not** automatically share its parent
+  class's aliases in any useful sense: Python attribute inheritance means a subclass with no
+  `aliases` of its own *does* inherit whatever its parent declared, so an operator subclass built
+  from an already-aliased parent (e.g. an experimental or theory-local variant with its own
+  distinct `name`) should explicitly declare `aliases = []` to avoid silently inheriting -- and
+  then colliding on -- its parent's alias.
+
+**Collision handling**: registering an alias (or a `name`) that a *different* operator class
+already owns raises `DuplicateOperatorError`, naming both the colliding key and the existing
+class, at the point the operator collection is built (theory-load time, not formula-parse time).
+Re-registering the *same* class under a key it already owns (including via an
+`OperatorCollection` merge, or a serialize/deserialize round-trip) is a silent no-op. A formula
+using an operator token -- LaTeX or Unicode -- that no loaded operator registered under raises
+`UnknownOperatorError`, whose context includes the list of available operators.
 
 ## Creating New Defined Operators
 
@@ -412,7 +472,9 @@ model-checker examples.py
 3. **Test incrementally** - add one operator at a time
 4. **Use meaningful names** that reflect the operator's logical role
 5. **Check existing theories** for similar operators you can adapt
-6. **Always use LaTeX notation** - never use Unicode in code
+6. **Declare the canonical `name` as LaTeX notation** - an operator's `name` attribute is always
+   its LaTeX command; add Unicode spellings (e.g. `∧`, `¬`, `□→`) as additional entries in its
+   `aliases` list instead of using them as the `name`. See [Unicode Aliases](#unicode-aliases).
 
 ## Common Patterns
 
@@ -471,11 +533,21 @@ Common issues when defining operators:
 
 1. **Import errors**: Ensure all operator classes you reference are properly imported
 2. **Registry errors**: Check that your `get_operators()` function returns the correct dictionary
-3. **LaTeX parsing errors**: Ensure you're using LaTeX notation (`\\wedge`, not `∧`) in operator names
-4. **Class definition errors**: Verify operator classes inherit from correct base class (`syntactic.Operator` or `syntactic.DefinedOperator`)
-5. **Method implementation errors**: For primitive operators, ensure all required methods are implemented
-6. **Circular dependencies**: Review import statements and operator definitions for cycles
-7. **Z3 constraint errors**: For primitive operators, verify constraint logic in `true_at()`, `false_at()` methods
+3. **Operator name/alias errors**: an operator class's canonical `name` must be LaTeX notation
+   (e.g. `\\wedge`, not `∧`); if you want the Unicode spelling to parse too, declare it in that
+   class's `aliases` list rather than using it as `name` -- see [Unicode Aliases](#unicode-aliases)
+4. **`DuplicateOperatorError`**: raised at theory-load time when a `name` or `aliases` entry is
+   already claimed by a *different* operator class. The error names both the colliding key and
+   the existing class; either rename your operator or its alias, or (if it is meant to reuse an
+   existing operator) remove the duplicate registration
+5. **`UnknownOperatorError`**: raised when a formula uses an operator token -- LaTeX or Unicode --
+   that no loaded operator registered under. Check for typos, and confirm the subtheory/theory
+   that defines the operator is actually loaded; the error's context lists every currently
+   available operator
+6. **Class definition errors**: Verify operator classes inherit from correct base class (`syntactic.Operator` or `syntactic.DefinedOperator`)
+7. **Method implementation errors**: For primitive operators, ensure all required methods are implemented
+8. **Circular dependencies**: Review import statements and operator definitions for cycles
+9. **Z3 constraint errors**: For primitive operators, verify constraint logic in `true_at()`, `false_at()` methods
 
 ### Debugging Tips
 

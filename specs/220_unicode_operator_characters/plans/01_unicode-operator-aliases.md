@@ -375,28 +375,28 @@ and reconcile any discrepancy before claiming the phase covers the full set.
 
 ---
 
-### Phase 5: Documentation update [NOT STARTED]
+### Phase 5: Documentation update [COMPLETED]
 
 **Goal**: `docs/usage/OPERATORS.md` documents the `aliases` convention and no longer asserts the
 now-false "never use Unicode" rule anywhere.
 
 **Tasks**:
-- [ ] Rewrite the `### LaTeX Notation Requirements` section (~L85) as a LaTeX-canonical-name
+- [x] Rewrite the `### LaTeX Notation Requirements` section (~L85) as a LaTeX-canonical-name
       requirement plus an optional-alias allowance, keeping the existing operator table and
       adding a Unicode-alias column.
-- [ ] Add a new `### Unicode Aliases` subsection with a worked example
+- [x] Add a new `### Unicode Aliases` subsection with a worked example *(altered: landed as `## Unicode Aliases` (H2), matching the surrounding H2 rhythm of the doc and the Table of Contents entry, rather than nesting under the `## Using Defined Operators` H2 as an H3)*
       (`name = "\\wedge"`, `arity = 2`, `aliases = ["∧"]`) showing both spellings parsing, and
       stating the two constraints: an alias must not be alphanumeric, and `\top`/`\bot` cannot be
       aliased.
-- [ ] Update `## Best Practices` item 6 (~L415) — replace "Always use LaTeX notation - never use
+- [x] Update `## Best Practices` item 6 (~L415) — replace "Always use LaTeX notation - never use
       Unicode in code" with guidance that the canonical `name` stays LaTeX and Unicode goes in
       `aliases`.
-- [ ] Update `## Troubleshooting` item 3 (~L470) — replace the "LaTeX parsing errors: ... not `∧`"
+- [x] Update `## Troubleshooting` item 3 (~L470) — replace the "LaTeX parsing errors: ... not `∧`"
       item with alias-aware guidance, and add an entry for `DuplicateOperatorError` (alias
       collision) and `UnknownOperatorError` (mistyped alias).
-- [ ] Grep the docs tree for other assertions of the LaTeX-only rule
+- [x] Grep the docs tree for other assertions of the LaTeX-only rule *(altered: grep found and fixed 5 additional false "never/NEVER permitted" assertions outside docs/usage/OPERATORS.md -- code/docs/specific/FORMULAS.md, code/docs/core/DOCUMENTATION.md, code/docs/standards/documentation/DOCUMENTATION_STANDARDS.md, code/docs/implementation/ERROR_HANDLING.md, code/docs/core/CODE_STANDARDS.md; other LaTeX-notation mentions in the grep output remained true as statements of the still-required default/canonical spelling and were left unchanged)*
       (`grep -rn -i "never use unicode\|not ∧\|LaTeX notation" docs/ code/docs/`) and fix any hit.
-- [ ] Apply the whole `OPERATORS.md` change as ONE edit pass so the three sections cannot drift
+- [x] Apply the whole `OPERATORS.md` change as ONE edit pass so the three sections cannot drift
       into mutual contradiction.
 
 **Timing**: 1 hour

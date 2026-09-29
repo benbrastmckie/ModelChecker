@@ -132,11 +132,15 @@ class FormulaValidationError(ValidationError):
         formatted = self._format_with_context(message, context)
         super().__init__(formatted)
 
-# Example usage
+# Example usage -- for a theory whose operators declare no Unicode `aliases`,
+# an unrecognized Unicode token surfaces as UnknownOperatorError (see
+# `model_checker.syntactic.errors`), which this pattern mirrors for other
+# formula-validation failures:
 raise FormulaValidationError(
     formula="A ∧ B", 
-    issue="Unicode symbols not allowed",
-    suggestion="Use LaTeX notation: 'A \\wedge B'"
+    issue="Operator '∧' is not registered (no LaTeX name or alias matches)",
+    suggestion="Use the operator's LaTeX name ('A \\wedge B'), or add '∧' to that "
+               "operator's `aliases` list in operators.py"
 )
 ```
 

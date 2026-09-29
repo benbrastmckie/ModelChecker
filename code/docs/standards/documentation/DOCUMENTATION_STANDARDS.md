@@ -21,7 +21,10 @@ This document establishes general documentation standards for the ModelChecker c
 ## Core Requirements
 
 - **No Emojis**: Never use emojis anywhere in the codebase, documentation, or output
-- **No Unicode in Code Examples**: All code examples must use LaTeX notation
+- **LaTeX for Canonical Operator Names**: Code examples should show an operator's canonical
+  `name` in LaTeX notation by default; Unicode is only accepted in code where the relevant
+  theory's operator declares it as an `aliases` entry (see `docs/usage/OPERATORS.md`'s Unicode
+  Aliases section)
 - **Working Examples**: All code examples must be tested and functional
 - **Cross-References**: Link between related documentation
 - **Formula Standards**: Follow formula formatting standards in all examples

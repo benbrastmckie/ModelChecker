@@ -72,19 +72,29 @@ formulas = [
 
 ## LaTeX Notation Requirements
 
-### Always Use LaTeX in Code
+### Always Use LaTeX for an Operator's Canonical Name
 
-Unicode characters are NEVER permitted in code that the ModelChecker parser processes. Always use LaTeX notation.
+An operator class's canonical `name` attribute must always be LaTeX notation, and formulas
+written against a theory whose operators declare no Unicode `aliases` must use that LaTeX
+notation exclusively:
 
 ```python
 # CORRECT - LaTeX notation
 operators = ["\\wedge", "\\vee", "\\neg", "\\Box", "\\Diamond"]
 formula = "\\Box (A \\rightarrow B)"
 
-# INCORRECT - Unicode characters
-operators = ["∧", "∨", "¬", "□", "◇"]  # WRONG: Parser expects LaTeX
-formula = "□(A → B)"  # WRONG: Parser will fail
+# INCORRECT for an operator collection with no declared aliases
+operators = ["∧", "∨", "¬", "□", "◇"]  # Parser will raise UnknownOperatorError
+formula = "□(A → B)"  # Parser will raise UnknownOperatorError
 ```
+
+A theory's `operators.py` may opt in to accepting the Unicode spelling too, by declaring it in
+that operator class's `aliases` list (e.g. `aliases = ["∧"]` on the class whose `name` is
+`"\\wedge"`). This is additive, not a replacement: the canonical `name` stays LaTeX, and both
+spellings then parse to the identical operator class. See
+[`docs/usage/OPERATORS.md`'s Unicode Aliases section](../../../docs/usage/OPERATORS.md#unicode-aliases)
+for the full mechanism and constraints (alias must be non-alphanumeric; `\\top`/`\\bot` cannot be
+aliased).
 
 ### Standard LaTeX Commands
 
