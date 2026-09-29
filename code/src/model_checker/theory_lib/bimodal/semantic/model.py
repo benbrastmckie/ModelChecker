@@ -73,12 +73,12 @@ show `Search bounds: back=B, mid=M, fwd=F (N lassos: 1 main + K reserved witness
 of the meaningless `Atomic States`; the `Histories:` block -- a one-line legend, then one row
 per lasso, `L{i}`, a role column (`main` / `witness for □χ` / `reserved, unused`, derived from
 the certificate scan in `box_guesses`, never from the registry's reserved index), and the
-history as a time-labelled arrow chain `… (-2:B) ⟹ (-1:B) | (0:B) | (+1:B) ⟹ [+2:A] …`: one
-`(t:atoms)` state per position of the registry's `target_window()`, `⟹` joining adjacent
-states within the periodic back/fwd segments, `|` between the back/mid/fwd segments (an empty
-`mid` collapses to a single `|`), `…` marking the periodic repetition, `[ ]` marking the
-evaluation point, `∅` for an empty label, and each position's column padded to its widest cell
-so times align across rows; a `Box guesses:` table (`formula  true|false  falsified at L{i}, t=±t`);
+history as a time-labelled arrow chain `… (-2:B) ⟹ (-1:B) ⟹ (0:B) ⟹ (+1:B) ⟹ [+2:A] …`: one
+`(t:atoms)` state per position of the registry's `target_window()`, `⟹` joining every pair of
+adjacent states (no segment separators -- the `Search bounds:` line gives the segment lengths),
+`…` marking the periodic repetition, `[ ]` marking the evaluation point (bold blue against gray
+states on a color stream), `∅` for an empty label, and each position's column padded to its
+widest cell so times align across rows; a `Box guesses:` table (`formula  true|false  falsified at L{i}, t=±t`);
 then `Evaluation point: L0 at t=-2` and exactly one `Verification:` line. Formulas render via
 `semantic/render.py` in the user's notation; every non-ASCII glyph goes through
 `utils/glyphs.py`; every color is gated by `output.color.use_colors` and never carries
@@ -350,8 +350,9 @@ class BimodalStructure(ModelDefaults):
     # ------------------------------------------------------------------
 
     # ANSI palette (gated by `use_colors(output)` at every use):
-    _BLUE = "\033[34m"    # the evaluation point (main-lasso row, `Evaluation point:` value)
-    _GRAY = "\033[90m"    # reserved-but-unused witness rows
+    _BLUE = "\033[34m"    # the `Evaluation point:` value
+    _HILITE = "\033[1;34m"  # the `[t:atoms]` evaluation-point cell inside a history row
+    _GRAY = "\033[90m"    # history states (every row) and reserved-but-unused rows entirely
     _GREEN = "\033[32m"   # a box guessed true
     _RED = "\033[31m"     # a box guessed false
     _RESET = "\033[0m"
@@ -421,26 +422,25 @@ class BimodalStructure(ModelDefaults):
         ]
 
     def _join_history(self, cells: List[str], widths: List[int], output: TextIO) -> str:
-        """`… back ⟹ back | mid | fwd ⟹ fwd …`: each cell left-justified to its position's
+        """`… (t:atoms) ⟹ (t:atoms) ⟹ … …`: each cell left-justified to its position's
         column width (`widths[i]`, the widest cell at that position over all lassos, so the
-        joiners line up across rows), ` ⟹ ` joining adjacent states within the back segment
-        and within the fwd segment, ` | ` between segments -- an empty `mid` yields exactly one
-        ` | ` between back and fwd, never `| |` -- and `…` bracketing the periodic back and fwd
-        segments. Padding is internal; the last fwd cell is not padded, so rows never end in
-        stray spaces."""
-        registry = self.semantics.witness_registry
+        arrows line up across rows), ` ⟹ ` between every pair of adjacent states, and `…`
+        bracketing the chain to mark the periodic back and fwd segments. No segment
+        separators: the `Search bounds:` line already gives each segment's length. Padding
+        is internal; the last cell is not padded, so rows never end in stray spaces. On a
+        color stream the chain prints gray with the `[ ]` evaluation-point cell in bold
+        blue (the brackets alone carry that information on a plain stream)."""
         arrow = f" {glyph('DOUBLE_ARROW', output)} "
         ellipsis = glyph("ELLIPSIS", output)
         padded = [f"{cell:<{width}}" for cell, width in zip(cells, widths)]
         padded[-1] = cells[-1]
-        back = padded[:registry.nb]
-        mid = padded[registry.nb:registry.nb + registry.nm]
-        fwd = padded[registry.nb + registry.nm:]
-        segments = [arrow.join(back)]
-        if mid:
-            segments.append(arrow.join(mid))
-        segments.append(arrow.join(fwd))
-        return f"{ellipsis} {' | '.join(segments)} {ellipsis}"
+        if not use_colors(output):
+            return f"{ellipsis} {arrow.join(padded)} {ellipsis}"
+        padded = [
+            f"{self._HILITE}{cell}{self._RESET}{self._GRAY}" if cell.startswith("[") else cell
+            for cell in padded
+        ]
+        return f"{self._GRAY}{ellipsis} {arrow.join(padded)} {ellipsis}{self._RESET}"
 
     def _print_history_lines(self, output: TextIO) -> None:
         """One aligned arrow-chain row per lasso: name, role, history. Column widths per
@@ -454,17 +454,10 @@ class BimodalStructure(ModelDefaults):
         cells = [self._history_cells(index, lasso, output) for index, lasso in enumerate(lassos)]
         widths = [max(len(row[i]) for row in cells) for i in range(len(cells[0]))]
         for index, row in enumerate(cells):
-            color = ""
-            if colored and index == self.main_point.get("lasso"):
-                color = self._BLUE
-            elif colored and roles[index] == "reserved, unused":
-                color = self._GRAY
-            reset = self._RESET if color else ""
-            print(
-                f"  {color}{f'L{index}':<{name_width}}  {roles[index]:<{role_width}}  "
-                f"{self._join_history(row, widths, output)}{reset}",
-                file=output,
-            )
+            prefix = f"{f'L{index}':<{name_width}}  {roles[index]:<{role_width}}"
+            if colored and roles[index] == "reserved, unused":
+                prefix = f"{self._GRAY}{prefix}{self._RESET}"
+            print(f"  {prefix}  {self._join_history(row, widths, output)}", file=output)
 
     def _lasso_roles(self, output: TextIO) -> Dict[int, str]:
         """`main` for index 0; `witness for □χ` for a lasso the certificate scan names as a
@@ -615,12 +608,9 @@ class BimodalStructure(ModelDefaults):
             )
             self._print_history_table(output)
         else:
-            arrow = glyph("DOUBLE_ARROW", output)
             ellipsis = glyph("ELLIPSIS", output)
             print(
-                f"Histories:  (one row per lasso: (t:atoms) states joined by {arrow}, "
-                f"{ellipsis} marks the periodic back/fwd segments, | separates back | mid | fwd, "
-                "[ ] marks the evaluation point)",
+                f"Histories:  ((t:atoms) states; {ellipsis} = periodic; [ ] = evaluation point)",
                 file=output,
             )
             self._print_history_lines(output)

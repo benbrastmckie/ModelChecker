@@ -60,7 +60,7 @@ A certificate search produces:
 - **Lassos**: labelled bi-infinite histories, each `(back)^ω | mid | (fwd)^ω` — a periodic
   backward segment, a finite middle segment, and a periodic forward segment. Position `0` starts
   `mid`. They print as `Histories:` rows of `(t:atoms)` states joined by `⟹`, one row per lasso
-  (`… (-2:A) ⟹ (-1:A) | (0:A) | (+1:A) ⟹ (+2:A) …`; see `../README.md`'s "Sample Output").
+  (`… (-2:A) ⟹ (-1:A) ⟹ (0:A) ⟹ (+1:A) ⟹ (+2:A) …`; see `../README.md`'s "Sample Output").
 - **A box guess table**: for each boxed subformula in the closure, whether it is `true` (holds at
   every position of every lasso) or `false` (fails at some position of some witness lasso)
 - **A target position**: the position on the main lasso (`L0`) where every premise holds and no

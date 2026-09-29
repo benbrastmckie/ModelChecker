@@ -278,13 +278,15 @@ assumes. Deciding validity is the tableau's and the proof system's job, not this
 Everything `BimodalStructure` prints (`semantic/model.py`) follows four rules; `semantic/render.py`
 and `semantic/proposition.py` follow the same ones.
 
-**Label notation.** A `Histories:` row is `L{i}  {role}  … (t:atoms) ⟹ … | … | … ⟹ … …`: one
+**Label notation.** A `Histories:` row is `L{i}  {role}  … (t:atoms) ⟹ (t:atoms) ⟹ … …`: one
 `(t:atoms)` state per representative position (`-back .. mid+fwd-1`, the registry's
 `target_window()`), each carrying its signed time and the label's atom valuation — a single atom
-bare (`A`), several as `{A,B}`, none as `∅` — with `⟹` joining adjacent states inside the
-periodic `back` and `fwd` segments, `|` between the `back`/`mid`/`fwd` segments (an empty `mid`
-collapses to one `|`), `…` bracketing the two periodic segments, and `[ ]` in place of `( )` on
-the evaluation point of the main lasso. Every position's column is padded to its widest cell
+bare (`A`), several as `{A,B}`, none as `∅` — with `⟹` joining every pair of adjacent states
+(no segment separators: the `Search bounds:` line already gives the `back`/`mid`/`fwd`
+lengths), `…` bracketing the chain to mark the periodic `back` and `fwd` segments, and `[ ]` in
+place of `( )` on the evaluation point of the main lasso — on a color stream the states print
+gray with that cell in bold blue, the brackets alone carrying the information on a plain
+stream. Every position's column is padded to its widest cell
 over all lassos (computed from the rendered strings, so an ASCII fallback never misaligns), so
 equal times line up across rows. The `align_vertically` setting (`-a`) transposes this into a
 table with one row per representative position (each annotated `back[i]`/`mid[i]`/`fwd[i]`)

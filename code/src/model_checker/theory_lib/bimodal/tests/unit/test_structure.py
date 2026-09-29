@@ -364,23 +364,22 @@ class TestBoxWitnessFromCertificate:
         assert structure.extract_relations() == {}
 
 
-LEGEND = (
-    "(t:atoms) states joined by ⟹, … marks the periodic back/fwd segments, "
-    "| separates back | mid | fwd, [ ] marks the evaluation point"
-)
+LEGEND = "((t:atoms) states; … = periodic; [ ] = evaluation point)"
 
 
 def _joiner_columns(row: str) -> list:
-    """Column indices of every ` ⟹ ` and ` | ` joiner in a history row, in order."""
+    """Column indices of every ` ⟹ ` joiner in a history row, in order."""
     import re
-    return [m.start() for m in re.finditer(r" ⟹ | \| ", row)]
+    return [m.start() for m in re.finditer(r" ⟹ ", row)]
 
 
 class TestGoldenOutputHistoriesFormat:
     """Golden-output coverage for the `Histories:` block: one time-labelled arrow-chain row
-    per lasso -- `… (-2:B) ⟹ (-1:B) | (0:B) | (+1:B) ⟹ [+2:A] …` -- with `(t:atoms)` states,
-    ` ⟹ ` within the periodic back/fwd segments, ` | ` between segments, `…` marking the
-    periodic repetition, a role column, the evaluation point marked `[ ]`, empty labels as
+    per lasso -- `… (-2:B) ⟹ (-1:B) ⟹ (0:B) ⟹ (+1:B) ⟹ [+2:A] …` -- with `(t:atoms)` states,
+    ` ⟹ ` between every pair of adjacent states (the `Search bounds:` line already says how
+    long each segment is, so no segment separators), `…` marking the periodic repetition, a
+    role column, the evaluation point marked `[ ]` (and, on a color stream, highlighted in
+    bold blue against gray history states), empty labels as
     `∅`, columns aligned across rows, a `Box guesses:` table whose witness is the
     certificate-derived `(lasso, t)` pair, and formulas in the user's own notation."""
 
@@ -398,12 +397,26 @@ class TestGoldenOutputHistoriesFormat:
         # position and carries A; the other is empty. Which slot the solver picks for the
         # target is not fixed by the constraints (D5's one-hot selector ranges over the
         # whole window), so assert the golden shape rather than a specific slot.
-        # An empty `mid` collapses to a single ` | ` between back and fwd, never `| |`.
+        # With `mid` empty the back and fwd states are simply adjacent in the chain.
         line = lines[0].strip()
         assert line in (
-            "L0  main  … [-1:A] | (0:∅) …",
-            "L0  main  … (-1:∅) | [0:A] …",
+            "L0  main  … [-1:A] ⟹ (0:∅) …",
+            "L0  main  … (-1:∅) ⟹ [0:A] …",
         ), line
+
+    def test_history_states_gray_with_the_evaluation_point_highlighted(self, monkeypatch):
+        """On a color stream the history states print gray (the old Logos palette) with the
+        `[ ]` evaluation-point cell in bold blue; no information rides on color alone, since
+        the brackets and the plain text survive on a non-color stream."""
+        import io
+        monkeypatch.setenv("FORCE_COLOR", "1")
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        stream = io.StringIO()
+        structure.print_certificate(output=stream)
+        row = next(line for line in stream.getvalue().splitlines() if line.strip().startswith("L0"))
+        assert "\033[90m" in row and "\033[1;34m[" in row and row.rstrip().endswith("\033[0m")
+        assert " | " not in row
 
     def test_histories_line_carries_the_legend(self, capsys):
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
@@ -437,14 +450,14 @@ class TestGoldenOutputHistoriesFormat:
         assert "main" in roles
         assert any(r.startswith("witness for \\Box ") for r in roles)
         assert "reserved, unused" in roles
-        # Each row is an arrow chain of `(t:atoms)` states: back=2 and fwd=2 give exactly
-        # two ` ⟹ ` joiners, mid=1 gives exactly two ` | ` separators, `…` brackets the
-        # periodic segments, and every state carries its signed time.
+        # Each row is one arrow chain of `(t:atoms)` states: the five positions of
+        # back=2, mid=1, fwd=2 give exactly four ` ⟹ ` joiners and no segment separators,
+        # `…` brackets the chain, and every state carries its signed time.
         cell = r"[(\[][+-]?\d+:[^)\]]+[)\]]"
-        chain = rf"^\s+L\d\s+.+?\s{{2,}}… {cell} ⟹ {cell} \| {cell} \| {cell} ⟹ {cell} …$"
+        chain = rf"^\s+L\d\s+.+?\s{{2,}}… {cell} ⟹ {cell} ⟹ {cell} ⟹ {cell} ⟹ {cell} …$"
         for name, row in rows.items():
             assert re.match(chain, row), (name, row)
-            assert row.count(" | ") == 2 and row.count(" ⟹ ") == 2, row
+            assert " | " not in row and row.count(" ⟹ ") == 4, row
             times = re.findall(r"[(\[]([+-]?\d+):", row)
             assert times == ["-2", "-1", "0", "+1", "+2"], row
         marked = [name for name, row in rows.items() if "[" in row]

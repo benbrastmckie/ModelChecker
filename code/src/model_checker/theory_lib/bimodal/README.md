@@ -198,7 +198,7 @@ replaces `temporal_depth`.
 `contingent`/`disjoint` no longer exist — there is no proposition-level machinery left for them to
 gate. The one bimodal-specific *general* (display) setting is `align_vertically` (the `-a` flag):
 by default every history prints as one time-labelled arrow chain
-`… (-2:A) ⟹ (-1:A) | (0:A) | (+1:A) ⟹ (+2:A) …` (see [Sample Output](#sample-output)); with
+`… (-2:A) ⟹ (-1:A) ⟹ (0:A) ⟹ (+1:A) ⟹ (+2:A) …` (see [Sample Output](#sample-output)); with
 it, the histories print as a time-aligned table with one row per position and one column per
 lasso (see `docs/SETTINGS.md`'s "General Settings").
 
@@ -572,9 +572,9 @@ Conclusion:
 Solver Run Time: 0.0012 seconds
 
 ========================================
-Histories:  (one row per lasso: (t:atoms) states joined by ⟹, … marks the periodic back/fwd segments, | separates back | mid | fwd, [ ] marks the evaluation point)
-  L0  main                … [-2:A] ⟹ (-1:A) | (0:A) | (+1:A) ⟹ (+2:A) …
-  L1  witness for \Box A  … (-2:∅) ⟹ (-1:∅) | (0:∅) | (+1:∅) ⟹ (+2:∅) …
+Histories:  ((t:atoms) states; … = periodic; [ ] = evaluation point)
+  L0  main                … [-2:A] ⟹ (-1:A) ⟹ (0:A) ⟹ (+1:A) ⟹ (+2:A) …
+  L1  witness for \Box A  … (-2:∅) ⟹ (-1:∅) ⟹ (0:∅) ⟹ (+1:∅) ⟹ (+2:∅) …
 
 Box guesses:
   \Box A  false  falsified at L1, t=-2
