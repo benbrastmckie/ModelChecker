@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 5,
+  "summary": "Wrote a 5-phase plan to rewrite the stale blockers on projects 198 and 200 in specs/state.json. Both entries stay blocked; Entry 2's blocker is restated against upstream 696 and 703 rather than the three tasks the dispatch proposed, two of which are already resolved.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/217_rescope_blocked_adequacy_consumers/plans/01_rescope-blocked-adequacy-consumers.md",
+      "summary": "5-phase plan to rewrite the blocked descriptions of projects 198 and 200 in specs/state.json via state-write.sh, keeping both blocked and regenerating TODO.md."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 5,
+  "blockers": []
+}
