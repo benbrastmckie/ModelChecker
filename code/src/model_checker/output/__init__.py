@@ -12,6 +12,7 @@ from .formatters import (
 from .manager import OutputManager
 from .config import OutputConfig, create_output_config
 from .collectors import ModelDataCollector
+from .color import use_colors
 
 __all__ = [
     'MarkdownFormatter',
@@ -21,4 +22,5 @@ __all__ = [
     'OutputConfig',
     'create_output_config',
     'ModelDataCollector',
+    'use_colors',
 ]

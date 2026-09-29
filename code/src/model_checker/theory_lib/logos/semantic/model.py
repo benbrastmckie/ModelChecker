@@ -14,6 +14,7 @@ from model_checker import z3_shim as z3
 
 from model_checker.solver import is_true, is_false
 from model_checker.models.structure import ModelDefaults
+from model_checker.output.color import use_colors
 from model_checker.utils import bitvec_to_substates, int_to_binary
 
 if TYPE_CHECKING:
@@ -186,8 +187,8 @@ class LogosModelStructure(ModelDefaults):
 
         diffs = self.model_differences
 
-        # Use colors if outputting to terminal
-        if output is sys.stdout:
+        # Use colors when the stream wants them (isatty / NO_COLOR / FORCE_COLOR)
+        if use_colors(output):
             GREEN = "\033[32m"
             RED = "\033[31m"
             YELLOW = "\033[33m"
@@ -262,7 +263,7 @@ class LogosModelStructure(ModelDefaults):
         BLUE = ""
         RESET = ""
         main_world = self.main_point["world"]
-        if output is sys.__stdout__:
+        if use_colors(output):
             BLUE = "\033[34m"
             RESET = "\033[0m"
         print(
@@ -281,8 +282,7 @@ class LogosModelStructure(ModelDefaults):
 
         def format_state(bin_rep, state, color, label=""):
             label_str = f" ({label})" if label else ""
-            use_colors = output is sys.__stdout__
-            if use_colors:
+            if use_colors(output):
                 print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
             else:
                 print(f"  {bin_rep} = {state}{label_str}", file=output)

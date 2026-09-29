@@ -19,6 +19,7 @@ from model_checker import z3_shim as z3
 from model_checker.solver import is_true, is_false
 from model_checker.models.constraints import ModelConstraints
 from model_checker.models.structure import ModelDefaults
+from model_checker.output.color import use_colors
 from model_checker.utils import bitvec_to_substates, int_to_binary
 from model_checker.utils.glyphs import glyph
 
@@ -354,8 +355,7 @@ class WitnessStructure(ModelDefaults):
         def format_state(bin_rep, state, color, label=""):
             """Helper function to format and print a state."""
             label_str = f" ({label})" if label else ""
-            use_colors = output is sys.__stdout__
-            if use_colors:
+            if use_colors(output):
                 print(f"  {self.WHITE}{bin_rep} = {color}{state}{label_str}{self.RESET}", file=output)
             else:
                 print(f"  {bin_rep} = {state}{label_str}", file=output)
@@ -390,12 +390,12 @@ class WitnessStructure(ModelDefaults):
         """Print conflicts, coherence, negation relationships, and witness functions."""
 
         # Set up colors
-        use_colors = output is sys.__stdout__
-        WHITE = self.COLORS["default"] if use_colors else ""
-        RESET = self.RESET if use_colors else ""
-        WORLD_COLOR = self.COLORS["world"] if use_colors else ""
-        POSSIBLE_COLOR = self.COLORS["possible"] if use_colors else ""
-        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if use_colors else ""
+        colored = use_colors(output)
+        WHITE = self.COLORS["default"] if colored else ""
+        RESET = self.RESET if colored else ""
+        WORLD_COLOR = self.COLORS["world"] if colored else ""
+        POSSIBLE_COLOR = self.COLORS["possible"] if colored else ""
+        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if colored else ""
 
         def get_state_color(bit):
             if bit in self.z3_world_states:
@@ -458,12 +458,12 @@ class WitnessStructure(ModelDefaults):
             return
 
         # Set up colors
-        use_colors = output is sys.__stdout__
-        WHITE = self.WHITE if use_colors else ""
-        RESET = self.RESET if use_colors else ""
-        WORLD_COLOR = self.COLORS["world"] if use_colors else ""
-        POSSIBLE_COLOR = self.COLORS["possible"] if use_colors else ""
-        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if use_colors else ""
+        colored = use_colors(output)
+        WHITE = self.WHITE if colored else ""
+        RESET = self.RESET if colored else ""
+        WORLD_COLOR = self.COLORS["world"] if colored else ""
+        POSSIBLE_COLOR = self.COLORS["possible"] if colored else ""
+        IMPOSSIBLE_COLOR = self.COLORS["impossible"] if colored else ""
 
         def get_state_color(bit):
             if bit in self.z3_world_states:
@@ -545,7 +545,7 @@ class WitnessStructure(ModelDefaults):
         BLUE = ""
         RESET = ""
         main_world = self.main_point["world"]
-        if output is sys.__stdout__:
+        if use_colors(output):
             BLUE = "\033[34m"
             RESET = "\033[0m"
         print(

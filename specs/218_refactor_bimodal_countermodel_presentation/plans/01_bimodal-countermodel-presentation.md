@@ -222,35 +222,35 @@ in every extraction helper.
 
 ---
 
-### Phase 3: Shared Color Predicate (Systemic) [NOT STARTED]
+### Phase 3: Shared Color Predicate (Systemic) [COMPLETED]
 
 **Goal**: One `use_colors(output) -> bool` predicate (`NO_COLOR` > `FORCE_COLOR` > `TERM=dumb` >
 `isatty()`) replaces every `output is sys.__stdout__` color test in the framework and in the
 logos/exclusion/imposition printers; bimodal adopts it in Phase 4.
 
 **Tasks**:
-- [ ] Write `code/src/model_checker/output/tests/unit/test_color.py` first (create the `tests/`
+- [x] Write `code/src/model_checker/output/tests/unit/test_color.py` first (create the `tests/`
   tree if `output/` has none -- check `ls code/src/model_checker/output`): `StringIO` -> False;
   a fake stream with `isatty() -> True` -> True; same with `monkeypatch.setenv("NO_COLOR",
   "1")` -> False; `TERM=dumb` -> False; `StringIO` with `FORCE_COLOR=1` -> True; a stream
   without `isatty` -> False; `NO_COLOR` set AND `FORCE_COLOR` set -> False (no-color.org
   precedence).
-- [ ] Add a framework test (`code/src/model_checker/models/tests/` or the existing structure test
+- [x] Add a framework test (`code/src/model_checker/models/tests/` or the existing structure test
   location -- locate with `ls code/src/model_checker/models/tests`) asserting
   `_print_sentence_group` into a `StringIO` emits no `\033[` and into an `isatty()` fake does.
-- [ ] Create `code/src/model_checker/output/color.py` with `use_colors(output) -> bool` and
+- [x] Create `code/src/model_checker/output/color.py` with `use_colors(output) -> bool` and
   re-export from `output/__init__.py`; verify `python -c "import model_checker.models.structure"`
   still imports (fallback: `utils/colors.py`, see Risks).
-- [ ] Replace `output is sys.__stdout__` color gates: `models/structure.py::_print_sentence_group`;
+- [x] Replace `output is sys.__stdout__` color gates: `models/structure.py::_print_sentence_group`;
   `theory_lib/logos/semantic/model.py` (`print_evaluation`, `print_states`);
   `theory_lib/exclusion/semantic/model.py` (`print_states`, `print_negation`,
   `print_witness_functions`, `print_evaluation`); `theory_lib/imposition/semantic/model.py`
   (`print_imposition`). Leave the `if output is sys.__stdout__: ... Total Run Time` gates in each
   `print_all` untouched -- they gate timing output, not color.
-- [ ] Add a test that `builder/module.py::_capture_model_output`'s `StringIO` capture still
+- [x] Add a test that `builder/module.py::_capture_model_output`'s `StringIO` capture still
   contains no escapes (so `ANSIToMarkdown` input is unchanged); do not add a special echo-path
   override -- the echo was never colored, and `FORCE_COLOR` now covers anyone who wants it.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests
   code/src/model_checker/theory_lib/exclusion/tests code/src/model_checker/theory_lib/imposition/tests
   code/src/model_checker/models code/src/model_checker/output -q` and the live check
   `cd code && ./dev_cli.py src/model_checker/theory_lib/logos/examples.py | cat -v | grep -c '\^\['`
@@ -265,6 +265,19 @@ logos/exclusion/imposition printers; bimodal adopts it in Phase 4.
 **Scope Hypothesis**: Eight color-gate sites across four files (per
 `grep -rn "output is sys.__stdout__" code/src/model_checker --include=*.py`); re-run that grep
 after editing and confirm the only survivors are the `Total Run Time` gates in `print_all`.
+*Probe result (hypothesis incomplete)*: the eight `output is sys.__stdout__` sites were replaced
+and the four `Total Run Time` gates are the only survivors, but the live pipe check still showed
+escapes from three sites the grep pattern never matched, all gated in this phase as the same
+systemic change (*deviation: extended*): `logos/semantic/model.py::print_model_differences`
+(`output is sys.stdout`, a variant spelling), `imposition/iterate.py::display_model_differences`
+(26 unconditional `\033[` literals, replaced by named constants gated once), and
+`imposition/semantic/model.py::print_model_differences` (42 unconditional `self.COLORS`/
+`self.RESET` uses -- the printer the runner actually calls). `builder/runner.py`'s `--maximize`
+GREEN/RED output was gated on `sys.stdout` for the same reason. The `_capture_model_output`
+test lives in `builder/tests/unit/test_module_output_capture.py`; the framework test in
+`models/tests/unit/test_structure_print.py::TestSentenceGroupColorGate`. `IM_CM_0` (the only
+imposition example with `iterate: 2`) is commented out of `example_range`, so the iterate diff
+path was verified with a scratch example instead.
 
 **Files to modify**:
 - `code/src/model_checker/output/color.py` - new `use_colors`

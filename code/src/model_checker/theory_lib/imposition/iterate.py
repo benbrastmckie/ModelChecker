@@ -239,53 +239,61 @@ class ImpositionModelIterator(BaseModelIterator):
             return
             
         differences = model_structure.model_differences
-        
-        # Use colors like logos theory
-        print("\n\033[33m=== DIFFERENCES FROM PREVIOUS MODEL ===\033[0m\n", file=output)
+
+        # Same palette as the logos theory, gated by the shared predicate so pipes,
+        # files, and NO_COLOR get plain text.
+        if use_colors(output):
+            GREEN, RED, YELLOW, BLUE, RESET = (
+                "\033[32m", "\033[31m", "\033[33m", "\033[34m", "\033[0m"
+            )
+        else:
+            GREEN = RED = YELLOW = BLUE = RESET = ""
+
+        print(f"\n{YELLOW}=== DIFFERENCES FROM PREVIOUS MODEL ==={RESET}\n", file=output)
         
         # Print world changes
         if 'worlds' in differences and (differences['worlds'].get('added') or differences['worlds'].get('removed')):
-            print("\033[34mWorld Changes:\033[0m", file=output)
+            print(f"{BLUE}World Changes:{RESET}", file=output)
             
             if differences['worlds'].get('added'):
                 for world in differences['worlds']['added']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  \033[32m+ {world_str} (now a world)\033[0m", file=output)
+                        print(f"  {GREEN}+ {world_str} (now a world){RESET}", file=output)
                     except:
-                        print(f"  \033[32m+ {world} (now a world)\033[0m", file=output)
+                        print(f"  {GREEN}+ {world} (now a world){RESET}", file=output)
             
             if differences['worlds'].get('removed'):
                 for world in differences['worlds']['removed']:
                     try:
                         world_str = bitvec_to_substates(world, model_structure.semantics.N)
-                        print(f"  \033[31m- {world_str} (no longer a world)\033[0m", file=output)
+                        print(f"  {RED}- {world_str} (no longer a world){RESET}", file=output)
                     except:
-                        print(f"  \033[31m- {world} (no longer a world)\033[0m", file=output)
+                        print(f"  {RED}- {world} (no longer a world){RESET}", file=output)
         
         # Print possible state changes
         if 'possible_states' in differences and (differences['possible_states'].get('added') or differences['possible_states'].get('removed')):
-            print("\n\033[34mPossible State Changes:\033[0m", file=output)
+            print(f"\n{BLUE}Possible State Changes:{RESET}", file=output)
             
             if differences['possible_states'].get('added'):
                 for state in differences['possible_states']['added']:
                     try:
                         state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  \033[32m+ {state_str} (now possible)\033[0m", file=output)
+                        print(f"  {GREEN}+ {state_str} (now possible){RESET}", file=output)
                     except:
-                        print(f"  \033[32m+ {state} (now possible)\033[0m", file=output)
+                        print(f"  {GREEN}+ {state} (now possible){RESET}", file=output)
             
             if differences['possible_states'].get('removed'):
                 for state in differences['possible_states']['removed']:
                     try:
                         state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                        print(f"  \033[31m- {state_str} (now impossible)\033[0m", file=output)
+                        print(f"  {RED}- {state_str} (now impossible){RESET}", file=output)
                     except:
-                        print(f"  \033[31m- {state} (now impossible)\033[0m", file=output)
+                        print(f"  {RED}- {state} (now impossible){RESET}", file=output)
         
         # Print verification changes
         if 'verification' in differences and differences['verification']:
-            print("\n\033[34mVerification Changes:\033[0m", file=output)
+            print(f"\n{BLUE}Verification Changes:{RESET}", file=output)
             
             for letter_str, changes in differences['verification'].items():
                 # Extract just the letter name (A, B, C, etc.)
@@ -296,21 +304,21 @@ class ImpositionModelIterator(BaseModelIterator):
                     for state in changes['added']:
                         try:
                             state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                            print(f"    \033[32m+ {state_str} now verifies {letter_name}\033[0m", file=output)
+                            print(f"    {GREEN}+ {state_str} now verifies {letter_name}{RESET}", file=output)
                         except:
-                            print(f"    \033[32m+ {state} now verifies {letter_name}\033[0m", file=output)
+                            print(f"    {GREEN}+ {state} now verifies {letter_name}{RESET}", file=output)
                 
                 if changes.get('removed'):
                     for state in changes['removed']:
                         try:
                             state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                            print(f"    \033[31m- {state_str} no longer verifies {letter_name}\033[0m", file=output)
+                            print(f"    {RED}- {state_str} no longer verifies {letter_name}{RESET}", file=output)
                         except:
-                            print(f"    \033[31m- {state} no longer verifies {letter_name}\033[0m", file=output)
+                            print(f"    {RED}- {state} no longer verifies {letter_name}{RESET}", file=output)
         
         # Print falsification changes
         if 'falsification' in differences and differences['falsification']:
-            print("\n\033[34mFalsification Changes:\033[0m", file=output)
+            print(f"\n{BLUE}Falsification Changes:{RESET}", file=output)
             
             for letter_str, changes in differences['falsification'].items():
                 # Extract just the letter name (A, B, C, etc.)
@@ -321,21 +329,21 @@ class ImpositionModelIterator(BaseModelIterator):
                     for state in changes['added']:
                         try:
                             state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                            print(f"    \033[32m+ {state_str} now falsifies {letter_name}\033[0m", file=output)
+                            print(f"    {GREEN}+ {state_str} now falsifies {letter_name}{RESET}", file=output)
                         except:
-                            print(f"    \033[32m+ {state} now falsifies {letter_name}\033[0m", file=output)
+                            print(f"    {GREEN}+ {state} now falsifies {letter_name}{RESET}", file=output)
                 
                 if changes.get('removed'):
                     for state in changes['removed']:
                         try:
                             state_str = bitvec_to_substates(state, model_structure.semantics.N)
-                            print(f"    \033[31m- {state_str} no longer falsifies {letter_name}\033[0m", file=output)
+                            print(f"    {RED}- {state_str} no longer falsifies {letter_name}{RESET}", file=output)
                         except:
-                            print(f"    \033[31m- {state} no longer falsifies {letter_name}\033[0m", file=output)
+                            print(f"    {RED}- {state} no longer falsifies {letter_name}{RESET}", file=output)
         
         # Print imposition relationship changes
         if 'imposition_relations' in differences and differences['imposition_relations']:
-            print("\n\033[34mImposition Changes:\033[0m", file=output)
+            print(f"\n{BLUE}Imposition Changes:{RESET}", file=output)
             
             for pair, change in differences['imposition_relations'].items():
                 # Try to parse the state pair
@@ -349,9 +357,9 @@ class ImpositionModelIterator(BaseModelIterator):
                         state2_str = bitvec_to_substates(state2_bitvec, model_structure.semantics.N)
                         
                         if change.get('new'):
-                            print(f"  \033[32m+ {state1_str} can now impose on {state2_str}\033[0m", file=output)
+                            print(f"  {GREEN}+ {state1_str} can now impose on {state2_str}{RESET}", file=output)
                         else:
-                            print(f"  \033[31m- {state1_str} can no longer impose on {state2_str}\033[0m", file=output)
+                            print(f"  {RED}- {state1_str} can no longer impose on {state2_str}{RESET}", file=output)
                         continue
                 except:
                     pass
@@ -359,9 +367,9 @@ class ImpositionModelIterator(BaseModelIterator):
                 # Fall back to simple representation
                 if isinstance(change, dict) and 'old' in change and 'new' in change:
                     if change['new']:
-                        print(f"  \033[32m+ {pair}: can now impose\033[0m", file=output)
+                        print(f"  {GREEN}+ {pair}: can now impose{RESET}", file=output)
                     else:
-                        print(f"  \033[31m- {pair}: can no longer impose\033[0m", file=output)
+                        print(f"  {RED}- {pair}: can no longer impose{RESET}", file=output)
                 else:
                     print(f"  {pair}: changed", file=output)
 

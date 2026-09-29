@@ -17,6 +17,7 @@ from model_checker.solver.lifecycle import invalidate_all_caches
 from model_checker.utils.context import isolated_z3_context
 
 # Package imports
+from ..output.color import use_colors
 from ..output.progress import Spinner, UnifiedProgress
 from ..syntactic import Syntax
 
@@ -89,10 +90,11 @@ def try_single_N_static(
     run_time = model_structure.z3_model_runtime
     success = run_time < settings['max_time']
     
-    # Define color constants
-    GREEN = "\033[32m"
-    RED = "\033[31m"
-    RESET = "\033[0m"
+    # Define color constants, gated by the shared predicate on the stream actually written
+    colored = use_colors(sys.stdout)
+    GREEN = "\033[32m" if colored else ""
+    RED = "\033[31m" if colored else ""
+    RESET = "\033[0m" if colored else ""
     
     if success:
         # Green color for successful runs

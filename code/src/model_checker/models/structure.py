@@ -12,6 +12,7 @@ from string import Template
 from typing import Dict, List, Tuple, Optional, Any, TextIO, Union, TYPE_CHECKING
 
 from model_checker.solver import create_solver, SolverResult, is_true
+from model_checker.output.color import use_colors
 from model_checker.utils.glyphs import glyph
 
 from .concurrency import guard_construction
@@ -692,8 +693,7 @@ class ModelDefaults:
         for index, sentence in enumerate(sentences, start=start_index):
             print(f"{index}.", end="", file=output)
             with redirect_stdout(output):
-                use_colors = output is sys.__stdout__
-                self.recursive_print(sentence, self.main_point, 1, use_colors)
+                self.recursive_print(sentence, self.main_point, 1, use_colors(output))
                 print(file=output)
 
     def print_model(self, output: TextIO) -> None:

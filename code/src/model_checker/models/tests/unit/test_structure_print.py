@@ -317,3 +317,45 @@ class TestModelDifferenceHelpers:
         output = buffer.getvalue()
         assert "Structural Properties:" in output
         assert "Worlds: 3" in output
+
+class TestSentenceGroupColorGate:
+    """`_print_sentence_group` decides color via `output.color.use_colors(output)`, never by
+    identity with `sys.__stdout__`: a `StringIO` (pipes, files, `capsys`, `--save` capture)
+    gets plain text, a TTY gets color, and `NO_COLOR` wins over a TTY."""
+
+    @pytest.fixture
+    def model(self):
+        model = Mock(spec=ModelDefaults)
+        model.main_point = {"world": 0}
+        model.recursive_print = Mock()
+        return model
+
+    @pytest.fixture(autouse=True)
+    def _clean_env(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        monkeypatch.delenv("FORCE_COLOR", raising=False)
+        monkeypatch.setenv("TERM", "xterm")
+
+    def test_stringio_output_is_not_colored(self, model):
+        sentence = Mock()
+        ModelDefaults._print_sentence_group(model, "ONE\n", "MANY\n", [sentence], 1, io.StringIO())
+        model.recursive_print.assert_called_once_with(sentence, model.main_point, 1, False)
+
+    def test_tty_output_is_colored(self, model):
+        class _TTY(io.StringIO):
+            def isatty(self):
+                return True
+
+        sentence = Mock()
+        ModelDefaults._print_sentence_group(model, "ONE\n", "MANY\n", [sentence], 1, _TTY())
+        model.recursive_print.assert_called_once_with(sentence, model.main_point, 1, True)
+
+    def test_no_color_disables_a_tty(self, model, monkeypatch):
+        class _TTY(io.StringIO):
+            def isatty(self):
+                return True
+
+        monkeypatch.setenv("NO_COLOR", "1")
+        sentence = Mock()
+        ModelDefaults._print_sentence_group(model, "ONE\n", "MANY\n", [sentence], 1, _TTY())
+        model.recursive_print.assert_called_once_with(sentence, model.main_point, 1, False)
