@@ -1,16 +1,19 @@
 {
-  "status": "planned",
+  "status": "implemented",
   "task_number": 219,
-  "phases_completed": 0,
+  "phases_completed": 4,
   "phases_total": 4,
   "artifacts": [
     {
-      "type": "plan",
-      "path": "specs/219_bimodal_theory_limits_example_group/plans/01_theory-limits-example-group.md",
-      "summary": "Four-phase plan adding a documented THEORY-LIMITS example group with two expressible countermodel entries to bimodal examples.py."
+      "type": "summary",
+      "path": "specs/219_bimodal_theory_limits_example_group/summaries/01_theory-limits-example-group-summary.md",
+      "summary": "Implementation summary for the THEORY-LIMITS example group: header commentary covering all six required points, TL_CM_1/TL_CM_2 active countermodel entries, all four test gates green, and a note on a foreign uncommitted concurrent-session edit to example_range not created or committed by this task."
     }
   ],
-  "next_steps": "Run /implement 219 to execute the plan",
-  "session_id": "sess_1790680033_ca6f67_219",
-  "dispatch_seq": 6
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/examples.py"
+  ],
+  "next_steps": "Task 219 implementation complete; ready for postflight to mark completed.",
+  "session_id": "sess_1790680033_ca6f67",
+  "dispatch_seq": 9
 }

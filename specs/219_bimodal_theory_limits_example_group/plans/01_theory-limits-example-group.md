@@ -1,7 +1,7 @@
 # Implementation Plan: Bimodal Theory-Limits Example Group
 
 - **Task**: 219 - Add a documented THEORY-LIMITS example group to bimodal's examples.py
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3 hours
 - **Dependencies**: None (tasks 216 and 217 are concurrent siblings this cycle with undeclared
   file scope; neither is known to touch `code/src/model_checker/theory_lib/bimodal/examples.py`)
@@ -220,21 +220,21 @@ recorded baseline and by running `pytest -k "TL_CM"` to see exactly two collecte
 
 ---
 
-### Phase 4: Full Gates and No-Regression Audit [NOT STARTED]
+### Phase 4: Full Gates and No-Regression Audit [COMPLETED]
 
 **Goal**: Run the complete gate set, audit the delivered commentary against the task's stated
 bars, and confirm nothing outside this task's scope changed.
 
 **Tasks**:
-- [ ] Run the full bimodal suite: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -q`.
-- [ ] Run the four-theory gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/ -q`.
-- [ ] Run the repository-level suite: `PYTHONPATH=code/src pytest code/tests/ -q`.
-- [ ] Audit the header block against each of the six required points and confirm none was trimmed, especially the Box-versus-stability paragraph.
-- [ ] Grep the new section for `asymmetr` and confirm every occurrence sits inside the refutation framing, never as an asserted explanation.
-- [ ] Grep the new section for `:` line anchors on Lean paths and confirm no `file:line` citation was introduced.
-- [ ] Run the repository's task-reference check over `code/` and confirm no task number leaked into `examples.py`.
-- [ ] Confirm `/home/benjamin/Projects/BimodalLogic` has no modification attributable to this task.
-- [ ] Review `git status --short` and `git diff --staged`, staging `examples.py` by explicit path only, never a directory or glob pathspec.
+- [x] Run the full bimodal suite: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/ -q`. (735 passed in 88.72s.)
+- [x] Run the four-theory gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/ -q`. (1811 passed in 272.93s.)
+- [x] Run the repository-level suite: `PYTHONPATH=code/src pytest code/tests/ -q`. (647 passed, 5 skipped, 2 warnings, in 94.77s. Skips are pre-existing and unrelated to this change.)
+- [x] Audit the header block against each of the six required points and confirm none was trimmed, especially the Box-versus-stability paragraph. (Confirmed: all six sub-sections present verbatim; the Box-versus-stability paragraph explicitly states "same verdict... UNRELATED mechanism".)
+- [x] Grep the new section for `asymmetr` and confirm every occurrence sits inside the refutation framing, never as an asserted explanation. (Both occurrences are inside "a temporal-asymmetry diagnosis is SUPERSEDED" / "An earlier diagnosis blamed a temporal asymmetry... REFUTED".)
+- [x] Grep the new section for `:` line anchors on Lean paths and confirm no `file:line` citation was introduced. (No hits; all five citations are fully-qualified declaration names only.)
+- [x] Run the repository's task-reference check over `code/` and confirm no task number leaked into `examples.py`. (The `.claude/scripts/check-task-references.sh` gate is scoped to `agent-system/extensions`/`.opencode`/`lua`/`.memory` and does not cover `code/`; substituted a direct `grep -niE "task [0-9]+"` over the changed file, which found no hits.)
+- [x] Confirm `/home/benjamin/Projects/BimodalLogic` has no modification attributable to this task. (Confirmed: only read-only `cat`/`grep` commands were run there; that repository's pre-existing dirty working tree, from unrelated concurrent sessions, was not touched by this task.)
+- [x] Review `git status --short` and `git diff --staged`, staging `examples.py` by explicit path only, never a directory or glob pathspec. (Reviewed. A foreign, uncommitted modification to `example_range` -- commenting out several pre-existing entries unrelated to this task -- was found in the working tree, attributable to a concurrently-running sibling process on this shared tree, not to this task or its commits: `git diff cef95562 HEAD -- examples.py` shows zero difference, confirming this task's own committed content is intact and the foreign edit is uncommitted noise this task did not create and did not stage or commit.)
 
 **Timing**: 0.5 hours
 
@@ -256,15 +256,15 @@ bars, and confirm nothing outside this task's scope changed.
 
 ## Testing & Validation
 
-- [ ] Bimodal unit suite: 55 passed (53 baseline plus `TL_CM_1` and `TL_CM_2`).
-- [ ] `pytest -k "TL_CM"` collects exactly two tests, both passing.
-- [ ] Full bimodal package suite green.
-- [ ] Four-theory gate green (`code/src/model_checker/theory_lib/`).
-- [ ] Repository-level suite green (`code/tests/`).
-- [ ] `dev_cli.py` run over `examples.py` reports a countermodel for both new entries.
-- [ ] `git diff` shows no change to any existing example's premises, conclusions, or settings.
-- [ ] No operator added to `operators.py`; no change to `test_bimodal.py`.
-- [ ] No file modified under `/home/benjamin/Projects/BimodalLogic`.
+- [x] Bimodal unit suite: 55 passed (53 baseline plus `TL_CM_1` and `TL_CM_2`).
+- [x] `pytest -k "TL_CM"` collects exactly two tests, both passing.
+- [x] Full bimodal package suite green (735 passed).
+- [x] Four-theory gate green (`code/src/model_checker/theory_lib/`) (1811 passed).
+- [x] Repository-level suite green (`code/tests/`) (647 passed, 5 pre-existing skips unrelated to this change).
+- [x] `dev_cli.py` run over `examples.py` reports a countermodel for both new entries.
+- [x] `git diff` shows no change to any existing example's premises, conclusions, or settings (this task's own committed diff, `cef95562` vs. its parent, is purely additive with zero deletion lines).
+- [x] No operator added to `operators.py`; no change to `test_bimodal.py`.
+- [x] No file modified under `/home/benjamin/Projects/BimodalLogic` (read-only `cat`/`grep` only; that repository's own pre-existing dirty tree from unrelated concurrent sessions is untouched by this task).
 
 ## Artifacts & Outputs
 
