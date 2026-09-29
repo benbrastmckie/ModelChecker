@@ -61,7 +61,7 @@ class TestVerifyAutoWithNoChecker:
         structure.print_certificate(output=sys.stdout)
         structure.print_evaluation(output=sys.stdout)
         out = capsys.readouterr().out
-        assert "Certificate:" in out
+        assert "Histories:" in out
         assert "re-checked by this repository's own pure-Python decision procedures only" in out
         assert "no independent checker available" in out
         assert out.count("Verification:") == 1

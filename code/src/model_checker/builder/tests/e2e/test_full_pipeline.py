@@ -61,7 +61,7 @@ class TestFullPipeline(unittest.TestCase):
 
         Deliberately, audited retention on bimodal: this is the one test in this file (and the
         one exception in this task's whole audit) whose assertion genuinely needs bimodal --
-        the "Certificate:" string below is bimodal's own model-rendering label, not
+        the "Histories:" string below is bimodal's own model-rendering label, not
         reproducible under any other theory. A future sweep must not "finish the job" by
         swapping this fixture to logos too; see TESTING_GUIDE.md section 8.14 and this task's
         audit report for the full reasoning. Its existing `max_time=10` is unchanged.
@@ -69,8 +69,9 @@ class TestFullPipeline(unittest.TestCase):
         UPDATED (bimodal's witness-family certificate redesign): the assertion and the example
         settings were both stale for the retired window-and-abundance encoding -- `N`/`M` are
         gone (replaced by `back`/`mid`/`fwd`) and the printed model section header changed from
-        "World Histories" to "Certificate:" (`theory_lib/bimodal/semantic/model.py`'s rewritten
-        printing). Both are updated here rather than left to silently warn/mismatch.
+        "World Histories" to "Histories:" (`theory_lib/bimodal/semantic/model.py`'s
+        `print_certificate`, which prints the found witness family's histories under that
+        heading). Both are updated here rather than left to silently warn/mismatch.
         """
         # Create a simple test module instead of running full examples
         # to avoid timeouts while still testing the discover_theory_module path
@@ -91,10 +92,10 @@ general_settings = {}
             result = self.run_dev_cli([test_file])
 
             # Should produce model output. Bimodal renders its model as a
-            # "Certificate:" section (the found witness-family lassos) rather than the
-            # generic "State Space" section used by state-based theories.
+            # "Histories:" section (the found witness-family lassos as arrow chains)
+            # rather than the generic "State Space" section used by state-based theories.
             self.assertIn("EXAMPLE", result.stdout)
-            self.assertIn("Certificate:", result.stdout)
+            self.assertIn("Histories:", result.stdout)
             
             # Should not have Python errors
             self.assertNotIn("Traceback", result.stderr)

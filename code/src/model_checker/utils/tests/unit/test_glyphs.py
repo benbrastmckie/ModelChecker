@@ -160,7 +160,6 @@ class TestFormulaGlyphs:
     Unicode form for a utf-8 stream and a readable ASCII form for a cp1252 pipe."""
 
     CASES = [
-        ("OMEGA", "ω", "w"),
         ("BOX", "□", "[]"),
         ("LOZENGE", "◇", "<>"),
         ("AND", "∧", "&"),
@@ -194,6 +193,27 @@ class TestFormulaGlyphs:
         cp1252.flush()
         ascii_stream = io.TextIOWrapper(io.BytesIO(), encoding="ascii", newline="")
         assert glyph("NEG", ascii_stream) == "~"
+
+    def test_ellipsis_survives_cp1252_and_falls_back_on_ascii(self):
+        """`…` (U+2026, the bimodal history rows' periodic-segment marker) is cp1252 0x85, so
+        a cp1252 pipe keeps it; only a codec that genuinely cannot encode it (`ascii`) gets
+        the three-dot fallback. Pinned explicitly so a future "fix" cannot silently
+        ASCII-ify it on Windows pipes."""
+        cp1252 = io.TextIOWrapper(io.BytesIO(), encoding="cp1252", newline="")
+        assert glyph("ELLIPSIS", cp1252) == "…"
+        cp1252.write(glyph("ELLIPSIS", cp1252))
+        cp1252.flush()
+        ascii_stream = io.TextIOWrapper(io.BytesIO(), encoding="ascii", newline="")
+        assert glyph("ELLIPSIS", ascii_stream) == "..."
+        ascii_stream.write(glyph("ELLIPSIS", ascii_stream))
+        ascii_stream.flush()
+        utf8 = io.TextIOWrapper(io.BytesIO(), encoding="utf-8", newline="")
+        assert glyph("ELLIPSIS", utf8) == "…"
+
+    def test_omega_is_retired(self):
+        """The `(back)^ω | mid | (fwd)^ω` one-liner is gone; no dead glyph entry survives it."""
+        with pytest.raises(KeyError):
+            glyph("OMEGA", _FakeStream("utf-8"))
 
     def test_implication_reuses_arrow(self):
         """`→`/`->` is already `ARROW`; the renderer reuses it rather than adding `IMP`."""

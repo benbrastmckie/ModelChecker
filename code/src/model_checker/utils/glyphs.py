@@ -52,11 +52,16 @@ _GLYPHS: dict[str, tuple[str, str]] = {
     # bare `print()` that targets `sys.stdout` directly (see that module for
     # the known, documented scope boundary this implies).
     "EMPTY_SET": ("∅", "{}"),      # ∅ -- bimodal's "no world state found" fallback
+    # The bimodal history rows (`theory_lib/bimodal/semantic/model.py`'s
+    # `_join_history`): `…` brackets the periodic back/fwd segments of every
+    # printed lasso, with `DOUBLE_ARROW` above joining adjacent states. `…` is
+    # U+2026, a cp1252 code point (0x85), so only a codec that genuinely cannot
+    # encode it (e.g. `ascii`) gets the three-dot fallback.
+    "ELLIPSIS": ("…", "..."),      # … -- `… (-1:A) ⟹ (0:B) | … | … ⟹ (+2:A) …`
     # The bimodal formula renderer's set (`theory_lib/bimodal/semantic/render.py`):
-    # closure formulas printed in user notation, plus the `^ω` period marker on
-    # every printed lasso. `→` reuses ARROW above. Each ASCII form is what the
-    # theory's own LaTeX-style operator names abbreviate to when read aloud.
-    "OMEGA": ("ω", "w"),           # ω -- `(back)^ω | mid | (fwd)^ω`
+    # closure formulas printed in user notation. `→` reuses ARROW above. Each
+    # ASCII form is what the theory's own LaTeX-style operator names abbreviate
+    # to when read aloud.
     "BOX": ("□", "[]"),            # □ -- modal necessity (distinct fallback from NULL_STATE)
     "LOZENGE": ("◇", "<>"),        # ◇ -- modal possibility
     "NEG": ("¬", "~"),             # ¬
@@ -128,7 +133,7 @@ def glyph(name: str, output) -> str:
         name: One of the keys in the module-level substitution table
             (``"DOUBLE_ARROW"``, ``"ARROW"``, ``"DOWN_ARROW"``,
             ``"BLOCK_FULL"``, ``"BLOCK_LIGHT"``, ``"NULL_STATE"``, ``"EMPTY_SET"``,
-            or one of the formula-renderer names ``"OMEGA"``, ``"BOX"``,
+            ``"ELLIPSIS"``, or one of the formula-renderer names ``"BOX"``,
             ``"LOZENGE"``, ``"NEG"``, ``"AND"``, ``"OR"``, ``"BOT"``, ``"TOP"``).
         output: The destination stream (or `None`). Only
             ``getattr(output, "encoding", None)`` is read -- the stream

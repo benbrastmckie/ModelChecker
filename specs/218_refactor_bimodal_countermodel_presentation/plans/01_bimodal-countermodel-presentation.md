@@ -1,7 +1,7 @@
 # Implementation Plan: Task #218
 
 - **Task**: 218 - Refactor bimodal/ theory countermodel presentation
-- **Status**: [NOT STARTED] (revised round: Phases 1-7 closed in the prior round at commit 5d259d66; Phases 8-9 are new)
+- **Status**: [IMPLEMENTING] (revised round: Phases 1-7 closed in the prior round at commit 5d259d66; Phases 8-9 are new)
 - **Effort**: 16 hours (12 completed in Phases 1-7; 4 remaining in Phases 8-9)
 - **Dependencies**: None
 - **Research Inputs**: specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md
@@ -604,7 +604,7 @@ ruff findings in the bimodal tree are all in files unchanged since the task's ba
 
 ---
 
-### Phase 8: Time-Labelled Arrow-Chain Histories as the Default [NOT STARTED]
+### Phase 8: Time-Labelled Arrow-Chain Histories as the Default [COMPLETED]
 
 **Goal**: The default certificate block prints as `Histories:` with a one-line legend and one
 aligned arrow-chain row per lasso -- `… [-2:B] ⟹ (-1:B) | (0:B) | (+1:B) ⟹ (+2:B) …` -- with
@@ -613,18 +613,18 @@ no-certificate), and every test that pinned the old `Certificate:` heading or th
 `(back)^ω | mid | (fwd)^ω` one-liner rewritten first.
 
 **Tasks**:
-- [ ] Glyph tests first: extend `code/src/model_checker/utils/tests/unit/test_glyphs.py` with an
+- [x] Glyph tests first: extend `code/src/model_checker/utils/tests/unit/test_glyphs.py` with an
   `ELLIPSIS` entry (`…`/`...`) using the existing `_FakeStream` pattern -- utf-8 -> `…`;
   cp1252 -> `…` (U+2026 is cp1252 0x85, so it must NOT fall back there; pin this explicitly so a
   future "fix" cannot silently ASCII-ify it); `ascii` -> `...` (the same `ascii`-stream recipe
   Phase 1 used for `¬`). Confirm `DOUBLE_ARROW`'s existing cp1252 (`=>`) and utf-8 (`⟹`) cases
   still cover the arrow (they do at `test_glyphs.py` lines 46-60 and 109-118 today). Remove the
   `("OMEGA", "ω", "w")` row from the parametrized table.
-- [ ] Add `"ELLIPSIS": ("…", "...")` to `_GLYPHS` in `code/src/model_checker/utils/glyphs.py`;
+- [x] Add `"ELLIPSIS": ("…", "...")` to `_GLYPHS` in `code/src/model_checker/utils/glyphs.py`;
   delete the `OMEGA` entry and its `(back)^ω | mid | (fwd)^ω` comment; update the `glyph()`
   docstring's name list and the formula-renderer block comment (which currently says "plus the
   `^ω` period marker on every printed lasso").
-- [ ] Rewrite the pinned bimodal tests first, in
+- [x] Rewrite the pinned bimodal tests first, in
   `code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py`:
   - `TestPrintingDoesNotClaimValidity`: `"Certificate:" in out` -> `"Histories:" in out`; add
     `assert "Certificate:" not in out` on the `print_all` no-certificate path (the D8 message
@@ -659,14 +659,14 @@ no-certificate), and every test that pinned the old `Certificate:` heading or th
   - `TestAlignedHistoryTable`: `lines[0].startswith("Histories:")`; replace `"^ω" not in out`
     with `"⟹" not in out` (no arrow-chain rows in table mode); `test_default_keeps_one_line_rows`
     additionally asserts `"⟹" in out` and `"…" in out`.
-- [ ] Update the two integration/e2e pins first, too:
+- [x] Update the two integration/e2e pins first, too:
   `code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py` line 64
   (`"Certificate:"` -> `"Histories:"`) and
   `code/src/model_checker/builder/tests/e2e/test_full_pipeline.py` line 97 (`assertIn(
   "Histories:", ...)`), rewriting that test's docstring paragraph and inline comment that name
   the `"Certificate:"` label (cite `theory_lib/bimodal/semantic/model.py`'s `print_certificate`
   and this heading; keep the "audited retention on bimodal" rationale intact).
-- [ ] Implement in `code/src/model_checker/theory_lib/bimodal/semantic/model.py`:
+- [x] Implement in `code/src/model_checker/theory_lib/bimodal/semantic/model.py`:
   - `_format_state(t, label, output, marked) -> str`: `({signed_time(t)}:{_format_label(label)})`,
     or `[...]` when `marked`.
   - `_history_cells(index, lasso, output) -> List[str]`: one cell per position of
@@ -692,7 +692,7 @@ no-certificate), and every test that pinned the old `Certificate:` heading or th
     histories).
   - Update the module docstring's "Printed output" paragraph (lines describing `(back)^ω | mid |
     (fwd)^ω` and the `Certificate:` block) to the new shape.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests
   code/src/model_checker/utils/tests code/src/model_checker/builder/tests/e2e/test_full_pipeline.py -q`
   and the live check `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py |
   cat -v | grep -c '\^\['` (expect `0`), then eyeball `MD_CM_1` and `BM_CM_1` in the same run for

@@ -1,25 +1,12 @@
 {
-  "status": "planned",
-  "dispatch_seq": 4,
-  "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/218_refactor_bimodal_countermodel_presentation/plans/01_bimodal-countermodel-presentation.md",
-      "summary": "Revised plan: Phases 1-7 preserved verbatim as [COMPLETED]; Phases 8-9 added to make the default bimodal history block a time-labelled arrow chain (Histories: heading, (t:atoms) states joined by the DOUBLE_ARROW glyph, ellipsis-marked periodic segments, columns aligned across lassos) with golden tests, README sample and docs updated in the same round."
-    }
-  ],
-  "next_steps": "Run /orchestrate 218 --implement to execute Phases 8-9 of the revised plan",
+  "status": "implementing",
+  "dispatch_seq": 5,
+  "artifacts": [],
   "metadata": {
-    "session_id": "sess_1790656279_e5bb8c_218",
-    "agent_type": "reviser-agent",
+    "session_id": "sess_1790656279_e5bb8c",
+    "agent_type": "python-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "revise", "reviser-agent"],
-    "phase_count": 9,
-    "phases_new": [8, 9],
-    "phases_preserved": [1, 2, 3, 4, 5, 6, 7],
-    "estimated_hours": 16,
-    "remaining_hours": 4,
-    "revision_reason": "forced --plan round; user focus: arrow-chain default display",
-    "reports_integrated": ["01_bimodal-countermodel-presentation.md"]
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phase_range": [8, 9]
   }
 }

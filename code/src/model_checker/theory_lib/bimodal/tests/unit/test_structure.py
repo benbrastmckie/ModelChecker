@@ -186,14 +186,17 @@ class TestPrintingDoesNotClaimValidity:
         # explicitly, matching every other theory's test convention for this default.
         structure.print_certificate(output=sys.stdout)
         out = capsys.readouterr().out
-        assert "Certificate:" in out
+        assert "Histories:" in out
+        assert "Certificate:" not in out
         assert "valid" not in out.lower()
 
     def test_print_certificate_reports_no_certificate_without_claiming_invalidity_or_validity(self, capsys):
         structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
         structure.print_certificate(output=sys.stdout)
         out = capsys.readouterr().out
-        assert "No certificate found" in out
+        assert "Histories:" in out
+        assert "Certificate:" not in out
+        assert "No certificate found within the configured bounds" in out
         assert "not a validity claim" in out
         assert "invalid" not in out.lower()
 
@@ -209,6 +212,8 @@ class TestPrintingDoesNotClaimValidity:
         out = capsys.readouterr().out
         assert out.count("No certificate found") == 1
         assert "not a validity claim" in out
+        assert "Histories:" in out
+        assert "Certificate:" not in out
         assert "Search bounds: back=1, mid=0, fwd=1" in out
         assert "Atomic States" not in out
 
@@ -359,10 +364,24 @@ class TestBoxWitnessFromCertificate:
         assert structure.extract_relations() == {}
 
 
-class TestGoldenOutputCertificateFormat:
-    """Golden-output coverage for the certificate block: each history as
-    `(back)^ω | mid | (fwd)^ω` over atom valuations with a role column, the evaluation
-    position marked `[ ]`, empty labels as `∅`, a `Box guesses:` table whose witness is the
+LEGEND = (
+    "(t:atoms) states joined by ⟹, … marks the periodic back/fwd segments, "
+    "| separates back | mid | fwd, [ ] marks the evaluation point"
+)
+
+
+def _joiner_columns(row: str) -> list:
+    """Column indices of every ` ⟹ ` and ` | ` joiner in a history row, in order."""
+    import re
+    return [m.start() for m in re.finditer(r" ⟹ | \| ", row)]
+
+
+class TestGoldenOutputHistoriesFormat:
+    """Golden-output coverage for the `Histories:` block: one time-labelled arrow-chain row
+    per lasso -- `… (-2:B) ⟹ (-1:B) | (0:B) | (+1:B) ⟹ [+2:A] …` -- with `(t:atoms)` states,
+    ` ⟹ ` within the periodic back/fwd segments, ` | ` between segments, `…` marking the
+    periodic repetition, a role column, the evaluation point marked `[ ]`, empty labels as
+    `∅`, columns aligned across rows, a `Box guesses:` table whose witness is the
     certificate-derived `(lasso, t)` pair, and formulas in the user's own notation."""
 
     @staticmethod
@@ -379,19 +398,21 @@ class TestGoldenOutputCertificateFormat:
         # position and carries A; the other is empty. Which slot the solver picks for the
         # target is not fixed by the constraints (D5's one-hot selector ranges over the
         # whole window), so assert the golden shape rather than a specific slot.
+        # An empty `mid` collapses to a single ` | ` between back and fwd, never `| |`.
         line = lines[0].strip()
         assert line in (
-            "L0  main  ([A])^ω | - | (∅)^ω",
-            "L0  main  (∅)^ω | - | ([A])^ω",
+            "L0  main  … [-1:A] | (0:∅) …",
+            "L0  main  … (-1:∅) | [0:A] …",
         ), line
 
-    def test_certificate_line_carries_the_legend(self, capsys):
+    def test_histories_line_carries_the_legend(self, capsys):
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
         structure.print_certificate(output=sys.stdout)
         out = capsys.readouterr().out
-        legend_lines = [line for line in out.splitlines() if line.startswith("Certificate:")]
+        legend_lines = [line for line in out.splitlines() if line.startswith("Histories:")]
         assert len(legend_lines) == 1
-        assert "each lasso is (back)^ω | mid | (fwd)^ω over atoms; [ ] marks the evaluation point" in legend_lines[0]
+        assert LEGEND in legend_lines[0]
+        assert "Certificate:" not in out
 
     def test_full_print_all_on_md_cm_1(self, capsys):
         import re
@@ -411,13 +432,28 @@ class TestGoldenOutputCertificateFormat:
         # Histories: one row per lasso with a role column; roles come from the certificate scan.
         rows = {line.split()[0]: line for line in out.splitlines() if re.match(r"\s+L\d\s", line)}
         assert set(rows) == {"L0", "L1", "L2", "L3"}
-        assert re.search(r"L0\s+main\s+\(", rows["L0"])
-        roles = [re.match(r"\s+L\d\s+(.*?)\s{2,}\(", line).group(1) for line in rows.values()]
+        assert re.search(r"L0\s+main\s+…", rows["L0"])
+        roles = [re.match(r"\s+L\d\s+(.*?)\s{2,}…", line).group(1) for line in rows.values()]
         assert "main" in roles
         assert any(r.startswith("witness for \\Box ") for r in roles)
         assert "reserved, unused" in roles
-        assert "[" in rows["L0"] and "]" in rows["L0"]  # the evaluation point is marked on L0
-        assert "^ω" in rows["L0"]
+        # Each row is an arrow chain of `(t:atoms)` states: back=2 and fwd=2 give exactly
+        # two ` ⟹ ` joiners, mid=1 gives exactly two ` | ` separators, `…` brackets the
+        # periodic segments, and every state carries its signed time.
+        cell = r"[(\[][+-]?\d+:[^)\]]+[)\]]"
+        chain = rf"^\s+L\d\s+.+?\s{{2,}}… {cell} ⟹ {cell} \| {cell} \| {cell} ⟹ {cell} …$"
+        for name, row in rows.items():
+            assert re.match(chain, row), (name, row)
+            assert row.count(" | ") == 2 and row.count(" ⟹ ") == 2, row
+            times = re.findall(r"[(\[]([+-]?\d+):", row)
+            assert times == ["-2", "-1", "0", "+1", "+2"], row
+        marked = [name for name, row in rows.items() if "[" in row]
+        assert marked == ["L0"]  # the evaluation point is marked on L0 only
+        assert re.search(r"\[[+-]?\d+:[^\]]+\]", rows["L0"])
+        assert "^ω" not in out
+        # Column alignment: every joiner sits at the same column index in every row.
+        columns = {name: _joiner_columns(row) for name, row in rows.items()}
+        assert len({tuple(c) for c in columns.values()}) == 1, columns
 
         # Box guesses: user notation, aligned columns, witness read from the certificate.
         assert "Box guesses:" in out
@@ -436,7 +472,8 @@ class TestGoldenOutputCertificateFormat:
         # Evaluation point and exactly one verification line.
         assert re.search(r"Evaluation point: L0 at t=[+-]?\d+", out)
         assert out.count("Verification:") == 1
-        assert out.count("Certificate:") == 1
+        assert out.count("Histories:") == 1
+        assert "Certificate:" not in out
 
         # Interpreted sentences read `(True at L0, t=-2)`, and no repr leaks anywhere.
         assert re.search(r"\(True at L0, t=[+-]?\d+\)", out)
@@ -444,6 +481,34 @@ class TestGoldenOutputCertificateFormat:
         for leak in ("Atom(", "Imp(", "Box(", "Bot("):
             assert leak not in out, leak
         assert "\033[" not in out  # capsys is not a TTY
+
+    def test_joiners_align_across_rows_when_cell_widths_differ(self, capsys):
+        """A hand-built family whose lassos carry cells of different widths at the same
+        position (`{A,B}` vs `A` vs `∅`): each position's column is padded to its widest
+        cell, so every ` ⟹ ` and ` | ` joiner sits at the same column index in every row."""
+        from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, WitnessFamily
+        from model_checker.theory_lib.bimodal.semantic.formula import Atom
+
+        structure = _build(["A", "B"], ["\\Box (A \\wedge B)"], back=1, mid=1, fwd=1)
+        a, b = Atom("A"), Atom("B")
+        wide = frozenset({a, b})
+        narrow = frozenset({a})
+        empty = frozenset()
+        family = WitnessFamily(
+            lassos=(
+                LabelledLasso(back=(wide,), mid=(narrow,), fwd=(wide,)),
+                LabelledLasso(back=(empty,), mid=(wide,), fwd=(narrow,)),
+            ),
+            bx=structure.certificate.bx,
+        )
+        structure.certificate = family
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        rows = [line for line in out.splitlines() if line.strip().startswith("L")]
+        assert len(rows) == 2
+        assert "{A,B}" in rows[0] and "∅" in rows[1]
+        assert _joiner_columns(rows[0]) == _joiner_columns(rows[1]) != []
+        assert not any(row.endswith(" ") for row in rows)
 
     def test_empty_labels_render_as_the_empty_set_glyph(self, capsys):
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
@@ -474,9 +539,12 @@ class TestGoldenOutputCertificateFormat:
         assert "Box(" not in out and "Imp(" not in out
 
     def test_cp1252_stream_gets_ascii_fallbacks_without_raising(self):
-        """`TESTING_GUIDE.md` section 9.2: a real cp1252-encoding stream, never `StringIO`.
-        The glyphs a real example reaches are `ω` (every lasso row) and `∅` (empty labels);
-        the renderer's own operator glyphs are covered by `test_render.py`'s cp1252 leg."""
+        """`TESTING_GUIDE.md` section 9.2: real encoded streams, never `StringIO`. The glyphs
+        a real example reaches are `⟹` and `…` (every history row) and `∅` (empty labels);
+        the renderer's own operator glyphs are covered by `test_render.py`'s cp1252 leg. `…`
+        is a cp1252 code point and must SURVIVE there; only an `ascii` stream gets `...`."""
+        import io
+
         from model_checker.utils.testing import make_encoding_test_streams, read_encoding_test_stream
 
         structure = _build(["A"], ["\\Box A"], back=1, mid=0, fwd=1)
@@ -485,13 +553,20 @@ class TestGoldenOutputCertificateFormat:
         streams = make_encoding_test_streams()
         structure.print_all(structure.settings, "EX", "Bimodal", output=streams["cp1252"])
         rendered = read_encoding_test_stream(streams["cp1252"])
-        assert "^w" in rendered
+        assert "=>" in rendered
         assert "{}" in rendered  # ∅ fallback
-        assert "ω" not in rendered and "∅" not in rendered
+        assert "…" in rendered  # U+2026 is cp1252 0x85: no fallback
+        assert "⟹" not in rendered and "∅" not in rendered
+
+        ascii_stream = io.TextIOWrapper(io.BytesIO(), encoding="ascii", newline="")
+        structure.print_all(structure.settings, "EX", "Bimodal", output=ascii_stream)
+        ascii_stream.flush()
+        ascii_rendered = ascii_stream.buffer.getvalue().decode("ascii")
+        assert "..." in ascii_rendered and "=>" in ascii_rendered and "{}" in ascii_rendered
 
         structure.print_all(structure.settings, "EX", "Bimodal", output=streams["utf8"])
         control = read_encoding_test_stream(streams["utf8"])
-        assert "^ω" in control and "∅" in control
+        assert "⟹" in control and "…" in control and "∅" in control
 
 
 class TestAlignedHistoryTable:
@@ -509,8 +584,9 @@ class TestAlignedHistoryTable:
         structure.print_certificate(output=sys.stdout)
         out = capsys.readouterr().out
         lines = out.splitlines()
-        assert lines[0].startswith("Certificate:")
+        assert lines[0].startswith("Histories:")
         assert "[ ] marks the evaluation point" in lines[0]
+        assert "Certificate:" not in out
         header = lines[1]
         assert re.match(r"\s+t\s+slot\s+\| L0 main\s+\| L1 ", header)
         assert "L3 " in header
@@ -527,7 +603,7 @@ class TestAlignedHistoryTable:
         target_row = marked[0]
         assert target_row.split()[0] == ("0" if structure.target_time == 0 else f"{structure.target_time:+d}")
         assert "Box guesses:" in out
-        assert "^ω" not in out  # no one-line rows in table mode
+        assert "⟹" not in out  # no arrow-chain rows in table mode
         assert "\033[" not in out
 
     def test_default_keeps_one_line_rows(self, capsys):
@@ -536,6 +612,7 @@ class TestAlignedHistoryTable:
         out = capsys.readouterr().out
         assert "slot" not in out
         assert any(line.strip().startswith("L0  main") for line in out.splitlines())
+        assert "⟹" in out and "…" in out
 
     def test_empty_mid_table_has_no_mid_rows(self, capsys):
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, align_vertically=True)

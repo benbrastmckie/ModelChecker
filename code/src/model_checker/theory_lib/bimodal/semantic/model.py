@@ -70,11 +70,15 @@ task to fix, not edited here): that phrasing describes the reserved third `Accep
 
 `print_all` prints, in order: the framework header with `_print_model_details` overridden to
 show `Search bounds: back=B, mid=M, fwd=F (N lassos: 1 main + K reserved witnesses)` in place
-of the meaningless `Atomic States`; the `Certificate:` block -- one row per lasso, `L{i}`, a
-role column (`main` / `witness for □χ` / `reserved, unused`, derived from the certificate scan
-in `box_guesses`, never from the registry's reserved index), and the history as
-`(back)^ω | mid | (fwd)^ω` over atom valuations with `[ ]` marking the evaluation point and
-`∅` for an empty label; a `Box guesses:` table (`formula  true|false  falsified at L{i}, t=±t`);
+of the meaningless `Atomic States`; the `Histories:` block -- a one-line legend, then one row
+per lasso, `L{i}`, a role column (`main` / `witness for □χ` / `reserved, unused`, derived from
+the certificate scan in `box_guesses`, never from the registry's reserved index), and the
+history as a time-labelled arrow chain `… (-2:B) ⟹ (-1:B) | (0:B) | (+1:B) ⟹ [+2:A] …`: one
+`(t:atoms)` state per position of the registry's `target_window()`, `⟹` joining adjacent
+states within the periodic back/fwd segments, `|` between the back/mid/fwd segments (an empty
+`mid` collapses to a single `|`), `…` marking the periodic repetition, `[ ]` marking the
+evaluation point, `∅` for an empty label, and each position's column padded to its widest cell
+so times align across rows; a `Box guesses:` table (`formula  true|false  falsified at L{i}, t=±t`);
 then `Evaluation point: L0 at t=-2` and exactly one `Verification:` line. Formulas render via
 `semantic/render.py` in the user's notation; every non-ASCII glyph goes through
 `utils/glyphs.py`; every color is gated by `output.color.use_colors` and never carries
@@ -392,32 +396,75 @@ class BimodalStructure(ModelDefaults):
             return atoms[0]
         return "{" + ",".join(atoms) + "}"
 
-    def _format_lasso(self, lasso_index: int, lasso: Any, output: TextIO) -> str:
-        """`(back)^ω | mid | (fwd)^ω`, marking the evaluation position (if it falls in this
-        lasso's printed window) with brackets."""
+    def _format_state(self, t: int, label, output: TextIO, marked: bool) -> str:
+        """`(t:atoms)` -- the signed time and the label's atoms -- or `[t:atoms]` when this
+        is the evaluation point (width-neutral: brackets swap for parentheses)."""
+        body = f"{signed_time(t)}:{self._format_label(label, output)}"
+        return f"[{body}]" if marked else f"({body})"
+
+    def _history_cells(self, index: int, lasso: Any, output: TextIO) -> List[str]:
+        """One rendered cell per position of the registry's `target_window()` (`-back ..
+        mid+fwd-1`), the evaluation point marked on the main lasso. Fails fast if this
+        lasso's segment lengths disagree with the registry's: cross-row alignment assumes
+        every lasso shares `back`/`mid`/`fwd` (which `extract_certificate` guarantees)."""
         registry = self.semantics.witness_registry
-        mark_slot: Optional[int] = None
-        if lasso_index == self.main_point.get("lasso") and self.target_time is not None:
-            mark_slot = registry.wrap(self.target_time)
+        if (lasso.nb, lasso.nm, lasso.nf) != (registry.nb, registry.nm, registry.nf):
+            raise ValueError(
+                f"lasso L{index} has segments back={lasso.nb}, mid={lasso.nm}, fwd={lasso.nf} "
+                f"but the search bounds are back={registry.nb}, mid={registry.nm}, "
+                f"fwd={registry.nf}; histories cannot be aligned"
+            )
+        is_main = index == self.main_point.get("lasso") and self.target_time is not None
+        return [
+            self._format_state(t, lasso.label(t), output, is_main and t == self.target_time)
+            for t in registry.target_window()
+        ]
 
-        def _segment(labels, start_slot: int) -> List[str]:
-            parts = []
-            for offset, label in enumerate(labels):
-                text = self._format_label(label, output)
-                if mark_slot is not None and start_slot + offset == mark_slot:
-                    text = f"[{text}]"
-                parts.append(text)
-            return parts
+    def _join_history(self, cells: List[str], widths: List[int], output: TextIO) -> str:
+        """`… back ⟹ back | mid | fwd ⟹ fwd …`: each cell left-justified to its position's
+        column width (`widths[i]`, the widest cell at that position over all lassos, so the
+        joiners line up across rows), ` ⟹ ` joining adjacent states within the back segment
+        and within the fwd segment, ` | ` between segments -- an empty `mid` yields exactly one
+        ` | ` between back and fwd, never `| |` -- and `…` bracketing the periodic back and fwd
+        segments. Padding is internal; the last fwd cell is not padded, so rows never end in
+        stray spaces."""
+        registry = self.semantics.witness_registry
+        arrow = f" {glyph('DOUBLE_ARROW', output)} "
+        ellipsis = glyph("ELLIPSIS", output)
+        padded = [f"{cell:<{width}}" for cell, width in zip(cells, widths)]
+        padded[-1] = cells[-1]
+        back = padded[:registry.nb]
+        mid = padded[registry.nb:registry.nb + registry.nm]
+        fwd = padded[registry.nb + registry.nm:]
+        segments = [arrow.join(back)]
+        if mid:
+            segments.append(arrow.join(mid))
+        segments.append(arrow.join(fwd))
+        return f"{ellipsis} {' | '.join(segments)} {ellipsis}"
 
-        omega = glyph("OMEGA", output)
-        back_parts = _segment(lasso.back, 0)
-        mid_parts = _segment(lasso.mid, lasso.nb)
-        fwd_parts = _segment(lasso.fwd, lasso.nb + lasso.nm)
-
-        back_str = f"({', '.join(back_parts)})^{omega}"
-        fwd_str = f"({', '.join(fwd_parts)})^{omega}"
-        mid_str = ", ".join(mid_parts) if mid_parts else "-"
-        return f"{back_str} | {mid_str} | {fwd_str}"
+    def _print_history_lines(self, output: TextIO) -> None:
+        """One aligned arrow-chain row per lasso: name, role, history. Column widths per
+        position come from the rendered cells (ASCII glyph fallbacks included), so equal
+        times align across rows."""
+        roles = self._lasso_roles(output)
+        colored = use_colors(output)
+        lassos = self.certificate.lassos
+        name_width = max(len(f"L{i}") for i in range(len(lassos)))
+        role_width = max(len(role) for role in roles.values())
+        cells = [self._history_cells(index, lasso, output) for index, lasso in enumerate(lassos)]
+        widths = [max(len(row[i]) for row in cells) for i in range(len(cells[0]))]
+        for index, row in enumerate(cells):
+            color = ""
+            if colored and index == self.main_point.get("lasso"):
+                color = self._BLUE
+            elif colored and roles[index] == "reserved, unused":
+                color = self._GRAY
+            reset = self._RESET if color else ""
+            print(
+                f"  {color}{f'L{index}':<{name_width}}  {roles[index]:<{role_width}}  "
+                f"{self._join_history(row, widths, output)}{reset}",
+                file=output,
+            )
 
     def _lasso_roles(self, output: TextIO) -> Dict[int, str]:
         """`main` for index 0; `witness for □χ` for a lasso the certificate scan names as a
@@ -436,26 +483,6 @@ class BimodalStructure(ModelDefaults):
             else:
                 roles[index] = "reserved, unused"
         return roles
-
-    def _print_history_lines(self, output: TextIO) -> None:
-        """One aligned row per lasso: name, role, history."""
-        roles = self._lasso_roles(output)
-        colored = use_colors(output)
-        lassos = self.certificate.lassos
-        name_width = max(len(f"L{i}") for i in range(len(lassos)))
-        role_width = max(len(role) for role in roles.values())
-        for index, lasso in enumerate(lassos):
-            color = ""
-            if colored and index == self.main_point.get("lasso"):
-                color = self._BLUE
-            elif colored and roles[index] == "reserved, unused":
-                color = self._GRAY
-            reset = self._RESET if color else ""
-            print(
-                f"  {color}{f'L{index}':<{name_width}}  {roles[index]:<{role_width}}  "
-                f"{self._format_lasso(index, lasso, output)}{reset}",
-                file=output,
-            )
 
     def _slot_name(self, t: int) -> str:
         """`back[i]` / `mid[i]` / `fwd[i]`: which segment slot position `t` reads
@@ -563,12 +590,14 @@ class BimodalStructure(ModelDefaults):
         )
 
     def print_certificate(self, output: TextIO = sys.__stdout__) -> None:
-        """Print the certificate block: the legend, one row per lasso (name, role, history
-        with the evaluation point marked), and the `Box guesses:` table with each false box's
-        certificate-derived witness. Prints the no-certificate case as an explicit
-        non-validity-claim message (D8) instead."""
+        """Print the `Histories:` block: the legend, one arrow-chain row per lasso (name,
+        role, history with the evaluation point marked) -- or the `-a` time-aligned table --
+        and the `Box guesses:` table with each false box's certificate-derived witness. Prints
+        the no-certificate case as an explicit non-validity-claim message (D8) instead. The
+        method keeps its name (the framework calls it): it prints the certificate's
+        histories."""
         if self.certificate is None:
-            print("Certificate:", file=output)
+            print("Histories:", file=output)
             print(
                 f"  No certificate found within the configured bounds "
                 f"(back={self.semantics.back}, mid={self.semantics.mid}, "
@@ -580,15 +609,17 @@ class BimodalStructure(ModelDefaults):
 
         if self.settings.get("align_vertically", False):
             print(
-                "Certificate:  (rows are representative positions; back repeats leftward, "
+                "Histories:  (rows are representative positions; back repeats leftward, "
                 "fwd rightward; [ ] marks the evaluation point)",
                 file=output,
             )
             self._print_history_table(output)
         else:
-            omega = glyph("OMEGA", output)
+            arrow = glyph("DOUBLE_ARROW", output)
+            ellipsis = glyph("ELLIPSIS", output)
             print(
-                f"Certificate:  (each lasso is (back)^{omega} | mid | (fwd)^{omega} over atoms; "
+                f"Histories:  (one row per lasso: (t:atoms) states joined by {arrow}, "
+                f"{ellipsis} marks the periodic back/fwd segments, | separates back | mid | fwd, "
                 "[ ] marks the evaluation point)",
                 file=output,
             )
