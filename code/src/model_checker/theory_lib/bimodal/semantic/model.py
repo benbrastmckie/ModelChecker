@@ -457,6 +457,59 @@ class BimodalStructure(ModelDefaults):
                 file=output,
             )
 
+    def _slot_name(self, t: int) -> str:
+        """`back[i]` / `mid[i]` / `fwd[i]`: which segment slot position `t` reads
+        (`LabelledLasso.label`'s decoding)."""
+        registry = self.semantics.witness_registry
+        if t < 0:
+            return f"back[{t % registry.nb}]"
+        if t < registry.nm:
+            return f"mid[{t}]"
+        return f"fwd[{(t - registry.nm) % registry.nf}]"
+
+    def _print_history_table(self, output: TextIO) -> None:
+        """The `align_vertically` view: one row per representative position
+        (`target_window()`, `-back .. mid+fwd-1`) with its signed time and slot, one column
+        per lasso headed by `L{i} {role}`; the main lasso's cell at the target is bracketed,
+        and that row is bold when colors are on. Column widths come from the rendered cells,
+        so ASCII glyph fallbacks never break alignment."""
+        lassos = self.certificate.lassos
+        roles = self._lasso_roles(output)
+        colored = use_colors(output)
+        main_index = self.main_point.get("lasso")
+        positions = list(self.semantics.witness_registry.target_window())
+
+        headers = [f"L{index} {roles[index]}" for index in range(len(lassos))]
+        cells: List[List[str]] = []
+        for t in positions:
+            row = []
+            for index, lasso in enumerate(lassos):
+                text = self._format_label(lasso.label(t), output)
+                if index == main_index and t == self.target_time:
+                    text = f"[{text}]"
+                row.append(text)
+            cells.append(row)
+        widths = [
+            max([len(headers[column])] + [len(row[column]) for row in cells])
+            for column in range(len(lassos))
+        ]
+        time_width = max(len("t"), *(len(signed_time(t)) for t in positions))
+        slot_width = max(len("slot"), *(len(self._slot_name(t)) for t in positions))
+
+        def line(time_text: str, slot_text: str, row: List[str]) -> str:
+            body = " | ".join(f"{cell:<{widths[i]}}" for i, cell in enumerate(row))
+            return f"  {time_text:>{time_width}}  {slot_text:<{slot_width}}  | {body}".rstrip()
+
+        print(line("t", "slot", headers), file=output)
+        rule_width = 2 + time_width + 2 + slot_width + 2
+        print("  " + "-" * (rule_width - 2) + "+" + "-" * (sum(widths) + 3 * len(widths) - 1), file=output)
+        bold, reset = ("\033[1m", self._RESET) if colored else ("", "")
+        for t, row in zip(positions, cells):
+            text = line(signed_time(t), self._slot_name(t), row)
+            if t == self.target_time:
+                text = f"{bold}{text}{reset}"
+            print(text, file=output)
+
     def _print_box_guesses(self, output: TextIO) -> None:
         """`Box guesses:` table: formula (user notation), guess, and for a false guess the
         certificate-derived falsifier `falsified at L{i}, t=±t`."""
@@ -525,13 +578,21 @@ class BimodalStructure(ModelDefaults):
             )
             return
 
-        omega = glyph("OMEGA", output)
-        print(
-            f"Certificate:  (each lasso is (back)^{omega} | mid | (fwd)^{omega} over atoms; "
-            "[ ] marks the evaluation point)",
-            file=output,
-        )
-        self._print_history_lines(output)
+        if self.settings.get("align_vertically", False):
+            print(
+                "Certificate:  (rows are representative positions; back repeats leftward, "
+                "fwd rightward; [ ] marks the evaluation point)",
+                file=output,
+            )
+            self._print_history_table(output)
+        else:
+            omega = glyph("OMEGA", output)
+            print(
+                f"Certificate:  (each lasso is (back)^{omega} | mid | (fwd)^{omega} over atoms; "
+                "[ ] marks the evaluation point)",
+                file=output,
+            )
+            self._print_history_lines(output)
         print(file=output)
         self._print_box_guesses(output)
         print(file=output)

@@ -370,28 +370,28 @@ separator) instead of returning after the header; the no-certificate header's la
 
 ---
 
-### Phase 5: Time-Aligned Table View Behind `align_vertically` [NOT STARTED]
+### Phase 5: Time-Aligned Table View Behind `align_vertically` [COMPLETED]
 
 **Goal**: `-a/--align_vertically` (already parsed by `__main__.py` and present in
 `DEFAULT_GENERAL_SETTINGS`) becomes live for bimodal and selects a per-position table salvaged
 from the old vertical renderer; default `False` keeps Phase 4's one-line rows.
 
 **Tasks**:
-- [ ] Tests first (`test_structure.py`, new `TestAlignedHistoryTable`): with
+- [x] Tests first (`test_structure.py`, new `TestAlignedHistoryTable`): with
   `align_vertically=True` the certificate block prints a header row `t   slot | L0 main | L1 |
   ...`, one row per representative position `-2 .. +2` with signed times and slot annotations
   (`back[0]`, `mid[0]`, `fwd[1]`), the target row marked with `[ ]` (and bold only when
   `use_colors`); with the default the one-line rows print; `SettingsManager` no longer warns
   `Flag 'align_vertically' doesn't correspond to any known setting` for bimodal (capture the
   warning path or assert the key survives in `structure.settings`).
-- [ ] `semantic/core.py`: `ADDITIONAL_GENERAL_SETTINGS = {"align_vertically": False}`; update
+- [x] `semantic/core.py`: `ADDITIONAL_GENERAL_SETTINGS = {"align_vertically": False}`; update
   the comment there and the stale one in `examples.py` `general_settings`.
-- [ ] `semantic/model.py`: `_print_history_table(output)`; `print_certificate` dispatches on
+- [x] `semantic/model.py`: `_print_history_table(output)`; `print_certificate` dispatches on
   `self.settings.get("align_vertically", False)`; column widths computed from rendered labels;
   `DOWN_ARROW`/`to_subscript` reuse where the old renderer used them.
-- [ ] `docs/SETTINGS.md` "General Settings": replace the "defines no bimodal-specific general
+- [x] `docs/SETTINGS.md` "General Settings": replace the "defines no bimodal-specific general
   setting" paragraph with the `align_vertically` description and a short table example.
-- [ ] Run the bimodal suite and `cd code && ./dev_cli.py -a src/model_checker/theory_lib/bimodal/examples.py | head -60`.
+- [x] Run the bimodal suite and `cd code && ./dev_cli.py -a src/model_checker/theory_lib/bimodal/examples.py | head -60`.
 
 **Timing**: 1.5 hours
 
@@ -402,6 +402,11 @@ from the old vertical renderer; default `False` keeps Phase 4's one-line rows.
 **Scope Hypothesis**: Only `core.py`, `examples.py`, `model.py`, `SETTINGS.md`, and
 `test_structure.py` change; confirm `grep -rn align_vertically code/src --include=*.py` shows no
 other bimodal consumer to update.
+*Probe result*: confirmed -- the only non-settings/CLI consumers are the three bimodal files
+named. Live `dev_cli.py -a` run: the 25 `Flag 'align_vertically' doesn't correspond to any
+known setting` warnings printed before this phase are gone (0), table renders for every
+countermodel, 0 escapes on a pipe; default run prints no table. Bold on the target row is
+the only color the table adds, gated by `use_colors`.
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/semantic/core.py` - `ADDITIONAL_GENERAL_SETTINGS`

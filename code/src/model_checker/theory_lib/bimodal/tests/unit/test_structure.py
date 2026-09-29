@@ -494,6 +494,78 @@ class TestGoldenOutputCertificateFormat:
         assert "^ω" in control and "∅" in control
 
 
+class TestAlignedHistoryTable:
+    """`align_vertically` (the `-a` flag) switches the certificate block to a time-aligned
+    table: one row per representative position with a signed time and slot annotation, one
+    column per lasso headed by its name and role, the evaluation point still marked `[ ]`."""
+
+    def test_table_view_renders_rows_per_position_and_columns_per_lasso(self, capsys):
+        import re
+
+        structure = _build(
+            ["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2,
+            align_vertically=True,
+        )
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        lines = out.splitlines()
+        assert lines[0].startswith("Certificate:")
+        assert "[ ] marks the evaluation point" in lines[0]
+        header = lines[1]
+        assert re.match(r"\s+t\s+slot\s+\| L0 main\s+\| L1 ", header)
+        assert "L3 " in header
+        assert set(lines[2].strip()) <= {"-", "+"}  # the rule under the header
+        rows = {line.split()[0]: line for line in lines[3:8]}
+        assert list(rows) == ["-2", "-1", "0", "+1", "+2"]
+        assert "back[0]" in rows["-2"] and "back[1]" in rows["-1"]
+        assert "mid[0]" in rows["0"]
+        assert "fwd[0]" in rows["+1"] and "fwd[1]" in rows["+2"]
+        # Exactly one lasso cell in the whole table is bracketed: the main lasso at the
+        # target (slot names like `back[0]` sit left of the `|` and are not cells).
+        marked = [line for line in lines[3:8] if "[" in line.split("|", 1)[1]]
+        assert len(marked) == 1
+        target_row = marked[0]
+        assert target_row.split()[0] == ("0" if structure.target_time == 0 else f"{structure.target_time:+d}")
+        assert "Box guesses:" in out
+        assert "^ω" not in out  # no one-line rows in table mode
+        assert "\033[" not in out
+
+    def test_default_keeps_one_line_rows(self, capsys):
+        structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "slot" not in out
+        assert any(line.strip().startswith("L0  main") for line in out.splitlines())
+
+    def test_empty_mid_table_has_no_mid_rows(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, align_vertically=True)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "mid[" not in out
+        assert "back[0]" in out and "fwd[0]" in out
+        assert "∅" in out  # empty labels keep the glyph in cells
+
+    def test_table_cp1252_leg_does_not_raise(self):
+        from model_checker.utils.testing import make_encoding_test_streams, read_encoding_test_stream
+
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, align_vertically=True)
+        streams = make_encoding_test_streams()
+        structure.print_certificate(output=streams["cp1252"])
+        rendered = read_encoding_test_stream(streams["cp1252"])
+        assert "{}" in rendered and "∅" not in rendered
+
+    def test_align_vertically_is_a_known_bimodal_setting(self):
+        """`-a` is no longer dropped with `Flag 'align_vertically' doesn't correspond to any
+        known setting`: the semantics declares it, so `SettingsManager` knows it."""
+        from model_checker.settings.settings import SettingsManager
+        from model_checker.theory_lib.bimodal import get_theory
+        from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
+
+        assert BimodalSemantics.ADDITIONAL_GENERAL_SETTINGS == {"align_vertically": False}
+        manager = SettingsManager(get_theory(), theory_name="bimodal")
+        assert manager.DEFAULT_GENERAL_SETTINGS["align_vertically"] is False
+
+
 class TestColorGating:
     def test_tty_output_carries_colors_and_pipes_do_not(self, monkeypatch):
         import io

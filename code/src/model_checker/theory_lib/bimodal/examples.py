@@ -115,9 +115,10 @@ general_settings = {
     "print_constraints": False,
     "print_z3": False,
     "save_output": False,
-    # No "align_vertically": BimodalSemantics.ADDITIONAL_GENERAL_SETTINGS is empty -- the
-    # certificate printer prints each history as a single line, needing no vertical-alignment
-    # display option (see semantic/core.py's own comment on this).
+    # False: one `(back)^ω | mid | (fwd)^ω` line per lasso. True (or the `-a` flag): a
+    # time-aligned table, one row per position and one column per lasso -- see
+    # docs/SETTINGS.md's "General Settings".
+    "align_vertically": False,
 }
 
 

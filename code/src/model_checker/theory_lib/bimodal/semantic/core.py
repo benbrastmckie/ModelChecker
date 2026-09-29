@@ -146,9 +146,13 @@ class BimodalSemantics(SemanticDefaults):
     # The closed vocabulary 'verify' accepts -- validated early (fail-fast) in __init__.
     VERIFY_VALUES = ('off', 'auto', 'required')
 
-    # No additional general (display) settings: the certificate printer (a later phase)
-    # needs no vertical-alignment option -- histories print as a single line each.
-    ADDITIONAL_GENERAL_SETTINGS: Dict[str, Any] = {}
+    # The one bimodal-specific general (display) setting: `align_vertically` (the CLI's
+    # `-a` flag) switches the certificate printer from one `(back)^ω | mid | (fwd)^ω` line
+    # per lasso to a time-aligned table with one row per representative position and one
+    # column per lasso (`semantic/model.py`'s `_print_history_table`). Declaring it here is
+    # what makes `-a` a known setting for this theory instead of an ignored, warned-about
+    # flag. See docs/SETTINGS.md's "General Settings".
+    ADDITIONAL_GENERAL_SETTINGS: Dict[str, Any] = {"align_vertically": False}
 
     def __init__(self, settings: Dict[str, Any]) -> None:
         # Initialize the superclass to set defaults and reset global state
