@@ -1,7 +1,7 @@
 # Implementation Plan: Task #218
 
 - **Task**: 218 - Refactor bimodal/ theory countermodel presentation
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 12 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md
@@ -112,14 +112,14 @@ phase that rewrites `semantic/model.py`'s print methods; Phase 6 owns `iterate.p
 Reminder for every phase: deliverable files under `code/` and `docs/` MUST NOT cite task numbers
 (`.claude/rules/no-task-references-in-deliverables.md`); cite filenames and section headings.
 
-### Phase 1: Formula Renderer and Glyph Entries [NOT STARTED]
+### Phase 1: Formula Renderer and Glyph Entries [COMPLETED]
 
 **Goal**: A `render(formula, output, names=None) -> str` function that prints any closure
 `Formula` in the user's notation (reverse `translate` lookup) or a structural fallback mirroring
 `Formula.lean`'s derived-operator patterns, with every non-ASCII symbol routed through `glyph()`.
 
 **Tasks**:
-- [ ] Write `code/src/model_checker/theory_lib/bimodal/tests/unit/test_render.py` first: (a)
+- [x] Write `code/src/model_checker/theory_lib/bimodal/tests/unit/test_render.py` first: (a)
   `names` built from a `Syntax` over `\Box (A \vee B)` renders `Box(Imp(Imp(A,Bot),B))` as
   `\Box (A \vee B)` and the inner `Imp(Imp(A,Bot),B)` as `(A \vee B)`; (b) structural fallback
   cases with no `names`: `Imp(x,Bot)` -> `¬x`, `Imp(Imp(a,Bot),b)` -> `(a ∨ b)`,
@@ -128,16 +128,20 @@ Reminder for every phase: deliverable files under `code/` and `docs/` MUST NOT c
   `Imp(Untl(⊤,Imp(a,Bot)),Bot)` -> `\Future a` and the `Snce` mirror -> `\Past a`, generic
   `Imp(a,b)` -> `(a → b)`, `Bot()` -> `⊥`; (c) duplicate-translation tie-break: first-seen wins
   in `all_sentences` insertion order; (d) `repr` of every dataclass is unchanged.
-- [ ] Extend `code/src/model_checker/utils/tests/unit/test_glyphs.py` with `cp1252` and utf-8
+- [x] Extend `code/src/model_checker/utils/tests/unit/test_glyphs.py` with `cp1252` and utf-8
   cases (existing `_FakeStream` pattern) for each new entry: `OMEGA` (`ω`/`w`), `BOX`
   (`□`/`[]`), `LOZENGE` (`◇`/`<>`), `NEG` (`¬`/`~`), `AND` (`∧`/`&`), `OR` (`∨`/`|`), `IMP`
   (`→`/`->`; reuse `ARROW` if identical), `BOT` (`⊥`/`_|_`), `TOP` (`⊤`/`T`).
-- [ ] Add the entries to `_GLYPHS` in `code/src/model_checker/utils/glyphs.py`.
-- [ ] Create `code/src/model_checker/theory_lib/bimodal/semantic/render.py` with `render(...)`
+- [x] Add the entries to `_GLYPHS` in `code/src/model_checker/utils/glyphs.py`.
+- [x] Create `code/src/model_checker/theory_lib/bimodal/semantic/render.py` with `render(...)`
   and `build_names(syntax) -> Dict[Formula, str]` (`{translate(s): s.name for s in
   syntax.all_sentences.values()}`, first-seen wins); export from `semantic/__init__.py` if that
-  module re-exports siblings (confirm by reading it).
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_render.py code/src/model_checker/utils/tests -q`.
+  module re-exports siblings (confirm by reading it). *Deviation (altered)*: `semantic/__init__.py`
+  re-exports only the three theory classes, never sibling helper modules (`certificate`,
+  `formula` are imported by module path), so `render` follows the same convention and is not
+  re-exported. `IMP` reuses the existing `ARROW` entry (identical `→`/`->`); `¬` is a cp1252
+  code point, so its `~` fallback is pinned on an `ascii` stream instead.
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_render.py code/src/model_checker/utils/tests -q`.
 
 **Timing**: 2 hours
 

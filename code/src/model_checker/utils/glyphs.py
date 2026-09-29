@@ -51,6 +51,18 @@ _GLYPHS: dict[str, tuple[str, str]] = {
     # bare `print()` that targets `sys.stdout` directly (see that module for
     # the known, documented scope boundary this implies).
     "EMPTY_SET": ("∅", "{}"),      # ∅ -- bimodal's "no world state found" fallback
+    # The bimodal formula renderer's set (`theory_lib/bimodal/semantic/render.py`):
+    # closure formulas printed in user notation, plus the `^ω` period marker on
+    # every printed lasso. `→` reuses ARROW above. Each ASCII form is what the
+    # theory's own LaTeX-style operator names abbreviate to when read aloud.
+    "OMEGA": ("ω", "w"),           # ω -- `(back)^ω | mid | (fwd)^ω`
+    "BOX": ("□", "[]"),            # □ -- modal necessity (distinct fallback from NULL_STATE)
+    "LOZENGE": ("◇", "<>"),        # ◇ -- modal possibility
+    "NEG": ("¬", "~"),             # ¬
+    "AND": ("∧", "&"),             # ∧
+    "OR": ("∨", "|"),              # ∨
+    "BOT": ("⊥", "_|_"),           # ⊥
+    "TOP": ("⊤", "T"),             # ⊤
 }
 
 # Unicode subscript digits (U+2080-U+2089) and subscript minus (U+208B),
@@ -114,7 +126,9 @@ def glyph(name: str, output) -> str:
     Args:
         name: One of the keys in the module-level substitution table
             (``"DOUBLE_ARROW"``, ``"ARROW"``, ``"DOWN_ARROW"``,
-            ``"BLOCK_FULL"``, ``"BLOCK_LIGHT"``).
+            ``"BLOCK_FULL"``, ``"BLOCK_LIGHT"``, ``"NULL_STATE"``, ``"EMPTY_SET"``,
+            or one of the formula-renderer names ``"OMEGA"``, ``"BOX"``,
+            ``"LOZENGE"``, ``"NEG"``, ``"AND"``, ``"OR"``, ``"BOT"``, ``"TOP"``).
         output: The destination stream (or `None`). Only
             ``getattr(output, "encoding", None)`` is read -- the stream
             itself is never written to or mutated.

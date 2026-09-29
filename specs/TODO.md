@@ -29,12 +29,12 @@ next_project_number: 219
 
 ### Cli Presentation
 
-218 [PLANNED] — Refactor bimodal/ theory countermodel presentation in...
+218 [IMPLEMENTING] — Refactor bimodal/ theory countermodel presentation in...
 
 ## Tasks
 
 ### 218. Refactor bimodal countermodel presentation
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: cli-presentation
 - **Dependencies**: None

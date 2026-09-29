@@ -153,3 +153,49 @@ class TestToSubscript:
     def test_stringio_yields_unicode_subscript(self):
         stream = io.StringIO()
         assert to_subscript(5, stream) == "₅"
+
+
+class TestFormulaGlyphs:
+    """The bimodal formula renderer's glyph set (`semantic/render.py`): each entry has a
+    Unicode form for a utf-8 stream and a readable ASCII form for a cp1252 pipe."""
+
+    CASES = [
+        ("OMEGA", "ω", "w"),
+        ("BOX", "□", "[]"),
+        ("LOZENGE", "◇", "<>"),
+        ("AND", "∧", "&"),
+        ("OR", "∨", "|"),
+        ("BOT", "⊥", "_|_"),
+        ("TOP", "⊤", "T"),
+    ]
+
+    @pytest.mark.parametrize("name,unicode_form,ascii_form", CASES)
+    def test_cp1252_yields_ascii(self, name, unicode_form, ascii_form):
+        buf = io.BytesIO()
+        stream = io.TextIOWrapper(buf, encoding="cp1252", newline="")
+        assert glyph(name, stream) == ascii_form
+        stream.write(glyph(name, stream))
+        stream.flush()
+
+    @pytest.mark.parametrize("name,unicode_form,ascii_form", CASES)
+    def test_utf8_yields_unicode(self, name, unicode_form, ascii_form):
+        buf = io.BytesIO()
+        stream = io.TextIOWrapper(buf, encoding="utf-8", newline="")
+        assert glyph(name, stream) == unicode_form
+        stream.write(glyph(name, stream))
+        stream.flush()
+
+    def test_neg_survives_cp1252_and_falls_back_on_ascii(self):
+        """`¬` (U+00AC) is a cp1252 code point, so the fallback only fires on a codec
+        that genuinely cannot encode it."""
+        cp1252 = io.TextIOWrapper(io.BytesIO(), encoding="cp1252", newline="")
+        assert glyph("NEG", cp1252) == "¬"
+        cp1252.write(glyph("NEG", cp1252))
+        cp1252.flush()
+        ascii_stream = io.TextIOWrapper(io.BytesIO(), encoding="ascii", newline="")
+        assert glyph("NEG", ascii_stream) == "~"
+
+    def test_implication_reuses_arrow(self):
+        """`→`/`->` is already `ARROW`; the renderer reuses it rather than adding `IMP`."""
+        assert glyph("ARROW", _FakeStream("cp1252")) == "->"
+        assert glyph("ARROW", _FakeStream("utf-8")) == "→"
