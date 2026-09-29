@@ -182,20 +182,20 @@ naming-convention update. Comments and docstring only, no executable definitions
 
 ---
 
-### Phase 3: TL_CM_1 and TL_CM_2 Entries and Registry Wiring [NOT STARTED]
+### Phase 3: TL_CM_1 and TL_CM_2 Entries and Registry Wiring [COMPLETED]
 
 **Goal**: Add the two expressible countermodel entries with per-example comments and wire them
 into both `countermodel_examples` and the active `example_range`.
 
 **Tasks**:
-- [ ] Re-read `examples.py` immediately before editing, in case a sibling changed it since Phase 2.
-- [ ] Add `TL_CM_1` (premises `['(A \Since B)']`, conclusions `['\Box (A \Since B)']`) below the header block, using the file's existing `_premises`/`_conclusions`/`_settings`/`_example` five-part shape and `back=2, mid=1, fwd=2, max_time=10, expectation=True`.
-- [ ] Add `TL_CM_2` (premises `['\Past A']`, conclusions `['\Box \Past A']`) with the same settings shape.
-- [ ] Write each per-example comment in the file's existing convention: what the entry is, that it is the nearest expressible translation substituting `\Box` for the absent `[stab]`, a pointer to the header's Box-versus-stability paragraph rather than a restatement of it, and the measurement note (decides well under 150ms at these defaults; stable across 20 consecutive runs and at enlarged segment lengths).
-- [ ] Add a "Theory-Limits Countermodels" subsection to `countermodel_examples` with both keys.
-- [ ] Add both keys to `example_range`'s countermodels block, with a one-line comment recording why they are active rather than recorded-but-inactive: each entry's expected outcome is "countermodel found", a currently-true and independently re-verified fact about this checker, which makes it a legitimate regression test. This is exactly the property the `[stab]`-form lacks, which is why that schema gets prose only.
-- [ ] Create no Python object of any kind for the `[stab]`-form schema, active or inactive, and add no standing test for it in `test_structure.py`.
-- [ ] Leave `test_bimodal.py` untouched; both entries flow through the existing `{**countermodel_examples, **theorem_examples}` merge into `unit_tests` and `test_example_range` automatically.
+- [x] Re-read `examples.py` immediately before editing, in case a sibling changed it since Phase 2. (Confirmed clean; last commit on the file was this task's own Phase 2 commit.)
+- [x] Add `TL_CM_1` (premises `['(A \Since B)']`, conclusions `['\Box (A \Since B)']`) below the header block, using the file's existing `_premises`/`_conclusions`/`_settings`/`_example` five-part shape and `back=2, mid=1, fwd=2, max_time=10, expectation=True`.
+- [x] Add `TL_CM_2` (premises `['\Past A']`, conclusions `['\Box \Past A']`) with the same settings shape.
+- [x] Write each per-example comment in the file's existing convention: what the entry is, that it is the nearest expressible translation substituting `\Box` for the absent `[stab]`, a pointer to the header's Box-versus-stability paragraph rather than a restatement of it, and the measurement note (decides well under 150ms at these defaults; stable across 20 consecutive runs and at enlarged segment lengths).
+- [x] Add a "Theory-Limits Countermodels" subsection to `countermodel_examples` with both keys.
+- [x] Add both keys to `example_range`'s countermodels block, with a one-line comment recording why they are active rather than recorded-but-inactive: each entry's expected outcome is "countermodel found", a currently-true and independently re-verified fact about this checker, which makes it a legitimate regression test. This is exactly the property the `[stab]`-form lacks, which is why that schema gets prose only.
+- [x] Create no Python object of any kind for the `[stab]`-form schema, active or inactive, and add no standing test for it in `test_structure.py`.
+- [x] Leave `test_bimodal.py` untouched; both entries flow through the existing `{**countermodel_examples, **theorem_examples}` merge into `unit_tests` and `test_example_range` automatically. (Confirmed: 53 -> 55 with no change to test_bimodal.py.)
 
 **Timing**: 1 hour
 

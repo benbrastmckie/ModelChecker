@@ -1426,6 +1426,48 @@ BX7P_LINEAR_S_TH_example = [
 # currently-passing countermodel regression tests, not evidence about the `[stab]`-form.
 ##############################################################################
 
+# TL_CM_1: SINCE-STABILITY LIMIT, BOX-ANALOGUE (general guard/event form)
+# Nearest expressible translation of BimodalLogic's `(g S e) -> [stab](g S e)`
+# (`FormalSystem.Metalogic.Decidability.PlusSharingWitnessFamily.stabSnceTarget`), substituting
+# `\Box` for the not-yet-implemented `[stab]`. Genuinely invalid here -- see the header's
+# "Box-versus-stability question" discussion above for why. Measured (2026-09-29): decides in
+# well under 150ms at these defaults; confirmed stable across 20 consecutive runs and at
+# enlarged segment lengths (back=4/mid=3/fwd=4).
+TL_CM_1_premises = ['(A \\Since B)']
+TL_CM_1_conclusions = ['\\Box (A \\Since B)']
+TL_CM_1_settings = {
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
+    'max_time' : 10,
+    'expectation' : True,
+}
+TL_CM_1_example = [
+    TL_CM_1_premises,
+    TL_CM_1_conclusions,
+    TL_CM_1_settings,
+]
+
+# TL_CM_2: PAST-STABILITY LIMIT, BOX-ANALOGUE (the \Past/H probe)
+# A second nearest-expressible probe, using the "always in the past" operator rather than the
+# fully general Since-schema. Also genuinely invalid, same reason as TL_CM_1 (see header).
+# Measured (2026-09-29): decides in well under 150ms at these defaults; confirmed stable across
+# 20 consecutive runs and at enlarged segment lengths.
+TL_CM_2_premises = ['\\Past A']
+TL_CM_2_conclusions = ['\\Box \\Past A']
+TL_CM_2_settings = {
+    'back' : 2,
+    'mid' : 1,
+    'fwd' : 2,
+    'max_time' : 10,
+    'expectation' : True,
+}
+TL_CM_2_example = [
+    TL_CM_2_premises,
+    TL_CM_2_conclusions,
+    TL_CM_2_settings,
+]
+
 
 
 ###############################################
@@ -1454,6 +1496,12 @@ countermodel_examples = {
     "BM_CM_2" : BM_CM_2_example,
     "BM_CM_3" : BM_CM_3_example,
     "BM_CM_4" : BM_CM_4_example,
+
+    # Theory-Limits Countermodels (see the THEORY-LIMITS section header above for the
+    # inclusion criterion; both entries here are ordinary, currently-passing regression tests,
+    # not the [stab]-form itself, which is recorded in prose only)
+    "TL_CM_1" : TL_CM_1_example,
+    "TL_CM_2" : TL_CM_2_example,
 }
 
 theorem_examples = {
@@ -1556,6 +1604,14 @@ example_range = {
     "BM_CM_2" : BM_CM_2_example,
     "BM_CM_3" : BM_CM_3_example,
     "BM_CM_4" : BM_CM_4_example,
+
+    # Theory-Limits Countermodels: both active rather than recorded-but-inactive, because each
+    # entry's expected outcome ("countermodel found") is a currently-true, independently
+    # re-verified fact about this checker -- a legitimate regression test. This is exactly the
+    # property the [stab]-form schema itself lacks (no certificate exists at any size), which is
+    # why that schema gets prose-only treatment in the header above rather than a dict entry.
+    "TL_CM_1" : TL_CM_1_example,
+    "TL_CM_2" : TL_CM_2_example,
 
     ### THEOREMS ###
 
