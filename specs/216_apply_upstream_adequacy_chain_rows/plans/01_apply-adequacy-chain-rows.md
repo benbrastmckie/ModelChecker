@@ -251,21 +251,21 @@ references within this phase rather than deferring.
 
 ---
 
-### Phase 3: TRUST_PIPELINE.md — A-component table and the Lean-development row [NOT STARTED]
+### Phase 3: TRUST_PIPELINE.md — A-component table and the Lean-development row [COMPLETED]
 
 **Goal**: Remove the live contradiction between the two documents and restate the compression and
 bounded-enumerator row as standing scope rather than as a live capability.
 
 **Tasks**:
 
-- [ ] Re-read `TRUST_PIPELINE.md` immediately before editing.
-- [ ] In the A-component table, replace the A3 row with the representability form, matching
+- [x] Re-read `TRUST_PIPELINE.md` immediately before editing.
+- [x] In the A-component table, replace the A3 row with the representability form, matching
       `ADEQUACY.md` section 7's wording, and cross-reference that section. The magnitude form
       ("configured lengths ≥ `f(|C|)`") must not survive anywhere in this document.
-- [ ] Replace the A1 row so it states partial discharge at the empty-premise, single-conclusion
+- [x] Replace the A1 row so it states partial discharge at the empty-premise, single-conclusion
       instance, and insert an A1-Γ row for the general form, matching Phase 2's rows. This closes
       the same contradiction Item 2 names for A3, one row up.
-- [ ] Rewrite the compression and verified-bounded-enumerator row in the "In the Lean development"
+- [x] Rewrite the compression and verified-bounded-enumerator row in the "In the Lean development"
       table. State the proved instance, state that the general form is the remaining open
       mathematics, and state the enumerator's standing scope: verified absence is a theorem at
       restricted scope, not a live capability and not a practical replacement for trusting Z3
@@ -274,10 +274,10 @@ bounded-enumerator row as standing scope rather than as a live capability.
       executable target that runs the enumerator, and the decision procedure is a `def` rather
       than a global `instance`. Write this as the row's standing scope, never as a correction of a
       previous claim.
-- [ ] In the "In this repository" table, correct the A3 bounds row, which states the work is
+- [x] In the "In this repository" table, correct the A3 bounds row, which states the work is
       blocked until the Lean side supplies `f`. That is now false: `f` exists in closed form. State
       what actually remains, which is the representability gap, not `f`'s existence.
-- [ ] Confirm the sequencing note following the Lean-development table is still accurate against
+- [x] Confirm the sequencing note following the Lean-development table is still accurate against
       the rewritten rows, and adjust only if it now asserts something false.
 
 **Timing**: 1 hour
