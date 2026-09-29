@@ -29,15 +29,16 @@ next_project_number: 219
 
 ### Cli Presentation
 
-218 [NOT STARTED] — Refactor bimodal/ theory countermodel presentation in...
+218 [RESEARCHED] — Refactor bimodal/ theory countermodel presentation in...
 
 ## Tasks
 
 ### 218. Refactor bimodal countermodel presentation
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: cli-presentation
 - **Dependencies**: None
+- **Research**: [218_refactor_bimodal_countermodel_presentation/reports/01_bimodal-countermodel-presentation.md]
 
 **Description**: Refactor bimodal/ theory countermodel presentation in dev_cli.py output: review the old presentation in /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/bimodal/examples.py for salvageable elements (inspiration only, theory is outdated), research best CLI display methods online, and systematically improve the presentation elements for the current bimodal/ theory in this repo, making any other systematic model-checker changes only as needed
 
