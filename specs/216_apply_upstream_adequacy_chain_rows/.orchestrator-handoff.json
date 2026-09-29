@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "phase": "plan",
+  "dispatch_seq": 4,
+  "summary": "Authored a five-phase plan (5h, four waves) applying the A1 / A1-Gamma / A3 adequacy-chain rows to ADEQUACY.md and TRUST_PIPELINE.md, resolving two live cross-document contradictions, and migrating WitnessFamily/Compression citations onto the name + manifest convention. Plan validates clean.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/216_apply_upstream_adequacy_chain_rows/plans/01_apply-adequacy-chain-rows.md",
+      "summary": "Five-phase plan for the three adequacy-chain component rows, the two TRUST_PIPELINE.md corrections, and the document-wide citation-convention migration."
+    }
+  ],
+  "phases_completed": 0,
+  "phases_total": 5,
+  "blockers": []
+}
