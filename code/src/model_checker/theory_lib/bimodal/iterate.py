@@ -83,6 +83,7 @@ from model_checker.solver import is_true
 from model_checker.theory_lib.bimodal.semantic import symmetry
 from model_checker.theory_lib.bimodal.semantic import certificate
 from model_checker.theory_lib.bimodal.semantic.certificate import WitnessFamily
+from model_checker.theory_lib.bimodal.semantic.render import build_names, print_differences
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -503,6 +504,13 @@ class BimodalModelIterator(BaseModelIterator):
         (`semantic/core.py`'s `extract_certificate`, Phase 10) rather than from Z3 models
         directly -- both structures have already independently re-checked their own
         certificate (Phase 12's S3 hook) by the time this runs.
+
+        Shape: `labels[lasso_index][position] == {"added": frozenset, "removed": frozenset}`
+        of closure `Formula`s (a lasso present on one side only is
+        `{"added": bool, "removed": bool}` instead); `box_guesses[child] == {"old", "new"}`
+        keyed by the boxed subformula's `Formula`; `target_time` is `{"old", "new"}` or
+        `None`. Formulas are kept as `Formula` objects, never reprs, so
+        `display_model_differences` can render them in the user's notation.
         """
         differences = {
             "labels": {},
@@ -531,7 +539,10 @@ class BimodalModelIterator(BaseModelIterator):
                 new_label = new_lasso.label(t)
                 old_label = old_lasso.label(t)
                 if new_label != old_label:
-                    position_diffs[t] = {"old": sorted(map(repr, old_label)), "new": sorted(map(repr, new_label))}
+                    position_diffs[t] = {
+                        "added": frozenset(new_label - old_label),
+                        "removed": frozenset(old_label - new_label),
+                    }
             if position_diffs:
                 label_diffs[lasso_index] = position_diffs
         if label_diffs:
@@ -539,11 +550,11 @@ class BimodalModelIterator(BaseModelIterator):
 
         guess_diffs = {}
         all_boxed = set(new_certificate.bx.keys()) | set(previous_certificate.bx.keys())
-        for child in all_boxed:
+        for child in sorted(all_boxed, key=repr):
             new_guess = new_certificate.bx_of(child)
             old_guess = previous_certificate.bx_of(child)
             if new_guess != old_guess:
-                guess_diffs[repr(child)] = {"old": old_guess, "new": new_guess}
+                guess_diffs[child] = {"old": old_guess, "new": new_guess}
         if guess_diffs:
             differences["box_guesses"] = guess_diffs
 
@@ -555,34 +566,16 @@ class BimodalModelIterator(BaseModelIterator):
         return differences
 
     def display_model_differences(self, model_structure, output=sys.stdout):
-        """Print label-bit/box-guess/target-time differences from the previous model."""
-        if not hasattr(model_structure, 'model_differences') or not model_structure.model_differences:
+        """Print label-bit/box-guess/target-time differences from the previous model in the
+        shape `docs/ITERATE.md` documents, via `semantic/render.py`'s `print_differences`
+        (also what `BimodalStructure.print_model_differences` prints on the live path).
+        Formulas render in the user's own notation when `model_structure.syntax` is
+        available, else structurally."""
+        differences = getattr(model_structure, 'model_differences', None)
+        if not differences:
             return
-
-        differences = model_structure.model_differences
-        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
-
-        if differences.get('labels'):
-            print("Label Changes:", file=output)
-            for lasso_index, changes in differences['labels'].items():
-                if isinstance(changes, dict) and ('added' in changes or 'removed' in changes):
-                    if changes.get('added'):
-                        print(f"  + Lasso L{lasso_index} added", file=output)
-                    if changes.get('removed'):
-                        print(f"  - Lasso L{lasso_index} removed", file=output)
-                    continue
-                print(f"  Lasso L{lasso_index} changed:", file=output)
-                for position, change in sorted(changes.items()):
-                    print(f"    Position {position}: {change['old']} -> {change['new']}", file=output)
-
-        if differences.get('box_guesses'):
-            print("\nBox Guess Changes:", file=output)
-            for formula_repr, change in differences['box_guesses'].items():
-                print(f"  {formula_repr}: {change['old']} -> {change['new']}", file=output)
-
-        if differences.get('target_time'):
-            change = differences['target_time']
-            print(f"\nTarget Time: {change['old']} -> {change['new']}", file=output)
+        names = build_names(getattr(model_structure, "syntax", None))
+        print_differences(differences, output, names)
 
     def iterate_generator(self):
         """Merge bimodal-specific (label/guess) differences into each yielded model,
@@ -614,18 +607,7 @@ def iterate_example(example, max_iterations=None):
     if max_iterations is not None:
         iterator.max_iterations = max_iterations
 
-    model_structures = iterator.iterate()
-
-    for structure in model_structures:
-        if hasattr(structure, 'model_differences') and structure.model_differences:
-            def create_print_method(struct):
-                def print_method(output=None):
-                    iterator.display_model_differences(struct, output or sys.stdout)
-                    return True
-                return print_method
-            structure.print_model_differences = create_print_method(structure)
-
-    return model_structures
+    return iterator.iterate()
 
 
 def iterate_example_generator(example, max_iterations=None):

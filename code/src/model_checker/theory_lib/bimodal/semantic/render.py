@@ -34,11 +34,12 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
+from model_checker.output.color import use_colors
 from model_checker.utils.glyphs import glyph
 
 from .formula import Atom, Bot, Box, Formula, Imp, Snce, Untl, translate
 
-__all__ = ["build_names", "render"]
+__all__ = ["build_names", "print_differences", "render"]
 
 Names = Dict[Formula, str]
 
@@ -120,3 +121,59 @@ def render(formula: Formula, output: Any = None, names: Optional[Names] = None) 
         return f"({go(left)} {glyph('ARROW', output)} {go(right)})"
 
     return go(formula)
+
+
+def print_differences(differences: Dict[str, Any], output: Any, names: Optional[Names] = None) -> None:
+    """Print a bimodal `model_differences` dict (`iterate.py`'s `_calculate_differences`
+    shape) in the form `docs/ITERATE.md` documents: `L0, position -1: + □A` per changed label
+    bit, `□A: False -> True` per changed box guess, `+ L1 added`/`- L1 removed` per lasso
+    present on one side only, and `Target Time: 0 -> 1`.
+
+    Shared by `BimodalModelIterator.display_model_differences` and
+    `BimodalStructure.print_model_differences` (the method `builder/runner.py` actually calls
+    on the live `iterate: N` path), so both print identical text. `+` lines are green and `-`
+    lines red only when `use_colors(output)` holds; the sign is always printed, so color never
+    carries information alone. Generic keys the shared iterator merges in (`structural_metrics`
+    and the like) are ignored here.
+    """
+    if not differences:
+        return
+    colored = use_colors(output)
+    green = "\033[32m" if colored else ""
+    red = "\033[31m" if colored else ""
+    reset = "\033[0m" if colored else ""
+
+    def show(formula: Formula) -> str:
+        return render(formula, output, names)
+
+    print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+
+    if differences.get("labels"):
+        print("Label Changes:", file=output)
+        for lasso_index, changes in sorted(differences["labels"].items()):
+            if isinstance(changes, dict) and ("added" in changes or "removed" in changes):
+                if changes.get("added"):
+                    print(f"  {green}+ L{lasso_index} added{reset}", file=output)
+                if changes.get("removed"):
+                    print(f"  {red}- L{lasso_index} removed{reset}", file=output)
+                continue
+            for position, change in sorted(changes.items()):
+                for formula in sorted(change["added"], key=repr):
+                    print(
+                        f"  L{lasso_index}, position {position}: {green}+ {show(formula)}{reset}",
+                        file=output,
+                    )
+                for formula in sorted(change["removed"], key=repr):
+                    print(
+                        f"  L{lasso_index}, position {position}: {red}- {show(formula)}{reset}",
+                        file=output,
+                    )
+
+    if differences.get("box_guesses"):
+        print("\nBox Guess Changes:", file=output)
+        for child, change in differences["box_guesses"].items():
+            print(f"  {show(Box(child))}: {change['old']} -> {change['new']}", file=output)
+
+    if differences.get("target_time"):
+        change = differences["target_time"]
+        print(f"\nTarget Time: {change['old']} -> {change['new']}", file=output)

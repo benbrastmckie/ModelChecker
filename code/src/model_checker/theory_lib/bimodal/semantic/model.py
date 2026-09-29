@@ -79,6 +79,7 @@ from model_checker.theory_lib.errors import ModelConstructionError
 from .certificate import _box_window, recheck
 from .checker import ProtocolFailure, check_certificate
 from .formula import Atom, Box, Formula
+from .render import build_names, print_differences
 
 
 class BimodalStructure(ModelDefaults):
@@ -443,6 +444,19 @@ class BimodalStructure(ModelDefaults):
             f"  Verification: {self._verification_label()}\n",
             file=output,
         )
+
+    def print_model_differences(self, output: TextIO = sys.stdout) -> None:
+        """Print this model's label-bit/box-guess/target-time differences from the previous
+        iterate step (`iterate.py`'s `_calculate_differences`, merged into
+        `self.model_differences` by `BimodalModelIterator.iterate_generator`) in the shape
+        `docs/ITERATE.md` documents. This is the method `builder/runner.py` calls on the live
+        `iterate: N` path, so it must exist here and not only on the iterator; the framework
+        default would print the generic structural-metrics block, which is meaningless for a
+        theory whose model is a label/guess assignment."""
+        differences = getattr(self, "model_differences", None)
+        if not differences:
+            return
+        print_differences(differences, output, build_names(getattr(self, "syntax", None)))
 
     def print_all(
         self,

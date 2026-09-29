@@ -98,18 +98,25 @@ to diff any more; a "model," under this encoding, *is* a label/guess assignment.
 
 ### Displayed Differences
 
-`display_model_differences` prints label and guess differences directly:
+`display_model_differences` prints label and guess differences directly, one `+`/`-` line per
+changed label bit and one line per changed box guess:
 
 ```
 === DIFFERENCES FROM PREVIOUS MODEL ===
 
 Label Changes:
-  L0, position -1: + Box(A)
+  L0, position -1: + □A
   L1, position 0: - A
 
 Box Guess Changes:
-  Box(A): False -> True
+  □A: False -> True
 ```
+
+Formulas print in the notation you wrote them in (`\Box A`, `\Diamond A`, ...) whenever the
+changed bit is a sentence or subsentence of the example; a closure formula you never spelled
+out falls back to the `□`/`◇`/`¬`/`∧`/`∨` symbols (`semantic/render.py`), with ASCII substitutes
+on a stream that cannot encode them. The `+`/`-` sign is always printed; the green/red coloring
+is added only on a terminal (see `docs/ARCHITECTURE.md`'s "Rendering policy").
 
 ### Interpreting Bimodal Differences
 

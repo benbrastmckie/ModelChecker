@@ -41,7 +41,7 @@ from model_checker.theory_lib.bimodal.iterate import (
 )
 from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, WitnessFamily
 from model_checker.theory_lib.bimodal.semantic.core import BimodalSemantics
-from model_checker.theory_lib.bimodal.semantic.formula import Atom
+from model_checker.theory_lib.bimodal.semantic.formula import Atom, Box
 from model_checker.theory_lib.bimodal.semantic import certificate, symmetry
 from model_checker.theory_lib.bimodal.tests._build_support import _settings
 from model_checker.theory_lib.bimodal.tests._pinned_eval import full_constraints
@@ -521,23 +521,114 @@ class TestCalculateDifferences:
         assert differences["labels"] == {}
         assert differences["box_guesses"] == {}
 
-    def test_display_model_differences_does_not_raise(self, capsys):
+    def test_display_model_differences_prints_user_notation_diffs(self, capsys):
+        """Golden shape (`docs/ITERATE.md`, "Displayed Differences"): one `+`/`-` line per
+        changed label bit, rendered by `semantic/render.py` in user notation (never a
+        dataclass repr), and box-guess changes as `□A: False -> True`."""
         semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
         iterator = BimodalModelIterator(_mock_build_example(semantics))
-        atom = Atom("A")
-        model_structure = SimpleNamespace(
-            model_differences={
-                "labels": {0: {0: {"old": ["Atom(...)"], "new": []}}},
-                "box_guesses": {"Atom('A')": {"old": True, "new": False}},
-                "target_time": {"old": 0, "new": 1},
-            }
+        a = Atom("A")
+        box_a = Box(a)
+        previous = WitnessFamily(
+            bx={a: False},
+            lassos=(
+                LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset({a}),)),
+                LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset({a}),)),
+            ),
         )
-        iterator.display_model_differences(model_structure, output=__import__("sys").stdout)
+        new = WitnessFamily(
+            bx={a: True},
+            lassos=(
+                LabelledLasso(back=(frozenset({box_a}),), mid=(), fwd=(frozenset({a}),)),
+                LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset(),)),
+            ),
+        )
+        new_structure = SimpleNamespace(certificate=new, target_time=0, semantics=semantics)
+        previous_structure = SimpleNamespace(certificate=previous, target_time=0, semantics=semantics)
+        new_structure.model_differences = iterator._calculate_differences(
+            new_structure, previous_structure
+        )
+
+        iterator.display_model_differences(new_structure, output=__import__("sys").stdout)
         out = capsys.readouterr().out
-        assert "DIFFERENCES FROM PREVIOUS MODEL" in out
+        assert "=== DIFFERENCES FROM PREVIOUS MODEL ===" in out
         assert "Label Changes:" in out
+        assert "  L0, position -1: + □A" in out
+        assert "  L1, position 0: - A" in out
         assert "Box Guess Changes:" in out
-        assert "Target Time:" in out
+        assert "  □A: False -> True" in out
+        assert "Target Time:" not in out
+        assert "Atom(" not in out and "Imp(" not in out and "Box(" not in out
+        assert "\033[" not in out  # capsys is not a TTY
+
+    def test_display_model_differences_uses_the_users_own_notation_when_a_syntax_exists(self, capsys):
+        from model_checker.syntactic import Syntax
+        from model_checker.theory_lib.bimodal.operators import bimodal_operators
+        from model_checker.theory_lib.bimodal.semantic.formula import translate
+
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        syntax = Syntax(["\\Diamond A"], [], bimodal_operators)
+        diamond_a = translate(syntax.premises[0])
+        previous = WitnessFamily(
+            bx={}, lassos=(LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset(),)),)
+        )
+        new = WitnessFamily(
+            bx={}, lassos=(LabelledLasso(back=(frozenset({diamond_a}),), mid=(), fwd=(frozenset(),)),)
+        )
+        new_structure = SimpleNamespace(certificate=new, target_time=0, semantics=semantics, syntax=syntax)
+        previous_structure = SimpleNamespace(certificate=previous, target_time=0, semantics=semantics)
+        new_structure.model_differences = iterator._calculate_differences(new_structure, previous_structure)
+
+        iterator.display_model_differences(new_structure, output=__import__("sys").stdout)
+        out = capsys.readouterr().out
+        assert "  L0, position -1: + \\Diamond A" in out
+
+    def test_display_model_differences_reports_lasso_count_and_target_time_changes(self, capsys):
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        iterator = BimodalModelIterator(_mock_build_example(semantics))
+        one = LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset(),))
+        previous = WitnessFamily(bx={}, lassos=(one,))
+        new = WitnessFamily(bx={}, lassos=(one, one))
+        new_structure = SimpleNamespace(certificate=new, target_time=1, semantics=semantics)
+        previous_structure = SimpleNamespace(certificate=previous, target_time=0, semantics=semantics)
+        new_structure.model_differences = iterator._calculate_differences(new_structure, previous_structure)
+
+        iterator.display_model_differences(new_structure, output=__import__("sys").stdout)
+        out = capsys.readouterr().out
+        assert "  + L1 added" in out
+        assert "Target Time: 0 -> 1" in out
+
+
+class TestStructurePrintsItsOwnDifferences:
+    """`builder/runner.py` calls `structure.print_model_differences()` on the live path, so
+    the structure itself must print the bimodal shape (not the framework's generic block)."""
+
+    def test_print_model_differences_on_a_built_structure(self, capsys):
+        from model_checker.theory_lib.bimodal.tests._build_support import _build
+
+        structure = _build(["\\Box A"], ["B"], back=1, mid=0, fwd=1, verify="off")
+        a = Atom("A")
+        structure.model_differences = {
+            "structural_metrics": {"worlds": 0},  # generic key the shared iterator merges in
+            "labels": {0: {-1: {"added": frozenset({Box(a)}), "removed": frozenset({a})}}},
+            "box_guesses": {a: {"old": False, "new": True}},
+            "target_time": None,
+        }
+        structure.print_model_differences(output=__import__("sys").stdout)
+        out = capsys.readouterr().out
+        assert "  L0, position -1: + \\Box A" in out  # the user's own notation
+        assert "  L0, position -1: - A" in out
+        assert "  \\Box A: False -> True" in out
+        assert "Structural Properties" not in out
+        assert "Atom(" not in out
+
+    def test_print_model_differences_is_silent_without_differences(self, capsys):
+        from model_checker.theory_lib.bimodal.tests._build_support import _build
+
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="off")
+        structure.print_model_differences(output=__import__("sys").stdout)
+        assert capsys.readouterr().out == ""
 
 
 class TestIterateExampleFunction:

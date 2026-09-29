@@ -182,6 +182,13 @@ validity claim" message if `self.certificate is None`.
 #### `print_evaluation(self, output=sys.__stdout__)`
 Print the evaluation point (main lasso and target position), or the no-certificate message.
 
+#### `print_model_differences(self, output=sys.stdout)`
+
+Print this model's label-bit/box-guess/target-time differences from the previous `iterate`
+step in the shape `ITERATE.md` documents (`L0, position -1: + □A`), rendering formulas in the
+user's notation via `semantic/render.py`. This is the method the builder's live `iterate: N`
+path calls; `BimodalModelIterator.display_model_differences` prints the same text.
+
 #### `print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__)`
 Print the complete model report: info header, certificate, evaluation point, interpreted
 premises/conclusions, and the raw Z3 model if requested.
@@ -371,6 +378,8 @@ Generator version of `iterate_example`, yielding each `BimodalStructure` increme
   its own real detection via `symmetry.certificate_orbit_key`, an orbit-invariant canonical key
   over the certificate's rotation/permutation symmetry group
 - `display_model_differences(model_structure, output=sys.stdout)`: format label/guess differences
+  in user notation via `semantic/render.py`'s `print_differences` (shared with
+  `BimodalStructure.print_model_differences`)
 
 ## Type Definitions
 

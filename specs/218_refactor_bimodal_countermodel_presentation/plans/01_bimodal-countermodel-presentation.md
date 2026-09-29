@@ -405,28 +405,28 @@ other bimodal consumer to update.
 
 ---
 
-### Phase 6: Iteration Diffs in User Notation [NOT STARTED]
+### Phase 6: Iteration Diffs in User Notation [COMPLETED]
 
 **Goal**: `iterate.py`'s `_calculate_differences`/`display_model_differences` produce the
 `L0, position -1: + □A` / `- A` shape `docs/ITERATE.md` documents, rendering formulas via
 Phase 1's `render` instead of `repr`.
 
 **Tasks**:
-- [ ] Tests first in `tests/integration/test_iterate.py` (extend
+- [x] Tests first in `tests/integration/test_iterate.py` (extend
   `test_display_model_differences_does_not_raise` into a golden test): build two structures
   whose certificates differ in one label bit and one box guess (hand-built `LabelledLasso`
   certificates are acceptable), set `model_differences`, and assert the printed lines are
   `  L0, position -1: + □A`-shaped, `Box Guess Changes:` lines read `□A: False -> True`, and no
   `Atom(`/`Imp(` substring appears.
-- [ ] `_calculate_differences`: store `added`/`removed` formula sets per position (not sorted
+- [x] `_calculate_differences`: store `added`/`removed` formula sets per position (not sorted
   repr lists); keep `box_guesses` keyed by the `Formula` object.
-- [ ] `display_model_differences`: render with `render(formula, output, names)` where `names`
+- [x] `display_model_differences`: render with `render(formula, output, names)` where `names`
   comes from `model_structure.syntax` (fallback structural); `+`/`-` prefixes; colors (GREEN
   `+`, RED `-`) via `use_colors(output)`.
-- [ ] Reconcile `docs/ITERATE.md`'s sample block with the actual output (regenerate from the
+- [x] Reconcile `docs/ITERATE.md`'s sample block with the actual output (regenerate from the
   test's captured text) and update `docs/API_REFERENCE.md`'s one-line description if the
   signature changes.
-- [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py -q`
+- [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py -q`
   and `cd code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py` with an example
   setting `iterate` >= 2 (scratch file under the scratchpad directory).
 
@@ -439,6 +439,15 @@ Phase 1's `render` instead of `repr`.
 **Scope Hypothesis**: `iterate.py`, `test_iterate.py`, `ITERATE.md`, and possibly
 `API_REFERENCE.md` are the only files; confirm `grep -rn "model_differences" code/src/model_checker/theory_lib/bimodal`
 lists no other reader of the diff dict's shape.
+*Probe result (hypothesis incomplete)*: no other reader of the dict, but the live
+`dev_cli.py` run with `iterate: 3` never reached `display_model_differences` at all --
+`builder/runner.py` calls `structure.print_model_differences()`, which `BimodalStructure` did
+not override, so the framework's generic "Structural Properties" block printed instead.
+*Deviation (extended)*: the display logic lives in `semantic/render.py::print_differences`,
+shared by `BimodalModelIterator.display_model_differences` and a new
+`BimodalStructure.print_model_differences` override (`semantic/model.py`); `iterate_example`'s
+per-structure monkeypatch wrapper was removed as redundant. `API_REFERENCE.md` documents the new
+method (signatures otherwise unchanged).
 
 **Files to modify**:
 - `code/src/model_checker/theory_lib/bimodal/iterate.py` - `_calculate_differences`, `display_model_differences`
