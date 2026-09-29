@@ -24,16 +24,17 @@ next_project_number: 221
 
 198 [BLOCKED] — Make bound realization (A3) a computation rather than an...
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
-220 [RESEARCHED] — Implement user-specifiable unicode characters for operators...
+220 [PLANNED] — Implement user-specifiable unicode characters for operators...
 
 ## Tasks
 
 ### 220. Unicode operator characters
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: general
 - **Topic**: semantics
 - **Dependencies**: None
 - **Research**: [220_unicode_operator_characters/reports/01_unicode-operator-characters.md]
+- **Plan**: [220_unicode_operator_characters/plans/01_unicode-operator-aliases.md]
 
 **Description**: Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form
 

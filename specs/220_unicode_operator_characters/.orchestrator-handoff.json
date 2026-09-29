@@ -1,0 +1,16 @@
+{
+  "status": "planned",
+  "task_number": 220,
+  "session_id": "sess_1790695815_82e5a1_220",
+  "dispatch_seq": 2,
+  "phases_completed": 0,
+  "phases_total": 6,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
+      "summary": "Six-phase implementation plan for Operator.aliases-based user-specifiable Unicode operator characters in theory operators.py files."
+    }
+  ],
+  "next_steps": "Run /implement 220 to execute the plan"
+}

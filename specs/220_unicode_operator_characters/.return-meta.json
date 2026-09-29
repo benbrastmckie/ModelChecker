@@ -1,42 +1,30 @@
 {
-  "status": "researched",
+  "status": "planned",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/220_unicode_operator_characters/reports/01_unicode-operator-characters.md",
-      "summary": "Traces the operator parsing/registration pipeline and finds the parser is already Unicode-agnostic for infix/prefix operators; the real gap is that Operator.name is a single string with no alias slot, so operators.py cannot expose both a canonical LaTeX name and a user-chosen Unicode glyph for the same operator class. Recommends adding an Operator.aliases class attribute plus an OperatorCollection.add_operator extension, scoped to arity-1/arity-2 operators (excludes \\top/\\bot)."
+      "type": "plan",
+      "path": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
+      "summary": "Six-phase plan adding an Operator.aliases class attribute plus OperatorCollection.add_operator registration so theory operators.py files can declare user-specifiable Unicode glyphs for infix/prefix operators, with conflict-aware DuplicateOperatorError, UnknownOperatorError wiring, is_syntactically_wff tightening, theory adoption, docs, and full regression."
     }
   ],
-  "next_steps": "Run /plan 220 to create an implementation plan for the Operator.aliases mechanism",
-  "dispatch_seq": 1,
+  "next_steps": "Run /implement 220 to execute the plan",
   "metadata": {
     "session_id": "sess_1790695815_82e5a1_220",
-    "agent_type": "general-research-agent",
+    "agent_type": "planner-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "general-research-agent"],
-    "findings_count": 7
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 6,
+    "estimated_hours": 7.5,
+    "dependency_waves": [[1, 3], [2], [4], [5, 6]]
   },
+  "dispatch_seq": 2,
   "memory_candidates": [
     {
-      "content": "In ModelChecker, the formula parser (utils/parsing.py, syntactic/collection.py, syntactic/sentence.py) is already fully generic with respect to operator-name spelling: arbitrary Unicode strings work today as Operator.name for both infix (arity-2) and prefix (arity-1) operators, with no changes needed to the parser itself. The only hardcoded-by-literal-string operators are the two nullary constants \\top/\\bot, which are matched by literal string comparison at 8+ call sites across syntactic/ and theory_lib/. The syntactic/tests/unit/test_operators.py and test_syntax.py fixtures already use Unicode operator names (\"∧\", \"∨\", \"¬\") as their default test data, proving this generic behavior.",
+      "content": "When adding a multi-key registration mechanism (e.g. operator aliases) to a registry whose add() is called once per existing key by a deserializer, a blanket 'raise on duplicate' policy breaks the round-trip: the same class gets re-registered N+1 times. The correct policy is conflict-aware -- re-registering the SAME object under a key it already owns is a silent no-op, while a DIFFERENT object claiming a taken key raises. In ModelChecker this applies to OperatorCollection.add_operator, whose re-add paths are builder/serialize.py::deserialize_operators (iterates every dictionary key) and add_operator's own OperatorCollection-merge branch.",
       "category": "PATTERN",
-      "source_artifact": "specs/220_unicode_operator_characters/reports/01_unicode-operator-characters.md",
-      "confidence": 0.85,
-      "suggested_keywords": ["model_checker", "syntactic", "operator", "unicode", "parser", "operators.py"]
-    },
-    {
-      "content": "In ModelChecker, OperatorCollection.add_operator (syntactic/collection.py) always keys its operator_dictionary from the operator class's own `.name` class attribute, discarding any dict keys a caller's get_operators() function used. This means an operator can only ever be looked up under one spelling today; giving a theory operator both a LaTeX name and a Unicode alias requires a new `aliases` class-attribute mechanism, not just adding extra entries to a get_operators() dict (those extra dict keys are silently ignored when the values are registered via add_operator).",
-      "category": "INSIGHT",
-      "source_artifact": "specs/220_unicode_operator_characters/reports/01_unicode-operator-characters.md",
-      "confidence": 0.85,
-      "suggested_keywords": ["model_checker", "OperatorCollection", "add_operator", "operator name", "registration"]
-    },
-    {
-      "content": "ModelChecker already has two separate, working-but-disconnected Unicode<->LaTeX operator translation mechanisms that are NOT wired into the core syntactic parser: (1) jupyter/unicode.py's latex_to_unicode/unicode_to_latex static dicts plus the theory extension point UNICODE_OPERATOR_EXTENSIONS (only implemented by exclusion/__init__.py), used solely for Jupyter notebook display; (2) semantic_theory[\"dictionary\"] consumed by builder/translation.py's OperatorTranslation.translate, a naive pre-parse str.replace() substitution used only for theory-to-theory operator translation (e.g. exclusion->logos for --maximize). Neither affects the model-checker CLI's actual formula parsing of a single theory's own notation.",
-      "category": "PATTERN",
-      "source_artifact": "specs/220_unicode_operator_characters/reports/01_unicode-operator-characters.md",
-      "confidence": 0.75,
-      "suggested_keywords": ["model_checker", "jupyter", "unicode", "translation", "dictionary", "builder"]
+      "source_artifact": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["registry", "duplicate", "idempotent", "deserialize", "alias", "OperatorCollection"]
     }
   ]
 }

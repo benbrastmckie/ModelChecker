@@ -4,18 +4,23 @@
     {
       "project_number": 220,
       "project_name": "unicode_operator_characters",
-      "status": "researched",
+      "status": "planned",
       "task_type": "general",
       "description": "Implement user-specifiable unicode characters for operators in theory operators.py files with infix or prefix form",
       "topic": "semantics",
       "created": "2026-09-29T15:27:54Z",
-      "last_updated": "2026-09-29T15:36:57Z",
+      "last_updated": "2026-09-29T15:41:52Z",
       "session_id": "sess_1790695815_82e5a1",
       "artifacts": [
         {
           "path": "specs/220_unicode_operator_characters/reports/01_unicode-operator-characters.md",
           "type": "report",
           "summary": "Traces the operator parsing/registration pipeline and finds the parser is already Unicode-agnostic for infix/prefix operators; the real gap is that Operator.name is a single string with no alias slot, so operators.py cannot expose both a canonical LaTeX name and a user-chosen Unicode glyph for the same operator class. Recommends adding an Operator.aliases class attribute plus an OperatorCollection.add_operator extension, scoped to arity-1/arity-2 operators (excludes \\top/\\bot)."
+        },
+        {
+          "path": "specs/220_unicode_operator_characters/plans/01_unicode-operator-aliases.md",
+          "type": "plan",
+          "summary": "Six-phase implementation plan for Operator.aliases-based user-specifiable Unicode operator characters in theory operators.py files."
         }
       ],
       "next_artifact_number": 2
