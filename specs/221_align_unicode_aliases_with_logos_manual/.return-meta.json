@@ -1,18 +1,34 @@
 {
-  "status": "researched",
-  "dispatch_seq": 1,
+  "status": "planned",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/221_align_unicode_aliases_with_logos_manual/reports/01_align-unicode-aliases-logos-manual.md",
-      "summary": "Complete manual-symbol-to-operator-to-Unicode table across every shipped theory, font-coverage/printability evidence via fc-list and unicodedata, resolution of the alphanumeric tense-letter constraint, and concrete recommendations (add ◁/▷ to Since/Until, drop ⏴/⏵ from Past/Future, an open decision on \\preceq, a curated-registry-backed printability test design, and the OPERATORS.md table update)."
+      "type": "plan",
+      "path": "specs/221_align_unicode_aliases_with_logos_manual/plans/01_align-unicode-aliases-logos-manual.md",
+      "summary": "Six-phase plan aligning theory operator Unicode aliases with the Logos manual: curated glyph registry plus cross-theory printability test, bimodal and constitutive alias changes, jupyter notation-map sync, and a complete OPERATORS.md manual-symbol table."
     }
   ],
-  "next_steps": "Run /plan 221 to create an implementation plan from this report's Recommendations (aliasing changes to bimodal SinceOperator/UntilOperator/FutureOperator/PastOperator, the two existing test files that hard-code the operators being changed, a new printability acceptance test backed by a curated glyph registry, and the docs/usage/OPERATORS.md table update). The plan phase must explicitly resolve the \\preceq/⪯ open decision in report section 6.",
+  "next_steps": "Run /implement 221 to execute the plan",
   "metadata": {
     "session_id": "sess_1790715293_f0aaed_221",
-    "agent_type": "python-research-agent",
+    "agent_type": "planner-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "python-research-agent"]
-  }
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 6,
+    "estimated_hours": 6,
+    "dependency_waves": [[1], [2, 3], [4, 5], [6]]
+  },
+  "user_decision": {
+    "question": "Should the Unicode alias U+2AAF for the relevance operator \\preceq be retired, or kept despite failing the printability criterion this task introduces (carried by exactly 1 monospace font family) and despite the Logos manual independently using that glyph for duration ordering?",
+    "options": [
+      "Retire it - remove the alias, keep \\preceq as the sole spelling, consistent with the new printability criterion and with the already-unaliased \\next/\\prev/\\CFBox/\\CFDiamond precedent",
+      "Keep it - grandfather the glyph into the curated registry as a documented exception, preserving the existing user-facing spelling and its relevance-logic literature mnemonic"
+    ],
+    "recommended": "Retire it - remove the alias, keep \\preceq as the sole spelling, consistent with the new printability criterion and with the already-unaliased \\next/\\prev/\\CFBox/\\CFDiamond precedent",
+    "blocking": false
+  },
+  "memory_candidates": [],
+  "modified_files": [
+    "specs/221_align_unicode_aliases_with_logos_manual/plans/01_align-unicode-aliases-logos-manual.md"
+  ],
+  "dispatch_seq": 2
 }

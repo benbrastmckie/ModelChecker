@@ -1,0 +1,37 @@
+{
+  "status": "planned",
+  "task_number": 221,
+  "session_id": "sess_1790715293_f0aaed_221",
+  "phases_completed": 0,
+  "phases_total": 6,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/221_align_unicode_aliases_with_logos_manual/plans/01_align-unicode-aliases-logos-manual.md",
+      "summary": "Six-phase implementation plan for Logos-manual Unicode alias alignment."
+    }
+  ],
+  "decisions_made": [
+    "Tense operators \\Past/\\Future/\\past/\\future stay unaliased: manual symbols are the letters H/G/P/F, rejected by the isalnum() tokenizer constraint; the manual's triangle.t/triangle.b are bidirectional derived operators with no ModelChecker implementation, so they are not substitutes.",
+    "The existing U+23F4/U+23F5 aliases on \\Past/\\Future are removed rather than replaced (1 monospace font family; no manual counterpart).",
+    "\\Since gets U+25C1 and \\Until gets U+25B7, matching the manual's since=triangle.l / until=triangle.r (47 fonts / 17 monospace families).",
+    "The U+2AAF alias on \\preceq is retired (see user_decision, non-blocking): it fails the new printability criterion and the manual binds that glyph to duration ordering instead.",
+    "The printability criterion is enforced against a curated, offline-vetted glyph registry rather than a live fc-list call at test time.",
+    "jupyter/unicode.py is added to scope (not covered by the research report): it is a second hand-written LaTeX/Unicode map carrying the retired glyph, synced in Phase 4 with a bidirectional drift-guard test."
+  ],
+  "user_decision": {
+    "question": "Should the Unicode alias U+2AAF for the relevance operator \\preceq be retired, or kept despite failing the printability criterion this task introduces (carried by exactly 1 monospace font family) and despite the Logos manual independently using that glyph for duration ordering?",
+    "options": [
+      "Retire it - remove the alias, keep \\preceq as the sole spelling, consistent with the new printability criterion and with the already-unaliased \\next/\\prev/\\CFBox/\\CFDiamond precedent",
+      "Keep it - grandfather the glyph into the curated registry as a documented exception, preserving the existing user-facing spelling and its relevance-logic literature mnemonic"
+    ],
+    "recommended": "Retire it - remove the alias, keep \\preceq as the sole spelling, consistent with the new printability criterion and with the already-unaliased \\next/\\prev/\\CFBox/\\CFDiamond precedent",
+    "blocking": false
+  },
+  "next_steps": "Run /implement 221 to execute the plan",
+  "dispatch_seq": 2,
+  "summary": "Authored a six-phase implementation plan (6h, 4 dependency waves) for aligning theory operator Unicode aliases with the Logos manual: a curated offline-vetted glyph registry plus a cross-theory printability acceptance test as an intentional RED baseline, bimodal alias realignment (add U+25C1/U+25B7 for \\Since/\\Until, retire U+23F4/U+23F5 from \\Past/\\Future), retirement of the U+2AAF alias on \\preceq, a sync and drift guard for the previously-unsurveyed jupyter/unicode.py notation maps, and a complete manual-symbol table in docs/usage/OPERATORS.md.",
+  "blockers": [],
+  "sorry_inventory": [],
+  "continuation_path": null
+}
