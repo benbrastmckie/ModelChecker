@@ -1,17 +1,22 @@
 {
-  "status": "researched",
-  "dispatch_seq": 1,
+  "status": "planned",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/222_improve_printed_model_display_and_colors/reports/01_bimodal-model-print-display.md",
-      "summary": "Confirms all 5 bimodal display defects (line-width blowout, ambiguous lasso reprs, terse evaluation point, missing arrow duration, thin color coverage) with live pty-captured measurements against the Logos benchmark, finds the 3-sibling-theory sys.__stdout__ audit already compliant, and identifies utils/glyphs.py::to_subscript as an already-existing, unused fix for the duration glyph."
+      "type": "plan",
+      "path": "specs/222_improve_printed_model_display_and_colors/plans/01_improve-printed-model-display.md",
+      "summary": "8-phase display/formatting plan for bimodal (and logos/exclusion) printed model output: line-width bound, unambiguous lasso labels, multi-line evaluation block, arrow duration subscripts, wider palette coverage, and documentation sync."
     }
   ],
+  "memory_candidates": [],
+  "next_steps": "Run /implement 222 to execute the plan",
   "metadata": {
     "session_id": "sess_1790811149_7da23f_222",
-    "agent_type": "python-research-agent",
+    "agent_type": "planner-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "python-research-agent"]
-  }
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 8,
+    "estimated_hours": 9,
+    "dependency_waves": [[1, 2, 3, 4], [5], [6], [7], [8]]
+  },
+  "dispatch_seq": 2
 }

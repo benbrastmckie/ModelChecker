@@ -1,0 +1,17 @@
+{
+  "status": "planned",
+  "task_number": 222,
+  "phase": "plan",
+  "session_id": "sess_1790811149_7da23f_222",
+  "dispatch_seq": 2,
+  "phases_completed": 0,
+  "phases_total": 8,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/222_improve_printed_model_display_and_colors/plans/01_improve-printed-model-display.md",
+      "summary": "8-phase display/formatting plan for bimodal (and logos/exclusion) printed model output."
+    }
+  ],
+  "next_steps": "Run /implement 222 to execute the plan"
+}
