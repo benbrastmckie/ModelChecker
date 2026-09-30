@@ -88,6 +88,7 @@ information alone. See `docs/ARCHITECTURE.md`'s "Rendering policy".
 from __future__ import annotations
 
 import sys
+import textwrap
 import time
 from typing import Any, Dict, List, Optional, TextIO, Tuple
 
@@ -558,7 +559,11 @@ class BimodalStructure(ModelDefaults):
         "The output gate" and "Wording discipline (F2)" sections for the contract this
         wording follows. Never says "kernel-checked proof": that phrase names the reserved
         third `Acceptance` value (per-certificate kernel checking), which nothing this
-        checker produces today. The checkout hash is shortened to 12 hex characters."""
+        checker produces today. The checkout hash is shortened to 12 hex characters.
+
+        Returned unwrapped: this is a pure single-line label. Wrapping it to the printed
+        output's column budget is `print_evaluation`'s presentation concern, not this
+        method's."""
         if self.verify_mode == "off":
             return (
                 "independent check skipped ('verify': 'off'); re-checked by this "
@@ -619,9 +624,11 @@ class BimodalStructure(ModelDefaults):
         print(file=output)
 
     def print_evaluation(self, output: TextIO = sys.__stdout__) -> None:
-        """Print the evaluation point (`L0 at t=-2`) and the single `Verification:` line, or
-        the explicit no-certificate message (D8: an unsatisfiable solve is rendered, never
-        raised as an error -- it is not a validity claim, just a fact to report)."""
+        """Print the evaluation point (`L0 at t=-2`) and the single `Verification:` line
+        (wrapped at print time to the 80-column budget -- `_verification_label` itself
+        stays a pure unwrapped string), or the explicit no-certificate message (D8: an
+        unsatisfiable solve is rendered, never raised as an error -- it is not a validity
+        claim, just a fact to report)."""
         if self.certificate is None:
             print(
                 f"No certificate found within the configured bounds "
@@ -635,7 +642,13 @@ class BimodalStructure(ModelDefaults):
         blue, reset = (self._BLUE, self._RESET) if colored else ("", "")
         point = f"L{self.main_point['lasso']} at t={signed_time(self.target_time)}"
         print(f"Evaluation point: {blue}{point}{reset}", file=output)
-        print(f"Verification: {self._verification_label()}\n", file=output)
+        wrapped = textwrap.wrap(
+            self._verification_label(),
+            width=80,
+            initial_indent="Verification: ",
+            subsequent_indent="  ",
+        )
+        print("\n".join(wrapped) + "\n", file=output)
 
     def print_model_differences(self, output: TextIO = sys.stdout) -> None:
         """Print this model's label-bit/box-guess/target-time differences from the previous

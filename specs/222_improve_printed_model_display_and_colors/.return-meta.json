@@ -1,22 +1,15 @@
 {
-  "status": "planned",
-  "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/222_improve_printed_model_display_and_colors/plans/01_improve-printed-model-display.md",
-      "summary": "8-phase display/formatting plan for bimodal (and logos/exclusion) printed model output: line-width bound, unambiguous lasso labels, multi-line evaluation block, arrow duration subscripts, wider palette coverage, and documentation sync."
-    }
-  ],
-  "memory_candidates": [],
-  "next_steps": "Run /implement 222 to execute the plan",
-  "metadata": {
-    "session_id": "sess_1790811149_7da23f_222",
-    "agent_type": "planner-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"],
-    "phase_count": 8,
-    "estimated_hours": 9,
-    "dependency_waves": [[1, 2, 3, 4], [5], [6], [7], [8]]
+  "status": "in_progress",
+  "started_at": "2026-09-30T00:00:00Z",
+  "artifacts": [],
+  "partial_progress": {
+    "stage": "initializing",
+    "details": "Parsed dispatch, read plan, about to begin Phase 1"
   },
-  "dispatch_seq": 2
+  "metadata": {
+    "session_id": "sess_1790811149_7da23f",
+    "agent_type": "python-implementation-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"]
+  }
 }

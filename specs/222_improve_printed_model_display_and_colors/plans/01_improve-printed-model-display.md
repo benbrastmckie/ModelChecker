@@ -1,7 +1,7 @@
 # Implementation Plan: Task #222
 
 - **Task**: 222 - Improve printed model display and colors
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 9 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/222_improve_printed_model_display_and_colors/reports/01_bimodal-model-print-display.md
@@ -144,7 +144,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Wrap the `Verification:` label [NOT STARTED]
+### Phase 1: Wrap the `Verification:` label [COMPLETED]
 
 **Goal**: The `Verification:` output — present in every example, `-a` or not, and today the
 single longest line at 234 chars — wraps inside an 80-column budget without changing its

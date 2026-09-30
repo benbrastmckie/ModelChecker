@@ -29,6 +29,23 @@ from model_checker.theory_lib.errors import ModelConstructionError
 FORBIDDEN_OVERCLAIM = "kernel-checked proof"
 
 
+def _dewrapped_verification(out: str) -> str:
+    """Reconstruct the (possibly multi-line, wrapped) `Verification:` block back into a
+    single space-joined string, so a test can assert on a phrase that might straddle a
+    wrap boundary without caring exactly where the wrap fell."""
+    verification_lines = []
+    capturing = False
+    for line in out.splitlines():
+        if line.startswith("Verification:"):
+            capturing = True
+            verification_lines.append(line[len("Verification: "):])
+        elif capturing and line.startswith("  "):
+            verification_lines.append(line.strip())
+        elif capturing:
+            break
+    return " ".join(verification_lines)
+
+
 @pytest.fixture(autouse=True)
 def _isolated_checker_resolution():
     """Every test in this module controls checker resolution explicitly (environment
@@ -42,6 +59,37 @@ def _isolated_checker_resolution():
 def _force_no_checker(monkeypatch, tmp_path):
     monkeypatch.setenv("BIMODAL_LOGIC_PATH", str(tmp_path / "no_such_bimodal_logic_checkout"))
     monkeypatch.delenv("BIMODAL_CHECKER_BIN", raising=False)
+
+
+class TestVerificationLineWidthAndRoundTrip:
+    """`Verification:` is the longest line in a default run (234 chars unwrapped) and must
+    wrap at print time to an 80-column budget without losing or duplicating a word at a
+    wrap boundary, and without breaking the existing one-occurrence-per-example contract.
+    Covers both no-checker scenarios this module already exercises without a real checker
+    binary."""
+
+    def _assert_wrapped_correctly(self, structure, capsys):
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        lines = out.splitlines()
+        assert max((len(line) for line in lines), default=0) <= 80
+        assert out.count("Verification:") == 1
+
+        # Round-trip: stripping the "Verification: " prefix off the first line and each
+        # continuation line's indent, then joining with spaces, recovers the unwrapped
+        # label exactly -- no word lost or duplicated at a wrap boundary.
+        assert _dewrapped_verification(out) == structure._verification_label()
+        assert FORBIDDEN_OVERCLAIM not in out
+
+    def test_verify_off_wraps_within_budget(self, monkeypatch, tmp_path, capsys):
+        _force_no_checker(monkeypatch, tmp_path)
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="off")
+        self._assert_wrapped_correctly(structure, capsys)
+
+    def test_verify_auto_with_no_checker_wraps_within_budget(self, monkeypatch, tmp_path, capsys):
+        _force_no_checker(monkeypatch, tmp_path)
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="auto")
+        self._assert_wrapped_correctly(structure, capsys)
 
 
 class TestVerifyAutoWithNoChecker:
@@ -62,8 +110,9 @@ class TestVerifyAutoWithNoChecker:
         structure.print_evaluation(output=sys.stdout)
         out = capsys.readouterr().out
         assert "Histories:" in out
-        assert "re-checked by this repository's own pure-Python decision procedures only" in out
-        assert "no independent checker available" in out
+        dewrapped = _dewrapped_verification(out)
+        assert "re-checked by this repository's own pure-Python decision procedures only" in dewrapped
+        assert "no independent checker available" in dewrapped
         assert out.count("Verification:") == 1
         assert FORBIDDEN_OVERCLAIM not in out
 
