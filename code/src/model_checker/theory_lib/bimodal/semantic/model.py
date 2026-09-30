@@ -461,21 +461,24 @@ class BimodalStructure(ModelDefaults):
             print(f"  {prefix}  {self._join_history(row, widths, output)}", file=output)
 
     def _lasso_roles(self, output: TextIO) -> Dict[int, str]:
-        """`main` for index 0; `witness for □χ` for a lasso the certificate scan names as a
-        falsifier (`box_witness`); `reserved, unused` otherwise. Never derived from the
-        registry's reservation, which is capacity, not provenance."""
-        names = self._names()
-        witnessed: Dict[int, List[Formula]] = {}
-        for child, _guess, witness in self.box_guesses():
-            if witness is not None and witness[0] != 0:
-                witnessed.setdefault(witness[0], []).append(child)
+        """`main` for index 0; the bare `witness` for a lasso the certificate scan names as
+        a falsifier (`box_witness`) of at least one boxed subformula; `reserved, unused`
+        otherwise -- exactly these three values, never a per-formula list. Never derived
+        from the registry's reservation, which is capacity, not provenance.
+
+        The formula-keyed provenance a longer label used to carry is not lost: it already
+        prints in `Box guesses:` as `falsified at L{i}, t=±t` for every false box, so a
+        reader who wants to know *which* formula a witness lasso falsifies reads that table
+        rather than an unbounded role string here. Dropping the per-formula list also fixes
+        the `-a` view's header, which pads every column to its widest header cell."""
+        witnessed_indices = {
+            witness[0]
+            for _child, _guess, witness in self.box_guesses()
+            if witness is not None and witness[0] != 0
+        }
         roles = {0: "main"}
         for index in range(1, self._lasso_count()):
-            if index in witnessed:
-                boxes = ", ".join(render(Box(child), output, names) for child in witnessed[index])
-                roles[index] = f"witness for {boxes}"
-            else:
-                roles[index] = "reserved, unused"
+            roles[index] = "witness" if index in witnessed_indices else "reserved, unused"
         return roles
 
     def _slot_name(self, t: int) -> str:

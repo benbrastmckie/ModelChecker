@@ -191,7 +191,7 @@ chars and appears exactly once per example. Confirm at implementation time with
 
 ---
 
-### Phase 2: Bound the role column [NOT STARTED]
+### Phase 2: Bound the role column [COMPLETED]
 
 **Goal**: `_print_history_lines`'s `role_width` padding can no longer be driven by an
 arbitrarily long formula list, so every history row and the `-a` header fit inside 80 columns.

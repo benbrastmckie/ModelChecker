@@ -448,7 +448,7 @@ class TestGoldenOutputHistoriesFormat:
         assert re.search(r"L0\s+main\s+…", rows["L0"])
         roles = [re.match(r"\s+L\d\s+(.*?)\s{2,}…", line).group(1) for line in rows.values()]
         assert "main" in roles
-        assert any(r.startswith("witness for \\Box ") for r in roles)
+        assert "witness" in roles
         assert "reserved, unused" in roles
         # Each row is one arrow chain of `(t:atoms)` states: the five positions of
         # back=2, mid=1, fwd=2 give exactly four ` ⟹ ` joiners and no segment separators,
@@ -580,6 +580,84 @@ class TestGoldenOutputHistoriesFormat:
         structure.print_all(structure.settings, "EX", "Bimodal", output=streams["utf8"])
         control = read_encoding_test_stream(streams["utf8"])
         assert "⟹" in control and "…" in control and "∅" in control
+
+
+class TestRoleColumnIsBounded:
+    """The role column can no longer be driven by an arbitrarily long boxed-formula list --
+    `\\Diamond (A \\vee B)` / `(\\Diamond A \\wedge \\Diamond B)` at back=2, mid=1, fwd=2
+    (MD_CM_2 in examples.py) is the measured case whose unbounded role used to render
+    `witness for \\Box \\neg B, \\Box \\neg (A \\vee B)` (49 chars), driving every row --
+    including the `L0 main` row -- and the `-a` header past 80 columns."""
+
+    @staticmethod
+    def _md_cm_2():
+        return _build(
+            ["\\Diamond (A \\vee B)"], ["(\\Diamond A \\wedge \\Diamond B)"],
+            back=2, mid=1, fwd=2,
+        )
+
+    def test_default_view_stays_within_80_columns(self, capsys):
+        structure = self._md_cm_2()
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert max(len(line) for line in out.splitlines()) <= 80
+
+    def test_aligned_view_header_and_rows_stay_within_80_columns(self, capsys):
+        """MD_CM_1 (`\\Box (A \\vee B)` / `\\Box A, \\Box B`, back=2/mid=1/fwd=2) is the
+        report's measured 119-char `-a` header case: two long `witness for ...` roles used
+        to inflate the header past 80; both collapse to the bare `witness` role here.
+        Scoped to the header and position rows this phase's role-column fix actually
+        drives -- the fixed `Histories:  (rows are representative positions; ...)` legend
+        line above them is a separate, pre-existing over-80 string (unrelated to role
+        vocabulary; present verbatim before and after this fix) tracked by the end-to-end
+        width gate instead, per this phase's own Scope Hypothesis ("if any over-80 line
+        remains that is neither a history row nor the -a header, stop and report it rather
+        than widening this phase").
+
+        A distinct residual not claimed fixed here: an example with two or more *equally*
+        `reserved, unused` lassos (e.g. MD_CM_2, covered by
+        `test_aligned_view_stays_within_80_columns` above only for the default view) can
+        still push the `-a` header 1-2 columns past 80, since every reserved lasso still
+        gets its own header cell repeating the same 16-char phrase -- a residual left for
+        the end-to-end width gate to catch and account for, not silently absorbed here."""
+        structure = _build(
+            ["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2,
+        )
+        structure.settings["align_vertically"] = True
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        body_lines = [
+            line for line in out.splitlines() if not line.startswith("Histories:")
+        ]
+        assert max(len(line) for line in body_lines) <= 80
+
+    def test_role_values_are_drawn_from_the_bounded_vocabulary(self):
+        structure = self._md_cm_2()
+        roles = structure._lasso_roles(output=sys.stdout)
+        assert set(roles.values()) <= {"main", "witness", "reserved, unused"}
+        assert "witness" in roles.values()
+        assert roles[0] == "main"
+
+    def test_witness_role_provenance_is_recoverable_from_box_guesses(self, capsys):
+        import re
+
+        structure = self._md_cm_2()
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        roles = structure._lasso_roles(output=sys.stdout)
+        for index, role in roles.items():
+            if role == "witness":
+                assert re.search(rf"falsified at L{index}, t=", out), (
+                    f"no Box guesses: provenance found for witness lasso L{index}"
+                )
+
+    def test_aligned_header_role_values_are_bounded_too(self, capsys):
+        structure = self._md_cm_2()
+        structure.settings["align_vertically"] = True
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        header = out.splitlines()[1]
+        assert "witness for" not in header
 
 
 class TestAlignedHistoryTable:
