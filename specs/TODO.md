@@ -28,15 +28,16 @@ next_project_number: 223
 
 ### Cli Presentation
 
-222 [NOT STARTED] — Improve printed model display and color use in the bimodal...
+222 [RESEARCHED] — Improve printed model display and color use in the bimodal...
 
 ## Tasks
 
 ### 222. Improve printed model display and colors
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: cli-presentation
 - **Dependencies**: None
+- **Research**: [222_improve_printed_model_display_and_colors/reports/01_bimodal-model-print-display.md]
 
 **Description**: Improve printed model display and color use in the bimodal theory (and the other theories' printers), taking the older Logos-repo bimodal output as the readability benchmark.
 
