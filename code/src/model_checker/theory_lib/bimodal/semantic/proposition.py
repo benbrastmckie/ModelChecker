@@ -45,7 +45,6 @@ import sys
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from model_checker.models.proposition import PropositionDefaults
-from model_checker.utils import pretty_set_print
 
 from .formula import Formula, translate
 from .render import signed_time
@@ -106,7 +105,19 @@ class BimodalProposition(PropositionDefaults):
         return self.extension == other.extension and self.name == other.name
 
     def __repr__(self) -> str:
-        return f"< {pretty_set_print(self.truth_set)}, {pretty_set_print(self.false_set)} >"
+        """`< {L0}, {L1} >` -- lasso indices named with the same `L{i}` convention the rest
+        of the printed block (`semantic/model.py`'s history rows, role column, and
+        evaluation-point block) already uses, so a reader can never misread an extension
+        member as a time on a line that also carries `t=-2`. `pretty_set_print` sorts its
+        input by *string*, which would place `L10` before `L2` -- so this bypasses it and
+        sorts by the underlying integer directly, matching its `{}` / `{a, b}` output shape
+        without inheriting its string-sort behavior."""
+        def _named(lasso_indices):
+            if not lasso_indices:
+                return "{}"
+            return "{" + ", ".join(f"L{i}" for i in sorted(lasso_indices)) + "}"
+
+        return f"< {_named(self.truth_set)}, {_named(self.false_set)} >"
 
     def proposition_constraints(self, sentence_letter: Any) -> List[Any]:
         """No constraints: atoms are deliberately unconstrained (see the module

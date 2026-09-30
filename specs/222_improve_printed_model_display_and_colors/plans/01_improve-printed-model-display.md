@@ -242,7 +242,7 @@ a history row nor the `-a` header, stop and report it rather than widening this 
 
 ---
 
-### Phase 3: Unambiguous proposition extension sets [NOT STARTED]
+### Phase 3: Unambiguous proposition extension sets [COMPLETED]
 
 **Goal**: `|A| = < {0}, {} >` becomes `|A| = < {L0}, {} >`, so extension members can never be
 misread as times on a line that also carries `t=-2`.
