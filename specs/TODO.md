@@ -1,17 +1,17 @@
 ---
-next_project_number: 222
+next_project_number: 223
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-09-29. Generated from state.json dependency graph.*
+*Updated 2026-09-30. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,221 | -- | semantics |
+| 1 | 198,200,221,222 | -- | semantics, cli-presentation |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -26,7 +26,56 @@ next_project_number: 222
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 221 [PLANNED] — Align operator Unicode aliases in theory operators.py files...
 
+### Cli Presentation
+
+222 [NOT STARTED] — Improve printed model display and color use in the bimodal...
+
 ## Tasks
+
+### 222. Improve printed model display and colors
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: cli-presentation
+- **Dependencies**: None
+
+**Description**: Improve printed model display and color use in the bimodal theory (and the other theories' printers), taking the older Logos-repo bimodal output as the readability benchmark.
+
+CONTEXT - this is a display/formatting task only. The certificate/lasso semantics in this repo are correct and must not change. Only `print_*` methods, formatting helpers, and their tests are in scope.
+
+Two outputs were captured and diffed for the same command shape:
+- HERE: ./code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
+- BENCHMARK: /home/benjamin/Projects/Logos/ModelChecker (branch `practice`), same file, older `bimodal/semantic.py` (single module, `print_world_histories` / `print_evaluation`).
+
+Both were re-run under a pty so colors were live. Color gating itself is already correct here (`model_checker/output/color.py::use_colors`, honoring NO_COLOR/FORCE_COLOR/TERM=dumb/isatty) and is BETTER than the benchmark, which uses the legacy `output is sys.__stdout__` test and leaks raw escapes into pipes. Do not regress that; `code/docs/core/CODE_STANDARDS.md` "Printed Output Conventions" is the governing contract (color never carries information alone; glyphs via `utils/glyphs.py`).
+
+CONCRETE DEFECTS FOUND (all in `code/src/model_checker/theory_lib/bimodal/semantic/model.py` unless noted)
+
+1. Lines blow past 80 columns and wrap mid-token. Longest line in the current bimodal run is 234 chars; the benchmark's longest is 80. 6 of 34 history rows exceed 80 cols (max 98). At the terminal width in the reported screenshot this wraps `(+2:` onto one line and the closing `) ...` onto the next, destroying the column alignment the code worked to produce. Causes:
+   - `_print_history_lines` pads every row's prefix to `role_width` = the widest role string. A role like `witness for \Box \neg B, \Box \neg (A \vee B)` (45 chars) shoves all rows' chains right, including the `L0 main` row. Consider putting roles on their own line, abbreviating/truncating them, or folding the role column into the `Box guesses:` table where the same information already lives.
+   - `_verification_label` emits a single 234-char unwrapped sentence on every example. Wrap it, or shorten the default and keep the long form behind a verbosity flag.
+
+2. Proposition extension sets are ambiguous with times. `BimodalProposition.__repr__` (`semantic/proposition.py`) prints bare lasso indices: `|A| = < {0}, {} >`. A reader cannot tell `{0}` from a time index, especially on a line that also reads `t=-2`. The benchmark prints named world states (`|A| = < {a}, {b} >`), which is unambiguous. Consider printing `{L0}` / `{L0, L1}` so the label matches the `L0` used everywhere else in the block.
+
+3. The evaluation point is one terse line where the benchmark gives a readable block. Here: `Evaluation point: L0 at t=-2`. Benchmark prints a four-line blue block naming the world history with its full arrow chain, the time, and the world state. TN_CM_1 was singled out as the example where this reads best. Consider a multi-line blue block naming the lasso, its history chain, the position, and the label at that position - the data is all already on hand (`self.certificate`, `self.target_time`, `self.main_point`).
+
+4. Transition arrows carry no duration. Benchmark prints a Unicode-subscripted step duration on each arrow (via `_to_subscript`); here `_join_history` prints a bare arrow. Adding the subscript would need a new glyph entry plus the cp1252 regression test TESTING_GUIDE.md section 9 requires.
+
+5. Color coverage is thinner than the benchmark. Current bimodal TN_CM_1 emits 5 distinct SGR codes; the benchmark emits 13 over the same example. The declared palette in `model.py` (`_BLUE`, `_HILITE`, `_GRAY`, `_GREEN`, `_RED`) is sound - the gap is how much of the block participates. Extend coverage within the documented palette; do not invent new color meanings.
+
+CROSS-THEORY SCOPE ("and other theories")
+- `theory_lib/logos/semantic/model.py`, `theory_lib/exclusion/semantic/model.py`, `theory_lib/imposition/semantic/model.py` each print a single-line `The evaluation world is: ...` and would benefit from the same treatment decided for bimodal, so the four theories stay visually consistent.
+- These three still carry `if output is sys.__stdout__:` at logos/semantic/model.py:141, exclusion/semantic/model.py:338, imposition/semantic/model.py:120 - audit each; per CODE_STANDARDS.md only the `Total Run Time` footer is a legitimate remaining use of that test (bimodal/semantic/model.py:676 is the legitimate case).
+
+ALSO NOTE
+- The `-a` / `align_vertically` table view already renders cleanly and stays narrow; it may be the better default for wide-role examples, or a model for the default view.
+- `semantic/render.py::print_differences` shares the palette and should stay consistent with whatever is decided.
+
+ACCEPTANCE
+- Per TDD, tests first. `theory_lib/bimodal/tests/unit/test_render.py` and `tests/integration/test_output_gate.py` are the existing display tests; extend them with a max-line-width assertion over a full example run and golden-output assertions for the new evaluation-point block.
+- No change to certificate search, semantics, or truth values - only to what is printed.
+- Plain (non-TTY) output must remain fully informative with every escape stripped.
+
+---
 
 ### 221. Align unicode aliases with logos manual
 - **Status**: [PLANNED]
