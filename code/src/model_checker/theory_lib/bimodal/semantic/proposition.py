@@ -209,7 +209,19 @@ class BimodalProposition(PropositionDefaults):
             use_colors,
         )
 
-        print(
-            f"{'  ' * indent_num}{FULL}|{self.name}| = {self}{RESET}"
-            f"  {PART}({truth_value} at {point}){RESET}"
-        )
+        indent = "  " * indent_num
+        value_text = f"{indent}|{self.name}| = {self}"
+        truth_text = f"({truth_value} at {point})"
+        value_part = f"{FULL}{value_text}{RESET}"
+        truth_part = f"{PART}{truth_text}{RESET}"
+
+        # A multi-lasso extension set (`{L0, L1, L2, L3}`, Phase 3's `L{i}` naming) can push
+        # a long formula's line past the 80-column budget; wrap onto a second, indented
+        # line rather than overflowing one -- both the value and its truth annotation stay
+        # fully informative either way, since RESET/FULL/PART are plain "" when
+        # `use_colors` is false, so this never splits an escape sequence.
+        if len(value_text) + 2 + len(truth_text) <= 80:
+            print(f"{value_part}  {truth_part}")
+        else:
+            print(value_part)
+            print(f"{indent}  {truth_part}")

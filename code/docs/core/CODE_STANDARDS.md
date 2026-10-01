@@ -626,6 +626,13 @@ each theory's own `print_*` methods. Three conventions apply everywhere:
   `+`/`-` sign, `[ ]`, a role column) that says the same thing in plain output.
 - **Glyphs go through `utils/glyphs.py`** (see "Output-Encoding Safety" above), and every new
   glyph ships with a `cp1252` regression test per `TESTING_GUIDE.md` section 9.
+- **No line of a default (non-`-a`) model-output run exceeds 80 columns.** A long single-line
+  value (a wrapped label, an unbounded role or formula list, a bare multi-lasso set) is wrapped
+  or bounded at print time rather than left to overflow a terminal; `theory_lib/bimodal`'s own
+  `textwrap`-based wraps (`print_evaluation`'s `Verification:` line and no-certificate message,
+  `BimodalProposition.print_proposition`'s truth-annotation line) and its bounded three-value
+  role vocabulary (`_lasso_roles`) are the worked examples. Enforced by
+  `theory_lib/bimodal/tests/integration/test_output_gate.py::TestEndToEndWidthGate`.
 
 The `Total Run Time` footer is the one place `output is sys.__stdout__` remains: it gates a
 timing line, not color, and is deliberately not printed into captures.

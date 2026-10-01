@@ -195,3 +195,86 @@ class TestRealCheckerReportsIndependentlyChecked:
         structure = _build(["A"], ["B"], back=1, mid=0, fwd=1, verify="required")
         assert structure.certificate is not None
         assert structure.verification_checked is True
+
+
+class TestEndToEndWidthGate:
+    """A single end-to-end assertion locking in the whole display-improvement effort: a
+    representative multi-example run (a plain certificate, a boxed-premise witness case, a
+    multi-reserved-lasso case, and a no-certificate case) emits no line over 80 columns in
+    the default view, matching the recorded baseline-vs-after reduction (35 lines over 80 ->
+    0 in the default view; see this module's own docstring and
+    `code/docs/core/CODE_STANDARDS.md`'s "Printed Output Conventions" for the codified
+    80-column convention this test enforces)."""
+
+    _CASES = [
+        ("A", "B", {"back": 1, "mid": 0, "fwd": 1}),
+        ("\\Box A", "B", {"back": 1, "mid": 0, "fwd": 1}),
+        (
+            "\\Diamond (A \\vee B)",
+            "(\\Diamond A \\wedge \\Diamond B)",
+            {"back": 2, "mid": 1, "fwd": 2},
+        ),
+        ("\\Box (A \\vee B)", ["\\Box A", "\\Box B"], {"back": 2, "mid": 1, "fwd": 2}),
+        ("A", "\\neg A", {"back": 1, "mid": 0, "fwd": 1}),  # no-certificate case
+    ]
+
+    def test_default_view_stays_within_80_columns_across_representative_examples(self, capsys):
+        for premise, conclusion, bounds in self._CASES:
+            premises = [premise] if isinstance(premise, str) else premise
+            conclusions = [conclusion] if isinstance(conclusion, str) else conclusion
+            structure = _build(premises, conclusions, verify="off", **bounds)
+            structure.interpret(structure.premises + structure.conclusions)
+            structure.settings["print_z3"] = False
+            structure.print_all(structure.settings, "WIDTH_GATE", "Bimodal", output=sys.stdout)
+        out = capsys.readouterr().out
+        over_width = [line for line in out.splitlines() if len(line) > 80]
+        assert not over_width, over_width
+
+    def test_aligned_view_header_stays_within_80_columns_for_the_named_case(self, capsys):
+        """The `-a` view's header specifically (not the whole aligned table -- see
+        `test_structure.py::TestRoleColumnIsBounded`'s own documented residual for the
+        multi-reserved-lasso case this does not cover) stays within budget for the report's
+        named 119-char case."""
+        structure = _build(
+            ["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2,
+            verify="off", align_vertically=True,
+        )
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        header = next(line for line in out.splitlines() if "slot" in line)
+        assert len(header) <= 80
+
+
+class TestStdoutGateAuditStandsIndefinitely:
+    """Standing regression coverage for the report's finding that every
+    `output is sys.__stdout__` occurrence under `theory_lib/*/semantic/model.py` is the
+    `Total Run Time` footer gate (the one documented legitimate remaining use,
+    `CODE_STANDARDS.md`'s "Printed Output Conventions"), never a color gate. A future
+    addition of a new `sys.__stdout__` check elsewhere in these files must be caught here
+    rather than silently rotting the report's "already clean" finding."""
+
+    def test_every_stdout_identity_check_is_the_total_run_time_footer(self):
+        import pathlib
+        import re
+
+        repo_root = pathlib.Path(__file__).resolve()
+        while not (repo_root / "code").is_dir():
+            repo_root = repo_root.parent
+        theory_lib = repo_root / "code" / "src" / "model_checker" / "theory_lib"
+        targets = sorted(theory_lib.glob("*/semantic/model.py"))
+        assert targets, "expected at least one theory_lib/*/semantic/model.py"
+
+        pattern = re.compile(r"output is sys\.__stdout__")
+        for path in targets:
+            lines = path.read_text().splitlines()
+            for index, line in enumerate(lines):
+                if not pattern.search(line):
+                    continue
+                # The footer gate's own telltale: a "Total Run Time" print sits within the
+                # next few lines of the `if output is sys.__stdout__:` guard.
+                window = "\n".join(lines[index : index + 4])
+                assert "Total Run Time" in window, (
+                    f"{path}:{index + 1}: `output is sys.__stdout__` found outside the "
+                    "documented Total Run Time footer -- this is the sys.__stdout__ color-"
+                    "gate anti-pattern CODE_STANDARDS.md forbids"
+                )

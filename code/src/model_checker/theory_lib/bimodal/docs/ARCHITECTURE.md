@@ -278,19 +278,28 @@ assumes. Deciding validity is the tableau's and the proof system's job, not this
 Everything `BimodalStructure` prints (`semantic/model.py`) follows four rules; `semantic/render.py`
 and `semantic/proposition.py` follow the same ones.
 
-**Label notation.** A `Histories:` row is `L{i}  {role}  … (t:atoms) ⟹ (t:atoms) ⟹ … …`: one
-`(t:atoms)` state per representative position (`-back .. mid+fwd-1`, the registry's
+**Label notation.** A `Histories:` row is `L{i}  {role}  … (t:atoms) ⟹₁ (t:atoms) ⟹₁ … …`:
+one `(t:atoms)` state per representative position (`-back .. mid+fwd-1`, the registry's
 `target_window()`), each carrying its signed time and the label's atom valuation — a single atom
-bare (`A`), several as `{A,B}`, none as `∅` — with `⟹` joining every pair of adjacent states
-(no segment separators: the `Search bounds:` line already gives the `back`/`mid`/`fwd`
-lengths), `…` bracketing the chain to mark the periodic `back` and `fwd` segments, and `[ ]` in
-place of `( )` on the evaluation point of the main lasso — on a color stream the states print
-gray with that cell in bold blue, the brackets alone carrying the information on a plain
-stream. Every position's column is padded to its widest cell
+bare (`A`), several as `{A,B}`, none as `∅` — with `⟹{duration}` joining every pair of adjacent
+states (the Unicode-subscripted, or ASCII-fallback, gap between their positions via
+`utils/glyphs.py::to_subscript`; always `₁` today since `target_window()`'s positions are
+consecutive, with no segment separators needed: the `Search bounds:` line already gives the
+`back`/`mid`/`fwd` lengths), `…` bracketing the chain to mark the periodic `back` and `fwd`
+segments, and `[ ]` in place of `( )` on the evaluation point of the main lasso — on a color
+stream the states print gray with that cell in bold blue, the brackets alone carrying the
+information on a plain stream. Every position's column is padded to its widest cell
 over all lassos (computed from the rendered strings, so an ASCII fallback never misaligns), so
-equal times line up across rows. The `align_vertically` setting (`-a`) transposes this into a
-table with one row per representative position (each annotated `back[i]`/`mid[i]`/`fwd[i]`)
-and one column per lasso; see `SETTINGS.md`'s "General Settings" for both shapes.
+equal times line up across rows. `{role}` is one of exactly three bounded values — `main`,
+`witness`, `reserved, unused` — never a per-formula list; a witness lasso's formula-keyed
+provenance is recoverable from `Box guesses:`'s own `falsified at L{i}, t=±t` entries instead,
+not duplicated into an unbounded role string. The `align_vertically` setting (`-a`) transposes
+this into a table with one row per representative position (each annotated
+`back[i]`/`mid[i]`/`fwd[i]`) and one column per lasso; see `SETTINGS.md`'s "General Settings"
+for both shapes. The evaluation point itself prints as a labelled block below the `Histories:`
+block — a heading plus `Lasso`/`History`/`Position`/`Label` lines, the `History` line
+byte-identical to that lasso's own `Histories:` row — rather than a single terse line; see
+`semantic/model.py::print_evaluation`'s own docstring for the exact shape.
 
 **Formulas in the user's notation.** Every formula the printer or the iteration-diff display
 shows goes through `render.render(formula, output, names)`: the `names` map (`render.build_names`)
@@ -302,11 +311,11 @@ patterns. Dataclass reprs never reach the screen; they stay the Z3 variable-name
 `witness_registry.py`, which is why `Formula.__repr__` is left untouched.
 
 **Witness from the certificate, never from the registry.** A false box's `falsified at L{i},
-t=±t` and a lasso's `witness for □χ` role both come from `BimodalStructure.box_witness`, a scan
-of `certificate.lassos` × `_box_window` for a position whose label omits χ — exactly the (C3)
-predicate. `WitnessRegistry._witness_lassos` is never consulted for presentation: its index is
-reserved capacity (box faithfulness lets any lasso falsify a box), so a lasso the scan does not
-name prints as `reserved, unused`, never as "reserved for □χ".
+t=±t` entry and a lasso's bare `witness` role both come from `BimodalStructure.box_witness`, a
+scan of `certificate.lassos` × `_box_window` for a position whose label omits χ — exactly the
+(C3) predicate. `WitnessRegistry._witness_lassos` is never consulted for presentation: its
+index is reserved capacity (box faithfulness lets any lasso falsify a box), so a lasso the scan
+does not name prints as `reserved, unused`, never as "reserved for □χ".
 
 **Glyphs and color.** Every non-ASCII symbol (`⟹`, `…`, `∅`, `□`, `◇`, `¬`, `∧`, `∨`, `→`,
 `⊤`, `⊥`) is resolved by `utils/glyphs.py`'s `glyph(name, output)` against the output stream's

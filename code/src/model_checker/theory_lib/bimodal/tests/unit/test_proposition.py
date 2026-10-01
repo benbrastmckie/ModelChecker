@@ -184,6 +184,34 @@ class TestFindExtensionAndProposition:
         # `t=0`.
         assert "{L0}" in captured.out
 
+    def test_print_proposition_wraps_when_the_l_prefixed_set_pushes_past_80_columns(self, capsys):
+        """`{L0, L1, L2, L3}` (Phase 3's `L{i}` fix) is 6 chars wider than the old bare
+        `{0, 1, 2, 3}` form -- enough to push a long-formula line past 80 columns on a
+        multi-lasso example. The value and its truth annotation must still both be fully
+        informative, just split onto two lines rather than overflowing one."""
+        formula_text = "(\\Diamond A \\wedge \\Diamond B)"
+        semantics = BimodalSemantics(_settings(back=1, mid=0, fwd=1))
+        atom = Atom("A")
+        main_label = frozenset({atom})
+        lassos = tuple(
+            LabelledLasso(back=(frozenset(),), mid=(), fwd=(frozenset(),))
+            for _ in range(4)
+        )
+        certificate = WitnessFamily(bx={}, lassos=lassos)
+        structure = _fake_model_structure(semantics, certificate=certificate, target_time=0)
+        sentence = _sentence("A")
+        proposition = BimodalProposition(sentence, structure)
+        # A long synthetic name stands in for a long formula's rendered text -- the proposition
+        # printer reads `self.name`, set by the base class from the sentence/operator pipeline;
+        # overriding it directly here keeps this test independent of formula-rendering details.
+        proposition.name = formula_text
+        proposition.print_proposition({"lasso": 0, "position": 0}, 1, False)
+        out = capsys.readouterr().out
+        assert max(len(line) for line in out.splitlines() if line) <= 80
+        assert formula_text in out
+        assert "{L0, L1, L2, L3}" in out
+        assert "(False at L0, t=0)" in out
+
 
 class TestReprUsesLassoNamesNotBareIndices:
     """The extended set repr must never print a bare lasso-index integer (ambiguous with a

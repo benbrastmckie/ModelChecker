@@ -217,6 +217,21 @@ class TestPrintingDoesNotClaimValidity:
         assert "Search bounds: back=1, mid=0, fwd=1" in out
         assert "Atomic States" not in out
 
+    def test_no_certificate_messages_stay_within_80_columns(self, capsys):
+        """Both no-certificate messages (`print_certificate`'s own, with the
+        `docs/ADEQUACY.md` citation, and `print_evaluation`'s standalone-caller wording)
+        exceed 80 columns unwrapped (136 and 103 chars respectively, with back=2/mid=1/
+        fwd=2's longer bound numerals) -- wrap them to the same budget every other
+        bimodal print path now honors."""
+        structure = _build(["A", "\\neg A"], [], back=2, mid=1, fwd=2)
+        structure.print_certificate(output=sys.stdout)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert max(len(line) for line in out.splitlines()) <= 80
+        assert "No certificate found within the configured bounds" in out
+        assert "not a validity claim" in out
+        assert "(docs/ADEQUACY.md section 7.4)" in out
+
 
 class TestVerificationLabelRendering:
     """Item 1's output gate: `print_certificate` and

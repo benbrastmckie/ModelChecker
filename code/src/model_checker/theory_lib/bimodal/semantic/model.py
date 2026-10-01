@@ -71,18 +71,26 @@ task to fix, not edited here): that phrasing describes the reserved third `Accep
 `print_all` prints, in order: the framework header with `_print_model_details` overridden to
 show `Search bounds: back=B, mid=M, fwd=F (N lassos: 1 main + K reserved witnesses)` in place
 of the meaningless `Atomic States`; the `Histories:` block -- a one-line legend, then one row
-per lasso, `L{i}`, a role column (`main` / `witness for □χ` / `reserved, unused`, derived from
-the certificate scan in `box_guesses`, never from the registry's reserved index), and the
-history as a time-labelled arrow chain `… (-2:B) ⟹ (-1:B) ⟹ (0:B) ⟹ (+1:B) ⟹ [+2:A] …`: one
-`(t:atoms)` state per position of the registry's `target_window()`, `⟹` joining every pair of
-adjacent states (no segment separators -- the `Search bounds:` line gives the segment lengths),
-`…` marking the periodic repetition, `[ ]` marking the evaluation point (bold blue against gray
-states on a color stream), `∅` for an empty label, and each position's column padded to its
-widest cell so times align across rows; a `Box guesses:` table (`formula  true|false  falsified at L{i}, t=±t`);
-then `Evaluation point: L0 at t=-2` and exactly one `Verification:` line. Formulas render via
-`semantic/render.py` in the user's notation; every non-ASCII glyph goes through
-`utils/glyphs.py`; every color is gated by `output.color.use_colors` and never carries
-information alone. See `docs/ARCHITECTURE.md`'s "Rendering policy".
+per lasso, `L{i}`, a role column (`main` / `witness` / `reserved, unused` -- exactly these
+three bounded values, never a per-formula list; the formula-keyed provenance a longer role
+once carried is recoverable from `Box guesses:`'s own `falsified at L{i}, t=±t` entries), and
+the history as a time-labelled, duration-subscripted arrow chain
+`… (-2:B) ⟹₁ (-1:B) ⟹₁ (0:B) ⟹₁ (+1:B) ⟹₁ [+2:A] …`: one `(t:atoms)` state per position of
+the registry's `target_window()`, `⟹{duration}` joining every pair of adjacent states with
+the Unicode-subscripted (or ASCII-fallback) gap between them (no segment separators -- the
+`Search bounds:` line gives the segment lengths), `…` marking the periodic repetition, `[ ]`
+marking the evaluation point (bold blue against gray states on a color stream), `∅` for an
+empty label, and each position's column padded to its widest cell so times align across
+rows; a `Box guesses:` table (`formula  true|false  falsified at L{i}, t=±t`); then the
+`Evaluation point:` block -- a heading plus four indented, blue `label: value` lines (`Lasso`,
+`History` [byte-identical to that lasso's own `Histories:` row], `Position` [signed time plus
+slot name], `Label`) -- and exactly one `Verification:` line, wrapped at print time to an
+80-column budget (as is the no-certificate message both this method and `print_evaluation`
+print for an unsatisfiable solve). Formulas render via `semantic/render.py` in the user's
+notation; every non-ASCII glyph goes through `utils/glyphs.py`; every color is gated by
+`output.color.use_colors` and never carries information alone; no line of a default
+(non-`-a`) run exceeds 80 columns (`code/docs/core/CODE_STANDARDS.md`'s "Printed Output
+Conventions"). See `docs/ARCHITECTURE.md`'s "Rendering policy".
 """
 
 from __future__ import annotations
@@ -631,10 +639,16 @@ class BimodalStructure(ModelDefaults):
         if self.certificate is None:
             print("Histories:", file=output)
             print(
-                f"  No certificate found within the configured bounds "
-                f"(back={self.semantics.back}, mid={self.semantics.mid}, "
-                f"fwd={self.semantics.fwd}). This is not a validity claim "
-                f"(docs/ADEQUACY.md section 7.4).\n",
+                textwrap.fill(
+                    f"No certificate found within the configured bounds "
+                    f"(back={self.semantics.back}, mid={self.semantics.mid}, "
+                    f"fwd={self.semantics.fwd}). This is not a validity claim "
+                    f"(docs/ADEQUACY.md section 7.4).",
+                    width=80,
+                    initial_indent="  ",
+                    subsequent_indent="  ",
+                )
+                + "\n",
                 file=output,
             )
             return
@@ -674,9 +688,13 @@ class BimodalStructure(ModelDefaults):
         an error -- it is not a validity claim, just a fact to report)."""
         if self.certificate is None:
             print(
-                f"No certificate found within the configured bounds "
-                f"(back={self.semantics.back}, mid={self.semantics.mid}, "
-                f"fwd={self.semantics.fwd}). This is not a validity claim.\n",
+                textwrap.fill(
+                    f"No certificate found within the configured bounds "
+                    f"(back={self.semantics.back}, mid={self.semantics.mid}, "
+                    f"fwd={self.semantics.fwd}). This is not a validity claim.",
+                    width=80,
+                )
+                + "\n",
                 file=output,
             )
             return

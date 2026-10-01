@@ -118,7 +118,7 @@ general_settings = {
     "print_constraints": False,
     "print_z3": False,
     "save_output": False,
-    # False: one time-labelled arrow chain per lasso (`… (-2:A) ⟹ (-1:A) ⟹ (0:A) ⟹ … …`).
+    # False: one time-labelled arrow chain per lasso (`… (-2:A) ⟹₁ (-1:A) ⟹₁ (0:A) ⟹₁ … …`).
     # True (or the `-a` flag): a time-aligned table, one row per position and one column per
     # lasso -- see docs/SETTINGS.md's "General Settings".
     "align_vertically": False,
