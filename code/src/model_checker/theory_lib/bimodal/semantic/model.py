@@ -461,6 +461,18 @@ class BimodalStructure(ModelDefaults):
         ]
         return f"{self._GRAY}{ellipsis} {_chained(padded)} {ellipsis}{self._RESET}"
 
+    def _history_line_for(self, index: int, output: TextIO) -> str:
+        """The rendered arrow-chain for lasso `index` alone -- byte-identical to that
+        lasso's own row in the `Histories:` block, since both call sites share this one
+        helper rather than two independent renderings that could silently drift apart. The
+        column widths are still computed over *every* lasso (not just `index`), matching
+        `_print_history_lines`' own cross-row alignment contract."""
+        lassos = self.certificate.lassos
+        positions = list(self.semantics.witness_registry.target_window())
+        cells = [self._history_cells(i, lasso, output) for i, lasso in enumerate(lassos)]
+        widths = [max(len(row[i]) for row in cells) for i in range(len(cells[0]))]
+        return self._join_history(cells[index], widths, positions, output)
+
     def _print_history_lines(self, output: TextIO) -> None:
         """One aligned arrow-chain row per lasso: name, role, history. Column widths per
         position come from the rendered cells (ASCII glyph fallbacks included), so equal
@@ -468,17 +480,14 @@ class BimodalStructure(ModelDefaults):
         roles = self._lasso_roles(output)
         colored = use_colors(output)
         lassos = self.certificate.lassos
-        positions = list(self.semantics.witness_registry.target_window())
         name_width = max(len(f"L{i}") for i in range(len(lassos)))
         role_width = max(len(role) for role in roles.values())
-        cells = [self._history_cells(index, lasso, output) for index, lasso in enumerate(lassos)]
-        widths = [max(len(row[i]) for row in cells) for i in range(len(cells[0]))]
-        for index, row in enumerate(cells):
+        for index in range(len(lassos)):
             prefix = f"{f'L{index}':<{name_width}}  {roles[index]:<{role_width}}"
             if colored and roles[index] == "reserved, unused":
                 prefix = f"{self._GRAY}{prefix}{self._RESET}"
             print(
-                f"  {prefix}  {self._join_history(row, widths, positions, output)}",
+                f"  {prefix}  {self._history_line_for(index, output)}",
                 file=output,
             )
 
@@ -648,12 +657,21 @@ class BimodalStructure(ModelDefaults):
         self._print_box_guesses(output)
         print(file=output)
 
+    # Shared left-column width for the `Evaluation point:` block's four `label: value`
+    # lines -- the widest label is `Position:` (9 chars); every value lines up one column
+    # past it.
+    _EVAL_BLOCK_LABEL_WIDTH = len("Position:")
+
     def print_evaluation(self, output: TextIO = sys.__stdout__) -> None:
-        """Print the evaluation point (`L0 at t=-2`) and the single `Verification:` line
-        (wrapped at print time to the 80-column budget -- `_verification_label` itself
-        stays a pure unwrapped string), or the explicit no-certificate message (D8: an
-        unsatisfiable solve is rendered, never raised as an error -- it is not a validity
-        claim, just a fact to report)."""
+        """Print the `Evaluation point:` block -- a heading plus four indented `label:
+        value` lines (`Lasso`, `History`, `Position`, `Label`) naming the main lasso, its
+        arrow chain (byte-identical to that lasso's own `Histories:` row, via the shared
+        `_history_line_for` helper), the position (signed time plus slot name), and the
+        label at that position -- followed by the single `Verification:` line (wrapped at
+        print time to the 80-column budget -- `_verification_label` itself stays a pure
+        unwrapped string). Prints the explicit no-certificate message instead when
+        `self.certificate is None` (D8: an unsatisfiable solve is rendered, never raised as
+        an error -- it is not a validity claim, just a fact to report)."""
         if self.certificate is None:
             print(
                 f"No certificate found within the configured bounds "
@@ -665,8 +683,21 @@ class BimodalStructure(ModelDefaults):
 
         colored = use_colors(output)
         blue, reset = (self._BLUE, self._RESET) if colored else ("", "")
-        point = f"L{self.main_point['lasso']} at t={signed_time(self.target_time)}"
-        print(f"Evaluation point: {blue}{point}{reset}", file=output)
+        lasso_index = self.main_point["lasso"]
+        width = self._EVAL_BLOCK_LABEL_WIDTH
+
+        def _field(label: str, value: str) -> str:
+            return f"  {f'{label}:':<{width}} {blue}{value}{reset}"
+
+        label_at_position = self._format_label(
+            self.certificate.lassos[lasso_index].label(self.target_time), output
+        )
+        position = f"t={signed_time(self.target_time)} ({self._slot_name(self.target_time)})"
+        print("Evaluation point:", file=output)
+        print(_field("Lasso", f"L{lasso_index}"), file=output)
+        print(_field("History", self._history_line_for(lasso_index, output)), file=output)
+        print(_field("Position", position), file=output)
+        print(_field("Label", label_at_position), file=output)
         wrapped = textwrap.wrap(
             self._verification_label(),
             width=80,

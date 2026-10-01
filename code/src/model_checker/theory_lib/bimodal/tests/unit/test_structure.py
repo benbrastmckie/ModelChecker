@@ -487,8 +487,11 @@ class TestGoldenOutputHistoriesFormat:
                 lasso_index, t = witness
                 assert child not in structure.certificate.lassos[lasso_index].label(t)
 
-        # Evaluation point and exactly one verification line.
-        assert re.search(r"Evaluation point: L0 at t=[+-]?\d+", out)
+        # Evaluation point block (heading plus Lasso/History/Position/Label lines) and
+        # exactly one verification line.
+        assert "Evaluation point:" in out
+        assert re.search(r"\n\s+Lasso:\s+L0", out)
+        assert re.search(r"\n\s+Position:\s+t=[+-]?\d+ \(\w+\[\d+\]\)", out)
         assert out.count("Verification:") == 1
         assert out.count("Histories:") == 1
         assert "Certificate:" not in out
@@ -732,6 +735,86 @@ class TestDurationSubscriptedArrows:
         assert len(rows) == 2
         assert _joiner_columns(rows[0]) == _joiner_columns(rows[1]) != []
         assert all("⟹₁" in row for row in rows)
+
+
+class TestEvaluationPointBlock:
+    """Replaces the single `Evaluation point: L0 at t=-2` line with a labelled multi-line
+    block naming the lasso, its arrow chain, the position (signed time plus slot), and the
+    label at that position -- all data already on `self` (`self.main_point`,
+    `self.certificate`, `self.target_time`). The `History:` line reuses `_history_line_for`
+    so it is byte-identical to that lasso's own row in the `Histories:` block, not a second
+    independent rendering."""
+
+    @staticmethod
+    def _md_cm_1():
+        return _build(["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2)
+
+    def test_block_is_a_heading_plus_four_labelled_lines_in_order(self, capsys):
+        structure = self._md_cm_1()
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        lines = out.splitlines()
+        assert lines[0] == "Evaluation point:"
+        labels = [line.strip().split(":", 1)[0] for line in lines[1:5]]
+        assert labels == ["Lasso", "History", "Position", "Label"]
+        for line in lines[1:5]:
+            assert line.startswith("  ")
+
+    def test_history_line_chain_is_byte_identical_to_the_histories_row(self, capsys):
+        structure = self._md_cm_1()
+        structure.print_certificate(output=sys.stdout)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        main_index = structure.main_point["lasso"]
+        histories_row = next(
+            line for line in out.splitlines()
+            if line.strip().startswith(f"L{main_index}") and "…" in line
+        )
+        row_chain = histories_row[histories_row.index("…"):]
+        history_line = next(
+            line for line in out.splitlines() if line.strip().startswith("History:")
+        )
+        block_chain = history_line.strip()[len("History:"):].strip()
+        assert block_chain == row_chain
+
+    def test_position_line_carries_signed_time_and_slot(self, capsys):
+        from model_checker.theory_lib.bimodal.semantic.render import signed_time
+
+        structure = self._md_cm_1()
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        position_line = next(
+            line for line in out.splitlines() if line.strip().startswith("Position:")
+        )
+        assert signed_time(structure.target_time) in position_line
+        assert structure._slot_name(structure.target_time) in position_line
+
+    def test_every_block_line_is_within_80_columns(self, capsys):
+        structure = self._md_cm_1()
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert max(len(line) for line in out.splitlines()) <= 80
+
+    def test_plain_output_is_fully_informative_with_no_escapes(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "\033[" not in out
+        for label in ("Lasso:", "History:", "Position:", "Label:"):
+            assert label in out
+
+    def test_verification_line_still_follows_the_block_exactly_once(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert out.count("Verification:") == 1
+
+    def test_no_certificate_branch_is_unchanged(self, capsys):
+        structure = _build(["A", "\\neg A"], [], back=1, mid=0, fwd=1)
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "No certificate found" in out
+        assert "Evaluation point:" not in out
 
 
 class TestAlignedHistoryTable:

@@ -333,7 +333,7 @@ than adding a new glyph table entry silently.
 
 ---
 
-### Phase 5: Multi-line evaluation-point block (bimodal) [NOT STARTED]
+### Phase 5: Multi-line evaluation-point block (bimodal) [COMPLETED]
 
 **Goal**: Replace `Evaluation point: L0 at t=-2` with a labelled block naming the lasso, its
 arrow chain, the position, and the label at that position — all data already on `self`.
