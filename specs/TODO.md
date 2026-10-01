@@ -28,12 +28,12 @@ next_project_number: 224
 
 ### Test Reliability
 
-223 [PLANNED] — Fix the two flaky 80-column width assertions on the bimodal...
+223 [IMPLEMENTING] — Fix the two flaky 80-column width assertions on the bimodal...
 
 ## Tasks
 
 ### 223. Fix flaky aligned view width assertions
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None

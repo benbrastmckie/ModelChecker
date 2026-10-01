@@ -1,7 +1,7 @@
 # Implementation Plan: Task #223
 
 - **Task**: 223 - Fix flaky aligned view width assertions
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 3.25 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/223_fix_flaky_aligned_view_width_assertions/reports/01_flaky-aligned-view-width-assertions.md
@@ -115,7 +115,30 @@ files and may be dispatched together under territory contracts: Phase 2 owns
 owns `code/CHANGELOG.md`. `tests/_build_support.py` is owned exclusively by Phase 1 and is
 read-only for every later phase.
 
-### Phase 1: Shared Helpers and Deterministic RED Reproduction [NOT STARTED]
+### Phase 1: Shared Helpers and Deterministic RED Reproduction [COMPLETED]
+
+**Phase Notes**:
+- Baseline re-measured for the named case (`\Box (A \vee B)` / `\Box A, \Box B`, back=2/mid=1/
+  fwd=2): roles `{0: "main", 1: "witness", 2: "reserved, unused", 3: "witness"}`, rendered `-a`
+  header is exactly 72 columns, 0 over-80 lines in the default view, 1 over-80 line in the `-a`
+  view (the 117-column `Histories:` legend). All four figures match the research report exactly;
+  no correction needed.
+- Added `aligned_table_width(structure, roles, output)` and `force_lasso_roles(monkeypatch,
+  roles)` to `_build_support.py`, mirroring `_print_history_table`'s width formula
+  (`semantic/model.py:533-574`) line for line. Verified by direct computation that
+  `aligned_table_width` returns exactly 72 for the unpatched live draw of the named case
+  (matches the rendered header length to the column).
+- TDD RED reproduced via a scratch script (not a committed test) using `force_lasso_roles` to
+  substitute `witness` -> `reserved, unused` at one index (L1): the **existing** literal
+  `<= 80` logic fails at a measured width of 82 (body-line max, matching the unit test's own
+  assertion style), while `aligned_table_width` continues to equal the rendered header exactly
+  (81 == 81). A second run substituting two indices (L1 and L3) measured 90 == 90, confirming
+  the research-predicted figures (81 for one substitution, 90 for two) to the column. No
+  temporary test file was added/removed; the RED output above is the required capture per this
+  phase's own task list, produced via a non-committed scratch script per the
+  "a test marked for removal... or a scratch run captured in the phase notes" option.
+- `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q` is fully
+  green: 773 passed. `git diff --stat` shows only `_build_support.py` modified.
 
 **Goal**: Add the two test helpers both target files need, and prove the current literal-80
 assertions fail against a forced wider draw — the TDD red step, produced deterministically

@@ -1,30 +1,10 @@
 {
-  "status": "planned",
-  "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/223_fix_flaky_aligned_view_width_assertions/plans/01_flaky-aligned-view-width-assertions.md",
-      "summary": "5-phase tests-only plan replacing two literal 80-column -a header assertions with a role-derived width bound, with forced-draw draw-independence evidence and a CHANGELOG measurement correction."
-    }
-  ],
+  "status": "in_progress",
+  "artifacts": [],
   "metadata": {
-    "session_id": "sess_1790826734_d48053_223",
-    "agent_type": "planner-agent",
+    "session_id": "sess_1790826734_d48053",
+    "agent_type": "python-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "plan", "planner-agent"],
-    "phase_count": 5,
-    "estimated_hours": 3.25,
-    "dependency_waves": 3
-  },
-  "memory_candidates": [
-    {
-      "content": "Flaky-width-assertion pattern in ModelChecker display tests: when a printer pads every column to its own header cell, the rendered line width becomes an arithmetic function of whatever role/label vocabulary the Z3 certificate draw assigns, so any absolute column-count assertion (e.g. `<= 80`) is nondeterministic and will hold CI red intermittently. The codebase has now hit this defect class twice (the 1.4.0 changelog records one earlier instance, task 223 the second). The durable fix is to derive the expected width from the roles the draw actually returned, mirroring the printer's own width formula and asserting EQUALITY against the rendered line so a geometry regression still fails loudly; prove draw-independence by monkeypatching the role-assignment method to force a wider draw rather than pinning a Z3 seed (no seed-pinning precedent exists and z3-solver is pinned `>=4.8.0` with no upper bound, so a seed gives no cross-version guarantee). Also check whether the project's codified width convention (code/docs/core/CODE_STANDARDS.md) actually covers the view being asserted - the bimodal `-a` view was never in scope, so the test, not the printer, was the defect.",
-      "category": "PATTERN",
-      "source_artifact": "specs/223_fix_flaky_aligned_view_width_assertions/plans/01_flaky-aligned-view-width-assertions.md",
-      "confidence": 0.82,
-      "suggested_keywords": ["flaky-test", "solver-nondeterminism", "output-width-assertion", "z3-draw-dependence", "derived-bound", "bimodal-printer"]
-    }
-  ],
-  "next_steps": "Run /implement 223 to execute the plan",
-  "dispatch_seq": 2
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"]
+  }
 }
