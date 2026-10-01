@@ -141,6 +141,11 @@ def print_differences(differences: Dict[str, Any], output: Any, names: Optional[
     lines red only when `use_colors(output)` holds; the sign is always printed, so color never
     carries information alone. Generic keys the shared iterator merges in (`structural_metrics`
     and the like) are ignored here.
+
+    Palette consistency reviewed against `model.py`'s declared constants (`_GREEN` = 32,
+    `_RED` = 31, `_RESET` = 0): this module's own green/red/reset literals already match
+    those SGR codes exactly, so no change was needed to stay consistent with the wider
+    color coverage `print_evaluation`'s block now has.
     """
     if not differences:
         return

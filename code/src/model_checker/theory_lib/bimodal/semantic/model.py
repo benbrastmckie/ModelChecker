@@ -687,7 +687,10 @@ class BimodalStructure(ModelDefaults):
         width = self._EVAL_BLOCK_LABEL_WIDTH
 
         def _field(label: str, value: str) -> str:
-            return f"  {f'{label}:':<{width}} {blue}{value}{reset}"
+            # Both the label and the value are colored -- the benchmark's "every line of
+            # the block is colored" convention (within the declared palette; this adds no
+            # new color meaning, only wider coverage of the existing blue).
+            return f"  {blue}{f'{label}:':<{width}} {value}{reset}"
 
         label_at_position = self._format_label(
             self.certificate.lassos[lasso_index].label(self.target_time), output

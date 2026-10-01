@@ -425,7 +425,7 @@ or another subclass overrides it, extend this phase's file list before editing.
 
 ---
 
-### Phase 7: Extend color coverage within the declared palette [NOT STARTED]
+### Phase 7: Extend color coverage within the declared palette [COMPLETED]
 
 **Goal**: Raise bimodal's colored-span count toward the benchmark's by coloring the new
 block's labels as well as its values, without inventing any new color meaning.

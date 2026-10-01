@@ -817,6 +817,68 @@ class TestEvaluationPointBlock:
         assert "Evaluation point:" not in out
 
 
+# The declared palette (`model.py`'s five constants plus `_RESET`): 34 (blue), 1;34
+# (bold-blue highlight), 90 (gray), 32 (green), 31 (red), 0 (reset). Any SGR code found in
+# `model.py`-originated output outside this set is a palette violation.
+_DECLARED_PALETTE_CODES = {"34", "1;34", "90", "32", "31", "0"}
+
+
+def _sgr_codes(text: str) -> set:
+    import re
+
+    return set(re.findall(r"\033\[([0-9;]+)m", text))
+
+
+class TestEvaluationBlockColorCoverage:
+    """Raises bimodal's colored-span count toward the benchmark's by coloring the
+    `Evaluation point:` block's labels as well as its values (the benchmark's "every line
+    of the block is colored" convention), without inventing any new color meaning or SGR
+    code beyond the five declared constants."""
+
+    @staticmethod
+    def _md_cm_1():
+        return _build(["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2)
+
+    def test_each_block_line_opens_its_own_blue_span(self, monkeypatch):
+        import io
+
+        monkeypatch.setenv("FORCE_COLOR", "1")
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        structure = self._md_cm_1()
+        stream = io.StringIO()
+        structure.print_evaluation(output=stream)
+        lines = stream.getvalue().splitlines()
+        heading_index = lines.index("Evaluation point:")
+        field_lines = lines[heading_index + 1 : heading_index + 5]
+        assert len(field_lines) == 4
+        for line in field_lines:
+            stripped = line[2:]  # the two-space block indent
+            assert stripped.startswith("\033[34m"), line
+
+    def test_sgr_codes_are_a_subset_of_the_declared_palette(self, monkeypatch):
+        import io
+
+        monkeypatch.setenv("FORCE_COLOR", "1")
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        structure = self._md_cm_1()
+        stream = io.StringIO()
+        structure.print_evaluation(output=stream)
+        codes = _sgr_codes(stream.getvalue())
+        assert codes
+        assert codes <= _DECLARED_PALETTE_CODES, codes
+
+    def test_plain_stream_has_no_escapes_and_stays_fully_informative(self, capsys):
+        """Color never carries information alone (`CODE_STANDARDS.md`): stripping every
+        escape from the plain rendering must leave the same labels and values a colored
+        rendering shows."""
+        structure = self._md_cm_1()
+        structure.print_evaluation(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "\033[" not in out
+        for label in ("Lasso:", "History:", "Position:", "Label:"):
+            assert label in out
+
+
 class TestAlignedHistoryTable:
     """`align_vertically` (the `-a` flag) switches the certificate block to a time-aligned
     table: one row per representative position with a signed time and slot annotation, one
