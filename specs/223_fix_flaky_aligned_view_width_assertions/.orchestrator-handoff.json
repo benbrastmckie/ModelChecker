@@ -1,0 +1,18 @@
+{
+  "status": "planned",
+  "task_number": 223,
+  "phase": "plan",
+  "session_id": "sess_1790826734_d48053_223",
+  "dispatch_seq": 2,
+  "phases_completed": 0,
+  "phases_total": 5,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/223_fix_flaky_aligned_view_width_assertions/plans/01_flaky-aligned-view-width-assertions.md",
+      "summary": "5-phase tests-only plan replacing two literal 80-column -a header assertions with a role-derived width bound, with forced-draw draw-independence evidence and a CHANGELOG measurement correction."
+    }
+  ],
+  "next_steps": "Run /implement 223 to execute the plan",
+  "notes": "Tests-only scope honored: no printer, semantics, certificate-search or truth-value change. Wave map: 1 -> {2,3,4} -> 5; phases 2/3/4 own disjoint files (test_structure.py, test_output_gate.py, CHANGELOG.md) and are parallel-safe. Only Python 3.13 is available locally, so Tests-workflow green on 3.10/3.11/3.12 cannot be verified from a dispatch; the forced-draw monkeypatch evidence is the local substitute, per the acceptance criterion's own wording."
+}

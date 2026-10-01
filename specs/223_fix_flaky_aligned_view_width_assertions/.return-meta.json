@@ -1,18 +1,30 @@
 {
-  "status": "researched",
-  "dispatch_seq": 1,
+  "status": "planned",
   "artifacts": [
     {
-      "type": "report",
-      "path": "specs/223_fix_flaky_aligned_view_width_assertions/reports/01_flaky-aligned-view-width-assertions.md",
-      "summary": "Root-causes the two flaky -a header width assertions to Z3's nondeterministic role draw inflating header-cell width per `reserved, unused` role, finds CODE_STANDARDS.md's 80-column rule is scoped to the default view only (never the -a view), and recommends deriving the width bound from the roles actually returned (with a monkeypatch-based draw-independence demonstration) over seed-pinning or vocabulary-only assertions; also documents the CHANGELOG `## [1.4.1]` wording inaccuracies on the Histories legend line."
+      "type": "plan",
+      "path": "specs/223_fix_flaky_aligned_view_width_assertions/plans/01_flaky-aligned-view-width-assertions.md",
+      "summary": "5-phase tests-only plan replacing two literal 80-column -a header assertions with a role-derived width bound, with forced-draw draw-independence evidence and a CHANGELOG measurement correction."
     }
   ],
-  "next_steps": "Run /plan 223 to create an implementation plan from this report's recommended Option A fix (derive width bound from actual roles) plus the CHANGELOG wording correction.",
   "metadata": {
     "session_id": "sess_1790826734_d48053_223",
-    "agent_type": "python-research-agent",
+    "agent_type": "planner-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "python-research-agent"]
-  }
+    "delegation_path": ["orchestrator", "plan", "planner-agent"],
+    "phase_count": 5,
+    "estimated_hours": 3.25,
+    "dependency_waves": 3
+  },
+  "memory_candidates": [
+    {
+      "content": "Flaky-width-assertion pattern in ModelChecker display tests: when a printer pads every column to its own header cell, the rendered line width becomes an arithmetic function of whatever role/label vocabulary the Z3 certificate draw assigns, so any absolute column-count assertion (e.g. `<= 80`) is nondeterministic and will hold CI red intermittently. The codebase has now hit this defect class twice (the 1.4.0 changelog records one earlier instance, task 223 the second). The durable fix is to derive the expected width from the roles the draw actually returned, mirroring the printer's own width formula and asserting EQUALITY against the rendered line so a geometry regression still fails loudly; prove draw-independence by monkeypatching the role-assignment method to force a wider draw rather than pinning a Z3 seed (no seed-pinning precedent exists and z3-solver is pinned `>=4.8.0` with no upper bound, so a seed gives no cross-version guarantee). Also check whether the project's codified width convention (code/docs/core/CODE_STANDARDS.md) actually covers the view being asserted - the bimodal `-a` view was never in scope, so the test, not the printer, was the defect.",
+      "category": "PATTERN",
+      "source_artifact": "specs/223_fix_flaky_aligned_view_width_assertions/plans/01_flaky-aligned-view-width-assertions.md",
+      "confidence": 0.82,
+      "suggested_keywords": ["flaky-test", "solver-nondeterminism", "output-width-assertion", "z3-draw-dependence", "derived-bound", "bimodal-printer"]
+    }
+  ],
+  "next_steps": "Run /implement 223 to execute the plan",
+  "dispatch_seq": 2
 }
