@@ -286,7 +286,7 @@ this phase rather than deferring.
 
 ---
 
-### Phase 4: Duration-subscripted transition arrows [NOT STARTED]
+### Phase 4: Duration-subscripted transition arrows [COMPLETED]
 
 **Goal**: Each `⟹` in a history chain carries the step duration as a Unicode subscript
 (`⟹₁`), matching the benchmark, using the existing encoding-aware `to_subscript`.

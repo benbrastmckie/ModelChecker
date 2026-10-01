@@ -94,7 +94,7 @@ from typing import Any, Dict, List, Optional, TextIO, Tuple
 
 from model_checker.models.structure import ModelDefaults
 from model_checker.output.color import use_colors
-from model_checker.utils.glyphs import glyph
+from model_checker.utils.glyphs import glyph, to_subscript
 from model_checker.theory_lib.errors import ModelConstructionError
 
 from .certificate import _box_window, recheck
@@ -422,26 +422,44 @@ class BimodalStructure(ModelDefaults):
             for t in registry.target_window()
         ]
 
-    def _join_history(self, cells: List[str], widths: List[int], output: TextIO) -> str:
-        """`… (t:atoms) ⟹ (t:atoms) ⟹ … …`: each cell left-justified to its position's
+    def _join_history(
+        self, cells: List[str], widths: List[int], positions: List[int], output: TextIO
+    ) -> str:
+        """`… (t:atoms) ⟹₁ (t:atoms) ⟹₁ … …`: each cell left-justified to its position's
         column width (`widths[i]`, the widest cell at that position over all lassos, so the
-        arrows line up across rows), ` ⟹ ` between every pair of adjacent states, and `…`
-        bracketing the chain to mark the periodic back and fwd segments. No segment
-        separators: the `Search bounds:` line already gives each segment's length. Padding
-        is internal; the last cell is not padded, so rows never end in stray spaces. On a
-        color stream the chain prints gray with the `[ ]` evaluation-point cell in bold
-        blue (the brackets alone carry that information on a plain stream)."""
-        arrow = f" {glyph('DOUBLE_ARROW', output)} "
+        arrows line up across rows), ` ⟹{duration} ` between every pair of adjacent states
+        -- the Unicode-subscripted (or ASCII-fallback) gap between `positions[i]` and
+        `positions[i+1]`, via `utils/glyphs.py::to_subscript` -- and `…` bracketing the
+        chain to mark the periodic back and fwd segments. Every gap under the current
+        `target_window()` is 1 (its positions are consecutive), so the subscript always
+        renders `₁` today; the mechanism exists unchanged for a future window that skips
+        positions. No segment separators: the `Search bounds:` line already gives each
+        segment's length. Padding is internal; the last cell is not padded, so rows never
+        end in stray spaces. On a color stream the chain prints gray with the `[ ]`
+        evaluation-point cell in bold blue (the brackets alone carry that information on a
+        plain stream)."""
+        arrows = [
+            f" {glyph('DOUBLE_ARROW', output)}{to_subscript(positions[i + 1] - positions[i], output)} "
+            for i in range(len(positions) - 1)
+        ]
         ellipsis = glyph("ELLIPSIS", output)
         padded = [f"{cell:<{width}}" for cell, width in zip(cells, widths)]
         padded[-1] = cells[-1]
+
+        def _chained(rendered_cells: List[str]) -> str:
+            parts = [rendered_cells[0]]
+            for arrow, cell in zip(arrows, rendered_cells[1:]):
+                parts.append(arrow)
+                parts.append(cell)
+            return "".join(parts)
+
         if not use_colors(output):
-            return f"{ellipsis} {arrow.join(padded)} {ellipsis}"
+            return f"{ellipsis} {_chained(padded)} {ellipsis}"
         padded = [
             f"{self._HILITE}{cell}{self._RESET}{self._GRAY}" if cell.startswith("[") else cell
             for cell in padded
         ]
-        return f"{self._GRAY}{ellipsis} {arrow.join(padded)} {ellipsis}{self._RESET}"
+        return f"{self._GRAY}{ellipsis} {_chained(padded)} {ellipsis}{self._RESET}"
 
     def _print_history_lines(self, output: TextIO) -> None:
         """One aligned arrow-chain row per lasso: name, role, history. Column widths per
@@ -450,6 +468,7 @@ class BimodalStructure(ModelDefaults):
         roles = self._lasso_roles(output)
         colored = use_colors(output)
         lassos = self.certificate.lassos
+        positions = list(self.semantics.witness_registry.target_window())
         name_width = max(len(f"L{i}") for i in range(len(lassos)))
         role_width = max(len(role) for role in roles.values())
         cells = [self._history_cells(index, lasso, output) for index, lasso in enumerate(lassos)]
@@ -458,7 +477,10 @@ class BimodalStructure(ModelDefaults):
             prefix = f"{f'L{index}':<{name_width}}  {roles[index]:<{role_width}}"
             if colored and roles[index] == "reserved, unused":
                 prefix = f"{self._GRAY}{prefix}{self._RESET}"
-            print(f"  {prefix}  {self._join_history(row, widths, output)}", file=output)
+            print(
+                f"  {prefix}  {self._join_history(row, widths, positions, output)}",
+                file=output,
+            )
 
     def _lasso_roles(self, output: TextIO) -> Dict[int, str]:
         """`main` for index 0; the bare `witness` for a lasso the certificate scan names as

@@ -368,18 +368,21 @@ LEGEND = "((t:atoms) states; … = periodic; [ ] = evaluation point)"
 
 
 def _joiner_columns(row: str) -> list:
-    """Column indices of every ` ⟹ ` joiner in a history row, in order."""
+    """Column indices of every ` ⟹{duration} ` joiner in a history row, in order. The
+    duration is a Unicode-subscript (or ASCII-fallback) digit string -- `[0-9₀-₉₋-]*`
+    covers both forms plus a leading sign."""
     import re
-    return [m.start() for m in re.finditer(r" ⟹ ", row)]
+    return [m.start() for m in re.finditer(r" ⟹[0-9₀-₉₋-]* ", row)]
 
 
 class TestGoldenOutputHistoriesFormat:
     """Golden-output coverage for the `Histories:` block: one time-labelled arrow-chain row
-    per lasso -- `… (-2:B) ⟹ (-1:B) ⟹ (0:B) ⟹ (+1:B) ⟹ [+2:A] …` -- with `(t:atoms)` states,
-    ` ⟹ ` between every pair of adjacent states (the `Search bounds:` line already says how
-    long each segment is, so no segment separators), `…` marking the periodic repetition, a
-    role column, the evaluation point marked `[ ]` (and, on a color stream, highlighted in
-    bold blue against gray history states), empty labels as
+    per lasso -- `… (-2:B) ⟹₁ (-1:B) ⟹₁ (0:B) ⟹₁ (+1:B) ⟹₁ [+2:A] …` -- with `(t:atoms)`
+    states, ` ⟹{duration} ` between every pair of adjacent states carrying the step's
+    Unicode-subscripted duration (the `Search bounds:` line already says how long each
+    segment is, so no segment separators), `…` marking the periodic repetition, a role
+    column, the evaluation point marked `[ ]` (and, on a color stream, highlighted in bold
+    blue against gray history states), empty labels as
     `∅`, columns aligned across rows, a `Box guesses:` table whose witness is the
     certificate-derived `(lasso, t)` pair, and formulas in the user's own notation."""
 
@@ -400,8 +403,8 @@ class TestGoldenOutputHistoriesFormat:
         # With `mid` empty the back and fwd states are simply adjacent in the chain.
         line = lines[0].strip()
         assert line in (
-            "L0  main  … [-1:A] ⟹ (0:∅) …",
-            "L0  main  … (-1:∅) ⟹ [0:A] …",
+            "L0  main  … [-1:A] ⟹₁ (0:∅) …",
+            "L0  main  … (-1:∅) ⟹₁ [0:A] …",
         ), line
 
     def test_history_states_gray_with_the_evaluation_point_highlighted(self, monkeypatch):
@@ -451,13 +454,15 @@ class TestGoldenOutputHistoriesFormat:
         assert "witness" in roles
         assert "reserved, unused" in roles
         # Each row is one arrow chain of `(t:atoms)` states: the five positions of
-        # back=2, mid=1, fwd=2 give exactly four ` ⟹ ` joiners and no segment separators,
-        # `…` brackets the chain, and every state carries its signed time.
+        # back=2, mid=1, fwd=2 give exactly four duration-subscripted ` ⟹₁ ` joiners (every
+        # gap in target_window() is 1) and no segment separators, `…` brackets the chain,
+        # and every state carries its signed time.
         cell = r"[(\[][+-]?\d+:[^)\]]+[)\]]"
-        chain = rf"^\s+L\d\s+.+?\s{{2,}}… {cell} ⟹ {cell} ⟹ {cell} ⟹ {cell} ⟹ {cell} …$"
+        arrow = r" ⟹₁ "
+        chain = rf"^\s+L\d\s+.+?\s{{2,}}… {cell}{arrow}{cell}{arrow}{cell}{arrow}{cell}{arrow}{cell} …$"
         for name, row in rows.items():
             assert re.match(chain, row), (name, row)
-            assert " | " not in row and row.count(" ⟹ ") == 4, row
+            assert " | " not in row and row.count("⟹₁") == 4, row
             times = re.findall(r"[(\[]([+-]?\d+):", row)
             assert times == ["-2", "-1", "0", "+1", "+2"], row
         marked = [name for name, row in rows.items() if "[" in row]
@@ -658,6 +663,75 @@ class TestRoleColumnIsBounded:
         out = capsys.readouterr().out
         header = out.splitlines()[1]
         assert "witness for" not in header
+
+
+class TestDurationSubscriptedArrows:
+    """Each `⟹` in a history chain carries the step duration as a Unicode subscript
+    (`⟹₁` -- every gap in `target_window()` is 1 today), via the existing encoding-aware
+    `to_subscript` (`utils/glyphs.py`). No new glyph-table entry is needed; `to_subscript`
+    already accepts `(n, output)` and falls back to plain ASCII digits (verified by reading
+    `utils/glyphs.py` before this phase's edit, per its own Scope Hypothesis)."""
+
+    def test_default_view_carries_the_subscripted_duration_on_a_utf8_stream(self, capsys):
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert "⟹₁" in out
+        assert "⟹ " not in out  # the bare (undurationed) arrow no longer appears
+
+    def test_cp1252_stream_falls_back_to_the_plain_ascii_digit_without_raising(self):
+        """Mirrors `test_cp1252_stream_gets_ascii_fallbacks_without_raising`'s own
+        discipline (`TESTING_GUIDE.md` section 9.2): a real encoded stream, never
+        `StringIO`. `cp1252` cannot encode `⟹` (already ASCII-fallback `=>`) nor the
+        Unicode subscript digit `₁`, so the arrow renders `=>1` -- never raising, and never
+        leaking either Unicode form."""
+        from model_checker.utils.testing import make_encoding_test_streams, read_encoding_test_stream
+
+        structure = _build(["A"], ["B"], back=1, mid=0, fwd=1)
+        streams = make_encoding_test_streams()
+        structure.print_certificate(output=streams["cp1252"])
+        rendered = read_encoding_test_stream(streams["cp1252"])
+        assert "=>1" in rendered
+        assert "⟹" not in rendered and "₁" not in rendered
+
+    def test_width_bound_from_role_column_phase_still_holds(self, capsys):
+        """The subscript adds exactly one character per arrow (`to_subscript` is
+        width-neutral by construction over a single-digit duration), so the MD_CM_2
+        default-view width bound this task's role-column phase established must still
+        hold."""
+        structure = _build(
+            ["\\Diamond (A \\vee B)"], ["(\\Diamond A \\wedge \\Diamond B)"],
+            back=2, mid=1, fwd=2,
+        )
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        assert max(len(line) for line in out.splitlines()) <= 80
+
+    def test_arrows_still_align_across_rows_of_differing_cell_width(self, capsys):
+        """The arrow string is now longer than before (one extra subscript character), but
+        `widths` is computed from cells, not arrows -- alignment must be unaffected."""
+        from model_checker.theory_lib.bimodal.semantic.certificate import LabelledLasso, WitnessFamily
+        from model_checker.theory_lib.bimodal.semantic.formula import Atom
+
+        structure = _build(["A", "B"], ["\\Box (A \\wedge B)"], back=1, mid=1, fwd=1)
+        a, b = Atom("A"), Atom("B")
+        wide = frozenset({a, b})
+        narrow = frozenset({a})
+        empty = frozenset()
+        family = WitnessFamily(
+            lassos=(
+                LabelledLasso(back=(wide,), mid=(narrow,), fwd=(wide,)),
+                LabelledLasso(back=(empty,), mid=(wide,), fwd=(narrow,)),
+            ),
+            bx=structure.certificate.bx,
+        )
+        structure.certificate = family
+        structure.print_certificate(output=sys.stdout)
+        out = capsys.readouterr().out
+        rows = [line for line in out.splitlines() if line.strip().startswith("L")]
+        assert len(rows) == 2
+        assert _joiner_columns(rows[0]) == _joiner_columns(rows[1]) != []
+        assert all("⟹₁" in row for row in rows)
 
 
 class TestAlignedHistoryTable:
