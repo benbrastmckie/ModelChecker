@@ -25,7 +25,7 @@ type.
   ~234-character sentence on every example and is now wrapped; the history role column is bounded
   to a three-value vocabulary (`main` / `witness` / `reserved, unused`) so one long role no longer
   shoves every row rightward, with formula provenance left recoverable from the `Box guesses:`
-  table. Over-80-column lines in the default bimodal view dropped from 35 to 2.
+  table. Over-80-column lines in the default bimodal view dropped from 35 to 0.
 - `BimodalProposition.__repr__` prints named lasso labels (`|A| = < {L0}, {L1} >`) instead of bare
   integers, which were indistinguishable from time indices on lines that also carry `t=-2`.
   Labels sort numerically rather than lexicographically.
@@ -85,10 +85,17 @@ type.
   before/after accept-reject set of `is_syntactically_wff` across its structural tightening.
 
 ### Known limitation
-- Two printed lines still exceed 80 columns, both originating in `models/structure.py`'s
-  framework-shared recursive sentence printer, which all four theories use identically. Bringing
-  those within budget requires an independent rework of that printer and was deliberately left
-  out of this release.
+- One printed line still exceeds 80 columns, and only in the `-a`/`--align_vertically` view (the
+  default view has none): the 117-column `Histories:` legend emitted by bimodal's own
+  `print_certificate` (`semantic/model.py`), not `models/structure.py`'s framework-shared
+  recursive sentence printer. Bringing that legend within budget is a printer-text change
+  deliberately left out of this release.
+- The `-a` view's aligned history table's own width is a direct function of whichever role
+  vocabulary (`main` / `witness` / `reserved, unused`) the certificate draw assigns to each
+  lasso, so it carries no fixed column budget; `tests/unit/test_structure.py`'s
+  `TestRoleColumnIsBounded` and `tests/integration/test_output_gate.py`'s
+  `TestEndToEndWidthGate` hold it to a bound derived from the draw's own roles instead of a
+  literal column count.
 
 ## [1.4.0] - 2026-09-28
 

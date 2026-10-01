@@ -334,7 +334,20 @@ docstring's scope claim.
 
 ---
 
-### Phase 4: Correct the `## [1.4.1]` CHANGELOG Measurement Claims [NOT STARTED]
+### Phase 4: Correct the `## [1.4.1]` CHANGELOG Measurement Claims [COMPLETED]
+
+**Phase Notes**:
+- Re-grepped the whole `## [1.4.1]` section (lines 7-92) for every over-80/column-count claim
+  before editing: exactly two locations matched, confirming the plan's Scope Hypothesis. No
+  third claim found.
+- Corrected the Changed bullet: "dropped from 35 to 2" -> "dropped from 35 to 0" (Phase 1's
+  measured default-view figure).
+- Rewrote the Known limitation paragraph into two bullets: the first corrects the count (one
+  line, not two) and attribution (bimodal's own `print_certificate` `Histories:` legend in the
+  `-a` view, not `models/structure.py`'s shared recursive sentence printer); the second records,
+  per the plan's third task, that the `-a` table's width is role-derived rather than
+  fixed-budget, naming both test classes so a future reader finds the contract.
+- `git diff code/CHANGELOG.md` touches only lines inside the `## [1.4.1]` section (verified).
 
 **Goal**: Bring the published `## [1.4.1]` entry's over-80-column counts and attribution in
 line with direct measurement.
