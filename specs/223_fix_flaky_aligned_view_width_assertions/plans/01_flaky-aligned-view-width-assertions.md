@@ -1,7 +1,7 @@
 # Implementation Plan: Task #223
 
 - **Task**: 223 - Fix flaky aligned view width assertions
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3.25 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/223_fix_flaky_aligned_view_width_assertions/reports/01_flaky-aligned-view-width-assertions.md
@@ -391,7 +391,38 @@ than editing only the two this plan names.
 
 ---
 
-### Phase 5: Full Gate and Draw-Independence Evidence [NOT STARTED]
+### Phase 5: Full Gate and Draw-Independence Evidence [COMPLETED]
+
+**Phase Notes**:
+- Full bimodal suite: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -q`
+  -> 775 passed (up from 773 at Phase 1 baseline: +2 new forced-draw tests, 0 failures).
+- Whole repository suite: `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker -q`
+  -> 3520 passed, 5 skipped (pre-existing, unrelated), 0 failed, in 527.54s.
+- Repeated the two previously-flaky tests' class (`TestRoleColumnIsBounded` and
+  `TestEndToEndWidthGate`, 9 tests total) across six `PYTHONHASHSEED` values
+  (0, 1, 2, 42, 1000, 999999) and five consecutive repeated runs at the default seed: all green
+  every time. The live Z3 draw for the named case returned the identical roles dict
+  (`{0: "main", 1: "witness", 2: "reserved, unused", 3: "witness"}`, header 72 columns) across
+  every sampled seed -- recorded explicitly, not merely asserted -- and `aligned_table_width`
+  matched the rendered header exactly in each run.
+- Draw-independence evidence (the acceptance criterion's explicit ask, not inferred from the
+  live draw alone): Phase 2's and Phase 3's forced-draw tests force one and two
+  `witness` -> `reserved, unused` substitutions via `force_lasso_roles`, producing headers of
+  81 and 90 columns respectively (both already past the retired literal 80 bound) with the
+  derived-bound equality holding exactly at each width -- confirmed passing in every one of the
+  six-seed / five-repeat runs above, not just once.
+- `git diff --name-only 32b63217 HEAD -- code/` (pre-task baseline to current) lists exactly the
+  four files the plan names: `_build_support.py`, `test_structure.py`, `test_output_gate.py`,
+  `CHANGELOG.md`, plus `specs/**`. No file under `semantic/` or `models/` appears; confirmed
+  `semantic/model.py` is byte-identical to its pre-task state.
+- Default view still measures 0 over-80 lines
+  (`test_default_view_stays_within_80_columns_across_representative_examples` passes
+  standalone), and no truth value changed anywhere in the suite (full-suite pass count above is
+  the evidence -- no example's expected verdict changed).
+- Only Python 3.13 is available in this environment, so Tests-workflow green on 3.10/3.11/3.12
+  is observed by the user once this change reaches CI; per `.claude/rules/pr-prohibition.md`
+  this agent does not push or open a PR. The forced-draw evidence above is the local standing
+  substitute for repeated CI runs, as the plan's own Risk mitigation anticipated.
 
 **Goal**: Confirm the whole suite is green, the fix is draw-independent rather than merely green
 once, and nothing outside the declared test/doc scope changed.
@@ -439,17 +470,17 @@ once, and nothing outside the declared test/doc scope changed.
 
 ## Testing & Validation
 
-- [ ] The RED condition was reproduced before the fix: the original literal-80 logic fails
+- [x] The RED condition was reproduced before the fix: the original literal-80 logic fails
       under a forced draw carrying extra `reserved, unused` roles (Phase 1, output captured).
-- [ ] Both rewritten assertions pass against the live draw and against forced draws with one
+- [x] Both rewritten assertions pass against the live draw and against forced draws with one
       and two extra `reserved, unused` roles (Phases 2, 3).
-- [ ] `test_default_view_stays_within_80_columns` and
+- [x] `test_default_view_stays_within_80_columns` and
       `test_default_view_stays_within_80_columns_across_representative_examples` still assert
       the literal 80 bound for the default view and still pass unchanged.
-- [ ] `test_role_values_are_drawn_from_the_bounded_vocabulary` and the other three untouched
+- [x] `test_role_values_are_drawn_from_the_bounded_vocabulary` and the other three untouched
       `TestRoleColumnIsBounded` tests still pass.
-- [ ] Full repository suite green on the locally available interpreter, repeated runs.
-- [ ] `semantic/model.py` and every other printer/semantics source file is byte-identical to
+- [x] Full repository suite green on the locally available interpreter, repeated runs.
+- [x] `semantic/model.py` and every other printer/semantics source file is byte-identical to
       its pre-task state.
 
 ## Artifacts & Outputs

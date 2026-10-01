@@ -1,6 +1,18 @@
 {
-  "status": "in_progress",
-  "artifacts": [],
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/223_fix_flaky_aligned_view_width_assertions/summaries/01_flaky-aligned-view-width-assertions-summary.md",
+      "summary": "Replaces the two literal <= 80 column -a view width assertions with a role-derived bound, proven draw-independent via forced-draw coverage, plus a corrected CHANGELOG [1.4.1] measurement claim."
+    }
+  ],
+  "modified_files": [
+    "code/src/model_checker/theory_lib/bimodal/tests/_build_support.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py",
+    "code/CHANGELOG.md"
+  ],
   "metadata": {
     "session_id": "sess_1790826734_d48053",
     "agent_type": "python-implementation-agent",

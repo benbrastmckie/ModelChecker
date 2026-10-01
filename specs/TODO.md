@@ -11,7 +11,7 @@ next_project_number: 224
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,221,223 | -- | semantics, test-reliability |
+| 1 | 198,200,221 | -- | semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -26,19 +26,16 @@ next_project_number: 224
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 221 [PLANNED] — Align operator Unicode aliases in theory operators.py files...
 
-### Test Reliability
-
-223 [IMPLEMENTING] — Fix the two flaky 80-column width assertions on the bimodal...
-
 ## Tasks
 
 ### 223. Fix flaky aligned view width assertions
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
 - **Research**: [223_fix_flaky_aligned_view_width_assertions/reports/01_flaky-aligned-view-width-assertions.md]
 - **Plan**: [223_fix_flaky_aligned_view_width_assertions/plans/01_flaky-aligned-view-width-assertions.md]
+- **Summary**: [223_fix_flaky_aligned_view_width_assertions/summaries/01_flaky-aligned-view-width-assertions-summary.md]
 
 **Description**: Fix the two flaky 80-column width assertions on the bimodal `-a` (align_vertically) header.
 
