@@ -28,15 +28,16 @@ next_project_number: 224
 
 ### Test Reliability
 
-223 [NOT STARTED] — Fix the two flaky 80-column width assertions on the bimodal...
+223 [RESEARCHED] — Fix the two flaky 80-column width assertions on the bimodal...
 
 ## Tasks
 
 ### 223. Fix flaky aligned view width assertions
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: test-reliability
 - **Dependencies**: None
+- **Research**: [223_fix_flaky_aligned_view_width_assertions/reports/01_flaky-aligned-view-width-assertions.md]
 
 **Description**: Fix the two flaky 80-column width assertions on the bimodal `-a` (align_vertically) header.
 

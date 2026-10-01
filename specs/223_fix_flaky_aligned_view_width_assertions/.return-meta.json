@@ -1,0 +1,18 @@
+{
+  "status": "researched",
+  "dispatch_seq": 1,
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/223_fix_flaky_aligned_view_width_assertions/reports/01_flaky-aligned-view-width-assertions.md",
+      "summary": "Root-causes the two flaky -a header width assertions to Z3's nondeterministic role draw inflating header-cell width per `reserved, unused` role, finds CODE_STANDARDS.md's 80-column rule is scoped to the default view only (never the -a view), and recommends deriving the width bound from the roles actually returned (with a monkeypatch-based draw-independence demonstration) over seed-pinning or vocabulary-only assertions; also documents the CHANGELOG `## [1.4.1]` wording inaccuracies on the Histories legend line."
+    }
+  ],
+  "next_steps": "Run /plan 223 to create an implementation plan from this report's recommended Option A fix (derive width bound from actual roles) plus the CHANGELOG wording correction.",
+  "metadata": {
+    "session_id": "sess_1790826734_d48053_223",
+    "agent_type": "python-research-agent",
+    "delegation_depth": 1,
+    "delegation_path": ["orchestrator", "research", "python-research-agent"]
+  }
+}
