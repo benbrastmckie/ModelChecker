@@ -4,6 +4,92 @@ All notable changes to the ModelChecker project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.1] - 2026-09-30
+
+A presentation-focused release. No semantic core, certificate search, or truth-value behavior
+changed; the work is in what the printers emit, how color is gated, and what notation users may
+type.
+
+### Changed
+- The bimodal countermodel block is rewritten around time-labelled arrow-chain histories. Each
+  countermodel now prints a `Search bounds: back=B, mid=M, fwd=F (N lassos: 1 main + K reserved
+  witnesses)` header in place of the meaningless `Atomic States: 0`, then a `Histories:` block
+  with a one-line legend and one aligned row per lasso: every state renders as `(t:atoms)` with
+  signed time, `⟹` joins adjacent states, `|` separates the back / mid / fwd segments, `…`
+  brackets the periodic segments, and `[ ]` marks the evaluation point. Position columns are
+  padded to their widest cell across lassos so times align vertically. A `Box guesses:` table
+  reads its `falsified at L{i}, t=±t` witness from the certificate itself, and
+  `-a`/`--align_vertically` switches the block to a time-aligned table view.
+- Printed output is now held to an 80-column budget, codified as a rule in
+  `code/docs/core/CODE_STANDARDS.md`. The `Verification:` label was a single unwrapped
+  ~234-character sentence on every example and is now wrapped; the history role column is bounded
+  to a three-value vocabulary (`main` / `witness` / `reserved, unused`) so one long role no longer
+  shoves every row rightward, with formula provenance left recoverable from the `Box guesses:`
+  table. Over-80-column lines in the default bimodal view dropped from 35 to 2.
+- `BimodalProposition.__repr__` prints named lasso labels (`|A| = < {L0}, {L1} >`) instead of bare
+  integers, which were indistinguishable from time indices on lines that also carry `t=-2`.
+  Labels sort numerically rather than lexicographically.
+- The terse one-line `Evaluation point: L0 at t=-2` is replaced by a four-line labelled block
+  (`Lasso` / `History` / `Position` / `Label`), sharing a history-rendering helper with the
+  `Histories:` block. The logos and exclusion printers gained a matching `Evaluation world:`
+  heading-plus-value block so the four theories stay visually consistent; imposition inherits it.
+- Color gating is unified on `model_checker.output.color.use_colors(output)`
+  (`NO_COLOR` > `FORCE_COLOR` > `TERM=dumb` > `isatty()`), replacing every
+  `output is sys.__stdout__` / `sys.stdout` test in the framework, in the four theory printers,
+  and in the `--maximize` runner. Piped and redirected output now receives plain text instead of
+  leaked escape sequences. Blue coloring additionally extends to block labels, within the
+  already-declared palette; no new color meanings were introduced, and color never carries
+  information on its own.
+
+### Added
+- Operators may declare user-facing Unicode glyphs. An optional `aliases: List[str]` class
+  attribute on `syntactic.Operator` is registered alongside the canonical LaTeX `name` by
+  `OperatorCollection.add_operator`, so `aliases = ["∧"]` on the class named `"\\wedge"` makes
+  both spellings parse to the same operator. No parser changes were required. All seven shipped
+  theory `operators.py` files now declare curated aliases for their arity-1 and arity-2
+  operators; operators with no standard glyph carry an inline comment saying so instead. Alias
+  collisions fail loudly via `DuplicateOperatorError`, and unregistered lookups now raise
+  `UnknownOperatorError` with a suggestion list rather than a bare `KeyError`. Documented in
+  `docs/usage/OPERATORS.md`.
+- Transition arrows carry Unicode-subscripted step durations (`⟹₁`) via the existing
+  `utils/glyphs.py::to_subscript`, with encoding-fallback coverage.
+- A `THEORY-LIMITS` example group in the bimodal `examples.py`, recording permanent limits of this
+  theory or of its verified Lean counterpart, seeded with the stability-of-since certificate-
+  incompleteness result and two active countermodel entries (`TL_CM_1`, `TL_CM_2`). The header
+  block states the inclusion criterion, separates the genuine ℤ-time non-validity from the
+  verified side's provably-empty certificate class, and names the superseded temporal-asymmetry
+  diagnosis as refuted rather than restating it.
+- `ELLIPSIS` (`…`, which survives cp1252 as 0x85) added to the glyph table; the unused `OMEGA`
+  entry and the `(back)^ω | mid | (fwd)^ω` one-liner it served are removed.
+
+### Fixed
+- The `Witness: L{i} at position {p}` line read `WitnessRegistry._witness_lassos` — a reserved
+  index, not provenance — and so reported `L1 at position None` for `\Box A` on `MD_CM_1` where
+  the only falsifier was `(L3, t=+2)`. `BimodalStructure.box_witness` now scans the certificate
+  for the actual falsifying position.
+
+### Documentation
+- The A1 / A1-Γ / A3 adequacy-chain component rows are applied to the bimodal `ADEQUACY.md` and
+  `TRUST_PIPELINE.md`. A live cross-document contradiction over A3's stated form (magnitude
+  versus representability) is resolved in favor of representability, A1 is recorded as partially
+  discharged at the empty-premise single-conclusion instance with the general form split out as
+  its own open obligation (A1-Γ), and every `WitnessFamily`/`Compression`-subtree citation
+  migrates from `file.lean:NNN` line anchors to the name-plus-manifest convention. Every cited
+  declaration was re-verified against the live Lean tree.
+
+### Testing
+- Golden-output assertions for the history block's shape and joiner-column alignment, an
+  end-to-end maximum-line-width gate over a full example run, a standing audit test asserting
+  that the only remaining `sys.__stdout__` use is the `Total Run Time` footer, cp1252 / ascii /
+  utf-8 encoding legs for each new glyph, and a characterization suite pinning the exact
+  before/after accept-reject set of `is_syntactically_wff` across its structural tightening.
+
+### Known limitation
+- Two printed lines still exceed 80 columns, both originating in `models/structure.py`'s
+  framework-shared recursive sentence printer, which all four theories use identically. Bringing
+  those within budget requires an independent rework of that printer and was deliberately left
+  out of this release.
+
 ## [1.4.0] - 2026-09-28
 
 ### Changed
