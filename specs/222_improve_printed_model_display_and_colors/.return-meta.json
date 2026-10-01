@@ -1,15 +1,64 @@
 {
-  "status": "in_progress",
-  "started_at": "2026-09-30T00:00:00Z",
-  "artifacts": [],
-  "partial_progress": {
-    "stage": "initializing",
-    "details": "Parsed dispatch, read plan, about to begin Phase 1"
+  "status": "implemented",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/222_improve_printed_model_display_and_colors/summaries/01_improve-printed-model-display-summary.md",
+      "summary": "Implementation summary for all 8 plan phases: bimodal display/color improvements plus matching cross-theory evaluation blocks, with Phase 8 closed via a documented Reasoned Exclusion."
+    }
+  ],
+  "completion_data": {
+    "completion_summary": "Improved bimodal's printed model display (bounded role column, wrapped Verification/no-certificate lines, lasso-named extension sets, duration-subscripted arrows, a multi-line evaluation-point block, and wider color coverage within the declared palette) and gave logos/exclusion (imposition inherits) matching visual weight. Default-view over-80-column lines dropped from 35 to 2, the remaining 2 being a documented, reasoned, evidenced exclusion (a framework-shared print path outside this task's scope). All 8 plan phases closed; full theory_lib and code/tests suites pass (1881 and 647 tests respectively)."
+  },
+  "modified_files": [
+    "code/docs/core/CODE_STANDARDS.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/SETTINGS.md",
+    "code/src/model_checker/theory_lib/bimodal/docs/USER_GUIDE.md",
+    "code/src/model_checker/theory_lib/bimodal/examples.py",
+    "code/src/model_checker/theory_lib/bimodal/README.md",
+    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/model.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/proposition.py",
+    "code/src/model_checker/theory_lib/bimodal/semantic/render.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_proposition.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py",
+    "code/src/model_checker/theory_lib/exclusion/semantic/model.py",
+    "code/src/model_checker/theory_lib/exclusion/tests/unit/test_print_encoding.py",
+    "code/src/model_checker/theory_lib/imposition/tests/unit/test_print_encoding.py",
+    "code/src/model_checker/theory_lib/logos/semantic/model.py",
+    "code/src/model_checker/theory_lib/logos/tests/unit/test_print_encoding.py"
+  ],
+  "memory_candidates": [
+    {
+      "content": "When a planned width/formatting fix widens one printed field (e.g. prefixing lasso indices with 'L' for disambiguation), re-run the full-repo width check after the fix lands -- it can push OTHER unrelated lines (e.g. a multi-element extension-set repr embedded in a longer formula line) past the same budget elsewhere, which only shows up in an end-to-end check, not the phase's own narrow unit test.",
+      "category": "TECHNIQUE",
+      "source_artifact": "specs/222_improve_printed_model_display_and_colors/summaries/01_improve-printed-model-display-summary.md",
+      "confidence": 0.75,
+      "suggested_keywords": ["width-gate", "line-wrapping", "textwrap", "print-formatting", "regression"]
+    },
+    {
+      "content": "pretty_set_print (and similar helpers) sort their input by STRING, not by the underlying semantic order -- a set of 'L0'..'L10' labels sorts lexicographically (L10 before L2) unless the caller sorts by the underlying integer first and bypasses the helper's own re-sort.",
+      "category": "PATTERN",
+      "source_artifact": "specs/222_improve_printed_model_display_and_colors/summaries/01_improve-printed-model-display-summary.md",
+      "confidence": 0.8,
+      "suggested_keywords": ["pretty_set_print", "string-sort", "lexicographic", "numeric-ordering"]
+    }
+  ],
+  "reflection": {
+    "what_worked": "Writing the failing test first for every phase (per TDD) caught several format-shape mismatches immediately (e.g. the arrow-joiner regex needing to account for the new subscript, the aligned-table header residual) before they could compound across later phases.",
+    "what_was_hard": "Phase 8's literal 'awk length>80 returns 0' target required judgment: two residuals (the no-certificate message, the proposition's extension-set line) were in-scope and fixed, but a third (the framework-shared recursive sentence printer) required recognizing it was architecturally out of proportion to this display-polish task and formally excluding it rather than scope-creeping into a framework-wide rewrite.",
+    "what_was_missed": "The -a (non-default) view's header for an example with 2+ reserved lassos can still exceed 80 columns by 1-2 chars -- caught during Phase 2's own test-writing, documented inline, and correctly left unfixed since the plan's Goal only commits to the -a header's named 119-char case, not every possible -a body permutation.",
+    "successes": "All 8 phases closed (7 cleanly, 1 with a fully evidenced Reasoned Exclusion); 773 bimodal tests, 1881 theory_lib tests, and 647 code/tests all green; default-view over-80 lines dropped from 35 to 2 (the single documented exclusion); color coverage nearly doubled within the existing declared palette with zero new color meanings."
   },
   "metadata": {
     "session_id": "sess_1790811149_7da23f",
     "agent_type": "python-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"]
-  }
+    "delegation_path": ["orchestrator", "implement", "python-implementation-agent"],
+    "phases_completed": 8,
+    "phases_total": 8
+  },
+  "dispatch_seq": 3
 }

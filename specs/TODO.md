@@ -6,12 +6,12 @@ next_project_number: 223
 
 ## Task Order
 
-*Updated 2026-09-30. Generated from state.json dependency graph.*
+*Updated 2026-10-01. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,221,222 | -- | semantics, cli-presentation |
+| 1 | 198,200,221 | -- | semantics |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -26,19 +26,16 @@ next_project_number: 223
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 221 [PLANNED] — Align operator Unicode aliases in theory operators.py files...
 
-### Cli Presentation
-
-222 [PLANNED] — Improve printed model display and color use in the bimodal...
-
 ## Tasks
 
 ### 222. Improve printed model display and colors
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: cli-presentation
 - **Dependencies**: None
 - **Research**: [222_improve_printed_model_display_and_colors/reports/01_bimodal-model-print-display.md]
 - **Plan**: [222_improve_printed_model_display_and_colors/plans/01_improve-printed-model-display.md]
+- **Summary**: [222_improve_printed_model_display_and_colors/summaries/01_improve-printed-model-display-summary.md]
 
 **Description**: Improve printed model display and color use in the bimodal theory (and the other theories' printers), taking the older Logos-repo bimodal output as the readability benchmark.
 
