@@ -1,5 +1,5 @@
 ---
-next_project_number: 223
+next_project_number: 224
 ---
 
 # TODO
@@ -11,7 +11,7 @@ next_project_number: 223
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 198,200,221 | -- | semantics |
+| 1 | 198,200,221,223 | -- | semantics, test-reliability |
 | 2 | 199 | 198 | documentation |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -26,7 +26,49 @@ next_project_number: 223
 200 [BLOCKED] — Extend the bimodal theory to the language with the stability...
 221 [PLANNED] — Align operator Unicode aliases in theory operators.py files...
 
+### Test Reliability
+
+223 [NOT STARTED] — Fix the two flaky 80-column width assertions on the bimodal...
+
 ## Tasks
+
+### 223. Fix flaky aligned view width assertions
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: test-reliability
+- **Dependencies**: None
+
+**Description**: Fix the two flaky 80-column width assertions on the bimodal `-a` (align_vertically) header.
+
+Two display tests assert a hard `<= 80` column bound on output whose width depends on which roles Z3's certificate draw assigns, so they fail nondeterministically in CI. They have held the Tests workflow red since commit 24d967bb, including on the v1.4.1 release commit e267630d.
+
+FAILING TESTS
+- `code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py::TestRoleColumnIsBounded::test_aligned_view_header_and_rows_stay_within_80_columns` - observed `assert 82 <= 80` on Python 3.10 (CI run 36799141388).
+- `code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py::TestEndToEndWidthGate::test_aligned_view_header_stays_within_80_columns_for_the_named_case` - observed `assert 81 <= 80` on Python 3.12 (CI run 36798274467).
+
+EVIDENCE IT IS NONDETERMINISTIC, NOT VERSION-SPECIFIC
+The failing Python version flipped between the two runs on identical test code: 3.12 failed while 3.10 passed on the first, then 3.10 failed while 3.12 passed on the second. Only one test fails per run, out of 3074. Both tests pass locally across six `PYTHONHASHSEED` values, which is why the implementing round reported a clean local suite.
+
+ROOT CAUSE (measured, not inferred)
+The `-a` header width is a function of the role vocabulary the certificate draw assigns. Measured locally for the named case (`\Box (A \vee B)` premise, `\Box A` / `\Box B` conclusions, back=2/mid=1/fwd=2), roles come back `L0 main / L1 witness / L2 reserved, unused / L3 witness`, giving a 72-column header - an 8-column margin. Substituting one `witness` (7 chars) for `reserved, unused` (16 chars) yields exactly 81 columns, reproducing the observed failure; two substitutions yield 90.
+
+The unit test's own docstring already predicts this residual verbatim ("can still push the `-a` header 1-2 columns past 80 ... a residual left for the end-to-end width gate to catch") and then asserts against it anyway, while the end-to-end gate it defers to makes the same literal `<= 80` assertion. So the defect is in what the two tests claim they can assert, not in the shipped printers.
+
+This is the same defect class the `## [1.4.0]` changelog entry records fixing once before: a release-gating test whose verdict depends on how a solver draw falls.
+
+SCOPE - TESTS ONLY
+No printer behavior, semantics, certificate search, or truth value may change. The default view already measures 0 lines over 80. Approaches to weigh: derive the expected bound from the roles the draw actually returned; pin the draw for these two cases; or assert a role-vocabulary-independent property in place of the literal 80.
+
+ALSO IN SCOPE (same `-a` view, found while diagnosing)
+The `-a` view still emits one 117-column `Histories:` legend line, from bimodal's own printer rather than shared framework code. Both tests deliberately exclude it. Separately, `code/CHANGELOG.md`'s published `## [1.4.1]` "Known limitation" paragraph is wrong on measurement: it states two over-80 lines both originating in `models/structure.py`'s shared recursive sentence printer, whereas direct measurement gives 0 over-80 lines in the default view and 1 in the `-a` view (that legend). Either bring the legend within budget or correct the changelog wording to match measurement. The v1.4.1 git tag annotation carries the same wrong text and cannot be edited without a delete-and-re-push; the GitHub Release body can be edited in place.
+
+ACCEPTANCE
+- The Tests workflow passes on Python 3.10, 3.11, and 3.12 across repeated runs.
+- The fix is demonstrably draw-independent, not merely green once - exercise a draw that assigns an extra `reserved, unused` role and show the assertion still holds.
+- Per TDD, the failing condition is reproduced first.
+- No change to printer output in the default view, and no change to any truth value.
+
+---
 
 ### 222. Improve printed model display and colors
 - **Status**: [COMPLETED]
