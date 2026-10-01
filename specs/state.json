@@ -976,9 +976,14 @@
     "cli-presentation"
   ],
   "deployment_versions": {
-    "last_deployed": "v1.4.0",
-    "last_deployed_at": "2026-09-29T00:02:34Z",
+    "last_deployed": "v1.4.1",
+    "last_deployed_at": "2026-10-01T01:05:04Z",
     "deployment_history": [
+      {
+        "version": "v1.4.1",
+        "deployed_at": "2026-10-01T01:05:04Z",
+        "commit_sha": "e267630d58da32c7c4b548bc2eb5d6e3ea044b1d"
+      },
       {
         "version": "v1.4.0",
         "deployed_at": "2026-09-29T00:02:34Z",
@@ -1023,11 +1028,6 @@
         "version": "v1.3.2",
         "deployed_at": "2026-08-12T21:42:01Z",
         "commit_sha": "b54e2c06ddff6e4f4c1a5a2954da6f5750919458"
-      },
-      {
-        "version": "v1.3.1",
-        "deployed_at": "2026-08-12T20:38:48Z",
-        "commit_sha": "983f9233492b6c490877e48149a0baaa2cbb4f6d"
       }
     ]
   }
