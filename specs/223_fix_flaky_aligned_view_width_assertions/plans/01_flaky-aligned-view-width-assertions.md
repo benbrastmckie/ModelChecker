@@ -276,7 +276,23 @@ bound, report it and include it rather than silently widening or silently skippi
 
 ---
 
-### Phase 3: Derived Bound in the End-to-End Gate [NOT STARTED]
+### Phase 3: Derived Bound in the End-to-End Gate [COMPLETED]
+
+**Phase Notes**:
+- Rewrote `test_aligned_view_header_stays_within_80_columns_for_the_named_case` (renamed to
+  `test_aligned_view_header_matches_the_role_derived_width_for_the_named_case`) to assert
+  equality against `aligned_table_width`, and added
+  `test_aligned_view_header_matches_the_derived_width_under_a_forced_wider_draw` using
+  `force_lasso_roles` to demonstrate draw-independence in this gate directly (measured 90
+  columns, well past the retired literal 80), rather than deferring that demonstration to the
+  unit test alone.
+- Rewrote `TestEndToEndWidthGate`'s class docstring: scoped the 80-column claim to the default
+  view explicitly, named the `-a` view's role-derived invariant instead, and named the
+  117-column `Histories:` legend as the one known, excluded-on-purpose `-a` over-80 line.
+- `test_default_view_stays_within_80_columns_across_representative_examples` and its `_CASES`
+  list left untouched, per the plan; it still asserts the literal 80 bound and still passes.
+- `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_output_gate.py -v`
+  is fully green: 13 passed, 0 skipped, 0 failed.
 
 **Goal**: Apply the same derived-bound treatment to
 `test_output_gate.py::TestEndToEndWidthGate`'s aligned-view test, and correct the class
