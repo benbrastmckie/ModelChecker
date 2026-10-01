@@ -13,7 +13,11 @@ import sys
 import pytest
 
 from model_checker.theory_lib.bimodal.semantic.certificate import recheck
-from model_checker.theory_lib.bimodal.tests._build_support import _build as _shared_build
+from model_checker.theory_lib.bimodal.tests._build_support import (
+    _build as _shared_build,
+    aligned_table_width,
+    force_lasso_roles,
+)
 
 
 def _build(premises, conclusions, **setting_overrides):
@@ -625,24 +629,39 @@ class TestRoleColumnIsBounded:
         out = capsys.readouterr().out
         assert max(len(line) for line in out.splitlines()) <= 80
 
-    def test_aligned_view_header_and_rows_stay_within_80_columns(self, capsys):
-        """MD_CM_1 (`\\Box (A \\vee B)` / `\\Box A, \\Box B`, back=2/mid=1/fwd=2) is the
-        report's measured 119-char `-a` header case: two long `witness for ...` roles used
-        to inflate the header past 80; both collapse to the bare `witness` role here.
-        Scoped to the header and position rows this phase's role-column fix actually
-        drives -- the fixed `Histories:  (rows are representative positions; ...)` legend
-        line above them is a separate, pre-existing over-80 string (unrelated to role
-        vocabulary; present verbatim before and after this fix) tracked by the end-to-end
-        width gate instead, per this phase's own Scope Hypothesis ("if any over-80 line
-        remains that is neither a history row nor the -a header, stop and report it rather
-        than widening this phase").
+    def test_aligned_view_header_and_rows_match_the_role_derived_width(self, capsys):
+        """The `-a` (`align_vertically`) history table's width is a direct arithmetic
+        function of whichever role vocabulary the certificate draw happens to assign
+        (`witness` at 7 chars vs `reserved, unused` at 16 -- one per lasso column, see
+        `_build_support.aligned_table_width`'s docstring and
+        `semantic/model.py:533-574`). `code/docs/core/CODE_STANDARDS.md`'s 80-column rule
+        is scoped to the **default** view only, so this table carries no codified
+        absolute-column budget; a literal `<= 80` assertion here is therefore
+        unenforceable and was this project's own release-gating flakiness (held the Tests
+        workflow red nondeterministically since 24d967bb, observed as `81 <= 80` and
+        `82 <= 80` failures on different Python versions across different CI runs).
 
-        A distinct residual not claimed fixed here: an example with two or more *equally*
-        `reserved, unused` lassos (e.g. MD_CM_2, covered by
-        `test_aligned_view_stays_within_80_columns` above only for the default view) can
-        still push the `-a` header 1-2 columns past 80, since every reserved lasso still
-        gets its own header cell repeating the same 16-char phrase -- a residual left for
-        the end-to-end width gate to catch and account for, not silently absorbed here."""
+        The enforceable invariant instead: the rendered header length **equals** the
+        width `aligned_table_width` derives from the same roles the draw actually
+        returned (an equality, not a looser bound, so a real printer-geometry regression
+        -- padding, separators, scaffolding -- still fails loudly); the `---+---` rule
+        line immediately below the header is always exactly one column wider than the
+        header (`semantic/model.py:565-566`'s separator formula and the header/row
+        formula at lines 561-564 share `time_width`, `slot_width`, `sum(widths)`, and
+        column count, and differ only by a `+1` constant that falls out of the two
+        formulas algebraically -- not a second magic number); and every data row is no
+        longer than the header (the shared `widths` list is the printer's own invariant
+        here, since `line()` rstrips trailing padding).
+
+        Draw-independence -- not just a pass against whichever role mix happens to come
+        back -- is demonstrated separately by
+        `test_aligned_view_header_matches_the_derived_width_under_a_forced_wider_draw`
+        below, which forces extra `reserved, unused` roles via `force_lasso_roles` and
+        shows the equality still holds at the resulting wider widths.
+
+        The `Histories:` legend line above the table is excluded here on purpose: it is a
+        fixed-length string unrelated to role vocabulary, tracked separately by the
+        end-to-end width gate's class docstring instead of this test."""
         structure = _build(
             ["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2,
         )
@@ -652,7 +671,48 @@ class TestRoleColumnIsBounded:
         body_lines = [
             line for line in out.splitlines() if not line.startswith("Histories:")
         ]
-        assert max(len(line) for line in body_lines) <= 80
+        header, separator, *rows = body_lines
+        roles = structure._lasso_roles(output=sys.stdout)
+        expected_width = aligned_table_width(structure, roles, sys.stdout)
+        assert len(header) == expected_width
+        assert len(separator) == expected_width + 1
+        assert max(len(row) for row in rows) <= expected_width
+
+    def test_aligned_view_header_matches_the_derived_width_under_a_forced_wider_draw(
+        self, capsys, monkeypatch
+    ):
+        """Draw-independence, demonstrated rather than assumed: force the same named case
+        to carry one, then two, extra `reserved, unused` roles in place of `witness`
+        (the live draw's role mix cannot otherwise be steered -- see
+        `force_lasso_roles`'s own docstring) and show the role-derived equality from
+        `test_aligned_view_header_and_rows_match_the_role_derived_width` still holds at
+        the resulting wider widths (measured 81 and 90 columns respectively for this
+        case -- both already past the retired literal 80 bound, which is exactly why that
+        bound was unenforceable)."""
+        for forced_roles in (
+            {0: "main", 1: "reserved, unused", 2: "reserved, unused", 3: "witness"},
+            {0: "main", 1: "reserved, unused", 2: "reserved, unused", 3: "reserved, unused"},
+        ):
+            force_lasso_roles(monkeypatch, forced_roles)
+            structure = _build(
+                ["\\Box (A \\vee B)"], ["\\Box A", "\\Box B"], back=2, mid=1, fwd=2,
+            )
+            structure.settings["align_vertically"] = True
+            structure.print_certificate(output=sys.stdout)
+            out = capsys.readouterr().out
+            body_lines = [
+                line for line in out.splitlines() if not line.startswith("Histories:")
+            ]
+            header, separator, *rows = body_lines
+            roles = structure._lasso_roles(output=sys.stdout)
+            assert roles == forced_roles
+            expected_width = aligned_table_width(structure, roles, sys.stdout)
+            assert len(header) == expected_width
+            assert len(separator) == expected_width + 1
+            assert max(len(row) for row in rows) <= expected_width
+            assert expected_width > 80, (
+                "forced draw should exceed the retired literal 80 bound"
+            )
 
     def test_role_values_are_drawn_from_the_bounded_vocabulary(self):
         structure = self._md_cm_2()

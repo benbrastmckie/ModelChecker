@@ -199,7 +199,32 @@ wording to the measurement rather than to this plan's text.
 
 ---
 
-### Phase 2: Derived Bound in the Unit Test [NOT STARTED]
+### Phase 2: Derived Bound in the Unit Test [COMPLETED]
+
+**Phase Notes**:
+- Confirmed by reading the whole `TestRoleColumnIsBounded` class before editing: exactly one
+  test (the renamed one) carried a literal `-a` width bound; the other four were untouched as
+  planned.
+- Discovered mid-phase (not anticipated by the plan text): the printer's `---+---` rule/separator
+  line is a distinct line type whose own formula (`model.py:565-566`) is always exactly
+  `expected_width + 1` -- an algebraic identity sharing `time_width`/`slot_width`/`sum(widths)`/
+  column count with the header/row formula, not a second magic constant. The retired literal
+  test's `body_lines` (everything except `Histories:`) silently included this separator line,
+  which is why the historical CI failure on this file read `82 <= 80` (separator) rather than
+  `81 <= 80` (header, which is what the sibling end-to-end-gate test checks). Both the rewritten
+  test and its forced-draw sibling now assert `len(separator) == expected_width + 1` explicitly
+  alongside the header equality and the row `<=` bound, so this test's scope is unchanged from
+  before (still covers every printed table line) while being fully role-derived.
+- Draw-independence verified by hand per the Verification criteria: patching the new test's
+  equality/≤ assertions to a literal `<= 80` (scratch, reverted) makes
+  `test_aligned_view_header_matches_the_derived_width_under_a_forced_wider_draw` fail with
+  `assert 81 <= 80` -- confirming the forced-draw test is an actual draw-independence check, not
+  a vacuous pass. File restored and diffed byte-identical to the pre-probe version afterward.
+- No occurrence of a literal `80` remains in any `-a`/aligned-view assertion in this file (grep
+  confirmed); the only `80` occurrences left are the untouched default-view tests and prose
+  references to the retired bound.
+- `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_structure.py -v`
+  is fully green: 84 passed.
 
 **Goal**: Replace `test_structure.py`'s literal `<= 80` aligned-view assertion with the derived
 bound, and add permanent forced-draw coverage proving draw-independence.
