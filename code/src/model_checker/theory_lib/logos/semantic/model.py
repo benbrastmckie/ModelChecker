@@ -259,17 +259,19 @@ class LogosModelStructure(ModelDefaults):
             print("", file=output)
 
     def print_evaluation(self, output=sys.__stdout__):
-        """Print the evaluation world and evaluate all sentence letters at that world."""
+        """Print the evaluation world: a heading plus one indented value line, both
+        colored blue on a color stream -- the same "every line of the block is colored"
+        visual weight bimodal's own multi-line evaluation-point block uses, adapted to
+        logos's single-world data (no lasso chain to name)."""
         BLUE = ""
         RESET = ""
         main_world = self.main_point["world"]
         if use_colors(output):
             BLUE = "\033[34m"
             RESET = "\033[0m"
-        print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N, output)}{RESET}\n",
-            file=output,
-        )
+        substates = bitvec_to_substates(main_world, self.N, output)
+        print(f"\n{BLUE}Evaluation world:{RESET}", file=output)
+        print(f"  {BLUE}{substates}{RESET}\n", file=output)
 
     def print_states(self, output=sys.__stdout__):
         """Print all states in the model with their binary representations and properties."""

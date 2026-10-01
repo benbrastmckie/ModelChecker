@@ -144,3 +144,48 @@ class TestPrintStatesEncoding:
         solved_example.model_structure.print_all(
             GENERAL_SETTINGS, "TRIVIAL", "logos", output=stream
         )
+
+
+class TestEvaluationBlockHasMatchingVisualWeight:
+    """`print_evaluation` gains the same visual weight as bimodal's own multi-line
+    evaluation-point block: a heading plus an indented, fully-colored value line, so the
+    four theories read consistently. (Logos has no lasso chain, so its block is a
+    two-line heading-plus-value form, not bimodal's four-field one -- see the plan's
+    Decision 4.)"""
+
+    def test_block_is_a_heading_plus_one_indented_value_line(self, solved_example):
+        import io
+
+        stream = io.StringIO()
+        solved_example.model_structure.print_evaluation(output=stream)
+        lines = [line for line in stream.getvalue().splitlines() if line.strip()]
+        assert lines[0] == "Evaluation world:"
+        assert lines[1].startswith("  ")
+
+    def test_both_lines_are_blue_on_a_color_stream(self, solved_example, monkeypatch):
+        import io
+
+        monkeypatch.setenv("FORCE_COLOR", "1")
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        stream = io.StringIO()
+        solved_example.model_structure.print_evaluation(output=stream)
+        lines = [line for line in stream.getvalue().splitlines() if line.strip()]
+        assert len(lines) == 2
+        assert all("\033[34m" in line for line in lines)
+        assert all(line.rstrip().endswith("\033[0m") for line in lines)
+
+    def test_block_lines_stay_within_80_columns(self, solved_example):
+        import io
+
+        stream = io.StringIO()
+        solved_example.model_structure.print_evaluation(output=stream)
+        assert max((len(line) for line in stream.getvalue().splitlines()), default=0) <= 80
+
+    def test_plain_rendering_names_the_world_with_no_escapes(self, solved_example):
+        import io
+
+        stream = io.StringIO()
+        solved_example.model_structure.print_evaluation(output=stream)
+        out = stream.getvalue()
+        assert "\033[" not in out
+        assert "Evaluation world:" in out

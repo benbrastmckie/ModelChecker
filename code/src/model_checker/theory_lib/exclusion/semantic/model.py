@@ -540,7 +540,10 @@ class WitnessStructure(ModelDefaults):
                     pass
 
     def print_evaluation(self, output=sys.__stdout__):
-        """Print the evaluation world and all sentence letters that are true/false in that world."""
+        """Print the evaluation world: a heading plus one indented value line, both
+        colored blue on a color stream -- structurally identical to logos's own
+        `print_evaluation` (the plan's Decision 4), matching bimodal's own multi-line
+        evaluation-point block's "every line of the block is colored" visual weight."""
 
         BLUE = ""
         RESET = ""
@@ -548,10 +551,9 @@ class WitnessStructure(ModelDefaults):
         if use_colors(output):
             BLUE = "\033[34m"
             RESET = "\033[0m"
-        print(
-            f"\nThe evaluation world is: {BLUE}{bitvec_to_substates(main_world, self.N, output)}{RESET}\n",
-            file=output,
-        )
+        substates = bitvec_to_substates(main_world, self.N, output)
+        print(f"\n{BLUE}Evaluation world:{RESET}", file=output)
+        print(f"  {BLUE}{substates}{RESET}\n", file=output)
 
     # Additional methods would be added here for full compatibility
     # For now, this subset covers the essential functionality

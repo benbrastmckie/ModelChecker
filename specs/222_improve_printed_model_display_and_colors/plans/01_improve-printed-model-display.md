@@ -377,7 +377,7 @@ arrow chain, the position, and the label at that position — all data already o
 
 ---
 
-### Phase 6: Cross-theory evaluation block (logos, exclusion) [NOT STARTED]
+### Phase 6: Cross-theory evaluation block (logos, exclusion) [COMPLETED]
 
 **Goal**: Logos and exclusion's single-line `The evaluation world is: {world}` gains the same
 visual weight as bimodal's new block — a heading plus an indented, fully colored value line —

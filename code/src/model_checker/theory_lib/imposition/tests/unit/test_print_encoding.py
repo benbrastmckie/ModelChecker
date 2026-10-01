@@ -114,3 +114,20 @@ class TestPrintImpositionEncoding:
         solved_example.model_structure.print_all(
             GENERAL_SETTINGS, "IM_TR_0", "imposition", output=stream
         )
+
+
+class TestInheritsLogosEvaluationBlock:
+    """`ImpositionModelStructure` has no `print_evaluation` override (confirmed by
+    `grep -rn "def print_evaluation" theory_lib/`, three hits: logos, exclusion, bimodal) --
+    it inherits logos's two-line heading-plus-value block for free. This pins the
+    inheritance relationship rather than assuming it."""
+
+    def test_inherited_block_appears_in_output(self, solved_example):
+        import io
+
+        stream = io.StringIO()
+        solved_example.model_structure.print_evaluation(output=stream)
+        lines = [line for line in stream.getvalue().splitlines() if line.strip()]
+        assert lines[0] == "Evaluation world:"
+        assert lines[1].startswith("  ")
+        assert "\033[" not in stream.getvalue()
