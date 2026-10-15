@@ -1,6 +1,64 @@
 {
-  "next_project_number": 224,
+  "next_project_number": 227,
   "active_projects": [
+    {
+      "project_number": 226,
+      "project_name": "surface_lean_certificate_verdict_in_oracle_results",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "semantics",
+      "description": "Attach the Lean-side re-verification verdict to every countermodel the oracle reports, so that a consuming pipeline can record a refutation as Lean-backed without re-running check_certificate itself. The production resolver already exists (semantic/checker.py: BIMODAL_CHECKER_BIN, then ~/.cache/model_checker/bimodal/check_certificate, then $BIMODAL_LOGIC_PATH/.lake/build/bin/check_certificate, with the capability handshake, optional SHA-256 pinning and the byte-for-byte echo comparison) and is wired into BimodalStructure.__init__ under the verify setting (off / auto / required), but the oracle's serialized countermodel does not say whether the Lean check ran or what it returned. Deliverables: (1) a lean_check field on the countermodel dict and on OracleSearchResult: {\"status\": \"entailment\" | \"decided\" | \"rejected\" | \"not_run\", \"echo_matched\": bool | null, \"binary_sha256\": str | null, \"binary_source\": str | null}, populated from the structure's checker result when verify ran and set to not_run with a reason otherwise; (2) a verify keyword on search / find_countermodel forwarding to the setting, defaulting to the theory's auto; (3) a required mode that turns a missing or rejecting checker into status inconclusive with a message rather than a certificate, for pipelines that only accept Lean-backed refutations; (4) README documentation of the field and of the rule that an absent lean_check must be read as not_run; (5) tests with the checker absent (not_run), with a fake checker binary on BIMODAL_CHECKER_BIN returning each verdict shape, and with required mode. Keep the certificate wire object itself untouched; the field is output-side and additive, like gates and echo in BimodalLogic's own protocol.",
+      "dependencies": [
+        224
+      ],
+      "created": "2026-10-15T06:24:02Z",
+      "last_updated": "2026-10-15T06:24:02Z",
+      "file_scope": [
+        "oracle/bimodal_logic/provider.py",
+        "oracle/bimodal_logic/serialization.py",
+        "oracle/bimodal_logic/README.md",
+        "oracle/bimodal_logic/tests/"
+      ]
+    },
+    {
+      "project_number": 225,
+      "project_name": "oracle_packaging_entry_point_and_harness_consumption_parity",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "packaging",
+      "description": "Make oracle/bimodal_logic consumable by BimodalHarness as an installed provider rather than a PYTHONPATH convention, and close the small contract mismatches that currently force an adapter on the harness side. Findings to resolve: (1) oracle/bimodal_logic/README.md states that code/pyproject.toml registers a bimodal_harness.oracle_providers entry point z3_base = bimodal_logic.provider:Z3OracleProvider; it does not (only the model-checker console script is there), and the name z3_base collides with the harness's own in-tree provider entry point of the same name. Decide between a minimal oracle/bimodal_logic/pyproject.toml (package name bimodal-logic, console script bimodal-logic, entry point modelchecker_ztime) and a documented PYTHONPATH-only status, and make the README say what is true. (2) Atoms in trueAtoms / falseAtoms are emitted as {\"name\": ...}; the harness's SimpleCountermodel compatibility layer reads {\"base\": ...}. Emit both keys on every atom (serialization.py extract_true_false_atoms). (3) semantics_version is \"bimodal-logic-certificate-v0.1.0\", which is not the semver string the harness protocol documents; carry the semver part in semantics_version and the full label in capabilities. (4) supported_frame_classes is {\"ZTime\"} while the harness historically routes the same class as \"Discrete\" and BimodalLogic's tableau bridge accepts both; accept \"Discrete\" as an alias and forward it as ZTime, stamping the requested spelling on the result. (5) oracle/bimodal_logic/tests/_bimodal_harness.py imports the harness from a hardcoded /home/benjamin/Projects/BimodalHarness/src; read the path from an environment variable with that value as the fallback. (6) KNOWN_EXTERNAL_DEFECTS.md records the harness's Until guard off-by-one; add the stronger measured fact that the harness's in-tree Z3 oracle returns countermodels for the TM axioms □p→p, □p→□□p and ⊤→F⊤ (K-box over a free accessibility relation on a bounded, non-serial timeline), so that the differential suite's reference oracle is understood as a prefilter, not ground truth. Acceptance: pip install -e oracle (or the documented alternative) followed by importlib.metadata.entry_points(group='bimodal_harness.oracle_providers') lists the provider; the oracle test suite passes under run-oracle-suite.sh; the harness-comparison tests still skip cleanly when the harness is absent.",
+      "dependencies": [],
+      "created": "2026-10-15T06:24:02Z",
+      "last_updated": "2026-10-15T06:24:02Z",
+      "file_scope": [
+        "oracle/bimodal_logic/README.md",
+        "oracle/bimodal_logic/pyproject.toml",
+        "oracle/bimodal_logic/provider.py",
+        "oracle/bimodal_logic/serialization.py",
+        "oracle/bimodal_logic/tests/_bimodal_harness.py",
+        "code/pyproject.toml"
+      ]
+    },
+    {
+      "project_number": 224,
+      "project_name": "three_valued_oracle_search_with_period_cover_sweep",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "semantics",
+      "description": "Give Z3OracleProvider (oracle/bimodal_logic/provider.py) a three-valued, bound-carrying search and the opt-in period sweep that docs/SEARCH_COVERAGE.md route (b) recommends but leaves unbuilt, so that a negative answer from this oracle states its own coverage and is never confused with an undecided solve. Today find_countermodel runs exactly one (back, mid, fwd) triple with back = fwd = min(max(depth+2, 2), 6), returns None for both 'UNSAT at that triple' and 'unsupported frame class', raises OracleTimeoutError on an undecided solve, and the CLI prints {\"result\": \"valid\"} for the None case, contradicting the provider's own never-claims-validity discipline. Because WitnessRegistry.wrap folds positions by exact modulus, a label family of period p is representable at length n exactly when p divides n (pinned by theory_lib/bimodal/tests/integration/test_search_period_coverage.py), so a single triple is not evidence about periods that do not divide it.\n\nDeliverables: (1) OracleSearchResult (new result.py): status in {certificate, no_certificate, inconclusive, unsupported}, countermodel (the same dict find_countermodel returns, including the certificate wire object check_certificate accepts), bounds_tried (every triple searched with outcome sat/unsat/timeout and wall-clock), sweep flag, and a max_period_covered property (largest p such that every period up to p divides some decided length on both sides). (2) Z3OracleProvider.search(formula_json, frame_class='ZTime', timeout_ms, max_rlimit=None, *, sweep=False, back=None, fwd=None, max_back=None, max_fwd=None): single triple by default, period sweep with sweep=True, never raising on an undecided solve; find_countermodel becomes a thin wrapper keeping its dict | None plus OracleTimeoutError contract byte-for-byte. (3) The sweep searches the period cover {n in [1, max] : 2n > max} of each side rather than all of [1, max]: since representability is exactly divisibility, every period up to max divides some member of that set, so the coverage claim is identical and the cost is 3 x 3 = 9 solves at the default maximum of 6 instead of 36; largest lengths first, early exit on the first certificate; each triple constructs its own WitnessRegistry (the two-phase emission idempotency guard in semantic/core.py). (4) CLI: --sweep, {\"result\": \"no_certificate\" | \"invalid\" | \"inconclusive\", \"countermodel\": ..., \"search\": {bounds_tried, max_period_covered, ...}}, exit codes unchanged (0 decided, 1 input error, 2 inconclusive). (5) Tests: period_cover is exactly the non-proper-divisors descending and covers every period up to n for n in 1..24; the period-2 past chain folded into one formula (neg of the conjunction of prev^i applied to the alternating pattern) is a genuine no_certificate at the single triple (3,1,3) and a certificate under the sweep over [1,3] x [1,3]; a tautology under the full sweep is no_certificate with every triple unsat and max_period_covered = 6; max_rlimit=1 is inconclusive, never no_certificate, and the wrapper raises on it; the CLI tests updated for the new wording and the search key. (6) Update oracle/bimodal_logic/README.md and strike the 'sweep driver' and 'opt-in setting' rows of SEARCH_COVERAGE.md's open obligations as built at the oracle layer (the in-package search_mode setting stays unbuilt). Also fix the stale example-count pin in tests/test_oracle_provider.py (53 -> 55 after task 219's two THEORY-LIMITS countermodels). The sweep must stay opt-in: a theorem-style negative verdict pays every solve in the cover (SEARCH_COVERAGE.md section 4).",
+      "dependencies": [],
+      "created": "2026-10-15T06:24:02Z",
+      "last_updated": "2026-10-15T06:24:02Z",
+      "file_scope": [
+        "oracle/bimodal_logic/provider.py",
+        "oracle/bimodal_logic/result.py",
+        "oracle/bimodal_logic/cli.py",
+        "oracle/bimodal_logic/__init__.py",
+        "oracle/bimodal_logic/README.md",
+        "oracle/bimodal_logic/tests/",
+        "code/src/model_checker/theory_lib/bimodal/docs/SEARCH_COVERAGE.md"
+      ]
+    },
     {
       "project_number": 223,
       "project_name": "fix_flaky_aligned_view_width_assertions",
